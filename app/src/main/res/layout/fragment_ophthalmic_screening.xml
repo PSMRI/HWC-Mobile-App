@@ -290,6 +290,352 @@
 
             </LinearLayout>
 
+            <!-- Condition sub-fields — shown/hidden by Fragment observers -->
+            <LinearLayout
+                android:id="@+id/ll_condition_subfields"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="@{viewModel.showCaseIdSection ? View.VISIBLE : View.GONE}">
+
+                <!-- Cataract -->
+                <LinearLayout
+                    android:id="@+id/ll_cataract_subfield"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_cataract_symptoms"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_cataract_symptoms"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <RadioButton
+                            android:id="@+id/rb_cataract_yes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/yes"
+                            android:layout_marginEnd="16dp" />
+
+                        <RadioButton
+                            android:id="@+id/rb_cataract_no"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:id="@+id/tv_cataract_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_alert_ophthalmologist_referral"
+                        android:textColor="@color/color_error_text"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@color/color_error_bg"
+                        android:visibility="gone"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
+                <!-- Glaucoma -->
+                <LinearLayout
+                    android:id="@+id/ll_glaucoma_subfield"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_glaucoma_symptoms"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_glaucoma_symptoms"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <RadioButton
+                            android:id="@+id/rb_glaucoma_yes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/yes"
+                            android:layout_marginEnd="16dp" />
+
+                        <RadioButton
+                            android:id="@+id/rb_glaucoma_no"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:id="@+id/tv_glaucoma_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_alert_ophthalmologist_referral"
+                        android:textColor="@color/color_error_text"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@color/color_error_bg"
+                        android:visibility="gone"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
+                <!-- Diabetic retinopathy -->
+                <LinearLayout
+                    android:id="@+id/ll_dr_subfield"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_dr_symptoms"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_dr_symptoms"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <RadioButton
+                            android:id="@+id/rb_dr_yes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/yes"
+                            android:layout_marginEnd="16dp" />
+
+                        <RadioButton
+                            android:id="@+id/rb_dr_no"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:id="@+id/tv_dr_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_alert_ophthalmologist_referral"
+                        android:textColor="@color/color_error_text"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@color/color_error_bg"
+                        android:visibility="gone"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
+                <!-- Presbyopia -->
+                <LinearLayout
+                    android:id="@+id/ll_presbyopia_subfield"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_presbyopia_symptoms"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_presbyopia_symptoms"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <RadioButton
+                            android:id="@+id/rb_presbyopia_yes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/yes"
+                            android:layout_marginEnd="16dp" />
+
+                        <RadioButton
+                            android:id="@+id/rb_presbyopia_no"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:id="@+id/tv_presbyopia_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_alert_presbyopia_management"
+                        android:textColor="@color/color_info_text"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@color/color_info_bg"
+                        android:visibility="gone"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
+                <!-- Trachoma -->
+                <LinearLayout
+                    android:id="@+id/ll_trachoma_subfield"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_trachoma_status"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actv_trachoma_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/ophthalmic_select_trachoma_status"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/tv_trachoma_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_alert_ophthalmologist_referral"
+                        android:textColor="@color/color_error_text"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@color/color_error_bg"
+                        android:visibility="gone"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
+                <!-- Corneal disease -->
+                <LinearLayout
+                    android:id="@+id/ll_corneal_subfield"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_corneal_disease_type"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actv_corneal_disease_type"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/ophthalmic_select_corneal_disease_type"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/tv_corneal_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_alert_ophthalmologist_referral"
+                        android:textColor="@color/color_error_text"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@color/color_error_bg"
+                        android:visibility="gone"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
+                <!-- Dry eye / Vitamin A -->
+                <LinearLayout
+                    android:id="@+id/ll_vitamin_a_subfield"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_vitamin_a_deficiency_label"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_vitamin_a_deficiency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <RadioButton
+                            android:id="@+id/rb_vitamin_a_yes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/yes"
+                            android:layout_marginEnd="16dp" />
+
+                        <RadioButton
+                            android:id="@+id/rb_vitamin_a_no"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:id="@+id/tv_vitamin_a_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_alert_vitamin_a"
+                        android:textColor="@color/color_error_text"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@color/color_error_bg"
+                        android:visibility="gone"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
 
             <Button
                 android:id="@+id/btn_next"
@@ -298,6 +644,7 @@
                 android:text="@string/next"
                 android:enabled="@{viewModel.canProceed}"
                 android:layout_marginTop="24dp"/>
+
 
         </LinearLayout>
     </ScrollView>

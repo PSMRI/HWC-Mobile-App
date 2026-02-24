@@ -135,5 +135,8 @@
     <!-- Error state: used for visual impairment alert and Case ID alert in ophthalmic screening -->
     <color name="color_error_text">#D32F2F</color>
     <color name="color_error_bg">#FFEBEE</color>
+    <!-- Info state: used for presbyopia management alert in ophthalmic screening -->
+    <color name="color_info_text">#01579B</color>
+    <color name="color_info_bg">#E1F5FE</color>
 
 </resources>
