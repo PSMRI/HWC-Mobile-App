@@ -64,9 +64,71 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private val _caseIdConditions = MutableLiveData<List<String>>(emptyList())
     val caseIdConditions: LiveData<List<String>> = _caseIdConditions
 
+    private val _cataractSymptoms = MutableLiveData<Boolean?>()
+    val cataractSymptoms: LiveData<Boolean?> = _cataractSymptoms
+
+    private val _glaucomaSymptoms = MutableLiveData<Boolean?>()
+    val glaucomaSymptoms: LiveData<Boolean?> = _glaucomaSymptoms
+
+    private val _drSymptoms = MutableLiveData<Boolean?>()
+    val drSymptoms: LiveData<Boolean?> = _drSymptoms
+
+    private val _presbyopiaSymptoms = MutableLiveData<Boolean?>()
+    val presbyopiaSymptoms: LiveData<Boolean?> = _presbyopiaSymptoms
+
+    private val _trachomaStatus = MutableLiveData<String?>()
+    val trachomaStatus: LiveData<String?> = _trachomaStatus
+
+    private val _cornealDiseaseType = MutableLiveData<String?>()
+    val cornealDiseaseType: LiveData<String?> = _cornealDiseaseType
+
+    private val _vitaminADeficiency = MutableLiveData<Boolean?>()
+    val vitaminADeficiency: LiveData<Boolean?> = _vitaminADeficiency
+
+    private val _showCataractSubField = MutableLiveData<Boolean>(false)
+    val showCataractSubField: LiveData<Boolean> = _showCataractSubField
+
+    private val _showGlaucomaSubField = MutableLiveData<Boolean>(false)
+    val showGlaucomaSubField: LiveData<Boolean> = _showGlaucomaSubField
+
+    private val _showDrSubField = MutableLiveData<Boolean>(false)
+    val showDrSubField: LiveData<Boolean> = _showDrSubField
+
+    private val _showPresbyopiaSubField = MutableLiveData<Boolean>(false)
+    val showPresbyopiaSubField: LiveData<Boolean> = _showPresbyopiaSubField
+
+    private val _showTrachomaSubField = MutableLiveData<Boolean>(false)
+    val showTrachomaSubField: LiveData<Boolean> = _showTrachomaSubField
+
+    private val _showCornealSubField = MutableLiveData<Boolean>(false)
+    val showCornealSubField: LiveData<Boolean> = _showCornealSubField
+
+    private val _showVitaminASubField = MutableLiveData<Boolean>(false)
+    val showVitaminASubField: LiveData<Boolean> = _showVitaminASubField
+
+    private val _showCataractAlert = MutableLiveData<Boolean>(false)
+    val showCataractAlert: LiveData<Boolean> = _showCataractAlert
+
+    private val _showGlaucomaAlert = MutableLiveData<Boolean>(false)
+    val showGlaucomaAlert: LiveData<Boolean> = _showGlaucomaAlert
+
+    private val _showDrAlert = MutableLiveData<Boolean>(false)
+    val showDrAlert: LiveData<Boolean> = _showDrAlert
+
+    private val _showPresbyopiaAlert = MutableLiveData<Boolean>(false)
+    val showPresbyopiaAlert: LiveData<Boolean> = _showPresbyopiaAlert
+
+    private val _showTrachomaAlert = MutableLiveData<Boolean>(false)
+    val showTrachomaAlert: LiveData<Boolean> = _showTrachomaAlert
+
+    private val _showCornealAlert = MutableLiveData<Boolean>(false)
+    val showCornealAlert: LiveData<Boolean> = _showCornealAlert
+
+    private val _showVitaminAAlert = MutableLiveData<Boolean>(false)
+    val showVitaminAAlert: LiveData<Boolean> = _showVitaminAAlert
+
     private val _showScreeningModule = MutableLiveData<Boolean>(false)
     val showScreeningModule: LiveData<Boolean> = _showScreeningModule
-
 
     private val _showCaseIdSection = MutableLiveData<Boolean>(false)
     val showCaseIdSection: LiveData<Boolean> = _showCaseIdSection
@@ -132,8 +194,19 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _nearVA.value = null
         _caseIdConditions.value = emptyList()
         _ophthalmicVisit.value = null
+        resetConditionSubFields()
         updateSectionVisibility()
         validate()
+    }
+
+    private fun resetConditionSubFields() {
+        _cataractSymptoms.value = null
+        _glaucomaSymptoms.value = null
+        _drSymptoms.value = null
+        _presbyopiaSymptoms.value = null
+        _trachomaStatus.value = null
+        _cornealDiseaseType.value = null
+        _vitaminADeficiency.value = null
     }
 
     private fun updateStateFromVisit(visit: OphthalmicVisit) {
@@ -143,7 +216,6 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _distVARight.value = visit.distVARight
         _distVALeft.value = visit.distVALeft
         _nearVA.value = visit.nearVA
-        
 
         visit.caseIdConditions?.let { json ->
             try {
@@ -156,9 +228,20 @@ class OphthalmicScreeningViewModel @Inject constructor(
             _caseIdConditions.value = emptyList()
         }
 
+        _cataractSymptoms.value = visit.cataractSymptoms
+        _glaucomaSymptoms.value = visit.glaucomaSymptoms
+        _drSymptoms.value = visit.diabeticRetinopathySymptoms
+        _presbyopiaSymptoms.value = visit.presbyopiaSymptoms
+        _trachomaStatus.value = visit.trachomaStatus
+        _cornealDiseaseType.value = visit.cornealDiseaseType
+        _vitaminADeficiency.value = visit.vitaminADeficiency
+
         updateSectionVisibility()
+        deriveAlerts()
         validate()
     }
+
+    // ─── Public setters ─────────────────────────────────────────────────────
 
     fun setDiabeticStatus(isDiabetic: Boolean) {
         _isDiabetic.value = isDiabetic
@@ -208,12 +291,110 @@ class OphthalmicScreeningViewModel @Inject constructor(
         validate()
     }
 
-
     fun setCaseIdConditions(conditions: List<String>) {
         _caseIdConditions.value = conditions
-
-        updateSectionVisibility()
+        clearRemovedConditionSubFields(conditions)
+        updateConditionSubFieldVisibility(conditions)
+        deriveAlerts()
         validate()
+    }
+
+    fun setCataractSymptoms(hasSymptoms: Boolean) {
+        _cataractSymptoms.value = hasSymptoms
+        deriveAlerts()
+    }
+
+    fun setGlaucomaSymptoms(hasSymptoms: Boolean) {
+        _glaucomaSymptoms.value = hasSymptoms
+        deriveAlerts()
+    }
+
+    fun setDrSymptoms(hasSymptoms: Boolean) {
+        _drSymptoms.value = hasSymptoms
+        deriveAlerts()
+    }
+
+    fun setPresbyopiaSymptoms(hasSymptoms: Boolean) {
+        _presbyopiaSymptoms.value = hasSymptoms
+        deriveAlerts()
+    }
+
+    fun setTrachomaStatus(status: String) {
+        _trachomaStatus.value = status
+        deriveAlerts()
+    }
+
+    fun setCornealDiseaseType(type: String) {
+        _cornealDiseaseType.value = type
+        deriveAlerts()
+    }
+
+    fun setVitaminADeficiency(hasDeficiency: Boolean) {
+        _vitaminADeficiency.value = hasDeficiency
+        deriveAlerts()
+    }
+
+    // ─── Private helpers ────────────────────────────────────────────────────
+
+    private fun clearRemovedConditionSubFields(currentConditions: List<String>) {
+        if (!currentConditions.contains(DropdownConst.CONDITION_CATARACT)) {
+            _cataractSymptoms.value = null
+            _showCataractAlert.value = false
+        }
+        if (!currentConditions.contains(DropdownConst.CONDITION_GLAUCOMA)) {
+            _glaucomaSymptoms.value = null
+            _showGlaucomaAlert.value = false
+        }
+        if (!currentConditions.contains(DropdownConst.CONDITION_DIABETIC_RETINOPATHY)) {
+            _drSymptoms.value = null
+            _showDrAlert.value = false
+        }
+        if (!currentConditions.contains(DropdownConst.CONDITION_PRESBYOPIA)) {
+            _presbyopiaSymptoms.value = null
+            _showPresbyopiaAlert.value = false
+        }
+        if (!currentConditions.contains(DropdownConst.CONDITION_TRACHOMA)) {
+            _trachomaStatus.value = null
+            _showTrachomaAlert.value = false
+        }
+        if (!currentConditions.contains(DropdownConst.CONDITION_CORNEAL_DISEASE)) {
+            _cornealDiseaseType.value = null
+            _showCornealAlert.value = false
+        }
+        if (!currentConditions.contains(DropdownConst.CONDITION_DRY_EYE)) {
+            _vitaminADeficiency.value = null
+            _showVitaminAAlert.value = false
+        }
+    }
+
+    private fun updateConditionSubFieldVisibility(conditions: List<String>) {
+        _showCataractSubField.value = conditions.contains(DropdownConst.CONDITION_CATARACT)
+        _showGlaucomaSubField.value = conditions.contains(DropdownConst.CONDITION_GLAUCOMA)
+        _showDrSubField.value = conditions.contains(DropdownConst.CONDITION_DIABETIC_RETINOPATHY)
+        _showPresbyopiaSubField.value = conditions.contains(DropdownConst.CONDITION_PRESBYOPIA)
+        _showTrachomaSubField.value = conditions.contains(DropdownConst.CONDITION_TRACHOMA)
+        _showCornealSubField.value = conditions.contains(DropdownConst.CONDITION_CORNEAL_DISEASE)
+        _showVitaminASubField.value = conditions.contains(DropdownConst.CONDITION_DRY_EYE)
+    }
+
+    private fun deriveAlerts() {
+        val conditions = _caseIdConditions.value ?: emptyList()
+        _showCataractAlert.value = conditions.contains(DropdownConst.CONDITION_CATARACT) &&
+                _cataractSymptoms.value == true
+        _showGlaucomaAlert.value = conditions.contains(DropdownConst.CONDITION_GLAUCOMA) &&
+                _glaucomaSymptoms.value == true
+        _showDrAlert.value = conditions.contains(DropdownConst.CONDITION_DIABETIC_RETINOPATHY) &&
+                _drSymptoms.value == true
+        _showPresbyopiaAlert.value = conditions.contains(DropdownConst.CONDITION_PRESBYOPIA) &&
+                _presbyopiaSymptoms.value == true
+        val trachoma = _trachomaStatus.value
+        _showTrachomaAlert.value = conditions.contains(DropdownConst.CONDITION_TRACHOMA) &&
+                (trachoma == DropdownConst.TRACHOMA_SUSPECTED_ACTIVE ||
+                        trachoma == DropdownConst.TRACHOMA_SUSPECTED_TT)
+        _showCornealAlert.value = conditions.contains(DropdownConst.CONDITION_CORNEAL_DISEASE) &&
+                !_cornealDiseaseType.value.isNullOrEmpty()
+        _showVitaminAAlert.value = conditions.contains(DropdownConst.CONDITION_DRY_EYE) &&
+                _vitaminADeficiency.value == true
     }
 
     private fun updateSectionVisibility() {
@@ -230,6 +411,9 @@ class OphthalmicScreeningViewModel @Inject constructor(
         }
 
         _showNearVASection.value = (diabetic == false && chart == DropdownConst.CHART_NEAR_VISION)
+
+        val conditions = _caseIdConditions.value ?: emptyList()
+        updateConditionSubFieldVisibility(conditions)
     }
 
     private data class ValidationResult(
@@ -267,7 +451,6 @@ class OphthalmicScreeningViewModel @Inject constructor(
         }
 
         _showVisualImpairmentAlert.value = result.alert
-        // If screening triggers caseIdByVA flag but reason is not symptomatic, it shouldn't ideally block progress if this isn't handled correctly, keeping existing behavior.
         _canProceed.value = result.fieldsValid && !result.caseIdByVA
     }
 
@@ -337,7 +520,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
                     updatedDate = Date().time,
                     syncState = 0
                 )
-                
+
                 var conditionsJson: String? = null
                 val conditions = _caseIdConditions.value
                 if (conditions?.isNotEmpty() == true) {
@@ -356,6 +539,13 @@ class OphthalmicScreeningViewModel @Inject constructor(
                     distVALeft = _distVALeft.value
                     nearVA = _nearVA.value
                     caseIdConditions = conditionsJson
+                    cataractSymptoms = _cataractSymptoms.value
+                    glaucomaSymptoms = _glaucomaSymptoms.value
+                    diabeticRetinopathySymptoms = _drSymptoms.value
+                    presbyopiaSymptoms = _presbyopiaSymptoms.value
+                    trachomaStatus = _trachomaStatus.value
+                    cornealDiseaseType = _cornealDiseaseType.value
+                    vitaminADeficiency = _vitaminADeficiency.value
                     updatedBy = user?.userName ?: "Unknown"
                     updatedDate = Date().time
                     syncState = 0
