@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
@@ -65,23 +63,42 @@ class RMNCHAFragment : Fragment() {
                 try {
                     // Check if this module has sub-modules
                     val moduleType = navDirections.arguments.getString(
-                        org.piramalswasthya.cho.configuration.RMNCHAIconDataset.MODULE_TYPE_KEY
+                        RMNCHAIconDataset.MODULE_TYPE_KEY
                     )
 
-                    if (moduleType != null) {
-                        // Navigate to SubModuleActivity for modules with sub-cards
-                        val intent = org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity.getIntent(
-                            requireContext(),
-                            moduleType
-                        )
-                        startActivity(intent)
-                    } else {
-                        // Other modules - list view coming soon
-                        Toast.makeText(
-                            requireContext(),
-                            "List view coming soon",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    // Check for direct fragment navigation
+                    val showECTracking = navDirections.arguments.getBoolean(
+                        RMNCHAIconDataset.SHOW_EC_TRACKING_KEY, false
+                    )
+                    val showAdolescentList = navDirections.arguments.getBoolean(
+                        RMNCHAIconDataset.SHOW_ADOLESCENT_LIST_KEY, false
+                    )
+
+                    when {
+                        moduleType != null -> {
+                            // Navigate to SubModuleActivity for modules with sub-cards
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity.getIntent(
+                                requireContext(),
+                                moduleType
+                            )
+                            startActivity(intent)
+                        }
+                        showECTracking -> {
+                            // Navigate directly to EC Tracking
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity.getDirectFragmentIntent(
+                                requireContext(),
+                                RMNCHAIconDataset.SHOW_EC_TRACKING_KEY
+                            )
+                            startActivity(intent)
+                        }
+                        showAdolescentList -> {
+                            // Navigate directly to Adolescent List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity.getDirectFragmentIntent(
+                                requireContext(),
+                                RMNCHAIconDataset.SHOW_ADOLESCENT_LIST_KEY
+                            )
+                            startActivity(intent)
+                        }
                     }
                     Timber.d("RMNCHA+ icon clicked: ${navDirections.actionId}")
                 } catch (e: Exception) {

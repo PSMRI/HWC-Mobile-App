@@ -23,13 +23,8 @@ class RMNCHAIconDataset @Inject constructor() {
         const val SHOW_INFANT_LIST_KEY = "show_infant_list"
         const val SHOW_CHILD_LIST_KEY = "show_child_list"
         const val SHOW_ADOLESCENT_LIST_KEY = "show_adolescent_list"
-        const val SHOW_CHILDREN_UNDER_FIVE_LIST_KEY = "show_children_under_five_list"
         const val MODULE_MATERNAL_HEALTH = "maternal_health"
-        const val MODULE_CHILD_CARE = "child_care"
-        const val MODULE_ELIGIBLE_COUPLE = "eligible_couple"
         private const val ACTION_SUBMODULE = 1001 // Custom action ID for sub-modules
-        private const val ACTION_SHOW_LIST = 1002 // Custom action ID for showing lists
-        private const val ACTION_EC_REGISTRATION = 1003 // Action for EC registration list
         private const val ACTION_EC_TRACKING = 1004 // Action for EC tracking list
         private const val ACTION_PWR = 1005 // Action for Pregnant Women Registration list
         private const val ACTION_ANC_VISITS = 1006 // Action for ANC Visits list
@@ -40,7 +35,6 @@ class RMNCHAIconDataset @Inject constructor() {
         private const val ACTION_INFANT_LIST = 1013 // Action for Infant List
         private const val ACTION_CHILD_LIST = 1014 // Action for Child List
         private const val ACTION_ADOLESCENT_LIST = 1015 // Action for Adolescent List
-        private const val ACTION_CHILDREN_UNDER_FIVE_LIST = 1016 // Action for Children under 5 Years list
     }
 
     // NavDirections for sub-module navigation
@@ -133,14 +127,6 @@ class RMNCHAIconDataset @Inject constructor() {
         }
     }
 
-    // NavDirections for showing Children under 5 Years List
-    private val showChildrenUnderFiveListAction = object : NavDirections {
-        override val actionId: Int = ACTION_CHILDREN_UNDER_FIVE_LIST
-        override val arguments = Bundle().apply {
-            putBoolean(SHOW_CHILDREN_UNDER_FIVE_LIST_KEY, true)
-        }
-    }
-
     private val placeholderNavAction = object : NavDirections {
         override val actionId: Int = 0
         override val arguments = Bundle()
@@ -150,9 +136,9 @@ class RMNCHAIconDataset @Inject constructor() {
         return listOf(
             Icon(
                 R.drawable.ic__eligible_couple,
-                resources.getString(R.string.eligible_couple_list),
+                resources.getString(R.string.eligible_couple_tracking),
                 null,
-                createNavAction(MODULE_ELIGIBLE_COUPLE)
+                showECTrackingAction
             ),
             Icon(
                 R.drawable.ic__maternal_health,
@@ -161,10 +147,10 @@ class RMNCHAIconDataset @Inject constructor() {
                 createNavAction(MODULE_MATERNAL_HEALTH)
             ),
             Icon(
-                R.drawable.ic__child_care,
-                resources.getString(R.string.child_care),
+                R.drawable.ic__adolescent,
+                resources.getString(R.string.adolescent_list),
                 null,
-                createNavAction(MODULE_CHILD_CARE)
+                showAdolescentListAction
             )
         ).mapIndexed { index, icon ->
             icon.copy(colorPrimary = index % 2 == 0)
@@ -223,53 +209,5 @@ class RMNCHAIconDataset @Inject constructor() {
         }
     }
 
-    /**
-     * Child Care sub-modules dataset
-     */
-    fun getChildCareDataset(resources: Resources): List<Icon> {
-        return listOf(
-            Icon(
-                R.drawable.ic__infant,
-                resources.getString(R.string.infant_list),
-                null,
-                showInfantListAction
-            ),
-            Icon(
-                R.drawable.ic__child,
-                resources.getString(R.string.child_list),
-                null,
-                showChildListAction
-            ),
-            Icon(
-                R.drawable.ic__adolescent,
-                resources.getString(R.string.adolescent_list),
-                null,
-                showAdolescentListAction
-            ),
-            Icon(
-                R.drawable.ic__adolescent,
-                resources.getString(R.string.children_under_5_years),
-                null,
-                showChildrenUnderFiveListAction
-            )
-        ).mapIndexed { index, icon ->
-            icon.copy(colorPrimary = index % 2 == 0)
-        }
-    }
 
-    /**
-     * Eligible Couple sub-modules dataset
-     */
-    fun getEligibleCoupleDataset(resources: Resources): List<Icon> {
-        return listOf(
-            Icon(
-                R.drawable.ic__eligible_couple,
-                resources.getString(R.string.eligible_couple_tracking),
-                null,
-                showECTrackingAction
-            )
-        ).mapIndexed { index, icon ->
-            icon.copy(colorPrimary = index % 2 == 0)
-        }
-    }
 }
