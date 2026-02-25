@@ -41,7 +41,10 @@
 
         <TextView
             android:id="@+id/tv_nav_id"
-            android:visibility="gone"
+            style="@style/nav_header_item_tv" />
+
+        <TextView
+            android:id="@+id/tv_nav_contact_no"
             style="@style/nav_header_item_tv" />
 
     </LinearLayout>

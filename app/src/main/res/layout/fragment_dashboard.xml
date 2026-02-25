@@ -162,6 +162,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="@android:color/holo_orange_light"
                     android:elevation="@dimen/padding_normal"
+                    android:visibility="gone"
                     app:cardCornerRadius="@dimen/padding_normal"
                     app:cardElevation="@dimen/padding_normal">
 
@@ -245,6 +246,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:visibility="gone"
                 tools:background="@color/white"
                 android:orientation="horizontal">
 
@@ -331,7 +333,8 @@
                     android:backgroundTint="@android:color/holo_orange_light"
                     android:elevation="@dimen/padding_normal"
                     app:cardCornerRadius="@dimen/padding_normal"
-                    app:cardElevation="@dimen/padding_normal">
+                    app:cardElevation="@dimen/padding_normal"
+                    android:visibility="gone">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -367,6 +370,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 tools:background="@color/white"
+                android:visibility="gone"
                 android:orientation="horizontal">
 
                 <androidx.cardview.widget.CardView

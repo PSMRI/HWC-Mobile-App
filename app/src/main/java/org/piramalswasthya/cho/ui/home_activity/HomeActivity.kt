@@ -16,6 +16,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -664,7 +665,10 @@ class HomeActivity : AppCompatActivity() {
             val headerView = binding.navView.getHeaderView(0)
             headerView.findViewById<TextView>(R.id.tv_nav_name).text = getString(R.string.nav_item_1_text, user?.name)
 //            headerView.findViewById<TextView>(R.id.tv_nav_role).text = getString(R.string.nav_item_2_text, user?.userName)
-//            headerView.findViewById<TextView>(R.id.tv_nav_id).text = getString(R.string.nav_item_3_text, user?.userId)
+            headerView.findViewById<TextView>(R.id.tv_nav_id).text = getString(R.string.nav_item_3_text, user?.userId)
+            headerView.findViewById<TextView>(R.id.tv_nav_contact_no).text = getString(R.string.nav_item_4_text, user?.contactNo)
+            headerView.findViewById<TextView>(R.id.tv_nav_contact_no).visibility =
+                if (user?.contactNo.isNullOrEmpty()) View.GONE else View.VISIBLE
             userName = user?.name.toString()
             userRole = user?.roles.toString()
         }
