@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import android.widget.ScrollView
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOphthalmicScreeningBinding
@@ -177,6 +178,12 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
     }
 
     private fun navigateAfterSave() {
+        val missingField = viewModel.getMissingMandatoryField()
+        if (missingField != OphthalmicScreeningViewModel.MissingField.NONE) {
+            handleMissingField(missingField)
+            return
+        }
+
         binding.btnNext.isEnabled = false
         viewModel.save {
             Toast.makeText(requireContext(), "Saved successfully", Toast.LENGTH_SHORT).show()
@@ -189,6 +196,42 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             } else {
                 binding.btnNext.isEnabled = true
                 Toast.makeText(requireContext(), "Error returning to details", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun handleMissingField(field: OphthalmicScreeningViewModel.MissingField) {
+        val (messageRes, viewToFocus) = when (field) {
+            OphthalmicScreeningViewModel.MissingField.IS_DIABETIC -> Pair(R.string.ophthalmic_is_diabetic, binding.rgIsDiabetic)
+            OphthalmicScreeningViewModel.MissingField.SCREENING_PERFORMED -> Pair(R.string.ophthalmic_screening_performed, binding.rgScreeningPerformed)
+            OphthalmicScreeningViewModel.MissingField.CHART_USED -> Pair(R.string.ophthalmic_chart_used, binding.actvChartUsed)
+            OphthalmicScreeningViewModel.MissingField.DIST_VA_RIGHT -> Pair(R.string.ophthalmic_dist_va_right, binding.actvDistVaRight)
+            OphthalmicScreeningViewModel.MissingField.DIST_VA_LEFT -> Pair(R.string.ophthalmic_dist_va_left, binding.actvDistVaLeft)
+            OphthalmicScreeningViewModel.MissingField.NEAR_VA -> Pair(R.string.ophthalmic_near_va, binding.actvNearVa)
+            OphthalmicScreeningViewModel.MissingField.CASE_ID -> Pair(R.string.ophthalmic_case_id_conditions, binding.tvCaseIdSelection)
+            OphthalmicScreeningViewModel.MissingField.CATARACT -> Pair(R.string.ophthalmic_cataract_symptoms, binding.rgCataractSymptoms)
+            OphthalmicScreeningViewModel.MissingField.GLAUCOMA -> Pair(R.string.ophthalmic_glaucoma_symptoms, binding.rgGlaucomaSymptoms)
+            OphthalmicScreeningViewModel.MissingField.DR -> Pair(R.string.ophthalmic_dr_symptoms, binding.rgDrSymptoms)
+            OphthalmicScreeningViewModel.MissingField.PRESBYOPIA -> Pair(R.string.ophthalmic_presbyopia_symptoms, binding.rgPresbyopiaSymptoms)
+            OphthalmicScreeningViewModel.MissingField.TRACHOMA -> Pair(R.string.ophthalmic_trachoma_status, binding.actvTrachomaStatus)
+            OphthalmicScreeningViewModel.MissingField.CORNEAL -> Pair(R.string.ophthalmic_corneal_disease_type, binding.actvCornealDiseaseType)
+            OphthalmicScreeningViewModel.MissingField.VITAMIN_A -> Pair(R.string.ophthalmic_vitamin_a_deficiency_label, binding.rgVitaminADeficiency)
+            else -> return
+        }
+
+        Toast.makeText(requireContext(), "Please complete: ${getString(messageRes)}", Toast.LENGTH_SHORT).show()
+
+        binding.root.findViewById<ScrollView>(R.id.scroll_view)?.let { scrollView ->
+            scrollView.post {
+                val viewLocation = IntArray(2)
+                viewToFocus.getLocationInWindow(viewLocation)
+
+                val scrollLocation = IntArray(2)
+                scrollView.getLocationInWindow(scrollLocation)
+
+                val scrollToY = (viewLocation[1] - scrollLocation[1]) + scrollView.scrollY - 32
+                scrollView.smoothScrollTo(0, scrollToY)
+                viewToFocus.requestFocus()
             }
         }
     }

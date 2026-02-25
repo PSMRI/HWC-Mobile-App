@@ -302,39 +302,45 @@ class OphthalmicScreeningViewModel @Inject constructor(
     fun setCataractSymptoms(hasSymptoms: Boolean) {
         _cataractSymptoms.value = hasSymptoms
         deriveAlerts()
+        validate()
     }
 
     fun setGlaucomaSymptoms(hasSymptoms: Boolean) {
         _glaucomaSymptoms.value = hasSymptoms
         deriveAlerts()
+        validate()
     }
 
     fun setDrSymptoms(hasSymptoms: Boolean) {
         _drSymptoms.value = hasSymptoms
         deriveAlerts()
+        validate()
     }
 
     fun setPresbyopiaSymptoms(hasSymptoms: Boolean) {
         _presbyopiaSymptoms.value = hasSymptoms
         deriveAlerts()
+        validate()
     }
 
     fun setTrachomaStatus(status: String) {
         _trachomaStatus.value = status
         deriveAlerts()
+        validate()
     }
 
     fun setCornealDiseaseType(type: String) {
         _cornealDiseaseType.value = type
         deriveAlerts()
+        validate()
     }
 
     fun setVitaminADeficiency(hasDeficiency: Boolean) {
         _vitaminADeficiency.value = hasDeficiency
         deriveAlerts()
+        validate()
     }
 
-    // ─── Private helpers ────────────────────────────────────────────────────
 
     private fun clearRemovedConditionSubFields(currentConditions: List<String>) {
         if (!currentConditions.contains(DropdownConst.CONDITION_CATARACT)) {
@@ -416,6 +422,24 @@ class OphthalmicScreeningViewModel @Inject constructor(
         updateConditionSubFieldVisibility(conditions)
     }
 
+    enum class MissingField {
+        IS_DIABETIC,
+        SCREENING_PERFORMED,
+        CHART_USED,
+        DIST_VA_RIGHT,
+        DIST_VA_LEFT,
+        NEAR_VA,
+        CASE_ID,
+        CATARACT,
+        GLAUCOMA,
+        DR,
+        PRESBYOPIA,
+        TRACHOMA,
+        CORNEAL,
+        VITAMIN_A,
+        NONE
+    }
+
     private data class ValidationResult(
         val fieldsValid: Boolean,
         val alert: Boolean,
@@ -440,7 +464,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
         val result = when {
             reason == DropdownConst.REASON_SYMPTOMATIC -> {
                 val validCaseId = if (isMando) caseIds.isNotEmpty() else true
-                ValidationResult(fieldsValid = validCaseId, alert = false, caseIdByVA = false)
+                val subFieldsValid = areVisibleSubFieldsAnswered()
+                ValidationResult(fieldsValid = validCaseId && subFieldsValid, alert = false, caseIdByVA = false)
             }
             reason == DropdownConst.screening && diabetic == true ->
                 validateDiabeticPath(rightVA, leftVA)
@@ -495,6 +520,66 @@ class OphthalmicScreeningViewModel @Inject constructor(
 
     private fun isNearVAReduced(va: String?): Boolean {
         return va != null && DropdownConst.nearVAReducedList.contains(va)
+    }
+
+    private fun areVisibleSubFieldsAnswered(): Boolean {
+        return getMissingSubField() == MissingField.NONE
+    }
+
+    private fun getMissingSubField(): MissingField {
+        val conditions = _caseIdConditions.value ?: return MissingField.NONE
+        if (conditions.contains(DropdownConst.CONDITION_CATARACT) && _cataractSymptoms.value == null) return MissingField.CATARACT
+        if (conditions.contains(DropdownConst.CONDITION_GLAUCOMA) && _glaucomaSymptoms.value == null) return MissingField.GLAUCOMA
+        if (conditions.contains(DropdownConst.CONDITION_DIABETIC_RETINOPATHY) && _drSymptoms.value == null) return MissingField.DR
+        if (conditions.contains(DropdownConst.CONDITION_PRESBYOPIA) && _presbyopiaSymptoms.value == null) return MissingField.PRESBYOPIA
+        if (conditions.contains(DropdownConst.CONDITION_TRACHOMA) && _trachomaStatus.value.isNullOrEmpty()) return MissingField.TRACHOMA
+        if (conditions.contains(DropdownConst.CONDITION_CORNEAL_DISEASE) && _cornealDiseaseType.value.isNullOrEmpty()) return MissingField.CORNEAL
+        if (conditions.contains(DropdownConst.CONDITION_DRY_EYE) && _vitaminADeficiency.value == null) return MissingField.VITAMIN_A
+        return MissingField.NONE
+    }
+
+    fun getMissingMandatoryField(): MissingField {
+        val reason = _reasonForVisit.value
+        return when (reason) {
+            DropdownConst.REASON_SYMPTOMATIC -> getMissingSymptomaticField()
+            DropdownConst.screening -> getMissingScreeningField()
+            else -> MissingField.NONE
+        }
+    }
+
+    private fun getMissingSymptomaticField(): MissingField {
+        val rightVA = _distVARight.value
+        val leftVA = _distVALeft.value
+        val caseIds = _caseIdConditions.value ?: emptyList()
+        val isMando = isVisualImpairment(rightVA ?: "") || isVisualImpairment(leftVA ?: "") || isNearVAReduced(_nearVA.value)
+        if (isMando && caseIds.isEmpty()) return MissingField.CASE_ID
+        return getMissingSubField()
+    }
+
+    private fun getMissingScreeningField(): MissingField {
+        val diabetic = _isDiabetic.value ?: return MissingField.IS_DIABETIC
+        return if (diabetic) getMissingDiabeticField() else getMissingNonDiabeticField()
+    }
+
+    private fun getMissingDiabeticField(): MissingField {
+        val screening = _isScreeningPerformed.value ?: return MissingField.SCREENING_PERFORMED
+        if (!screening) return MissingField.NONE
+        return getMissingDistanceVAField()
+    }
+
+    private fun getMissingNonDiabeticField(): MissingField {
+        val chart = _chartUsed.value ?: return MissingField.CHART_USED
+        return when (chart) {
+            DropdownConst.CHART_SNELLENS -> getMissingDistanceVAField()
+            DropdownConst.CHART_NEAR_VISION -> if (_nearVA.value == null) MissingField.NEAR_VA else MissingField.NONE
+            else -> MissingField.NONE
+        }
+    }
+
+    private fun getMissingDistanceVAField(): MissingField {
+        if (_distVARight.value == null) return MissingField.DIST_VA_RIGHT
+        if (_distVALeft.value == null) return MissingField.DIST_VA_LEFT
+        return MissingField.NONE
     }
 
     fun save(onSuccess: () -> Unit) {
