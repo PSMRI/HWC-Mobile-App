@@ -540,37 +540,45 @@ class OphthalmicScreeningViewModel @Inject constructor(
 
     fun getMissingMandatoryField(): MissingField {
         val reason = _reasonForVisit.value
-        val diabetic = _isDiabetic.value
+        return when (reason) {
+            DropdownConst.REASON_SYMPTOMATIC -> getMissingSymptomaticField()
+            DropdownConst.screening -> getMissingScreeningField()
+            else -> MissingField.NONE
+        }
+    }
+
+    private fun getMissingSymptomaticField(): MissingField {
         val rightVA = _distVARight.value
         val leftVA = _distVALeft.value
-        val nearVaValue = _nearVA.value
         val caseIds = _caseIdConditions.value ?: emptyList()
-        val chart = _chartUsed.value
-        val screening = _isScreeningPerformed.value
+        val isMando = isVisualImpairment(rightVA ?: "") || isVisualImpairment(leftVA ?: "") || isNearVAReduced(_nearVA.value)
+        if (isMando && caseIds.isEmpty()) return MissingField.CASE_ID
+        return getMissingSubField()
+    }
 
-        if (reason == DropdownConst.REASON_SYMPTOMATIC) {
-            val isMando = (isVisualImpairment(rightVA ?: "") || isVisualImpairment(leftVA ?: "") || isNearVAReduced(nearVaValue))
-            if (isMando && caseIds.isEmpty()) return MissingField.CASE_ID
-            return getMissingSubField()
-        } else if (reason == DropdownConst.screening) {
-            if (diabetic == null) return MissingField.IS_DIABETIC
-            
-            if (diabetic) {
-                if (screening == null) return MissingField.SCREENING_PERFORMED
-                if (screening) {
-                    if (rightVA == null) return MissingField.DIST_VA_RIGHT
-                    if (leftVA == null) return MissingField.DIST_VA_LEFT
-                }
-            } else {
-                if (chart == null) return MissingField.CHART_USED
-                if (chart == DropdownConst.CHART_SNELLENS) {
-                    if (rightVA == null) return MissingField.DIST_VA_RIGHT
-                    if (leftVA == null) return MissingField.DIST_VA_LEFT
-                } else if (chart == DropdownConst.CHART_NEAR_VISION) {
-                    if (nearVaValue == null) return MissingField.NEAR_VA
-                }
-            }
+    private fun getMissingScreeningField(): MissingField {
+        val diabetic = _isDiabetic.value ?: return MissingField.IS_DIABETIC
+        return if (diabetic) getMissingDiabeticField() else getMissingNonDiabeticField()
+    }
+
+    private fun getMissingDiabeticField(): MissingField {
+        val screening = _isScreeningPerformed.value ?: return MissingField.SCREENING_PERFORMED
+        if (!screening) return MissingField.NONE
+        return getMissingDistanceVAField()
+    }
+
+    private fun getMissingNonDiabeticField(): MissingField {
+        val chart = _chartUsed.value ?: return MissingField.CHART_USED
+        return when (chart) {
+            DropdownConst.CHART_SNELLENS -> getMissingDistanceVAField()
+            DropdownConst.CHART_NEAR_VISION -> if (_nearVA.value == null) MissingField.NEAR_VA else MissingField.NONE
+            else -> MissingField.NONE
         }
+    }
+
+    private fun getMissingDistanceVAField(): MissingField {
+        if (_distVARight.value == null) return MissingField.DIST_VA_RIGHT
+        if (_distVALeft.value == null) return MissingField.DIST_VA_LEFT
         return MissingField.NONE
     }
 
