@@ -166,13 +166,13 @@
     <string name="ophthalmic_vitamin_a_deficiency">Vitamin A Deficiency / Xerophthalmia</string>
 
     <!-- Condition sub-field labels -->
-    <string name="ophthalmic_cataract_symptoms">Cataract Symptoms</string>
-    <string name="ophthalmic_glaucoma_symptoms">Glaucoma Symptoms</string>
-    <string name="ophthalmic_dr_symptoms">Diabetic Retinopathy Symptoms</string>
-    <string name="ophthalmic_presbyopia_symptoms">Presbyopia Symptoms</string>
-    <string name="ophthalmic_trachoma_status">Trachoma Status</string>
-    <string name="ophthalmic_corneal_disease_type">Corneal Disease Type</string>
-    <string name="ophthalmic_vitamin_a_deficiency_label">Vitamin A Deficiency Symptoms / Bitot\'s Spot Identified</string>
+    <string name="ophthalmic_cataract_symptoms">Cataract Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_glaucoma_symptoms">Glaucoma Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dr_symptoms">Diabetic Retinopathy Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_presbyopia_symptoms">Presbyopia Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_trachoma_status">Trachoma Status <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_corneal_disease_type">Corneal Disease Type <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_vitamin_a_deficiency_label">Vitamin A Deficiency Symptoms / Bitot\'s Spot Identified <font color="#FF0000">*</font></string>
     <string name="ophthalmic_select_trachoma_status">Select Trachoma Status</string>
     <string name="ophthalmic_select_corneal_disease_type">Select Corneal Disease Type</string>
 

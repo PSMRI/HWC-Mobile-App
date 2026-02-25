@@ -221,9 +221,18 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
         Toast.makeText(requireContext(), "Please complete: ${getString(messageRes)}", Toast.LENGTH_SHORT).show()
 
-        binding.root.findViewById<ScrollView>(R.id.scroll_view)?.post {
-            binding.root.findViewById<ScrollView>(R.id.scroll_view)?.smoothScrollTo(0, viewToFocus.top)
-            viewToFocus.requestFocus()
+        binding.root.findViewById<ScrollView>(R.id.scroll_view)?.let { scrollView ->
+            scrollView.post {
+                val viewLocation = IntArray(2)
+                viewToFocus.getLocationInWindow(viewLocation)
+
+                val scrollLocation = IntArray(2)
+                scrollView.getLocationInWindow(scrollLocation)
+
+                val scrollToY = (viewLocation[1] - scrollLocation[1]) + scrollView.scrollY - 32
+                scrollView.smoothScrollTo(0, scrollToY)
+                viewToFocus.requestFocus()
+            }
         }
     }
 
