@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
@@ -19,6 +20,7 @@ import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.DateTimeUtil
+import org.piramalswasthya.cho.utils.ImgUtils
 
 class PatientItemAdapter(
     private val apiService: ESanjeevaniApiService,
@@ -90,40 +92,22 @@ class PatientItemAdapter(
             binding.patientGender.text = item.genderName
             gender = item.genderName.toString()
 
-            if (item.patient.dob != null) {
-                val type = DateTimeUtil.getPatientTypeByAge(item.patient.dob!!)
-                if (type == "new_born_baby") {
-                    binding.ivPatientIcon.setImageResource(R.drawable.ic_new_born_baby)
-                } else if (type == "infant") {
-                    binding.ivPatientIcon.setImageResource(R.drawable.ic_infant)
-                } else if (type == "child") {
-                    //male female check
-                    if (gender == "Male") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_boy)
-                    } else if (gender == "Female") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_girl)
-                    } else {
-
-                    }
-
-                } else if (type == "adolescence") {
-                    if (gender == "Male") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_boy)
-                    } else if (gender == "Female") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_girl)
-                    } else {
-
-                    }
-
-                } else if (type == "adult") {
-                    if (gender == "Male") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_male)
-                    } else if (gender == "Female") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_female)
-                    } else {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_unisex)
-                    }
+            // Try to load the beneficiary photo first; fall back to age/gender icon if none
+            val benImage = item.patient.benImage
+            if (!benImage.isNullOrEmpty()) {
+                val base64Data = if (benImage.contains(",")) benImage.substringAfter(",") else benImage
+                val bitmap = ImgUtils.decodeBase64ToBitmap(base64Data)
+                if (bitmap != null) {
+                    Glide.with(mContext)
+                        .load(bitmap)
+                        .placeholder(R.drawable.ic_person)
+                        .circleCrop()
+                        .into(binding.ivPatientIcon)
+                } else {
+                    setDefaultPatientIcon(item.patient.dob, gender, binding)
                 }
+            } else {
+                setDefaultPatientIcon(item.patient.dob, gender, binding)
             }
 
             if (item.patient.syncState == SyncState.SYNCED) {
@@ -182,6 +166,25 @@ class PatientItemAdapter(
 
             binding.executePendingBindings()
 
+        }
+
+        private fun setDefaultPatientIcon(dob: java.util.Date?, gender: String, binding: PatientListItemViewBinding) {
+            if (dob != null) {
+                val type = DateTimeUtil.getPatientTypeByAge(dob)
+                when (type) {
+                    "new_born_baby" -> binding.ivPatientIcon.setImageResource(R.drawable.ic_new_born_baby)
+                    "infant" -> binding.ivPatientIcon.setImageResource(R.drawable.ic_infant)
+                    "child", "adolescence" -> {
+                        if (gender == "Male") binding.ivPatientIcon.setImageResource(R.drawable.ic_boy)
+                        else if (gender == "Female") binding.ivPatientIcon.setImageResource(R.drawable.ic_girl)
+                    }
+                    "adult" -> {
+                        if (gender == "Male") binding.ivPatientIcon.setImageResource(R.drawable.ic_male)
+                        else if (gender == "Female") binding.ivPatientIcon.setImageResource(R.drawable.ic_female)
+                        else binding.ivPatientIcon.setImageResource(R.drawable.ic_unisex)
+                    }
+                }
+            }
         }
     }
 

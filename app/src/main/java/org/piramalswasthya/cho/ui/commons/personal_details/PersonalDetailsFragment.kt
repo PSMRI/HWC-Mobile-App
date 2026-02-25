@@ -1646,7 +1646,8 @@ class PersonalDetailsFragment : Fragment() {
                             stateID = stateID,
                             districtID = districtID,
                             blockID = blockID,
-                            districtBranchID = districtBranchID
+                            districtBranchID = districtBranchID,
+                            benImage = obj.optString("benImage").takeIf { it.isNotEmpty() && it != "null" }
                         )
 
                         list.add(
