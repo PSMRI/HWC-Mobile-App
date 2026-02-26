@@ -211,7 +211,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                         .weight(1f)
                 ) {
                     Text(
-                        text = "Visit No: ",
+                        text = getString(R.string.ben_visit_num),
                         style = TextStyle(fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                     )
                     Text(
@@ -224,7 +224,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                         .weight(2f)
                 ) {
                     Text(
-                        text = "Visit Date: ",
+                        text = getString(R.string.ben_visit_date),
                         style = TextStyle(fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                     )
                     Text(
@@ -699,7 +699,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                 }
             }
         } else {
-            Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.invalid_data_entered), Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -203,12 +203,16 @@ class UsernameFragment() : Fragment() {
         when (prefDao.getCurrentLanguage()) {
             Languages.ENGLISH -> binding.rgLangSelect.check(binding.rbEng.id)
             Languages.KANNADA -> binding.rgLangSelect.check(binding.rbKannada.id)
+            Languages.HINDI -> binding.rgLangSelect.check(binding.rbHindi.id)
+            Languages.ASSAMESE -> binding.rgLangSelect.check(binding.rbAssam.id)
         }
 
         binding.rgLangSelect.setOnCheckedChangeListener { _, i ->
             val currentLanguage = when (i) {
                 binding.rbEng.id -> Languages.ENGLISH
                 binding.rbKannada.id -> Languages.KANNADA
+                binding.rbHindi.id -> Languages.HINDI
+                binding.rbAssam.id -> Languages.ASSAMESE
                 else -> Languages.ENGLISH
             }
             prefDao.saveSetLanguage(currentLanguage)
@@ -336,12 +340,12 @@ class UsernameFragment() : Fragment() {
 
                         OutreachViewModel.State.ERROR_SERVER,
                         OutreachViewModel.State.ERROR_NETWORK -> {
-                            Toast.makeText(requireContext(), "Login Failed", Toast.LENGTH_LONG).show()
+                            Toast.makeText(requireContext(), getString(R.string.login_failed_toast), Toast.LENGTH_LONG).show()
                             hwcViewModel.resetState()
                         }
 
                         OutreachViewModel.State.SAVING -> {
-                            Toast.makeText(requireContext(), "Processing...", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.processing), Toast.LENGTH_SHORT).show()
                         }
                         OutreachViewModel.State.IDLE -> {
                             // No-op
@@ -350,7 +354,7 @@ class UsernameFragment() : Fragment() {
                             // No-op
                         }
                         OutreachViewModel.State.ERROR_INPUT -> {
-                            Toast.makeText(requireContext(), "Invalid input", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.invalid_input), Toast.LENGTH_SHORT).show()
                             hwcViewModel.resetState()
                         }
                     }

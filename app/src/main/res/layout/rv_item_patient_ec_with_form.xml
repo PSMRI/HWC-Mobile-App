@@ -111,7 +111,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@{patientWithEcr.patient.spouseName ?? `NA`}"
+                            android:text="@{patientWithEcr.patient.spouseName ?? ``}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
                             tools:text="AN" />
@@ -190,7 +190,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@{patientWithEcr.patient.beneficiaryID != null ? String.valueOf(patientWithEcr.patient.beneficiaryID) : `NA`}"
+                            android:text="@{patientWithEcr.patient.beneficiaryID != null ? String.valueOf(patientWithEcr.patient.beneficiaryID) : ``}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
                             tools:text="219097846526" />
@@ -213,7 +213,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@{patientWithEcr.patient.phoneNo ?? `NA`}"
+                            android:text="@{patientWithEcr.patient.phoneNo ?? ``}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
                             tools:text="9957027233" />

@@ -5,17 +5,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.piramalswasthya.cho.databinding.RvItemAdolescentListBinding
+import org.piramalswasthya.cho.databinding.RvItemChildrenUnderFiveYearsBinding
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.utils.DateTimeUtil
 
-class AdolescentListAdapter(
+class ChildrenUnderFiveYearsAdapter(
     private val clickListener: ClickListener? = null
-) : ListAdapter<PatientDisplay, AdolescentListAdapter.AdolescentViewHolder>(
-    AdolescentDiffUtilCallBack
+) : ListAdapter<PatientDisplay, ChildrenUnderFiveYearsAdapter.ChildrenUnderFiveViewHolder>(
+    ChildrenUnderFiveDiffUtilCallBack
 ) {
 
-    private object AdolescentDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplay>() {
+    private object ChildrenUnderFiveDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplay>() {
         override fun areItemsTheSame(
             oldItem: PatientDisplay,
             newItem: PatientDisplay
@@ -27,15 +27,16 @@ class AdolescentListAdapter(
         ) = oldItem == newItem
     }
 
-    class AdolescentViewHolder private constructor(
-        private val binding: RvItemAdolescentListBinding
+    class ChildrenUnderFiveViewHolder private constructor(
+        private val binding: RvItemChildrenUnderFiveYearsBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         companion object {
-            fun from(parent: ViewGroup): AdolescentViewHolder {
+            fun from(parent: ViewGroup): ChildrenUnderFiveViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = RvItemAdolescentListBinding.inflate(layoutInflater, parent, false)
-                return AdolescentViewHolder(binding)
+                val binding =
+                    RvItemChildrenUnderFiveYearsBinding.inflate(layoutInflater, parent, false)
+                return ChildrenUnderFiveViewHolder(binding)
             }
         }
 
@@ -46,49 +47,56 @@ class AdolescentListAdapter(
             binding.patient = item
             binding.clickListener = clickListener
 
-            // Set adolescent name
+            // Child name in title
             val firstName = item.patient.firstName ?: ""
             val lastName = item.patient.lastName ?: ""
-            binding.tvAdolescentName.text = if (lastName.isNotEmpty()) {
+            binding.tvChildName.text = if (lastName.isNotEmpty()) {
                 "$firstName $lastName"
             } else {
                 firstName
             }
 
-            // Set age
+            // Age and DOB
             item.patient.dob?.let {
                 binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
+                binding.tvDob.text = DateTimeUtil.formatDate(it)
             } ?: run {
                 binding.tvAge.text = binding.root.context.getString(org.piramalswasthya.cho.R.string.na)
+                binding.tvDob.text = binding.root.context.getString(org.piramalswasthya.cho.R.string.na)
             }
 
-            // Set beneficiary ID
+            // Beneficiary ID
             binding.tvBeneficiaryId.text = item.patient.beneficiaryID?.toString() ?: "NA"
 
-            // Set phone number
+            // Mobile number
             binding.tvPhoneNo.text = item.patient.phoneNo ?: "NA"
 
-            // Set gender
+            // Gender
             binding.tvGender.text = item.gender?.genderName ?: "NA"
 
-            // Set parent name
-            binding.tvParentName.text = item.patient.parentName ?: "NA"
+            // Parent names
+            binding.tvMotherName.text = item.patient.parentName ?: "NA"
+            binding.tvFatherName.text = item.patient.spouseName ?: "NA"
 
             binding.executePendingBindings()
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        AdolescentViewHolder.from(parent)
+        ChildrenUnderFiveViewHolder.from(parent)
 
-    override fun onBindViewHolder(holder: AdolescentViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ChildrenUnderFiveViewHolder, position: Int) {
         holder.bind(getItem(position), clickListener)
     }
 
     class ClickListener(
-        private val clickedView: ((patient: PatientDisplay) -> Unit)? = null
+        private val onCheckSam: ((patient: PatientDisplay) -> Unit)? = null,
+        private val onOrs: ((patient: PatientDisplay) -> Unit)? = null,
+        private val onIfa: ((patient: PatientDisplay) -> Unit)? = null
     ) {
-        fun onClickView(item: PatientDisplay) =
-            clickedView?.let { it(item) }
+        fun onCheckSam(patient: PatientDisplay) = onCheckSam?.invoke(patient)
+        fun onOrs(patient: PatientDisplay) = onOrs?.invoke(patient)
+        fun onIfa(patient: PatientDisplay) = onIfa?.invoke(patient)
     }
 }
+

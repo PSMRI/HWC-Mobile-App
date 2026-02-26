@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.RvItemAncVisitSimpleBinding
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
@@ -44,26 +45,27 @@ class AncVisitBottomSheetAdapter(
             lmpDate: Long,
             allAncVisits: List<PregnantWomanAncCache>
         ) {
-            binding.tvVisitTitle.text = "ANC Visit ${item.visitNumber}"
-            
+            val res = binding.root.context.resources
+            binding.tvVisitTitle.text = res.getString(R.string.anc_visit_number_format, item.visitNumber)
+
             // Format date
             val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
             val dateText = if (item.ancDate != null) {
                 dateFormat.format(Date(item.ancDate))
             } else {
-                "Not scheduled"
+                res.getString(R.string.not_scheduled)
             }
-            
+
             // Calculate gestational age
             val gaWeeks = getWeeksOfPregnancy(getTodayMillis(), lmpDate)
-            
+
             // Check if completed (weight is filled)
             val isCompleted = item.weight != null
-            
+
             if (isCompleted) {
                 // COMPLETED
-                binding.tvVisitDate.text = "Completed: $dateText"
-                binding.tvVisitStatus.text = "✓ Completed"
+                binding.tvVisitDate.text = res.getString(R.string.completed_with_date, dateText)
+                binding.tvVisitStatus.text = res.getString(R.string.completed_status)
                 binding.tvVisitStatus.setTextColor(binding.root.context.getColor(android.R.color.holo_green_dark))
             } else {
                 // Check if DUE based on GA and previous visit completion
@@ -92,13 +94,13 @@ class AncVisitBottomSheetAdapter(
                 
                 if (isDue) {
                     // DUE
-                    binding.tvVisitDate.text = "Scheduled: $dateText (GA: $gaWeeks weeks)"
-                    binding.tvVisitStatus.text = "⚠ Due"
+                    binding.tvVisitDate.text = res.getString(R.string.scheduled_ga_format, dateText, gaWeeks)
+                    binding.tvVisitStatus.text = res.getString(R.string.due_status)
                     binding.tvVisitStatus.setTextColor(binding.root.context.getColor(android.R.color.holo_orange_dark))
                 } else {
                     // PENDING (not yet due)
-                    binding.tvVisitDate.text = "Scheduled: $dateText (GA: $gaWeeks weeks)"
-                    binding.tvVisitStatus.text = "○ Pending"
+                    binding.tvVisitDate.text = res.getString(R.string.scheduled_ga_format, dateText, gaWeeks)
+                    binding.tvVisitStatus.text = res.getString(R.string.pending_status)
                     binding.tvVisitStatus.setTextColor(binding.root.context.getColor(android.R.color.darker_gray))
                 }
             }

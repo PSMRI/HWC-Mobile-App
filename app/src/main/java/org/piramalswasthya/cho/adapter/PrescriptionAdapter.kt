@@ -133,7 +133,7 @@ class PrescriptionAdapter(
             }
             // Disable the "Add" button when the duration count reaches the maximum
             if (durationCount >= maxDuration) {
-                Toast.makeText(holder.itemView.context, "Maximum value allowed for Duration is 6.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(holder.itemView.context, holder.itemView.context.getString(R.string.max_duration_allowed_6), Toast.LENGTH_SHORT).show()
                 holder.addButton.isEnabled = false
             }
             // Enable the "Subtract" button
@@ -259,7 +259,7 @@ class PrescriptionAdapter(
                 if (!s.isNullOrBlank() && s.length == 1 && s[0] == '0') s.clear()
                 if (!s.isNullOrBlank() && s.toString().toInt()>6) {
                     s.clear()
-                    Toast.makeText(holder.itemView.context, "Maximum value allowed for Duration is 6.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(holder.itemView.context, holder.itemView.context.getString(R.string.max_duration_allowed_6), Toast.LENGTH_SHORT).show()
                 }
                 else {
                     itemData.duration = s.toString()
@@ -286,7 +286,7 @@ class PrescriptionAdapter(
         // Update the visibility of the "Reset" button for all items
         holder.updateResetButtonState()
 
-        holder.textPrescriptionHeading.text = "Medicine - ${position + 1}"
+        holder.textPrescriptionHeading.text = holder.itemView.context.getString(R.string.medicine_number_format, position + 1)
     }
 
 

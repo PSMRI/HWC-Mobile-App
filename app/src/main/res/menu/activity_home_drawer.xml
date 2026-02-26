@@ -30,11 +30,11 @@
             android:icon="@drawable/ic_completed_tasks"
             android:title="Create ABHA Number" />
 
-        <item
-            android:id="@+id/outreach_activity"
-            android:checkable="false"
-            android:icon="@drawable/ic_completed_tasks"
-            android:title="Outreach Activity" />
+<!--        <item-->
+<!--            android:id="@+id/outreach_activity"-->
+<!--            android:checkable="false"-->
+<!--            android:icon="@drawable/ic_completed_tasks"-->
+<!--            android:title="Outreach Activity" />-->
 
 <!--        <item-->
 <!--            android:id="@+id/roles_list"-->
@@ -79,15 +79,15 @@
 <!--            android:title="Help" />-->
 
     </group>
-    <group
-        android:id="@+id/menu_group_middle"
-        android:checkableBehavior="single">
-        <item
-            android:id="@+id/menu_help"
-            android:icon="@drawable/help"
-            android:checkable="false"
-            android:title="Help" />
-    </group>
+<!--    <group-->
+<!--        android:id="@+id/menu_group_middle"-->
+<!--        android:checkableBehavior="single">-->
+<!--        <item-->
+<!--            android:id="@+id/menu_help"-->
+<!--            android:icon="@drawable/help"-->
+<!--            android:checkable="false"-->
+<!--            android:title="Help" />-->
+<!--    </group>-->
     <group
         android:id="@+id/menu_group_bottom"
         android:checkableBehavior="single">
