@@ -262,8 +262,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             lifecycleScope.launch(dispatcherProvider.io) {
                                 val matchedPatient = compareFacesL2Norm(embeddings!!)
                                 withContext(dispatcherProvider.main) {
-                                        Toast.makeText(requireContext(), getString(R.string.face_embeddings_generated), Toast.LENGTH_SHORT).show()
-
+                                    if (matchedPatient != null) {
+                                        val patientInfo = viewModel.patientRepo.getPatientDisplayListForNurseByPatient(matchedPatient.patientID)
+                                        populateForm(patientInfo)
+                                        isEditModeAfterRegistration = true
+                                        setFormEditable(true)
+                                        Toast.makeText(requireContext(), "Existing beneficiary found. You can edit and update.", Toast.LENGTH_LONG).show()
+                                    } else {
+                                        Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
                         }
@@ -373,9 +380,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         sharedViewModel.photoUri.observe(viewLifecycleOwner) { uriString ->
-            val photoUri = Uri.parse(uriString)
-            Glide.with(this).load(photoUri).placeholder(R.drawable.ic_person).circleCrop()
-                .into(binding.ivImgCapture)
+            // Only update when a real photo URI is available (skip the empty string set in edit mode)
+            if (!uriString.isNullOrEmpty()) {
+                val photoUri = Uri.parse(uriString)
+                Glide.with(this).load(photoUri).placeholder(R.drawable.ic_person).circleCrop()
+                    .into(binding.ivImgCapture)
+            }
         }
         sharedViewModel.faceVector.observe(viewLifecycleOwner) { faceVector ->
             embeddings = faceVector
@@ -500,6 +510,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.spouseName.isEnabled = isCoreEditable
         binding.villageDropdown.isEnabled = isCoreEditable
         binding.ivImgCapture.isEnabled = isCoreEditable
+        binding.tvSubTitlePhoto.visibility = if (isCoreEditable) View.VISIBLE else View.GONE
         binding.btnScanAadhaar.isEnabled = isCoreEditable
 
         // Disable end icons (mic/dropdown/calendar) for non-editable fields
@@ -515,7 +526,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.fatherNameText.isEndIconVisible = binding.fatherNameEditText.isEnabled
         binding.ageAtMarriageText.isEndIconVisible = binding.ageAtMarriage.isEnabled
         binding.dateOfBirthText.isEndIconVisible = binding.dateOfBirth.isEnabled
-        
+
         // Handle dropdown icons
         // Using setEndIconVisible(false) might hide the dropdown arrow
         binding.genderText.isEndIconVisible = binding.genderDropdown.isEnabled
@@ -531,7 +542,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         // FAB visibility
         binding.fabEdit.visibility = if (isEditable) View.GONE else View.VISIBLE
-        
+
         // Activity buttons visibility/text
         updateActivityButtons()
     }
@@ -541,7 +552,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             val bottomNav = act.findViewById<View>(R.id.bottom_navigation)
             val submitBtn = act.findViewById<android.widget.Button>(R.id.btnSubmit)
             val cancelBtn = act.findViewById<android.widget.Button>(R.id.btnCancel)
-            
+
             bottomNav?.visibility = View.VISIBLE
             if (isReadOnly) {
                 cancelBtn?.visibility = View.GONE
@@ -549,9 +560,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             } else {
                 cancelBtn?.visibility = View.VISIBLE
                 if (isEditModeAfterRegistration) {
-                     submitBtn?.text = getString(R.string.ok_button)
+                    submitBtn?.text = getString(R.string.ok_button)
                 } else {
-                     submitBtn?.text = getString(R.string.submit_btn_text)
+                    submitBtn?.text = getString(R.string.submit_btn_text)
                 }
             }
         }
@@ -849,8 +860,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             if (binding.spouseNameText.visibility == View.VISIBLE) {
                 val genderId = viewModel.selectedGenderMaster?.genderID
                 val message = if (genderId == 2) resources.getString(R.string.enter_husband_name)
-                             else if (genderId == 1) resources.getString(R.string.enter_wife_name)
-                             else resources.getString(R.string.enter_spouse_name)
+                else if (genderId == 1) resources.getString(R.string.enter_wife_name)
+                else resources.getString(R.string.enter_spouse_name)
                 binding.spouseNameText.setBoxColor(it, message)
             }
         }
@@ -1318,8 +1329,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             if (isEditModeAfterRegistration) {
                                 val currentStatus = m.status.lowercase().trim()
                                 val isUnmarried = currentStatus.contains("unmarried") ||
-                                                  currentStatus.contains("never") ||
-                                                  currentStatus.contains("single")
+                                        currentStatus.contains("never") ||
+                                        currentStatus.contains("single")
                                 binding.maritalStatusDropdown.isEnabled = isUnmarried
                             }
 
@@ -1598,10 +1609,20 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         // Age
         p.age?.let {
-             viewModel.enteredAge = it
-             viewModel.enteredAgeYears = it
-             binding.age.setText(getString(R.string.age_years_format, it))
+            viewModel.enteredAge = it
+            viewModel.enteredAgeYears = it
+            binding.age.setText("$it years")
         }
+
+        // Age Unit
+        p.ageUnitID?.let { id ->
+            viewModel.ageUnitList.find { it.id == id }?.let { unit ->
+                viewModel.selectedAgeUnit = unit
+                binding.ageInUnitDropdown.setText(unit.name, false)
+            }
+        }
+
+        binding.ageAtMarriage.setText(p.ageAtMarriage?.toString() ?: "")
 
         // DOB
         p.dob?.let {
@@ -1609,10 +1630,58 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             binding.dateOfBirth.setText(DateTimeUtil.formattedDate(it))
         }
 
-        // Photo
+        // Photo: benImage is stored as base64 string with optional "data:image/...;base64," prefix
         p.benImage?.let { img ->
-            com.bumptech.glide.Glide.with(this).load(android.net.Uri.parse(img)).placeholder(R.drawable.ic_person).circleCrop().into(binding.ivImgCapture)
+            val base64Data = if (img.contains(",")) img.substringAfter(",") else img
+            val bitmap = org.piramalswasthya.cho.utils.ImgUtils.decodeBase64ToBitmap(base64Data)
+            if (bitmap != null) {
+                com.bumptech.glide.Glide.with(this).load(bitmap).placeholder(R.drawable.ic_person)
+                    .circleCrop().into(binding.ivImgCapture)
+            } else {
+                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+            }
         }
+        // Gender
+        p.genderID?.let { id ->
+            viewModel.genderMasterList.find { it.genderID == id }?.let { master ->
+                viewModel.selectedGenderMaster = master
+                binding.genderDropdown.setText(master.genderName, false)
+            }
+        }
+
+        // Marital Status
+        p.maritalStatusID?.let { id ->
+            viewModel.maritalStatusList.find { it.maritalStatusID == id }?.let { m ->
+                viewModel.selectedMaritalStatus = m
+                viewModel.maritalStatusId = m.maritalStatusID
+                viewModel.maritalStatusName = m.status
+                binding.maritalStatusDropdown.setText(m.status, false)
+            }
+        }
+
+        // Village
+        p.districtBranchID?.let { id ->
+            viewModel.villageList.find { it.districtBranchID.toInt() == id }?.let { v ->
+                viewModel.selectedVillage = v
+                isSettingVillageProgrammatically = true
+                binding.villageDropdown.setText(v.villageName, false)
+                isSettingVillageProgrammatically = false
+            }
+        }
+
+        // Status of Woman
+        p.statusOfWomanID?.let { id ->
+            viewModel.statusOfWomanList.find { it.statusID == id }?.let { s ->
+                viewModel.selectedStatusOfWoman = s
+                binding.statusOfWomanDropdown.setText(s.statusName, false)
+                viewModel.setStatusOfWoman(true)
+            }
+        }
+
+        // Correct visibility states based on populated data
+        setMarriedFieldsVisibility()
+        updateStatusOfWomanVisibility()
+
         isProgrammaticChange = false
     }
 
@@ -1656,8 +1725,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             setLocationDetails()
 
             if (isEditModeAfterRegistration) {
-                 patient.syncState = SyncState.UNSYNCED
-                 viewModel.updatePatient(patient)
+                patient.syncState = SyncState.UNSYNCED
+                viewModel.updatePatient(patient)
             } else {
                 if (patient.patientID.isBlank() || patient.patientID == "null") {
                     // Initial Registration
@@ -1734,7 +1803,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             when (state) {
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
                     updateStatusOfWomanVisibility()
-                    
+
                     // Pre-fill if patient data exists
                     if (patient.statusOfWomanID != null) {
                         val status = viewModel.statusOfWomanList.find { it.statusID == patient.statusOfWomanID }

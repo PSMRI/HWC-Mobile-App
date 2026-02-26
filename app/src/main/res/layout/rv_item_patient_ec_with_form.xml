@@ -18,7 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:backgroundTint="@color/default_button"
         android:elevation="4dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp">
@@ -32,7 +31,7 @@
                 android:id="@+id/ll_title_ec_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="@color/default_button"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingHorizontal="8dp"
@@ -43,7 +42,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_female"
-                    app:tint="@color/default_button" />
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/tv_patient_name"
@@ -53,7 +52,7 @@
                     android:padding="8dp"
                     android:text="@{patientWithEcr.patient.firstName + ` ` + (patientWithEcr.patient.lastName ?? ``)}"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/default_button"
+                    android:textColor="@color/white"
                     android:textStyle="bold"
                     tools:text="SINA DD" />
 
@@ -107,14 +106,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/husband_name"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{patientWithEcr.patient.spouseName ?? ``}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="AN" />
                     </LinearLayout>
 
@@ -130,7 +129,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/age_ben"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_age"
@@ -138,7 +137,7 @@
                             android:layout_height="wrap_content"
                             android:text="@{patientWithEcr.getAgeString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="30 YEARS" />
                     </LinearLayout>
 
@@ -154,14 +153,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/no_of_children"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{patientWithEcr.ecr != null ? String.valueOf(patientWithEcr.ecr.noOfChildren) : `0`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="2" />
                     </LinearLayout>
 
@@ -186,14 +185,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/beneficiary_id"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{patientWithEcr.patient.beneficiaryID != null ? String.valueOf(patientWithEcr.patient.beneficiaryID) : ``}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="219097846526" />
                     </LinearLayout>
 
@@ -209,14 +208,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/tv_mob_no_ph"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{patientWithEcr.patient.phoneNo ?? ``}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="9957027233" />
                     </LinearLayout>
 
@@ -233,14 +232,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/tv_rch_id"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="NA"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="NA" />
                     </LinearLayout>
 
@@ -267,7 +266,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/lmp_date"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/benLmpDate"
@@ -275,7 +274,7 @@
                             android:layout_height="wrap_content"
                             android:text="@{patientWithEcr.getFormattedLMPDate()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="01-01-2025" />
                     </LinearLayout>
 
@@ -292,7 +291,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/status"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/benStatus"
@@ -300,7 +299,7 @@
                             android:layout_height="wrap_content"
                             android:text="@{patientWithEcr.getECStatus()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="Missed Period" />
                     </LinearLayout>
 
@@ -317,7 +316,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/last_visit_date"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tvLastVisitDate"
@@ -325,7 +324,7 @@
                             android:layout_height="wrap_content"
                             android:text="@{patientWithEcr.getLastVisitDateString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="29-01-2026" />
                     </LinearLayout>
 
@@ -349,7 +348,7 @@
                         android:onClick="@{() -> clickListener.onAddVisit(patientWithEcr)}"
                         android:text="@string/add_visit"
                         android:textColor="@color/white"
-                        android:backgroundTint="@android:color/holo_green_dark" />
+                        android:backgroundTint="@color/green" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_view_visit"
@@ -361,7 +360,7 @@
                         android:onClick="@{() -> clickListener.onViewVisit(patientWithEcr)}"
                         android:text="@string/view_visit"
                         android:textColor="@color/white"
-                        android:backgroundTint="@android:color/holo_green_dark" />
+                        android:backgroundTint="@color/green" />
 
                 </LinearLayout>
 

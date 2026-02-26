@@ -18,7 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:backgroundTint="@color/primary"
         android:elevation="4dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp">
@@ -32,7 +31,7 @@
                 android:id="@+id/ll_title_child_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="@color/default_button"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingHorizontal="8dp"
@@ -43,7 +42,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_new_born_baby"
-                    app:tint="@color/primary" />
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/tv_baby_name"
@@ -53,7 +52,7 @@
                     android:padding="8dp"
                     android:text="@{item.customName}"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/primary"
+                    android:textColor="@color/white"
                     android:textStyle="bold"
                     tools:text="baby 0 of SUSHMA" />
 
@@ -98,14 +97,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/mother_name"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.getMotherFullName()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="SUSHMA SUB" />
                     </LinearLayout>
 
@@ -121,14 +120,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/age_ben"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_age"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="30 YEARS" />
                     </LinearLayout>
 
@@ -153,14 +152,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/beneficiary_id"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.motherPatient.beneficiaryID != null ? String.valueOf(item.motherPatient.beneficiaryID) : `NA`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="218505996213" />
                     </LinearLayout>
 
@@ -176,14 +175,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/tv_mob_no_ph"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.motherPatient.phoneNo ?? `NA`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="9957027233" />
                     </LinearLayout>
 
@@ -199,14 +198,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/tv_rch_id"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Not Available"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="Not Available" />
                     </LinearLayout>
 
@@ -231,14 +230,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/husband_name"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.motherPatient.spouseName ?? `Not Available`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="STOCK" />
                     </LinearLayout>
 
@@ -257,6 +256,7 @@
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:backgroundTint="@color/green"
                         android:onClick="@{() -> clickListener.onClickForm(item)}"
                         android:textColor="@color/white" />
 

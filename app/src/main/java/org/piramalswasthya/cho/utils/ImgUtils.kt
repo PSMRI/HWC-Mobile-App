@@ -21,35 +21,40 @@ object ImgUtils {
     }
     @RequiresApi(Build.VERSION_CODES.O)
     fun getEncodedStringForBenImage(context: Context, fileName: String?): String? {
-        if (!fileName.isNullOrEmpty()) {
-            val file = File(context.getExternalFilesDir("images"), fileName)
+        if (fileName.isNullOrEmpty()) return null
 
-            if (file.exists()) {
-                try {
-                    val options = BitmapFactory.Options()
-                    options.inSampleSize = 4
-                    val bm = BitmapFactory.decodeFile(file.path, options)
-                    val stream = ByteArrayOutputStream()
-                    bm.compress(Bitmap.CompressFormat.JPEG, 20, stream)
-                    val byteFormat = stream.toByteArray()
-                    if (!Base64.getEncoder().encodeToString(byteFormat).isNullOrEmpty()) {
-                        return "data:image/png;base64," + Base64.getEncoder()
-                            .encodeToString(byteFormat)
-                    }
-                    return null
+        val file = File(context.getExternalFilesDir("images"), fileName)
+        if (!file.exists()) return null
 
-                } catch (e: Exception) {
-                    // Handle the IOException here, log or return null as needed
-                    e.printStackTrace()
-                    return null
-                }
-            } else {
-                // Handle the case where the file doesn't exist, log or return null as needed
-                return null
+        return try {
+            val options = BitmapFactory.Options()
+            options.inSampleSize = 4
+            var bm = BitmapFactory.decodeFile(file.path, options)
+
+            // Correct EXIF rotation — camera photos are often saved sideways
+            val exif = android.media.ExifInterface(file.path)
+            val orientation = exif.getAttributeInt(
+                android.media.ExifInterface.TAG_ORIENTATION,
+                android.media.ExifInterface.ORIENTATION_NORMAL
+            )
+            val matrix = android.graphics.Matrix()
+            when (orientation) {
+                android.media.ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                android.media.ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                android.media.ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
             }
-        }
-        else {
-            return null
+            if (!matrix.isIdentity) {
+                bm = Bitmap.createBitmap(bm, 0, 0, bm.width, bm.height, matrix, true)
+            }
+
+            val stream = ByteArrayOutputStream()
+            bm.compress(Bitmap.CompressFormat.JPEG, 20, stream)
+            val byteFormat = stream.toByteArray()
+            val encoded = Base64.getEncoder().encodeToString(byteFormat)
+            if (encoded.isNullOrEmpty()) null else "data:image/png;base64,$encoded"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 
