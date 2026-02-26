@@ -159,6 +159,7 @@
 
     <string name="menu_home">ঘৰ</string>
     <string name="tab_dashboard">ড্যাশবোৰ্ড</string>
+    <string name="tab_rmnch">আৰএমএনচিএইচ</string>
     <string name="menu_gallery">গেলেৰী</string>
     <string name="menu_slideshow">স্লাইডশ্ব’</string>
     <string name="error_while_logging_in">লগইন কৰাৰ সময় ত্ৰুটি ঘটিছে!!</string>

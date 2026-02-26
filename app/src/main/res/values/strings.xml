@@ -159,6 +159,7 @@
 
     <string name="menu_home">Home</string>
     <string name="tab_dashboard">Dashboard</string>
+    <string name="tab_rmnch">RMNCH</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="error_while_logging_in">Error while logging in!!</string>

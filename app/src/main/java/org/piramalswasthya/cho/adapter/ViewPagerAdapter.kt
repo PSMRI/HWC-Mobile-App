@@ -15,7 +15,7 @@ class ViewPagerAdapter(supportFragmentManager: FragmentManager, lifecycle: Lifec
     private val mFragmentTitleList = ArrayList<String>()
 
     override fun getItemCount(): Int {
-        return  2
+        return  3
     }
 
     override fun createFragment(position: Int): Fragment {

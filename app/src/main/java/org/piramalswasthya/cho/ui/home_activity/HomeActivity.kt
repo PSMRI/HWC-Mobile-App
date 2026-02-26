@@ -308,7 +308,7 @@ class HomeActivity : AppCompatActivity() {
         homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
         tab.addTab(tab.newTab().setText(getString(R.string.menu_home)))
         tab.addTab(tab.newTab().setText(getString(R.string.tab_dashboard)))
-//        tab.addTab(tab.newTab().setText("RMNCH"))
+        tab.addTab(tab.newTab().setText(getString(R.string.tab_rmnch)))
 
         // Adding the Adapter to the ViewPager
         pager.adapter = homeAdapter
