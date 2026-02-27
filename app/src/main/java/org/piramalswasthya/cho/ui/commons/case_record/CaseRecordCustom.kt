@@ -975,7 +975,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         viewModeltemplate.callMarkDel(it)
                     }
                     viewModeltemplate.callDel()
-                    Toast.makeText(requireContext(), "Template deleted", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.template_deleted), Toast.LENGTH_SHORT).show()
 
                 }
             }
@@ -1244,7 +1244,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 //            }.toSet().toTypedArray()
 
             val builder = AlertDialog.Builder(requireContext())
-                .setTitle("Select Test Name")
+                .setTitle(getString(R.string.select_test_name))
                 .setCancelable(false)
                 .setMultiChoiceItems(
                     procedureDropdown.map { it.procedureName }.toTypedArray(),

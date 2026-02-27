@@ -78,15 +78,15 @@ class PatientItemAdapter(
 
             val visitDateText = item.visitDate?.let { DateTimeUtil.formatDate(it) }
             if (visitDateText.isNullOrBlank()) {
-                binding.visitDate.text = "NA"
-                binding.referDate.text = "NA"
+                binding.visitDate.text = ""
+                binding.referDate.text = ""
             } else {
                 binding.visitDate.text = visitDateText
                 binding.referDate.text = visitDateText
             }
-            binding.patientPhoneNo.text = item.patient.phoneNo ?: "NA"
+            binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
             if (item.villageName.isNullOrBlank()) {
-                binding.village.text = "NA"
+                binding.village.text = ""
             } else binding.village.text = item.villageName
 
             binding.patientGender.text = item.genderName

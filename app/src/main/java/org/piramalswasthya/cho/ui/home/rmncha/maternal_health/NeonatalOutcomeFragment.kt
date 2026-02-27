@@ -93,7 +93,8 @@ class NeonatalOutcomeFragment : Fragment() {
                             addToBackStack(null)
                         }
                     } else {
-                        android.widget.Toast.makeText(context, "Delivery record not found", android.widget.Toast.LENGTH_SHORT).show()
+                        android.widget.Toast.makeText(context,
+                            context?.getString(R.string.delivery_record_not_found), android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }
             }
