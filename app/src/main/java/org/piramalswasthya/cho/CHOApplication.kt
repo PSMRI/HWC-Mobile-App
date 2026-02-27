@@ -88,15 +88,12 @@ class CHOApplication : Application(), Configuration.Provider {
                 }
             }
 
-            // No-op: These callbacks are required by the ActivityLifecycleCallbacks interface
-            // but intentionally left empty. Only onActivityCreated is used — to apply the
-            // global WindowInsets listener for keyboard/edge-to-edge handling.
-            override fun onActivityStarted(activity: Activity) {}
-            override fun onActivityResumed(activity: Activity) {}
-            override fun onActivityPaused(activity: Activity) {}
-            override fun onActivityStopped(activity: Activity) {}
-            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-            override fun onActivityDestroyed(activity: Activity) {}
+            override fun onActivityStarted(activity: Activity) { /* No action needed */ }
+            override fun onActivityResumed(activity: Activity) { /* No action needed */ }
+            override fun onActivityPaused(activity: Activity) { /* No action needed */ }
+            override fun onActivityStopped(activity: Activity) { /* No action needed */ }
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) { /* No action needed */ }
+            override fun onActivityDestroyed(activity: Activity) { /* No action needed */ }
         })
 
     }
