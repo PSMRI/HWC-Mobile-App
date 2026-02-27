@@ -11,6 +11,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.InAppDb
@@ -95,30 +98,25 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 WorkerUtils.triggerAmritSyncWorker(context)
             }
             WorkerUtils.pushAuditDetailsWorker(context)
-            registrarMasterDataRepo.saveGenderMasterResponseToCache()
-            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
-            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
-            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
-            registrarMasterDataRepo.saveReligionMasterResponseToCache()
-            languageRepo.saveResponseToCacheLang()
-            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
-            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
-            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
-            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
-            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
-            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
 
-            prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId)
-            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-            vaccineAndDoseTypeRepo.getVaccineDetailsFromServer()
-            doctorMaleMasterDataRepo.getDoctorMasterMaleData()
+            // Single HTTP request replaces 13 separate calls to the same endpoint
+            registrarMasterDataRepo.saveAllMasterDataToCache()
 
-            malMasterDataRepo.getMasterDataForNurse()
-            getStockDetailsOfSubStore()
+            // Remaining independent API calls run concurrently
+            coroutineScope {
+                val j1 = async { languageRepo.saveResponseToCacheLang() }
+                val j2 = async { visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache() }
+                val j3 = async { visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache() }
+                val j4 = async { vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache() }
+                val j5 = async { vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache() }
+                val j6 = async { vaccineAndDoseTypeRepo.getVaccineDetailsFromServer() }
+                val j7 = async { prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId) }
+                val j8 = async { doctorMaleMasterDataRepo.getDoctorMasterMaleData() }
+                val j9 = async { malMasterDataRepo.getMasterDataForNurse() }
+                val j10 = async { getStockDetailsOfSubStore() }
+                awaitAll(j1, j2, j3, j4, j5, j6, j7, j8, j9, j10)
+            }
+
             if (!dataLoadFlagManager.isDataLoaded()){
                 Log.d("syncing started second", "syncing started")
                 WorkerUtils.triggerAmritSyncWorker(context)

@@ -180,6 +180,7 @@ class HomeFragment : Fragment() {
         WorkerUtils.totalPercentageCompleted.observe(viewLifecycleOwner){
             if(it > 0){
                 binding.tvLoadProgress.text = getString(R.string.downloading) + " " + it.toString() + "%"
+                binding.pbLoadProgress.progress = it
             }
         }
         binding.registration.bringToFront()
