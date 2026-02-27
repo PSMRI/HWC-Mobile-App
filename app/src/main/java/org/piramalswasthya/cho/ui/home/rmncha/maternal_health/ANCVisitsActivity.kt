@@ -95,7 +95,7 @@ class ANCVisitsActivity : AppCompatActivity() {
                             }
                             startActivity(intent)
                         } else {
-                            Toast.makeText(this@ANCVisitsActivity, "All 4 ANC visits completed", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@ANCVisitsActivity, getString(R.string.all_4_anc_visits_completed), Toast.LENGTH_SHORT).show()
                         }
                     }
                 },

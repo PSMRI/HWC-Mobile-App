@@ -111,7 +111,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                     )
                                 }
                                 else{
-                                    Toast.makeText(requireContext(), "Medicine not available", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), getString(R.string.medicine_not_available), Toast.LENGTH_SHORT).show()
                                 }
 
                             },
@@ -129,7 +129,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                         )
                                     }
                                     else{
-                                        Toast.makeText(requireContext(), "Medicine not available", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(requireContext(), getString(R.string.medicine_not_available), Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             )
@@ -323,7 +323,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
             viewModel.isOtpGenerated.observe(viewLifecycleOwner) { state ->
                 ccMappingAlertBinding.btnGenerate.isEnabled = true
                 alert.dismiss()
-                Toast.makeText(requireContext(), "Please Wait...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.processing), Toast.LENGTH_SHORT).show()
                 when(state!!) {
                     true -> {
                         otpSentDialog.show()
@@ -365,7 +365,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
 
                 viewModel.isOtpVerified.observe(viewLifecycleOwner) { state ->
                     alert.dismiss()
-                    Toast.makeText(requireContext(), "Please Wait...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.processing), Toast.LENGTH_SHORT).show()
                     when(state!!) {
                         true -> {
                             otpVerifiedDialog

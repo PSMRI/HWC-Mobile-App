@@ -38,6 +38,7 @@
                     android:layout_marginRight="10dp"
                     android:contentDescription="Refresh"
                     android:src="@drawable/share_icon"
+                    android:visibility="gone"
                     android:background="?attr/colorPrimary"/>
 
                 <ImageButton
@@ -47,7 +48,7 @@
                     android:layout_gravity="end"
                     android:layout_marginRight="15dp"
                     android:contentDescription="Translate"
-                    android:src="@drawable/ic_translate"
+                    android:src="@drawable/ic_icon_language"
                     android:background="@color/default_button"/>
 
                 <ImageButton

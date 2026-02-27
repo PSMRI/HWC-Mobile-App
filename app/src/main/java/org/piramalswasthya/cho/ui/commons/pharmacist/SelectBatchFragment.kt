@@ -73,7 +73,7 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
 
         data = arguments?.getString("batchList")
         if(data==null){
-            Toast.makeText(requireContext(), "Medicine not available", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.medicine_not_available), Toast.LENGTH_SHORT).show()
         }
         val data2 = arguments?.getString("prescriptionDTO")
         val data3 = arguments?.getString("prescriptionItemDTO")

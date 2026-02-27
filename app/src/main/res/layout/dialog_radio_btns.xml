@@ -23,7 +23,19 @@
         <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/rb_kannada_dialog"
             style="@style/radio_item_lang"
+            android:visibility="gone"
             android:text="@string/kannada_lang" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/rb_hindi_dialog"
+            style="@style/radio_item_lang"
+            android:visibility="gone"
+            android:text="@string/hindi_lang" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/rb_assam_dialog"
+            style="@style/radio_item_lang"
+            android:text="@string/assamese" />
 
     </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

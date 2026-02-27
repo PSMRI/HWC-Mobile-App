@@ -117,7 +117,7 @@ class PNCMotherListFragment : Fragment() {
             val availableVisits = listOf(1, 3, 7, 14, 21, 28, 42).filter { it > lastVisitNumber }
             
             if (availableVisits.isEmpty()) {
-                Toast.makeText(requireContext(), "All PNC visits completed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.all_pnc_visits_completed), Toast.LENGTH_SHORT).show()
                 return@launch
             }
             

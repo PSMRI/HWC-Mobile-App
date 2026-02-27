@@ -16,6 +16,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -305,9 +306,9 @@ class HomeActivity : AppCompatActivity() {
         val dashboardBool = intent.extras?.getBoolean("dashboardBool", false)
         // Initializing the ViewPagerAdapter
         homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
-        tab.addTab(tab.newTab().setText("Home"))
-        tab.addTab(tab.newTab().setText("Dashboard"))
-        tab.addTab(tab.newTab().setText("RMNCH"))
+        tab.addTab(tab.newTab().setText(getString(R.string.menu_home)))
+        tab.addTab(tab.newTab().setText(getString(R.string.tab_dashboard)))
+        tab.addTab(tab.newTab().setText(getString(R.string.tab_rmnch)))
 
         // Adding the Adapter to the ViewPager
         pager.adapter = homeAdapter
@@ -606,9 +607,9 @@ class HomeActivity : AppCompatActivity() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_radio_btns, null)
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
-            .setTitle("Choose Application Language")
+            .setTitle(getString(R.string.choose_application_language))
 
-            .setPositiveButton("Apply") { dialog, which ->
+            .setPositiveButton(getString(R.string.applytxt)) { dialog, which ->
                 prefDao.saveSetLanguage(currentLanguage)
                 Locale.setDefault(Locale(currentLanguage.symbol))
 
@@ -619,23 +620,30 @@ class HomeActivity : AppCompatActivity() {
 
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
         val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_lang_select_dialog)
         val englishRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_eng_dialog)
         val kannadaRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_kannada_dialog)
-        if (radioGroup != null && englishRadioButton != null && kannadaRadioButton != null) {
+        val hindiRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_hindi_dialog)
+        val assamRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_assam_dialog)
+        if (radioGroup != null && englishRadioButton != null && kannadaRadioButton != null
+            && hindiRadioButton != null && assamRadioButton != null) {
 
             when (prefDao.getCurrentLanguage()) {
                 Languages.ENGLISH -> radioGroup.check(englishRadioButton.id)
                 Languages.KANNADA -> radioGroup.check(kannadaRadioButton.id)
+                Languages.ASSAMESE -> radioGroup.check(assamRadioButton.id)
+                Languages.HINDI -> radioGroup.check(hindiRadioButton.id)
             }
 
             radioGroup.setOnCheckedChangeListener { _, i ->
                 currentLanguage = when (i) {
                     englishRadioButton.id -> Languages.ENGLISH
                     kannadaRadioButton.id -> Languages.KANNADA
+                    hindiRadioButton.id -> Languages.HINDI
+                    assamRadioButton.id -> Languages.ASSAMESE
                     else -> Languages.ENGLISH
                 }
             }
@@ -655,12 +663,12 @@ class HomeActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             val user = userRepo.getLoggedInUser()
             val headerView = binding.navView.getHeaderView(0)
-            headerView.findViewById<TextView>(R.id.tv_nav_name).text =
-                getString(R.string.nav_item_1_text, user?.name)
-            headerView.findViewById<TextView>(R.id.tv_nav_role).text =
-                getString(R.string.nav_item_2_text, user?.userName)
-            headerView.findViewById<TextView>(R.id.tv_nav_id).text =
-                getString(R.string.nav_item_3_text, user?.userId)
+            headerView.findViewById<TextView>(R.id.tv_nav_name).text = getString(R.string.nav_item_1_text, user?.name)
+//            headerView.findViewById<TextView>(R.id.tv_nav_role).text = getString(R.string.nav_item_2_text, user?.userName)
+            headerView.findViewById<TextView>(R.id.tv_nav_id).text = getString(R.string.nav_item_3_text, user?.userId)
+            headerView.findViewById<TextView>(R.id.tv_nav_contact_no).text = getString(R.string.nav_item_4_text, user?.contactNo)
+            headerView.findViewById<TextView>(R.id.tv_nav_contact_no).visibility =
+                if (user?.contactNo.isNullOrEmpty()) View.GONE else View.VISIBLE
             userName = user?.name.toString()
             userRole = user?.roles.toString()
         }

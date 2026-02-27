@@ -274,7 +274,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 }
 
                 R.id.selectBatchFragment -> {
-                    binding.headerTextRegisterPatient.text = "Batch Selection"
+                    binding.headerTextRegisterPatient.text = getString(R.string.batch_selection)
                     binding.btnSubmit.text = resources.getString(R.string.save)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }

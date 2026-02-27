@@ -109,9 +109,9 @@ class CreateAbhaFragment : Fragment() {
 
     private val beneficiaryDisclaimer by lazy {
         AlertDialog.Builder(requireContext())
-            .setTitle("beneficiary abha mapping.")
-            .setMessage("linking abha to beneficiary")
-            .setPositiveButton("Ok") { dialog, _ -> dialog.dismiss() }
+            .setTitle(getString(R.string.beneficiary_abha_mapping))
+            .setMessage(getString(R.string.linking_abha_to_beneficiary))
+            .setPositiveButton(getString(R.string.ok_button)) { dialog, _ -> dialog.dismiss() }
             .create()
     }
 
@@ -363,7 +363,7 @@ class CreateAbhaFragment : Fragment() {
                 }
 
                 is Operation.State.FAILURE -> {
-                    Toast.makeText(context, "Failed to download , Please retry", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, getString(R.string.download_failed_retry), Toast.LENGTH_SHORT)
                         .show()
                 }
             }
