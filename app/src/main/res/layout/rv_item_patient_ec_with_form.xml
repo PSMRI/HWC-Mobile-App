@@ -138,7 +138,7 @@
                             android:text="@{patientWithEcr.getAgeString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
-                            tools:text="30 YEARS" />
+                            tools:text="Age" />
                     </LinearLayout>
 
                     <LinearLayout

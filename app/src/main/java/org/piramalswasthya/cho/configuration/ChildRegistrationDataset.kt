@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.configuration
 
 import android.content.Context
+import android.widget.LinearLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.InfantRegCache
@@ -18,6 +19,8 @@ class ChildRegistrationDataset(
     companion object {
         private const val WEIGHT_MIN = 500
         private const val WEIGHT_MAX = 6000
+        private const val OUTCOME_LIVE_BIRTH_INDEX = 0
+        private const val CURRENT_STATUS_DIED_INDEX = 3
     }
 
     // ─── Existing FLW fields ────────────────────────────────────────────
@@ -56,7 +59,8 @@ class ChildRegistrationDataset(
         arrayId = R.array.no_outcome_at_birth_array,
         entries = resources.getStringArray(R.array.no_outcome_at_birth_array),
         required = true,
-        hasDependants = true
+        hasDependants = true,
+        orientation = LinearLayout.VERTICAL
     )
 
     // Q3: Sex
@@ -68,6 +72,7 @@ class ChildRegistrationDataset(
         entries = resources.getStringArray(R.array.no_sex_array),
         required = true,
         hasDependants = false,
+        orientation = LinearLayout.VERTICAL,
     )
 
     // Q4: Cried immediately after birth?
@@ -78,7 +83,8 @@ class ChildRegistrationDataset(
         arrayId = R.array.no_cried_immediately_array,
         entries = resources.getStringArray(R.array.no_cried_immediately_array),
         required = true,
-        hasDependants = true
+        hasDependants = true,
+        orientation = LinearLayout.VERTICAL
     )
 
     // Q5: Type of resuscitation (multi-select, shown if cried after resuscitation)
@@ -131,7 +137,8 @@ class ChildRegistrationDataset(
         arrayId = R.array.no_congenital_anomaly_array,
         entries = resources.getStringArray(R.array.no_congenital_anomaly_array),
         required = true,
-        hasDependants = true
+        hasDependants = true,
+        orientation = LinearLayout.VERTICAL
     )
 
     // Q8: Type of congenital anomaly (multi-select)
@@ -173,7 +180,8 @@ class ChildRegistrationDataset(
         arrayId = R.array.no_current_status_array,
         entries = resources.getStringArray(R.array.no_current_status_array),
         required = true,
-        hasDependants = true
+        hasDependants = true,
+        orientation = LinearLayout.VERTICAL
     )
 
     // Q12: Cause of Death (multi-select, shown if Died)
@@ -212,7 +220,7 @@ class ChildRegistrationDataset(
         title = resources.getString(R.string.no_birth_dose_vaccines_given),
         arrayId = R.array.no_birth_dose_vaccines_array,
         entries = resources.getStringArray(R.array.no_birth_dose_vaccines_array),
-        required = false,
+        required = true,
         hasDependants = true
     )
 
@@ -288,7 +296,8 @@ class ChildRegistrationDataset(
         arrayId = R.array.no_birth_certificate_array,
         entries = resources.getStringArray(R.array.no_birth_certificate_array),
         required = true,
-        hasDependants = false
+        hasDependants = false,
+        orientation = LinearLayout.VERTICAL
     )
 
     // ─── Helper: generate baby name from patient & delivery data ────────
@@ -308,7 +317,10 @@ class ChildRegistrationDataset(
     private fun restoreSavedValues(saved: InfantRegCache) {
         infantTerm.value = saved.infantTerm
         corticosteroidGiven.value = saved.corticosteroidGiven
-        outcomeAtBirth.value = saved.outcomeAtBirth
+        outcomeAtBirth.value = when (saved.outcomeAtBirth) {
+            "Diedrelative during delivery" -> resources.getStringArray(R.array.no_outcome_at_birth_array).getOrNull(3)
+            else -> saved.outcomeAtBirth
+        }
 
         gender.value = saved.genderID?.let {
              if (it > 0 && it <= (gender.entries?.size ?: 0)) gender.entries?.get(it - 1) else null
@@ -316,7 +328,7 @@ class ChildRegistrationDataset(
         babyCriedAtBirth.value = when {
             saved.babyCriedAtBirth == true -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(0) // Immediate cry
             saved.resuscitation == true -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1) // Cried after resuscitation
-            else -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(0)
+            else -> null
         }
         typeOfResuscitation.value = saved.typeOfResuscitation
         resuscitation.value = if (saved.resuscitation == true) "Yes" else "No"
@@ -417,15 +429,10 @@ class ChildRegistrationDataset(
         saved: InfantRegCache?
     ) {
         val list = mutableListOf(
-            babyName, infantTerm, corticosteroidGiven,
-            outcomeAtBirth, gender, babyCriedAtBirth,
-            weight, hadBirthDefect,
-            newbornComplications, currentStatusOfBaby,
-            breastFeedingStarted,
-            birthDoseVaccinesGiven,
-            opv0Dose, bcgDose, hepBDose,
-            vitaminKInjectionGiven, vitkDose,
-            birthCertificateIssued
+            babyName,
+            infantTerm,
+            corticosteroidGiven,
+            outcomeAtBirth
         )
 
         deliveryOutcomeCache.dateOfDelivery?.let {
@@ -439,10 +446,19 @@ class ChildRegistrationDataset(
 
         if (saved != null) {
             restoreSavedValues(saved)
-            restoreConditionalFields(saved, list)
         }
 
         prepopulateDefaults(deliveryOutcomeCache)
+
+        if (isStillbirthOrDiedAtBirth(outcomeAtBirth.value)) {
+            birthDoseVaccinesGiven.required = false
+            vitaminKInjectionGiven.required = false
+            list.add(newbornComplications)
+        } else {
+            list.addAll(getLiveBirthBaseFields())
+        }
+        refreshConditionalRequirements()
+
         setUpPage(list)
     }
 
@@ -460,17 +476,206 @@ class ChildRegistrationDataset(
         }
     }
 
+    private fun hasSelectedOption(value: String?, option: String?): Boolean {
+        if (value.isNullOrBlank() || option.isNullOrBlank()) return false
+        return value.split(",").any { it.trim() == option }
+    }
+
+    private fun getOtherOption(entries: Array<String>?): String? {
+        return entries?.firstOrNull { it.contains("Other", ignoreCase = true) }
+    }
+
+    private fun isLiveBirthOutcome(value: String?): Boolean {
+        val liveBirth = resources.getStringArray(R.array.no_outcome_at_birth_array)
+            .getOrNull(OUTCOME_LIVE_BIRTH_INDEX)
+        return value == liveBirth
+    }
+
+    private fun isStillbirthOrDiedAtBirth(value: String?): Boolean {
+        if (value.isNullOrBlank()) return false
+        return !isLiveBirthOutcome(value)
+    }
+
+    private fun getOutcomeDependentFields(): List<FormElement> {
+        return listOf(
+            gender,
+            babyCriedAtBirth,
+            typeOfResuscitation,
+            weight,
+            hadBirthDefect,
+            birthDefect,
+            otherDefect,
+            newbornComplications,
+            currentStatusOfBaby,
+            causeOfDeath,
+            otherCauseOfDeath,
+            breastFeedingStarted,
+            birthDoseVaccinesGiven,
+            reasonForNoVaccines,
+            opv0Dose,
+            bcgDose,
+            hepBDose,
+            vitaminKInjectionGiven,
+            reasonForNoVitaminK,
+            vitkDose,
+            birthCertificateIssued
+        )
+    }
+
+    private fun getLiveBirthBaseFields(): List<FormElement> {
+        return mutableListOf<FormElement>().apply {
+            add(gender)
+            add(babyCriedAtBirth)
+            if (babyCriedAtBirth.value == resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1)) {
+                add(typeOfResuscitation)
+            }
+            add(weight)
+            add(hadBirthDefect)
+            val anomalyArray = resources.getStringArray(R.array.no_congenital_anomaly_array)
+            val hasAnomaly = hadBirthDefect.value == anomalyArray.getOrNull(0) ||
+                hadBirthDefect.value == anomalyArray.getOrNull(2)
+            if (hasAnomaly) {
+                add(birthDefect)
+                if (hasSelectedOption(birthDefect.value, getOtherOption(birthDefect.entries))) {
+                    add(otherDefect)
+                }
+            }
+            add(newbornComplications)
+            add(currentStatusOfBaby)
+            if (currentStatusOfBaby.value == resources.getStringArray(R.array.no_current_status_array)
+                    .getOrNull(CURRENT_STATUS_DIED_INDEX)
+            ) {
+                add(causeOfDeath)
+                if (hasSelectedOption(causeOfDeath.value, getOtherOption(causeOfDeath.entries))) {
+                    add(otherCauseOfDeath)
+                }
+            } else {
+                add(breastFeedingStarted)
+                add(birthDoseVaccinesGiven)
+                if (hasSelectedOption(
+                        birthDoseVaccinesGiven.value,
+                        resources.getStringArray(R.array.no_birth_dose_vaccines_array).getOrNull(3)
+                    )
+                ) {
+                    add(reasonForNoVaccines)
+                }
+                add(opv0Dose)
+                add(bcgDose)
+                add(hepBDose)
+                add(vitaminKInjectionGiven)
+                if (vitaminKInjectionGiven.value == resources.getString(R.string.no)) {
+                    add(reasonForNoVitaminK)
+                }
+                add(vitkDose)
+                add(birthCertificateIssued)
+            }
+        }
+    }
+
+    private fun resetConditionalRequirements() {
+        birthDefect.required = false
+        otherDefect.required = false
+        causeOfDeath.required = false
+        otherCauseOfDeath.required = false
+        reasonForNoVaccines.required = false
+        reasonForNoVitaminK.required = false
+        birthDoseVaccinesGiven.required = true
+        vitaminKInjectionGiven.required = true
+    }
+
+    private fun refreshConditionalRequirements() {
+        resetConditionalRequirements()
+
+        if (!isLiveBirthOutcome(outcomeAtBirth.value)) {
+            birthDoseVaccinesGiven.required = false
+            vitaminKInjectionGiven.required = false
+            return
+        }
+
+        val anomalyArray = resources.getStringArray(R.array.no_congenital_anomaly_array)
+        if (hadBirthDefect.value == anomalyArray.getOrNull(0) || hadBirthDefect.value == anomalyArray.getOrNull(2)) {
+            birthDefect.required = true
+        }
+        if (hasSelectedOption(birthDefect.value, getOtherOption(birthDefect.entries))) {
+            otherDefect.required = true
+        }
+
+        if (currentStatusOfBaby.value == resources.getStringArray(R.array.no_current_status_array)
+                .getOrNull(CURRENT_STATUS_DIED_INDEX)
+        ) {
+            causeOfDeath.required = true
+            if (hasSelectedOption(causeOfDeath.value, getOtherOption(causeOfDeath.entries))) {
+                otherCauseOfDeath.required = true
+            }
+            birthDoseVaccinesGiven.required = false
+            vitaminKInjectionGiven.required = false
+        } else {
+            val noneVaccine = resources.getStringArray(R.array.no_birth_dose_vaccines_array).getOrNull(3)
+            if (hasSelectedOption(birthDoseVaccinesGiven.value, noneVaccine)) {
+                reasonForNoVaccines.required = true
+            }
+            if (vitaminKInjectionGiven.value == resources.getString(R.string.no)) {
+                reasonForNoVitaminK.required = true
+            }
+        }
+    }
+
+    private suspend fun handleOutcomeAtBirthChange(selectedValue: String?): Int {
+        resetConditionalRequirements()
+
+        val fieldsToAdd = if (isLiveBirthOutcome(selectedValue)) {
+            getLiveBirthBaseFields()
+        } else {
+            birthDoseVaccinesGiven.required = false
+            vitaminKInjectionGiven.required = false
+            listOf(newbornComplications)
+        }
+
+        if (isStillbirthOrDiedAtBirth(selectedValue)) {
+            emitAlertErrorMessage(R.string.no_alert_stillbirth)
+        }
+
+        val index = getIndexOfElement(outcomeAtBirth)
+        if (index == -1) return -1
+
+        return triggerDependants(
+            source = outcomeAtBirth,
+            removeItems = getOutcomeDependentFields(),
+            addItems = fieldsToAdd.distinct(),
+            position = index + 1
+        )
+    }
+
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
+            outcomeAtBirth.id -> {
+                val selected = outcomeAtBirth.entries?.getOrNull(index)
+                outcomeAtBirth.value = selected
+                val updateIndex = handleOutcomeAtBirthChange(selected)
+                refreshConditionalRequirements()
+                updateIndex
+            }
+
+            gender.id -> {
+                val selected = gender.entries?.getOrNull(index)
+                gender.value = selected
+                if (selected == gender.entries?.getOrNull(2)) {
+                    emitAlertErrorMessage(R.string.no_alert_ambiguous_sex)
+                }
+                -1
+            }
+
             babyCriedAtBirth.id -> {
                 val selected = babyCriedAtBirth.entries?.getOrNull(index)
                 babyCriedAtBirth.value = selected
                 // "Cried after resuscitation" is index 1 — show typeOfResuscitation
-                toggleDependant(
+                val updateIndex = toggleDependant(
                     source = babyCriedAtBirth,
                     condition = selected == resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1),
                     showItems = listOf(typeOfResuscitation)
                 )
+                refreshConditionalRequirements()
+                updateIndex
             }
 
             hadBirthDefect.id -> {
@@ -478,66 +683,160 @@ class ChildRegistrationDataset(
                 hadBirthDefect.value = selected
                 // "Yes" or "Suspected" (index 0 or 2) → show birthDefect
                 val anomalyArray = resources.getStringArray(R.array.no_congenital_anomaly_array)
-                toggleDependant(
+                val updateIndex = toggleDependant(
                     source = hadBirthDefect,
                     condition = selected == anomalyArray.getOrNull(0) || selected == anomalyArray.getOrNull(2),
                     showItems = listOf(birthDefect),
                     hideItems = listOf(otherDefect)
                 )
+                refreshConditionalRequirements()
+                updateIndex
             }
 
             birthDefect.id -> {
-                toggleDependant(
+                val updateIndex = toggleDependant(
                     source = birthDefect,
-                    condition = birthDefect.value?.contains("Other") == true,
+                    condition = hasSelectedOption(birthDefect.value, getOtherOption(birthDefect.entries)),
                     showItems = listOf(otherDefect)
                 )
+                refreshConditionalRequirements()
+                updateIndex
             }
 
             currentStatusOfBaby.id -> {
                 val selected = currentStatusOfBaby.entries?.getOrNull(index)
                 currentStatusOfBaby.value = selected
-                // "Died" (index 3) → show causeOfDeath
-                toggleDependant(
-                    source = currentStatusOfBaby,
-                    condition = selected == resources.getStringArray(R.array.no_current_status_array).getOrNull(3),
-                    showItems = listOf(causeOfDeath),
-                    hideItems = listOf(otherCauseOfDeath)
-                )
+
+                // Admitted statuses require PNC counseling alert
+                val statusArray = resources.getStringArray(R.array.no_current_status_array)
+                if (selected == statusArray.getOrNull(1) || selected == statusArray.getOrNull(2)) {
+                    emitAlertErrorMessage(R.string.no_alert_pnc_counseling)
+                }
+
+                val updateIndex = if (selected == statusArray.getOrNull(CURRENT_STATUS_DIED_INDEX)) {
+                    emitAlertErrorMessage(R.string.no_alert_neonatal_death)
+                    triggerDependants(
+                        source = currentStatusOfBaby,
+                        removeItems = listOf(
+                            otherCauseOfDeath,
+                            breastFeedingStarted,
+                            birthDoseVaccinesGiven,
+                            reasonForNoVaccines,
+                            opv0Dose,
+                            bcgDose,
+                            hepBDose,
+                            vitaminKInjectionGiven,
+                            reasonForNoVitaminK,
+                            vitkDose,
+                            birthCertificateIssued
+                        ),
+                        addItems = listOf(causeOfDeath),
+                        position = getIndexOfElement(currentStatusOfBaby) + 1
+                    )
+                } else {
+                    triggerDependants(
+                        source = currentStatusOfBaby,
+                        removeItems = listOf(causeOfDeath, otherCauseOfDeath),
+                        addItems = listOf(
+                            breastFeedingStarted,
+                            birthDoseVaccinesGiven,
+                            opv0Dose,
+                            bcgDose,
+                            hepBDose,
+                            vitaminKInjectionGiven,
+                            vitkDose,
+                            birthCertificateIssued
+                        ),
+                        position = getIndexOfElement(currentStatusOfBaby) + 1
+                    )
+                }
+                refreshConditionalRequirements()
+                updateIndex
             }
 
             causeOfDeath.id -> {
-                toggleDependant(
+                val updateIndex = toggleDependant(
                     source = causeOfDeath,
-                    condition = causeOfDeath.value?.contains("Other") == true,
+                    condition = hasSelectedOption(causeOfDeath.value, getOtherOption(causeOfDeath.entries)),
                     showItems = listOf(otherCauseOfDeath)
                 )
+                refreshConditionalRequirements()
+                updateIndex
             }
 
             birthDoseVaccinesGiven.id -> {
-                toggleDependant(
+                val updateIndex = toggleDependant(
                     source = birthDoseVaccinesGiven,
-                    condition = birthDoseVaccinesGiven.value?.contains("None") == true,
+                    condition = hasSelectedOption(
+                        birthDoseVaccinesGiven.value,
+                        resources.getStringArray(R.array.no_birth_dose_vaccines_array).getOrNull(3)
+                    ),
                     showItems = listOf(reasonForNoVaccines)
                 )
+                refreshConditionalRequirements()
+                updateIndex
             }
 
             vitaminKInjectionGiven.id -> {
                 val selected = vitaminKInjectionGiven.entries?.getOrNull(index)
                 vitaminKInjectionGiven.value = selected
-                toggleDependant(
+                val updateIndex = toggleDependant(
                     source = vitaminKInjectionGiven,
                     condition = selected == resources.getString(R.string.no),
                     showItems = listOf(reasonForNoVitaminK)
                 )
+                refreshConditionalRequirements()
+                updateIndex
             }
 
             weight.id -> {
-                validateIntMinMax(weight)
+                val validation = validateIntMinMax(weight)
+                if (weight.errorText == null) {
+                    weight.value?.toIntOrNull()?.let { weightInGm ->
+                        when {
+                            weightInGm < 1000 -> emitAlertErrorMessage(R.string.no_alert_elbw)
+                            weightInGm < 1500 -> emitAlertErrorMessage(R.string.no_alert_vlbw)
+                            weightInGm < 2500 -> emitAlertErrorMessage(R.string.no_alert_lbw)
+                            weightInGm > 4000 -> emitAlertErrorMessage(R.string.no_alert_macrosomia)
+                        }
+                    }
+                }
+                validation
+            }
+
+            newbornComplications.id -> {
+                val noneOption = resources.getStringArray(R.array.no_newborn_complications_array).lastOrNull()
+                if (!hasSelectedOption(newbornComplications.value, noneOption) &&
+                    !newbornComplications.value.isNullOrBlank()
+                ) {
+                    emitAlertErrorMessage(R.string.no_alert_complications)
+                }
+                -1
             }
 
             otherDefect.id -> {
                 validateAllAlphabetsSpecialOnEditText(otherDefect)
+            }
+
+            reasonForNoVaccines.id -> {
+                validateAllAlphabetsSpecialOnEditText(reasonForNoVaccines)
+            }
+
+            reasonForNoVitaminK.id -> {
+                validateAllAlphabetsSpecialOnEditText(reasonForNoVitaminK)
+            }
+
+            otherCauseOfDeath.id -> {
+                validateAllAlphabetsSpecialOnEditText(otherCauseOfDeath)
+            }
+
+            birthCertificateIssued.id -> {
+                val selected = birthCertificateIssued.entries?.getOrNull(index)
+                birthCertificateIssued.value = selected
+                if (selected == birthCertificateIssued.entries?.getOrNull(2)) {
+                    emitAlertErrorMessage(R.string.no_alert_birth_certificate_legal)
+                }
+                -1
             }
 
             else -> -1
@@ -557,9 +856,23 @@ class ChildRegistrationDataset(
 
             // Map cried immediately to existing boolean field
             val criedValue = babyCriedAtBirth.value
-            form.babyCriedAtBirth = criedValue == resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(0) // Immediate cry
-            form.resuscitation = criedValue == resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1) // Cried after resuscitation
-            form.typeOfResuscitation = typeOfResuscitation.value
+            val immediateCry = resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(0)
+            val criedAfterResuscitation = resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1)
+            form.babyCriedAtBirth = when (criedValue) {
+                immediateCry -> true
+                criedAfterResuscitation -> false
+                else -> null
+            }
+            form.resuscitation = when (criedValue) {
+                immediateCry -> false
+                criedAfterResuscitation -> true
+                else -> null
+            }
+            form.typeOfResuscitation = if (criedValue == criedAfterResuscitation) {
+                typeOfResuscitation.value
+            } else {
+                null
+            }
 
             form.referred = referred.value
             form.hadBirthDefect = hadBirthDefect.value
@@ -588,6 +901,30 @@ class ChildRegistrationDataset(
             form.bcgDose = getLongFromDate(bcgDose.value)
             form.hepBDose = getLongFromDate(hepBDose.value)
             form.vitkDose = getLongFromDate(vitkDose.value)
+
+            if (isStillbirthOrDiedAtBirth(form.outcomeAtBirth)) {
+                form.genderID = null
+                form.babyCriedAtBirth = null
+                form.resuscitation = null
+                form.typeOfResuscitation = null
+                form.weight = null
+                form.hadBirthDefect = null
+                form.birthDefect = null
+                form.otherDefect = null
+                form.currentStatusOfBaby = null
+                form.causeOfDeath = null
+                form.otherCauseOfDeath = null
+                form.breastFeedingStarted = null
+                form.birthDoseVaccinesGiven = null
+                form.reasonForNoVaccines = null
+                form.opv0Dose = null
+                form.bcgDose = null
+                form.hepBDose = null
+                form.vitaminKInjectionGiven = null
+                form.reasonForNoVitaminK = null
+                form.vitkDose = null
+                form.birthCertificateIssued = null
+            }
         }
     }
 }

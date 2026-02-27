@@ -412,7 +412,7 @@ class DateTimeUtil {
 
             }
 
-            return ageString
+            return ageString.ifBlank { "0 days" }
         }
 
         private fun calculateAgeStringLegacy(dateOfBirth: Date): String {
@@ -445,7 +445,7 @@ class DateTimeUtil {
 
             // Adjust for negative years (shouldn't happen, but safety check)
             if (years < 0) {
-                return ""
+                return "0 days"
             }
 
             // Match the modern implementation's logic: use modulo for months and days
@@ -466,7 +466,7 @@ class DateTimeUtil {
                 }
             }
 
-            return ageString
+            return ageString.ifBlank { "0 days" }
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
@@ -536,4 +536,3 @@ enum class AgeUnitEnum {
     WEEKS,
     DAYS
 }
-

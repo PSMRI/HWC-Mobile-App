@@ -44,6 +44,9 @@ class ChildRegistrationAdapter(
             item: ChildRegDomain,
             clickListener: ClickListener?
         ) {
+            binding.item = item
+            binding.clickListener = clickListener ?: ClickListener(null)
+
             // Set infant name
             binding.tvBabyName.text = item.customName
 
@@ -60,7 +63,7 @@ class ChildRegistrationAdapter(
 
             // Set age
             item.childPatient?.dob?.let {
-                binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
+                binding.tvAge.text = DateTimeUtil.calculateAgeString(it).ifBlank { "0 days" }
             } ?: run {
                 binding.tvAge.text = "NA"
             }
@@ -87,12 +90,12 @@ class ChildRegistrationAdapter(
         private val clickedForm: ((patientID: String, babyIndex: Int, childPatientID: String?) -> Unit)? = null
     ) {
         fun onClickForm(item: ChildRegDomain) =
-            clickedForm?.let { 
+            clickedForm?.let {
                 it(
                     item.motherPatient.patientID, 
                     item.infant.babyIndex,
                     item.childPatient?.patientID
-                ) 
+                )
             }
     }
 }

@@ -57,7 +57,7 @@ class ChildListAdapter(
 
             // Set age
             item.patient.dob?.let {
-                binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
+                binding.tvAge.text = DateTimeUtil.calculateAgeString(it).ifBlank { "0 days" }
             } ?: run {
                 binding.tvAge.text = "NA"
             }

@@ -155,8 +155,8 @@ class SubModuleFragment : Fragment() {
                             }
                         }
                         showChildList -> {
-                            // Navigate to Child List Fragment
-                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildListFragment()
+                            // Navigate to Child Registration list (registered infants)
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildRegistrationListFragment()
                             requireActivity().supportFragmentManager.commit {
                                 replace(R.id.fragment_container, fragment)
                                 addToBackStack(null)
