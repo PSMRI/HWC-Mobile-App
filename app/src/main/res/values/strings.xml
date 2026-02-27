@@ -787,7 +787,6 @@
 
     <!-- Child Care Sub-modules -->
     <string name="infant_list">Infant List</string>
-    <string name="child_list">Child List</string>
     <string name="adolescent_list">Adolescent List</string>
     <string name="children_under_5_years">Children under 5 Years</string>
 
