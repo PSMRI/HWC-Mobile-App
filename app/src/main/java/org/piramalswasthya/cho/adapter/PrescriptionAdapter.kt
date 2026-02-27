@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
@@ -32,7 +33,8 @@ class PrescriptionAdapter(
     private val unitDropDown: List<String>,
     private val instructionDropdown: List<String>,
     private val itemMasterForFilter: List<ItemMasterList>,
-    private val itemChangeListener: RecyclerViewItemChangeListenersP
+    private val itemChangeListener: RecyclerViewItemChangeListenersP,
+    private val fetchStockListener: ((Int, (Int) -> Unit) -> Unit)? = null
 ) : RecyclerView.Adapter<PrescriptionAdapter.ViewHolder>() {
 
     private var durationCount = 0
@@ -53,6 +55,7 @@ class PrescriptionAdapter(
         val addButton : TextView = itemView.findViewById(R.id.addButton)
         val subtractButton : TextView = itemView.findViewById(R.id.subtractButton)
         val textPrescriptionHeading : TextView = itemView.findViewById(R.id.textPrescriptionHeading)
+        val textStock : TextView = itemView.findViewById(R.id.textStock)
 
 //        Dropdown Fields
         val formOptionsDropDown: TextInputLayout = itemView.findViewById(R.id.dosagesDropDown)
@@ -113,6 +116,7 @@ class PrescriptionAdapter(
                 itemData.instructions = ""
                 itemData.unit = ""
                 itemData.id = null
+                textStock.text = ""
                 notifyItemChanged(position)
                 itemChangeListener.onItemChanged()
             }
@@ -200,6 +204,18 @@ class PrescriptionAdapter(
         if(itemData.id!=null){
             var st = formMD.find { it.itemID==itemData.id }
             holder.formOptions.setText(st?.dropdownForMed.toString())
+            
+            itemData.id?.let { id ->
+                fetchStockListener?.invoke(id) { stock ->
+                    if (stock > 0) {
+                        holder.textStock.text = holder.itemView.context.getString(R.string.stock_label, stock)
+                        holder.textStock.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.stock_green))
+                    } else {
+                        holder.textStock.text = holder.itemView.context.getString(R.string.out_of_stock)
+                        holder.textStock.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.stock_red))
+                    }
+                }
+            }
         }
 
 //       holder.formOptions.setSpinnerItems(formMD.map { it.dropdownForMed }.toTypedArray())
@@ -221,6 +237,18 @@ class PrescriptionAdapter(
             selectedItem?.let {
                 holder.formOptions.setText(selectedName)
                 itemData.id = it.itemID
+                
+                it.itemID?.let { id ->
+                    fetchStockListener?.invoke(id) { stock ->
+                        if (stock > 0) {
+                            holder.textStock.text = holder.itemView.context.getString(R.string.stock_label, stock)
+                            holder.textStock.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.stock_green))
+                        } else {
+                            holder.textStock.text = holder.itemView.context.getString(R.string.out_of_stock)
+                            holder.textStock.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.stock_red))
+                        }
+                    }
+                }
             }
         }
 
