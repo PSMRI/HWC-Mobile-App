@@ -102,7 +102,6 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.Objects
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsViewModel
 import org.piramalswasthya.cho.utils.generateUuid
@@ -247,7 +246,11 @@ class PersonalDetailsFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     if (isAdded) {
                         dialog.dismiss()
-                        checkAndRequestCameraPermission()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            checkAndRequestCameraPermission()
+                        } else {
+                            takePicture()
+                        }
                     }
                 }
             }
@@ -366,8 +369,12 @@ class PersonalDetailsFragment : Fragment() {
                         viewModel.filterText("")
                         binding.patientListContainer.patientList.adapter = itemAdapter
                         val currentCount = itemAdapter?.itemCount ?: patientCount
-                        binding.patientListContainer.patientCount.text =
-                            currentCount.toString() + getResultStr(currentCount)
+                        binding.patientListContainer.patientCount.text = String.format(
+                            Locale.getDefault(),
+                            getString(R.string.patient_count_format),
+                            currentCount,
+                            getResultStr(currentCount)
+                        )
                         savePatientFromSearch(selectedPatient)
                     }
 
@@ -394,8 +401,12 @@ class PersonalDetailsFragment : Fragment() {
                                     withContext(Dispatchers.Main) {
                                         if (!isShowingSearchResults) {
                                             binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                it.size.toString() + getResultStr(it.size)
+                                            binding.patientListContainer.patientCount.text = String.format(
+                                                Locale.getDefault(),
+                                                getString(R.string.patient_count_format),
+                                                it.size,
+                                                  getResultStr(it.size)
+                                            )
                                         }
                                     }
                                 }
@@ -412,8 +423,12 @@ class PersonalDetailsFragment : Fragment() {
                                     withContext(Dispatchers.Main) {
                                         if (!isShowingSearchResults) {
                                             binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                it.size.toString() + getResultStr(it.size)
+                                            binding.patientListContainer.patientCount.text = String.format(
+                                                Locale.getDefault(),
+                                                getString(R.string.patient_count_format),
+                                                it.size,
+                                                  getResultStr(it.size)
+                                            )
                                         }
                                     }
                                 }
@@ -430,8 +445,12 @@ class PersonalDetailsFragment : Fragment() {
                                     withContext(Dispatchers.Main) {
                                         if (!isShowingSearchResults) {
                                             binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                it.size.toString() + getResultStr(it.size)
+                                            binding.patientListContainer.patientCount.text = String.format(
+                                                Locale.getDefault(),
+                                                getString(R.string.patient_count_format),
+                                                it.size,
+                                                  getResultStr(it.size)
+                                            )
                                         }
                                     }
                                 }
@@ -448,8 +467,12 @@ class PersonalDetailsFragment : Fragment() {
                                     withContext(Dispatchers.Main) {
                                         if (!isShowingSearchResults) {
                                             binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
+                                            binding.patientListContainer.patientCount.text = String.format(
+                                                Locale.getDefault(),
+                                                getString(R.string.patient_count_format),
+                                                itemAdapter?.itemCount ?: 0,
+                                                  getResultStr(itemAdapter?.itemCount)
+                                            )
                                         }
                                     }
                                 }
@@ -674,8 +697,8 @@ class PersonalDetailsFragment : Fragment() {
         Timber.tag("sync").i("${benVisitInfo}")
     }
 
-    var pageHeight = 1120
     var pageWidth = 792
+    var pageHeight = 1120
 
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -709,6 +732,18 @@ class PersonalDetailsFragment : Fragment() {
                 takePicture()
             } else {
                 Toast.makeText(requireContext(), getString(R.string.permission_to_access_the_camera_denied), Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    // Launcher to request WRITE_EXTERNAL_STORAGE on older Android versions (below Q)
+    private val storagePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted: Boolean ->
+            if (!granted) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Permission required")
+                    .setMessage("Storage permission is needed to download the prescription PDF. Please grant storage permission and retry.")
+                    .setPositiveButton(getString(R.string.ok), null)
+                    .show()
             }
         }
 
@@ -858,8 +893,12 @@ class PersonalDetailsFragment : Fragment() {
                                         referralReason = visitInfo.referralReason
                                     )
                                     itemAdapter?.submitList(listOf(benVisitInfo))
-                                    binding.patientListContainer.patientCount.text =
-                                        "1 Matched Patient"
+                                    binding.patientListContainer.patientCount.text = String.format(
+                                        Locale.getDefault(),
+                                        getString(R.string.patient_count_format),
+                                        1,
+                                        getResultStr(1)
+                                    )
                                     Toast.makeText(
                                         requireContext(),
                                         "1 matching patient found",
@@ -878,7 +917,7 @@ class PersonalDetailsFragment : Fragment() {
                     }
 
                 } catch (e: Exception) {
-                    Log.e("FaceDetection", "Face detection failed", e)
+                    Timber.e(e, "Face detection failed")
                     Toast.makeText(
                         requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT
                     ).show()
@@ -940,379 +979,317 @@ class PersonalDetailsFragment : Fragment() {
     }
 
     private suspend fun generatePDF(benVisitInfo: PatientDisplayWithVisitInfo) {
+        // If running on Android versions below Q, ensure WRITE_EXTERNAL_STORAGE permission is granted
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                // Request permission and ask the user to retry generation after granting
+                storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                withContext(Dispatchers.Main) {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Permission required")
+                        .setMessage("Storage permission is needed to download the prescription PDF. Please grant storage permission and retry.")
+                        .setPositiveButton(getString(R.string.ok), null)
+                        .show()
+                }
+                return
+            }
+        }
+
         val patientName =
             (benVisitInfo.patient.firstName ?: "") + " " + (benVisitInfo.patient.lastName ?: "")
-        val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
-        )
-        val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
-        )
-        val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
-        )
-
+        
         val pdfDocument: PdfDocument = PdfDocument()
 
-        val heading: Paint = Paint()
-        val content: Paint = Paint()
-        val subheading: Paint = Paint()
-
-        val myPageInfo: PdfDocument.PageInfo? =
-            PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-
-        val myPage: PdfDocument.Page = pdfDocument.startPage(myPageInfo)
-        val canvas: Canvas = myPage.canvas
-
-        // Set up initial positions for the table
-        val xPosition = 75F
-        var y = 270F // Declare y as a var
-        val rowHeight = 50F
-        val leftSideX = 50F
-        val extraSpace = 10F
-
-        // Set up Paint for text
-        Paint().apply {
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            textSize = 15F
-            color = ContextCompat.getColor(requireContext(), android.R.color.black)
-            textAlign = Paint.Align.LEFT
-        }
-
-        content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
-        content.textSize = 15F
-        content.color = ContextCompat.getColor(requireContext(), android.R.color.black)
-        content.textAlign = Paint.Align.CENTER
-
-        subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
-        subheading.textSize = 16F
-        subheading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
-        subheading.textAlign = Paint.Align.LEFT
-
-        heading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
-        heading.textSize = 40F
-        heading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
-        heading.textAlign = Paint.Align.CENTER
-
-        val spaceAfterHeading = 20F
-        canvas.drawText("Prescription", 396F, 100F + spaceAfterHeading, heading)
-
-        val leftX = 50F // where labels start
-        var currentY = 180F
-        val lineHeight = 25F
-
-// Left side labels and values
-        val leftLabels = listOf("Name:", "Age:", "Gender:", "Mobile:")
-        val leftValues = listOf(
-            patientName,
-            "${benVisitInfo.patient.age} ${benVisitInfo.ageUnit}",
-            benVisitInfo.genderName,
-            benVisitInfo.patient.phoneNo ?: "N/A"
-        )
-
-        val leftLabelWidth = leftLabels.maxOf { subheading.measureText(it) }
-        val leftValueX = leftX + leftLabelWidth + 10F // 10F padding
-
-        for (i in leftLabels.indices) {
-            canvas.drawText(leftLabels[i], leftX, currentY, subheading)
-            canvas.drawText("${leftValues[i]}", leftValueX, currentY, subheading)
-            currentY += lineHeight
-        }
-
-        canvas.drawLine(leftX, currentY, pageWidth - leftX, currentY, subheading)
-        //currentY += lineHeight
-
-        subheading.textAlign = Paint.Align.LEFT
-        val rightX = pageWidth - 300F
-        var rightY = 180F
-
-        val rightLabels = listOf("Date:", "Beneficiary Reg ID:", "Consultation ID:")
-        val rightValues = listOf(
-            benVisitInfo.visitDate ?: "N/A",
-            "${benVisitInfo.patient.beneficiaryRegID}",
-            "${benVisitInfo.benVisitNo}"
-        )
-
-        val rightLabelWidth = rightLabels.maxOf { subheading.measureText(it) }
-        val rightValueX = rightX + rightLabelWidth + 10F // 10F padding
-
-        for (i in rightLabels.indices) {
-            canvas.drawText(rightLabels[i], rightX, rightY, subheading)
-            canvas.drawText("${rightValues[i]}", rightValueX, rightY, subheading)
-            rightY += lineHeight
-        }
-
-        val spaceAfterLine = 20F
-
-        // Define fixed column widths
-        val columnWidth = 150F
-        y += spaceAfterLine
-        y += 30
-
-        val chiefComplaintHeader = "Chief Complaints"
-        val chiefComplaintHeaderSize = 25F // Adjust the size as needed
-        val chiefComplaintHeaderX = (pageWidth / 2).toFloat() // Center the heading
-        canvas.drawText(chiefComplaintHeader, chiefComplaintHeaderX, y, subheading.apply {
-            textSize = chiefComplaintHeaderSize
-            textAlign = Paint.Align.CENTER
-        })
-
-// Move down to the first row of Chief Complaints
-        y += rowHeight
-
-// Define fixed column widths for Chief Complaints
-        val chiefComplaintColumnWidth = 150F
-
-// Draw table header for Chief Complaints
-        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
-        canvas.drawText("Chief Complaint", xPosition + chiefComplaintColumnWidth, y, subheading)
-        canvas.drawText("Duration", xPosition + 2 * chiefComplaintColumnWidth, y, subheading)
-        canvas.drawText("Duration Unit", xPosition + 3 * chiefComplaintColumnWidth, y, subheading)
-        canvas.drawText("Description", xPosition + 4 * chiefComplaintColumnWidth, y, subheading)
-
-// Move down to the first row
-        y += rowHeight // Reassign y
-
-// Iterate through the list of Chief Complaints and draw each as a row
-        if (!chiefComplaints.isNullOrEmpty()) {
-            var chiefComplaintCount: Int = 0
-            for (chiefComplaint in chiefComplaints) {
-                // Draw each field with a fixed width
-                if (chiefComplaint != null) {
-                    chiefComplaintCount++
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaintCount.toString(),
-                        xPosition,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.chiefComplaint ?: "",
-                        xPosition + chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.duration ?: "",
-                        xPosition + 2 * chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.durationUnit ?: "",
-                        xPosition + 3 * chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.description ?: "",
-                        xPosition + 4 * chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-
-                    // Move down to the next row
-                    y += rowHeight // Reassign y
-                }
-            }
-        }
-
-        canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
-        y += spaceAfterLine
-        y += 30
-
-        // Add a heading for the Vitals section
-        val vitalsSectionHeader = "Vitals"
-        val vitalsSectionHeaderSize = 25F
-        val vitalsSectionHeaderX = (pageWidth / 2).toFloat()
-        canvas.drawText(vitalsSectionHeader, vitalsSectionHeaderX, y, subheading.apply {
-            textSize = vitalsSectionHeaderSize
-            textAlign = Paint.Align.CENTER
-        })
-
-        // Move down to the first row of Vitals
-        y += rowHeight
-
-        // Define fixed column widths for Vitals
-        val vitalsColumnWidth = 200F
-
-        // Draw table header for Vitals
-        canvas.drawText("Vitals Name", xPosition + leftSideX, y, subheading)
-        canvas.drawText("Vitals Value", xPosition + leftSideX + vitalsColumnWidth, y, subheading)
-
-        // Move down to the first row
-        y += rowHeight
-
-        // Function to draw Vitals Name and Value
-        fun drawVitals(vitalsName: String, vitalsValue: String) {
-            drawTextWithWrapping(
-                canvas, vitalsName, xPosition + leftSideX, y, vitalsColumnWidth, content
-            )
-            drawTextWithWrapping(
-                canvas,
-                vitalsValue,
-                xPosition + leftSideX + vitalsColumnWidth,
-                y,
-                vitalsColumnWidth,
-                content
-            )
-            y += rowHeight
-        }
-
-        // Draw Vitals based on the available data
-        with(vitals) {
-            this?.height?.let { drawVitals("Height", it) }
-            this?.weight?.let { drawVitals("Weight", it) }
-            this?.bmi?.let { drawVitals("BMI", it) }
-            this?.waistCircumference?.let { drawVitals("Waist Circumference", it) }
-            this?.temperature?.let { drawVitals("Temperature", it) }
-            this?.pulseRate?.let { drawVitals("Pulse Rate", it) }
-            this?.spo2?.let { drawVitals("SpO2", it) }
-            this?.bpSystolic?.let { drawVitals("BP Systolic", it) }
-            this?.bpDiastolic?.let { drawVitals("BP Diastolic", it) }
-            this?.respiratoryRate?.let { drawVitals("Respiratory Rate", it) }
-            this?.rbs?.let { drawVitals("RBS", it) }
-        }
-
-// Draw heading for the next section
-        val nextSectionHeader = "Prescription" // Replace with your desired heading
-        val nextSectionHeaderSize = 25F // Adjust the size as needed
-        val nextSectionHeaderX = (pageWidth / 2).toFloat() // Center the heading
-        canvas.drawText(nextSectionHeader, nextSectionHeaderX, y, subheading.apply {
-            textSize = nextSectionHeaderSize
-            textAlign = Paint.Align.CENTER
-        })
-        y += rowHeight
-
-
-        // Draw table header
-        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
-        canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
-        canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
-        canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)
-        canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, subheading)
-
-        // Move down to the first row
-        y += rowHeight // Reassign y
-
-        // Iterate through the list of prescriptions and draw each as a row
-        if (!prescriptions.isNullOrEmpty()) {
-            var count: Int = 0
-            for (prescription in prescriptions) {
-                // Draw each field with a fixed width
-                if (prescription != null) {
-                    count++
-                    drawTextWithWrapping(
-                        canvas, count.toString(), xPosition, y, columnWidth, content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.itemName,
-                        xPosition + columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.frequency ?: "",
-                        xPosition + 2 * columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
-                    if (prescription.unit.isNullOrEmpty()) {
-                        drawTextWithWrapping(
-                            canvas,
-                            (prescription.duration) ?: "",
-                            xPosition + 3 * columnWidth,
-                            y,
-                            columnWidth,
-                            content
-                        )
-                    } else {
-                        drawTextWithWrapping(
-                            canvas,
-                            (prescription.duration + " " + prescription.unit),
-                            xPosition + 3 * columnWidth,
-                            y,
-                            columnWidth,
-                            content
-                        )
-                    }
-
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.instructions,
-                        xPosition + 4 * columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
-
-                    // Move down to the next row
-                    y += rowHeight // Reassign y
-                }
-            }
-        }
-
-        pdfDocument.finishPage(myPage)
-
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val fileName: String = "Prescription_$patientName" + "_${timeStamp}_.pdf"
-
-        showDownloadingNotification(fileName)
-
-        val outputStream: OutputStream
-        var pdfUri: Uri? = null
-        var file: File? = null
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val result = createPdfForApi33(fileName)
-            outputStream = result.first
-            pdfUri = result.second
-        } else {
-            val downloadsDirectory: File =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            file = File(downloadsDirectory, fileName)
-            outputStream = FileOutputStream(file)
-        }
-
         try {
-            pdfDocument.writeTo(outputStream)
-            outputStream.close()
-
-            if (pdfUri == null && file != null) {
-                pdfUri = FileProvider.getUriForFile(
-                    requireContext(),
-                    requireContext().packageName + ".provider",
-                    file
+            val prescriptions = withContext(Dispatchers.IO) {
+                caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo ?: 0
+                )
+            }
+            val chiefComplaints = withContext(Dispatchers.IO) {
+                visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo ?: 0
+                )
+            }
+            val vitals = withContext(Dispatchers.IO) {
+                vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo ?: 0
                 )
             }
 
-            dismissNotification(0)
-            pdfUri?.let {
-                showDownloadCompleteNotification(fileName, it)
+            val heading: Paint = Paint()
+            val content: Paint = Paint()
+            val subheading: Paint = Paint()
+
+            val myPageInfo: PdfDocument.PageInfo? =
+                PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+
+            val myPage: PdfDocument.Page = pdfDocument.startPage(myPageInfo)
+            val canvas: Canvas = myPage.canvas
+
+            // Set up initial positions for the table
+            val xPosition = 75F
+            var y = 270F
+            val rowHeight = 50F
+            val leftSideX = 50F
+            val extraSpace = 10F
+
+            content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
+            content.textSize = 15F
+            content.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+            content.textAlign = Paint.Align.LEFT
+
+            subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
+            subheading.textSize = 16F
+            subheading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+            subheading.textAlign = Paint.Align.LEFT
+
+            heading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
+            heading.textSize = 40F
+            heading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+            heading.textAlign = Paint.Align.CENTER
+
+            val spaceAfterHeading = 20F
+            canvas.drawText("Prescription", 396F, 100F + spaceAfterHeading, heading)
+
+            val leftX = 50F 
+            var currentY = 180F
+            val lineHeight = 25F
+
+            val leftLabels = listOf("Name:", "Age:", "Gender:", "Mobile:")
+            val leftValues = listOf(
+                patientName,
+                "${benVisitInfo.patient.age ?: ""} ${benVisitInfo.ageUnit ?: ""}",
+                benVisitInfo.genderName ?: "",
+                benVisitInfo.patient.phoneNo ?: "N/A"
+            )
+
+            val leftLabelWidth = leftLabels.maxOf { subheading.measureText(it) }
+            val leftValueX = leftX + leftLabelWidth + 10F 
+
+            for (i in leftLabels.indices) {
+                canvas.drawText(leftLabels[i], leftX, currentY, subheading)
+                canvas.drawText("${leftValues[i]}", leftValueX, currentY, subheading)
+                currentY += lineHeight
             }
 
-//            Toast.makeText(
-//                requireContext(), "PDF file generated for Prescription.", Toast.LENGTH_SHORT
-//            ).show()
+            canvas.drawLine(leftX, currentY, pageWidth - leftX, currentY, subheading)
+
+            subheading.textAlign = Paint.Align.LEFT
+            val rightX = pageWidth - 300F
+            var rightY = 180F
+
+            val rightLabels = listOf("Date:", "Beneficiary Reg ID:", "Consultation ID:")
+            val rightValues = listOf(
+                benVisitInfo.visitDate?.toString() ?: "N/A",
+                "${benVisitInfo.patient.beneficiaryRegID ?: ""}",
+                "${benVisitInfo.benVisitNo ?: ""}"
+            )
+
+            val rightLabelWidth = rightLabels.maxOf { subheading.measureText(it) }
+            val rightValueX = rightX + rightLabelWidth + 10F 
+
+            for (i in rightLabels.indices) {
+                canvas.drawText(rightLabels[i], rightX, rightY, subheading)
+                canvas.drawText("${rightValues[i]}", rightValueX, rightY, subheading)
+                rightY += lineHeight
+            }
+
+            val spaceAfterLine = 20F
+            y += spaceAfterLine
+            y += 30
+
+            val chiefComplaintHeader = "Chief Complaints"
+            val chiefComplaintHeaderX = (pageWidth / 2).toFloat()
+            canvas.drawText(chiefComplaintHeader, chiefComplaintHeaderX, y, subheading.apply {
+                textSize = 25F
+                textAlign = Paint.Align.CENTER
+            })
+
+            y += rowHeight
+            val chiefComplaintColumnWidth = 150F
+
+            canvas.drawText("S.No.", xPosition + extraSpace, y, subheading.apply { textAlign = Paint.Align.LEFT; textSize = 16F })
+            canvas.drawText("Chief Complaint", xPosition + chiefComplaintColumnWidth, y, subheading)
+            canvas.drawText("Duration", xPosition + 2 * chiefComplaintColumnWidth, y, subheading)
+            canvas.drawText("Duration Unit", xPosition + 3 * chiefComplaintColumnWidth, y, subheading)
+            canvas.drawText("Description", xPosition + 4 * chiefComplaintColumnWidth, y, subheading)
+
+            y += rowHeight 
+
+            if (!chiefComplaints.isNullOrEmpty()) {
+                var chiefComplaintCount: Int = 0
+                for (chiefComplaint in chiefComplaints) {
+                    if (chiefComplaint != null) {
+                        chiefComplaintCount++
+                        drawTextWithWrapping(canvas, chiefComplaintCount.toString(), xPosition, y, chiefComplaintColumnWidth, content)
+                        drawTextWithWrapping(canvas, chiefComplaint.chiefComplaint ?: "", xPosition + chiefComplaintColumnWidth, y, chiefComplaintColumnWidth, content)
+                        drawTextWithWrapping(canvas, chiefComplaint.duration ?: "", xPosition + 2 * chiefComplaintColumnWidth, y, chiefComplaintColumnWidth, content)
+                        drawTextWithWrapping(canvas, chiefComplaint.durationUnit ?: "", xPosition + 3 * chiefComplaintColumnWidth, y, chiefComplaintColumnWidth, content)
+                        drawTextWithWrapping(canvas, chiefComplaint.description ?: "", xPosition + 4 * chiefComplaintColumnWidth, y, chiefComplaintColumnWidth, content)
+                        y += rowHeight 
+                    }
+                }
+            }
+
+            canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
+            y += spaceAfterLine
+            y += 30
+
+            val vitalsSectionHeader = "Vitals"
+            val vitalsSectionHeaderX = (pageWidth / 2).toFloat()
+            canvas.drawText(vitalsSectionHeader, vitalsSectionHeaderX, y, subheading.apply {
+                textSize = 25F
+                textAlign = Paint.Align.CENTER
+            })
+
+            y += rowHeight
+            val vitalsColumnWidth = 200F
+            canvas.drawText("Vitals Name", xPosition + leftSideX, y, subheading.apply { textAlign = Paint.Align.LEFT; textSize = 16F })
+            canvas.drawText("Vitals Value", xPosition + leftSideX + vitalsColumnWidth, y, subheading)
+
+            y += rowHeight
+
+            fun drawVitalsLine(vitalsName: String, vitalsValue: String) {
+                drawTextWithWrapping(canvas, vitalsName, xPosition + leftSideX, y, vitalsColumnWidth, content)
+                drawTextWithWrapping(canvas, vitalsValue, xPosition + leftSideX + vitalsColumnWidth, y, vitalsColumnWidth, content)
+                y += rowHeight
+            }
+
+            with(vitals) {
+                this?.height?.let { drawVitalsLine("Height", it) }
+                this?.weight?.let { drawVitalsLine("Weight", it) }
+                this?.bmi?.let { drawVitalsLine("BMI", it) }
+                this?.waistCircumference?.let { drawVitalsLine("Waist Circumference", it) }
+                this?.temperature?.let { drawVitalsLine("Temperature", it) }
+                this?.pulseRate?.let { drawVitalsLine("Pulse Rate", it) }
+                this?.spo2?.let { drawVitalsLine("SpO2", it) }
+                this?.bpSystolic?.let { drawVitalsLine("BP Systolic", it) }
+                this?.bpDiastolic?.let { drawVitalsLine("BP Diastolic", it) }
+                this?.respiratoryRate?.let { drawVitalsLine("Respiratory Rate", it) }
+                this?.rbs?.let { drawVitalsLine("RBS", it) }
+            }
+
+            val nextSectionHeader = "Prescription"
+            val nextSectionHeaderX = (pageWidth / 2).toFloat()
+            canvas.drawText(nextSectionHeader, nextSectionHeaderX, y, subheading.apply {
+                textSize = 25F
+                textAlign = Paint.Align.CENTER
+            })
+            y += rowHeight
+
+            canvas.drawText("S.No.", xPosition + extraSpace, y, subheading.apply { textAlign = Paint.Align.LEFT; textSize = 16F })
+            val columnWidth = 150F
+            canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
+            canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
+            canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)
+            canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, subheading)
+
+            y += rowHeight 
+
+            if (!prescriptions.isNullOrEmpty()) {
+                var count: Int = 0
+                for (prescription in prescriptions) {
+                    if (prescription != null) {
+                        count++
+                        drawTextWithWrapping(canvas, count.toString(), xPosition, y, columnWidth, content)
+                        drawTextWithWrapping(canvas, prescription.itemName, xPosition + columnWidth, y, columnWidth, content)
+                        drawTextWithWrapping(canvas, prescription.frequency ?: "", xPosition + 2 * columnWidth, y, columnWidth, content)
+                        val dur = if (prescription.unit.isNullOrEmpty()) (prescription.duration ?: "") else (prescription.duration + " " + prescription.unit)
+                        drawTextWithWrapping(canvas, dur, xPosition + 3 * columnWidth, y, columnWidth, content)
+                        drawTextWithWrapping(canvas, prescription.instructions, xPosition + 4 * columnWidth, y, columnWidth, content)
+                        y += rowHeight 
+                    }
+                }
+            }
+
+            pdfDocument.finishPage(myPage)
+
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+            val fileName: String = "Prescription_${patientName.replace(" ", "_")}_${timeStamp}.pdf"
+
+            withContext(Dispatchers.Main) {
+                showDownloadingNotification(fileName)
+            }
+
+            var outputStream: OutputStream? = null
+            var pdfUri: Uri? = null
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    val result = createPdfForApi33(fileName)
+                    if (result != null) {
+                        outputStream = result.first
+                        pdfUri = result.second
+                    } else {
+                        // Fallback to file-based approach for API Q+
+                        val downloadsDirectory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath)
+                        if (!downloadsDirectory.exists()) {
+                            downloadsDirectory.mkdirs()
+                        }
+                        val file = File(downloadsDirectory, fileName)
+                        outputStream = FileOutputStream(file)
+                        pdfUri = FileProvider.getUriForFile(requireContext(), requireContext().packageName + ".provider", file)
+                    }
+                } catch (e: Exception) {
+                    // If MediaStore fails, fallback to file approach
+                    val downloadsDirectory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath)
+                    if (!downloadsDirectory.exists()) {
+                        downloadsDirectory.mkdirs()
+                    }
+                    val file = File(downloadsDirectory, fileName)
+                    outputStream = FileOutputStream(file)
+                    pdfUri = FileProvider.getUriForFile(requireContext(), requireContext().packageName + ".provider", file)
+                }
+            } else {
+                val downloadsDirectory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath)
+                if (!downloadsDirectory.exists()) {
+                    downloadsDirectory.mkdirs()
+                }
+                val file = File(downloadsDirectory, fileName)
+                outputStream = FileOutputStream(file)
+                pdfUri = FileProvider.getUriForFile(requireContext(), requireContext().packageName + ".provider", file)
+            }
+
+            if (outputStream != null) {
+                pdfDocument.writeTo(outputStream)
+                outputStream.close()
+
+                // If saved via MediaStore, mark as not pending so it becomes visible
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && pdfUri != null) {
+                    try {
+                        val updateValues = ContentValues().apply {
+                            put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        }
+                        requireContext().contentResolver.update(pdfUri, updateValues, null, null)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to clear IS_PENDING for pdfUri")
+                    }
+                }
+            } else {
+                throw Exception("Failed to create output stream for PDF")
+            }
+
+            withContext(Dispatchers.Main) {
+                dismissNotification(0)
+                pdfUri?.let { showDownloadCompleteNotification(fileName, it) }
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Download Successful")
+                    .setMessage("Prescription PDF has been downloaded successfully to your Downloads folder.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+
         } catch (e: Exception) {
-            e.printStackTrace()
-            dismissNotification(0)
-            Toast.makeText(requireContext(), "Failed to generate PDF file", Toast.LENGTH_SHORT)
-                .show()
+            Timber.e(e, "Error in generatePDF")
+            withContext(Dispatchers.Main) {
+                dismissNotification(0)
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Download Failed")
+                    .setMessage("Failed to generate PDF. Please check if you have storage permissions enabled.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
         } finally {
             pdfDocument.close()
         }
@@ -1349,20 +1326,31 @@ class PersonalDetailsFragment : Fragment() {
         return result
     }
 
-    private fun createPdfForApi33(fileName: String): Pair<OutputStream, Uri> {
-        val contentValues = ContentValues().apply {
-            put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-            put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
-            put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-        }
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun createPdfForApi33(fileName: String): Pair<OutputStream, Uri>? {
+        return try {
+            val resolver = requireContext().contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
 
-        val pdfUri: Uri? = requireContext().contentResolver.insert(
-            MediaStore.Files.getContentUri("external"), contentValues
-        )
-        val outst = pdfUri?.let { requireContext().contentResolver.openOutputStream(it) }!!
-        Objects.requireNonNull(outst)
-        Objects.requireNonNull(pdfUri)
-        return Pair(outst, pdfUri)
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+            if (uri == null) return null
+
+            val out = resolver.openOutputStream(uri)
+            if (out == null) {
+                try { resolver.delete(uri, null, null) } catch (_: Exception) {}
+                return null
+            }
+
+            Pair(out, uri)
+        } catch (e: Exception) {
+            Timber.e(e, "Error in createPdfForApi33")
+            null
+        }
     }
 
     private fun showDownloadingNotification(fileName: String) {
@@ -1452,8 +1440,12 @@ class PersonalDetailsFragment : Fragment() {
                 viewModel.filterText("")
                 binding.patientListContainer.patientList.adapter = itemAdapter
                 val count = itemAdapter?.itemCount ?: patientCount
-                binding.patientListContainer.patientCount.text =
-                    count.toString() + getResultStr(count)
+                binding.patientListContainer.patientCount.text = String.format(
+                    Locale.getDefault(),
+                    getString(R.string.patient_count_format),
+                    count,
+                    getResultStr(count)
+                )
                 return
             }
 
@@ -1476,8 +1468,12 @@ class PersonalDetailsFragment : Fragment() {
                             isShowingSearchResults = false
                             viewModel.filterText(query)
                             binding.patientListContainer.patientList.adapter = itemAdapter
-                            binding.patientListContainer.patientCount.text =
-                                localMatches.size.toString() + getResultStr(localMatches.size)
+                            binding.patientListContainer.patientCount.text = String.format(
+                                Locale.getDefault(),
+                                getString(R.string.patient_count_format),
+                                localMatches.size,
+                                getResultStr(localMatches.size)
+                            )
                         }
                     }
                     return@launch
@@ -1498,8 +1494,12 @@ class PersonalDetailsFragment : Fragment() {
                                 isShowingSearchResults = false
                                 viewModel.filterText(query)
                                 binding.patientListContainer.patientList.adapter = itemAdapter
-                                binding.patientListContainer.patientCount.text =
-                                    localMatches.size.toString() + getResultStr(localMatches.size)
+                                binding.patientListContainer.patientCount.text = String.format(
+                                    Locale.getDefault(),
+                                    getString(R.string.patient_count_format),
+                                    localMatches.size,
+                                    getResultStr(localMatches.size)
+                                )
                             }
                         }
                         return@launch
@@ -1650,8 +1650,12 @@ class PersonalDetailsFragment : Fragment() {
                             isShowingSearchResults = true
                             apiSearchAdapter?.submitList(list)
                             binding.patientListContainer.patientList.adapter = apiSearchAdapter
-                            binding.patientListContainer.patientCount.text =
-                                list.size.toString() + getResultStr(list.size)
+                            binding.patientListContainer.patientCount.text = String.format(
+                                Locale.getDefault(),
+                                getString(R.string.patient_count_format),
+                                list.size,
+                                getResultStr(list.size)
+                            )
                         }
                     }
 
@@ -1663,8 +1667,12 @@ class PersonalDetailsFragment : Fragment() {
                             isShowingSearchResults = false
                             viewModel.filterText(query)
                             binding.patientListContainer.patientList.adapter = itemAdapter
-                            binding.patientListContainer.patientCount.text =
-                                localMatches.size.toString() + getResultStr(localMatches.size)
+                            binding.patientListContainer.patientCount.text = String.format(
+                                Locale.getDefault(),
+                                getString(R.string.patient_count_format),
+                                localMatches.size,
+                                getResultStr(localMatches.size)
+                            )
                         }
                     }
                 }
@@ -1801,7 +1809,7 @@ class PersonalDetailsFragment : Fragment() {
     }
 
     private fun checkAndGenerateABHA(benVisitInfo: PatientDisplayWithVisitInfo) {
-        Log.d("checkAndGenerateABHA click listener", "checkAndGenerateABHA click listener")
+        Timber.d("checkAndGenerateABHA click listener")
         viewModel.fetchAbha(benVisitInfo.patient.beneficiaryID!!)
     }
 
