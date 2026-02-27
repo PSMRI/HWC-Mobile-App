@@ -175,9 +175,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
             if (result) {
-                // Picture was taken successfully, update the ImageView with the captured image
-                Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
-                    .into(binding.ivImgCapture)
+                // Do NOT show the captured image yet — wait for face detection to pass first
 
                 try {
                     // Initialize MediaPipe Face Detector
@@ -210,6 +208,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     // Handle detection results
                     when {
                         detectionResult.detections().isEmpty() -> {
+                            // No face — keep the placeholder, show toast
                             Toast.makeText(requireContext(), getString(R.string.no_face_detected), Toast.LENGTH_SHORT).show()
                             binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                             faceDetector.close()
@@ -220,6 +219,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             faceDetector.close()
                         }
                         else -> {
+                            // Face found — now show the captured photo
+                            Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
+                                .into(binding.ivImgCapture)
+
                             val detection = detectionResult.detections()[0]
                             val boundingBox = detection.boundingBox()
 
