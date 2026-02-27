@@ -190,7 +190,8 @@
                                 android:id="@+id/cbac_tv_smoke"
                                 style="@style/cbac_tv_hint_risk_assessment"
                                 android:layout_toStartOf="@+id/dd_smoke_score"
-                                android:text="@string/cbac_hint_smoke" />
+                                app:asteriskRequired="@{true}"
+                                app:hintText="@{@string/cbac_hint_smoke}" />
 
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/til_smoke_dropdown"
@@ -240,7 +241,8 @@
                                 android:id="@+id/cbac_tv_alcohol"
                                 style="@style/cbac_tv_hint_risk_assessment"
                                 android:layout_toStartOf="@+id/dd_alcohol_score"
-                                android:text="@string/cbac_hint_alcohol" />
+                                app:asteriskRequired="@{true}"
+                                app:hintText="@{@string/cbac_hint_alcohol}" />
 
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/til_alcohol_dropdown"
@@ -289,7 +291,8 @@
                                 android:id="@+id/cbac_tv_waist"
                                 style="@style/cbac_tv_hint_risk_assessment"
                                 android:layout_toStartOf="@+id/dd_waist_score"
-                                android:text="@string/cbac_hint_waist" />
+                                app:asteriskRequired="@{true}"
+                                app:hintText="@{@string/cbac_hint_waist}" />
 
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/til_waist_dropdown"
@@ -338,7 +341,8 @@
                                 android:id="@+id/cbac_tv_pa"
                                 style="@style/cbac_tv_hint_risk_assessment"
                                 android:layout_toStartOf="@+id/dd_pa_score"
-                                android:text="@string/cbac_hint_pa" />
+                                app:asteriskRequired="@{true}"
+                                app:hintText="@{@string/cbac_hint_pa}" />
 
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/til_pa_dropdown"
@@ -387,7 +391,8 @@
                                 android:id="@+id/cbac_tv_fh"
                                 style="@style/cbac_tv_hint_risk_assessment"
                                 android:layout_toStartOf="@+id/dd_fh_score"
-                                android:text="@string/cbac_hint_fh" />
+                                app:asteriskRequired="@{true}"
+                                app:hintText="@{@string/cbac_hint_fh}" />
 
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/til_fh_dropdown"
@@ -557,174 +562,174 @@
                                 android:id="@+id/cbac_recurrent_ulceration"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_recurrent_ulceration}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_recurrent_tingling"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_recurrent_tingling}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_recurrent_cloudy"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_recurrent_cloudy}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_recurrent_diffculty_reading"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_recurrent_diffculty_reading}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_recurrent_pain_eyes"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_recurrent_pain_eyes}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_recurrent_redness_eyes"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_recurrent_redness_eyes}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_recurrent_diff_hearing"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_recurrent_diff_hearing}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
 
                             <include
                                 android:id="@+id/cbac_breath"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_breath}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_hifits"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_hifits}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_difmouth"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_difmouth}"
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_heald"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_heald}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_voice"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_voice}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_Any_Growth"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_Any_Growth}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_Any_white"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_Any_white}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_Pain_while_chewing"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_Pain_while_chewing}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_Any_hyper_pigmented"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_Any_hyper_pigmented}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_any_thickend_skin"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_any_thickend_skin}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_any_nodules_skin"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_any_nodules_skin}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_Recurrent_numbness"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_Recurrent_numbness}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_Clawing_of_fingers"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_Clawing_of_fingers}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_Tingling_or_Numbness"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_Tingling_or_Numbness}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_Inability_close_eyelid"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_Inability_close_eyelid}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_diff_holding_objects"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_diff_holding_objects}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <include
                                 android:id="@+id/cbac_Weekness_in_feet"
                                 layout="@layout/fragment_cbac_element_radio"
                                 app:fieldName="@{@string/cbac_Weekness_in_feet}"
 
-                                app:numAsterisk="@{0}" />
+                                app:numAsterisk="@{1}" />
 
                             <LinearLayout
                                 android:id="@+id/cbac_ll_ed_women"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical">
+
                                 <TextView
                                     android:id="@+id/cbac_tv_ed_2"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/cbac_early_detection_2"
                                     android:padding="@dimen/padding_normal"
+                                    android:text="@string/cbac_early_detection_2"
                                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
-
 
 
                                 <include
@@ -732,47 +737,47 @@
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_lumpbrest}"
 
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
                                 <include
                                     android:id="@+id/cbac_nipple"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_nipple}"
 
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
                                 <include
                                     android:id="@+id/cbac_breast"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_breast}"
 
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
                                 <include
                                     android:id="@+id/cbac_blperiods"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_blperiods}"
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
                                 <include
                                     android:id="@+id/cbac_blmenopause"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_blmenopause}"
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
                                 <include
                                     android:id="@+id/cbac_blintercorse"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_blintercorse}"
 
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
                                 <include
                                     android:id="@+id/cbac_fouldis"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_fouldis}"
 
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -790,30 +795,29 @@
                                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
 
-
                                 <include
                                     android:id="@+id/cbac_unsteady"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_unsteady}"
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
                                 <include
                                     android:id="@+id/cbac_pd_rm"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_pd_rm}"
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
                                 <include
                                     android:id="@+id/cbac_nhop"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_nhop}"
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
                                 <include
                                     android:id="@+id/cbac_forget_names"
                                     layout="@layout/fragment_cbac_element_radio"
                                     app:fieldName="@{@string/cbac_forget_names}"
-                                    app:numAsterisk="@{0}" />
+                                    app:numAsterisk="@{1}" />
 
 
                             </LinearLayout>
