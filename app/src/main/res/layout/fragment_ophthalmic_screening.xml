@@ -638,6 +638,47 @@
             </LinearLayout>
 
 
+
+            <LinearLayout
+                android:id="@+id/ll_injury_trauma_module"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ophthalmic_injury_trauma_title"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ophthalmic_injury_type_label"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/tv_injury_type_selection"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/ophthalmic_select_injury_type"
+                        android:inputType="none"
+                        android:focusable="true"
+                        android:clickable="true" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
             <Button
                 android:id="@+id/btn_next"
                 android:layout_width="match_parent"

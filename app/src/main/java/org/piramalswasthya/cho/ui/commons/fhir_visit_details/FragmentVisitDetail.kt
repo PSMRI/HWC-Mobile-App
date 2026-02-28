@@ -1490,7 +1490,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 )
             }
-            else if(reasonForVisit == DropdownConst.screening || reasonForVisit == DropdownConst.REASON_SYMPTOMATIC){
+            else if(reasonForVisit == DropdownConst.screening || reasonForVisit == DropdownConst.REASON_SYMPTOMATIC || reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY){
                 saveVisitData(skipChiefComplaintValidation = true) { benVisitNo ->
                     binding.btnSubmit.isEnabled = true
                     findNavController().navigate(
