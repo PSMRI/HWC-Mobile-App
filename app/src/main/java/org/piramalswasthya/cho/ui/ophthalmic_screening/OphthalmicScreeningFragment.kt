@@ -401,22 +401,25 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
     }
 
-    private fun applyInjuryTypesDisplay(types: List<String>?) {
-        if (types.isNullOrEmpty()) {
-            binding.tvInjuryTypeSelection.setText("")
-            binding.tvInjuryTypeSelection.hint = getString(R.string.ophthalmic_select_injury_type)
+    private fun applyMultiSelectDisplay(
+        view: android.widget.AutoCompleteTextView,
+        values: List<String>?,
+        emptyHintRes: Int
+    ) {
+        if (values.isNullOrEmpty()) {
+            view.setText("")
+            view.hint = getString(emptyHintRes)
         } else {
-            binding.tvInjuryTypeSelection.setText(types.joinToString(", "))
+            view.setText(values.joinToString(", "))
         }
     }
 
+    private fun applyInjuryTypesDisplay(types: List<String>?) {
+        applyMultiSelectDisplay(binding.tvInjuryTypeSelection, types, R.string.ophthalmic_select_injury_type)
+    }
+
     private fun applyCaseIdConditionsDisplay(conditions: List<String>?) {
-        if (conditions.isNullOrEmpty()) {
-            binding.tvCaseIdSelection.setText("")
-            binding.tvCaseIdSelection.hint = getString(R.string.select_conditions)
-        } else {
-            binding.tvCaseIdSelection.setText(conditions.joinToString(", "))
-        }
+        applyMultiSelectDisplay(binding.tvCaseIdSelection, conditions, R.string.select_conditions)
     }
 
     private fun applyRadioState(
