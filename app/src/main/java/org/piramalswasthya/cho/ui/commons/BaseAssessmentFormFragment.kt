@@ -138,7 +138,7 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
                 BaseFormViewModel.State.SAVE_FAILED -> {
                     contentLayout.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "Save failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.form_save_failed), Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -152,7 +152,7 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
 
     private fun showAlertDialog(message: String) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Alert")
+            .setTitle(getString(R.string.form_alert_title))
             .setMessage(message)
             .setPositiveButton("OK") { dialog, _ ->
                 dialog.dismiss()
@@ -172,7 +172,7 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
             val fieldName = adapter.currentList.getOrNull(result)?.title ?: getString(R.string.form_input_empty_error)
             Toast.makeText(
                 requireContext(),
-                "Please fill: $fieldName",
+                getString(R.string.form_fill_field_error, fieldName),
                 Toast.LENGTH_SHORT
             ).show()
             inputFormRecyclerView.scrollToPosition(result)

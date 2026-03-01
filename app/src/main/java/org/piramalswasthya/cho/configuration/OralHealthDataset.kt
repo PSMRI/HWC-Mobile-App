@@ -90,8 +90,9 @@ class OralHealthDataset(
 
             toothDecaySymptoms.id -> {
                 val currentSelections = toSelectionSet(toothDecaySymptoms.value)
-                val isNewSelection = currentSelections.size > lastSelectedToothDecaySymptoms.size
-                if (isNewSelection) {
+                val hadSymptomsBefore = lastSelectedToothDecaySymptoms.isNotEmpty()
+                val hasSymptomsNow = currentSelections.isNotEmpty()
+                if (!hadSymptomsBefore && hasSymptomsNow) {
                     onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
                 }
                 lastSelectedToothDecaySymptoms = currentSelections

@@ -10,8 +10,8 @@ import org.piramalswasthya.cho.configuration.FormDataModel
 @Entity(
     tableName = "ORAL_HEALTH",
     indices = [
-        Index(value = ["patient_id"]),
-        Index(value = ["patient_id", "ben_visit_no"])
+        Index(value = ["patient_id"], name = "index_oral_health_patient_id"),
+        Index(value = ["patient_id", "ben_visit_no"], name = "index_oral_health_patient_visit", unique = true)
     ]
 )
 @JsonClass(generateAdapter = true)

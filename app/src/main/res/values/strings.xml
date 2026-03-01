@@ -560,6 +560,8 @@
     <string name="form_input_max_limit_error">%1s should be lesser than or equal to %2d</string>
     <string name="form_input_max_limit_error_decimal">%1s should be lesser than or equal to %2.1f</string>
     <string name="form_input_error_invalid_mobile">Invalid Mobile Number !</string>
+    <string name="form_fill_field_error">Please fill: %1$s</string>
+    <string name="form_alert_title">Alert</string>
     <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
     <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
     <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>

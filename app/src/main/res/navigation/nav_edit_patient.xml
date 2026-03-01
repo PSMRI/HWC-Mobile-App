@@ -300,7 +300,7 @@
     <fragment
         android:id="@+id/oralHealthFormFragment"
         android:name="org.piramalswasthya.cho.ui.oral_health.OralHealthFormFragment"
-        android:label="Oral Health Care">
+        android:label="@string/title_oral_health">
         <argument
             android:name="patientID"
             app:argType="string" />
