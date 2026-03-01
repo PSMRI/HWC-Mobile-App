@@ -47,6 +47,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_psychosocialCaregiverSupportFormFragment"
             app:destination="@id/psychosocialCaregiverSupportFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_oralHealthFormFragment"
+            app:destination="@id/oralHealthFormFragment" />
 
     </fragment>
 
@@ -293,6 +296,17 @@
         <argument
             android:name="benVisitNo"
             app:argType="integer"/>
+    </fragment>
+    <fragment
+        android:id="@+id/oralHealthFormFragment"
+        android:name="org.piramalswasthya.cho.ui.oral_health.OralHealthFormFragment"
+        android:label="@string/title_oral_health">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer" />
     </fragment>
 
 </navigation>
