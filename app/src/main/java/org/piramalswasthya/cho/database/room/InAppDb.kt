@@ -65,6 +65,7 @@ import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.OralHealthDao
 import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
@@ -156,6 +157,7 @@ import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.model.EarDiagnosisAssessment
 import org.piramalswasthya.cho.model.PainAndSymptomAssessment
+import org.piramalswasthya.cho.model.OralHealth
 import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
 
 
@@ -250,10 +252,11 @@ import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
         OphthalmicVisit::class,
         EarDiagnosisAssessment::class,
         PainAndSymptomAssessment::class,
-        PsychosocialCaregiverSupport::class
+        PsychosocialCaregiverSupport::class,
+        OralHealth::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 130, exportSchema = false
+    version = 131, exportSchema = false
 )
 
 
@@ -329,6 +332,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val statusOfWomanDao: StatusOfWomanDao
     abstract val ophthalmicDao: OphthalmicDao
     abstract val earDiagnosisAssessmentDao: EarDiagnosisAssessmentDao
+    abstract val oralHealthDao: OralHealthDao
 
     companion object {
         @Volatile
@@ -785,8 +789,40 @@ abstract class InAppDb : RoomDatabase() {
                 )
             }
         }
+        val MIGRATION_130_131 = object : Migration(130, 131) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS ORAL_HEALTH (
+                oral_health_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                tooth_decay_present INTEGER,
+                tooth_decay_symptoms TEXT,
+                gum_disease_present INTEGER,
+                gum_disease_symptoms TEXT,
+                irregular_teeth_jaws INTEGER,
+                abnormal_growth_ulcer INTEGER,
+                cleft_lip_palate INTEGER,
+                dental_fluorosis INTEGER,
+                dental_emergency TEXT,
+                created_date INTEGER,
+                created_by TEXT
+            )
+            """.trimIndent()
+                )
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_oral_health_patient_id " +
+                        "ON ORAL_HEALTH(patient_id)"
+                )
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_oral_health_patient_visit " +
+                        "ON ORAL_HEALTH(patient_id, ben_visit_no)"
+                )
+            }
+        }
 
-
+    
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -822,7 +858,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_126_127,
                             MIGRATION_127_128,
                             MIGRATION_128_129,
-                            MIGRATION_129_130
+                            MIGRATION_129_130,
+                            MIGRATION_130_131
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

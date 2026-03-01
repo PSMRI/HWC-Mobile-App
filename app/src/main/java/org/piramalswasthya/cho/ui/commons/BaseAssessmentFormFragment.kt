@@ -162,12 +162,21 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
             .show()
     }
 
-    // ── Submit / navigation ───────────────────────────────────────────────────
 
     protected fun submitForm() {
         val adapter = inputFormRecyclerView.adapter as? FormInputAdapter ?: return
         val result = adapter.validateInput(resources)
-        if (result == -1) onSaveForm() else inputFormRecyclerView.scrollToPosition(result)
+        if (result == -1) {
+            onSaveForm()
+        } else {
+            val fieldName = adapter.currentList.getOrNull(result)?.title ?: getString(R.string.form_input_empty_error)
+            Toast.makeText(
+                requireContext(),
+                "Please fill: $fieldName",
+                Toast.LENGTH_SHORT
+            ).show()
+            inputFormRecyclerView.scrollToPosition(result)
+        }
     }
 
     override fun onSubmitAction() = submitForm()
