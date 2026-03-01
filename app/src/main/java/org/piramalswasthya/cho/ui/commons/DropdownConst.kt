@@ -54,7 +54,8 @@ class DropdownConst {
         val visualAcuityChartList = listOf(CHART_SNELLENS, CHART_NEAR_VISION)
 
         const val REASON_SYMPTOMATIC = "Symptomatic"
-        val ophthalmicReasonForVisitList = listOf(screening, REASON_SYMPTOMATIC)
+        const val REASON_FIRST_AID_EYE_INJURY = "First aid for eye injury/trauma"
+        val ophthalmicReasonForVisitList = listOf(screening, REASON_SYMPTOMATIC, REASON_FIRST_AID_EYE_INJURY)
 
         const val CONDITION_CATARACT = "Cataract"
         const val CONDITION_GLAUCOMA = "Glaucoma"
@@ -76,6 +77,17 @@ class DropdownConst {
             CONDITION_CONJUNCTIVITIS,
             CONDITION_DRY_EYE,
             CONDITION_EYE_ALLERGY
+        )
+
+        const val INJURY_MECHANICAL_FOREIGN_BODY = "Mechanical foreign body"
+        const val INJURY_BLUNT_TRAUMA = "Blunt trauma"
+        const val INJURY_PENETRATING = "Penetrating injury suspected"
+        const val INJURY_CHEMICAL = "Chemical (acid/alkali/other)"
+        val injuryTypeList = listOf(
+            INJURY_MECHANICAL_FOREIGN_BODY,
+            INJURY_BLUNT_TRAUMA,
+            INJURY_PENETRATING,
+            INJURY_CHEMICAL
         )
 
         const val TRACHOMA_SUSPECTED_ACTIVE = "Suspected active trachoma"

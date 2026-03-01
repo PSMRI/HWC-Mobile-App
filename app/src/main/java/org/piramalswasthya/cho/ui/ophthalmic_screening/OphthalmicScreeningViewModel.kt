@@ -151,6 +151,12 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private val _canProceed = MutableLiveData<Boolean>(false)
     val canProceed: LiveData<Boolean> = _canProceed
 
+    private val _showInjuryTraumaModule = MutableLiveData<Boolean>(false)
+    val showInjuryTraumaModule: LiveData<Boolean> = _showInjuryTraumaModule
+
+    private val _injuryTypes = MutableLiveData<List<String>>(emptyList())
+    val injuryTypes: LiveData<List<String>> = _injuryTypes
+
     private val _saveError = MutableLiveData<Boolean>(false)
     val saveError: LiveData<Boolean> = _saveError
 
@@ -163,6 +169,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _reasonForVisit.value = reasonForVisit
         _showScreeningModule.value = (reasonForVisit == DropdownConst.screening)
         _showCaseIdSection.value = (reasonForVisit == DropdownConst.REASON_SYMPTOMATIC)
+        _showInjuryTraumaModule.value = (reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY)
         resetFields()
 
         viewModelScope.launch {
@@ -193,6 +200,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _distVALeft.value = null
         _nearVA.value = null
         _caseIdConditions.value = emptyList()
+        _injuryTypes.value = emptyList()
         _ophthalmicVisit.value = null
         resetConditionSubFields()
         updateSectionVisibility()
@@ -235,6 +243,17 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _trachomaStatus.value = visit.trachomaStatus
         _cornealDiseaseType.value = visit.cornealDiseaseType
         _vitaminADeficiency.value = visit.vitaminADeficiency
+
+        visit.injuryType?.let { json ->
+            try {
+                _injuryTypes.value = moshiAdapter.fromJson(json) ?: emptyList()
+            } catch (e: Exception) {
+                Timber.e(e, "Error parsing injuryType")
+                _injuryTypes.value = emptyList()
+            }
+        } ?: run {
+            _injuryTypes.value = emptyList()
+        }
 
         updateSectionVisibility()
         deriveAlerts()
@@ -341,6 +360,11 @@ class OphthalmicScreeningViewModel @Inject constructor(
         validate()
     }
 
+    fun setInjuryTypes(types: List<String>) {
+        _injuryTypes.value = types
+        validate()
+    }
+
 
     private fun clearRemovedConditionSubFields(currentConditions: List<String>) {
         if (!currentConditions.contains(DropdownConst.CONDITION_CATARACT)) {
@@ -437,6 +461,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         TRACHOMA,
         CORNEAL,
         VITAMIN_A,
+        INJURY_TYPE,
         NONE
     }
 
@@ -462,6 +487,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _isCaseIdMandatory.value = isMando
 
         val result = when {
+            reason == DropdownConst.REASON_FIRST_AID_EYE_INJURY ->
+                ValidationResult(fieldsValid = !_injuryTypes.value.isNullOrEmpty(), alert = false, caseIdByVA = false)
             reason == DropdownConst.REASON_SYMPTOMATIC -> {
                 val validCaseId = if (isMando) caseIds.isNotEmpty() else true
                 val subFieldsValid = areVisibleSubFieldsAnswered()
@@ -541,10 +568,15 @@ class OphthalmicScreeningViewModel @Inject constructor(
     fun getMissingMandatoryField(): MissingField {
         val reason = _reasonForVisit.value
         return when (reason) {
+            DropdownConst.REASON_FIRST_AID_EYE_INJURY -> getMissingInjuryTraumaField()
             DropdownConst.REASON_SYMPTOMATIC -> getMissingSymptomaticField()
             DropdownConst.screening -> getMissingScreeningField()
             else -> MissingField.NONE
         }
+    }
+
+    private fun getMissingInjuryTraumaField(): MissingField {
+        return if (_injuryTypes.value.isNullOrEmpty()) MissingField.INJURY_TYPE else MissingField.NONE
     }
 
     private fun getMissingSymptomaticField(): MissingField {
@@ -631,6 +663,15 @@ class OphthalmicScreeningViewModel @Inject constructor(
                     trachomaStatus = _trachomaStatus.value
                     cornealDiseaseType = _cornealDiseaseType.value
                     vitaminADeficiency = _vitaminADeficiency.value
+
+                    val injuryTypesVal = _injuryTypes.value
+                    injuryType = if (!injuryTypesVal.isNullOrEmpty()) {
+                        try { moshiAdapter.toJson(injuryTypesVal) } catch (e: Exception) {
+                            Timber.e(e, "Error converting injuryTypes to JSON")
+                            null
+                        }
+                    } else null
+
                     updatedBy = user?.userName ?: "Unknown"
                     updatedDate = Date().time
                     syncState = 0
