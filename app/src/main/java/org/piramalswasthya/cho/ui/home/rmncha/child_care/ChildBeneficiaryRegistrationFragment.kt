@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
@@ -71,6 +72,8 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
     private var motherPatient: Patient? = null
     private var deliveryOutcome: DeliveryOutcomeCache? = null
     private var existingChildPatient: Patient? = null
+    private var isViewOnlyMode: Boolean = false
+    private var isFormReadOnly: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -89,11 +92,7 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
             preferenceDao.getCurrentLanguage()
         )
 
-        formAdapter = FormInputAdapter(
-            formValueListener = FormInputAdapter.FormValueListener { id, index ->
-                lifecycleScope.launch { dataset.updateList(id, index) }
-            }
-        )
+        formAdapter = createFormAdapter(readOnly = false)
 
         binding.rvForm.layoutManager = LinearLayoutManager(requireContext())
         binding.rvForm.adapter = formAdapter
@@ -134,11 +133,14 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
 
                 val childPatientID = childPatientIDArg ?: infantReg.childPatientID
                 val existingChild = childPatientID?.let { getPatientOrNull(it) }
+                isViewOnlyMode = existingChild != null
 
                 motherPatient = mother
                 deliveryOutcome = delivery
                 currentInfantReg = infantReg
                 existingChildPatient = existingChild
+
+                applyScreenMode(isViewOnlyMode)
 
                 dataset.setUpPage(
                     motherPatient = mother,
@@ -155,7 +157,39 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
         }
     }
 
+    private fun createFormAdapter(readOnly: Boolean): FormInputAdapter {
+        return FormInputAdapter(
+            formValueListener = if (readOnly) null else FormInputAdapter.FormValueListener { id, index ->
+                lifecycleScope.launch { dataset.updateList(id, index) }
+            },
+            isEnabled = !readOnly
+        )
+    }
+
+    private fun applyScreenMode(isViewOnly: Boolean) {
+        binding.btnSave.visibility = if (isViewOnly) View.GONE else View.VISIBLE
+
+        (binding.btnCancel.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->
+            if (isViewOnly) {
+                params.endToStart = ConstraintLayout.LayoutParams.UNSET
+                params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            } else {
+                params.endToStart = R.id.btnSave
+                params.endToEnd = ConstraintLayout.LayoutParams.UNSET
+            }
+            binding.btnCancel.layoutParams = params
+        }
+
+        if (isFormReadOnly == isViewOnly) return
+        isFormReadOnly = isViewOnly
+        formAdapter = createFormAdapter(readOnly = isFormReadOnly)
+        binding.rvForm.adapter = formAdapter
+        formAdapter.submitList(dataset.listFlow.value)
+    }
+
     private fun saveForm() {
+        if (isViewOnlyMode) return
+
         val validationResult = formAdapter.validateInput(resources, binding.rvForm)
         if (validationResult != -1) {
             binding.rvForm.scrollToPosition(validationResult)

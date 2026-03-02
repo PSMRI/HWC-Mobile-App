@@ -14,12 +14,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ANC_VISITS_KEY
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity
 import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormViewModel.Alert
 import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormViewModel.State
-import org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ANCVisitsActivity
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -60,14 +61,17 @@ class DeliveryOutcomeFormFragment : Fragment() {
                 binding.btnSubmit.setOnClickListener { onNextClicked() }
             }
 
-            if (adapter == null) {
-                adapter = FormInputAdapter(
-                    formValueListener = FormInputAdapter.FormValueListener { formId, index ->
-                        viewModel.updateListOnValueChanged(formId, index)
-                    },
-                    isEnabled = !(recordExists == true)
-                )
-                binding.form.rvInputForm.adapter = adapter
+            val isFirstCreation = adapter == null
+            adapter = FormInputAdapter(
+                formValueListener = FormInputAdapter.FormValueListener { formId, index ->
+                    viewModel.updateListOnValueChanged(formId, index)
+                },
+                isEnabled = !(recordExists == true)
+            )
+            binding.form.rvInputForm.adapter = adapter
+            adapter?.submitList(viewModel.formList.value)
+
+            if (isFirstCreation) {
                 viewLifecycleOwner.lifecycleScope.launch {
                     viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                         viewModel.formList.collect { list ->
@@ -93,7 +97,7 @@ class DeliveryOutcomeFormFragment : Fragment() {
         // View ANC History link - show and set click listener
         binding.tvViewAncHistory.visibility = View.VISIBLE
         binding.tvViewAncHistory.setOnClickListener {
-            val intent = ANCVisitsActivity.getIntent(requireContext(), viewModel.patientID)
+            val intent = SubModuleActivity.getDirectFragmentIntent(requireContext(), SHOW_ANC_VISITS_KEY)
             startActivity(intent)
         }
 
