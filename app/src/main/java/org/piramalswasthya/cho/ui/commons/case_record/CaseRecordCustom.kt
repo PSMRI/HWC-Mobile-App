@@ -534,20 +534,30 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
                 for (labReport in uniqueLatestReports) {
                     val procedureName = labReport.procedure.procedureName ?: continue
-                    val component = labReport.components.lastOrNull()
-                    val resultVal = if (component != null) {
-                        buildString {
-                            append(component.testResultValue.orEmpty())
-                            component.testResultUnit?.let { append(" $it") }
-                            component.remarks?.let { append(" <br> <b>Remarks: </b> $it") }
+                    val components = labReport.components
+                    if (components.isEmpty()) {
+                        val tableRowVal =
+                            layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
+                        tableRowVal.findViewById<TextView>(R.id.nameTextView).text = procedureName
+                        tableRowVal.findViewById<TextView>(R.id.numberTextView).text = ""
+                        tableLayout.addView(tableRowVal)
+                    } else {
+                        for ((index, component) in components.withIndex()) {
+                            val resultVal = buildString {
+                                component.componentName?.let { append("<b>$it:</b> ") }
+                                append(component.testResultValue.orEmpty())
+                                component.testResultUnit?.let { append(" $it") }
+                                component.remarks?.let { append(" <br> <b>Remarks: </b> $it") }
+                            }
+                            val tableRowVal =
+                                layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
+                            tableRowVal.findViewById<TextView>(R.id.nameTextView).text =
+                                if (index == 0) procedureName else ""
+                            tableRowVal.findViewById<TextView>(R.id.numberTextView).text =
+                                HtmlCompat.fromHtml(resultVal, HtmlCompat.FROM_HTML_MODE_LEGACY)
+                            tableLayout.addView(tableRowVal)
                         }
-                    } else ""
-                    val tableRowVal =
-                        layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
-                    tableRowVal.findViewById<TextView>(R.id.nameTextView).text = procedureName
-                    tableRowVal.findViewById<TextView>(R.id.numberTextView).text =
-                        HtmlCompat.fromHtml(resultVal, HtmlCompat.FROM_HTML_MODE_LEGACY)
-                    tableLayout.addView(tableRowVal)
+                    }
                 }
             }
 
