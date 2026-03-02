@@ -157,6 +157,24 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private val _injuryTypes = MutableLiveData<List<String>>(emptyList())
     val injuryTypes: LiveData<List<String>> = _injuryTypes
 
+    private val _foreignBodyRemoval = MutableLiveData<String?>()
+    val foreignBodyRemoval: LiveData<String?> = _foreignBodyRemoval
+
+    private val _chemicalExposure = MutableLiveData<Boolean?>()
+    val chemicalExposure: LiveData<Boolean?> = _chemicalExposure
+
+    private val _showForeignBodyRemovalField = MutableLiveData<Boolean>(false)
+    val showForeignBodyRemovalField: LiveData<Boolean> = _showForeignBodyRemovalField
+
+    private val _showChemicalExposureField = MutableLiveData<Boolean>(false)
+    val showChemicalExposureField: LiveData<Boolean> = _showChemicalExposureField
+
+    private val _showForeignBodyAlert = MutableLiveData<Boolean>(false)
+    val showForeignBodyAlert: LiveData<Boolean> = _showForeignBodyAlert
+
+    private val _showChemicalExposureAlert = MutableLiveData<Boolean>(false)
+    val showChemicalExposureAlert: LiveData<Boolean> = _showChemicalExposureAlert
+
     private val _saveError = MutableLiveData<Boolean>(false)
     val saveError: LiveData<Boolean> = _saveError
 
@@ -169,7 +187,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _reasonForVisit.value = reasonForVisit
         _showScreeningModule.value = (reasonForVisit == DropdownConst.screening)
         _showCaseIdSection.value = (reasonForVisit == DropdownConst.REASON_SYMPTOMATIC)
-        _showInjuryTraumaModule.value = (reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY)
+        _showInjuryTraumaModule.value = isInjuryTraumaReason(reasonForVisit)
         resetFields()
 
         viewModelScope.launch {
@@ -201,6 +219,12 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _nearVA.value = null
         _caseIdConditions.value = emptyList()
         _injuryTypes.value = emptyList()
+        _foreignBodyRemoval.value = null
+        _chemicalExposure.value = null
+        _showForeignBodyRemovalField.value = false
+        _showChemicalExposureField.value = false
+        _showForeignBodyAlert.value = false
+        _showChemicalExposureAlert.value = false
         _ophthalmicVisit.value = null
         resetConditionSubFields()
         updateSectionVisibility()
@@ -243,6 +267,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _trachomaStatus.value = visit.trachomaStatus
         _cornealDiseaseType.value = visit.cornealDiseaseType
         _vitaminADeficiency.value = visit.vitaminADeficiency
+        _foreignBodyRemoval.value = visit.foreignBodyRemoval
+        _chemicalExposure.value = visit.chemicalExposure
 
         visit.injuryType?.let { json ->
             try {
@@ -257,6 +283,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
 
         updateSectionVisibility()
         deriveAlerts()
+        deriveInjuryAlerts()
         validate()
     }
 
@@ -362,7 +389,48 @@ class OphthalmicScreeningViewModel @Inject constructor(
 
     fun setInjuryTypes(types: List<String>) {
         _injuryTypes.value = types
+        clearRemovedInjuryFields(types)
+        updateInjuryFieldVisibility(types)
+        deriveInjuryAlerts()
         validate()
+    }
+
+    fun setForeignBodyRemoval(value: String) {
+        _foreignBodyRemoval.value = value
+        deriveInjuryAlerts()
+        validate()
+    }
+
+    fun setChemicalExposure(value: Boolean) {
+        _chemicalExposure.value = value
+        deriveInjuryAlerts()
+        validate()
+    }
+
+    private fun clearRemovedInjuryFields(currentInjuryTypes: List<String>) {
+        if (!currentInjuryTypes.contains(DropdownConst.INJURY_MECHANICAL_FOREIGN_BODY)) {
+            _foreignBodyRemoval.value = null
+            _showForeignBodyAlert.value = false
+        }
+        if (!currentInjuryTypes.contains(DropdownConst.INJURY_CHEMICAL)) {
+            _chemicalExposure.value = null
+            _showChemicalExposureAlert.value = false
+        }
+    }
+
+    private fun updateInjuryFieldVisibility(injuryTypes: List<String>) {
+        _showForeignBodyRemovalField.value = injuryTypes.contains(DropdownConst.INJURY_MECHANICAL_FOREIGN_BODY)
+        _showChemicalExposureField.value = injuryTypes.contains(DropdownConst.INJURY_CHEMICAL)
+    }
+
+    private fun deriveInjuryAlerts() {
+        val injuryTypes = _injuryTypes.value ?: emptyList()
+        _showForeignBodyAlert.value = injuryTypes.contains(DropdownConst.INJURY_MECHANICAL_FOREIGN_BODY) &&
+                _foreignBodyRemoval.value == DropdownConst.FOREIGN_BODY_LODGED_IN_CORNEA
+        // Alert fires only after the user has answered the "Chemical Exposure – Thorough Wash
+        // Performed" Yes/No field (PRD: alert is conditional on the field, not on injury type alone).
+        _showChemicalExposureAlert.value = injuryTypes.contains(DropdownConst.INJURY_CHEMICAL) &&
+                _chemicalExposure.value == true
     }
 
 
@@ -444,6 +512,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
 
         val conditions = _caseIdConditions.value ?: emptyList()
         updateConditionSubFieldVisibility(conditions)
+        val injuryTypes = _injuryTypes.value ?: emptyList()
+        updateInjuryFieldVisibility(injuryTypes)
     }
 
     enum class MissingField {
@@ -487,7 +557,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _isCaseIdMandatory.value = isMando
 
         val result = when {
-            reason == DropdownConst.REASON_FIRST_AID_EYE_INJURY ->
+            isInjuryTraumaReason(reason) ->
                 ValidationResult(fieldsValid = !_injuryTypes.value.isNullOrEmpty(), alert = false, caseIdByVA = false)
             reason == DropdownConst.REASON_SYMPTOMATIC -> {
                 val validCaseId = if (isMando) caseIds.isNotEmpty() else true
@@ -568,7 +638,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
     fun getMissingMandatoryField(): MissingField {
         val reason = _reasonForVisit.value
         return when (reason) {
-            DropdownConst.REASON_FIRST_AID_EYE_INJURY -> getMissingInjuryTraumaField()
+            DropdownConst.REASON_FIRST_AID_EYE_INJURY,
+            DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA -> getMissingInjuryTraumaField()
             DropdownConst.REASON_SYMPTOMATIC -> getMissingSymptomaticField()
             DropdownConst.screening -> getMissingScreeningField()
             else -> MissingField.NONE
@@ -577,6 +648,11 @@ class OphthalmicScreeningViewModel @Inject constructor(
 
     private fun getMissingInjuryTraumaField(): MissingField {
         return if (_injuryTypes.value.isNullOrEmpty()) MissingField.INJURY_TYPE else MissingField.NONE
+    }
+
+    private fun isInjuryTraumaReason(reason: String?): Boolean {
+        return reason == DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA ||
+                reason == DropdownConst.REASON_FIRST_AID_EYE_INJURY
     }
 
     private fun getMissingSymptomaticField(): MissingField {
@@ -671,6 +747,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
                             null
                         }
                     } else null
+                    foreignBodyRemoval = _foreignBodyRemoval.value
+                    chemicalExposure = _chemicalExposure.value
 
                     updatedBy = user?.userName ?: "Unknown"
                     updatedDate = Date().time

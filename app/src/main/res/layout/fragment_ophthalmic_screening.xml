@@ -677,6 +677,89 @@
                         android:clickable="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <LinearLayout
+                    android:id="@+id/ll_foreign_body_removal_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actv_foreign_body_removal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/ophthalmic_foreign_body_removal_attempted"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/tv_foreign_body_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_alert_ophthalmologist_referral"
+                        android:textColor="@color/color_error_text"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@color/color_error_bg"
+                        android:visibility="gone"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_chemical_exposure_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_chemical_exposure_wash_performed"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_chemical_exposure"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <RadioButton
+                            android:id="@+id/rb_chemical_exposure_yes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/yes"
+                            android:layout_marginEnd="16dp" />
+
+                        <RadioButton
+                            android:id="@+id/rb_chemical_exposure_no"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:id="@+id/tv_chemical_exposure_alert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ophthalmic_alert_ophthalmologist_referral"
+                        android:textColor="@color/color_error_text"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@color/color_error_bg"
+                        android:visibility="gone"
+                        android:layout_marginBottom="8dp" />
+                </LinearLayout>
+
             </LinearLayout>
 
             <Button

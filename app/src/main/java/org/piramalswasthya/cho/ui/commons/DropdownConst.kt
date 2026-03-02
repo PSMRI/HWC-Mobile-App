@@ -54,8 +54,14 @@ class DropdownConst {
         val visualAcuityChartList = listOf(CHART_SNELLENS, CHART_NEAR_VISION)
 
         const val REASON_SYMPTOMATIC = "Symptomatic"
-        const val REASON_FIRST_AID_EYE_INJURY = "First aid for eye injury/trauma"
-        val ophthalmicReasonForVisitList = listOf(screening, REASON_SYMPTOMATIC, REASON_FIRST_AID_EYE_INJURY)
+        const val REASON_FIRST_AID_INJURY_TRAUMA = "First aid for eye injury/ trauma"
+        // Alias kept for call-site compatibility; both constants now refer to the PRD-defined string.
+        const val REASON_FIRST_AID_EYE_INJURY = REASON_FIRST_AID_INJURY_TRAUMA
+        val ophthalmicReasonForVisitList = listOf(
+            screening,
+            REASON_SYMPTOMATIC,
+            REASON_FIRST_AID_INJURY_TRAUMA
+        )
 
         const val CONDITION_CATARACT = "Cataract"
         const val CONDITION_GLAUCOMA = "Glaucoma"
@@ -65,6 +71,7 @@ class DropdownConst {
         const val CONDITION_CORNEAL_DISEASE = "Corneal disease"
         const val CONDITION_CONJUNCTIVITIS = "Conjunctivitis/Acute red eye"
         const val CONDITION_DRY_EYE = "Dry eye / xerophthalmia"
+        const val CONDITION_DRY_EYE_ALT = "Dry eye/ xerophthalmia"
         const val CONDITION_EYE_ALLERGY = "Eye allergy"
 
         val caseIdConditionsList = listOf(
@@ -79,6 +86,38 @@ class DropdownConst {
             CONDITION_EYE_ALLERGY
         )
 
+        // Chief complaint strings for eye injuries (from DB / backend)
+        const val CONDITION_EYE_INJURY_BLUNT_PENETRATING =
+            "Eye injuries from blunt trauma, penetrating injury to eye,"
+        const val CONDITION_EYE_INJURY_BLUNT_PENETRATING_ALT =
+            "Eye injuries from blunt trauma, penetrating injury to eye"
+        const val CONDITION_CHEMICAL_EXPOSURE = "Chemical exposure (acid/ alkali/other),"
+        const val CONDITION_CHEMICAL_EXPOSURE_ALT = "Chemical exposure (acid/ alkali/other)"
+        const val CONDITION_FOREIGN_BODY_EYE = "Foreign body lodged in the eye"
+
+        /**
+         * All chief complaint strings that qualify a patient for the Ophthalmic sub-category.
+         * Used in FragmentVisitDetail to conditionally include "Ophthalmic" in the sub-category
+         * dropdown when at least one of these chief complaints is selected.
+         */
+        val ophthalmicChiefComplaints: Set<String> = setOf(
+            CONDITION_DIABETIC_RETINOPATHY,
+            CONDITION_GLAUCOMA,
+            CONDITION_CATARACT,
+            CONDITION_PRESBYOPIA,
+            CONDITION_TRACHOMA,
+            CONDITION_CORNEAL_DISEASE,
+            CONDITION_CONJUNCTIVITIS,
+            CONDITION_DRY_EYE,
+            CONDITION_DRY_EYE_ALT,
+            CONDITION_EYE_ALLERGY,
+            CONDITION_EYE_INJURY_BLUNT_PENETRATING,
+            CONDITION_EYE_INJURY_BLUNT_PENETRATING_ALT,
+            CONDITION_CHEMICAL_EXPOSURE,
+            CONDITION_CHEMICAL_EXPOSURE_ALT,
+            CONDITION_FOREIGN_BODY_EYE
+        )
+
         const val INJURY_MECHANICAL_FOREIGN_BODY = "Mechanical foreign body"
         const val INJURY_BLUNT_TRAUMA = "Blunt trauma"
         const val INJURY_PENETRATING = "Penetrating injury suspected"
@@ -88,6 +127,15 @@ class DropdownConst {
             INJURY_BLUNT_TRAUMA,
             INJURY_PENETRATING,
             INJURY_CHEMICAL
+        )
+
+        const val FOREIGN_BODY_NOT_ATTEMPTED = "Not attempted"
+        const val FOREIGN_BODY_ATTEMPTED_CONJUNCTIVAL_SAC = "Attempted from conjunctival sac"
+        const val FOREIGN_BODY_LODGED_IN_CORNEA = "Foreign body lodged in cornea"
+        val foreignBodyRemovalOptions = listOf(
+            FOREIGN_BODY_NOT_ATTEMPTED,
+            FOREIGN_BODY_ATTEMPTED_CONJUNCTIVAL_SAC,
+            FOREIGN_BODY_LODGED_IN_CORNEA
         )
 
         const val TRACHOMA_SUSPECTED_ACTIVE = "Suspected active trachoma"

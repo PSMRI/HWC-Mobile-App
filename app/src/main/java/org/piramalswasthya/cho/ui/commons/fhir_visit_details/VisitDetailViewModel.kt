@@ -10,9 +10,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
+import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.ChiefComplaintDB
@@ -377,7 +379,14 @@ class VisitDetailViewModel @Inject constructor(
 
     private fun getChiefMasterComplaintList() {
         try {
-            _chiefComplaintMaster = maleMasterDataRepository.getChiefMasterComplaint()
+            _chiefComplaintMaster = maleMasterDataRepository.getChiefMasterComplaint().map { list ->
+                val eyeComplaints = DropdownConst.ophthalmicChiefComplaints.mapIndexed { index, complaint ->
+                    ChiefComplaintMaster(-(100 + index), complaint)
+                }
+                val existingNames = list.map { it.chiefComplaint }.toSet()
+                val missing = eyeComplaints.filter { it.chiefComplaint !in existingNames }
+                list + missing
+            }
         } catch (e: Exception) {
             Timber.d("error in getChiefMasterComplaintList() $e")
         }

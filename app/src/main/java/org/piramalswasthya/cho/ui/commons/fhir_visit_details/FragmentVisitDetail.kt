@@ -69,6 +69,7 @@ import org.piramalswasthya.cho.work.WorkerUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 import java.util.TimeZone
 import timber.log.Timber
 import javax.inject.Inject
@@ -391,7 +392,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 )
             )
         }
-
+        // Apply the ophthalmic-chief-complaint filter on top of the age/gender adapter.
+        rebuildSubCategoryAdapter()
     }
 
     private fun setElderlySubCategoryAdapter() {
@@ -1035,6 +1037,93 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.subCatDropDown.isEnabled = true
             binding.reasonForVisitDropDown.isEnabled = true
         }
+        rebuildSubCategoryAdapter()
+    }
+
+    private val normalizedOphthalmicChiefComplaints: Set<String> by lazy {
+        DropdownConst.ophthalmicChiefComplaints.mapTo(mutableSetOf()) { normalizeComplaint(it) }
+    }
+
+    private fun normalizeComplaint(value: String?): String {
+        return value
+            ?.lowercase(Locale.ROOT)
+            ?.trim()
+            ?.replace("\\s*/\\s*".toRegex(), "/")
+            ?.replace("\\s+".toRegex(), " ")
+            ?.replace("[,.;:]+$".toRegex(), "")
+            ?: ""
+    }
+
+    /**
+     * Returns true if at least one chief complaint row in [itemList] contains a complaint
+     * that belongs to the ophthalmic chief complaints allowlist.
+     */
+    private fun hasOphthalmicChiefComplaint(): Boolean =
+        itemList.any { normalizeComplaint(it.chiefComplaint) in normalizedOphthalmicChiefComplaints }
+
+    /**
+     * Rebuilds the sub-category [SubCategoryAdapter] for [binding.subCatInput], applying the
+     * same age/gender logic as [setSubCategoryDropdown] but conditionally including or
+     * excluding [DropdownConst.ophthalmic] based on [hasOphthalmicChiefComplaint].
+     *
+     * Called every time a chief complaint changes so the sub-category list stays in sync.
+     */
+    private fun rebuildSubCategoryAdapter() {
+        // benVisitInfo is a lateinit var assigned after the first validateAndEnableDropdowns()
+        // call in onViewCreated; skip until it is ready.
+        if (!::benVisitInfo.isInitialized) return
+        val includeOphthalmic = hasOphthalmicChiefComplaint()
+
+        fun List<String>.withOptionalOphthalmic(): List<String> =
+            if (includeOphthalmic) {
+                if (contains(DropdownConst.ophthalmic)) this else this + DropdownConst.ophthalmic
+            }
+            else this.filter { it != DropdownConst.ophthalmic }
+
+        val options: List<String> = when {
+            ageCheckForChild(benVisitInfo.patient.dob) -> when {
+                ageCheckForFemaleChild(benVisitInfo.patient.dob) &&
+                        benVisitInfo.genderName?.lowercase() == "female" ->
+                    DropdownConst.age_0_to_1.withOptionalOphthalmic()
+                age15To18ForFemaleChild(benVisitInfo.patient.dob) &&
+                        benVisitInfo.genderName?.lowercase() == "female" ->
+                    DropdownConst.female_1_to_59.withOptionalOphthalmic()
+                else -> DropdownConst.age_0_to_1.withOptionalOphthalmic()
+            }
+            ageCheckForElderly(benVisitInfo.patient.dob) -> when (benVisitInfo.genderName?.lowercase()) {
+                "male"   -> DropdownConst.male_elderly.withOptionalOphthalmic()
+                "female" -> DropdownConst.female_elderly.withOptionalOphthalmic()
+                else     -> listOf(DropdownConst.oral)
+            }
+            benVisitInfo.genderName?.lowercase() == "male" &&
+                    ageCheckForNCD(benVisitInfo.patient.dob) ->
+                DropdownConst.male_ncd.withOptionalOphthalmic()
+            ageCheckForFemale(benVisitInfo.patient.dob) &&
+                    benVisitInfo.genderName?.lowercase() == "female" -> when {
+                ageCheckForNCD(benVisitInfo.patient.dob) ->
+                    DropdownConst.female_ncd.withOptionalOphthalmic()
+                else -> DropdownConst.female_1_to_59.withOptionalOphthalmic()
+            }
+            else -> listOf(DropdownConst.oral)
+        }
+
+        // Preserve current sub-cat selection if it is still valid in the new options list.
+        val currentSubCat = binding.subCatInput.text?.toString() ?: ""
+        binding.subCatInput.setAdapter(
+            SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                options
+            )
+        )
+        if (currentSubCat !in options) {
+            // Selected sub-cat is no longer available (e.g. Ophthalmic removed); clear it.
+            binding.subCatInput.setText("", false)
+            viewModel.selectedSubCat = ""
+            binding.reasonForVisitInput.setText("", false)
+            viewModel.selectedReasonForVisit = ""
+        }
     }
 
     private fun extractFormValues() {
@@ -1526,7 +1615,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 )
             }
-            else if(reasonForVisit == DropdownConst.screening || reasonForVisit == DropdownConst.REASON_SYMPTOMATIC || reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY){
+            else if(
+                reasonForVisit == DropdownConst.screening ||
+                reasonForVisit == DropdownConst.REASON_SYMPTOMATIC ||
+                reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY ||
+                reasonForVisit == DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA
+            ){
                 isNavigationInProgress = true
                 binding.btnSubmit.isEnabled = false
                 saveVisitData(skipChiefComplaintValidation = true) { benVisitNo ->
