@@ -268,6 +268,14 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             OphthalmicScreeningViewModel.MissingField.CORNEAL -> Pair(R.string.ophthalmic_corneal_disease_type, binding.actvCornealDiseaseType)
             OphthalmicScreeningViewModel.MissingField.VITAMIN_A -> Pair(R.string.ophthalmic_vitamin_a_deficiency_label, binding.rgVitaminADeficiency)
             OphthalmicScreeningViewModel.MissingField.INJURY_TYPE -> Pair(R.string.ophthalmic_injury_type_label, binding.tvInjuryTypeSelection)
+            OphthalmicScreeningViewModel.MissingField.FOREIGN_BODY_REMOVAL -> Pair(
+                R.string.ophthalmic_foreign_body_removal_attempted,
+                binding.actvForeignBodyRemoval
+            )
+            OphthalmicScreeningViewModel.MissingField.CHEMICAL_EXPOSURE -> Pair(
+                R.string.ophthalmic_chemical_exposure_wash_performed,
+                binding.rgChemicalExposure
+            )
             else -> return
         }
 

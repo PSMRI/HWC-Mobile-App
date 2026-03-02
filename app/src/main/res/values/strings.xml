@@ -181,7 +181,7 @@
     <string name="ophthalmic_alert_presbyopia_management"> Patient may qualify for presbyopia management (e.g., reading glasses) as per CHO service scope.</string>
     <string name="ophthalmic_alert_vitamin_a"> Vitamin A prophylaxis to be given. Refer to ophthalmologist at the secondary level.</string>
     <!-- Injury and Trauma module strings -->
-    <string name="ophthalmic_injury_trauma_title">Screening for Injury and Trauma</string>
+    <string name="ophthalmic_injury_trauma_title">Injury and Trauma Form</string>
     <string name="ophthalmic_injury_type_label">Injury Type <font color="#FF0000">*</font></string>
     <string name="ophthalmic_select_injury_type">Select Injury Type(s)</string>
     <string name="ophthalmic_foreign_body_removal_attempted">Foreign Body Removal Attempted</string>

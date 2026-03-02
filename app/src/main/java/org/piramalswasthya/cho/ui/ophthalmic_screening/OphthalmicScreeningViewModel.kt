@@ -532,6 +532,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
         CORNEAL,
         VITAMIN_A,
         INJURY_TYPE,
+        FOREIGN_BODY_REMOVAL,
+        CHEMICAL_EXPOSURE,
         NONE
     }
 
@@ -558,7 +560,11 @@ class OphthalmicScreeningViewModel @Inject constructor(
 
         val result = when {
             isInjuryTraumaReason(reason) ->
-                ValidationResult(fieldsValid = !_injuryTypes.value.isNullOrEmpty(), alert = false, caseIdByVA = false)
+                ValidationResult(
+                    fieldsValid = getMissingInjuryTraumaField() == MissingField.NONE,
+                    alert = false,
+                    caseIdByVA = false
+                )
             reason == DropdownConst.REASON_SYMPTOMATIC -> {
                 val validCaseId = if (isMando) caseIds.isNotEmpty() else true
                 val subFieldsValid = areVisibleSubFieldsAnswered()
@@ -647,7 +653,14 @@ class OphthalmicScreeningViewModel @Inject constructor(
     }
 
     private fun getMissingInjuryTraumaField(): MissingField {
-        return if (_injuryTypes.value.isNullOrEmpty()) MissingField.INJURY_TYPE else MissingField.NONE
+        val injuries = _injuryTypes.value ?: emptyList()
+        if (injuries.isEmpty()) return MissingField.INJURY_TYPE
+        if (injuries.contains(DropdownConst.INJURY_CHEMICAL) &&
+            _chemicalExposure.value == null
+        ) {
+            return MissingField.CHEMICAL_EXPOSURE
+        }
+        return MissingField.NONE
     }
 
     private fun isInjuryTraumaReason(reason: String?): Boolean {

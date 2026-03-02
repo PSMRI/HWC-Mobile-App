@@ -380,11 +380,25 @@ class VisitDetailViewModel @Inject constructor(
     private fun getChiefMasterComplaintList() {
         try {
             _chiefComplaintMaster = maleMasterDataRepository.getChiefMasterComplaint().map { list ->
-                val eyeComplaints = DropdownConst.ophthalmicChiefComplaints.mapIndexed { index, complaint ->
-                    ChiefComplaintMaster(-(100 + index), complaint)
-                }
-                val existingNames = list.map { it.chiefComplaint }.toSet()
-                val missing = eyeComplaints.filter { it.chiefComplaint !in existingNames }
+                val canonicalEyeComplaints = listOf(
+                    DropdownConst.CONDITION_CATARACT,
+                    DropdownConst.CONDITION_GLAUCOMA,
+                    DropdownConst.CONDITION_DIABETIC_RETINOPATHY,
+                    DropdownConst.CONDITION_PRESBYOPIA,
+                    DropdownConst.CONDITION_TRACHOMA,
+                    DropdownConst.CONDITION_CORNEAL_DISEASE,
+                    DropdownConst.CONDITION_CONJUNCTIVITIS,
+                    DropdownConst.CONDITION_DRY_EYE,
+                    DropdownConst.CONDITION_EYE_ALLERGY,
+                    DropdownConst.CONDITION_EYE_INJURY_BLUNT_PENETRATING,
+                    DropdownConst.CONDITION_CHEMICAL_EXPOSURE,
+                    DropdownConst.CONDITION_FOREIGN_BODY_EYE
+                )
+                fun normalize(v: String) = v.lowercase().replace("[^a-z0-9]".toRegex(), "")
+                val existingNormalized = list.map { normalize(it.chiefComplaint) }.toSet()
+                val missing = canonicalEyeComplaints
+                    .filter { normalize(it) !in existingNormalized }
+                    .mapIndexed { index, complaint -> ChiefComplaintMaster(-(100 + index), complaint) }
                 list + missing
             }
         } catch (e: Exception) {
