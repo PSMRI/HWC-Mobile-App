@@ -19,10 +19,13 @@ class DropdownConst {
         val ophthalmic: String = "Ophthalmic"
         val screening: String = "Screening"
         val ent: String = "ENT"
+        val oral: String = "Oral"
         val ear: String = "EAR"
         val nose: String = "NOSE"
         val throat: String = "THROAT"
+        val dental: String = "Dental"
         val entReasons: List<String> = listOf(ear, nose, throat)
+        val oralReasons: List<String> = listOf(dental)
 
         val elderlyAndPalliative: String = "Elderly & Palliative"
         val persistentPain: String = "Persistent pain"
@@ -32,14 +35,14 @@ class DropdownConst {
 
 
 
-        val male_ncd: List<String> = listOf(ncdScreening, ophthalmic, ent)
-        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep, ophthalmic, ent)
-        val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization, ophthalmic, ent)
-        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent)
+        val male_ncd: List<String> = listOf(ncdScreening, ophthalmic, ent, oral)
+        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep, ophthalmic, ent, oral)
+        val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization, ophthalmic, ent, oral)
+        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral)
 
-        val male_elderly: List<String> = listOf(ncdScreening, ophthalmic, ent, elderlyAndPalliative)
-        val female_elderly: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, elderlyAndPalliative)
-        val age_0_to_1: List<String> = listOf(neonatalAndInfant, ent)
+        val male_elderly: List<String> = listOf(ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative)
+        val female_elderly: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative)
+        val age_0_to_1: List<String> = listOf(neonatalAndInfant, ent, oral)
 
         val visualAcuityList = listOf("6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60", "<6/60")
         val visualImpairmentList = listOf("6/18", "6/24", "6/36", "6/60", "<6/60")
@@ -51,7 +54,8 @@ class DropdownConst {
         val visualAcuityChartList = listOf(CHART_SNELLENS, CHART_NEAR_VISION)
 
         const val REASON_SYMPTOMATIC = "Symptomatic"
-        val ophthalmicReasonForVisitList = listOf(screening, REASON_SYMPTOMATIC)
+        const val REASON_FIRST_AID_EYE_INJURY = "First aid for eye injury/trauma"
+        val ophthalmicReasonForVisitList = listOf(screening, REASON_SYMPTOMATIC, REASON_FIRST_AID_EYE_INJURY)
 
         const val CONDITION_CATARACT = "Cataract"
         const val CONDITION_GLAUCOMA = "Glaucoma"
@@ -73,6 +77,17 @@ class DropdownConst {
             CONDITION_CONJUNCTIVITIS,
             CONDITION_DRY_EYE,
             CONDITION_EYE_ALLERGY
+        )
+
+        const val INJURY_MECHANICAL_FOREIGN_BODY = "Mechanical foreign body"
+        const val INJURY_BLUNT_TRAUMA = "Blunt trauma"
+        const val INJURY_PENETRATING = "Penetrating injury suspected"
+        const val INJURY_CHEMICAL = "Chemical (acid/alkali/other)"
+        val injuryTypeList = listOf(
+            INJURY_MECHANICAL_FOREIGN_BODY,
+            INJURY_BLUNT_TRAUMA,
+            INJURY_PENETRATING,
+            INJURY_CHEMICAL
         )
 
         const val TRACHOMA_SUSPECTED_ACTIVE = "Suspected active trachoma"

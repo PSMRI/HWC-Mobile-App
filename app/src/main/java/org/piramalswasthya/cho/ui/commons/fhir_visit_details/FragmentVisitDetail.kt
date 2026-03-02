@@ -311,6 +311,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private fun setSubCategoryDropdown(){
         viewModel.selectedSubCat = ""
         binding.subCatInput.setText(viewModel.selectedSubCat, false)
+        var isAdapterSet = false
         if( ageCheckForChild(benVisitInfo.patient.dob) ){
 
             if (ageCheckForFemaleChild(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
@@ -320,6 +321,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     R.id.tv_dropdown_item_text,
                     DropdownConst.age_0_to_1)
                 binding.subCatInput.setAdapter(subCatAdapter)
+                isAdapterSet = true
             } else if (age15To18ForFemaleChild(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female") {
                 val subCatAdapter = SubCategoryAdapter(
                     requireContext(),
@@ -327,6 +329,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     R.id.tv_dropdown_item_text,
                     DropdownConst.female_1_to_59)
                 binding.subCatInput.setAdapter(subCatAdapter)
+                isAdapterSet = true
             } else {
                 val subCatAdapter = SubCategoryAdapter(
                     requireContext(),
@@ -334,6 +337,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     R.id.tv_dropdown_item_text,
                     DropdownConst.age_0_to_1)
                 binding.subCatInput.setAdapter(subCatAdapter)
+                isAdapterSet = true
             }
 
 
@@ -343,6 +347,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
         else if(ageCheckForElderly(benVisitInfo.patient.dob)){
             setElderlySubCategoryAdapter()
+            isAdapterSet = true
         }
         else if(benVisitInfo.genderName?.lowercase() == "male" && ageCheckForNCD(benVisitInfo.patient.dob)){
             val subCatAdapter = SubCategoryAdapter(
@@ -351,6 +356,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 R.id.tv_dropdown_item_text,
                 DropdownConst.male_ncd)
             binding.subCatInput.setAdapter(subCatAdapter)
+            isAdapterSet = true
         }
         else if( ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
             if(ageCheckForNCD(benVisitInfo.patient.dob)){
@@ -360,6 +366,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     R.id.tv_dropdown_item_text,
                     DropdownConst.female_ncd)
                 binding.subCatInput.setAdapter(subCatAdapter)
+                isAdapterSet = true
             }
             else{
                 val subCatAdapter = SubCategoryAdapter(
@@ -368,10 +375,21 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     R.id.tv_dropdown_item_text,
                     DropdownConst.female_1_to_59)
                 binding.subCatInput.setAdapter(subCatAdapter)
+                isAdapterSet = true
             }
 //            viewModel.selectedSubCat = DropdownConst.female_1_to_59[0]
 //            binding.subCatInput.setText(viewModel.selectedSubCat, false)
 //            setReasonForVisitDropdown(viewModel.selectedSubCat)
+        }
+        if (!isAdapterSet) {
+            binding.subCatInput.setAdapter(
+                SubCategoryAdapter(
+                    requireContext(),
+                    R.layout.dropdown_subcategory,
+                    R.id.tv_dropdown_item_text,
+                    listOf(DropdownConst.oral)
+                )
+            )
         }
 
     }
@@ -380,7 +398,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val options = when (benVisitInfo.genderName?.lowercase()) {
             "male" -> DropdownConst.male_elderly
             "female" -> DropdownConst.female_elderly
-            else -> return
+            else -> listOf(DropdownConst.oral)
         }
         binding.subCatInput.setAdapter(
             SubCategoryAdapter(
@@ -509,6 +527,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
         }
+        else if(subCat == DropdownConst.oral){
+            val subCatAdapter = SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                DropdownConst.oralReasons
+            )
+            binding.reasonForVisitInput.setAdapter(subCatAdapter)
+            changeBtnView()
+        }
         else if(subCat == DropdownConst.elderlyAndPalliative){
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
@@ -621,10 +649,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         Log.v("tag on", "onResume")
         super.onResume()
 
+        isNavigationInProgress = false
+        binding.btnSubmit.isEnabled = true
         deliveryDate = null
         binding.deliveryDate.setText("")
-        setSubCategoryDropdown()
-        setReasonForVisitDropdown(viewModel.selectedSubCat)
+        if (binding.subCatInput.text.isNullOrBlank()) {
+            setSubCategoryDropdown()
+        }
+        if (binding.reasonForVisitInput.text.isNullOrBlank() && viewModel.selectedSubCat.isNotBlank()) {
+            setReasonForVisitDropdown(viewModel.selectedSubCat)
+        }
     }
 
     override fun onPause(){
@@ -987,6 +1021,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.radioGroup2.setOnCheckedChangeListener { _, checkedId ->
             reason = when (checkedId) {
                 R.id.radioButton3 -> {
+                    viewModel.setIsFollowUp(false)
                     binding.chf.visibility = View.VISIBLE
                     binding.chiefComplaintExtra.visibility = View.VISIBLE
                     binding.chiefComplaintHeading.visibility = View.GONE
@@ -999,6 +1034,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
 
                 else -> {
+                    viewModel.setIsFollowUp(true)
                     chiefAndVitalsDataFill()
                     binding.radioButton4.tag.toString()
 //                    binding.radioButton4.text.toString()
@@ -1561,9 +1597,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 )
             }
-            else if(reasonForVisit == DropdownConst.screening || reasonForVisit == DropdownConst.REASON_SYMPTOMATIC){
+            else if(reasonForVisit == DropdownConst.screening || reasonForVisit == DropdownConst.REASON_SYMPTOMATIC || reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY){
+                isNavigationInProgress = true
+                binding.btnSubmit.isEnabled = false
                 saveVisitData(skipChiefComplaintValidation = true) { benVisitNo ->
-                    binding.btnSubmit.isEnabled = true
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToOphthalmicScreeningFragment(
                             patientID = benVisitInfo.patient.patientID,
@@ -1580,6 +1617,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEarDiagnosisFormFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitNo
+                        )
+                    )
+                }
+            }
+            else if(reasonForVisit == DropdownConst.dental){
+                isNavigationInProgress = true
+                binding.btnSubmit.isEnabled = false
+                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToOralHealthFormFragment(
                             patientID = benVisitInfo.patient.patientID,
                             benVisitNo = benVisitNo
                         )
@@ -1879,6 +1928,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     private fun saveVisitData(skipChiefComplaintValidation: Boolean = false, onSuccess: (Int) -> Unit) {
         if (!skipChiefComplaintValidation && !addChiefComplaintsData()) {
+            isNavigationInProgress = false
             binding.btnSubmit.isEnabled = true
             return
         }
@@ -1968,10 +2018,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         onSuccess(benVisitNo)
                     } else if (it == false) {
                         viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
+                        isNavigationInProgress = false
                         binding.btnSubmit.isEnabled = true
                     }
                 }
             } catch (e: Exception) {
+                isNavigationInProgress = false
                 binding.btnSubmit.isEnabled = true
                 Timber.e(e, "Error saving visit data")
                 Toast.makeText(requireContext(), "Error saving data", Toast.LENGTH_SHORT).show()

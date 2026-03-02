@@ -70,6 +70,7 @@ import javax.inject.Singleton
 import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.NoseDiagnosisAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.OralHealthDao
 import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
 
 @Module
@@ -390,6 +391,11 @@ object AppModule {
     @Singleton
     @Provides
     fun providePainAndSymptomAssessmentDao(database: InAppDb): PainAndSymptomAssessmentDao = database.painAndSymptomAssessmentDao
+
+    @Singleton
+    @Provides
+    fun provideOralHealthDao(database: InAppDb): OralHealthDao =
+        database.oralHealthDao
 
     @Singleton
     @Provides

@@ -180,6 +180,10 @@
     <string name="ophthalmic_alert_ophthalmologist_referral"> Refer to ophthalmologist at the secondary level.</string>
     <string name="ophthalmic_alert_presbyopia_management"> Patient may qualify for presbyopia management (e.g., reading glasses) as per CHO service scope.</string>
     <string name="ophthalmic_alert_vitamin_a"> Vitamin A prophylaxis to be given. Refer to ophthalmologist at the secondary level.</string>
+    <!-- Injury and Trauma module strings -->
+    <string name="ophthalmic_injury_trauma_title">Screening for Injury and Trauma</string>
+    <string name="ophthalmic_injury_type_label">Injury Type <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_select_injury_type">Select Injury Type(s)</string>
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
 
@@ -560,6 +564,8 @@
     <string name="form_input_max_limit_error">%1s should be lesser than or equal to %2d</string>
     <string name="form_input_max_limit_error_decimal">%1s should be lesser than or equal to %2.1f</string>
     <string name="form_input_error_invalid_mobile">Invalid Mobile Number !</string>
+    <string name="form_fill_field_error">Please fill: %1$s</string>
+    <string name="form_alert_title">Alert</string>
     <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
     <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
     <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
@@ -1094,6 +1100,9 @@
     <string name="title_pain_symptom_assessment">Pain and Symptom Assessment</string>
     <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
     <string name="title_nose_diagnosis">Nose Diagnosis</string>
+    <string name="title_oral_health">Dental Form</string>
+    <string name="oral_health_saved">Oral Health details saved</string>
+    <string name="oral_health_referral_alert">Refer patient to Dentist at the secondary level.</string>
     <string name="title_psychosocial_caregiver_support">Psychosocial and Caregiver Support</string>
     <string name="psychosocial_caregiver_support_saved">Psychosocial and Caregiver Support Saved</string>
     <string-array name="no_outcome_at_birth_array">

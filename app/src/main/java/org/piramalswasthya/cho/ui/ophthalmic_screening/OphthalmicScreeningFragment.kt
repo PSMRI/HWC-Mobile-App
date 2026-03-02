@@ -56,10 +56,11 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         observeConditionSubFields()
         viewModel.loadOphthalmicVisit(args.patientID, args.benVisitNo, args.reasonForVisit)
 
-        val headerTitle = if (args.reasonForVisit == DropdownConst.REASON_SYMPTOMATIC)
-            getString(R.string.ophthalmic_symptomatic_title)
-        else
-            getString(R.string.ophthalmic_screening_title)
+        val headerTitle = when (args.reasonForVisit) {
+            DropdownConst.REASON_SYMPTOMATIC -> getString(R.string.ophthalmic_symptomatic_title)
+            DropdownConst.REASON_FIRST_AID_EYE_INJURY -> getString(R.string.ophthalmic_injury_trauma_title)
+            else -> getString(R.string.ophthalmic_screening_title)
+        }
         activity?.findViewById<android.widget.TextView>(R.id.header_text_register_patient)?.text = headerTitle
 
         requireActivity().onBackPressedDispatcher.addCallback(
@@ -114,6 +115,10 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
         binding.tvCaseIdSelection.setOnClickListener {
             showCaseIdMultiSelectDialog()
+        }
+
+        binding.tvInjuryTypeSelection.setOnClickListener {
+            showInjuryTypeMultiSelectDialog()
         }
 
         binding.rgCataractSymptoms.setOnCheckedChangeListener { _, checkedId ->
@@ -177,6 +182,29 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             .show()
     }
 
+    private fun showInjuryTypeMultiSelectDialog() {
+        val options = DropdownConst.injuryTypeList.toTypedArray()
+        val currentSelections = viewModel.injuryTypes.value ?: emptyList()
+        val checkedItems = BooleanArray(options.size) { index ->
+            currentSelections.contains(options[index])
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.ophthalmic_injury_type_label))
+            .setMultiChoiceItems(options, checkedItems) { _, which, isChecked ->
+                checkedItems[which] = isChecked
+            }
+            .setPositiveButton(getString(android.R.string.ok)) { _, _ ->
+                val selectedList = mutableListOf<String>()
+                for (i in options.indices) {
+                    if (checkedItems[i]) selectedList.add(options[i])
+                }
+                viewModel.setInjuryTypes(selectedList)
+            }
+            .setNegativeButton(getString(android.R.string.cancel), null)
+            .show()
+    }
+
     private fun navigateAfterSave() {
         val missingField = viewModel.getMissingMandatoryField()
         if (missingField != OphthalmicScreeningViewModel.MissingField.NONE) {
@@ -216,6 +244,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             OphthalmicScreeningViewModel.MissingField.TRACHOMA -> Pair(R.string.ophthalmic_trachoma_status, binding.actvTrachomaStatus)
             OphthalmicScreeningViewModel.MissingField.CORNEAL -> Pair(R.string.ophthalmic_corneal_disease_type, binding.actvCornealDiseaseType)
             OphthalmicScreeningViewModel.MissingField.VITAMIN_A -> Pair(R.string.ophthalmic_vitamin_a_deficiency_label, binding.rgVitaminADeficiency)
+            OphthalmicScreeningViewModel.MissingField.INJURY_TYPE -> Pair(R.string.ophthalmic_injury_type_label, binding.tvInjuryTypeSelection)
             else -> return
         }
 
@@ -237,6 +266,10 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
     }
 
     private fun setupObservers() {
+        viewModel.showInjuryTraumaModule.observe(viewLifecycleOwner) { show ->
+            binding.llInjuryTraumaModule.visibility = if (show) View.VISIBLE else View.GONE
+        }
+
         viewModel.showScreeningModule.observe(viewLifecycleOwner) { show ->
             binding.llScreeningModule.visibility = if (show) View.VISIBLE else View.GONE
         }
@@ -268,13 +301,12 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             }
         }
 
+        viewModel.injuryTypes.observe(viewLifecycleOwner) { types ->
+            applyInjuryTypesDisplay(types)
+        }
+
         viewModel.caseIdConditions.observe(viewLifecycleOwner) { conditions ->
-            if (conditions.isNullOrEmpty()) {
-                binding.tvCaseIdSelection.setText("")
-                binding.tvCaseIdSelection.hint = getString(R.string.select_conditions)
-            } else {
-                binding.tvCaseIdSelection.setText(conditions.joinToString(", "))
-            }
+            applyCaseIdConditionsDisplay(conditions)
         }
     }
     private fun observeConditionSubFields() {
@@ -367,6 +399,27 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
                 binding.actvCornealDiseaseType.setText(value, false)
             }
         }
+    }
+
+    private fun applyMultiSelectDisplay(
+        view: android.widget.AutoCompleteTextView,
+        values: List<String>?,
+        emptyHintRes: Int
+    ) {
+        if (values.isNullOrEmpty()) {
+            view.setText("")
+            view.hint = getString(emptyHintRes)
+        } else {
+            view.setText(values.joinToString(", "))
+        }
+    }
+
+    private fun applyInjuryTypesDisplay(types: List<String>?) {
+        applyMultiSelectDisplay(binding.tvInjuryTypeSelection, types, R.string.ophthalmic_select_injury_type)
+    }
+
+    private fun applyCaseIdConditionsDisplay(conditions: List<String>?) {
+        applyMultiSelectDisplay(binding.tvCaseIdSelection, conditions, R.string.select_conditions)
     }
 
     private fun applyRadioState(
