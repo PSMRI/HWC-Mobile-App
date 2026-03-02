@@ -392,7 +392,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 )
             )
         }
-        // Apply the ophthalmic-chief-complaint filter on top of the age/gender adapter.
         rebuildSubCategoryAdapter()
     }
 
@@ -1054,23 +1053,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             ?: ""
     }
 
-    /**
-     * Returns true if at least one chief complaint row in [itemList] contains a complaint
-     * that belongs to the ophthalmic chief complaints allowlist.
-     */
     private fun hasOphthalmicChiefComplaint(): Boolean =
         itemList.any { normalizeComplaint(it.chiefComplaint) in normalizedOphthalmicChiefComplaints }
 
-    /**
-     * Rebuilds the sub-category [SubCategoryAdapter] for [binding.subCatInput], applying the
-     * same age/gender logic as [setSubCategoryDropdown] but conditionally including or
-     * excluding [DropdownConst.ophthalmic] based on [hasOphthalmicChiefComplaint].
-     *
-     * Called every time a chief complaint changes so the sub-category list stays in sync.
-     */
+
     private fun rebuildSubCategoryAdapter() {
-        // benVisitInfo is a lateinit var assigned after the first validateAndEnableDropdowns()
-        // call in onViewCreated; skip until it is ready.
         if (!::benVisitInfo.isInitialized) return
         val includeOphthalmic = hasOphthalmicChiefComplaint()
 
@@ -1107,7 +1094,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else -> listOf(DropdownConst.oral)
         }
 
-        // Preserve current sub-cat selection if it is still valid in the new options list.
         val currentSubCat = binding.subCatInput.text?.toString() ?: ""
         binding.subCatInput.setAdapter(
             SubCategoryAdapter(
@@ -1118,7 +1104,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             )
         )
         if (currentSubCat !in options) {
-            // Selected sub-cat is no longer available (e.g. Ophthalmic removed); clear it.
             binding.subCatInput.setText("", false)
             viewModel.selectedSubCat = ""
             binding.reasonForVisitInput.setText("", false)
@@ -1130,7 +1115,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         heightValue = binding.inputHeight.text?.toString()?.trim().nullIfEmpty()
         weightValue = binding.inputWeight.text?.toString()?.trim().nullIfEmpty()
         bmiValue = binding.inputBmi.text?.toString()?.trim().nullIfEmpty()
-//        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
         temperatureValue = binding.inputTemperature.text?.toString()?.trim().nullIfEmpty()
         pulseRateValue = binding.inputPulseRate.text?.toString()?.trim().nullIfEmpty()
         spo2Value = binding.inputSpo2.text?.toString()?.trim().nullIfEmpty()

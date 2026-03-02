@@ -55,7 +55,6 @@ class DropdownConst {
 
         const val REASON_SYMPTOMATIC = "Symptomatic"
         const val REASON_FIRST_AID_INJURY_TRAUMA = "First aid for eye injury/ trauma"
-        // Alias kept for call-site compatibility; both constants now refer to the PRD-defined string.
         const val REASON_FIRST_AID_EYE_INJURY = REASON_FIRST_AID_INJURY_TRAUMA
         val ophthalmicReasonForVisitList = listOf(
             screening,
@@ -86,7 +85,6 @@ class DropdownConst {
             CONDITION_EYE_ALLERGY
         )
 
-        // Chief complaint strings for eye injuries (from DB / backend)
         const val CONDITION_EYE_INJURY_BLUNT_PENETRATING =
             "Eye injuries from blunt trauma, penetrating injury to eye,"
         const val CONDITION_EYE_INJURY_BLUNT_PENETRATING_ALT =
@@ -95,11 +93,6 @@ class DropdownConst {
         const val CONDITION_CHEMICAL_EXPOSURE_ALT = "Chemical exposure (acid/ alkali/other)"
         const val CONDITION_FOREIGN_BODY_EYE = "Foreign body lodged in the eye"
 
-        /**
-         * All chief complaint strings that qualify a patient for the Ophthalmic sub-category.
-         * Used in FragmentVisitDetail to conditionally include "Ophthalmic" in the sub-category
-         * dropdown when at least one of these chief complaints is selected.
-         */
         val ophthalmicChiefComplaints: Set<String> = setOf(
             CONDITION_DIABETIC_RETINOPATHY,
             CONDITION_GLAUCOMA,
