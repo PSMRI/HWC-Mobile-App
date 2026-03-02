@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
@@ -70,7 +71,8 @@ class CaseRecordViewModel @Inject constructor(
     private val investigationDao: InvestigationDao,
     private val userRepo: UserRepo,
     private val templateRepo: PrescriptionTemplateRepo,
-    private val benFlowRepo: BenFlowRepo
+    private val benFlowRepo: BenFlowRepo,
+    private val batchDao: BatchDao
 ): ViewModel() {
     val userId  = userRepo.getLoggedInUserAsFlow()
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
@@ -430,6 +432,10 @@ class CaseRecordViewModel @Inject constructor(
         return templateRepo.getTemplateUsingTempName(selectedString)
     }
 
+    suspend fun getAvailableStockForRule(itemID: Int): Int {
+        val batches = batchDao.getBatchesByItemID(itemID)
+        return batches.firstOrNull()?.quantityInHand ?: 0
+    }
 //    fun getVisitReasonByBenFlowID(beneficiaryID: Long) {
 //        viewModelScope.launch {
 //            try {
