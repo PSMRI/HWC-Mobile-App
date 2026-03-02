@@ -43,6 +43,7 @@ class NoseDiagnosisFormViewModel @Inject constructor(
     /* -------------------- BEN DETAILS -------------------- */
 
     val patientID: String? = savedStateHandle["patientID"]
+    val benVisitNo: Int? = savedStateHandle["benVisitNo"]
 
     private val _benName = MutableLiveData<String>()
     val benName: LiveData<String> get() = _benName
@@ -80,12 +81,17 @@ class NoseDiagnosisFormViewModel @Inject constructor(
                 _benAgeGender.value =
                     "${patient.patient.age} ${patient.ageUnit?.name} | ${patient.gender?.genderName}"
 
-                val existingRecord =
+                val existingRecord = if (benVisitNo != null) {
+                    noseDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(
+                        patient.patient.patientID, benVisitNo
+                    )
+                } else {
                     noseDiagnosisRepo.getAssessmentByPatientId(patient.patient.patientID)
+                }
 
                 assessmentCache = existingRecord ?: NoseDiagnosisAssessment(
                     patientID = patient.patient.patientID,
-                    benVisitNo = null
+                    benVisitNo = benVisitNo
                 )
 
                 setupDatasetCallbacks()
