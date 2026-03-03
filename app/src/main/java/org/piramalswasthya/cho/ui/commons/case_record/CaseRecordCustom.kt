@@ -1752,6 +1752,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                 when (it!!) {
                                     true -> {
                                         WorkerUtils.triggerAmritSyncWorker(requireContext())
+                                        WorkerUtils.doctorPushWorker(requireContext())
                                         requireActivity().runOnUiThread {
                                             Toast.makeText(
                                                 requireContext(),
@@ -1819,6 +1820,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         when (state!!) {
                             true -> {
                                 WorkerUtils.triggerAmritSyncWorker(requireContext())
+                                WorkerUtils.doctorPushWorker(requireContext())
                                 requireActivity().runOnUiThread {
                                     Toast.makeText(
                                         requireContext(),

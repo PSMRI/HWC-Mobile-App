@@ -387,7 +387,7 @@ class BenFlowRepo @Inject constructor(
             patientID = patient.patientID,
             benVisitNo = benFlow.benVisitNo!!,
             pharmacistFlag = benFlow.pharmacist_flag!!,
-            visitCategory = benFlow.VisitCategory ?: ""
+            visitCategory = benFlow.VisitCategory?.takeIf { it.isNotBlank() } ?: "General OPD"
         )
     }
 

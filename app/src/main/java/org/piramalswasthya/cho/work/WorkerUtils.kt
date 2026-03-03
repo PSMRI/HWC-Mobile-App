@@ -136,6 +136,21 @@ object WorkerUtils {
             .enqueue()
     }
 
+    fun doctorPushWorker(context: Context) {
+        val pushDoctorPendingTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoPendingTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorWithoutTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoWithoutTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("doctor-data-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushDoctorPendingTest)
+            .then(pushDoctorWithoutTest)
+            .enqueue()
+    }
+
     fun pushAuditDetailsWorker(context : Context){
         val pushLoginAuditDataToAmrit = OneTimeWorkRequestBuilder<PushLoginAuditDataWorker>()
             .setConstraints(networkOnlyConstraint)
