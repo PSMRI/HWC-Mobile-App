@@ -24,7 +24,21 @@ data class NoseDiagnosisAssessment(
     var difficultyBreathing: Boolean? = null,
 
     @ColumnInfo(name = "open_mouth_breathing")
-    var openMouthBreathing: Boolean? = null
+    var openMouthBreathing: Boolean? = null,
+    @ColumnInfo(name = "nose_bleed")
+    var noseBleed: Boolean? = null,
+
+    @ColumnInfo(name = "systolic_bp")
+    var systolicBP: Int? = null,
+
+    @ColumnInfo(name = "diastolic_bp")
+    var diastolicBP: Int? = null,
+
+    @ColumnInfo(name = "foreign_body_nose")
+    var foreignBodyNose: String? = null,
+
+    @ColumnInfo(name = "sinusitis")
+    var sinusitis: Boolean? = null
 
 
 

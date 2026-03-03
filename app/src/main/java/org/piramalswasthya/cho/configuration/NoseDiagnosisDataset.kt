@@ -35,6 +35,57 @@ class NoseDiagnosisDataset(
         required = false,
         hasAlertError = true
     )
+    private val noseBleed = FormElement(
+        id = 3,
+        inputType = InputType.RADIO,
+        title = "Nose Bleed (Epistaxis)",
+        entries = arrayOf("Yes", "No"),
+        required = false,
+        hasDependants = true
+    )
+
+    private val systolicBP = FormElement(
+        id = 4,
+        inputType = InputType.EDIT_TEXT,
+        title = "Systolic BP (mmHg)",
+        required = true,
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER,
+        hasAlertError = true
+
+    )
+
+    private val diastolicBP = FormElement(
+        id = 5,
+        inputType = InputType.EDIT_TEXT,
+        title = "Diastolic BP (mmHg)",
+        required = true,
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER,
+        hasAlertError = true
+
+    )
+
+    private val foreignBodyNose = FormElement(
+        id = 6,
+        inputType = InputType.DROPDOWN,
+        title = "Foreign Body Nose",
+        entries = arrayOf(
+            "Yes (anterior visible)",
+            "Yes (posterior visible)",
+            "No"
+        ),
+        required = false,
+        hasAlertError = true
+
+    )
+
+    private val sinusitis = FormElement(
+        id = 7,
+        inputType = InputType.RADIO,
+        title = "Sinusitis",
+        entries = arrayOf("Yes (Facial pain / tenderness)", "No"),
+        required = false,
+        hasAlertError = true
+    )
 
 
     suspend fun setUpPage(savedRecord: NoseDiagnosisAssessment?) {
@@ -43,8 +94,23 @@ class NoseDiagnosisDataset(
         val list = mutableListOf<FormElement>()
         list.add(difficultyBreathing)
         list.add(openMouthBreathing)
+        list.add(noseBleed)
+
+        if (noseBleed.value == "Yes") {
+            list.add(systolicBP)
+            list.add(diastolicBP)
+        }
+
+        list.addAll(
+            listOf(
+                foreignBodyNose,
+                sinusitis
+            )
+        )
+
         setUpPage(list)
     }
+
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
@@ -66,6 +132,65 @@ class NoseDiagnosisDataset(
                 }
                 -1
             }
+            noseBleed.id -> {
+                if (index == 0) {
+                    triggerDependants(
+                        source = noseBleed,
+                        addItems = listOf(systolicBP, diastolicBP),
+                        removeItems = emptyList()
+                    )
+                } else {
+                    systolicBP.value = null
+                    diastolicBP.value = null
+                    triggerDependants(
+                        source = noseBleed,
+                        addItems = emptyList(),
+                        removeItems = listOf(systolicBP, diastolicBP)
+                    )
+                }
+                noseBleed.id
+            }
+
+            systolicBP.id -> {
+                systolicBP.value?.toIntOrNull()?.let {
+                    if (it > 120) {
+                        onShowAlert?.invoke(
+                            "Systolic BP > 120 mmHg. Refer patient to specialist at secondary level."
+                        )
+                    }
+                }
+                -1
+            }
+
+            diastolicBP.id -> {
+                diastolicBP.value?.toIntOrNull()?.let {
+                    if (it > 80) {
+                        onShowAlert?.invoke(
+                            "Diastolic BP > 80 mmHg. Refer patient to specialist at secondary level."
+                        )
+                    }
+                }
+                -1
+            }
+
+            foreignBodyNose.id -> {
+                if (foreignBodyNose.value == "Yes (posterior visible)") {
+                    onShowAlert?.invoke(
+                        "Posterior nasal foreign body detected. Refer patient to specialist at secondary level."
+                    )
+                }
+                -1
+            }
+
+            sinusitis.id -> {
+                if (index == 0) {
+                    onShowAlert?.invoke(
+                        "Chronic sinusitis suspected. Refer patient to specialist at secondary level."
+                    )
+                }
+                -1
+            }
+
             else -> -1
         }
     }
@@ -90,11 +215,33 @@ class NoseDiagnosisDataset(
             false -> "No"
             else -> null
         }
+        noseBleed.value = when (cache.noseBleed) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+
+        systolicBP.value = cache.systolicBP?.toString()
+        diastolicBP.value = cache.diastolicBP?.toString()
+
+        foreignBodyNose.value = cache.foreignBodyNose
+        sinusitis.value = when (cache.sinusitis) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
     }
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as NoseDiagnosisAssessment).let {
             it.difficultyBreathing = difficultyBreathing.value == "Yes"
             it.openMouthBreathing = openMouthBreathing.value == "Yes"
+            it.noseBleed = noseBleed.value == "Yes"
+
+            it.systolicBP = systolicBP.value?.toIntOrNull()
+            it.diastolicBP = diastolicBP.value?.toIntOrNull()
+
+            it.foreignBodyNose = foreignBodyNose.value
+            it.sinusitis = sinusitis.value == "Yes"
 
         }
     }

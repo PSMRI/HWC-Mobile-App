@@ -72,6 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_small"
+            android:textSize="22sp"
             android:text="@string/title_nose_diagnosis"
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             tools:visibility="visible" />

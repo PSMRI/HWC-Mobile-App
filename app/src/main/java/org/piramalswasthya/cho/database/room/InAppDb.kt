@@ -825,6 +825,26 @@ abstract class InAppDb : RoomDatabase() {
                 )
             }
         }
+        val MIGRATION_131_132 = object : Migration(131, 132) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS NOSE_DIAGNOSIS_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                difficulty_breathing INTEGER,
+                open_mouth_breathing INTEGER,
+                nose_bleed INTEGER,
+                systolic_bp INTEGER,
+                diastolic_bp INTEGER,
+                foreign_body_nose TEXT,
+                sinusitis INTEGER
+            )
+            """.trimIndent()
+                )
+            }
+        }
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -863,7 +883,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_127_128,
                             MIGRATION_128_129,
                             MIGRATION_129_130,
-                            MIGRATION_130_131
+                            MIGRATION_130_131,
+                            MIGRATION_131_132
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

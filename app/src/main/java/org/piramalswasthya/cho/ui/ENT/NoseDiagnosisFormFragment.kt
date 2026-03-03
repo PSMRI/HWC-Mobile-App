@@ -1,10 +1,13 @@
 package org.piramalswasthya.cho.ui.ENT
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -13,12 +16,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNoseDiagnosisFormBinding
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.utils.KeyboardUtils
 
 @AndroidEntryPoint
 class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
@@ -84,11 +89,21 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
             LinearLayoutManager(requireContext())
 
         binding.form.rvInputForm.adapter = adapter
+        binding.form.rvInputForm.addOnChildAttachStateChangeListener(
+            object : RecyclerView.OnChildAttachStateChangeListener {
+                override fun onChildViewAttachedToWindow(view: View) {
+                    view.findViewById<AutoCompleteTextView>(R.id.actv_rv_dropdown)
+                        ?.let { applyDropdownOpenOnClick(it) }
+                }
+                override fun onChildViewDetachedFromWindow(view: View) {}
+            }
+        )
 
         lifecycleScope.launch {
             viewModel.formList.collect { list ->
                 if (list.isNotEmpty()) {
                     adapter.submitList(list)
+                    binding.form.rvInputForm.post { reapplyDropdownListeners() }
                 }
             }
         }
@@ -97,6 +112,36 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
             getString(R.string.title_nose_diagnosis)
 
         activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
+    }
+
+    /** Set on every ACTV found in currently visible RecyclerView children. */
+    private fun reapplyDropdownListeners() {
+        val rv = binding.form.rvInputForm
+        for (i in 0 until rv.childCount) {
+            rv.getChildAt(i)
+                ?.findViewById<AutoCompleteTextView>(R.id.actv_rv_dropdown)
+                ?.let { applyDropdownOpenOnClick(it) }
+        }
+    }
+
+    
+    @SuppressLint("ClickableViewAccessibility")
+    private fun applyDropdownOpenOnClick(actv: AutoCompleteTextView) {
+        actv.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    KeyboardUtils.hideKeyboard(actv)
+                    KeyboardUtils.hideKeyboardFromActivity(actv.context)
+                    false   
+                }
+                MotionEvent.ACTION_UP -> {
+                    if (actv.isPopupShowing) actv.dismissDropDown()
+                    else actv.showDropDown()
+                    true    
+                }
+                else -> false
+            }
+        }
     }
 
     private fun observeViewModel() {
