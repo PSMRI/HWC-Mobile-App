@@ -85,6 +85,7 @@ import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
@@ -167,6 +168,9 @@ class PersonalDetailsFragment : Fragment() {
 
     @Inject
     lateinit var userRepo: UserRepo
+
+    @Inject
+    lateinit var procedureRepo: ProcedureRepo
 
     @Inject
     lateinit var villageMasterDao: VillageMasterDao
@@ -987,6 +991,9 @@ class PersonalDetailsFragment : Fragment() {
                 val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
                     patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
                 )
+                val labReports = procedureRepo.getProceduresWithComponent(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
+                )
 
                 val pdfDocument: PdfDocument = PdfDocument()
 
@@ -1218,6 +1225,55 @@ class PersonalDetailsFragment : Fragment() {
             this?.bpDiastolic?.let { drawVitals("BP Diastolic", it) }
             this?.respiratoryRate?.let { drawVitals("Respiratory Rate", it) }
             this?.rbs?.let { drawVitals("RBS", it) }
+        }
+
+        // Lab Test Results section
+        if (labReports.isNotEmpty()) {
+            canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
+            y += spaceAfterLine
+            y += 30
+
+            val labSectionHeader = "Lab Test Results"
+            val labSectionHeaderSize = 25F
+            val labSectionHeaderX = (pageWidth / 2).toFloat()
+            canvas.drawText(labSectionHeader, labSectionHeaderX, y, subheading.apply {
+                textSize = labSectionHeaderSize
+                textAlign = Paint.Align.CENTER
+            })
+
+            y += rowHeight
+
+            val labColumnWidth = 200F
+            canvas.drawText("Test Name", xPosition + leftSideX, y, subheading)
+            canvas.drawText("Result", xPosition + leftSideX + labColumnWidth, y, subheading)
+            canvas.drawText("Unit", xPosition + leftSideX + 2 * labColumnWidth, y, subheading)
+
+            y += rowHeight
+
+            for (labReport in labReports) {
+                val procedureName = labReport.procedure.procedureName ?: continue
+                val components = labReport.components
+                if (components.isEmpty()) {
+                    drawTextWithWrapping(canvas, procedureName, xPosition + leftSideX, y, labColumnWidth, content)
+                    drawTextWithWrapping(canvas, "Pending", xPosition + leftSideX + labColumnWidth, y, labColumnWidth, content)
+                    y += rowHeight
+                } else {
+                    for ((index, component) in components.withIndex()) {
+                        drawTextWithWrapping(
+                            canvas,
+                            if (index == 0) procedureName else "",
+                            xPosition + leftSideX, y, labColumnWidth, content
+                        )
+                        val resultText = buildString {
+                            component.componentName?.let { append("$it: ") }
+                            append(component.testResultValue ?: "")
+                        }
+                        drawTextWithWrapping(canvas, resultText, xPosition + leftSideX + labColumnWidth, y, labColumnWidth, content)
+                        drawTextWithWrapping(canvas, component.testResultUnit ?: "", xPosition + leftSideX + 2 * labColumnWidth, y, labColumnWidth, content)
+                        y += rowHeight
+                    }
+                }
+            }
         }
 
 // Draw heading for the next section
