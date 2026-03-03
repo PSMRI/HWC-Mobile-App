@@ -159,6 +159,10 @@ class DoctorMasterDataMaleRepo @Inject constructor(
         return healthCenterDao.getItemMasterListById(id)
     }
 
+    suspend fun getItemMasterQtyInHandById(id: Int): Int {
+        return healthCenterDao.getItemMasterQtyInHandById(id) ?: 0
+    }
+
     suspend fun getHigherHealthTypeByNameMap():Map<Int,String>{
         return healthCenterDao.getHigherHealthMap().associate {
             it.institutionID to it.institutionName
