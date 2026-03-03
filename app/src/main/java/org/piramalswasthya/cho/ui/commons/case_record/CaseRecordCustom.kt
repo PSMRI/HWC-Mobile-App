@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
@@ -544,10 +545,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     } else {
                         for ((index, component) in components.withIndex()) {
                             val resultVal = buildString {
-                                component.componentName?.let { append("<b>$it:</b> ") }
-                                append(component.testResultValue.orEmpty())
-                                component.testResultUnit?.let { append(" $it") }
-                                component.remarks?.let { append(" <br> <b>Remarks: </b> $it") }
+                                component.componentName?.let { append("<b>${TextUtils.htmlEncode(it)}:</b> ") }
+                                append(TextUtils.htmlEncode(component.testResultValue.orEmpty()))
+                                component.testResultUnit?.let { append(" ${TextUtils.htmlEncode(it)}") }
+                                component.remarks?.let { append(" <br> <b>Remarks: </b> ${TextUtils.htmlEncode(it)}") }
                             }
                             val tableRowVal =
                                 layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
