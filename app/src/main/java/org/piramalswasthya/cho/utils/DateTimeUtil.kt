@@ -78,6 +78,8 @@ class DateTimeUtil {
 
     companion object {
 
+        private const val ZERO_DAYS_AGE_TEXT = "0 days"
+
         val ageUnitMap = mapOf(
             AgeUnitEnum.YEARS to "y",
             AgeUnitEnum.MONTHS to "m",
@@ -412,7 +414,7 @@ class DateTimeUtil {
 
             }
 
-            return ageString.ifBlank { "0 days" }
+            return ageString.ifBlank { ZERO_DAYS_AGE_TEXT }
         }
 
         private fun calculateAgeStringLegacy(dateOfBirth: Date): String {
@@ -445,7 +447,7 @@ class DateTimeUtil {
 
             // Adjust for negative years (shouldn't happen, but safety check)
             if (years < 0) {
-                return "0 days"
+                return ZERO_DAYS_AGE_TEXT
             }
 
             // Match the modern implementation's logic: use modulo for months and days
@@ -466,7 +468,7 @@ class DateTimeUtil {
                 }
             }
 
-            return ageString.ifBlank { "0 days" }
+            return ageString.ifBlank { ZERO_DAYS_AGE_TEXT }
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
