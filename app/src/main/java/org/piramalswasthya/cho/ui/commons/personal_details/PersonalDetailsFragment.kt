@@ -992,7 +992,7 @@ class PersonalDetailsFragment : Fragment() {
                     patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
                 )
                 val labReports = procedureRepo.getProceduresWithComponent(
-                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
                 )
 
                 val pdfDocument: PdfDocument = PdfDocument()
@@ -1001,31 +1001,41 @@ class PersonalDetailsFragment : Fragment() {
         val content: Paint = Paint()
         val subheading: Paint = Paint()
 
-        val myPageInfo: PdfDocument.PageInfo? =
-            PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-
-        val myPage: PdfDocument.Page = pdfDocument.startPage(myPageInfo)
-        val canvas: Canvas = myPage.canvas
-
         // Set up initial positions for the table
         val xPosition = 75F
         var y = 270F // Declare y as a var
         val rowHeight = 50F
         val leftSideX = 50F
         val extraSpace = 10F
+        val bottomMargin = 60F  // start a new page when y > pageHeight - bottomMargin
+        val topMarginNewPage = 50F
+
+        var pageNumber = 1
+        var currentPage: PdfDocument.Page = run {
+            val pi = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber++).create()
+            pdfDocument.startPage(pi)
+        }
+        var canvas: Canvas = currentPage.canvas
+
+        // Checks if y is near the page bottom; if so, finishes the current page and starts a new one
+        fun checkPageBreak(currentY: Float): Pair<Canvas, Float> {
+            return if (currentY > pageHeight - bottomMargin) {
+                pdfDocument.finishPage(currentPage)
+                val pi = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber++).create()
+                currentPage = pdfDocument.startPage(pi)
+                canvas = currentPage.canvas
+                Pair(canvas, topMarginNewPage)
+            } else {
+                Pair(canvas, currentY)
+            }
+        }
 
         // Set up Paint for text
-        Paint().apply {
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            textSize = 15F
-            color = ContextCompat.getColor(appContext, android.R.color.black)
-            textAlign = Paint.Align.LEFT
-        }
 
         content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
         content.textSize = 15F
         content.color = ContextCompat.getColor(appContext, android.R.color.black)
-        content.textAlign = Paint.Align.CENTER
+        content.textAlign = Paint.Align.LEFT
 
         subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
         subheading.textSize = 16F
@@ -1088,13 +1098,14 @@ class PersonalDetailsFragment : Fragment() {
         val spaceAfterLine = 20F
 
         // Define fixed column widths
-        val columnWidth = 150F
+        val columnWidth = 135F
         y += spaceAfterLine
         y += 30
 
         val chiefComplaintHeader = "Chief Complaints"
         val chiefComplaintHeaderSize = 25F // Adjust the size as needed
         val chiefComplaintHeaderX = (pageWidth / 2).toFloat() // Center the heading
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
         canvas.drawText(chiefComplaintHeader, chiefComplaintHeaderX, y, subheading.apply {
             textSize = chiefComplaintHeaderSize
             textAlign = Paint.Align.CENTER
@@ -1104,14 +1115,20 @@ class PersonalDetailsFragment : Fragment() {
         y += rowHeight
 
 // Define fixed column widths for Chief Complaints
-        val chiefComplaintColumnWidth = 150F
+        val ccSnoWidth = 80F
+        val ccNameWidth = 200F
+        val ccDurationWidth = 130F
+        val ccUnitWidth = 150F
+        val ccDescWidth = 140F
 
 // Draw table header for Chief Complaints
-        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
-        canvas.drawText("Chief Complaint", xPosition + chiefComplaintColumnWidth, y, subheading)
-        canvas.drawText("Duration", xPosition + 2 * chiefComplaintColumnWidth, y, subheading)
-        canvas.drawText("Duration Unit", xPosition + 3 * chiefComplaintColumnWidth, y, subheading)
-        canvas.drawText("Description", xPosition + 4 * chiefComplaintColumnWidth, y, subheading)
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+        subheading.textAlign = Paint.Align.LEFT
+        canvas.drawText("S.No.", xPosition, y, subheading)
+        canvas.drawText("Chief Complaint", xPosition + ccSnoWidth, y, subheading)
+        canvas.drawText("Duration", xPosition + ccSnoWidth + ccNameWidth, y, subheading)
+        canvas.drawText("Duration Unit", xPosition + ccSnoWidth + ccNameWidth + ccDurationWidth, y, subheading)
+        canvas.drawText("Description", xPosition + ccSnoWidth + ccNameWidth + ccDurationWidth + ccUnitWidth, y, subheading)
 
 // Move down to the first row
         y += rowHeight // Reassign y
@@ -1122,54 +1139,20 @@ class PersonalDetailsFragment : Fragment() {
             for (chiefComplaint in chiefComplaints) {
                 // Draw each field with a fixed width
                 if (chiefComplaint != null) {
+                    checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
                     chiefComplaintCount++
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaintCount.toString(),
-                        xPosition,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.chiefComplaint ?: "",
-                        xPosition + chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.duration ?: "",
-                        xPosition + 2 * chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.durationUnit ?: "",
-                        xPosition + 3 * chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.description ?: "",
-                        xPosition + 4 * chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-
+                    drawTextWithWrapping(canvas, chiefComplaintCount.toString(), xPosition, y, ccSnoWidth, content)
+                    drawTextWithWrapping(canvas, chiefComplaint.chiefComplaint ?: "", xPosition + ccSnoWidth, y, ccNameWidth, content)
+                    drawTextWithWrapping(canvas, chiefComplaint.duration ?: "", xPosition + ccSnoWidth + ccNameWidth, y, ccDurationWidth, content)
+                    drawTextWithWrapping(canvas, chiefComplaint.durationUnit ?: "", xPosition + ccSnoWidth + ccNameWidth + ccDurationWidth, y, ccUnitWidth, content)
+                    drawTextWithWrapping(canvas, chiefComplaint.description ?: "", xPosition + ccSnoWidth + ccNameWidth + ccDurationWidth + ccUnitWidth, y, ccDescWidth, content)
                     // Move down to the next row
                     y += rowHeight // Reassign y
                 }
             }
         }
 
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
         canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
         y += spaceAfterLine
         y += 30
@@ -1178,6 +1161,7 @@ class PersonalDetailsFragment : Fragment() {
         val vitalsSectionHeader = "Vitals"
         val vitalsSectionHeaderSize = 25F
         val vitalsSectionHeaderX = (pageWidth / 2).toFloat()
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
         canvas.drawText(vitalsSectionHeader, vitalsSectionHeaderX, y, subheading.apply {
             textSize = vitalsSectionHeaderSize
             textAlign = Paint.Align.CENTER
@@ -1190,25 +1174,19 @@ class PersonalDetailsFragment : Fragment() {
         val vitalsColumnWidth = 200F
 
         // Draw table header for Vitals
-        canvas.drawText("Vitals Name", xPosition + leftSideX, y, subheading)
-        canvas.drawText("Vitals Value", xPosition + leftSideX + vitalsColumnWidth, y, subheading)
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+        subheading.textAlign = Paint.Align.LEFT
+        canvas.drawText("Vitals Name", xPosition, y, subheading)
+        canvas.drawText("Vitals Value", xPosition + vitalsColumnWidth, y, subheading)
 
         // Move down to the first row
         y += rowHeight
 
         // Function to draw Vitals Name and Value
         fun drawVitals(vitalsName: String, vitalsValue: String) {
-            drawTextWithWrapping(
-                canvas, vitalsName, xPosition + leftSideX, y, vitalsColumnWidth, content
-            )
-            drawTextWithWrapping(
-                canvas,
-                vitalsValue,
-                xPosition + leftSideX + vitalsColumnWidth,
-                y,
-                vitalsColumnWidth,
-                content
-            )
+            checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+            drawTextWithWrapping(canvas, vitalsName, xPosition, y, vitalsColumnWidth, content)
+            drawTextWithWrapping(canvas, vitalsValue, xPosition + vitalsColumnWidth, y, vitalsColumnWidth, content)
             y += rowHeight
         }
 
@@ -1229,6 +1207,7 @@ class PersonalDetailsFragment : Fragment() {
 
         // Lab Test Results section
         if (labReports.isNotEmpty()) {
+            checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
             canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
             y += spaceAfterLine
             y += 30
@@ -1236,6 +1215,7 @@ class PersonalDetailsFragment : Fragment() {
             val labSectionHeader = "Lab Test Results"
             val labSectionHeaderSize = 25F
             val labSectionHeaderX = (pageWidth / 2).toFloat()
+            checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
             canvas.drawText(labSectionHeader, labSectionHeaderX, y, subheading.apply {
                 textSize = labSectionHeaderSize
                 textAlign = Paint.Align.CENTER
@@ -1243,52 +1223,69 @@ class PersonalDetailsFragment : Fragment() {
 
             y += rowHeight
 
-            val labColumnWidth = 200F
-            canvas.drawText("Test Name", xPosition + leftSideX, y, subheading)
-            canvas.drawText("Result", xPosition + leftSideX + labColumnWidth, y, subheading)
-            canvas.drawText("Unit", xPosition + leftSideX + 2 * labColumnWidth, y, subheading)
+            val labColumnWidth = 125F
+            val labSnoWidth = 120F
+            val labRemarkWidth = 130F
+            val extraGap = 20F // Extra space between Result and Unit
+            checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+            subheading.textAlign = Paint.Align.LEFT
+            canvas.drawText("S.No.", xPosition, y, subheading)
+            canvas.drawText("Test Name", xPosition + labSnoWidth, y, subheading)
+            canvas.drawText("Result", xPosition + labSnoWidth + labColumnWidth, y, subheading)
+            canvas.drawText("Unit", xPosition + labSnoWidth + 2 * labColumnWidth + extraGap, y, subheading)
+            canvas.drawText("Remark", xPosition + labSnoWidth + 3 * labColumnWidth + extraGap, y, subheading)
 
             y += rowHeight
 
+            var labSno = 0
             for (labReport in labReports) {
                 val procedureName = labReport.procedure.procedureName ?: continue
                 val components = labReport.components
+                labSno++
                 if (components.isEmpty()) {
-                    drawTextWithWrapping(canvas, procedureName, xPosition + leftSideX, y, labColumnWidth, content)
-                    drawTextWithWrapping(canvas, "Pending", xPosition + leftSideX + labColumnWidth, y, labColumnWidth, content)
+                    checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+                    drawTextWithWrapping(canvas, labSno.toString(), xPosition, y, labSnoWidth, content)
+                    drawTextWithWrapping(canvas, procedureName, xPosition + labSnoWidth, y, labColumnWidth, content)
+                    drawTextWithWrapping(canvas, "Pending", xPosition + labSnoWidth + labColumnWidth, y, labColumnWidth, content)
                     y += rowHeight
                 } else {
                     for ((index, component) in components.withIndex()) {
-                        drawTextWithWrapping(
-                            canvas,
-                            if (index == 0) procedureName else "",
-                            xPosition + leftSideX, y, labColumnWidth, content
-                        )
+                        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+                        drawTextWithWrapping(canvas, if (index == 0) labSno.toString() else "", xPosition, y, labSnoWidth, content)
+                        drawTextWithWrapping(canvas, if (index == 0) procedureName else "", xPosition + labSnoWidth, y, labColumnWidth, content)
                         val resultText = buildString {
                             component.componentName?.let { append("$it: ") }
                             append(component.testResultValue ?: "")
                         }
-                        drawTextWithWrapping(canvas, resultText, xPosition + leftSideX + labColumnWidth, y, labColumnWidth, content)
-                        drawTextWithWrapping(canvas, component.testResultUnit ?: "", xPosition + leftSideX + 2 * labColumnWidth, y, labColumnWidth, content)
+                        drawTextWithWrapping(canvas, resultText, xPosition + labSnoWidth + labColumnWidth, y, labColumnWidth, content)
+                        drawTextWithWrapping(canvas, component.testResultUnit ?: "", xPosition + labSnoWidth + 2 * labColumnWidth + extraGap, y, labColumnWidth, content)
+                        drawTextWithWrapping(canvas, component.remarks ?: "", xPosition + labSnoWidth + 3 * labColumnWidth + extraGap, y, labRemarkWidth, content)
                         y += rowHeight
                     }
                 }
             }
         }
 
-// Draw heading for the next section
-        val nextSectionHeader = "Prescription" // Replace with your desired heading
-        val nextSectionHeaderSize = 25F // Adjust the size as needed
-        val nextSectionHeaderX = (pageWidth / 2).toFloat() // Center the heading
+// Draw separator and heading for Prescription section
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+        canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
+        y += spaceAfterLine
+        y += 30
+
+        val nextSectionHeader = "Prescription"
+        val nextSectionHeaderSize = 25F
+        val nextSectionHeaderX = (pageWidth / 2).toFloat()
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
         canvas.drawText(nextSectionHeader, nextSectionHeaderX, y, subheading.apply {
             textSize = nextSectionHeaderSize
             textAlign = Paint.Align.CENTER
         })
         y += rowHeight
 
-
         // Draw table header
-        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+        subheading.textAlign = Paint.Align.LEFT
+        canvas.drawText("S.No.", xPosition, y, subheading)
         canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
         canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
         canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)
@@ -1303,62 +1300,24 @@ class PersonalDetailsFragment : Fragment() {
             for (prescription in prescriptions) {
                 // Draw each field with a fixed width
                 if (prescription != null) {
+                    checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
                     count++
-                    drawTextWithWrapping(
-                        canvas, count.toString(), xPosition, y, columnWidth, content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.itemName,
-                        xPosition + columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.frequency ?: "",
-                        xPosition + 2 * columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
+                    drawTextWithWrapping(canvas, count.toString(), xPosition, y, columnWidth, content)
+                    drawTextWithWrapping(canvas, prescription.itemName, xPosition + columnWidth, y, columnWidth, content)
+                    drawTextWithWrapping(canvas, prescription.frequency ?: "", xPosition + 2 * columnWidth, y, columnWidth, content)
                     if (prescription.unit.isNullOrEmpty()) {
-                        drawTextWithWrapping(
-                            canvas,
-                            (prescription.duration) ?: "",
-                            xPosition + 3 * columnWidth,
-                            y,
-                            columnWidth,
-                            content
-                        )
+                        drawTextWithWrapping(canvas, (prescription.duration) ?: "", xPosition + 3 * columnWidth, y, columnWidth, content)
                     } else {
-                        drawTextWithWrapping(
-                            canvas,
-                            (prescription.duration + " " + prescription.unit),
-                            xPosition + 3 * columnWidth,
-                            y,
-                            columnWidth,
-                            content
-                        )
+                        drawTextWithWrapping(canvas, (prescription.duration + " " + prescription.unit), xPosition + 3 * columnWidth, y, columnWidth, content)
                     }
-
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.instructions,
-                        xPosition + 4 * columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
-
+                    drawTextWithWrapping(canvas, prescription.instructions, xPosition + 4 * columnWidth, y, columnWidth, content)
                     // Move down to the next row
                     y += rowHeight // Reassign y
                 }
             }
         }
 
-        pdfDocument.finishPage(myPage)
+        pdfDocument.finishPage(currentPage)
 
                 val outputStream: OutputStream
                 var pdfUri: Uri? = null
