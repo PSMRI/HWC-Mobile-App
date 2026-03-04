@@ -8,19 +8,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.model.BenFlow
-
-import org.piramalswasthya.cho.model.BenHealthIdDetails
-import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
-import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
-import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.utils.filterBenList
@@ -38,33 +34,63 @@ class PersonalDetailsViewModel @Inject constructor(
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo
 ) : ViewModel() {
     private val filter = MutableStateFlow("")
+    private val listUpdateDebounceMs = 250L
 
-    var patientListForNurse : Flow<List<PatientDisplayWithVisitInfo>>? =patientRepo.getPatientDisplayListForNurse().combine(filter){
-        list, filter -> filterBenList(list, filter)
+    private val registrationDateComparator =
+        compareByDescending<PatientDisplayWithVisitInfo> { it.patient.registrationDate?.time ?: 0L }
+            .thenByDescending { it.benVisitNo ?: 0 }
+
+    private val latestVisitComparator =
+        compareByDescending<PatientDisplayWithVisitInfo> { it.visitDate?.time ?: 0L }
+            .thenByDescending { it.benVisitNo ?: 0 }
+
+    private fun buildPatientListFlow(
+        source: Flow<List<PatientDisplayWithVisitInfo>>,
+        transform: (List<PatientDisplayWithVisitInfo>) -> List<PatientDisplayWithVisitInfo>
+    ): Flow<List<PatientDisplayWithVisitInfo>> {
+        return source
+            .map(transform)
+            .combine(filter) { list, query ->
+                filterBenList(list, query)
+            }
+            .debounce(listUpdateDebounceMs)
+            .distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
     }
 
-    var patientListForDoctor : Flow<List<PatientDisplayWithVisitInfo>>? = patientRepo.getPatientDisplayListForDoctor().combine(filter){
-            list, filter -> filterBenList(list, filter)
-    }
+    val patientListForNurse: Flow<List<PatientDisplayWithVisitInfo>> =
+        buildPatientListFlow(
+            source = patientRepo.getPatientDisplayListForNurse(),
+            transform = { list -> list.sortedWith(registrationDateComparator) }
+        )
 
-    var patientListForLab : Flow<List<PatientDisplayWithVisitInfo>>? = patientVisitInfoSyncRepo.getPatientDisplayListForLab().combine(filter){
-            list, filter -> filterBenList(list, filter)
-    }
-    // One card per patient/beneficiary (latest visit only); no duplicate cards with same name/beneficiary ID
-    var patientListForPharmacist : Flow<List<PatientDisplayWithVisitInfo>>? =
-        patientVisitInfoSyncRepo.getPatientListFlowForPharmacist()
-            .map { list ->
+    val patientListForDoctor: Flow<List<PatientDisplayWithVisitInfo>> =
+        buildPatientListFlow(
+            source = patientRepo.getPatientDisplayListForDoctor(),
+            transform = { list -> list.sortedWith(registrationDateComparator) }
+        )
+
+    val patientListForLab: Flow<List<PatientDisplayWithVisitInfo>> =
+        buildPatientListFlow(
+            source = patientVisitInfoSyncRepo.getPatientDisplayListForLab(),
+            transform = { list -> list.sortedWith(registrationDateComparator) }
+        )
+
+    // One card per patient/beneficiary (latest visit only); no duplicate cards with same beneficiary key.
+    val patientListForPharmacist: Flow<List<PatientDisplayWithVisitInfo>> =
+        buildPatientListFlow(
+            source = patientVisitInfoSyncRepo.getPatientListFlowForPharmacist(),
+            transform = { list ->
                 val key: (PatientDisplayWithVisitInfo) -> String = { info ->
                     info.patient.beneficiaryRegID?.toString() ?: info.patient.patientID
                 }
-                val latestFirst = compareByDescending<PatientDisplayWithVisitInfo> { it.visitDate?.time ?: 0L }.thenByDescending { it.benVisitNo ?: 0 }
                 list
                     .groupBy(key)
                     .values
-                    .map { visits -> visits.sortedWith(latestFirst).first() }
-                    .sortedWith(latestFirst)
+                    .mapNotNull { visits -> visits.maxWithOrNull(latestVisitComparator) }
+                    .sortedWith(latestVisitComparator)
             }
-            .combine(filter) { list, f -> filterBenList(list, f) }
+        )
 
     var count : Int = 0
     private val _abha = MutableLiveData<String?>()
@@ -102,10 +128,7 @@ class PersonalDetailsViewModel @Inject constructor(
     }
 
     fun filterText(text: String) {
-        viewModelScope.launch {
-            filter.emit(text)
-        }
-
+        filter.value = text
     }
 
     fun fetchAbha(benId: Long) {

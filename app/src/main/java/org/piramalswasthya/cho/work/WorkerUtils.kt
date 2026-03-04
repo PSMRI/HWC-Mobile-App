@@ -141,6 +141,52 @@ object WorkerUtils {
             .enqueue()
     }
 
+    fun doctorPushWorker(context: Context) {
+        val pushDoctorPendingTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoPendingTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorWithoutTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoWithoutTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorAfterTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoAfterTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("doctor-data-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushDoctorPendingTest)
+            .then(pushDoctorWithoutTest)
+            .then(pushDoctorAfterTest)
+            .enqueue()
+    }
+
+    /**
+     * Lightweight clinical push used after nurse/doctor form save.
+     * Pushes local clinical updates without triggering the full down-sync chain.
+     */
+    fun clinicalPushWorker(context: Context) {
+        val pushBenVisitInfoRequest = OneTimeWorkRequestBuilder<PushBenVisitInfoToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorPendingTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoPendingTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorWithoutTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoWithoutTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorAfterTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoAfterTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("clinical-data-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushBenVisitInfoRequest)
+            .then(pushDoctorPendingTest)
+            .then(pushDoctorWithoutTest)
+            .then(pushDoctorAfterTest)
+            .enqueue()
+    }
+
     fun pushAuditDetailsWorker(context : Context){
         val pushLoginAuditDataToAmrit = OneTimeWorkRequestBuilder<PushLoginAuditDataWorker>()
             .setConstraints(networkOnlyConstraint)

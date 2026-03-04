@@ -3,8 +3,6 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
@@ -387,7 +385,7 @@ class BenFlowRepo @Inject constructor(
             patientID = patient.patientID,
             benVisitNo = benFlow.benVisitNo!!,
             pharmacistFlag = benFlow.pharmacist_flag!!,
-            visitCategory = benFlow.VisitCategory ?: ""
+            visitCategory = benFlow.VisitCategory?.takeIf { it.isNotBlank() } ?: "General OPD"
         )
     }
 
@@ -407,13 +405,16 @@ class BenFlowRepo @Inject constructor(
                     var isSuccess = true
 
                     var totalDownloaded = 0
+                    var lastReportedProgress = -1
 
                     for (i in 0 until benflowArray.length()) {
 
                         totalDownloaded++
                         if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
-                            withContext(Dispatchers.Main) {
-                                WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                            val progressPercent = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble()) * 100).toInt()
+                            if (progressPercent != lastReportedProgress) {
+                                lastReportedProgress = progressPercent
+                                WorkerUtils.totalPercentageCompleted.postValue(progressPercent)
                             }
                         }
 
@@ -427,42 +428,45 @@ class BenFlowRepo @Inject constructor(
                                 updateBenFlowId(benFlow, patient)
                                 checkAndDownsyncNurseData(benFlow, patient)
                                 checkAndDownsyncDoctorData(benFlow, patient)
-                            }
-                            val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(patient!!.patientID, SyncState.SHARED_OFFLINE)
-                            if(pvis!=null){
-                                val chiefComplaints = visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patient.patientID, pvis.benVisitNo)
-                                // Iterate through each chief complaint and update the benFlowID
-                                if (chiefComplaints.isNotEmpty()) {
+                                val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(
+                                    patient.patientID,
+                                    SyncState.SHARED_OFFLINE
+                                )
+                                if(pvis!=null){
+                                    val chiefComplaints = visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patient.patientID, pvis.benVisitNo)
                                     // Iterate through each chief complaint and update the benFlowID
-                                    chiefComplaints.forEach { complaint ->
-                                        // Update the benFlowID
-                                        val updatedComplaint = complaint.copy(benFlowID = pvis.benFlowID)
-                                        // Save the updated complaint back to the database
-                                        visitReasonsAndCategoriesDao.updateChiefComplaint(updatedComplaint)
+                                    if (chiefComplaints.isNotEmpty()) {
+                                        // Iterate through each chief complaint and update the benFlowID
+                                        chiefComplaints.forEach { complaint ->
+                                            // Update the benFlowID
+                                            val updatedComplaint = complaint.copy(benFlowID = pvis.benFlowID)
+                                            // Save the updated complaint back to the database
+                                            visitReasonsAndCategoriesDao.updateChiefComplaint(updatedComplaint)
+                                        }
+                                    } else {
+                                        // Handle the case when chiefComplaints is empty or null
+                                        println("No chief complaints found for patientID: ${patient.patientID} and benVisitNo: ${pvis.benVisitNo}")
                                     }
-                                } else {
-                                    // Handle the case when chiefComplaints is empty or null
-                                    println("No chief complaints found for patientID: ${patient.patientID} and benVisitNo: ${pvis.benVisitNo}")
+                                    // Fetch visitDb and update if not null
+                                    val visitDb = visitReasonsAndCategoriesDao.getVisitDbByPatientId(pvis.patientID)
+                                    if (visitDb != null) {
+                                        val updatedVisitDb = visitDb.copy(benFlowID = pvis.benFlowID)
+                                        visitReasonsAndCategoriesDao.updateVisitDB(updatedVisitDb)
+                                    } else {
+                                        // Handle the case when visitDb is null
+                                        println("No visitDb found for patientID: ${pvis.patientID}")
+                                    }
+                                    // Fetch vitals and update if not null
+                                    val vitals = vitalsDao.getPatientVitalsByPatientID(pvis.patientID)
+                                    if (vitals != null) {
+                                        val updatedVitals = vitals.copy(benFlowID = pvis.benFlowID)
+                                        vitalsDao.updateVitals(updatedVitals)
+                                    } else {
+                                        // Handle the case when vitals is null
+                                        println("No vitals found for patientID: ${pvis.patientID}")
+                                    }
+                                    patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = pvis.patientID, benVisitNo =  pvis.benVisitNo)
                                 }
-                                // Fetch visitDb and update if not null
-                                val visitDb = visitReasonsAndCategoriesDao.getVisitDbByPatientId(pvis.patientID)
-                                if (visitDb != null) {
-                                    val updatedVisitDb = visitDb.copy(benFlowID = pvis.benFlowID)
-                                    visitReasonsAndCategoriesDao.updateVisitDB(updatedVisitDb)
-                                } else {
-                                    // Handle the case when visitDb is null
-                                    println("No visitDb found for patientID: ${pvis.patientID}")
-                                }
-                                // Fetch vitals and update if not null
-                                val vitals = vitalsDao.getPatientVitalsByPatientID(pvis.patientID)
-                                if (vitals != null) {
-                                    val updatedVitals = vitals.copy(benFlowID = pvis.benFlowID)
-                                    vitalsDao.updateVitals(updatedVitals)
-                                } else {
-                                    // Handle the case when vitals is null
-                                    println("No vitals found for patientID: ${pvis.patientID}")
-                                }
-                                patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = pvis.patientID, benVisitNo =  pvis.benVisitNo)
                             }
                         } catch (e : Exception){
                             isSuccess = false

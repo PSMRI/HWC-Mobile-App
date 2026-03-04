@@ -1751,7 +1751,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                             viewModel.isDataSaved.observe(viewLifecycleOwner) {
                                 when (it!!) {
                                     true -> {
-                                        WorkerUtils.triggerAmritSyncWorker(requireContext())
+                                        WorkerUtils.clinicalPushWorker(requireContext())
                                         requireActivity().runOnUiThread {
                                             Toast.makeText(
                                                 requireContext(),
@@ -1818,7 +1818,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     viewModel.isDataSaved.observe(viewLifecycleOwner) { state ->
                         when (state!!) {
                             true -> {
-                                WorkerUtils.triggerAmritSyncWorker(requireContext())
+                                WorkerUtils.clinicalPushWorker(requireContext())
                                 requireActivity().runOnUiThread {
                                     Toast.makeText(
                                         requireContext(),
