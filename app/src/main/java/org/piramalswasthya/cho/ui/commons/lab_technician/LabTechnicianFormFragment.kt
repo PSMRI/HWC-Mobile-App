@@ -179,11 +179,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
     @Composable
     fun AddLoading() {
-        LinearProgressIndicator (
-            modifier = Modifier.fillMaxWidth().height(8.dp),
-            color = Color.White,
-            trackColor = Color.White
-        )
+        LinearProgressIndicator ()
     }
 
     @Composable
