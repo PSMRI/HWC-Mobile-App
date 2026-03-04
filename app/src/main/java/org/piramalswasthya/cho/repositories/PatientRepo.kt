@@ -535,13 +535,16 @@ class PatientRepo @Inject constructor(
                         var isSuccess = true
 
                         var totalDownloaded = 0
+                        var lastReportedProgress = -1
 
                         for(beneficiary in beneficiariesDTO){
 
                             totalDownloaded++
                             if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
-                                withContext(Dispatchers.Main) {
-                                    WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                                val progressPercent = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble()) * 100).toInt()
+                                if (progressPercent != lastReportedProgress) {
+                                    lastReportedProgress = progressPercent
+                                    WorkerUtils.totalPercentageCompleted.postValue(progressPercent)
                                 }
                             }
 
