@@ -10,6 +10,8 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_TYPE_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_TRACKING_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ADOLESCENT_LIST_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ANC_VISITS_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ABORTION_LIST_KEY
 import org.piramalswasthya.cho.databinding.ActivitySubModuleBinding
 
 /**
@@ -56,6 +58,8 @@ class SubModuleActivity : AppCompatActivity() {
                     val fragment = when (directFragmentKey) {
                         SHOW_EC_TRACKING_KEY -> org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleTrackingFragment()
                         SHOW_ADOLESCENT_LIST_KEY -> org.piramalswasthya.cho.ui.home.rmncha.child_care.AdolescentListFragment()
+                        SHOW_ANC_VISITS_KEY -> org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ANCVisitsFragment()
+                        SHOW_ABORTION_LIST_KEY -> org.piramalswasthya.cho.ui.home.rmncha.maternal_health.AbortionListFragment()
                         else -> null
                     }
                     fragment?.let {
@@ -89,6 +93,8 @@ class SubModuleActivity : AppCompatActivity() {
         return when (fragmentKey) {
             SHOW_EC_TRACKING_KEY -> getString(R.string.eligible_couple_tracking)
             SHOW_ADOLESCENT_LIST_KEY -> getString(R.string.adolescent_list)
+            SHOW_ANC_VISITS_KEY -> getString(R.string.anc_visits)
+            SHOW_ABORTION_LIST_KEY -> getString(R.string.abortion_list)
             else -> getString(R.string.app_name)
         }
     }

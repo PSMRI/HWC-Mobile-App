@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context=".ui.home.rmncha.maternal_health.ANCVisitsFragment">
 
-    <!-- Search Bar -->
     <LinearLayout
         android:id="@+id/searchLayout"
         android:layout_width="match_parent"
@@ -43,7 +43,6 @@
 
     </LinearLayout>
 
-    <!-- Count Text -->
     <TextView
         android:id="@+id/tvCount"
         android:layout_width="wrap_content"
@@ -56,9 +55,8 @@
         app:layout_constraintTop_toBottomOf="@+id/searchLayout"
         tools:text="42 Results" />
 
-    <!-- RecyclerView for Child List -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChildList"
+        android:id="@+id/rvAncVisits"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
@@ -68,9 +66,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvCount"
         tools:itemCount="5"
-        tools:listitem="@layout/rv_item_child_list" />
+        tools:listitem="@layout/rv_item_anc_visit" />
 
-    <!-- Empty State -->
     <FrameLayout
         android:id="@+id/flEmpty"
         android:layout_width="match_parent"
@@ -94,14 +91,14 @@
                 android:layout_height="120dp"
                 android:alpha="0.3"
                 android:contentDescription="@string/no_data"
-                android:src="@drawable/ic_child"
+                android:src="@drawable/ic_female"
                 app:tint="@color/grey" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/no_children_found"
+                android:text="@string/no_anc_eligible_women_found"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:textColor="@color/grey" />
 
