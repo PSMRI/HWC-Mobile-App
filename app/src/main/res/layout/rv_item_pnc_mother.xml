@@ -55,7 +55,7 @@
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="@color/white"
                     android:textStyle="bold"
-                    tools:text="MINAKSI FUSS" />
+                    tools:text="First and Last name" />
 
                 <ImageView
                     android:id="@+id/iv_sync"
@@ -106,7 +106,7 @@
                             android:text="@{patientWithPnc.patient.spouseName ?? `Not Available`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
-                            tools:text="MANDE FUSS" />
+                            tools:text="Husband/Wife Name" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -129,7 +129,7 @@
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
-                            tools:text="29 YEARS" />
+                            tools:text="Age" />
                     </LinearLayout>
 
                 </LinearLayout>

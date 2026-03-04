@@ -38,12 +38,21 @@ class ChiefComplaintAdapter(
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val results = FilterResults()
+
+                // if constraint is null or blank, return full list so that dropdown shows all options
+                if (constraint.isNullOrBlank()) {
+                    results.values = ArrayList(dataListConst)
+                    results.count = dataListConst.size
+                    return results
+                }
+
                 constraint?.let { query ->
                     val filteredData = ArrayList<ChiefComplaintMaster>()
                     val lowerCaseQuery = query.toString().lowercase()
 
                     for (item in dataListConst) {
-                        if (item.chiefComplaint.lowercase().contains(lowerCaseQuery)) {
+                        // Only match complaints that start with the query text (prefix match)
+                        if (item.chiefComplaint.lowercase().startsWith(lowerCaseQuery)) {
                             filteredData.add(item)
                         }
                     }

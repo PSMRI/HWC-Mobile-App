@@ -794,8 +794,7 @@
     <string name="e_pmsma_list">e-PMSMA List</string>
 
     <!-- Child Care Sub-modules -->
-    <string name="infant_list">Infant List</string>
-    <string name="child_list">Child List</string>
+    <string name="infant_list">Infant Registration List</string>
     <string name="adolescent_list">Adolescent List</string>
     <string name="children_under_5_years">Children under 5 Years</string>
 
@@ -954,8 +953,10 @@
     <string name="no_infants_found">No Infants Found</string>
 
     <!-- Child Registration Strings -->
-    <string name="child_reg_list">Child Reg List</string>
+    <string name="child_reg_list">Child Registration List</string>
     <string name="no_children_found">No Children Found</string>
+    <string name="name_of_child">Name of Child</string>
+    <string name="child_registration_saved">Child registration saved successfully</string>
 
     <!-- Abortion List Strings -->
     <string name="abortion_date">Abortion Date</string>
@@ -1051,6 +1052,7 @@
     <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
     <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
     <string name="no_alert_pnc_counseling">Ensure proper PNC counseling for mother on newborn care.</string>
+    <string name="no_alert_birth_certificate_legal">Provide information to family: birth registration is a legal requirement.</string>
 
     <!-- Validation -->
     <string name="no_error_birth_weight_range">Birth weight must be between 500g and 6000g</string>
@@ -1066,9 +1068,9 @@
 
     <string-array name="no_outcome_at_birth_array">
         <item>Live Birth</item>
-        <item>Still Birth (Fresh)</item>
         <item>Still Birth (Macerated)</item>
-        <item>Diedrelative during delivery</item>
+        <item>Still Birth (Fresh)</item>
+        <item>Died during delivery</item>
     </string-array>
 
     <string-array name="no_sex_array">
@@ -1080,7 +1082,7 @@
     <string-array name="no_cried_immediately_array">
         <item>Immediate cry</item>
         <item>Cried after resuscitation</item>
-        <item>Did not cry</item>
+        <item>Not applicable (Stillbirth)</item>
     </string-array>
 
     <string-array name="no_type_of_resuscitation_array">
@@ -1101,31 +1103,27 @@
     </string-array>
 
     <string-array name="no_type_of_congenital_anomaly_array">
-        <item>Neural tube defect</item>
+        <item>Neural tube defect (Spina bifida/Anencephaly)</item>
         <item>Cleft lip/palate</item>
         <item>Club foot</item>
-        <item>Down syndrome</item>
-        <item>Congenital heart defect</item>
-        <item>Hydrocephalus</item>
-        <item>Spina bifida</item>
-        <item>Polydactyly/Syndactyly</item>
-        <item>Gastroschisis/Omphalocele</item>
+        <item>Down syndrome (suspected)</item>
+        <item>Congenital heart defect (suspected)</item>
+        <item>Limb defects</item>
+        <item>Abdominal wall defect</item>
+        <item>Genital abnormality</item>
         <item>Other</item>
-        <item>None</item>
     </string-array>
 
     <string-array name="no_newborn_complications_array">
         <item>Birth asphyxia</item>
         <item>Respiratory distress</item>
-        <item>Neonatal jaundice</item>
-        <item>Sepsis</item>
+        <item>Neonatal jaundice (visible at birth)</item>
+        <item>Sepsis (suspected)</item>
         <item>Hypothermia</item>
         <item>Hypoglycemia</item>
-        <item>Feeding difficulties</item>
-        <item>Convulsions/Seizures</item>
-        <item>Meconium aspiration</item>
+        <item>Bleeding</item>
+        <item>Convulsions</item>
         <item>None</item>
-        <item>Other</item>
     </string-array>
 
     <string-array name="no_current_status_array">
@@ -1140,9 +1138,8 @@
         <item>Prematurity</item>
         <item>Low birth weight complications</item>
         <item>Sepsis</item>
-        <item>Respiratory distress syndrome</item>
-        <item>Congenital anomalies</item>
-        <item>Meconium aspiration</item>
+        <item>Congenital anomaly</item>
+        <item>Respiratory distress</item>
         <item>Unknown</item>
         <item>Other</item>
     </string-array>

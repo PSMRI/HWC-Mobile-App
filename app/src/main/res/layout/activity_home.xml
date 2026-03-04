@@ -69,6 +69,7 @@
                     android:layout_marginRight="10dp"
                     android:contentDescription="Refresh"
                     android:src="@drawable/baseline_refresh_icon"
+                    android:visibility="gone"
                     android:background="@color/default_button"/>
 
             </androidx.appcompat.widget.Toolbar>
