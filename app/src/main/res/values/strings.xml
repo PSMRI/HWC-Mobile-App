@@ -1240,4 +1240,6 @@
     <string name="linking_abha_to_beneficiary">Linking ABHA to beneficiary</string>
     <string name="patient_already_exists_message">A patient with Beneficiary ID %1$s already exists in the system.</string>
     <string name="error_saving_patient_message">Failed to save patient due to missing data. Please ensure all data is synced.</string>
+    <string name="stock_label">In Stock: %1$d</string>
+    <string name="out_of_stock">Out of Stock</string>
 </resources>

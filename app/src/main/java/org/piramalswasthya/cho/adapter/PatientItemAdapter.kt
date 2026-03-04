@@ -27,6 +27,7 @@ class PatientItemAdapter(
     var context: Context,
     private val clickListener: BenClickListener,
     private val showAbha: Boolean = false,
+    private val showEditButton: Boolean = false,
 ) : ListAdapter<PatientDisplayWithVisitInfo, PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplayWithVisitInfo>() {
         override fun areItemsTheSame(
@@ -54,12 +55,14 @@ class PatientItemAdapter(
             item: PatientDisplayWithVisitInfo,
             clickListener: BenClickListener?,
             showAbha: Boolean,
+            showEditButton: Boolean,
             mContext: Context
         ) {
             var gender = ""
             binding.benVisitInfo = item
             binding.clickListener = clickListener
             binding.showAbha = showAbha
+            binding.showEditButton = showEditButton
             binding.hasAbha = !item.patient.healthIdDetails?.healthIdNumber.isNullOrEmpty()
 
             val firstName = item.patient.firstName ?: ""
@@ -194,7 +197,7 @@ class PatientItemAdapter(
 
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
 //        patientId = getItem(position).patient.patientID
-        holder.bind(getItem(position), clickListener, showAbha, holder.itemView.context)
+        holder.bind(getItem(position), clickListener, showAbha, showEditButton, holder.itemView.context)
 
     }
 

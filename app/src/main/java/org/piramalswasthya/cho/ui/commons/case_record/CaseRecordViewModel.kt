@@ -430,6 +430,9 @@ class CaseRecordViewModel @Inject constructor(
         return templateRepo.getTemplateUsingTempName(selectedString)
     }
 
+    suspend fun getAvailableStockForRule(itemID: Int): Int {
+        return doctorMasterDataMaleRepo.getItemMasterQtyInHandById(itemID)
+    }
 //    fun getVisitReasonByBenFlowID(beneficiaryID: Long) {
 //        viewModelScope.launch {
 //            try {

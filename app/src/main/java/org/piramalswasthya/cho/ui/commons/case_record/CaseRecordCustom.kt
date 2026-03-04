@@ -803,6 +803,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 override fun onItemChanged() {
                     binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
                 }
+            },
+            fetchStockListener = { itemId, callback ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val stock = viewModel.getAvailableStockForRule(itemId)
+                    callback(stock)
+                }
             }
         )
         binding.prescriptionExtra.adapter = pAdapter
