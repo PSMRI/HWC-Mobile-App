@@ -488,6 +488,23 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 "Foreign body in ear."
             )
 
+            val validThroatChiefComplaints = listOf(
+                "Neck swelling",
+                "Dysphagia",
+                "Hoarseness",
+                "Cleft lip",
+                "Cleft palate",
+                "Tonsillitis",
+                "Pharyngitis",
+                "Laryngitis",
+                "Sinusitis",
+                "Pain",
+                "Soreness",
+                "Cold",
+                "Itching"
+
+            )
+
             val hasValidChiefComplaintForNose = if (viewModel.getIsFollowUp()) {
                 chiefComplaintDB2.any { item ->
                     validNoseChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
@@ -507,6 +524,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
                 }
             }
+            val hasValidChiefComplaintForThroat = if (viewModel.getIsFollowUp()) {
+                chiefComplaintDB2.any { item ->
+                    validThroatChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+                }
+            } else {
+                itemList.any { item ->
+                    validThroatChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+                }
+            }
 
             var entFilteredReasons = DropdownConst.entReasons
 
@@ -516,6 +542,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
             if (!hasValidChiefComplaintForEar) {
                 entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.ear }
+            }
+            if (!hasValidChiefComplaintForThroat) {
+                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.throat }
             }
 
             val subCatAdapter = SubCategoryAdapter(
@@ -1641,6 +1670,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToNoseDiagnosisFormFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitNo
+                        )
+                    )
+                }
+            }
+            else if(reasonForVisit == DropdownConst.throat){
+                saveVisitData { benVisitNo ->
+                    isNavigationInProgress = true
+                    binding.btnSubmit.isEnabled = false
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToThroatDiagnosisFormFragment(
                             patientID = benVisitInfo.patient.patientID,
                             benVisitNo = benVisitNo
                         )

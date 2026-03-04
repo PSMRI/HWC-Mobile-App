@@ -72,6 +72,7 @@ import org.piramalswasthya.cho.database.room.dao.NoseDiagnosisAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.OralHealthDao
 import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
+import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -400,6 +401,9 @@ object AppModule {
     @Singleton
     @Provides
     fun providePsychosocialCaregiverSupportDao(database: InAppDb): PsychosocialCaregiverSupportDao = database.psychosocialCaregiverSupportDao
+    @Singleton
+    @Provides
+    fun provideThroatDiagnosisAssessmentDao(database: InAppDb): ThroatDiagnosisAssessmentDao = database.throatDiagnosisAssessmentDao
 
 
 }

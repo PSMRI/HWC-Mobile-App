@@ -68,6 +68,7 @@ import org.piramalswasthya.cho.database.room.dao.NoseDiagnosisAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.OralHealthDao
 import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
+import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.AshaDueListCache
@@ -161,6 +162,7 @@ import org.piramalswasthya.cho.model.NoseDiagnosisAssessment
 import org.piramalswasthya.cho.model.PainAndSymptomAssessment
 import org.piramalswasthya.cho.model.OralHealth
 import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
+import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
 
 
 @Database(
@@ -256,7 +258,9 @@ import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
         NoseDiagnosisAssessment::class,
         PainAndSymptomAssessment::class,
         PsychosocialCaregiverSupport::class,
-        OralHealth::class
+        OralHealth::class,
+        ThroatDiagnosisAssessment::class
+
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
     version = 131, exportSchema = false
@@ -337,6 +341,8 @@ abstract class InAppDb : RoomDatabase() {
     abstract val earDiagnosisAssessmentDao: EarDiagnosisAssessmentDao
     abstract val oralHealthDao: OralHealthDao
     abstract val noseDiagnosisAssessmentDao: NoseDiagnosisAssessmentDao
+    abstract val throatDiagnosisAssessmentDao: ThroatDiagnosisAssessmentDao
+
 
     companion object {
         @Volatile
