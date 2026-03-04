@@ -62,14 +62,15 @@ class DeliveryOutcomeFormFragment : Fragment() {
             }
 
             val isFirstCreation = adapter == null
-            adapter = FormInputAdapter(
+            val formInputAdapter = FormInputAdapter(
                 formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                     viewModel.updateListOnValueChanged(formId, index)
                 },
                 isEnabled = !(recordExists == true)
             )
-            binding.form.rvInputForm.adapter = adapter
-            adapter?.submitList(viewModel.formList.value)
+            adapter = formInputAdapter
+            binding.form.rvInputForm.adapter = formInputAdapter
+            formInputAdapter.submitList(viewModel.formList.value)
 
             if (isFirstCreation) {
                 viewLifecycleOwner.lifecycleScope.launch {
