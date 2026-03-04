@@ -56,6 +56,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
@@ -391,6 +393,8 @@ class PersonalDetailsFragment : Fragment() {
                     }
 
                     binding.patientListContainer.patientList.adapter = itemAdapter
+                    binding.patientListContainer.patientList.setHasFixedSize(true)
+                    binding.patientListContainer.patientList.itemAnimator = null
 
                     apiSearchAdapter = ApiSearchAdapter(requireContext()) { selectedPatient ->
                         binding.search.text?.clear()
@@ -417,75 +421,19 @@ class PersonalDetailsFragment : Fragment() {
 
                     when {
                         preferenceDao.isRegistrarSelected() || preferenceDao.isNurseSelected() -> {
-                            lifecycleScope.launch {
-                                viewModel.patientListForNurse?.collect {
-                                    itemAdapter?.submitList(it.sortedByDescending { item ->
-                                        item.patient.registrationDate
-                                    })
-                                    patientCount = it.size
-                                    withContext(Dispatchers.Main) {
-                                        if (!isShowingSearchResults) {
-                                            binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                it.size.toString() + getResultStr(it.size)
-                                        }
-                                    }
-                                }
-                            }
+                            observePatientList(viewModel.patientListForNurse)
                         }
 
                         preferenceDao.isDoctorSelected() -> {
-                            lifecycleScope.launch {
-                                viewModel.patientListForDoctor?.collect {
-                                    itemAdapter?.submitList(it.sortedByDescending { item ->
-                                        item.patient.registrationDate
-                                    })
-                                    patientCount = it.size
-                                    withContext(Dispatchers.Main) {
-                                        if (!isShowingSearchResults) {
-                                            binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                it.size.toString() + getResultStr(it.size)
-                                        }
-                                    }
-                                }
-                            }
+                            observePatientList(viewModel.patientListForDoctor)
                         }
 
                         preferenceDao.isLabSelected() -> {
-                            lifecycleScope.launch {
-                                viewModel.patientListForLab?.collect {
-                                    itemAdapter?.submitList(it.sortedByDescending { item ->
-                                        item.patient.registrationDate
-                                    })
-                                    patientCount = it.size
-                                    withContext(Dispatchers.Main) {
-                                        if (!isShowingSearchResults) {
-                                            binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                it.size.toString() + getResultStr(it.size)
-                                        }
-                                    }
-                                }
-                            }
+                            observePatientList(viewModel.patientListForLab)
                         }
 
                         preferenceDao.isPharmaSelected() -> {
-                            lifecycleScope.launch {
-                                viewModel.patientListForPharmacist?.collect {
-                                    itemAdapter?.submitList(it.sortedByDescending { item ->
-                                        item.patient.registrationDate
-                                    })
-                                    patientCount = it.size
-                                    withContext(Dispatchers.Main) {
-                                        if (!isShowingSearchResults) {
-                                            binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
-                                        }
-                                    }
-                                }
-                            }
+                            observePatientList(viewModel.patientListForPharmacist)
                         }
                     }
 
@@ -520,6 +468,19 @@ class PersonalDetailsFragment : Fragment() {
                 if (b) (searchView as EditText).addTextChangedListener(searchTextWatcher)
                 else (searchView as EditText).removeTextChangedListener(searchTextWatcher)
 
+            }
+        }
+    }
+
+    private fun observePatientList(listFlow: Flow<List<PatientDisplayWithVisitInfo>>) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            listFlow.collectLatest { list ->
+                itemAdapter?.submitList(list)
+                patientCount = list.size
+                if (!isShowingSearchResults) {
+                    binding.patientListContainer.patientCount.text =
+                        list.size.toString() + getResultStr(list.size)
+                }
             }
         }
     }
