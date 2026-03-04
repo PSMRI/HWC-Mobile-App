@@ -780,7 +780,7 @@
     <string name="e_pmsma_list">e-PMSMA List</string>
 
     <!-- Child Care Sub-modules -->
-    <string name="infant_list">Infant List</string>
+    <string name="infant_list">Infant Registration List</string>
     <string name="child_list">Child List</string>
     <string name="adolescent_list">Adolescent List</string>
     <string name="children_under_5_years">Children under 5 Years</string>
@@ -940,7 +940,7 @@
     <string name="no_infants_found">No Infants Found</string>
 
     <!-- Child Registration Strings -->
-    <string name="child_reg_list">Child Reg List</string>
+    <string name="child_reg_list">Child Registration List</string>
     <string name="no_children_found">No Children Found</string>
 
     <!-- Abortion List Strings -->

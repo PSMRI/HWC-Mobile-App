@@ -113,9 +113,12 @@ class SubModuleFragment : Fragment() {
                             }
                         }
                         showANCVisits -> {
-                            // Navigate to ANC Visits List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ANCVisitsActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to ANC Visits List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ANCVisitsFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showDeliveryOutcome -> {
                             // Navigate to Delivery Outcome List Fragment
@@ -142,9 +145,12 @@ class SubModuleFragment : Fragment() {
                                 .commit()
                         }
                         showAbortionList -> {
-                            // Navigate to Abortion List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.AbortionListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Abortion List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.AbortionListFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showInfantList -> {
                             // Navigate to Infant List Fragment
@@ -155,8 +161,8 @@ class SubModuleFragment : Fragment() {
                             }
                         }
                         showChildList -> {
-                            // Navigate to Child List Fragment
-                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildListFragment()
+                            // Navigate to Child Registration list (registered infants)
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildRegistrationListFragment()
                             requireActivity().supportFragmentManager.commit {
                                 replace(R.id.fragment_container, fragment)
                                 addToBackStack(null)

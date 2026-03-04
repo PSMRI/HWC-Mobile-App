@@ -315,8 +315,10 @@ class HomeActivity : AppCompatActivity() {
         if(!showDashboard && (dashboardBool == null || !dashboardBool)) {
             pager.post {
                 pager.setCurrentItem(0, false)
+                updateRefreshButtonVisibility()
             }
         }
+        updateRefreshButtonVisibility()
 
         // Adding the Adapter to the ViewPager
         pager.adapter = homeAdapter
@@ -324,6 +326,7 @@ class HomeActivity : AppCompatActivity() {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if (tab != null) {
                     pager.currentItem = tab.position
+                    updateRefreshButtonVisibility()
                 }
             }
 
@@ -340,6 +343,7 @@ class HomeActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 tab.selectTab(tab.getTabAt(position))
+                updateRefreshButtonVisibility()
             }
         })
 
@@ -413,7 +417,14 @@ class HomeActivity : AppCompatActivity() {
                 binding.viewPager.visibility = android.view.View.VISIBLE
                 binding.tabsId.visibility = android.view.View.VISIBLE
             }
+            updateRefreshButtonVisibility()
         }
+    }
+
+    private fun updateRefreshButtonVisibility() {
+        val isChoTabSelected = prefDao.isNurseSelected() || prefDao.isUserCHO()
+        val isHomeFirstTab = binding.viewPager.visibility == View.VISIBLE && binding.viewPager.currentItem == 0
+        binding.refreshButton.visibility = if (isChoTabSelected && isHomeFirstTab) View.VISIBLE else View.GONE
     }
 
     private fun setObservers() {

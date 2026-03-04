@@ -6,11 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-
 import androidx.lifecycle.asLiveData
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
@@ -52,6 +51,7 @@ class ChildRegistrationFragment : Fragment() {
     private val babyIndex: Int by lazy { arguments?.getInt("babyIndex", 0) ?: 0 }
 
     private lateinit var dataset: ChildRegistrationDataset
+    private lateinit var formAdapter: FormInputAdapter
     private var currentInfantReg: InfantRegCache? = null
 
     override fun onCreateView(
@@ -69,8 +69,8 @@ class ChildRegistrationFragment : Fragment() {
         // Reusing the same layout as NeonatalOutcome since it's just a recycler view + buttons
 
         dataset = ChildRegistrationDataset(requireContext(), preferenceDao.getCurrentLanguage())
-        
-        val adapter = FormInputAdapter(
+
+        formAdapter = FormInputAdapter(
             formValueListener = FormInputAdapter.FormValueListener { id, index ->
                 lifecycleScope.launch {
                     dataset.updateList(id, index)
@@ -79,13 +79,14 @@ class ChildRegistrationFragment : Fragment() {
         )
 
         binding.rvForm.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
-        binding.rvForm.adapter = adapter
+        binding.rvForm.adapter = formAdapter
 
         dataset.listFlow.asLiveData().observe(viewLifecycleOwner) { elements ->
-            adapter.submitList(elements)
+            formAdapter.submitList(elements)
         }
 
         setupClickListeners()
+        observeAlerts()
         loadData()
     }
 
@@ -144,6 +145,12 @@ class ChildRegistrationFragment : Fragment() {
 
     private fun saveForm() {
         val reg = currentInfantReg ?: return
+
+        val invalidIndex = formAdapter.validateInput(resources, binding.rvForm)
+        if (invalidIndex != -1) {
+            binding.rvForm.scrollToPosition(invalidIndex)
+            return
+        }
         
         lifecycleScope.launch {
             try {
@@ -161,13 +168,14 @@ class ChildRegistrationFragment : Fragment() {
                     updatedBy = userName,
                     updatedDate = currentTime,
                     syncState = SyncState.UNSYNCED,
-                    isActive = true
+                    isActive = true,
+                    processed = if (reg.processed == "N") "N" else "U"
                 )
 
                 infantRegRepo.saveInfantReg(updated)
                 
                 if (isAdded) {
-                    Toast.makeText(requireContext(), "Child registered successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Infant registration saved successfully", Toast.LENGTH_SHORT).show()
                     parentFragmentManager.popBackStack()
                 }
                 
@@ -178,6 +186,19 @@ class ChildRegistrationFragment : Fragment() {
                     binding.btnSave.isEnabled = true
                     binding.btnCancel.isEnabled = true
                     binding.progressBar.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+    private fun observeAlerts() {
+        lifecycleScope.launch {
+            dataset.alertErrorMessageFlow.collect { message ->
+                message?.let {
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                    }
+                    dataset.resetErrorMessageFlow()
                 }
             }
         }

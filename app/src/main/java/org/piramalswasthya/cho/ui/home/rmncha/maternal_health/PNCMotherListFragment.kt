@@ -141,6 +141,12 @@ class PNCMotherListFragment : Fragment() {
         bottomSheet.show(childFragmentManager, "PncVisitsBottomSheet")
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.pnc_mother_list)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

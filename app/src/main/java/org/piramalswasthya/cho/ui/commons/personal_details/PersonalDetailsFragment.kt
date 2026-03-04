@@ -385,7 +385,8 @@ class PersonalDetailsFragment : Fragment() {
                                 }
                                 startActivity(intent)
                             }),
-                            showAbha = true
+                            showAbha = true,
+                            showEditButton = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
                         )
                     }
 

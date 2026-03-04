@@ -94,6 +94,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pushInfantRegisterWorkRequest = OneTimeWorkRequestBuilder<PushInfantRegisterToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val pushCbacWorkRequest = OneTimeWorkRequestBuilder<PushCbacToAmirtWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
@@ -116,6 +120,7 @@ object WorkerUtils {
             .then(pushBenDoctorInfoWithoutTestToAmrit)
             .then(pushBenDoctorInfoAfterTestToAmrit)
             .then(pushPWRToAmritWorker)
+            .then(pushInfantRegisterWorkRequest)
             .then(pushPNCWorkRequest)
             .then(pushECToAmritWorker)
             .then(pushImmunizationWorkRequest)

@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.RvItemChildRegBinding
 import org.piramalswasthya.cho.model.ChildRegDomain
 import org.piramalswasthya.cho.utils.DateTimeUtil
@@ -44,12 +45,17 @@ class ChildRegistrationAdapter(
             item: ChildRegDomain,
             clickListener: ClickListener?
         ) {
+            binding.item = item
+            binding.clickListener = clickListener ?: ClickListener(null)
+
             // Set infant name
             binding.tvBabyName.text = item.customName
 
             // Set button text and color based on child registration status
             val isChildRegistered = item.isChildRegistered()
-            binding.btnAction.text = if (isChildRegistered) "VIEW" else "REGISTER"
+            binding.btnAction.text = binding.root.context.getString(
+                if (isChildRegistered) R.string.view else R.string.register
+            )
             binding.btnAction.setBackgroundColor(
                 binding.root.resources.getColor(
                     if (isChildRegistered) android.R.color.holo_green_dark 
@@ -60,7 +66,7 @@ class ChildRegistrationAdapter(
 
             // Set age
             item.childPatient?.dob?.let {
-                binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
+                binding.tvAge.text = DateTimeUtil.calculateAgeString(it).ifBlank { "0 days" }
             } ?: run {
                 binding.tvAge.text = "NA"
             }
@@ -87,12 +93,12 @@ class ChildRegistrationAdapter(
         private val clickedForm: ((patientID: String, babyIndex: Int, childPatientID: String?) -> Unit)? = null
     ) {
         fun onClickForm(item: ChildRegDomain) =
-            clickedForm?.let { 
+            clickedForm?.let {
                 it(
                     item.motherPatient.patientID, 
                     item.infant.babyIndex,
                     item.childPatient?.patientID
-                ) 
+                )
             }
     }
 }
