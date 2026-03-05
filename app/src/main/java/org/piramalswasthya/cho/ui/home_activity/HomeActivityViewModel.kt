@@ -93,17 +93,22 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     private suspend fun extracted(context: Context) {
         try {
             _state.postValue(State.SAVING)
-            if (dataLoadFlagManager.isDataLoaded()){
-                Log.d("syncing started first", "syncing started")
-                WorkerUtils.triggerAmritSyncWorker(context)
-            }
             WorkerUtils.pushAuditDetailsWorker(context)
 
-            // Single HTTP request replaces 13 separate calls to the same endpoint
-            registrarMasterDataRepo.saveAllMasterDataToCache()
+            if (dataLoadFlagManager.isDataLoaded()) {
+                // Master data is fresh — kick off background sync and return immediately
+                // so the UI is not kept waiting by network calls the user can't see.
+                Log.d("syncing started first", "syncing started")
+                WorkerUtils.triggerAmritSyncWorker(context)
+                _state.postValue(State.SAVE_SUCCESS)
+                return
+            }
 
-            // Remaining independent API calls run concurrently
+            // First login or stale data (>10 days): download all master data.
+            // registrarMasterData is included in the same parallel batch as the
+            // other calls so nothing runs serially before them.
             coroutineScope {
+                val j0 = async { registrarMasterDataRepo.saveAllMasterDataToCache() }
                 val j1 = async { languageRepo.saveResponseToCacheLang() }
                 val j2 = async { visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache() }
                 val j3 = async { visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache() }
@@ -114,13 +119,10 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 val j8 = async { doctorMaleMasterDataRepo.getDoctorMasterMaleData() }
                 val j9 = async { malMasterDataRepo.getMasterDataForNurse() }
                 val j10 = async { getStockDetailsOfSubStore() }
-                awaitAll(j1, j2, j3, j4, j5, j6, j7, j8, j9, j10)
+                awaitAll(j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10)
             }
 
-            if (!dataLoadFlagManager.isDataLoaded()){
-                Log.d("syncing started second", "syncing started")
-                WorkerUtils.triggerAmritSyncWorker(context)
-            }
+            WorkerUtils.triggerAmritSyncWorker(context)
             dataLoadFlagManager.setDataLoaded(true)
             _state.postValue(State.SAVE_SUCCESS)
         } catch (_e: Exception) {
