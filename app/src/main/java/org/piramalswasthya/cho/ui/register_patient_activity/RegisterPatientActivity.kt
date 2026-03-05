@@ -4,6 +4,10 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -63,6 +67,15 @@ class RegisterPatientActivity : AppCompatActivity() {
         sharedViewModel.setFaceVector(faceVector ?: floatArrayOf())
 
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientRegistration.id) as NavHostFragment
+
+        // Adjust bottom action buttons to sit above system navigation (Android 10+ gesture/3‑button bar)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavigation) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                bottomMargin = systemBars.bottom
+            }
+            insets
+        }
 
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
