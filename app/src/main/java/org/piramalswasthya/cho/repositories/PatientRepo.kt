@@ -535,6 +535,7 @@ class PatientRepo @Inject constructor(
                         var isSuccess = true
 
                         var totalDownloaded = 0
+                        val patientsToInsert = mutableListOf<Patient>()
                         var lastReportedProgress = -1
 
                         for(beneficiary in beneficiariesDTO){
@@ -600,11 +601,19 @@ class PatientRepo @Inject constructor(
                                     if (patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0) {
                                         patientDao.updatePatient(patient)
                                     } else {
+                                        patientsToInsert.add(patient)
                                         patientDao.insertPatient(patient)
                                     }
                                 }
                             } catch (e: Exception){
                                 isSuccess = false
+                            }
+                        }
+
+                        // Batch insert all new patients in a single transaction
+                        if (patientsToInsert.isNotEmpty()) {
+                            withContext(Dispatchers.IO) {
+                                patientDao.insertAllPatients(patientsToInsert)
                             }
                         }
 

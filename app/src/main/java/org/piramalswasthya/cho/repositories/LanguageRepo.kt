@@ -30,13 +30,12 @@ class LanguageRepo @Inject constructor(
         }
     }
     suspend fun saveResponseToCacheLang() {
-        languageService().forEach { language: Language ->
+        val languages = languageService()
+        if (languages.isNotEmpty()) {
             withContext(Dispatchers.IO) {
-                languageDao.insertAllLanguages(language)
+                languageDao.insertLanguages(languages)
             }
-            Timber.tag("itemLang").d(language.toString())
         }
-
     }
 
     suspend fun getCachedResponseLang(): List<Language> {

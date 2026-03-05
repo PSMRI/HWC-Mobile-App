@@ -364,6 +364,8 @@
     <string name="something_wend_wong">Something Went Wrong</string>
     <string name="loading_form">Loading Form</string>
     <string name="loading">Loading Please Wait....</string>
+    <string name="initial_setup_title">Initial Setup</string>
+    <string name="initial_setup_subtitle">Downloading required data. This may take a few minutes on first login.</string>
     <string name="personal_information">Patient Registration</string>
     <string name="location_information">Location Information</string>
     <string name="other_information">Other Information</string>

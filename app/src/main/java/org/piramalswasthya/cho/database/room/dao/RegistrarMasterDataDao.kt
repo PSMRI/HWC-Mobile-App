@@ -32,6 +32,9 @@ interface RegistrarMasterDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGender(genderMaster: GenderMaster)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllGenders(list: List<GenderMaster>)
+
 
     //AGE UNIT
     @Query("SELECT * FROM AGE_UNIT")
@@ -39,6 +42,9 @@ interface RegistrarMasterDataDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAgeUnit(ageUnit: AgeUnit)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllAgeUnits(list: List<AgeUnit>)
 
 
     //INCOME_MASTER
@@ -48,6 +54,8 @@ interface RegistrarMasterDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertIncomeStatus(incomeMaster: IncomeMaster)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllIncomeStatuses(list: List<IncomeMaster>)
 
 
     //LITERACY_STATUS
@@ -57,6 +65,9 @@ interface RegistrarMasterDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLiteracyStatus(literacyStatus: LiteracyStatus)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllLiteracyStatuses(list: List<LiteracyStatus>)
+
 
     //COMMUNITY_MASTER
     @Query("SELECT * FROM COMMUNITY_MASTER")
@@ -65,6 +76,9 @@ interface RegistrarMasterDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCommunity(communityMaster: CommunityMaster)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllCommunities(list: List<CommunityMaster>)
+
     //MARITAL_STATUS
     @Query("SELECT * FROM MARITAL_STATUS_MASTER")
     suspend fun getMaritalStatus(): List<MaritalStatusMaster>
@@ -72,12 +86,18 @@ interface RegistrarMasterDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMaritalStatus(maritalStatusMaster: MaritalStatusMaster)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllMaritalStatuses(list: List<MaritalStatusMaster>)
+
     //GOV_ID_ENTITY_MASTER
     @Query("SELECT * FROM GOV_ID_ENTITY_MASTER")
     suspend fun getGovIdMaster(): List<GovIdEntityMaster>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGovIdMaster(govIdEntityMaster: GovIdEntityMaster)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllGovIdMasters(list: List<GovIdEntityMaster>)
 
 
     //OTHER_GOV_ID_ENTITY_MASTER
@@ -87,12 +107,18 @@ interface RegistrarMasterDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOtherGovIdEntityMaster(maritalStatusMaster: OtherGovIdEntityMaster)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllOtherGovIdEntityMasters(list: List<OtherGovIdEntityMaster>)
+
     //RELATIONSHIP_MASTER
     @Query("SELECT * FROM RELATIONSHIP_MASTER")
     suspend fun getRelationshipMaster(): List<RelationshipMaster>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRelationshipMaster(relationshipMaster: RelationshipMaster)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllRelationshipMasters(list: List<RelationshipMaster>)
 
     //RELIGION_MASTER
     @Query("SELECT * FROM RELIGION_MASTER")
@@ -101,12 +127,18 @@ interface RegistrarMasterDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReligionMaster(religionMaster: ReligionMaster)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllReligionMasters(list: List<ReligionMaster>)
+
     //QUALIFICATION_MASTER
     @Query("SELECT * FROM QUALIFICATION_MASTER")
     suspend fun getQualificationMaster(): List<QualificationMaster>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQualificationMaster(qualificationMaster: QualificationMaster)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllQualificationMasters(list: List<QualificationMaster>)
 
 
     //OCCUPATION_MASTER
@@ -115,6 +147,9 @@ interface RegistrarMasterDataDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOccupationMaster(occupationMaster: OccupationMaster)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllOccupationMasters(list: List<OccupationMaster>)
 
 
 
