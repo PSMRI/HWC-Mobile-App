@@ -1,4 +1,5 @@
 package org.piramalswasthya.cho.adapter
+/*
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -100,3 +101,4 @@ class ChildrenUnderFiveYearsAdapter(
     }
 }
 
+*/
