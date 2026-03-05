@@ -210,18 +210,24 @@ class BenFlowRepo @Inject constructor(
 
     @Transaction
     suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : List<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow, patientVisitInfoSync: PatientVisitInfoSync,docData:DoctorDataDownSync){
+        // Do not overwrite local case record while case is pending in pharmacist queue.
+        // Doctor edits before dispense are local-authoritative and must not be replaced by downsync payload.
+        val preserveLocalDoctorData = patientVisitInfoSync.pharmacist_flag == 1
+        if (!preserveLocalDoctorData) {
+            prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+            prescriptionCaseRecord?.let {
+                prescriptionDao.insertAll(it)
+            }
 
-        prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
-        prescriptionCaseRecord?.let {
-            prescriptionDao.insertAll(it)
-        }
+            investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+            investigationDao.insertInvestigation(investigationCaseRecord)
 
-        investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
-        investigationDao.insertInvestigation(investigationCaseRecord)
-
-        caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
-        diagnosisCaseRecords.let {
-            caseRecordeDao.insertAll(it)
+            caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+            diagnosisCaseRecords.let {
+                caseRecordeDao.insertAll(it)
+            }
+        } else {
+            Timber.d("Preserving local doctor data for pending pharmacist case %s/%s", patient.patientID, patientVisitInfoSync.benVisitNo)
         }
 
         patientVisitInfoSyncDao.updateAfterDoctorDataDownSync(patientVisitInfoSync.doctorFlag!!, patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo)
@@ -718,6 +724,21 @@ class BenFlowRepo @Inject constructor(
         patientVisitInfoSync: PatientVisitInfoSync
     ) {
         try {
+            val existingPrescriptions =
+                prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(
+                    patient.patientID,
+                    patientVisitInfoSync.benVisitNo
+                ).orEmpty()
+            val existingPrimary = existingPrescriptions.firstOrNull {
+                (it.prescriptionID > 0L) || (it.visitCode > 0L)
+            } ?: existingPrescriptions.firstOrNull()
+            val benFlowForVisit = patientVisitInfoSync.benFlowID?.let { benFlowId ->
+                try {
+                    benFlowDao.getBenFlowByBenFlowID(benFlowId)
+                } catch (e: Exception) {
+                    null
+                }
+            }
             Log.d("Pharmacist","Deleting existing prescriptions for patientID: ${patient.patientID}, visitNo: ${patientVisitInfoSync.benVisitNo}")
             prescriptionDao.deletePrescriptionByPatientIDAndBenVisitNo(
                 patient.patientID,
@@ -727,10 +748,14 @@ class BenFlowRepo @Inject constructor(
 
 
             val prescription = Prescription(
-                prescriptionID = 0, // Placeholder
-                beneficiaryRegID = 0, // Placeholder, adjust as needed
-                visitCode = 0, // Placeholder, adjust as needed
-                consultantName = null, // Or a placeholder name
+                prescriptionID = existingPrimary?.prescriptionID
+                    ?: patientVisitInfoSync.prescriptionID?.toLong()
+                    ?: 0,
+                beneficiaryRegID = existingPrimary?.beneficiaryRegID ?: 0,
+                visitCode = existingPrimary?.visitCode
+                    ?: benFlowForVisit?.visitCode
+                    ?: 0,
+                consultantName = existingPrimary?.consultantName,
                 patientID = patient.patientID,
                 benFlowID = null,
                 benVisitNo = patientVisitInfoSync.benVisitNo

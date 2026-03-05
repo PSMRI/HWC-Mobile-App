@@ -57,8 +57,25 @@ interface PatientVisitInfoSyncDao {
     suspend fun getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): PatientVisitInfoSync?
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET benFlowId = :benFlowId, pharmacist_flag= :pharmacistFlag, visitCategory = :visitCategory WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
-    suspend fun updateBenFlowIdByPatientIdAndBenVisitNo(benFlowId: Long, pharmacistFlag:Int, patientID: String, benVisitNo: Int, visitCategory: String)
+    @Query(
+        "UPDATE PATIENT_VISIT_INFO_SYNC " +
+                "SET benFlowId = :benFlowId, " +
+                "pharmacist_flag = CASE " +
+                "WHEN pharmacist_flag = 9 AND :pharmacistFlag <> 9 THEN pharmacist_flag " +
+                "WHEN pharmacistDataSynced IN (:unSynced, :syncing) THEN pharmacist_flag " +
+                "ELSE :pharmacistFlag END, " +
+                "visitCategory = :visitCategory " +
+                "WHERE patientID = :patientID AND benVisitNo = :benVisitNo"
+    )
+    suspend fun updateBenFlowIdByPatientIdAndBenVisitNo(
+        benFlowId: Long,
+        pharmacistFlag: Int,
+        patientID: String,
+        benVisitNo: Int,
+        visitCategory: String,
+        unSynced: SyncState? = SyncState.UNSYNCED,
+        syncing: SyncState? = SyncState.SYNCING
+    )
 
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE createNewBenFlow = :createNewBenFlow AND benVisitNo > 1 ORDER BY benVisitNo ASC")
     suspend fun getUnsyncedRevisitRecords(createNewBenFlow: Boolean? = true): List<PatientVisitInfoSync>
@@ -138,6 +155,18 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePharmacistFlag(patientID: String, benVisitNo: Int)
 
     @Transaction
+    @Query(
+        "UPDATE PATIENT_VISIT_INFO_SYNC " +
+                "SET pharmacist_flag = 9, pharmacistDataSynced = :unSynced " +
+                "WHERE patientID = :patientID AND benVisitNo = :benVisitNo"
+    )
+    suspend fun markPharmacistDispensedLocally(
+        patientID: String,
+        benVisitNo: Int,
+        unSynced: SyncState? = SyncState.UNSYNCED
+    )
+
+    @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacist_flag = 1, visitCategory = 'General OPD' WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePharmacistFlagToPending(patientID: String, benVisitNo: Int)
 
@@ -181,7 +210,10 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9 AND vis.visitCategory = 'General OPD' ORDER BY pat.registrationDate DESC")
+            "WHERE vis.nurseFlag = 9 " +
+            "AND vis.visitCategory = 'General OPD' " +
+            "AND NOT (vis.doctorFlag = 9 AND IFNULL(vis.pharmacist_flag, 0) IN (0, 9)) " +
+            "ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForDoctor(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction

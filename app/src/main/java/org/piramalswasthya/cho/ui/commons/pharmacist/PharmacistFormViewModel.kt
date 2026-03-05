@@ -41,7 +41,8 @@ class PharmacistFormViewModel @Inject constructor(
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val benFlowRepo: BenFlowRepo,
     private val patientRepo: PatientRepo,
-    private val batchDao: BatchDao
+    private val batchDao: BatchDao,
+    private val caseClosureManager: org.piramalswasthya.cho.helpers.CaseClosureManager
 ) : ViewModel() {
 
 
@@ -147,17 +148,24 @@ class PharmacistFormViewModel @Inject constructor(
 
     suspend fun downloadPrescription(benVisitInfo : PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
-            benFlowRepo.pullPrescriptionListData(benVisitInfo)
+            // Preserve local doctor-updated prescription rows; fetch from API only when local is empty.
+            val localPrescription = patientRepo.getPrescriptions(benVisitInfo)
+            if (localPrescription.isNullOrEmpty()) {
+                benFlowRepo.pullPrescriptionListData(benVisitInfo)
+            }
         }
     }
 
     suspend fun getPrescription(benVisitInfo : PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
             var listPrescription = patientRepo.getPrescriptions(benVisitInfo)
-            // When doctor submitted medicine locally, data is in Prescription_Cases_Recorde only.
-            // Copy to Prescription table so pharmacist can see the medicines.
             if (listPrescription.isNullOrEmpty()) {
+                // For unsynced local doctor submissions, pharmacist data may still exist only in case-record tables.
                 benFlowRepo.copyPrescriptionFromCaseRecordToPharmacistTable(benVisitInfo)
+                listPrescription = patientRepo.getPrescriptions(benVisitInfo)
+            }
+            if (listPrescription.isNullOrEmpty()) {
+                benFlowRepo.pullPrescriptionListData(benVisitInfo)
                 listPrescription = patientRepo.getPrescriptions(benVisitInfo)
             }
             Log.d("MyPrescription", "Prescription $listPrescription")
@@ -178,9 +186,13 @@ class PharmacistFormViewModel @Inject constructor(
 //
     val state = savedStateHandle
     fun savePharmacistData(dtos: PrescriptionDTO?, benVisitInfo: PatientDisplayWithVisitInfo) {
-        try {
-
-            viewModelScope.launch {
+        _isDataSaved.value = false
+        viewModelScope.launch {
+            try {
+                val visitNo = benVisitInfo.benVisitNo ?: run {
+                    _isDataSaved.value = false
+                    return@launch
+                }
 
                if(dtos!=null && dtos.itemList!=null){
                    dtos.itemList.forEach { item->
@@ -191,7 +203,7 @@ class PharmacistFormViewModel @Inject constructor(
                            Log.d("WU", "Batch2 ${availableBatch} ")
                            if(availableBatch!=null) {
                                val updatedBatch = availableBatch.copy(
-                                   quantityInHand = availableBatch.quantityInHand - item.qtyPrescribed!!
+                                   quantityInHand = availableBatch.quantityInHand - (item.qtyPrescribed ?: 0)
                                )
                                Log.d("WU", "Batch3 ${updatedBatch}")
                                if(updatedBatch.quantityInHand<=0){
@@ -205,14 +217,33 @@ class PharmacistFormViewModel @Inject constructor(
                        }
                    }
                }
-                patientVisitInfoSyncRepo.updatePharmacistFlag(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
-                patientVisitInfoSyncRepo.updatePharmacistDataSyncState(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, SyncState.UNSYNCED)
+                patientVisitInfoSyncRepo.markPharmacistDispensedLocally(
+                    benVisitInfo.patient.patientID,
+                    visitNo
+                )
 
                 dtos?.let { prescriptionDTO ->
-                    if(benVisitInfo.benVisitNo!=null){
-                        val prescription = patientRepo.getPrescription(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, prescriptionDTO.prescriptionID)
-                        prescription.issueType = dtos.issueType
-                        patientRepo.updatePrescription(prescription)
+                    if(visitNo > 0){
+                        val prescription = try {
+                            if (prescriptionDTO.prescriptionID > 0) {
+                                patientRepo.getPrescription(
+                                    benVisitInfo.patient.patientID,
+                                    visitNo,
+                                    prescriptionDTO.prescriptionID
+                                )
+                            } else {
+                                null
+                            }
+                        } catch (e: Exception) {
+                            null
+                        } ?: patientRepo.getLatestPrescription(
+                            benVisitInfo.patient.patientID,
+                            visitNo
+                        )
+                        prescription?.let {
+                            it.issueType = dtos.issueType
+                            patientRepo.updatePrescription(it)
+                        }
                     }
                 }
                 WorkerUtils.pharmacistPushWorker(context)
@@ -229,18 +260,36 @@ class PharmacistFormViewModel @Inject constructor(
 //                    Toast.makeText(context, "Error occured while saving request", Toast.LENGTH_SHORT).show()
 //                }
 
+                // Check if case should auto-close after medicine dispensed
+                val shouldAutoClose = caseClosureManager.shouldAutoClose(benVisitInfo)
+                if (shouldAutoClose) {
+                    Timber.d("Auto-closing case after medicine dispensed: ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
+                    patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
+                        nurseFlag = 9,
+                        doctorFlag = 9,
+                        labtechFlag = benVisitInfo.labtechFlag ?: 0,
+                        patientID = benVisitInfo.patient.patientID,
+                        benVisitNo = visitNo
+                    )
+                }
+
                 _isDataSaved.value = true
 
+            } catch (e: Exception) {
+                _isDataSaved.value = false
+                Timber.e(e, "Error saving pharmacist data")
             }
-
-        } catch (e: Exception) {
-            Timber.d("error saving lab records due to $e")
         }
     }
 
     fun savePharmacistDataforManual(dtos: PrescriptionDTO?, benVisitInfo: PatientDisplayWithVisitInfo) {
-        try {
-            viewModelScope.launch {
+        _isDataSaved.value = false
+        viewModelScope.launch {
+            try {
+                val visitNo = benVisitInfo.benVisitNo ?: run {
+                    _isDataSaved.value = false
+                    return@launch
+                }
 
                 dtos?.itemList?.forEach { item ->
                     val prescribedQty = item.qtyPrescribed ?: 0
@@ -275,35 +324,56 @@ class PharmacistFormViewModel @Inject constructor(
 
                 }
 
-                patientVisitInfoSyncRepo.updatePharmacistFlag(
+                patientVisitInfoSyncRepo.markPharmacistDispensedLocally(
                     benVisitInfo.patient.patientID,
-                    benVisitInfo.benVisitNo!!
-                )
-
-                patientVisitInfoSyncRepo.updatePharmacistDataSyncState(
-                    benVisitInfo.patient.patientID,
-                    benVisitInfo.benVisitNo,
-                    SyncState.UNSYNCED
+                    visitNo
                 )
 
                 dtos.let { prescriptionDTO ->
-                    if (benVisitInfo.benVisitNo != null) {
-                        val prescription = patientRepo.getPrescription(
+                    if (visitNo > 0) {
+                        val prescription = try {
+                            if ((prescriptionDTO?.prescriptionID ?: 0L) > 0L) {
+                                patientRepo.getPrescription(
+                                    benVisitInfo.patient.patientID,
+                                    visitNo,
+                                    prescriptionDTO!!.prescriptionID
+                                )
+                            } else {
+                                null
+                            }
+                        } catch (e: Exception) {
+                            null
+                        } ?: patientRepo.getLatestPrescription(
                             benVisitInfo.patient.patientID,
-                            benVisitInfo.benVisitNo,
-                            prescriptionDTO!!.prescriptionID
+                            visitNo
                         )
-                        prescription.issueType = dtos?.issueType
-                        patientRepo.updatePrescription(prescription)
+                        prescription?.let {
+                            it.issueType = dtos?.issueType
+                            patientRepo.updatePrescription(it)
+                        }
                     }
                 }
 
                 WorkerUtils.pharmacistPushWorker(context)
 
+                // Check if case should auto-close after medicine dispensed
+                val shouldAutoClose = caseClosureManager.shouldAutoClose(benVisitInfo)
+                if (shouldAutoClose) {
+                    Timber.d("Auto-closing case after medicine dispensed (manual): ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
+                    patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
+                        nurseFlag = 9,
+                        doctorFlag = 9,
+                        labtechFlag = benVisitInfo.labtechFlag ?: 0,
+                        patientID = benVisitInfo.patient.patientID,
+                        benVisitNo = visitNo
+                    )
+                }
+
                 _isDataSaved.value = true
+            } catch (e: Exception) {
+                _isDataSaved.value = false
+                Timber.e(e, "Error saving pharmacist data")
             }
-        } catch (e: Exception) {
-            Timber.e(e, "Error saving pharmacist data")
         }
     }
 

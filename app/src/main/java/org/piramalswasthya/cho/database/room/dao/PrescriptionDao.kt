@@ -52,6 +52,9 @@ interface PrescriptionDao {
     @Query("select * from prescription where patientID = :patientID and benVisitNo = :benVisitNo and prescriptionID = :prescriptionID limit 1")
     fun getPrescription(patientID: String, benVisitNo: Int, prescriptionID: Long): Prescription
 
+    @Query("select * from prescription where patientID = :patientID and benVisitNo = :benVisitNo order by id desc limit 1")
+    suspend fun getLatestPrescriptionByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): Prescription?
+
     @Query("select * from prescribed_drugs where prescriptionID = :prescriptionID")
     suspend fun getPrescribedDrugs(prescriptionID: Long): List<PrescribedDrugs>?
 

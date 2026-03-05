@@ -30,9 +30,14 @@ class PatientItemAdapter(
     private val showEditButton: Boolean = false,
 ) : ListAdapter<PatientDisplayWithVisitInfo, PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplayWithVisitInfo>() {
+        private fun stableKey(item: PatientDisplayWithVisitInfo): String {
+            return item.patient.beneficiaryID?.toString()
+                ?: "${item.patient.patientID}_${item.benVisitNo ?: -1}"
+        }
+
         override fun areItemsTheSame(
             oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
-        ) = oldItem.patient.beneficiaryID == newItem.patient.beneficiaryID
+        ) = stableKey(oldItem) == stableKey(newItem)
 
         override fun areContentsTheSame(
             oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo

@@ -125,22 +125,29 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
         val selectedBatches = batch.filter { it.isSelected }
         val totalDispensed = selectedBatches.sumOf { it.dispenseQuantity }
         val prescribedQty = prescriptionItemDTO?.qtyPrescribed!!
+        activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = false
         when {
             totalDispensed > prescribedQty -> {
                 showErrorDialog(requireContext(),"Warning","Dispense quantity can not be more than total quantity prescribed")
+                activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = true
             }
             selectedBatches.any { it.dispenseQuantity > it.qty } -> {
                 showErrorDialog(requireContext(),"Warning","One or more batches exceed quantity in hand")
+                activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = true
 
             }
             else -> {
+                viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
                 viewModel.savePharmacistDataforManual(prescriptionDTO, benVisitInfo)
                 viewModel.isDataSaved.observe(viewLifecycleOwner){ state ->
                     when (state!!) {
                         true -> {
+                            viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
                             navigateNext()
                         }
-                        else -> {}
+                        else -> {
+                            activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = true
+                        }
                     }
                 }
             }

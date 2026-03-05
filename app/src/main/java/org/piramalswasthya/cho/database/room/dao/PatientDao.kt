@@ -98,7 +98,9 @@ interface PatientDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9 AND latestVisit.patientID IS NULL")
+            "WHERE vis.nurseFlag = 9 " +
+            "AND latestVisit.patientID IS NULL " +
+            "AND NOT (vis.doctorFlag = 9 AND IFNULL(vis.pharmacist_flag, 0) IN (0, 9))")
     fun getPatientDisplayListForDoctor(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +

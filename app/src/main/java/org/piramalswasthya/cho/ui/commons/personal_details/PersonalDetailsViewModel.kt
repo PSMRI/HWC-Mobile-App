@@ -76,20 +76,10 @@ class PersonalDetailsViewModel @Inject constructor(
             transform = { list -> list.sortedWith(registrationDateComparator) }
         )
 
-    // One card per patient/beneficiary (latest visit only); no duplicate cards with same beneficiary key.
     val patientListForPharmacist: Flow<List<PatientDisplayWithVisitInfo>> =
         buildPatientListFlow(
             source = patientVisitInfoSyncRepo.getPatientListFlowForPharmacist(),
-            transform = { list ->
-                val key: (PatientDisplayWithVisitInfo) -> String = { info ->
-                    info.patient.beneficiaryRegID?.toString() ?: info.patient.patientID
-                }
-                list
-                    .groupBy(key)
-                    .values
-                    .mapNotNull { visits -> visits.maxWithOrNull(latestVisitComparator) }
-                    .sortedWith(latestVisitComparator)
-            }
+            transform = { list -> list.sortedWith(latestVisitComparator) }
         )
 
     var count : Int = 0
