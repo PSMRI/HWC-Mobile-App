@@ -1,8 +1,10 @@
 package org.piramalswasthya.cho.adapter
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
+import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +20,6 @@ import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.home.HomeViewModel
-import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.ImgUtils
 
@@ -29,15 +30,52 @@ class PatientItemAdapter(
     private val showAbha: Boolean = false,
     private val showEditButton: Boolean = false,
 ) : ListAdapter<PatientDisplayWithVisitInfo, PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
+
+    companion object {
+        // Bitmap cache for beneficiary photos to avoid repeated Base64 decode on scroll/rebind.
+        private val benImageBitmapCache = object : LruCache<String, Bitmap>(6 * 1024) {
+            override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / 1024
+        }
+    }
+
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplayWithVisitInfo>() {
         override fun areItemsTheSame(
             oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
-        ) = oldItem.patient.beneficiaryID == newItem.patient.beneficiaryID
+        ): Boolean {
+            val oldVisitNo = oldItem.benVisitNo ?: -1
+            val newVisitNo = newItem.benVisitNo ?: -1
+            return oldItem.patient.patientID == newItem.patient.patientID && oldVisitNo == newVisitNo
+        }
 
         override fun areContentsTheSame(
             oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
-        ) = oldItem == newItem
+        ): Boolean {
+            val oldPatient = oldItem.patient
+            val newPatient = newItem.patient
 
+            return oldPatient.firstName == newPatient.firstName &&
+                    oldPatient.lastName == newPatient.lastName &&
+                    oldPatient.dob == newPatient.dob &&
+                    oldPatient.phoneNo == newPatient.phoneNo &&
+                    oldPatient.beneficiaryID == newPatient.beneficiaryID &&
+                    oldPatient.syncState == newPatient.syncState &&
+                    oldPatient.healthIdDetails?.healthIdNumber == newPatient.healthIdDetails?.healthIdNumber &&
+                    oldPatient.benImage == newPatient.benImage &&
+                    oldItem.genderName == newItem.genderName &&
+                    oldItem.villageName == newItem.villageName &&
+                    oldItem.visitDate == newItem.visitDate &&
+                    oldItem.referDate == newItem.referDate &&
+                    oldItem.referTo == newItem.referTo &&
+                    oldItem.nurseFlag == newItem.nurseFlag &&
+                    oldItem.doctorFlag == newItem.doctorFlag &&
+                    oldItem.labtechFlag == newItem.labtechFlag &&
+                    oldItem.pharmacist_flag == newItem.pharmacist_flag
+        }
+
+    }
+
+    init {
+        setHasStableIds(true)
     }
 
     class BenViewHolder private constructor(private val binding: PatientListItemViewBinding) :
@@ -68,9 +106,9 @@ class PatientItemAdapter(
             val firstName = item.patient.firstName ?: ""
             val lastName = item.patient.lastName ?: ""
             val capitalizedFirstName = firstName.split(" ")
-                .joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+                .joinToString(" ") { token -> token.replaceFirstChar { it.uppercaseChar() } }
             val capitalizedLastName = lastName.split(" ")
-                .joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+                .joinToString(" ") { token -> token.replaceFirstChar { it.uppercaseChar() } }
 
             val fullName = "$capitalizedFirstName $capitalizedLastName"
             binding.patientName.text = fullName
@@ -98,16 +136,27 @@ class PatientItemAdapter(
             // Try to load the beneficiary photo first; fall back to age/gender icon if none
             val benImage = item.patient.benImage
             if (!benImage.isNullOrEmpty()) {
-                val base64Data = if (benImage.contains(",")) benImage.substringAfter(",") else benImage
-                val bitmap = ImgUtils.decodeBase64ToBitmap(base64Data)
-                if (bitmap != null) {
+                val cacheKey = "${item.patient.patientID}:${benImage.hashCode()}"
+                val cachedBitmap = PatientItemAdapter.benImageBitmapCache.get(cacheKey)
+                if (cachedBitmap != null) {
                     Glide.with(mContext)
-                        .load(bitmap)
+                        .load(cachedBitmap)
                         .placeholder(R.drawable.ic_person)
                         .circleCrop()
                         .into(binding.ivPatientIcon)
                 } else {
-                    setDefaultPatientIcon(item.patient.dob, gender, binding)
+                    val base64Data = if (benImage.contains(",")) benImage.substringAfter(",") else benImage
+                    val bitmap = ImgUtils.decodeBase64ToBitmap(base64Data)
+                    if (bitmap != null) {
+                        PatientItemAdapter.benImageBitmapCache.put(cacheKey, bitmap)
+                        Glide.with(mContext)
+                            .load(bitmap)
+                            .placeholder(R.drawable.ic_person)
+                            .circleCrop()
+                            .into(binding.ivPatientIcon)
+                    } else {
+                        setDefaultPatientIcon(item.patient.dob, gender, binding)
+                    }
                 }
             } else {
                 setDefaultPatientIcon(item.patient.dob, gender, binding)
@@ -194,6 +243,12 @@ class PatientItemAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup, viewType: Int
     ) = BenViewHolder.from(parent)
+
+    override fun getItemId(position: Int): Long {
+        val item = getItem(position)
+        val uniqueKey = "${item.patient.patientID}:${item.benVisitNo ?: -1}"
+        return uniqueKey.hashCode().toLong()
+    }
 
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
 //        patientId = getItem(position).patient.patientID

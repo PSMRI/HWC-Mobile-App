@@ -36,10 +36,6 @@ class PersonalDetailsViewModel @Inject constructor(
     private val filter = MutableStateFlow("")
     private val listUpdateDebounceMs = 250L
 
-    private val registrationDateComparator =
-        compareByDescending<PatientDisplayWithVisitInfo> { it.patient.registrationDate?.time ?: 0L }
-            .thenByDescending { it.benVisitNo ?: 0 }
-
     private val latestVisitComparator =
         compareByDescending<PatientDisplayWithVisitInfo> { it.visitDate?.time ?: 0L }
             .thenByDescending { it.benVisitNo ?: 0 }
@@ -61,19 +57,19 @@ class PersonalDetailsViewModel @Inject constructor(
     val patientListForNurse: Flow<List<PatientDisplayWithVisitInfo>> =
         buildPatientListFlow(
             source = patientRepo.getPatientDisplayListForNurse(),
-            transform = { list -> list.sortedWith(registrationDateComparator) }
+            transform = { list -> list }
         )
 
     val patientListForDoctor: Flow<List<PatientDisplayWithVisitInfo>> =
         buildPatientListFlow(
             source = patientRepo.getPatientDisplayListForDoctor(),
-            transform = { list -> list.sortedWith(registrationDateComparator) }
+            transform = { list -> list }
         )
 
     val patientListForLab: Flow<List<PatientDisplayWithVisitInfo>> =
         buildPatientListFlow(
             source = patientVisitInfoSyncRepo.getPatientDisplayListForLab(),
-            transform = { list -> list.sortedWith(registrationDateComparator) }
+            transform = { list -> list }
         )
 
     // One card per patient/beneficiary (latest visit only); no duplicate cards with same beneficiary key.
