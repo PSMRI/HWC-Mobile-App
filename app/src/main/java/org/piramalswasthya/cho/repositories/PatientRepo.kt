@@ -923,9 +923,10 @@ class PatientRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val componentDetailsId = componentDetails.id
 
+            val savedOptions = procedureDao.getComponentOptions(componentDetailsId).orEmpty()
             val updatedId = procedureDao.insert(componentDetails)
 
-            procedureDao.getComponentOptions(componentDetailsId)?.forEach { componentOption ->
+            savedOptions.forEach { componentOption ->
                 componentOption.componentDetailsId = updatedId
                 procedureDao.insert(componentOption)
             }
