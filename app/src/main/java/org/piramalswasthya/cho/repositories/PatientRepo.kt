@@ -536,13 +536,16 @@ class PatientRepo @Inject constructor(
 
                         var totalDownloaded = 0
                         val patientsToInsert = mutableListOf<Patient>()
+                        var lastReportedProgress = -1
 
                         for(beneficiary in beneficiariesDTO){
 
                             totalDownloaded++
                             if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
-                                withContext(Dispatchers.Main) {
-                                    WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                                val progressPercent = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble()) * 100).toInt()
+                                if (progressPercent != lastReportedProgress) {
+                                    lastReportedProgress = progressPercent
+                                    WorkerUtils.totalPercentageCompleted.postValue(progressPercent)
                                 }
                             }
 
@@ -578,7 +581,8 @@ class PatientRepo @Inject constructor(
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
                                     healthIdDetails = benHealthIdDetails ,
-                                    faceEmbedding = beneficiary.faceEmbedding
+                                    faceEmbedding = beneficiary.faceEmbedding,
+                                    benImage = beneficiary.benImage
                                 )
 
                                 setPatientAge(patient)
@@ -598,6 +602,7 @@ class PatientRepo @Inject constructor(
                                         patientDao.updatePatient(patient)
                                     } else {
                                         patientsToInsert.add(patient)
+                                        patientDao.insertPatient(patient)
                                     }
                                 }
                             } catch (e: Exception){
@@ -927,9 +932,10 @@ class PatientRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val componentDetailsId = componentDetails.id
 
+            val savedOptions = procedureDao.getComponentOptions(componentDetailsId).orEmpty()
             val updatedId = procedureDao.insert(componentDetails)
 
-            procedureDao.getComponentOptions(componentDetailsId)?.forEach { componentOption ->
+            savedOptions.forEach { componentOption ->
                 componentOption.componentDetailsId = updatedId
                 procedureDao.insert(componentOption)
             }

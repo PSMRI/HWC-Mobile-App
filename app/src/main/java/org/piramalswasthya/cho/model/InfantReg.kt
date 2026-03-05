@@ -184,7 +184,7 @@ data class InfantRegDomain(
      * Get formatted baby name (1st baby, 2nd baby, etc.)
      */
     val customName: String
-        get() = when (babyIndex) {
+        get() = savedIr?.babyName?.takeIf { it.isNotBlank() } ?: when (babyIndex) {
             0 -> "1st baby of ${motherPatient.firstName}"
             1 -> "2nd baby of ${motherPatient.firstName}"
             2 -> "3rd baby of ${motherPatient.firstName}"
@@ -294,6 +294,49 @@ data class InfantRegPost(
 }
 
 /**
+ * FLW API payload for infant registration sync.
+ * Uses beneficiary IDs (benId/childBenId) to align with server contract.
+ */
+data class InfantRegApiPost(
+    val id: Long = 0,
+    val benId: Long,
+    val childBenId: Long,
+    val isActive: Boolean,
+    val babyName: String? = null,
+    val babyIndex: Int,
+    val infantTerm: String? = null,
+    val corticosteroidGiven: String? = null,
+    val gender: String? = null,
+    val babyCriedAtBirth: Boolean? = null,
+    val resuscitation: Boolean? = null,
+    val referred: String? = null,
+    val hadBirthDefect: String? = null,
+    val birthDefect: String? = null,
+    val otherDefect: String? = null,
+    val weight: Double = 0.0,
+    val breastFeedingStarted: Boolean? = null,
+    val opv0Dose: String? = null,
+    val bcgDose: String? = null,
+    val hepBDose: String? = null,
+    val vitkDose: String? = null,
+    val outcomeAtBirth: String? = null,
+    val typeOfResuscitation: String? = null,
+    val newbornComplications: String? = null,
+    val currentStatusOfBaby: String? = null,
+    val causeOfDeath: String? = null,
+    val otherCauseOfDeath: String? = null,
+    val birthDoseVaccinesGiven: String? = null,
+    val reasonForNoVaccines: String? = null,
+    val vitaminKInjectionGiven: Boolean? = null,
+    val reasonForNoVitaminK: String? = null,
+    val birthCertificateIssued: String? = null,
+    val createdDate: String? = null,
+    val createdBy: String,
+    val updatedDate: String? = null,
+    val updatedBy: String
+)
+
+/**
  * Infant Registration with Patient (mother and child) relation
  * Used for Child Registration list
  */
@@ -332,11 +375,19 @@ data class ChildRegDomain(
      * Get formatted baby name (baby 0, baby 1, etc.)
      */
     val customName: String
-        get() = when (infant.babyIndex) {
-            0 -> "1st baby of ${motherPatient.firstName}"
-            1 -> "2nd baby of ${motherPatient.firstName}"
-            2 -> "3rd baby of ${motherPatient.firstName}"
-            else -> "${infant.babyIndex + 1}th baby of ${motherPatient.firstName}"
+        get() {
+            val childFullName = childPatient?.let {
+                "${it.firstName.orEmpty()} ${it.lastName.orEmpty()}".trim()
+            }?.takeIf { it.isNotBlank() }
+
+            return childFullName
+                ?: infant.babyName?.takeIf { it.isNotBlank() }
+                ?: when (infant.babyIndex) {
+                    0 -> "1st baby of ${motherPatient.firstName}"
+                    1 -> "2nd baby of ${motherPatient.firstName}"
+                    2 -> "3rd baby of ${motherPatient.firstName}"
+                    else -> "${infant.babyIndex + 1}th baby of ${motherPatient.firstName}"
+                }
         }
 
     /**

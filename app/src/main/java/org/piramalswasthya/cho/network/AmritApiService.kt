@@ -8,6 +8,7 @@ import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.CbacRequest
 import org.piramalswasthya.cho.model.ECTNetwork
 import org.piramalswasthya.cho.model.ImmunizationPost
+import org.piramalswasthya.cho.model.InfantRegApiPost
 import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLabProceduresRequestModel
@@ -137,6 +138,9 @@ interface AmritApiService {
 
     @POST("/flw-api/child-care/vaccination/saveAll")
     suspend fun postChildImmunizationDetails(@Body immunizationList: List<ImmunizationPost>): Response<ResponseBody>
+
+    @POST("/flw-api/maternalCare/infant/saveAll")
+    suspend fun postInfantRegForm(@Body infantRegList: List<InfantRegApiPost>): Response<ResponseBody>
 
     @POST("/hwc-api/NCD/save/nurseData")
     suspend fun postCbacData(@Body cbacList: CbacRequest): Response<ResponseBody>

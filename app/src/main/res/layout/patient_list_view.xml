@@ -18,12 +18,29 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/patient_list"
-        android:layout_below="@+id/patient_count"
         android:name="com.google.fhirengine.example.PatientListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/patient_count"
+        android:layout_marginTop="0dp"
         android:scrollbars="vertical"
         app:layoutManager="LinearLayoutManager"
         tools:context=".PatientListActivity"
-        tools:listitem="@layout/patient_list_item_view"/>
+        tools:listitem="@layout/patient_list_item_view" />
+
+    <LinearLayout
+        android:id="@+id/skeleton_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/patient_count"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <include layout="@layout/patient_card_skeleton_item" />
+
+        <include layout="@layout/patient_card_skeleton_item" />
+
+        <include layout="@layout/patient_card_skeleton_item" />
+
+    </LinearLayout>
 </RelativeLayout>

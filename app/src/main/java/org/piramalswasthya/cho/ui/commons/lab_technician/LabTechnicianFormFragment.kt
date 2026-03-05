@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -146,7 +147,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             }
         }
         composeView.setContent {
-            AddLoading()
+            AddLoading(message = "Loading...")
         }
 
         lifecycleScope.launch {
@@ -178,8 +179,19 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
     }
 
     @Composable
-    fun AddLoading() {
-        LinearProgressIndicator()
+    private fun AddLoading(
+        message: String = "Submitting..."
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(text = message, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
     }
 
     @Composable
@@ -687,7 +699,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         }
         if (isValidData) {
             composeView.setContent {
-                AddLoading()
+                AddLoading(message = "Submitting...")
             }
             viewModel.saveLabData(dtos, benVisitInfo)
             viewModel.isDataSaved.observe(viewLifecycleOwner) { state ->

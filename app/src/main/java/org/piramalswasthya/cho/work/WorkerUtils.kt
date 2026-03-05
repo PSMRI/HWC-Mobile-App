@@ -94,6 +94,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pushInfantRegisterWorkRequest = OneTimeWorkRequestBuilder<PushInfantRegisterToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val pushCbacWorkRequest = OneTimeWorkRequestBuilder<PushCbacToAmirtWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
@@ -115,7 +119,7 @@ object WorkerUtils {
             // The three doctor-info variants are independent — run them in parallel.
             .then(listOf(pushBenDoctorInfoPendingTestToAmrit, pushBenDoctorInfoWithoutTestToAmrit, pushBenDoctorInfoAfterTestToAmrit))
             // Specialty health pushes are also independent — run them in parallel.
-            .then(listOf(pushPWRToAmritWorker, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
+            .then(listOf(pushPWRToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
 //           .then(pushLabDataToAmrit)
             .enqueue()
     }
@@ -129,6 +133,52 @@ object WorkerUtils {
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork("lab-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushLabDataToAmrit)
+            .enqueue()
+    }
+
+    fun doctorPushWorker(context: Context) {
+        val pushDoctorPendingTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoPendingTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorWithoutTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoWithoutTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorAfterTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoAfterTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("doctor-data-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushDoctorPendingTest)
+            .then(pushDoctorWithoutTest)
+            .then(pushDoctorAfterTest)
+            .enqueue()
+    }
+
+    /**
+     * Lightweight clinical push used after nurse/doctor form save.
+     * Pushes local clinical updates without triggering the full down-sync chain.
+     */
+    fun clinicalPushWorker(context: Context) {
+        val pushBenVisitInfoRequest = OneTimeWorkRequestBuilder<PushBenVisitInfoToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorPendingTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoPendingTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorWithoutTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoWithoutTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushDoctorAfterTest = OneTimeWorkRequestBuilder<PushBenDoctorInfoAfterTestToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("clinical-data-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushBenVisitInfoRequest)
+            .then(pushDoctorPendingTest)
+            .then(pushDoctorWithoutTest)
+            .then(pushDoctorAfterTest)
             .enqueue()
     }
 

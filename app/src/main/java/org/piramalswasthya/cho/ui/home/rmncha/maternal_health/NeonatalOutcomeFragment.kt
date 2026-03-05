@@ -144,6 +144,12 @@ class NeonatalOutcomeFragment : Fragment() {
         )
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.neonatal_outcome)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
