@@ -20,6 +20,10 @@ interface PatientDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPatient(patient: Patient)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllPatients(patients: List<Patient>)
+
     @Query("SELECT EXISTS(SELECT 1 FROM patient WHERE beneficiaryRegID = :benRegId)")
     suspend fun existsByBeneficiaryRegId(benRegId: Long?): Boolean
 
