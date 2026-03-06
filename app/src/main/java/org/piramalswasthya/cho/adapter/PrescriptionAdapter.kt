@@ -127,9 +127,9 @@ class PrescriptionAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         durationCount=0
         val itemData = itemList[position]
-        
+
         android.util.Log.d("PrescriptionAdapter", "onBindViewHolder: position=$position, title=${itemData.title}, isDispensed=${itemData.isDispensed}, form=${itemData.form}, id=${itemData.id}")
-        
+
        holder.subtractButton.isEnabled = false
         holder.addButton.setOnClickListener {
             durationCount = itemData.duration.toIntOrNull()?.takeIf { it <= maxDuration } ?: 0
@@ -206,9 +206,9 @@ class PrescriptionAdapter(
         holder.unitOption.setText(itemData.unit, false)
         holder.cancelButton.isEnabled = itemCount > 1
         holder.resetButton.isEnabled = false
-        
+
         android.util.Log.d("PrescriptionAdapter", "Data bound: position=$position, form='${itemData.form}', frequency='${itemData.frequency}', duration='${itemData.duration}'")
-        
+
         // Show "Dispensed" label in green for dispensed medicines
         if (itemData.isDispensed) {
             holder.textPrescriptionHeading.text = "${itemData.title} - Dispensed"
@@ -221,9 +221,9 @@ class PrescriptionAdapter(
         if(itemData.id!=null){
             var st = formMD.find { it.itemID==itemData.id }
             holder.formOptions.setText(st?.dropdownForMed.toString(), false)
-            
+
             android.util.Log.d("PrescriptionAdapter", "Setting form from ID: position=$position, id=${itemData.id}, form=${st?.dropdownForMed}")
-            
+
             itemData.id?.let { id ->
                 fetchStockListener?.invoke(id) { stock ->
                     if (stock > 0) {
@@ -259,7 +259,7 @@ class PrescriptionAdapter(
             selectedItem?.let {
                 holder.formOptions.setText(selectedName)
                 itemData.id = it.itemID
-                
+
                 it.itemID?.let { id ->
                     fetchStockListener?.invoke(id) { stock ->
                         if (stock > 0) {

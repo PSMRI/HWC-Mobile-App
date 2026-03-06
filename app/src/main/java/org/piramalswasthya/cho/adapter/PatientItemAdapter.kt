@@ -107,9 +107,9 @@ class PatientItemAdapter(
             val firstName = item.patient.firstName ?: ""
             val lastName = item.patient.lastName ?: ""
             val capitalizedFirstName = firstName.split(" ")
-                .joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+                .joinToString(" ") { token -> token.replaceFirstChar { it.uppercaseChar() } }
             val capitalizedLastName = lastName.split(" ")
-                .joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+                .joinToString(" ") { token -> token.replaceFirstChar { it.uppercaseChar() } }
 
             val fullName = "$capitalizedFirstName $capitalizedLastName"
             binding.patientName.text = fullName

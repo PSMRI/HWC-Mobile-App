@@ -1248,7 +1248,7 @@
     <string name="error_saving_patient_message">Failed to save patient due to missing data. Please ensure all data is synced.</string>
     <string name="stock_label">In Stock: %1$d</string>
     <string name="out_of_stock">Out of Stock</string>
-    
+
     <!-- Case Closure Strings -->
     <string name="case_closure_confirmation_title">Close Case</string>
     <string name="case_closure_confirmation_message">This case is being closed. Do you want to proceed?</string>
@@ -1259,4 +1259,3 @@
     <string name="case_closure_success">Case closed successfully</string>
     <string name="case_closure_error">Error closing case</string>
 </resources>
-
