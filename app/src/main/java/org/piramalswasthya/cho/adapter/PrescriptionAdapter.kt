@@ -27,6 +27,7 @@ class PrescriptionAdapter(
     private val isVisitDetail: Boolean? = null,
     private val isFollowupVisit: Boolean? = null,
     private val isMedicineDispensedByPharmacist: Boolean = false,
+    private var dispensedLockedItemCount: Int = 0,
     private val itemList: MutableList<PrescriptionValues>,
     private val formMD: List<ItemMasterList>,
     private val frequencyDropDown: List<String>,
@@ -126,6 +127,9 @@ class PrescriptionAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         durationCount=0
         val itemData = itemList[position]
+
+        android.util.Log.d("PrescriptionAdapter", "onBindViewHolder: position=$position, title=${itemData.title}, isDispensed=${itemData.isDispensed}, form=${itemData.form}, id=${itemData.id}")
+
        holder.subtractButton.isEnabled = false
         holder.addButton.setOnClickListener {
             durationCount = itemData.duration.toIntOrNull()?.takeIf { it <= maxDuration } ?: 0
@@ -166,12 +170,13 @@ class PrescriptionAdapter(
             holder.addButton.isEnabled = true
         }
 
-        // When already filled (read-only): only show rows that have data; when editable show all rows
-        val isCaseReadOnly = (isVisitDetail == true && isFollowupVisit == false) || isMedicineDispensedByPharmacist
-        val isRowReadOnly = isCaseReadOnly || itemData.id != null
-        val hasData = itemData.form.isNotBlank() || itemData.frequency.isNotBlank() ||
+        // Read-only in view mode; dispensed rows always stay locked across multi-cycle edits.
+        val isCaseReadOnly = (isVisitDetail == true && isFollowupVisit == false)
+        val isDispensedLockedRow = itemData.isDispensed || (isMedicineDispensedByPharmacist && position < dispensedLockedItemCount)
+        val isRowReadOnly = isCaseReadOnly || isDispensedLockedRow
+        val hasData = itemData.id != null || itemData.form.isNotBlank() || itemData.frequency.isNotBlank() ||
                 itemData.duration.isNotBlank() || itemData.instructions.isNotBlank() || itemData.unit.isNotBlank()
-        holder.itemView.visibility = if (isCaseReadOnly && !hasData) View.GONE else View.VISIBLE
+        holder.itemView.visibility = if (isRowReadOnly && !hasData) View.GONE else View.VISIBLE
 
         if (isRowReadOnly) {
             holder.subtractButton.isEnabled = false
@@ -192,19 +197,33 @@ class PrescriptionAdapter(
             holder.cancelButton.isVisible = true
         }
 
-        // Bind data and set listeners for user interactions
-        holder.formOptions.setText(itemData.form)
-        holder.frequencyOptions.setText(itemData.frequency)
+        // Bind data WITHOUT triggering text watchers (set data before adding listeners)
+        // Use setText with BufferType.EDITABLE to avoid triggering watchers
+        holder.formOptions.setText(itemData.form, false)
+        holder.frequencyOptions.setText(itemData.frequency, false)
         holder.durationInput.setText(itemData.duration)
-        holder.instructionOption.setText(itemData.instructions)
-        holder.unitOption.setText(itemData.unit)
+        holder.instructionOption.setText(itemData.instructions, false)
+        holder.unitOption.setText(itemData.unit, false)
         holder.cancelButton.isEnabled = itemCount > 1
         holder.resetButton.isEnabled = false
 
+        android.util.Log.d("PrescriptionAdapter", "Data bound: position=$position, form='${itemData.form}', frequency='${itemData.frequency}', duration='${itemData.duration}'")
+
+        // Show "Dispensed" label in green for dispensed medicines
+        if (itemData.isDispensed) {
+            holder.textPrescriptionHeading.text = "${itemData.title} - Dispensed"
+            holder.textPrescriptionHeading.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.stock_green))
+        } else {
+            holder.textPrescriptionHeading.text = itemData.title
+            holder.textPrescriptionHeading.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.black))
+        }
+
         if(itemData.id!=null){
             var st = formMD.find { it.itemID==itemData.id }
-            holder.formOptions.setText(st?.dropdownForMed.toString())
-            
+            holder.formOptions.setText(st?.dropdownForMed.toString(), false)
+
+            android.util.Log.d("PrescriptionAdapter", "Setting form from ID: position=$position, id=${itemData.id}, form=${st?.dropdownForMed}")
+
             itemData.id?.let { id ->
                 fetchStockListener?.invoke(id) { stock ->
                     if (stock > 0) {
@@ -216,6 +235,9 @@ class PrescriptionAdapter(
                     }
                 }
             }
+        } else {
+            android.util.Log.d("PrescriptionAdapter", "No ID for position=$position, clearing stock text")
+            holder.textStock.text = ""
         }
 
 //       holder.formOptions.setSpinnerItems(formMD.map { it.dropdownForMed }.toTypedArray())
@@ -237,7 +259,7 @@ class PrescriptionAdapter(
             selectedItem?.let {
                 holder.formOptions.setText(selectedName)
                 itemData.id = it.itemID
-                
+
                 it.itemID?.let { id ->
                     fetchStockListener?.invoke(id) { stock ->
                         if (stock > 0) {
@@ -314,7 +336,8 @@ class PrescriptionAdapter(
         // Update the visibility of the "Reset" button for all items
         holder.updateResetButtonState()
 
-        holder.textPrescriptionHeading.text = holder.itemView.context.getString(R.string.medicine_number_format, position + 1)
+        // Don't overwrite the title if it's already set (especially for dispensed medicines)
+        // The title with "Dispensed" label is already set above
     }
 
 
@@ -327,6 +350,11 @@ class PrescriptionAdapter(
     }
 
     override fun getItemCount(): Int = itemList.size
+
+    fun setDispensedLockedItemCount(count: Int) {
+        dispensedLockedItemCount = count.coerceAtLeast(0)
+        notifyDataSetChanged()
+    }
 
 }
 interface RecyclerViewItemChangeListenersP {

@@ -77,11 +77,11 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_ba
         binding.prescriptionIdValue.text = prescriptionDTO.prescriptionID.toString()
 
         binding.prescribedValue.text = prescriptionItemDTO.qtyPrescribed.toString()
-        binding.dispensedValue.text = prescriptionItemDTO.qtyPrescribed.toString()
+        binding.dispensedValue.text = "0"
         if(batch!=null){
             binding.batchValue.text = batch.batchNo
             binding.quantityInHandValue.text = batch.qty.toString()
-            binding.dispensedQuantityValue.text = prescriptionItemDTO.qtyPrescribed.toString()
+            binding.dispensedQuantityValue.text = "0"
             binding.expiryDateValue.text = batch.expiryDate
         }
 

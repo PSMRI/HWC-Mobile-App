@@ -409,6 +409,10 @@
     <string name="nurseDataNotSaved">Nurse data is not saved for this record</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
     <string name="pendingForLabtech">Pending For Lab Result</string>
+    <string name="pending_for_pharmacist_dispense">Pending For Pharmacist Dispense</string>
+    <string name="case_close_confirmation">This case is being closed. Do you want to proceed?</string>
+    <string name="case_closed_successfully">Case closed successfully</string>
+    <string name="close_case_btn">Close Case</string>
     <string name="flowCompleted">Flow Completed</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
     <string name="diagnosisCannotBeEmpty">Please Enter Provisional</string>
@@ -1244,4 +1248,14 @@
     <string name="error_saving_patient_message">Failed to save patient due to missing data. Please ensure all data is synced.</string>
     <string name="stock_label">In Stock: %1$d</string>
     <string name="out_of_stock">Out of Stock</string>
+
+    <!-- Case Closure Strings -->
+    <string name="case_closure_confirmation_title">Close Case</string>
+    <string name="case_closure_confirmation_message">This case is being closed. Do you want to proceed?</string>
+    <string name="case_closure_yes">Yes</string>
+    <string name="case_closure_no">No</string>
+    <string name="case_closure_error_pending_lab">Cannot close case: Lab test is pending</string>
+    <string name="case_closure_error_undispensed_medicine">Cannot close case: Medicine has not been dispensed</string>
+    <string name="case_closure_success">Case closed successfully</string>
+    <string name="case_closure_error">Error closing case</string>
 </resources>

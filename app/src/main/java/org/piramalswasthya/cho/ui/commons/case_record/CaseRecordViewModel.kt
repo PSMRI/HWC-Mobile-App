@@ -70,7 +70,8 @@ class CaseRecordViewModel @Inject constructor(
     private val investigationDao: InvestigationDao,
     private val userRepo: UserRepo,
     private val templateRepo: PrescriptionTemplateRepo,
-    private val benFlowRepo: BenFlowRepo
+    private val benFlowRepo: BenFlowRepo,
+    private val caseClosureManager: org.piramalswasthya.cho.helpers.CaseClosureManager
 ): ViewModel() {
     val userId  = userRepo.getLoggedInUserAsFlow()
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
@@ -84,6 +85,14 @@ class CaseRecordViewModel @Inject constructor(
     private val _isDataSaved = MutableLiveData<Boolean>(false)
     val isDataSaved: MutableLiveData<Boolean>
         get() = _isDataSaved
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
+
+    private val _requiresClosureConfirmation = MutableLiveData<Boolean>(false)
+    val requiresClosureConfirmation: LiveData<Boolean>
+        get() = _requiresClosureConfirmation
 
     private val _isClickedSS=MutableLiveData<Boolean>(false)
 
@@ -169,6 +178,52 @@ class CaseRecordViewModel @Inject constructor(
     }
     suspend fun getPrescriptionForVisitNumAndPatientId(benVisitInfo: PatientDisplayWithVisitInfo):List<PrescriptionCaseRecord?>{
             return caseRecordeRepo.getPrescriptionByPatientIDAndVisitNumber(benVisitInfo)
+    }
+    
+    suspend fun getDispensedPrescriptionsForVisitNumAndPatientId(patientID: String, benVisitNo: Int): List<PrescriptionCaseRecord?> {
+        return try {
+            val latestVisitInfo = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                patientID,
+                benVisitNo
+            )
+            if (latestVisitInfo != null && (latestVisitInfo.pharmacist_flag ?: 0) != 9) {
+                Timber.d("Skipping dispensed fetch for pending pharmacist state: patientID=$patientID, benVisitNo=$benVisitNo, pharmacist_flag=${latestVisitInfo?.pharmacist_flag}")
+                return emptyList()
+            }
+            // Get ALL prescriptions for this visit (there may be multiple if medicine was dispensed multiple times)
+            val prescriptions = prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(patientID, benVisitNo)
+            if (prescriptions.isNullOrEmpty()) {
+                Timber.d("No dispensed prescriptions found for patientID=$patientID, benVisitNo=$benVisitNo")
+                emptyList()
+            } else {
+                Timber.d("Found ${prescriptions.size} prescription records for patientID=$patientID, benVisitNo=$benVisitNo")
+                // Get prescribed drugs from ALL prescriptions (to handle multiple dispensing cycles)
+                val allDispensedDrugs = mutableListOf<PrescriptionCaseRecord>()
+                prescriptions.forEach { prescription ->
+                    val prescribedDrugs = prescriptionDao.getPrescribedDrugs(prescription.id)
+                    prescribedDrugs?.forEach { drug ->
+                        allDispensedDrugs.add(
+                            PrescriptionCaseRecord(
+                                prescriptionCaseRecordId = "dispensed_${drug.id}",
+                                itemId = drug.drugID.toInt(),
+                                frequency = drug.frequency,
+                                duration = drug.duration,
+                                instructions = drug.instructions,
+                                unit = drug.durationUnit,
+                                patientID = patientID,
+                                benFlowID = prescription.benFlowID,
+                                benVisitNo = benVisitNo
+                            )
+                        )
+                    }
+                }
+                Timber.d("Total dispensed drugs across all prescriptions: ${allDispensedDrugs.size}")
+                allDispensedDrugs
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error getting dispensed prescriptions")
+            emptyList()
+        }
     }
     suspend fun getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo: PatientDisplayWithVisitInfo):List<DiagnosisCaseRecord?>{
         return caseRecordeRepo.getDiagnosisByPatientIDAndVisitNumber(benVisitInfo)
@@ -266,10 +321,14 @@ class CaseRecordViewModel @Inject constructor(
     }
 
     fun deleteOldDoctorData(patientID: String, benVisitNo: Int){
+        // Reset immediately so observer in UI never consumes stale "true" from a previous run.
+        _isDataDeleted.value = false
         viewModelScope.launch {
             try {
-                _isDataDeleted.value = false
                 prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patientID, benVisitNo)
+                // Also clear pharmacist-side prescription cache for this visit so old undispensed
+                // medicines do not remain after doctor updates.
+                prescriptionDao.deletePrescriptionByPatientIDAndBenVisitNo(patientID, benVisitNo)
                 investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patientID, benVisitNo)
                 caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patientID, benVisitNo)
                 _isDataDeleted.value = true
@@ -310,9 +369,15 @@ class CaseRecordViewModel @Inject constructor(
 //            labtechFlag = benVisitInfo.labtechFlag,
 //            pharmacist_flag = benVisitInfo.pharmacist_flag,
 //        )
-        var labtechFlag = benVisitInfo.labtechFlag ?: 0
-        if(benVisitInfo.doctorFlag == 3){
-            labtechFlag = 1
+        val latestVisitInfo = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+            benVisitInfo.patient.patientID,
+            benVisitInfo.benVisitNo!!
+        )
+        val currentLabtechFlag = latestVisitInfo?.labtechFlag ?: benVisitInfo.labtechFlag ?: 0
+        val labtechFlag = if (doctorFlag == 2) {
+            1
+        } else {
+            currentLabtechFlag
         }
         patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
             nurseFlag = 9,
@@ -321,6 +386,60 @@ class CaseRecordViewModel @Inject constructor(
             patientID = benVisitInfo.patient.patientID,
             benVisitNo = benVisitInfo.benVisitNo!!
         )
+    }
+
+    fun closeCaseManually(benVisitInfo: PatientDisplayWithVisitInfo) {
+        _isDataSaved.value = false
+        _errorMessage.value = null
+        viewModelScope.launch {
+            try {
+                // Validate closure conditions using CaseClosureManager
+                val (canClose, errorMsg) = withContext(Dispatchers.IO) {
+                    caseClosureManager.canManuallyClose(benVisitInfo)
+                }
+                
+                if (!canClose) {
+                    _errorMessage.value = errorMsg
+                    _isDataSaved.value = false
+                    Timber.w("Cannot close case: $errorMsg")
+                    return@launch
+                }
+                
+                withContext(Dispatchers.IO) {
+                    patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
+                        nurseFlag = 9,
+                        doctorFlag = 9,
+                        labtechFlag = benVisitInfo.labtechFlag ?: 0,
+                        patientID = benVisitInfo.patient.patientID,
+                        benVisitNo = benVisitInfo.benVisitNo!!
+                    )
+                }
+                _isDataSaved.value = true
+                Timber.d("Case closed successfully for ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
+            } catch (e: Exception) {
+                _isDataSaved.value = false
+                _errorMessage.value = "Error closing case: ${e.message}"
+                Timber.e(e, "Error closing case")
+            }
+        }
+    }
+
+    /**
+     * Checks if manual closure confirmation dialog should be shown.
+     * Call this before attempting to close the case.
+     */
+    fun checkClosureRequirements(benVisitInfo: PatientDisplayWithVisitInfo) {
+        viewModelScope.launch {
+            try {
+                val requiresConfirmation = withContext(Dispatchers.IO) {
+                    caseClosureManager.requiresManualClosureConfirmation(benVisitInfo)
+                }
+                _requiresClosureConfirmation.value = requiresConfirmation
+            } catch (e: Exception) {
+                Timber.e(e, "Error checking closure requirements")
+                _requiresClosureConfirmation.value = false
+            }
+        }
     }
 
     fun saveDoctorData(diagnosisList: List<DiagnosisCaseRecord>, investigation: InvestigationCaseRecord,
@@ -343,6 +462,37 @@ class CaseRecordViewModel @Inject constructor(
                         patientVisitInfoSyncRepo.updatePharmacistFlagToPending(
                             benVisitInfo.patient.patientID,
                             benVisitInfo.benVisitNo!!
+                        )
+                        // Keep pharmacist module in sync with latest doctor edits for this visit.
+                        benFlowRepo.copyPrescriptionFromCaseRecordToPharmacistTable(benVisitInfo)
+                    }
+
+                    val latestVisitInfo =
+                        patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                            benVisitInfo.patient.patientID,
+                            benVisitInfo.benVisitNo!!
+                        )
+                    val visitSnapshotForClosure = if (latestVisitInfo != null) {
+                        benVisitInfo.copy(
+                            nurseFlag = latestVisitInfo.nurseFlag,
+                            doctorFlag = latestVisitInfo.doctorFlag,
+                            labtechFlag = latestVisitInfo.labtechFlag,
+                            pharmacist_flag = latestVisitInfo.pharmacist_flag
+                        )
+                    } else {
+                        benVisitInfo
+                    }
+
+                    // Check if case should auto-close (nothing prescribed / only medicine already dispensed scenario)
+                    val shouldAutoClose = caseClosureManager.shouldAutoClose(visitSnapshotForClosure)
+                    if (shouldAutoClose) {
+                        Timber.d("Auto-closing case - nothing prescribed: ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
+                        patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
+                            nurseFlag = 9,
+                            doctorFlag = 9,
+                            labtechFlag = visitSnapshotForClosure.labtechFlag ?: 0,
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitInfo.benVisitNo!!
                         )
                     }
                 }

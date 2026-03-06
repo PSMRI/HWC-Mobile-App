@@ -39,13 +39,14 @@ class PatientItemAdapter(
     }
 
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplayWithVisitInfo>() {
+        private fun stableKey(item: PatientDisplayWithVisitInfo): String {
+            return item.patient.beneficiaryID?.toString()
+                ?: "${item.patient.patientID}_${item.benVisitNo ?: -1}"
+        }
+
         override fun areItemsTheSame(
             oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
-        ): Boolean {
-            val oldVisitNo = oldItem.benVisitNo ?: -1
-            val newVisitNo = newItem.benVisitNo ?: -1
-            return oldItem.patient.patientID == newItem.patient.patientID && oldVisitNo == newVisitNo
-        }
+        ) = stableKey(oldItem) == stableKey(newItem)
 
         override fun areContentsTheSame(
             oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo

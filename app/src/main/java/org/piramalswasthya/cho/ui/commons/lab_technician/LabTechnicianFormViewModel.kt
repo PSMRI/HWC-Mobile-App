@@ -199,6 +199,8 @@ class LabTechnicianFormViewModel @Inject constructor(
                 )!!
                 patientVisitInfoSync.labDataSynced = SyncState.UNSYNCED
                 patientVisitInfoSync.doctorFlag = 3
+                // Lab result is locally completed; closure logic relies on labtechFlag=9.
+                patientVisitInfoSync.labtechFlag = 9
 
                 patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 WorkerUtils.labPushWorker(context)
