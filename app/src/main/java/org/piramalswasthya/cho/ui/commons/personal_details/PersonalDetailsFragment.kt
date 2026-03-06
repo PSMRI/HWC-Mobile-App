@@ -28,6 +28,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
@@ -43,6 +45,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -139,6 +142,8 @@ class PersonalDetailsFragment : Fragment() {
     private var isShowingSearchResults: Boolean = false
     private var currentSearchQuery: String = ""
     private var searchJob: Job? = null
+    private var hasReceivedInitialPatientList = false
+    private var skeletonPulseAnimation: AlphaAnimation? = null
 
     private val prescriptionChannelId = "prescription_download"
 
@@ -211,6 +216,8 @@ class PersonalDetailsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        hasReceivedInitialPatientList = false
+        showCardSkeletonLoader()
 
         networkConnection = NetworkConnection(requireContext())
 
@@ -395,6 +402,12 @@ class PersonalDetailsFragment : Fragment() {
                     binding.patientListContainer.patientList.adapter = itemAdapter
                     binding.patientListContainer.patientList.setHasFixedSize(true)
                     binding.patientListContainer.patientList.itemAnimator = null
+                    binding.patientListContainer.patientList.setItemViewCacheSize(20)
+                    binding.patientListContainer.patientList.recycledViewPool.setMaxRecycledViews(0, 40)
+                    (binding.patientListContainer.patientList.layoutManager as? LinearLayoutManager)?.apply {
+                        initialPrefetchItemCount = 12
+                        isItemPrefetchEnabled = true
+                    }
 
                     apiSearchAdapter = ApiSearchAdapter(requireContext()) { selectedPatient ->
                         binding.search.text?.clear()
@@ -477,12 +490,36 @@ class PersonalDetailsFragment : Fragment() {
             listFlow.collectLatest { list ->
                 itemAdapter?.submitList(list)
                 patientCount = list.size
+                if (!hasReceivedInitialPatientList) {
+                    hideCardSkeletonLoader()
+                }
                 if (!isShowingSearchResults) {
                     binding.patientListContainer.patientCount.text =
                         list.size.toString() + getResultStr(list.size)
                 }
             }
         }
+    }
+
+    private fun showCardSkeletonLoader() {
+        binding.patientListContainer.patientList.visibility = View.INVISIBLE
+        binding.patientListContainer.skeletonContainer.visibility = View.VISIBLE
+
+        if (skeletonPulseAnimation == null) {
+            skeletonPulseAnimation = AlphaAnimation(0.45f, 1f).apply {
+                duration = 700
+                repeatMode = Animation.REVERSE
+                repeatCount = Animation.INFINITE
+            }
+        }
+        binding.patientListContainer.skeletonContainer.startAnimation(skeletonPulseAnimation)
+    }
+
+    private fun hideCardSkeletonLoader() {
+        hasReceivedInitialPatientList = true
+        binding.patientListContainer.skeletonContainer.clearAnimation()
+        binding.patientListContainer.skeletonContainer.visibility = View.GONE
+        binding.patientListContainer.patientList.visibility = View.VISIBLE
     }
 
     private fun savePatientFromSearch(apiPatient: PatientDisplayWithVisitInfo) {
@@ -1813,6 +1850,8 @@ class PersonalDetailsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        binding.patientListContainer.skeletonContainer.clearAnimation()
+        skeletonPulseAnimation = null
         super.onDestroyView()
         _binding = null
     }

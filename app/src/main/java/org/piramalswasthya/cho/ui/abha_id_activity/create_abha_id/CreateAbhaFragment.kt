@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.ContentValues
 import android.content.Intent
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -27,6 +28,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import android.provider.MediaStore
 import androidx.work.Operation
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -253,27 +255,58 @@ class CreateAbhaFragment : Fragment() {
     }
 
     private fun showFileNotification(fileStr: ResponseBody) {
-        val fileName =
-            "${benId}_${System.currentTimeMillis()}.png"
+        val fileName = "${benId}_${System.currentTimeMillis()}.png"
         val notificationManager =
             requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                channelId, channelId,
+                channelId,
+                channelId,
                 NotificationManager.IMPORTANCE_HIGH
             )
             notificationManager.createNotificationChannel(channel)
         }
-        val directory =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val file = File(directory, fileName)
-        FileOutputStream(file).use { stream -> stream.write(fileStr.bytes()) }
-        MediaScannerConnection.scanFile(
-            requireContext(),
-            arrayOf(file.toString()),
-            null,
-        ) { _, uri ->
-            run {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val resolver = requireContext().contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
+
+            val collection =
+                MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            val itemUri = resolver.insert(collection, contentValues)
+
+            if (itemUri != null) {
+                resolver.openOutputStream(itemUri)?.use { stream ->
+                    stream.write(fileStr.bytes())
+                }
+                contentValues.clear()
+                contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                resolver.update(itemUri, contentValues, null, null)
+
+                showDownload(fileName, itemUri, notificationManager)
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.download_failed_retry),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } else {
+            val directory =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(directory, fileName)
+            FileOutputStream(file).use { stream -> stream.write(fileStr.bytes()) }
+            MediaScannerConnection.scanFile(
+                requireContext(),
+                arrayOf(file.toString()),
+                null,
+            ) { _, uri ->
                 showDownload(fileName, uri, notificationManager)
             }
         }

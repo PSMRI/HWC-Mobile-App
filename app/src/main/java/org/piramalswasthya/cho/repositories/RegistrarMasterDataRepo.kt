@@ -27,6 +27,54 @@ class RegistrarMasterDataRepo @Inject constructor(
     private val apiService: AmritApiService
 
 ) {
+    /**
+     * Downloads all registrar master data in a single HTTP request and saves
+     * every type to the local database using batch inserts.
+     * Replaces the 13 individual save*ToCache() calls that each made their own
+     * network request to the same endpoint.
+     */
+    suspend fun saveAllMasterDataToCache() {
+        val data = registrarMasterService() ?: return
+        withContext(Dispatchers.IO) {
+            registrarMasterDataDao.insertAllGenders(
+                MasterDataListConverter.toGenderList(data.optJSONArray("genderMaster")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllAgeUnits(
+                MasterDataListConverter.toAgeUnitList(data.optJSONArray("ageUnit")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllMaritalStatuses(
+                MasterDataListConverter.toMaritalStatusList(data.optJSONArray("maritalStatusMaster")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllCommunities(
+                MasterDataListConverter.toCommunityMasterList(data.optJSONArray("communityMaster")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllReligionMasters(
+                MasterDataListConverter.toReligionMasterList(data.optJSONArray("religionMaster")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllIncomeStatuses(
+                MasterDataListConverter.toIncomeStatusList(data.optJSONArray("incomeMaster")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllLiteracyStatuses(
+                MasterDataListConverter.toLiteracyStatusList(data.optJSONArray("literacyStatus")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllGovIdMasters(
+                MasterDataListConverter.toGovIdEntityList(data.optJSONArray("govIdEntityMaster")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllOtherGovIdEntityMasters(
+                MasterDataListConverter.toOtherGovIdEntityList(data.optJSONArray("otherGovIdEntityMaster")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllOccupationMasters(
+                MasterDataListConverter.toOccupationMasterList(data.optJSONArray("occupationMaster")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllQualificationMasters(
+                MasterDataListConverter.toQualificationMasterList(data.optJSONArray("qualificationMaster")?.toString() ?: "[]")
+            )
+            registrarMasterDataDao.insertAllRelationshipMasters(
+                MasterDataListConverter.toRelationshipMasterList(data.optJSONArray("relationshipMaster")?.toString() ?: "[]")
+            )
+        }
+    }
+
     private suspend fun registrarMasterService(): JSONObject? {
         val response = apiService.getRegistrarMasterData(TmcLocationDetailsRequest(1,1))
         val statusCode = response.code()

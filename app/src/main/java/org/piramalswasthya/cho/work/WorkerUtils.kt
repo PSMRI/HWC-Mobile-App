@@ -116,15 +116,10 @@ object WorkerUtils {
             .then(createRevisitBenflowWorker)
             .then(pullBenFlowFromAmritWorker)
             .then(pushBenVisitInfoRequest)
-            .then(pushBenDoctorInfoPendingTestToAmrit)
-            .then(pushBenDoctorInfoWithoutTestToAmrit)
-            .then(pushBenDoctorInfoAfterTestToAmrit)
-            .then(pushPWRToAmritWorker)
-            .then(pushInfantRegisterWorkRequest)
-            .then(pushPNCWorkRequest)
-            .then(pushECToAmritWorker)
-            .then(pushImmunizationWorkRequest)
-
+            // The three doctor-info variants are independent — run them in parallel.
+            .then(listOf(pushBenDoctorInfoPendingTestToAmrit, pushBenDoctorInfoWithoutTestToAmrit, pushBenDoctorInfoAfterTestToAmrit))
+            // Specialty health pushes are also independent — run them in parallel.
+            .then(listOf(pushPWRToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
 //           .then(pushLabDataToAmrit)
             .enqueue()
     }
