@@ -161,6 +161,44 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         return binding.root
     }
 
+    private fun setCaseEditorVisibility(isVisible: Boolean) {
+        val visibility = if (isVisible) View.VISIBLE else View.GONE
+        binding.plusButtonD.visibility = visibility
+        binding.plusButtonP.visibility = visibility
+        binding.useTempForFields.visibility = visibility
+        binding.tvAddTemplateTitle.visibility = visibility
+        binding.tempName.visibility = visibility
+        binding.saveTemplate.visibility = visibility
+        binding.deleteTemp.visibility = visibility
+        binding.externalI.visibility = visibility
+        binding.testName.visibility = visibility
+        binding.referReason.visibility = visibility
+        binding.referDropdown.visibility = visibility
+        binding.textReferHeading.visibility = visibility
+    }
+
+    private fun hideReferSummaryLabels() {
+        binding.referDateLabel.visibility = View.GONE
+        binding.referToLabel.visibility = View.GONE
+        binding.referalReasonLabel.visibility = View.GONE
+    }
+
+    private fun applyEditableCaseUi(btnSubmit: Button?, btnCancel: Button?, submitTextRes: Int) {
+        btnSubmit?.visibility = View.VISIBLE
+        btnSubmit?.text = getString(submitTextRes)
+        btnCancel?.visibility = View.VISIBLE
+        btnCancel?.text = getString(R.string.close)
+        setCaseEditorVisibility(true)
+    }
+
+    private fun applyReadOnlyCaseUi(btnSubmit: Button?, btnCancel: Button?) {
+        btnSubmit?.visibility = View.GONE
+        btnCancel?.visibility = View.VISIBLE
+        btnCancel?.text = getString(R.string.close)
+        setCaseEditorVisibility(false)
+        hideReferSummaryLabels()
+    }
+
     private val onBackPressedCallback by lazy {
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -220,109 +258,29 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 binding.patientList.visibility = View.GONE
             }
 
-            binding.plusButtonD.visibility = View.GONE
-            binding.plusButtonP.visibility = View.GONE
-            binding.tempName.visibility = View.GONE
-            binding.saveTemplate.visibility = View.GONE
-            binding.deleteTemp.visibility = View.GONE
-            binding.useTempForFields.visibility = View.GONE
-
-            binding.tvAddTemplateTitle.visibility = View.GONE
-            binding.externalI.visibility = View.GONE
-            binding.testName.visibility = View.GONE
-            binding.referReason.visibility = View.GONE
-            binding.referDropdown.visibility = View.GONE
-            binding.textReferHeading.visibility = View.GONE
+            setCaseEditorVisibility(false)
 
             getVisitResObserver(benVisitInfo)
              if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && preferenceDao.isDoctorSelected() && benVisitInfo.pharmacist_flag != 9 ){
-                 btnSubmit?.visibility = View.VISIBLE
-                 btnSubmit?.text = getString(R.string.submit)
-                 binding.plusButtonD.visibility = View.VISIBLE
-                 binding.plusButtonP.visibility = View.VISIBLE
-                 binding.useTempForFields.visibility = View.VISIBLE
-                 binding.tvAddTemplateTitle.visibility = View.VISIBLE
-                 binding.tempName.visibility = View.VISIBLE
-                 binding.saveTemplate.visibility = View.VISIBLE
-                 binding.deleteTemp.visibility = View.VISIBLE
-                 binding.externalI.visibility = View.VISIBLE
-                 binding.testName.visibility = View.VISIBLE
-                 binding.referReason.visibility = View.VISIBLE
-                 binding.referDropdown.visibility = View.VISIBLE
-                 binding.textReferHeading.visibility = View.VISIBLE
+                 applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
 
              } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && preferenceDao.isDoctorSelected() && benVisitInfo.pharmacist_flag == 9 ) {
                  // Lab done + medicine dispensed: doctor reviews results.
                  // Doctor can add new tests/medicines (starts new cycle) OR submit without changes (closes case with confirmation).
-                 btnSubmit?.visibility = View.VISIBLE
-                 btnSubmit?.text = getString(R.string.close_case_btn)
-                 binding.plusButtonD.visibility = View.VISIBLE
-                 binding.plusButtonP.visibility = View.VISIBLE
-                 binding.useTempForFields.visibility = View.VISIBLE
-                 binding.tvAddTemplateTitle.visibility = View.VISIBLE
-                 binding.tempName.visibility = View.VISIBLE
-                 binding.saveTemplate.visibility = View.VISIBLE
-                 binding.deleteTemp.visibility = View.VISIBLE
-                 binding.externalI.visibility = View.VISIBLE
-                 binding.testName.visibility = View.VISIBLE
-                 binding.referReason.visibility = View.VISIBLE
-                 binding.referDropdown.visibility = View.VISIBLE
-                 binding.textReferHeading.visibility = View.VISIBLE
+                 applyEditableCaseUi(btnSubmit, btnCancel, R.string.close_case_btn)
 
              } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && preferenceDao.isDoctorSelected() && benVisitInfo.pharmacist_flag != 9 )
             {
-                 btnSubmit?.visibility = View.VISIBLE
-                btnSubmit?.text = getString(R.string.submit)
-                binding.plusButtonD.visibility = View.VISIBLE
-                binding.plusButtonP.visibility = View.VISIBLE
-                binding.useTempForFields.visibility = View.VISIBLE
-                binding.tvAddTemplateTitle.visibility = View.VISIBLE
-                binding.tempName.visibility = View.VISIBLE
-                binding.saveTemplate.visibility = View.VISIBLE
-                binding.deleteTemp.visibility = View.VISIBLE
-                binding.externalI.visibility = View.VISIBLE
-                binding.testName.visibility = View.VISIBLE
-                binding.referReason.visibility = View.VISIBLE
-                binding.referDropdown.visibility = View.VISIBLE
-                binding.textReferHeading.visibility = View.VISIBLE
+                applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
 
             } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 && preferenceDao.isDoctorSelected() && benVisitInfo.pharmacist_flag == 1 ) {
                 // Medicine pending at pharmacist (not dispensed yet): allow doctor correction/update.
-                btnSubmit?.visibility = View.VISIBLE
-                btnSubmit?.text = getString(R.string.submit)
-                binding.plusButtonD.visibility = View.VISIBLE
-                // Pending dispense: keep medicine section editable, including add-new row flow.
-                binding.plusButtonP.visibility = View.VISIBLE
-                binding.useTempForFields.visibility = View.VISIBLE
-                binding.tvAddTemplateTitle.visibility = View.VISIBLE
-                binding.tempName.visibility = View.VISIBLE
-                binding.saveTemplate.visibility = View.VISIBLE
-                binding.deleteTemp.visibility = View.VISIBLE
-                binding.externalI.visibility = View.VISIBLE
-                binding.testName.visibility = View.VISIBLE
-                binding.referReason.visibility = View.VISIBLE
-                binding.referDropdown.visibility = View.VISIBLE
-                binding.textReferHeading.visibility = View.VISIBLE
+                applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
 
             } else {
                  // Already filled (lab + pharmacist submitted): only Close button; no Submit/Cancel; no plus icons; no refer section
-                 btnSubmit?.visibility = View.GONE
-                 btnCancel?.visibility = View.VISIBLE
-                 btnCancel?.text = getString(R.string.close)
-                 binding.plusButtonD.visibility = View.GONE
-                 binding.plusButtonP.visibility = View.GONE
-                 binding.useTempForFields.visibility = View.GONE
-                 binding.tvAddTemplateTitle.visibility = View.GONE
-                 binding.tempName.visibility = View.GONE
-                 binding.saveTemplate.visibility = View.GONE
-                 binding.deleteTemp.visibility = View.GONE
-                 binding.referReason.visibility = View.GONE
-                 binding.referDropdown.visibility = View.GONE
-                 binding.textReferHeading.visibility = View.GONE
-                 binding.referDateLabel.visibility = View.GONE
-                 binding.referToLabel.visibility = View.GONE
-                 binding.referalReasonLabel.visibility = View.GONE
-             }
+                 applyReadOnlyCaseUi(btnSubmit, btnCancel)
+              }
 
 
             lifecycleScope.launch {
@@ -434,22 +392,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             if (effectivePharmacistFlag == 0) {
                 val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
                 val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
-                btnSubmit?.visibility = View.VISIBLE
-                btnSubmit?.text = getString(R.string.submit)
-                btnCancel?.visibility = View.VISIBLE
-                btnCancel?.text = getString(R.string.close)
-                binding.plusButtonD.visibility = View.VISIBLE
-                binding.plusButtonP.visibility = View.VISIBLE
-                binding.useTempForFields.visibility = View.VISIBLE
-                binding.tvAddTemplateTitle.visibility = View.VISIBLE
-                binding.tempName.visibility = View.VISIBLE
-                binding.saveTemplate.visibility = View.VISIBLE
-                binding.deleteTemp.visibility = View.VISIBLE
-                binding.externalI.visibility = View.VISIBLE
-                binding.testName.visibility = View.VISIBLE
-                binding.referReason.visibility = View.VISIBLE
-                binding.referDropdown.visibility = View.VISIBLE
-                binding.textReferHeading.visibility = View.VISIBLE
+                applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
                 binding.prescriptionExtra.visibility = View.VISIBLE
                 binding.diagnosisExtra.visibility = View.VISIBLE
                 binding.vitalsExtra.visibility = View.VISIBLE
@@ -461,39 +404,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     val isDoctorEditBeforeDispense = benVisitInfo.nurseFlag == 9 &&
                         (benVisitInfo.doctorFlag == 3 || benVisitInfo.doctorFlag == 9)
                     if (isDoctorEditBeforeDispense) {
-                        btnSubmit?.visibility = View.VISIBLE
-                        btnSubmit?.text = getString(R.string.submit)
-                        btnCancel?.visibility = View.VISIBLE
-                        btnCancel?.text = getString(R.string.close)
-                        binding.plusButtonD.visibility = View.VISIBLE
-                        binding.plusButtonP.visibility = View.VISIBLE
-                        binding.useTempForFields.visibility = View.VISIBLE
-                        binding.tvAddTemplateTitle.visibility = View.VISIBLE
-                        binding.tempName.visibility = View.VISIBLE
-                        binding.saveTemplate.visibility = View.VISIBLE
-                        binding.deleteTemp.visibility = View.VISIBLE
-                        binding.externalI.visibility = View.VISIBLE
-                        binding.testName.visibility = View.VISIBLE
-                        binding.referReason.visibility = View.VISIBLE
-                        binding.referDropdown.visibility = View.VISIBLE
-                        binding.textReferHeading.visibility = View.VISIBLE
+                        applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
                     } else {
-                        btnSubmit?.visibility = View.GONE
-                        btnCancel?.visibility = View.VISIBLE
-                        btnCancel?.text = getString(R.string.close)
-                        binding.plusButtonD.visibility = View.GONE
-                        binding.plusButtonP.visibility = View.GONE
-                        binding.useTempForFields.visibility = View.GONE
-                        binding.tvAddTemplateTitle.visibility = View.GONE
-                        binding.tempName.visibility = View.GONE
-                        binding.saveTemplate.visibility = View.GONE
-                        binding.deleteTemp.visibility = View.GONE
-                        binding.referReason.visibility = View.GONE
-                        binding.referDropdown.visibility = View.GONE
-                        binding.textReferHeading.visibility = View.GONE
-                        binding.referDateLabel.visibility = View.GONE
-                        binding.referToLabel.visibility = View.GONE
-                        binding.referalReasonLabel.visibility = View.GONE
+                        applyReadOnlyCaseUi(btnSubmit, btnCancel)
                     }
                 } else if (effectivePharmacistFlag == 9) {
                     val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
@@ -502,40 +415,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         benVisitInfo.doctorFlag == 3
 
                     if (isLabReviewWithDispensedMedicine) {
-                        btnSubmit?.visibility = View.VISIBLE
-                        btnSubmit?.text = getString(R.string.close_case_btn)
-                        btnCancel?.visibility = View.VISIBLE
-                        btnCancel?.text = getString(R.string.close)
-
-                        binding.plusButtonD.visibility = View.VISIBLE
-                        binding.plusButtonP.visibility = View.VISIBLE
-                        binding.useTempForFields.visibility = View.VISIBLE
-                        binding.tvAddTemplateTitle.visibility = View.VISIBLE
-                        binding.tempName.visibility = View.VISIBLE
-                        binding.saveTemplate.visibility = View.VISIBLE
-                        binding.deleteTemp.visibility = View.VISIBLE
-                        binding.externalI.visibility = View.VISIBLE
-                        binding.testName.visibility = View.VISIBLE
-                        binding.referReason.visibility = View.VISIBLE
-                        binding.referDropdown.visibility = View.VISIBLE
-                        binding.textReferHeading.visibility = View.VISIBLE
+                        applyEditableCaseUi(btnSubmit, btnCancel, R.string.close_case_btn)
                     } else {
-                        btnSubmit?.visibility = View.GONE
-                        btnCancel?.visibility = View.VISIBLE
-                        btnCancel?.text = getString(R.string.close)
-                        binding.plusButtonD.visibility = View.GONE
-                        binding.plusButtonP.visibility = View.GONE
-                        binding.useTempForFields.visibility = View.GONE
-                        binding.tvAddTemplateTitle.visibility = View.GONE
-                        binding.tempName.visibility = View.GONE
-                        binding.saveTemplate.visibility = View.GONE
-                        binding.deleteTemp.visibility = View.GONE
-                        binding.referReason.visibility = View.GONE
-                        binding.referDropdown.visibility = View.GONE
-                        binding.textReferHeading.visibility = View.GONE
-                        binding.referDateLabel.visibility = View.GONE
-                        binding.referToLabel.visibility = View.GONE
-                        binding.referalReasonLabel.visibility = View.GONE
+                        applyReadOnlyCaseUi(btnSubmit, btnCancel)
                     }
                 }
             }
@@ -562,22 +444,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             (effectivePharmacistFlag == 9 && !isDoctorReviewingAfterLabAndDispense)
         isAlreadyFilledReadOnlyForVisibility = isAlreadyFilledReadOnly
         if (isAlreadyFilledReadOnly) {
-            activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = View.GONE
-            activity?.findViewById<Button>(R.id.btnCancel)?.visibility = View.VISIBLE
-            activity?.findViewById<Button>(R.id.btnCancel)?.text = getString(R.string.close)
-            binding.plusButtonD.visibility = View.GONE
-            binding.plusButtonP.visibility = View.GONE
-            binding.useTempForFields.visibility = View.GONE
-            binding.tvAddTemplateTitle.visibility = View.GONE
-            binding.tempName.visibility = View.GONE
-            binding.saveTemplate.visibility = View.GONE
-            binding.deleteTemp.visibility = View.GONE
-            binding.referReason.visibility = View.GONE
-            binding.referDropdown.visibility = View.GONE
-            binding.textReferHeading.visibility = View.GONE
-            binding.referDateLabel.visibility = View.GONE
-            binding.referToLabel.visibility = View.GONE
-            binding.referalReasonLabel.visibility = View.GONE
+            applyReadOnlyCaseUi(
+                activity?.findViewById(R.id.btnSubmit),
+                activity?.findViewById(R.id.btnCancel)
+            )
         }
 
         // Provisional/Final Diagnosis and Medicine fields: always show; filled = disabled, fresh = editable (handled in adapters)
