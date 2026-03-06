@@ -182,6 +182,14 @@ class CaseRecordViewModel @Inject constructor(
     
     suspend fun getDispensedPrescriptionsForVisitNumAndPatientId(patientID: String, benVisitNo: Int): List<PrescriptionCaseRecord?> {
         return try {
+            val latestVisitInfo = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                patientID,
+                benVisitNo
+            )
+            if (latestVisitInfo != null && (latestVisitInfo.pharmacist_flag ?: 0) != 9) {
+                Timber.d("Skipping dispensed fetch for pending pharmacist state: patientID=$patientID, benVisitNo=$benVisitNo, pharmacist_flag=${latestVisitInfo?.pharmacist_flag}")
+                return emptyList()
+            }
             // Get ALL prescriptions for this visit (there may be multiple if medicine was dispensed multiple times)
             val prescriptions = prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(patientID, benVisitNo)
             if (prescriptions.isNullOrEmpty()) {
@@ -361,9 +369,15 @@ class CaseRecordViewModel @Inject constructor(
 //            labtechFlag = benVisitInfo.labtechFlag,
 //            pharmacist_flag = benVisitInfo.pharmacist_flag,
 //        )
-        var labtechFlag = benVisitInfo.labtechFlag ?: 0
-        if(benVisitInfo.doctorFlag == 3){
-            labtechFlag = 1
+        val latestVisitInfo = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+            benVisitInfo.patient.patientID,
+            benVisitInfo.benVisitNo!!
+        )
+        val currentLabtechFlag = latestVisitInfo?.labtechFlag ?: benVisitInfo.labtechFlag ?: 0
+        val labtechFlag = if (doctorFlag == 2) {
+            1
+        } else {
+            currentLabtechFlag
         }
         patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
             nurseFlag = 9,
@@ -452,15 +466,31 @@ class CaseRecordViewModel @Inject constructor(
                         // Keep pharmacist module in sync with latest doctor edits for this visit.
                         benFlowRepo.copyPrescriptionFromCaseRecordToPharmacistTable(benVisitInfo)
                     }
-                    
-                    // Check if case should auto-close (nothing prescribed scenario)
-                    val shouldAutoClose = caseClosureManager.shouldAutoClose(benVisitInfo)
+
+                    val latestVisitInfo =
+                        patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                            benVisitInfo.patient.patientID,
+                            benVisitInfo.benVisitNo!!
+                        )
+                    val visitSnapshotForClosure = if (latestVisitInfo != null) {
+                        benVisitInfo.copy(
+                            nurseFlag = latestVisitInfo.nurseFlag,
+                            doctorFlag = latestVisitInfo.doctorFlag,
+                            labtechFlag = latestVisitInfo.labtechFlag,
+                            pharmacist_flag = latestVisitInfo.pharmacist_flag
+                        )
+                    } else {
+                        benVisitInfo
+                    }
+
+                    // Check if case should auto-close (nothing prescribed / only medicine already dispensed scenario)
+                    val shouldAutoClose = caseClosureManager.shouldAutoClose(visitSnapshotForClosure)
                     if (shouldAutoClose) {
                         Timber.d("Auto-closing case - nothing prescribed: ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
                         patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
                             nurseFlag = 9,
                             doctorFlag = 9,
-                            labtechFlag = benVisitInfo.labtechFlag ?: 0,
+                            labtechFlag = visitSnapshotForClosure.labtechFlag ?: 0,
                             patientID = benVisitInfo.patient.patientID,
                             benVisitNo = benVisitInfo.benVisitNo!!
                         )

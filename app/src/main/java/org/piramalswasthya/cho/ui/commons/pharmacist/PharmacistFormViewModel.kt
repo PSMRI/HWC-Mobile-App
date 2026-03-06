@@ -221,6 +221,7 @@ class PharmacistFormViewModel @Inject constructor(
                     benVisitInfo.patient.patientID,
                     visitNo
                 )
+                val latestVisitSnapshot = getLatestVisitSnapshot(benVisitInfo, visitNo)
 
                 dtos?.let { prescriptionDTO ->
                     if(visitNo > 0){
@@ -261,13 +262,13 @@ class PharmacistFormViewModel @Inject constructor(
 //                }
 
                 // Check if case should auto-close after medicine dispensed
-                val shouldAutoClose = caseClosureManager.shouldAutoClose(benVisitInfo)
+                val shouldAutoClose = caseClosureManager.shouldAutoClose(latestVisitSnapshot)
                 if (shouldAutoClose) {
                     Timber.d("Auto-closing case after medicine dispensed: ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
                     patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
                         nurseFlag = 9,
                         doctorFlag = 9,
-                        labtechFlag = benVisitInfo.labtechFlag ?: 0,
+                        labtechFlag = latestVisitSnapshot.labtechFlag ?: 0,
                         patientID = benVisitInfo.patient.patientID,
                         benVisitNo = visitNo
                     )
@@ -328,6 +329,7 @@ class PharmacistFormViewModel @Inject constructor(
                     benVisitInfo.patient.patientID,
                     visitNo
                 )
+                val latestVisitSnapshot = getLatestVisitSnapshot(benVisitInfo, visitNo)
 
                 dtos.let { prescriptionDTO ->
                     if (visitNo > 0) {
@@ -357,13 +359,13 @@ class PharmacistFormViewModel @Inject constructor(
                 WorkerUtils.pharmacistPushWorker(context)
 
                 // Check if case should auto-close after medicine dispensed
-                val shouldAutoClose = caseClosureManager.shouldAutoClose(benVisitInfo)
+                val shouldAutoClose = caseClosureManager.shouldAutoClose(latestVisitSnapshot)
                 if (shouldAutoClose) {
                     Timber.d("Auto-closing case after medicine dispensed (manual): ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
                     patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
                         nurseFlag = 9,
                         doctorFlag = 9,
-                        labtechFlag = benVisitInfo.labtechFlag ?: 0,
+                        labtechFlag = latestVisitSnapshot.labtechFlag ?: 0,
                         patientID = benVisitInfo.patient.patientID,
                         benVisitNo = visitNo
                     )
@@ -374,6 +376,26 @@ class PharmacistFormViewModel @Inject constructor(
                 _isDataSaved.value = false
                 Timber.e(e, "Error saving pharmacist data")
             }
+        }
+    }
+
+    private suspend fun getLatestVisitSnapshot(
+        benVisitInfo: PatientDisplayWithVisitInfo,
+        visitNo: Int
+    ): PatientDisplayWithVisitInfo {
+        val latestVisit = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+            benVisitInfo.patient.patientID,
+            visitNo
+        )
+        return if (latestVisit != null) {
+            benVisitInfo.copy(
+                nurseFlag = latestVisit.nurseFlag,
+                doctorFlag = latestVisit.doctorFlag,
+                labtechFlag = latestVisit.labtechFlag,
+                pharmacist_flag = latestVisit.pharmacist_flag
+            )
+        } else {
+            benVisitInfo.copy(pharmacist_flag = 9)
         }
     }
 

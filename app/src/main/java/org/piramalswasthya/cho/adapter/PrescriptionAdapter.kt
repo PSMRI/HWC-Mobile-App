@@ -170,11 +170,11 @@ class PrescriptionAdapter(
             holder.addButton.isEnabled = true
         }
 
-        // Read-only in view mode; for dispensed medicine only initial rows are locked, newly added rows stay editable.
+        // Read-only in view mode; dispensed rows always stay locked across multi-cycle edits.
         val isCaseReadOnly = (isVisitDetail == true && isFollowupVisit == false)
-        val isDispensedLockedRow = isMedicineDispensedByPharmacist && position < dispensedLockedItemCount
+        val isDispensedLockedRow = itemData.isDispensed || (isMedicineDispensedByPharmacist && position < dispensedLockedItemCount)
         val isRowReadOnly = isCaseReadOnly || isDispensedLockedRow
-        val hasData = itemData.form.isNotBlank() || itemData.frequency.isNotBlank() ||
+        val hasData = itemData.id != null || itemData.form.isNotBlank() || itemData.frequency.isNotBlank() ||
                 itemData.duration.isNotBlank() || itemData.instructions.isNotBlank() || itemData.unit.isNotBlank()
         holder.itemView.visibility = if (isRowReadOnly && !hasData) View.GONE else View.VISIBLE
 

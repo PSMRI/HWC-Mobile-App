@@ -291,8 +291,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 btnSubmit?.visibility = View.VISIBLE
                 btnSubmit?.text = getString(R.string.submit)
                 binding.plusButtonD.visibility = View.VISIBLE
-                // Update mode before dispense: edit existing medicine rows, do not append new rows.
-                binding.plusButtonP.visibility = View.GONE
+                // Pending dispense: keep medicine section editable, including add-new row flow.
+                binding.plusButtonP.visibility = View.VISIBLE
                 binding.useTempForFields.visibility = View.VISIBLE
                 binding.tvAddTemplateTitle.visibility = View.VISIBLE
                 binding.tempName.visibility = View.VISIBLE
@@ -382,30 +382,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                             )
 
                             lifecycleScope.launch {
-                                val prescriptions = if (benVisitInfo.pharmacist_flag == 9) {
-                                    viewModel.getDispensedPrescriptionsForVisitNumAndPatientId(
-                                        benVisitInfo.patient.patientID,
-                                        benVisitInfo.benVisitNo ?: 0
-                                    )
-                                } else {
-                                    viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo)
-                                }
-                                convertToPrescriptionValuesFromPC(prescriptions, benVisitInfo.pharmacist_flag == 9)
+                                loadPrescriptionRowsForVisit(benVisitInfo)
                                 convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
                             }
                         }
                     }
                 } else {
                     lifecycleScope.launch {
-                        val prescriptions = if (benVisitInfo.pharmacist_flag == 9) {
-                            viewModel.getDispensedPrescriptionsForVisitNumAndPatientId(
-                                benVisitInfo.patient.patientID,
-                                benVisitInfo.benVisitNo ?: 0
-                            )
-                        } else {
-                            viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo)
-                        }
-                        convertToPrescriptionValuesFromPC(prescriptions, benVisitInfo.pharmacist_flag == 9)
+                        loadPrescriptionRowsForVisit(benVisitInfo)
                         convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
                     }
                     testNameMap = viewModel.getTestNameTypeMap()
@@ -476,16 +460,13 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
                     val isDoctorEditBeforeDispense = benVisitInfo.nurseFlag == 9 &&
                         (benVisitInfo.doctorFlag == 3 || benVisitInfo.doctorFlag == 9)
-                    val isMedicineOnlyPendingDispense = benVisitInfo.nurseFlag == 9 &&
-                        benVisitInfo.doctorFlag == 9
                     if (isDoctorEditBeforeDispense) {
                         btnSubmit?.visibility = View.VISIBLE
                         btnSubmit?.text = getString(R.string.submit)
                         btnCancel?.visibility = View.VISIBLE
                         btnCancel?.text = getString(R.string.close)
                         binding.plusButtonD.visibility = View.VISIBLE
-                        // For medicine-only pending dispense, prevent new-row append and keep edit-as-replace behavior.
-                        binding.plusButtonP.visibility = if (isMedicineOnlyPendingDispense) View.GONE else View.VISIBLE
+                        binding.plusButtonP.visibility = View.VISIBLE
                         binding.useTempForFields.visibility = View.VISIBLE
                         binding.tvAddTemplateTitle.visibility = View.VISIBLE
                         binding.tempName.visibility = View.VISIBLE
@@ -635,15 +616,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
             // Load medicine/prescription and diagnosis so they show in case record (same as lab data)
             lifecycleScope.launch {
-                val prescriptions = if (benVisitInfo.pharmacist_flag == 9) {
-                    viewModel.getDispensedPrescriptionsForVisitNumAndPatientId(
-                        benVisitInfo.patient.patientID,
-                        benVisitInfo.benVisitNo ?: 0
-                    )
-                } else {
-                    viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo)
-                }
-                convertToPrescriptionValuesFromPC(prescriptions, benVisitInfo.pharmacist_flag == 9)
+                loadPrescriptionRowsForVisit(benVisitInfo)
                 convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
             }
             // Remove existing observer to prevent duplicates
@@ -1089,9 +1062,43 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
     }
 
-    fun convertToPrescriptionValuesFromPC(prescriptionCaseRecords: List<PrescriptionCaseRecord?>, isDispensed: Boolean = false) {
-        itemListP.clear()
-        var index = 1
+    private suspend fun loadPrescriptionRowsForVisit(visitInfo: PatientDisplayWithVisitInfo) {
+        val visitNo = visitInfo.benVisitNo ?: 0
+        val patientID = visitInfo.patient.patientID
+        val editableRows = viewModel.getPrescriptionForVisitNumAndPatientId(visitInfo)
+        val latestVisitInfo = viewModel.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID, visitNo)
+        val pharmacistFlag = latestVisitInfo?.pharmacist_flag ?: visitInfo.pharmacist_flag ?: 0
+
+        if (pharmacistFlag == 9) {
+            val dispensedRows = viewModel.getDispensedPrescriptionsForVisitNumAndPatientId(patientID, visitNo)
+            if (dispensedRows.isNotEmpty()) {
+                convertToPrescriptionValuesFromPC(dispensedRows, isDispensed = true, append = false)
+                dispensedLockedPrescriptionCount = itemListP.size
+            } else {
+                // Fallback for older/local records where pharmacist table rows are not present yet:
+                // still render existing medicines as dispensed (view-only) and allow new rows via +.
+                convertToPrescriptionValuesFromPC(editableRows, isDispensed = true, append = false)
+                dispensedLockedPrescriptionCount = itemListP.size
+            }
+        } else {
+            dispensedLockedPrescriptionCount = 0
+            convertToPrescriptionValuesFromPC(editableRows, isDispensed = false, append = false)
+        }
+
+        if (::pAdapter.isInitialized) {
+            pAdapter.setDispensedLockedItemCount(dispensedLockedPrescriptionCount)
+        }
+    }
+
+    fun convertToPrescriptionValuesFromPC(
+        prescriptionCaseRecords: List<PrescriptionCaseRecord?>,
+        isDispensed: Boolean = false,
+        append: Boolean = false
+    ) {
+        if (!append) {
+            itemListP.clear()
+        }
+        var index = itemListP.size + 1
         for (prescriptionCaseRecord in prescriptionCaseRecords) {
             val prescriptionValue = prescriptionCaseRecord?.let {
                 PrescriptionValues(
@@ -1102,7 +1109,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     instructions = it.instructions ?: "",
                     unit = it.unit ?: "",
                     isDispensed = isDispensed,
-                    title = if (isDispensed) "Medicine - $index - Dispensed" else "Medicine - $index"
+                    title = "Medicine - $index"
                 )
             }
             if (prescriptionValue != null) {
@@ -1110,11 +1117,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 index++
             }
         }
-        if (itemListP.isEmpty()) {
+        if (!append && itemListP.isEmpty()) {
             itemListP.add(PrescriptionValues())
         }
         if (::pAdapter.isInitialized) {
             pAdapter.notifyDataSetChanged()
+            updateSubmitButtonText()
         }
     }
     
@@ -1566,6 +1574,33 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
         return false
     }
+
+    private fun parseTestIds(csv: String?): Set<Int> {
+        if (csv.isNullOrBlank()) return emptySet()
+        return csv.split(",")
+            .mapNotNull { it.trim().toIntOrNull() }
+            .toSet()
+    }
+
+    private fun getSelectedTestIds(): Set<Int> {
+        val selectedText = binding.selectF.text?.toString().orEmpty()
+        if (selectedText.isBlank()) return emptySet()
+        return selectedText.split(",")
+            .mapNotNull { testName ->
+                val trimmedName = testName.trim()
+                if (trimmedName.isBlank()) null else findKeyByValue(testNameMap, trimmedName)
+            }
+            .toSet()
+    }
+
+    private fun hasTestSelectionChanged(): Boolean {
+        val selectedIds = getSelectedTestIds()
+        val existingIds = parseTestIds(investigationBD?.previousTestIds) + parseTestIds(investigationBD?.newTestIds)
+        if (investigationBD == null) {
+            return selectedIds.isNotEmpty()
+        }
+        return selectedIds != existingIds
+    }
     
     /**
      * Updates the submit button text based on whether new tests or medicines are selected.
@@ -1585,14 +1620,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         val currentPharmacistFlag = effectivePharmacistFlagForVisibility ?: benVisitInfo.pharmacist_flag ?: 0
         if (currentPharmacistFlag != 9) return
         
-        // Check if new test is selected
-        val testName = binding.selectF.text?.toString() ?: ""
-        val testNamesList = testName.split(",").map { it.trim() }
-        val newIdString = testNamesList.joinToString(",") { tn ->
-            val id = findKeyByValue(testNameMap, tn)
-            id?.toString() ?: ""
-        }
-        val hasNewTest = newIdString.replace(",", "").isNotBlank()
+        val hasNewTest = hasTestSelectionChanged()
         
         // Check if new medicine is selected
         val newRowsStart = dispensedLockedPrescriptionCount.coerceAtMost(itemListP.size)
@@ -1695,25 +1723,35 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 findKeyByValue(testNameMap, testNameS) // Replace with your function to get the ID
             id?.toString() ?: ""
         }
+        val selectedTestIds = parseTestIds(idString)
+        val existingTestIds = parseTestIds(investigationBD?.previousTestIds) + parseTestIds(investigationBD?.newTestIds)
+        val hasNewOrChangedTests = if (investigationBD == null) {
+            selectedTestIds.isNotEmpty()
+        } else {
+            selectedTestIds.isNotEmpty() && selectedTestIds != existingTestIds
+        }
+        val mergedPreviousTestIds = if (investigationBD != null) {
+            (existingTestIds + selectedTestIds).takeIf { it.isNotEmpty() }?.joinToString(",")
+        } else {
+            selectedTestIds.takeIf { it.isNotEmpty() }?.joinToString(",")
+        }
+        val newTestIds = if (hasNewOrChangedTests) {
+            selectedTestIds.joinToString(",")
+        } else {
+            null
+        }
 
         val externalInvestigations = binding.inputExternalI.text.toString().nullIfEmpty()
         val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
         val referId = findKeyByValue(referNameMap, referVal)
-        val previousTestIdsTmp =
-            if (investigationBD != null && investigationBD?.previousTestIds != null) {
-                investigationBD?.previousTestIds?.trim()?.plus("," + idString.nullIfEmpty())
-                    ?.replace("null,", "")
-            } else {
-                idString.nullIfEmpty()
-            }
         val counsellingList = counsellingTypesVal?.let { arrayListOf(it) } ?: arrayListOf()
 
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
-            previousTestIds = previousTestIdsTmp,
-            newTestIds = idString.nullIfEmpty(),
+            previousTestIds = mergedPreviousTestIds,
+            newTestIds = newTestIds,
             externalInvestigations = externalInvestigations,
             counsellingProvidedList = counsellingList,
             counsellingTypes = counsellingTypesVal,
@@ -1766,11 +1804,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
         }
 
-        if (idString.nullIfEmpty() == null) {
-            doctorFlag = 9
-        } else {
-            doctorFlag = 2
-        }
+        doctorFlag = if (hasNewOrChangedTests) 2 else 9
         if (prescriptionList.size == 0) {
             pharmacistFlag = 0
         } else {
@@ -1833,19 +1867,29 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 findKeyByValue(testNameMap, testNameS) // Replace with your function to get the ID
             id?.toString() ?: ""
         }
+        val selectedTestIds = parseTestIds(idString)
+        val existingTestIds = parseTestIds(investigationBD?.previousTestIds) + parseTestIds(investigationBD?.newTestIds)
+        val hasNewOrChangedTests = if (investigationBD == null) {
+            selectedTestIds.isNotEmpty()
+        } else {
+            selectedTestIds.isNotEmpty() && selectedTestIds != existingTestIds
+        }
+        val mergedPreviousTestIds = if (investigationBD != null) {
+            (existingTestIds + selectedTestIds).takeIf { it.isNotEmpty() }?.joinToString(",")
+        } else {
+            selectedTestIds.takeIf { it.isNotEmpty() }?.joinToString(",")
+        }
+        val newTestIds = if (hasNewOrChangedTests) {
+            selectedTestIds.joinToString(",")
+        } else {
+            null
+        }
 
         val externalInvestigations = binding.inputExternalI.text.toString().nullIfEmpty()
         val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
         val referId = findKeyByValue(referNameMap, referVal)
-        val previousTestIdsTmp =
-            if (investigationBD != null && investigationBD?.previousTestIds != null) {
-                investigationBD?.previousTestIds?.trim()?.plus("," + idString.nullIfEmpty())
-                    ?.replace("null,", "")
-            } else {
-                idString.nullIfEmpty()
-            }
 
 
         val counsellingList = counsellingTypesVal?.let { arrayListOf(it) } ?: arrayListOf()
@@ -1853,8 +1897,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
-            previousTestIds = previousTestIdsTmp,
-            newTestIds = idString.nullIfEmpty(),
+            previousTestIds = mergedPreviousTestIds,
+            newTestIds = newTestIds,
             externalInvestigations = externalInvestigations,
             counsellingProvidedList = counsellingList,
             counsellingTypes = counsellingTypesVal,
@@ -1866,12 +1910,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
 
         val prescriptionList = mutableListOf<PrescriptionCaseRecord>();
-        val currentPharmacistFlag = effectivePharmacistFlagForVisibility ?: benVisitInfo.pharmacist_flag ?: 0
-        val prescriptionStartIndex = if (benVisitInfo.doctorFlag == 3 && currentPharmacistFlag == 9) {
-            dispensedLockedPrescriptionCount.coerceAtMost(itemListP.size)
-        } else {
-            0
-        }
+        val prescriptionStartIndex = dispensedLockedPrescriptionCount.coerceAtMost(itemListP.size)
         for (i in prescriptionStartIndex until itemListP.size) {
             val prescriptionData = itemListP[i]
             var formVal = prescriptionData.id
@@ -1898,11 +1937,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 prescriptionList.add(pres);
             }
         }
-        if (idString.nullIfEmpty() == null) {
-            doctorFlag = 9
-        } else {
-            doctorFlag = 2
-        }
+        doctorFlag = if (hasNewOrChangedTests) 2 else 9
 
         viewModel.saveDoctorData(
             diagnosisList,
@@ -2029,14 +2064,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
             if (isLabReviewState) {
                 val currentPharmacistFlag = effectivePharmacistFlagForVisibility ?: benVisitInfo.pharmacist_flag ?: 0
-                // Build the idString the same way saveDoctorData does
-                val testName = binding.selectF.text?.toString() ?: ""
-                val testNamesList = testName.split(",").map { it.trim() }
-                val newIdString = testNamesList.joinToString(",") { tn ->
-                    val id = findKeyByValue(testNameMap, tn)
-                    id?.toString() ?: ""
-                }
-                val hasNewTest = newIdString.replace(",", "").isNotBlank()
+                val hasNewTest = hasTestSelectionChanged()
 
                 val hasNewMedicine = if (currentPharmacistFlag == 9) {
                     val newRowsStart = dispensedLockedPrescriptionCount.coerceAtMost(itemListP.size)

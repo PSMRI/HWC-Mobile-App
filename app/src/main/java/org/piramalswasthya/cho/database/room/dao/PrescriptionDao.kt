@@ -35,6 +35,10 @@ interface PrescriptionDao {
     @Query("delete from prescription where patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun deletePrescriptionByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int): Int
 
+    @Transaction
+    @Query("delete from prescription where id = :id")
+    suspend fun deletePrescriptionById(id: Long): Int
+
 //    @Transaction
 //    @Query("delete from prescription where prescriptionID = :prescriptionID and beneficiaryRegID = :beneficiaryRegID")
 //    suspend fun deletePrescriptionByIDAndBenRegID(prescriptionID: Long, beneficiaryRegID: Long): Int

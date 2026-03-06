@@ -121,9 +121,11 @@ class CaseClosureManager @Inject constructor(
      */
     private suspend fun hasLabTestPending(visitInfo: PatientVisitInfoSync): Boolean {
         val hasLab = hasLabTestPrescribed(visitInfo.patientID, visitInfo.benVisitNo)
-        // Lab is pending if prescribed but labtechFlag != 9 (not completed)
-        val isPending = hasLab && (visitInfo.labtechFlag ?: 0) != 9
-        Timber.d("CaseClosureManager: hasLabTestPending=$isPending (hasLab=$hasLab, labtechFlag=${visitInfo.labtechFlag})")
+        // Backward compatibility: older records may stay at labtechFlag=1 even after lab submission,
+        // but doctorFlag=3 represents the post-lab review state.
+        val isLabCompleted = (visitInfo.labtechFlag ?: 0) == 9 || (visitInfo.doctorFlag ?: 0) == 3
+        val isPending = hasLab && !isLabCompleted
+        Timber.d("CaseClosureManager: hasLabTestPending=$isPending (hasLab=$hasLab, labtechFlag=${visitInfo.labtechFlag}, doctorFlag=${visitInfo.doctorFlag})")
         return isPending
     }
 
