@@ -17,7 +17,7 @@ class NoseDiagnosisDataset(
 
     suspend fun setUpPage(savedRecord: NoseDiagnosisAssessment?) {
         cache = savedRecord ?: createDefaultCache()
-        val list = mutableListOf<FormElement>()
+        val list = listOf<FormElement>()
         setUpPage(list)
     }
 
