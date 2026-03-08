@@ -186,20 +186,30 @@ class CaseRecordViewModel @Inject constructor(
                 patientID,
                 benVisitNo
             )
-            if (latestVisitInfo != null && (latestVisitInfo.pharmacist_flag ?: 0) != 9) {
-                Timber.d("Skipping dispensed fetch for pending pharmacist state: patientID=$patientID, benVisitNo=$benVisitNo, pharmacist_flag=${latestVisitInfo?.pharmacist_flag}")
-                return emptyList()
-            }
             // Get ALL prescriptions for this visit (there may be multiple if medicine was dispensed multiple times)
             val prescriptions = prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(patientID, benVisitNo)
             if (prescriptions.isNullOrEmpty()) {
                 Timber.d("No dispensed prescriptions found for patientID=$patientID, benVisitNo=$benVisitNo")
                 emptyList()
             } else {
-                Timber.d("Found ${prescriptions.size} prescription records for patientID=$patientID, benVisitNo=$benVisitNo")
+                val pharmacistFlag = latestVisitInfo?.pharmacist_flag ?: 0
+                // When pharmacist is pending, latest prescription represents current editable cycle (not dispensed yet).
+                // Older records in this visit are already dispensed and should stay visible as history.
+                val dispensedPrescriptionRows =
+                    (if (pharmacistFlag == 9) prescriptions else prescriptions.drop(1))
+                        .sortedBy { it.id }
+
+                if (dispensedPrescriptionRows.isEmpty()) {
+                    Timber.d("No dispensed history rows for patientID=$patientID, benVisitNo=$benVisitNo, pharmacist_flag=$pharmacistFlag")
+                    return emptyList()
+                }
+
+                Timber.d(
+                    "Found ${dispensedPrescriptionRows.size} dispensed prescription records for patientID=$patientID, benVisitNo=$benVisitNo, pharmacist_flag=$pharmacistFlag"
+                )
                 // Get prescribed drugs from ALL prescriptions (to handle multiple dispensing cycles)
                 val allDispensedDrugs = mutableListOf<PrescriptionCaseRecord>()
-                prescriptions.forEach { prescription ->
+                dispensedPrescriptionRows.forEach { prescription ->
                     val prescribedDrugs = prescriptionDao.getPrescribedDrugs(prescription.id)
                     prescribedDrugs?.forEach { drug ->
                         allDispensedDrugs.add(
@@ -326,9 +336,6 @@ class CaseRecordViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patientID, benVisitNo)
-                // Also clear pharmacist-side prescription cache for this visit so old undispensed
-                // medicines do not remain after doctor updates.
-                prescriptionDao.deletePrescriptionByPatientIDAndBenVisitNo(patientID, benVisitNo)
                 investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patientID, benVisitNo)
                 caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patientID, benVisitNo)
                 _isDataDeleted.value = true
@@ -459,12 +466,24 @@ class CaseRecordViewModel @Inject constructor(
                     // Called after updateDoctorDataSubmitted so pharmacist_flag and visitCategory are set last and
                     // card shows in pharmacist list even when both test and prescription are selected together.
                     if (prescriptionList.isNotEmpty()) {
+                        val visitInfoBeforePendingUpdate =
+                            patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                                benVisitInfo.patient.patientID,
+                                benVisitInfo.benVisitNo!!
+                            )
+                        val wasPendingPharmacist =
+                            (visitInfoBeforePendingUpdate?.pharmacist_flag
+                                ?: benVisitInfo.pharmacist_flag
+                                ?: 0) == 1
                         patientVisitInfoSyncRepo.updatePharmacistFlagToPending(
                             benVisitInfo.patient.patientID,
                             benVisitInfo.benVisitNo!!
                         )
                         // Keep pharmacist module in sync with latest doctor edits for this visit.
-                        benFlowRepo.copyPrescriptionFromCaseRecordToPharmacistTable(benVisitInfo)
+                        benFlowRepo.copyPrescriptionFromCaseRecordToPharmacistTable(
+                            benVisitInfo,
+                            replaceLatestPending = wasPendingPharmacist
+                        )
                     }
 
                     val latestVisitInfo =
@@ -527,6 +546,17 @@ class CaseRecordViewModel @Inject constructor(
                         patientVisitInfoSync.patientID,
                         patientVisitInfoSync.benVisitNo
                     )
+                    // Fresh nurse+doctor flow also needs local pharmacist prescription rows,
+                    // otherwise pharmacist tab may not show the newly assigned medicines.
+                    runCatching {
+                        val patient = patientRepo.getPatient(patientVisitInfoSync.patientID)
+                        benFlowRepo.copyPrescriptionFromCaseRecordToPharmacistTable(
+                            benVisitInfo = PatientDisplayWithVisitInfo(patient, patientVisitInfoSync),
+                            replaceLatestPending = false
+                        )
+                    }.onFailure { e ->
+                        Timber.e(e, "Failed to copy prescription rows to pharmacist table for ${patientVisitInfoSync.patientID}/${patientVisitInfoSync.benVisitNo}")
+                    }
                 }
                 _isDataSaved.value = true
             } catch (e: Exception){

@@ -238,6 +238,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     fun processPatientDoctorBundle(dummyPatientDoctorBundle: PatientDoctorBundle){
         viewModelScope.launch {
             withContext(Dispatchers.IO){
+                var replaceLatestPending = false
                 try {
                     dummyPatientDoctorBundle.patient.syncState = SyncState.SHARED_OFFLINE
                     patientRepo.insertPatient(dummyPatientDoctorBundle.patient)
@@ -262,6 +263,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                             dummyPatientDoctorBundle.patientVisitInfoSync.patientID,
                             dummyPatientDoctorBundle.patientVisitInfoSync.benVisitNo!!
                         )
+                        replaceLatestPending = (existingPatientVisitInfoSync.pharmacist_flag ?: 0) == 1
                     }
                 }catch (e:Exception){
                     e.printStackTrace()
@@ -273,7 +275,8 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                         dummyPatientDoctorBundle.patient,
                         facilityID,
                         dummyPatientDoctorBundle,
-                        dummyPatientDoctorBundle.patientVisitInfoSync
+                        dummyPatientDoctorBundle.patientVisitInfoSync,
+                        replaceLatestPending = replaceLatestPending
                     )
                 }catch (e:Exception){
                     e.printStackTrace()

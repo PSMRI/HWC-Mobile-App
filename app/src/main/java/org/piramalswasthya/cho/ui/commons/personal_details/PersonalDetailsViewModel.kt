@@ -36,10 +36,6 @@ class PersonalDetailsViewModel @Inject constructor(
     private val filter = MutableStateFlow("")
     private val listUpdateDebounceMs = 250L
 
-    private val latestVisitComparator =
-        compareByDescending<PatientDisplayWithVisitInfo> { it.visitDate?.time ?: 0L }
-            .thenByDescending { it.benVisitNo ?: 0 }
-
     private fun buildPatientListFlow(
         source: Flow<List<PatientDisplayWithVisitInfo>>,
         transform: (List<PatientDisplayWithVisitInfo>) -> List<PatientDisplayWithVisitInfo>
@@ -62,11 +58,9 @@ class PersonalDetailsViewModel @Inject constructor(
                 val key: (PatientDisplayWithVisitInfo) -> String = { info ->
                     info.patient.beneficiaryRegID?.toString() ?: info.patient.patientID
                 }
-                list
-                    .groupBy(key)
-                    .values
-                    .mapNotNull { visits -> visits.maxWithOrNull(latestVisitComparator) }
-                    .sortedWith(latestVisitComparator)
+                // Source query is already ordered by latest medicine assignment first.
+                // Keep the first card per beneficiary to avoid duplicates while preserving order.
+                list.distinctBy(key)
             }
         )
 

@@ -721,7 +721,8 @@ class BenFlowRepo @Inject constructor(
         patient: Patient,
         facilityID: Int,
         patientDoctorBundle: PatientDoctorBundle,
-        patientVisitInfoSync: PatientVisitInfoSync
+        patientVisitInfoSync: PatientVisitInfoSync,
+        replaceLatestPending: Boolean = false
     ) {
         try {
             val existingPrescriptions =
@@ -739,11 +740,24 @@ class BenFlowRepo @Inject constructor(
                     null
                 }
             }
-            Log.d("Pharmacist","Deleting existing prescriptions for patientID: ${patient.patientID}, visitNo: ${patientVisitInfoSync.benVisitNo}")
-            prescriptionDao.deletePrescriptionByPatientIDAndBenVisitNo(
-                patient.patientID,
-                patientVisitInfoSync.benVisitNo
-            )
+            if (replaceLatestPending && existingPrescriptions.isNotEmpty()) {
+                // Doctor is editing an already-pending pharmacist cycle:
+                // replace only latest pending draft and preserve older dispensed history.
+                Log.d(
+                    "Pharmacist",
+                    "Replacing latest pending prescription for patientID=${patient.patientID}, visitNo=${patientVisitInfoSync.benVisitNo}"
+                )
+                prescriptionDao.deleteLatestPrescriptionByPatientIDAndBenVisitNo(
+                    patient.patientID,
+                    patientVisitInfoSync.benVisitNo
+                )
+            } else {
+                // New cycle (or first local copy): append current medicines to preserve previous dispensed cycles.
+                Log.d(
+                    "Pharmacist",
+                    "Preserving existing prescription history for patientID=${patient.patientID}, visitNo=${patientVisitInfoSync.benVisitNo}"
+                )
+            }
             Log.d("Pharmacist", "patient:in benflowrepo ${patient}")
 
 
@@ -919,7 +933,10 @@ class BenFlowRepo @Inject constructor(
      * When doctor has submitted prescription locally (saved in Prescription_Cases_Recorde) but API
      * has not synced yet, copy that data to the Prescription table so pharmacist module can show medicines.
      */
-    suspend fun copyPrescriptionFromCaseRecordToPharmacistTable(benVisitInfo: PatientDisplayWithVisitInfo): Boolean {
+    suspend fun copyPrescriptionFromCaseRecordToPharmacistTable(
+        benVisitInfo: PatientDisplayWithVisitInfo,
+        replaceLatestPending: Boolean? = null
+    ): Boolean {
         return try {
             val prescriptionCaseRecordVal = caseRecordeDao.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
                 benVisitInfo.patient.patientID,
@@ -940,7 +957,8 @@ class BenFlowRepo @Inject constructor(
                 patient = benVisitInfo.patient,
                 facilityID = facilityID,
                 patientDoctorBundle = bundle,
-                patientVisitInfoSync = sync
+                patientVisitInfoSync = sync,
+                replaceLatestPending = replaceLatestPending ?: ((benVisitInfo.pharmacist_flag ?: 0) == 1)
             )
             true
         } catch (e: Exception) {
