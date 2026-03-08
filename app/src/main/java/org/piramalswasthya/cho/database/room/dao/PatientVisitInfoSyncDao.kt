@@ -167,8 +167,18 @@ interface PatientVisitInfoSyncDao {
     )
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacist_flag = 1, visitCategory = 'General OPD' WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
-    suspend fun updatePharmacistFlagToPending(patientID: String, benVisitNo: Int)
+    @Query(
+        "UPDATE PATIENT_VISIT_INFO_SYNC " +
+                "SET pharmacist_flag = 1, " +
+                "pharmacistDataSynced = :unSynced, " +
+                "visitCategory = 'General OPD' " +
+                "WHERE patientID = :patientID AND benVisitNo = :benVisitNo"
+    )
+    suspend fun updatePharmacistFlagToPending(
+        patientID: String,
+        benVisitNo: Int,
+        unSynced: SyncState? = SyncState.UNSYNCED
+    )
 
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncing WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
@@ -235,7 +245,9 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1 AND (vis.doctorFlag = 9 OR vis.doctorFlag = 2 OR vis.doctorFlag = 3)")
+            "WHERE vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1 AND (vis.doctorFlag = 9 OR vis.doctorFlag = 2 OR vis.doctorFlag = 3) " +
+            "ORDER BY IFNULL((SELECT MAX(p.id) FROM Prescription p WHERE p.patientID = vis.patientID AND p.benVisitNo = vis.benVisitNo), 0) DESC, " +
+            "IFNULL(vis.benVisitNo, 0) DESC")
     fun getPatientDisplayListForPharmacist(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction

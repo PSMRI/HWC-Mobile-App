@@ -194,6 +194,11 @@ class PersonalDetailsFragment : Fragment() {
     private var _binding: FragmentPersonalDetailsBinding? = null
     private var patientCount: Int = 0
 
+    private fun isDoctorWorkflowRoleForCardAccess(): Boolean {
+        return preferenceDao.isDoctorSelected() ||
+                (preferenceDao.isUserCHO() && preferenceDao.isNurseSelected())
+    }
+
     private val binding
         get() = _binding!!
 
@@ -309,7 +314,8 @@ class PersonalDetailsFragment : Fragment() {
                                         // No-Op: Registrar sees nothing here for now
                                     }
 
-                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isDoctorSelected() -> {
+                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 &&
+                                            isDoctorWorkflowRoleForCardAccess() -> {
 
                                         Toast.makeText(
                                             requireContext(),
@@ -318,38 +324,45 @@ class PersonalDetailsFragment : Fragment() {
                                         ).show()
                                     }
 
-                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 && preferenceDao.isDoctorSelected() -> {
+                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 &&
+                                            isDoctorWorkflowRoleForCardAccess() -> {
 
                                         var modifiedInfo = benVisitInfo
-                                        if (preferenceDao.isNurseSelected()) {
+                                        if (preferenceDao.isNurseSelected() && !preferenceDao.isUserCHO()) {
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
                                         }
+                                        val isPendingAtPharmacist = (benVisitInfo.pharmacist_flag ?: 0) == 1
 
                                         val intent = Intent(
                                             context, EditPatientDetailsActivity::class.java
                                         ).apply {
                                             putExtra("benVisitInfo", modifiedInfo)
-                                            putExtra("viewRecord", true)
-                                            putExtra("isFlowComplete", true)
+                                            // Pending pharmacist is not a closed case; keep editable doctor flow.
+                                            putExtra("viewRecord", !isPendingAtPharmacist)
+                                            putExtra("isFlowComplete", !isPendingAtPharmacist)
                                         }
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
 
                                     // Lab + pharmacist done: open in view mode so case record shows correct UI (only Close, no plus, no refer)
-                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.pharmacist_flag == 9 && preferenceDao.isDoctorSelected() -> {
+                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.pharmacist_flag == 9 &&
+                                            isDoctorWorkflowRoleForCardAccess() -> {
 
                                         var modifiedInfo = benVisitInfo
-                                        if (preferenceDao.isNurseSelected()) {
+                                        if (preferenceDao.isNurseSelected() && !preferenceDao.isUserCHO()) {
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
                                         }
+                                        val isDoctorLabReviewState =
+                                            benVisitInfo.doctorFlag == 3
 
                                         val intent = Intent(
                                             context, EditPatientDetailsActivity::class.java
                                         ).apply {
                                             putExtra("benVisitInfo", modifiedInfo)
                                             putExtra("viewRecord", true)
-                                            putExtra("isFlowComplete", true)
+                                            // doctorFlag=3 with pharmacist=9 is review/edit cycle, not fully closed.
+                                            putExtra("isFlowComplete", !isDoctorLabReviewState)
                                         }
                                         startActivity(intent)
                                         requireActivity().finish()
@@ -358,7 +371,7 @@ class PersonalDetailsFragment : Fragment() {
                                     else -> {
 
                                         var modifiedInfo = benVisitInfo
-                                        if (preferenceDao.isNurseSelected()) {
+                                        if (preferenceDao.isNurseSelected() && !preferenceDao.isUserCHO()) {
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
                                         }
 
