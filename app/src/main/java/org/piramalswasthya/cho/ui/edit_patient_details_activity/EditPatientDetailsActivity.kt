@@ -224,7 +224,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
     }
 
     private fun setupNavigationListener() {
-        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
+        navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.fhirVisitDetailsFragment -> {
                     hideBottomActions()
@@ -278,8 +278,10 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 R.id.caseRecordCustom -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.case_record_text)
-                    val isClosedViewOnly = (intent?.getBooleanExtra("viewRecord", false) == true) &&
-                        (intent?.getBooleanExtra("isFlowComplete", false) == true)
+                    val navArgs = controller.currentBackStackEntry?.arguments ?: arguments
+                    val isClosedViewOnly =
+                        navArgs?.getBoolean("viewRecord", false) == true &&
+                            navArgs.getBoolean("isFlowComplete", false)
                     if (isClosedViewOnly) {
                         showCancelOnlyAction(R.string.close)
                     } else {
