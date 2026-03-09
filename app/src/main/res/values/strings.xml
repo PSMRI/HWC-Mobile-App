@@ -162,7 +162,7 @@
     <string name="ophthalmic_case_id_conditions">Case Identification and Condition(s)</string>
     <string name="ophthalmic_case_id_conditions_mandatory">Case Identification and Condition(s) <font color="#FF0000">*</font></string>
     <string name="select_conditions">Select Condition(s)</string>
-    
+
     <string name="ophthalmic_vitamin_a_deficiency">Vitamin A Deficiency / Xerophthalmia</string>
 
     <!-- Condition sub-field labels -->
@@ -205,6 +205,8 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Home</string>
+    <string name="tab_dashboard">Dashboard</string>
+    <string name="tab_rmnch">RMNCH</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="error_while_logging_in">Error while logging in!!</string>
@@ -367,6 +369,7 @@
     <string name="toast_file_uploaded">You have uploaded the file</string>
     <string name="toast_file_size_max">Please select file less than 5MB</string>
     <string name="nav_item_1_text">Name : <b>%s</b></string>
+    <string name="nav_item_4_text">Mobile No. : <b>%s</b></string>
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
     <string name="PREF_user_entry">logged-in-user</string>
@@ -400,6 +403,8 @@
     <string name="something_wend_wong">Something Went Wrong</string>
     <string name="loading_form">Loading Form</string>
     <string name="loading">Loading Please Wait....</string>
+    <string name="initial_setup_title">Initial Setup</string>
+    <string name="initial_setup_subtitle">Downloading required data. This may take a few minutes on first login.</string>
     <string name="personal_information">Patient Registration</string>
     <string name="location_information">Location Information</string>
     <string name="other_information">Other Information</string>
@@ -443,6 +448,10 @@
     <string name="nurseDataNotSaved">Nurse data is not saved for this record</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
     <string name="pendingForLabtech">Pending For Lab Result</string>
+    <string name="pending_for_pharmacist_dispense">Pending For Pharmacist Dispense</string>
+    <string name="case_close_confirmation">This case is being closed. Do you want to proceed?</string>
+    <string name="case_closed_successfully">Case closed successfully</string>
+    <string name="close_case_btn">Close Case</string>
     <string name="flowCompleted">Flow Completed</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
     <string name="diagnosisCannotBeEmpty">Please Enter Provisional</string>
@@ -462,6 +471,8 @@
     <string name="dispensed_quantity">Dispensed Quantity:</string>
     <string name="expiry_date">Expiry Date:</string>
     <string name="ben_phone_no">Phone No:</string>
+    <string name="ben_visit_date">Visit Date: </string>
+    <string name="ben_visit_num">Visit No: </string>
     <string name="ben_gender">Gender:</string>
     <string name="abha">ABHA</string>
     <string name="view_batch">View Batch</string>
@@ -486,11 +497,14 @@
     <string name="english_lang">English</string>
     <string name="kannada_lang">ಕನ್ನಡ</string>
     <string name="hindi_lang">हिंदी</string>
+    <string name="assamese">অসমীয়া</string>
     <string name="registrar_role">Registrar</string>
     <string name="nurse_role">Nurse</string>
     <string name="doctor_role">Doctor</string>
     <string name="pharmacist_role">Pharmacist</string>
     <string name="lab_technician_role">Lab Technician</string>
+    <string name="cho_role">CHO</string>
+    <string name="proceed_with_registration">Proceed with Registration</string>
     <string name="patient_successfully_registered">Patient Registered Successfully.</string>
     <string name="tap_to_take_photo">Tap to take photo</string>
     <string name="photo">Photo</string>
@@ -827,8 +841,7 @@
     <string name="e_pmsma_list">e-PMSMA List</string>
 
     <!-- Child Care Sub-modules -->
-    <string name="infant_list">Infant List</string>
-    <string name="child_list">Child List</string>
+    <string name="infant_list">Infant Registration List</string>
     <string name="adolescent_list">Adolescent List</string>
     <string name="children_under_5_years">Children under 5 Years</string>
 
@@ -987,8 +1000,10 @@
     <string name="no_infants_found">No Infants Found</string>
 
     <!-- Child Registration Strings -->
-    <string name="child_reg_list">Child Reg List</string>
+    <string name="child_reg_list">Child Registration List</string>
     <string name="no_children_found">No Children Found</string>
+    <string name="name_of_child">Name of Child</string>
+    <string name="child_registration_saved">Child registration saved successfully</string>
 
     <!-- Abortion List Strings -->
     <string name="abortion_date">Abortion Date</string>
@@ -1084,6 +1099,7 @@
     <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
     <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
     <string name="no_alert_pnc_counseling">Ensure proper PNC counseling for mother on newborn care.</string>
+    <string name="no_alert_birth_certificate_legal">Provide information to family: birth registration is a legal requirement.</string>
 
     <!-- Validation -->
     <string name="no_error_birth_weight_range">Birth weight must be between 500g and 6000g</string>
@@ -1109,9 +1125,9 @@
     <string name="psychosocial_caregiver_support_saved">Psychosocial and Caregiver Support Saved</string>
     <string-array name="no_outcome_at_birth_array">
         <item>Live Birth</item>
-        <item>Still Birth (Fresh)</item>
         <item>Still Birth (Macerated)</item>
-        <item>Diedrelative during delivery</item>
+        <item>Still Birth (Fresh)</item>
+        <item>Died during delivery</item>
     </string-array>
 
     <string-array name="no_sex_array">
@@ -1123,7 +1139,7 @@
     <string-array name="no_cried_immediately_array">
         <item>Immediate cry</item>
         <item>Cried after resuscitation</item>
-        <item>Did not cry</item>
+        <item>Not applicable (Stillbirth)</item>
     </string-array>
 
     <string-array name="no_type_of_resuscitation_array">
@@ -1144,31 +1160,27 @@
     </string-array>
 
     <string-array name="no_type_of_congenital_anomaly_array">
-        <item>Neural tube defect</item>
+        <item>Neural tube defect (Spina bifida/Anencephaly)</item>
         <item>Cleft lip/palate</item>
         <item>Club foot</item>
-        <item>Down syndrome</item>
-        <item>Congenital heart defect</item>
-        <item>Hydrocephalus</item>
-        <item>Spina bifida</item>
-        <item>Polydactyly/Syndactyly</item>
-        <item>Gastroschisis/Omphalocele</item>
+        <item>Down syndrome (suspected)</item>
+        <item>Congenital heart defect (suspected)</item>
+        <item>Limb defects</item>
+        <item>Abdominal wall defect</item>
+        <item>Genital abnormality</item>
         <item>Other</item>
-        <item>None</item>
     </string-array>
 
     <string-array name="no_newborn_complications_array">
         <item>Birth asphyxia</item>
         <item>Respiratory distress</item>
-        <item>Neonatal jaundice</item>
-        <item>Sepsis</item>
+        <item>Neonatal jaundice (visible at birth)</item>
+        <item>Sepsis (suspected)</item>
         <item>Hypothermia</item>
         <item>Hypoglycemia</item>
-        <item>Feeding difficulties</item>
-        <item>Convulsions/Seizures</item>
-        <item>Meconium aspiration</item>
+        <item>Bleeding</item>
+        <item>Convulsions</item>
         <item>None</item>
-        <item>Other</item>
     </string-array>
 
     <string-array name="no_current_status_array">
@@ -1183,9 +1195,8 @@
         <item>Prematurity</item>
         <item>Low birth weight complications</item>
         <item>Sepsis</item>
-        <item>Respiratory distress syndrome</item>
-        <item>Congenital anomalies</item>
-        <item>Meconium aspiration</item>
+        <item>Congenital anomaly</item>
+        <item>Respiratory distress</item>
         <item>Unknown</item>
         <item>Other</item>
     </string-array>
@@ -1202,4 +1213,100 @@
         <item>In process</item>
         <item>No (Not applied)</item>
     </string-array>
+
+    <!-- Extracted from Kotlin - user facing strings -->
+    <string name="today">Today</string>
+    <string name="month_january">January</string>
+    <string name="month_february">February</string>
+    <string name="month_march">March</string>
+    <string name="month_april">April</string>
+    <string name="month_may">May</string>
+    <string name="month_june">June</string>
+    <string name="month_july">July</string>
+    <string name="month_august">August</string>
+    <string name="month_september">September</string>
+    <string name="month_october">October</string>
+    <string name="month_november">November</string>
+    <string name="month_december">December</string>
+    <string name="no_face_detected">No face detected</string>
+    <string name="multiple_faces_detected">Multiple faces detected</string>
+    <string name="invalid_face_detection">Invalid face detection</string>
+    <string name="failed_to_generate_face_embeddings">Failed to generate face embeddings</string>
+    <string name="face_embeddings_generated">Face Embeddings Generated</string>
+    <string name="face_detection_failed">Face detection failed: %1$s</string>
+    <string name="unable_to_fetch_details">Unable to fetch details</string>
+    <string name="age_years_format">%1$d years</string>
+    <string name="anc_visit_number_format">ANC Visit %1$d</string>
+    <string name="completed_with_date">Completed: %1$s</string>
+    <string name="completed_status">✓ Completed</string>
+    <string name="scheduled_ga_format">Scheduled: %1$s (GA: %2$d weeks)</string>
+    <string name="due_status">⚠ Due</string>
+    <string name="pending_status">○ Pending</string>
+    <string name="na">NA</string>
+    <string name="previous_activity">Previous Activity</string>
+    <string name="activity_details">Activity Details</string>
+    <string name="activity_form">Activity Form</string>
+    <string name="medicine_not_available">Medicine not available</string>
+    <string name="login_failed_toast">Login Failed</string>
+    <string name="processing">Processing…</string>
+    <string name="invalid_input">Invalid input</string>
+    <string name="delivery_record_not_found">Delivery record not found</string>
+    <string name="save_successful_toast">Save Successful</string>
+    <string name="invalid_data_entered">Invalid data entered</string>
+    <string name="please_wait_master_location">Please wait while master location coordinates are fetched.</string>
+    <string name="data_saved">Data is Saved!</string>
+    <string name="error_saving_master_location">Error while saving the master location</string>
+    <string name="please_fill_all_details">Please fill all the details</string>
+    <string name="all_pnc_visits_completed">All PNC visits completed</string>
+    <string name="all_4_anc_visits_completed">All 4 ANC visits completed</string>
+    <string name="verify_abha_otp">Verify ABHA OTP</string>
+    <string name="events_for_date_already_exist">Events for this Date already exist</string>
+    <string name="proceed_to_home">Proceed to Home</string>
+    <string name="invalid_image_try_again">Invalid Image! Try Again</string>
+    <string name="exception_image_processing_failed">Exception! Image Processing Failed</string>
+    <string name="eyes_closed_try_again">Eyes Closed! Try Again</string>
+    <string name="home_visit">Home Visit</string>
+    <string name="please_capture_image_to_continue">Please capture the image to continue.</string>
+    <string name="loading_patient_data_please_wait">Loading patient data, please wait…</string>
+    <string name="nav_error">Nav Error: %1$s</string>
+    <string name="records_transferred_format">Records Transferred: %1$d/%2$d</string>
+    <string name="progress_percentage_format">%1$d%%</string>
+    <string name="please_enter_beneficiary_name">Please Enter Beneficiary Name</string>
+    <string name="batch_selection">Batch Selection</string>
+    <string name="template_deleted">Template deleted</string>
+    <string name="max_duration_allowed_6">Maximum value allowed for Duration is 6.</string>
+    <string name="medicine_number_format">Medicine - %1$d</string>
+    <string name="location_update_message">You have moved more than 2 meters from the fixed point. Do you want to update your location?</string>
+    <string name="beneficiary_abha_mapping">Beneficiary ABHA mapping.</string>
+    <string name="alert_title">Alert</string>
+    <string name="please_confirm_logout_exit">Please confirm to logout and exit.</string>
+    <string name="login_away_from_facility">You are trying to Log-in away from your facility. Do you want to retry?</string>
+    <string name="patient_already_exists">Patient Already Exists</string>
+    <string name="error_saving_patient">Error Saving Patient</string>
+    <string name="esanjeevani_login">eSanjeevani Login</string>
+    <string name="update_ready_to_install">An update is ready to install.</string>
+    <string name="restart">Restart</string>
+    <string name="applytxt">Apply</string>
+    <string name="choose_application_language">Choose Application Language</string>
+    <string name="update_canceled_or_failed">Update was canceled or failed.</string>
+    <string name="try_again_btn">Try Again</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="not_scheduled">Not scheduled</string>
+    <string name="location_provider_gps_disabled">Location Provider/GPS disabled</string>
+    <string name="invalid_image_multiple_faces">Invalid Image! Multiple Faces Detected</string>
+    <string name="linking_abha_to_beneficiary">Linking ABHA to beneficiary</string>
+    <string name="patient_already_exists_message">A patient with Beneficiary ID %1$s already exists in the system.</string>
+    <string name="error_saving_patient_message">Failed to save patient due to missing data. Please ensure all data is synced.</string>
+    <string name="stock_label">In Stock: %1$d</string>
+    <string name="out_of_stock">Out of Stock</string>
+
+    <!-- Case Closure Strings -->
+    <string name="case_closure_confirmation_title">Close Case</string>
+    <string name="case_closure_confirmation_message">This case is being closed. Do you want to proceed?</string>
+    <string name="case_closure_yes">Yes</string>
+    <string name="case_closure_no">No</string>
+    <string name="case_closure_error_pending_lab">Cannot close case: Lab test is pending</string>
+    <string name="case_closure_error_undispensed_medicine">Cannot close case: Medicine has not been dispensed</string>
+    <string name="case_closure_success">Case closed successfully</string>
+    <string name="case_closure_error">Error closing case</string>
 </resources>

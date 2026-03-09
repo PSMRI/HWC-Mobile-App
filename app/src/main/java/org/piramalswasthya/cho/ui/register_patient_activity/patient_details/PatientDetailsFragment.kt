@@ -175,9 +175,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
             if (result) {
-                // Picture was taken successfully, update the ImageView with the captured image
-                Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
-                    .into(binding.ivImgCapture)
+                // Do NOT show the captured image yet — wait for face detection to pass first
 
                 try {
                     // Initialize MediaPipe Face Detector
@@ -210,16 +208,21 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     // Handle detection results
                     when {
                         detectionResult.detections().isEmpty() -> {
-                            Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
+                            // No face — keep the placeholder, show toast
+                            Toast.makeText(requireContext(), getString(R.string.no_face_detected), Toast.LENGTH_SHORT).show()
                             binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                             faceDetector.close()
                         }
                         detectionResult.detections().size > 1 -> {
-                            Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.multiple_faces_detected), Toast.LENGTH_SHORT).show()
                             binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                             faceDetector.close()
                         }
                         else -> {
+                            // Face found — now show the captured photo
+                            Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
+                                .into(binding.ivImgCapture)
+
                             val detection = detectionResult.detections()[0]
                             val boundingBox = detection.boundingBox()
 
@@ -233,7 +236,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                             // Validate dimensions
                             if (width <= 0 || height <= 0 || left >= imageBitmap.width || top >= imageBitmap.height) {
-                                Toast.makeText(requireContext(), "Invalid face detection", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), getString(R.string.invalid_face_detection), Toast.LENGTH_SHORT).show()
                                 binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                                 faceDetector.close()
                                 return@registerForActivityResult
@@ -255,7 +258,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
 
                             if (embeddings == null) {
-                                Toast.makeText(requireContext(), "Failed to generate face embeddings", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), getString(R.string.failed_to_generate_face_embeddings), Toast.LENGTH_SHORT).show()
                                 return@registerForActivityResult
                             }
 
@@ -277,7 +280,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     }
 
                 } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.face_detection_failed, e.message.orEmpty()), Toast.LENGTH_SHORT).show()
                     binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                 }
             }
@@ -700,7 +703,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
 
         }catch (e:Exception){
-            Toast.makeText(context, "Unable to fetch details", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.unable_to_fetch_details), Toast.LENGTH_SHORT).show()
         }
         return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
     }

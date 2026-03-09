@@ -11,6 +11,7 @@ data class PrescriptionValues(
     var duration: String = "",
     var instructions: String = "",
     var unit: String = "",
+    var isDispensed: Boolean = false,
     @Ignore
     var title: String = "Medicine-1"
 ) : Serializable

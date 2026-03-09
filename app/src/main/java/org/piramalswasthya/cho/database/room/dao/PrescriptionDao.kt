@@ -35,6 +35,10 @@ interface PrescriptionDao {
     @Query("delete from prescription where patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun deletePrescriptionByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int): Int
 
+    @Transaction
+    @Query("delete from prescription where id = :id")
+    suspend fun deletePrescriptionById(id: Long): Int
+
 //    @Transaction
 //    @Query("delete from prescription where prescriptionID = :prescriptionID and beneficiaryRegID = :beneficiaryRegID")
 //    suspend fun deletePrescriptionByIDAndBenRegID(prescriptionID: Long, beneficiaryRegID: Long): Int
@@ -43,14 +47,26 @@ interface PrescriptionDao {
     @Query("delete from Prescription_Cases_Recorde where patientID =:patientID")
     suspend fun deletePrescriptionByPatientId(patientID: String): Int
 
-    @Query("select * from prescription where patientID = :patientID AND benVisitNo = :benVisitNo")
+    @Query("select * from prescription where patientID = :patientID AND benVisitNo = :benVisitNo order by id desc")
     suspend fun getPrescriptionsByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): List<Prescription>?
+
+    @Transaction
+    @Query(
+        "delete from prescription " +
+                "where id = (" +
+                "select id from prescription where patientID = :patientID and benVisitNo = :benVisitNo order by id desc limit 1" +
+                ")"
+    )
+    suspend fun deleteLatestPrescriptionByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int): Int
 
     @Update
     suspend fun updatePharmacistPrescription(prescription: Prescription)
 
     @Query("select * from prescription where patientID = :patientID and benVisitNo = :benVisitNo and prescriptionID = :prescriptionID limit 1")
     fun getPrescription(patientID: String, benVisitNo: Int, prescriptionID: Long): Prescription
+
+    @Query("select * from prescription where patientID = :patientID and benVisitNo = :benVisitNo order by id desc limit 1")
+    suspend fun getLatestPrescriptionByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): Prescription?
 
     @Query("select * from prescribed_drugs where prescriptionID = :prescriptionID")
     suspend fun getPrescribedDrugs(prescriptionID: Long): List<PrescribedDrugs>?

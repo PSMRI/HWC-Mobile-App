@@ -156,7 +156,7 @@ class AadhaarNumberAshaFragment : Fragment() {
                 viewModel.aadhaarNumber.value = binding.tietAadhaarNumber.text.toString()
                 parentViewModel.navigateToAadhaarConsent(true)
             }else{
-                Toast.makeText(requireContext(),"Please Enter Beneficiary Name",Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.please_enter_beneficiary_name), Toast.LENGTH_SHORT).show()
             }
             // aadhaarDisclaimer.show()
         }

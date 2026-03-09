@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="date">तारीख</string>
+    <string name="radio_title_cbac">%1s<![CDATA[<font color="#B00020"> *</font>]]></string>
+    <string name="radio_title_cbac_ds">%1s<![CDATA[<font color="#B00020"> **</font>]]></string>
+    <string name="cbac_ask_pat">पूछें कि क्या रोगी में इनमें से कोई लक्षण हैं</string>
+    <string name="cbac_early_detection">भाग B1: शीघ्र पहचान</string>
+    <string name="cbac_early_detection_2">भाग B2: केवल महिलाएं</string>
+    <string name="cbac_early_detection_3">भाग B3: वरिष्ठ विशिष्ट</string>
+    <string name="cbac_hint_age">आपकी उम्र क्या है?</string>
+    <string name="cbac_hint_smoke">क्या आप धूम्रपान करते हैं या गुटखा या खैनी जैसे धूम्रपान रहित उत्पाद लेते हैं?</string>
+    <string name="cbac_hint_alcohol">क्या आप रोज़ शराब पीते हैं?</string>
+    <string name="cbac_hint_waist">कमर का माप (सेमी में)</string>
+    <string name="cbac_hint_pa">क्या आप सप्ताह में कम से कम 150 मिनट कोई शारीरिक गतिविधि करते हैं?</string>
+    <string name="cbac_hint_fh">क्या आपके परिवार (माता-पिता या भाई-बहनों में से कोई) में उच्च रक्तचाप, मधुमेह और हृदय रोग का इतिहास है?</string>
+
+    <string name="cbac_ask_pat_note">नोट :</string>
+    <string name="cbac_ast1">* यदि नीचे \"*\" वाले किसी प्रश्न के लिए \"हां\" चुना जाए तो पॉपअप संदेश दिखाएं \"MO को रेफर करें और थूक का नमूना लें\"</string>
+    <string name="cbac_ast2">** यदि नीचे \"**\" वाले किसी प्रश्न के लिए \"हां\" चुना जाए तो पॉपअप संदेश दिखाएं \"MO को रेफर करें या सभी परिवार के सदस्यों की ट्रेसिंग के लिए ANM/MPW को सूचित करें\"</string>
+    <string name="cbac_select">चुनें …</string>
+    <string name="cbac_fh_tb">परिवार में किसी को वर्तमान में TB है</string>
+    <string name="cbac_taking_tb_drug">क्या आप वर्तमान में एंटी-TB दवा ले रहे हैं</string>
+    <string name="cbac_histb">TB का इतिहास</string>
+    <string name="cbac_coughing">2 सप्ताह से अधिक खांसी</string>
+    <string name="cbac_blsputum">थूक में खून</string>
+    <string name="cbac_feverwks">2 सप्ताह से अधिक बुखार</string>
+    <string name="cbac_lsweight">वजन कम होना</string>
+    <string name="cbac_ntswets">रात को पसीना</string>
+    <string name="cbac_recurrent_ulceration">हथेली या तलवे पर बार-बार अल्सर</string>
+    <string name="cbac_recurrent_tingling">हथेली(यों) या तलवे(ों) में झुनझुनाहट</string>
+    <string name="cbac_recurrent_cloudy">धुंधली या धुंधली दृष्टि</string>
+    <string name="cbac_recurrent_diffculty_reading">पढ़ने में कठिनाई</string>
+    <string name="cbac_recurrent_pain_eyes">एक सप्ताह से अधिक आंखों में दर्द</string>
+    <string name="cbac_recurrent_redness_eyes">एक सप्ताह से अधिक आंखों में लाली</string>
+    <string name="cbac_recurrent_diff_hearing">सुनने में कठिनाई</string>
+    <string name="cbac_breath">सांस फूलना</string>
+    <string name="cbac_hifits">दौरे का इतिहास</string>
+    <string name="cbac_difmouth">मुंह खोलने में कठिनाई</string>
+    <string name="cbac_heald">मुंह में अल्सर/पैच/ग्रोथ जो दो सप्ताह में ठीक नहीं हुआ</string>
+    <string name="cbac_voice">आवाज के स्वर में कोई बदलाव</string>
+    <string name="cbac_Any_Growth">मुंह में कोई ग्रोथ जो 2 सप्ताह में ठीक नहीं हुई</string>
+    <string name="cbac_Any_white">मुंह में कोई सफेद या लाल पैच जो 2 सप्ताह में ठीक नहीं हुआ</string>
+    <string name="cbac_Pain_while_chewing">चबाते समय दर्द</string>
+    <string name="cbac_Any_hyper_pigmented">संवेदना की कमी के साथ त्वचा पर हाइपर पिगमेंटेड पैच या मलिनकिरण</string>
+    <string name="cbac_any_thickend_skin">कोई मोटी त्वचा</string>
+    <string name="cbac_any_nodules_skin">त्वचा पर कोई गांठ</string>
+    <string name="cbac_Recurrent_numbness">हथेली(यों) या तलवे(ों) में सुन्नता</string>
+    <string name="cbac_Clawing_of_fingers">हाथ(ों) या पैर(ों) में उंगलियों का पंजे जैसा होना</string>
+    <string name="cbac_Tingling_or_Numbness">हाथ और/या पैर में झुनझुनाहट या सुन्नता</string>
+    <string name="cbac_Inability_close_eyelid">पलक बंद करने में असमर्थता</string>
+    <string name="cbac_diff_holding_objects">उंगलियों से वस्तु पकड़ने में कठिनाई</string>
+    <string name="cbac_Weekness_in_feet">पैरों में कमजोरी जिससे चलने में कठिनाई</string>
+
+    <string name="cbac_lumpbrest">स्तन में गांठ</string>
+    <string name="cbac_nipple">निप्पल से खूनी स्राव</string>
+    <string name="cbac_breast">स्तन के आकार और आकृति में बदलाव</string>
+    <string name="cbac_blperiods">पीरियड्स के बीच रक्तस्राव</string>
+    <string name="cbac_blmenopause">रजोनिवृत्ति के बाद रक्तस्राव</string>
+    <string name="cbac_blintercorse">संभोग के बाद रक्तस्राव</string>
+    <string name="cbac_fouldis">बदबूदार योनि स्राव</string>
+
+
+    <string name="cbac_double_ast" translatable="false">**</string>
+    <string name="cbac_single_ast" translatable="false">* </string>
+    <string name="cbac_yes">हां</string>
+    <string name="cbac_no">नहीं</string>
+
+    <string name="cbac_risk_Factors_COPD">भाग C: COPD के लिए जोखिम कारक</string>
+    <string name="cbac_occupational_exposure">व्यावसायिक एक्सपोजर</string>
+    <string name="cbac_PHQ2">भाग D: PHQ2</string>
+    <string name="cbac_last_two_weeks">पिछले दो सप्ताह में आप निम्नलिखित समस्याओं से कितनी बार परेशान हुए?</string>
+    <string name="cbac_little_interest">चीज़ें करने में थोड़ी रुचि या खुशी?</string>
+    <string name="cbac_feeling_down">उदास, निराश या निराश महसूस करना?</string>
+
+
+    <string name="hrp_valid">HRP केस, कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="hrp_sug_valid"> संदिग्ध HRP केस, कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_hyper">NCD से संबंधित (उच्च रक्तचाप, DM), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_diab">NCD से संबंधित (मधुमेह), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_diabm">NCD से संबंधित (मधुमेह), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_tb">NCD से संबंधित (TB), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_oc">NCD से संबंधित (मुख कैंसर), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_bc">NCD से संबंधित (स्तन कैंसर), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_cc">NCD से संबंधित (गर्भाशय ग्रीवा कैंसर), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_lep">NCD से संबंधित (कुष्ठ रोग), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_dia_lep">NCD से संबंधित (मधुमेह, कुष्ठ रोग), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_can_thy">NCD से संबंधित (कैंसर, थायरॉइड), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_dia_can">NCD से संबंधित (कैंसर), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_can_lep">NCD से संबंधित (कैंसर, कुष्ठ रोग), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_all_display">NCD से संबंधित (मुख कैंसर, TB), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_hyper_stk_display">NCD से संबंधित (उच्च रक्तचाप, स्ट्रोक), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_tb_can">NCD से संबंधित (TB, कैंसर), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_hyper_only">NCD से संबंधित (उच्च रक्तचाप), कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_sus_valid"> संदिग्ध NCD केस, कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="hrpncd_sus_valid"> संदिग्ध HRP और NCD केस, कृपया निकटतम HWC पर जाएं या 104 पर कॉल करें।</string>
+    <string name="ncd_hyperstroke">NCD से संबंधित (उच्च रक्तचाप, स्ट्रोक), कृपया डॉक्टर से परामर्श करें या 104 पर कॉल करें</string>
+    <string name="ncd_tbcancer">NCD से संबंधित (TB, कैंसर), कृपया डॉक्टर से परामर्श करें या 104 पर कॉल करें</string>
+    <string name="ncd_cansthyroid">NCD से संबंधित (कैंसर, थायरॉइड), कृपया डॉक्टर से परामर्श करें या 104 पर कॉल करें</string>
+    <string name="ncd_diabcancer">NCD से संबंधित (मधुमेह, कैंसर), कृपया डॉक्टर से परामर्श करें या 104 पर कॉल करें</string>
+    <string name="ncd_mentalhealth">NCD से संबंधित (मानसिक स्वास्थ्य विकार), कृपया डॉक्टर से परामर्श करें या 104 पर कॉल करें</string>
+    <string name="cbac_tbcase">संदिग्ध TB केस, कृपया थूक का नमूना लें और निकटतम TB टेस्टिंग सेंटर भेजें। सभी परिवार के सदस्यों की ट्रेसिंग भी करनी होगी।</string>
+    <string name="cbac_tb_collect_sputum">संदिग्ध TB केस, कृपया थूक का नमूना लें और निकटतम TB टेस्टिंग सेंटर भेजें।</string>
+    <string name="cbac_tv_moic_treat">इलाज के लिए रोगी को निकटतम स्वास्थ्य केंद्र के MOIC के पास भेजें</string>
+    <string name="cbac_unsteady">खड़े होने या चलने में अस्थिर महसूस करना</string>
+    <string name="cbac_pd_rm">कोई शारीरिक अक्षमता जो गति को प्रतिबंधित करती है</string>
+    <string name="cbac_nhop">खाना, कपड़े पहनना, संवारना, नहाना, चलना या शौचालय जैसे रोज़मर्रा के कामों के लिए दूसरों की मदद की ज़रूरत</string>
+    <string name="cbac_forget_names">अपने करीबियों या अपने घर के पते के नाम भूल जाना</string>
+
+    <string name="cbac_validation_your_age">\"कृपया उम्र चुनें\"</string>
+    <string name="cbac_validation_smoke">\"कृपया धूम्रपान और धूम्रपान रहित उत्पादों की खपत चुनें\"</string>
+    <string name="cbac_validation_consume_alcohol">\"कृपया शराब की खपत चुनें\"</string>
+    <string name="cbac_validation_waist">\"कृपया कमर का माप चुनें\"</string>
+    <string name="cbac_validation_physical_activities">\"कृपया शारीरिक गतिविधि चुनें\"</string>
+    <string name="cbac_validation_heart_disease">\"कृपया पारिवारिक इतिहास चुनें\"</string>
+
+    <string name="cbac_validation_plsst">कृपया चुनें परिवार में किसी को वर्तमान में TB है</string>
+    <string name="cbac_validation_plsatb">कृपया चुनें क्या आप वर्तमान में एंटी-TB ले रहे हैं</string>
+    <string name="cbac_validation_plshtb">कृपया TB का इतिहास चुनें</string>
+    <string name="cbac_validation_plscoughh">कृपया 2 सप्ताह से अधिक खांसी चुनें</string>
+    <string name="cbac_validation_plbls">कृपया थूक में खून चुनें</string>
+    <string name="cbac_validation_plsfever">कृपया 2 सप्ताह से अधिक बुखार चुनें</string>
+    <string name="cbac_validation_plslweight">कृपया वजन कम होना चुनें</string>
+    <string name="cbac_validation_plsnsw">कृपया रात को पसीना चुनें</string>
+    <string name="cbac_validation_rul">कृपया बार-बार अल्सर चुनें</string>
+    <string name="cbac_validation_rtps">कृपया हथेली या तलवे पर झुनझुनाहट चुनें</string>
+    <string name="cbac_validation_cbv">कृपया धुंधली दृष्टि चुनें</string>
+    <string name="cbac_validation_dr">कृपया पढ़ने में कठिनाई चुनें</string>
+    <string name="cbac_validation_pie">कृपया एक सप्ताह से अधिक आंखों में दर्द चुनें</string>
+    <string name="cbac_validation_rie">कृपया एक सप्ताह से अधिक आंखों में लाली चुनें</string>
+    <string name="cbac_validation_dih">कृपया सुनने में कठिनाई चुनें</string>
+    <string name="cbac_validation_sob">कृपया सांस फूलना चुनें</string>
+    <string name="cbac_validation_hif">कृपया दौरे का इतिहास चुनें</string>
+    <string name="cbac_validation_diom">कृपया मुंह खोलने में कठिनाई चुनें</string>
+    <string name="cbac_validation_upgm">कृपया मुंह में अल्सर/पैच/ग्रोथ चुनें</string>
+    <string name="cbac_validation_tov">कृपया आवाज के स्वर में बदलाव चुनें</string>
+    <string name="cbac_validation_gimh">कृपया मुंह में ग्रोथ चुनें जो 2 सप्ताह में ठीक नहीं हुई</string>
+    <string name="cbac_validation_wrp">कृपया मुंह में सफेद या लाल पैच चुनें जो 2 सप्ताह में ठीक नहीं हुआ</string>
+    <string name="cbac_validation_pwh">कृपया चबाते समय दर्द चुनें</string>
+    <string name="cbac_validation_hpds">कृपया त्वचा पर हाइपर पिगमेंटेड पैच या मलिनकिरण चुनें</string>
+    <string name="cbac_validation_ts">कृपया मोटी त्वचा चुनें</string>
+    <string name="cbac_validation_ns">कृपया त्वचा पर गांठ चुनें</string>
+    <string name="cbac_validation_rnps">कृपया हथेली या तलवे पर सुन्नता चुनें</string>
+    <string name="cbac_validation_cfhf">कृपया हाथ या पैर में उंगलियों का पंजा चुनें</string>
+    <string name="cbac_validation_tnhf">कृपया हाथ या पैर में झुनझुनाहट या सुन्नता चुनें</string>
+    <string name="cbac_validation_ice">कृपया पलक बंद करने में असमर्थता चुनें</string>
+    <string name="cbac_validation_dhof">कृपया उंगलियों से वस्तु पकड़ने में कठिनाई चुनें</string>
+    <string name="cbac_validation_wfdw">कृपया पैरों में कमजोरी चुनें जिससे चलने में कठिनाई</string>
+    <string name="cbac_validation_lb">कृपया स्तन में गांठ चुनें</string>
+    <string name="cbac_validation_bsdfn">कृपया निप्पल से खूनी स्राव चुनें</string>
+    <string name="cbac_validation_csb">कृपया स्तन के आकार में बदलाव चुनें</string>
+    <string name="cbac_validation_bbp">कृपया पीरियड्स के बीच रक्तस्राव चुनें</string>
+    <string name="cbac_validation_bam">कृपया रजोनिवृत्ति के बाद रक्तस्राव चुनें</string>
+    <string name="cbac_validation_bai">कृपया संभोग के बाद रक्तस्राव चुनें</string>
+    <string name="cbac_validation_fsvd">कृपया बदबूदार योनि स्राव चुनें</string>
+    <string name="cbac_validation_fuwsw">कृपया खड़े होने या चलने में अस्थिर महसूस करना चुनें</string>
+    <string name="cbac_validation_sapd">कृपया गति को प्रतिबंधित करने वाली शारीरिक अक्षमता चुनें</string>
+    <string name="cbac_validation_nhpa">कृपया खाना, कपड़े, संवारना, नहाना, चलना या शौचालय जैसे रोज़मर्रा के कामों के लिए दूसरों की मदद चुनें</string>
+    <string name="cbac_validation_fn">कृपया अपने, करीबियों के नाम या अपना घर का पता भूलना चुनें</string>
+    <string name="cbac_validation_fu">कृपया खाना पकाने के लिए इस्तेमाल ईंधन चुनें</string>
+    <string name="cbac_validation_ox">कृपया व्यावसायिक एक्सपोजर चुनें</string>
+    <string name="cbac_validation_li">कृपया थोड़ी रुचि फ़ील्ड चुनें!</string>
+    <string name="cbac_validation_fd">कृपया उदास महसूस करना फ़ील्ड चुनें!</string>
+    <string name="cbac_Question">प्रश्न</string>
+    <string name="cbac_score">स्कोर</string>
+    <string name="cbac_type_of_fuel">खाना पकाने के लिए इस्तेमाल ईंधन का प्रकार</string>
+    <string name="cbac_remarks">टिप्पणियां</string>
+    <string name="cbac_risk_assessment_tv">भाग A: जोखिम मूल्यांकन</string>
+    <string name="cbac_tv_bl_menopause">आशा सुविधाकर्ता को सूचित करें</string>
+    <string name="cbac_form">CBAC फॉर्म</string>
+    <string name="alert">चेतावनी!</string>
+    <string name="missing_field">फ़ील्ड गायब</string>
+    <string name="suspected_hrp_and_ncd_case">संदिग्ध HRP और NCD केस!</string>
+    <string name="ok">ठीक है</string>
+    <string name="suspected_hrp_case">संदिग्ध HRP केस!</string>
+    <string name="suspected_ncd_case_please_visit_nearest_hwc_or_call">संदिग्ध NCD केस, कृपया निकटतम HWC पर जाएं या कॉल करें\n 104।</string>
+    <string name="refer_to_ncd_screening_day_vhsnd_hwc_for_ncd_screening_priority">NCD स्क्रीनिंग के लिए NCD स्क्रीनिंग दिवस/VHSND/HWC को रेफर करें (प्राथमिकता)</string>
+    <string name="refer_to_ncd_screening_day_vhsnd_hwc_for_ncd_screening_less_priority">NCD स्क्रीनिंग के लिए NCD स्क्रीनिंग दिवस/VHSND/HWC को रेफर करें (कम प्राथमिकता)</string>
+    <string name="send_the_patient_to_moic_of_nearest_health_center_for_treatment">इलाज के लिए रोगी को निकटतम स्वास्थ्य केंद्र के MOIC के पास भेजें</string>
+    <string name="refer_to_mo_and_collect_the_sputum_sample">MO को रेफर करें और थूक का नमूना लें</string>
+    <string name="inform_asha_facilitator">आशा सुविधाकर्ता को सूचित करें।</string>
+    <string name="total_score_wihout_semi_colon">\"कुल स्कोर \"</string>
+    <string name="total_score">\"कुल स्कोर : \"</string>
+    <string name="refer_to_mo_or_inform_anm_mpw_to_tracing_of_all_family_members">MO को रेफर करें या सभी परिवार के सदस्यों की ट्रेसिंग के लिए ANM/MPW को सूचित करें</string>
+    <string name="cbac">CBAC</string>
+    <string name="tb_screening">TB स्क्रीनिंग</string>
+    <string name="tb_screening_submitted">TB स्क्रीनिंग जमा हो गई</string>
+    <string name="screen">स्क्रीन</string>
+    <string name="tb_suspected_sputum_test">संदिग्ध TB थूक टेस्ट</string>
+    <string name="tb_tracking_submitted">TB ट्रैकिंग जमा हो गई</string>
+    <string name="track">ट्रैक</string>
+    <string name="filled_on">\"भरा गया \"</string>
+    <string name="save">सहेजें</string>
+    <string name="tb_suspected_alert">MO को रेफर करें और थूक का नमूना लें</string>
+    <string name="tb_suspected_alert_positive">MO को रेफर करें</string>
+    <string name="tb_suspected_family_alert">MO को रेफर करें या सभी परिवार के सदस्यों की ट्रेसिंग के लिए ANM/MPW को सूचित करें</string>
+    <string name="is_sputum_sample_collected">क्या थूक का नमूना लिया गया?</string>
+    <string name="sputum_sample_submitted_at">थूक का नमूना जमा किया गया</string>
+    <string name="nikshay_id">निक्षय ID</string>
+    <string name="sputum_test_result">थूक टेस्ट परिणाम</string>
+    <string name="referred_to_facility">सुविधा को रेफर किया गया</string>
+    <string name="facility_referral_follow_ups">सुविधा रेफरल फॉलो-अप</string>
+    <string-array name="tb_submitted_yet">
+        <item>DMC</item>
+        <item>SC</item>
+        <item>PHC</item>
+    </string-array>
+    <string-array name="tb_test_result">
+        <item>पॉजिटिव</item>
+        <item>नेगेटिव</item>
+    </string-array>
+    <string-array name="cbac_age">
+        <item>0-29 वर्ष</item>
+        <item>30-39 वर्ष</item>
+        <item>40-49 वर्ष</item>
+        <item>50-59 वर्ष</item>
+        <item>≥ 60 वर्ष</item>
+    </string-array>
+    <string-array name="cbac_smoke">
+        <item>कभी नहीं</item>
+        <item>पहले कभी लेते थे</item>
+        <item>रोज़</item>
+    </string-array>
+    <string-array name="cbac_alcohol">
+        <item>नहीं</item>
+        <item>हां</item>
+    </string-array>
+    <string-array name="cbac_waist_mes_female">
+        <item>80 सेमी या कम</item>
+        <item>81-90 सेमी</item>
+        <item>90 सेमी से अधिक</item>
+    </string-array>
+    <string-array name="cbac_waist_mes_male">
+        <item>90 सेमी या कम</item>
+        <item>91-100 सेमी</item>
+        <item>100 सेमी से अधिक</item>
+    </string-array>
+    <string-array name="cbac_pa">
+        <item>सप्ताह में कम से कम 150 मिनट</item>
+        <item>सप्ताह में 150 मिनट से कम</item>
+    </string-array>
+    <string-array name="cbac_fh">
+        <item>नहीं</item>
+        <item>हां</item>
+    </string-array>
+
+    <string-array name="cbac_type_Cooking_fuel">
+        <item>लकड़ी</item>
+        <item>फसल अवशेष</item>
+        <item>गोबर गैस</item>
+        <item>कोयला</item>
+        <item>मिट्टी का तेल</item>
+        <item>LPG</item>
+    </string-array>
+    <string-array name="cbac_type_occupational_exposure">
+        <item>फसल अवशेष जलाना</item>
+        <item>कचरा – पत्ते जलाना</item>
+        <item>ईंट भट्टे, कांच कारखाने आदि जैसे धुआं, गैस और धूल एक्सपोजर वाले उद्योगों में काम</item>
+    </string-array>
+    <string-array name="cbac_li">
+        <item>बिल्कुल नहीं</item>
+        <item>कई दिन</item>
+        <item>आधे से अधिक दिन</item>
+        <item>लगभग रोज़</item>
+    </string-array>
+    <string-array name="cbac_fd">
+        <item>बिल्कुल नहीं</item>
+        <item>कई दिन</item>
+        <item>आधे से अधिक दिन</item>
+        <item>लगभग रोज़</item>
+    </string-array>
+</resources>

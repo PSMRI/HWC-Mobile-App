@@ -1,10 +1,12 @@
 package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,27 +14,28 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ANCVisitsAdapter
-import org.piramalswasthya.cho.databinding.ActivityAncVisitsBinding
+import org.piramalswasthya.cho.databinding.FragmentAncVisitsBinding
 import org.piramalswasthya.cho.model.PatientWithPwrDomain
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
-import org.piramalswasthya.cho.utils.setupToolbarWithBack
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 /**
- * Activity to display list of ANC Visits
- * Shows registered pregnant women with LMP >= 5 weeks (eligible for ANC visits)
+ * Fragment to display list of ANC Visits.
+ * Shows registered pregnant women with LMP >= 5 weeks (eligible for ANC visits).
  */
 @AndroidEntryPoint
-class ANCVisitsActivity : AppCompatActivity() {
+class ANCVisitsFragment : Fragment() {
 
     @Inject
     lateinit var maternalHealthRepo: MaternalHealthRepo
 
-    private lateinit var binding: ActivityAncVisitsBinding
+    private var _binding: FragmentAncVisitsBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var adapter: ANCVisitsAdapter
     private var allPatients: List<PatientWithPwrDomain> = emptyList()
     private var filteredPatients: List<PatientWithPwrDomain> = emptyList()
@@ -40,25 +43,29 @@ class ANCVisitsActivity : AppCompatActivity() {
     companion object {
         private const val MIN_ANC_WEEKS = 5 // Minimum weeks for ANC eligibility
         private const val MIN_ANC_DAYS = MIN_ANC_WEEKS * 7 // 35 days
-        private const val EXTRA_PATIENT_ID = "patientID"
 
-        fun getIntent(context: Context): Intent {
-            return Intent(context, ANCVisitsActivity::class.java)
-        }
+        private const val ARG_PATIENT_ID = "patientID"
 
-        fun getIntent(context: Context, patientID: String): Intent {
-            return Intent(context, ANCVisitsActivity::class.java)
-                .putExtra(EXTRA_PATIENT_ID, patientID)
+        fun newInstance(patientID: String? = null): ANCVisitsFragment {
+            return ANCVisitsFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PATIENT_ID, patientID)
+                }
+            }
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAncVisitsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAncVisitsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        // Set up toolbar
-        setupToolbarWithBack(binding.toolbar, getString(R.string.anc_visits))
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
         setupSearch()
@@ -69,44 +76,46 @@ class ANCVisitsActivity : AppCompatActivity() {
         adapter = ANCVisitsAdapter(
             ANCVisitsAdapter.ClickListener(
                 clickedAddANC = { patientWithPwr ->
-                    lifecycleScope.launch {
+                    viewLifecycleOwner.lifecycleScope.launch {
                         val patientID = patientWithPwr.patient.patientID
                         val allAncRecords = maternalHealthRepo.getAllActiveAncRecords(patientID)
-                        
+
                         // Find the highest visit number that is COMPLETED (weight != null)
                         val maxCompletedVisit = allAncRecords
                             .filter { it.weight != null }
                             .maxOfOrNull { it.visitNumber } ?: 0
-                            
+
                         val nextVisitNumber = maxCompletedVisit + 1
                         val isHRP = patientWithPwr.pwr?.isHrp ?: false
-                        
-                        // Ticket 1: HRP allows more than 4 visits. Normal cases cap at 4.
-                        // However, since we are "Adding Next Visit", if 4 are done, we only allow 5th if HRP.
+
+                        // HRP allows more than 4 visits. Non-HRP is capped at 4.
                         if (maxCompletedVisit < 4 || isHRP) {
-                            val intent = Intent(this@ANCVisitsActivity, org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java).apply {
+                            val intent = Intent(
+                                requireContext(),
+                                org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java
+                            ).apply {
                                 putExtra("navigateTo", "ANC")
                                 putExtra("patientID", patientID)
                                 putExtra("visitNumber", nextVisitNumber)
-                                putExtra("isOldVisit", false) 
-                                // We also need to pass benVisitInfo as it might be required by Activity/Fragment (though we use ID for lookup)
-                                // Creating a minimal benVisitInfo or checking if we can skip it. 
-                                // EditPatientDetails usually needs it for PatientHome but we are bypassing to ANC.
+                                putExtra("isOldVisit", false)
                             }
                             startActivity(intent)
                         } else {
-                            Toast.makeText(this@ANCVisitsActivity, "All 4 ANC visits completed", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.all_4_anc_visits_completed),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 },
                 clickedANCVisits = { patientWithPwr ->
-                     // Show bottom sheet with all ANC visits
-                     val bottomSheet = AncBottomSheetFragment.newInstance(patientWithPwr.patient.patientID)
-                     bottomSheet.show(supportFragmentManager, "ANC_VISITS")
+                    val bottomSheet = AncBottomSheetFragment.newInstance(patientWithPwr.patient.patientID)
+                    bottomSheet.show(childFragmentManager, "ANC_VISITS")
                 },
                 clickedAddPMSMA = { patientWithPwr ->
                     Toast.makeText(
-                        this,
+                        requireContext(),
                         "Add PMSMA: ${patientWithPwr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -114,7 +123,7 @@ class ANCVisitsActivity : AppCompatActivity() {
             )
         )
 
-        binding.rvAncVisits.layoutManager = LinearLayoutManager(this)
+        binding.rvAncVisits.layoutManager = LinearLayoutManager(requireContext())
         binding.rvAncVisits.adapter = adapter
     }
 
@@ -125,24 +134,16 @@ class ANCVisitsActivity : AppCompatActivity() {
     }
 
     private fun observePatients() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             maternalHealthRepo.getAllPatientsWithPWR().collectLatest { patientsList ->
-                // Filter for ANC-eligible pregnant women
                 allPatients = patientsList
                     .map { it.asDomainModel() }
                     .filter { patient ->
-                        // Filter criteria:
-                        // 1. Must have active pregnancy registration
                         val hasActivePWR = patient.pwr != null && patient.isActive()
-                        
-                        // 2. Female gender (genderID = 2)
                         val isFemale = patient.patient.genderID == 2
-                        
-                        // 3. Age between 15-49 years (reproductive age)
                         val age = patient.patient.age ?: 0
                         val isReproductiveAge = age in 15..49
-                        
-                        // 4. LMP must be >= 5 weeks (35 days) ago - eligible for ANC
+
                         val isEligibleForANC = patient.pwr?.lmpDate?.let { lmpDate ->
                             val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(
                                 System.currentTimeMillis() - lmpDate
@@ -166,6 +167,7 @@ class ANCVisitsActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
+        if (_binding == null) return
         adapter.submitList(filteredPatients)
         updateListUI(
             filteredList = filteredPatients,
@@ -177,8 +179,14 @@ class ANCVisitsActivity : AppCompatActivity() {
         )
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.anc_visits)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

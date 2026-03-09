@@ -1,9 +1,11 @@
 package org.piramalswasthya.cho.repositories
 
+import androidx.room.withTransaction
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.LabProcedureMasterSeed
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
@@ -34,7 +36,8 @@ class ProcedureRepo @Inject constructor(
     private val procedureDao: ProcedureDao,
     private val procedureMasterDao: ProcedureMasterDao,
     private val apiService: AmritApiService,
-    private val userRepo: UserRepo
+    private val userRepo: UserRepo,
+    private val database: InAppDb
 ) {
     suspend fun getProceduresWithComponent(
         patientID: String,
@@ -48,32 +51,34 @@ class ProcedureRepo @Inject constructor(
     suspend fun syncLabResultsToDownsyncTable(patientID: String, benVisitNo: Int) {
         withContext(Dispatchers.IO) {
             val procedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(patientID, benVisitNo) ?: return@withContext
-            procedureDao.deleteProcedureDownsyncByPatientIdAndVisitNo(patientID, benVisitNo)
             val createdDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-            procedures.forEach { procedure ->
-                val downsync = ProcedureDataDownsync(
-                    id = 0,
-                    prescriptionID = procedure.prescriptionID.toInt(),
-                    procedureID = procedure.procedureID.toInt(),
-                    createdDate = createdDate,
-                    procedureName = procedure.procedureName,
-                    patientID = patientID,
-                    benVisitNo = benVisitNo
-                )
-                val downsyncId = procedureDao.insert(downsync)
-                val components = procedureDao.getComponentDetails(procedure.id) ?: emptyList()
-                components.forEach { component ->
-                    procedureDao.insert(
-                        ComponentDataDownsync(
-                            id = 0,
-                            procedureDataID = downsyncId,
-                            testResultValue = component.testResultValue,
-                            testResultUnit = component.measurementUnit,
-                            testComponentID = component.testComponentID.toInt(),
-                            componentName = component.testComponentName,
-                            remarks = component.remarks
-                        )
+            database.withTransaction {
+                procedureDao.deleteProcedureDownsyncByPatientIdAndVisitNo(patientID, benVisitNo)
+                procedures.forEach { procedure ->
+                    val downsync = ProcedureDataDownsync(
+                        id = 0,
+                        prescriptionID = procedure.prescriptionID.toInt(),
+                        procedureID = procedure.procedureID.toInt(),
+                        createdDate = createdDate,
+                        procedureName = procedure.procedureName,
+                        patientID = patientID,
+                        benVisitNo = benVisitNo
                     )
+                    val downsyncId = procedureDao.insert(downsync)
+                    val components = procedureDao.getComponentDetails(procedure.id) ?: emptyList()
+                    components.forEach { component ->
+                        procedureDao.insert(
+                            ComponentDataDownsync(
+                                id = 0,
+                                procedureDataID = downsyncId,
+                                testResultValue = component.testResultValue,
+                                testResultUnit = component.measurementUnit,
+                                testComponentID = component.testComponentID.toInt(),
+                                componentName = component.testComponentName,
+                                remarks = component.remarks
+                            )
+                        )
+                    }
                 }
             }
         }

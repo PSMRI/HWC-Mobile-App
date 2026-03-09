@@ -36,7 +36,7 @@
                 android:id="@+id/visit_number_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Visit No: "
+                android:text="@string/ben_visit_num"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -59,7 +59,7 @@
                 android:id="@+id/visit_date_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Visit Date: "
+                android:text="@string/ben_visit_date"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 

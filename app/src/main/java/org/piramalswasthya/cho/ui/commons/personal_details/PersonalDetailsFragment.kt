@@ -28,6 +28,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
@@ -43,6 +45,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -56,6 +59,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
@@ -85,6 +90,7 @@ import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
@@ -136,6 +142,8 @@ class PersonalDetailsFragment : Fragment() {
     private var isShowingSearchResults: Boolean = false
     private var currentSearchQuery: String = ""
     private var searchJob: Job? = null
+    private var hasReceivedInitialPatientList = false
+    private var skeletonPulseAnimation: AlphaAnimation? = null
 
     private val prescriptionChannelId = "prescription_download"
 
@@ -169,6 +177,9 @@ class PersonalDetailsFragment : Fragment() {
     lateinit var userRepo: UserRepo
 
     @Inject
+    lateinit var procedureRepo: ProcedureRepo
+
+    @Inject
     lateinit var villageMasterDao: VillageMasterDao
 
     @Inject
@@ -182,6 +193,11 @@ class PersonalDetailsFragment : Fragment() {
 
     private var _binding: FragmentPersonalDetailsBinding? = null
     private var patientCount: Int = 0
+
+    private fun isDoctorWorkflowRoleForCardAccess(): Boolean {
+        return preferenceDao.isDoctorSelected() ||
+                (preferenceDao.isUserCHO() && preferenceDao.isNurseSelected())
+    }
 
     private val binding
         get() = _binding!!
@@ -205,6 +221,8 @@ class PersonalDetailsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        hasReceivedInitialPatientList = false
+        showCardSkeletonLoader()
 
         networkConnection = NetworkConnection(requireContext())
 
@@ -296,7 +314,8 @@ class PersonalDetailsFragment : Fragment() {
                                         // No-Op: Registrar sees nothing here for now
                                     }
 
-                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isDoctorSelected() -> {
+                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 &&
+                                            isDoctorWorkflowRoleForCardAccess() -> {
 
                                         Toast.makeText(
                                             requireContext(),
@@ -305,38 +324,45 @@ class PersonalDetailsFragment : Fragment() {
                                         ).show()
                                     }
 
-                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 && preferenceDao.isDoctorSelected() -> {
+                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 &&
+                                            isDoctorWorkflowRoleForCardAccess() -> {
 
                                         var modifiedInfo = benVisitInfo
-                                        if (preferenceDao.isNurseSelected()) {
+                                        if (preferenceDao.isNurseSelected() && !preferenceDao.isUserCHO()) {
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
                                         }
+                                        val isPendingAtPharmacist = (benVisitInfo.pharmacist_flag ?: 0) == 1
 
                                         val intent = Intent(
                                             context, EditPatientDetailsActivity::class.java
                                         ).apply {
                                             putExtra("benVisitInfo", modifiedInfo)
-                                            putExtra("viewRecord", true)
-                                            putExtra("isFlowComplete", true)
+                                            // Pending pharmacist is not a closed case; keep editable doctor flow.
+                                            putExtra("viewRecord", !isPendingAtPharmacist)
+                                            putExtra("isFlowComplete", !isPendingAtPharmacist)
                                         }
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
 
                                     // Lab + pharmacist done: open in view mode so case record shows correct UI (only Close, no plus, no refer)
-                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.pharmacist_flag == 9 && preferenceDao.isDoctorSelected() -> {
+                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.pharmacist_flag == 9 &&
+                                            isDoctorWorkflowRoleForCardAccess() -> {
 
                                         var modifiedInfo = benVisitInfo
-                                        if (preferenceDao.isNurseSelected()) {
+                                        if (preferenceDao.isNurseSelected() && !preferenceDao.isUserCHO()) {
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
                                         }
+                                        val isDoctorLabReviewState =
+                                            benVisitInfo.doctorFlag == 3
 
                                         val intent = Intent(
                                             context, EditPatientDetailsActivity::class.java
                                         ).apply {
                                             putExtra("benVisitInfo", modifiedInfo)
                                             putExtra("viewRecord", true)
-                                            putExtra("isFlowComplete", true)
+                                            // doctorFlag=3 with pharmacist=9 is review/edit cycle, not fully closed.
+                                            putExtra("isFlowComplete", !isDoctorLabReviewState)
                                         }
                                         startActivity(intent)
                                         requireActivity().finish()
@@ -345,7 +371,7 @@ class PersonalDetailsFragment : Fragment() {
                                     else -> {
 
                                         var modifiedInfo = benVisitInfo
-                                        if (preferenceDao.isNurseSelected()) {
+                                        if (preferenceDao.isNurseSelected() && !preferenceDao.isUserCHO()) {
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
                                         }
 
@@ -381,11 +407,20 @@ class PersonalDetailsFragment : Fragment() {
                                 }
                                 startActivity(intent)
                             }),
-                            showAbha = true
+                            showAbha = true,
+                            showEditButton = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
                         )
                     }
 
                     binding.patientListContainer.patientList.adapter = itemAdapter
+                    binding.patientListContainer.patientList.setHasFixedSize(true)
+                    binding.patientListContainer.patientList.itemAnimator = null
+                    binding.patientListContainer.patientList.setItemViewCacheSize(20)
+                    binding.patientListContainer.patientList.recycledViewPool.setMaxRecycledViews(0, 40)
+                    (binding.patientListContainer.patientList.layoutManager as? LinearLayoutManager)?.apply {
+                        initialPrefetchItemCount = 12
+                        isItemPrefetchEnabled = true
+                    }
 
                     apiSearchAdapter = ApiSearchAdapter(requireContext()) { selectedPatient ->
                         binding.search.text?.clear()
@@ -412,75 +447,19 @@ class PersonalDetailsFragment : Fragment() {
 
                     when {
                         preferenceDao.isRegistrarSelected() || preferenceDao.isNurseSelected() -> {
-                            lifecycleScope.launch {
-                                viewModel.patientListForNurse?.collect {
-                                    itemAdapter?.submitList(it.sortedByDescending { item ->
-                                        item.patient.registrationDate
-                                    })
-                                    patientCount = it.size
-                                    withContext(Dispatchers.Main) {
-                                        if (!isShowingSearchResults) {
-                                            binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                it.size.toString() + getResultStr(it.size)
-                                        }
-                                    }
-                                }
-                            }
+                            observePatientList(viewModel.patientListForNurse)
                         }
 
                         preferenceDao.isDoctorSelected() -> {
-                            lifecycleScope.launch {
-                                viewModel.patientListForDoctor?.collect {
-                                    itemAdapter?.submitList(it.sortedByDescending { item ->
-                                        item.patient.registrationDate
-                                    })
-                                    patientCount = it.size
-                                    withContext(Dispatchers.Main) {
-                                        if (!isShowingSearchResults) {
-                                            binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                it.size.toString() + getResultStr(it.size)
-                                        }
-                                    }
-                                }
-                            }
+                            observePatientList(viewModel.patientListForDoctor)
                         }
 
                         preferenceDao.isLabSelected() -> {
-                            lifecycleScope.launch {
-                                viewModel.patientListForLab?.collect {
-                                    itemAdapter?.submitList(it.sortedByDescending { item ->
-                                        item.patient.registrationDate
-                                    })
-                                    patientCount = it.size
-                                    withContext(Dispatchers.Main) {
-                                        if (!isShowingSearchResults) {
-                                            binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                it.size.toString() + getResultStr(it.size)
-                                        }
-                                    }
-                                }
-                            }
+                            observePatientList(viewModel.patientListForLab)
                         }
 
                         preferenceDao.isPharmaSelected() -> {
-                            lifecycleScope.launch {
-                                viewModel.patientListForPharmacist?.collect {
-                                    itemAdapter?.submitList(it.sortedByDescending { item ->
-                                        item.patient.registrationDate
-                                    })
-                                    patientCount = it.size
-                                    withContext(Dispatchers.Main) {
-                                        if (!isShowingSearchResults) {
-                                            binding.patientListContainer.patientList.adapter = itemAdapter
-                                            binding.patientListContainer.patientCount.text =
-                                                itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
-                                        }
-                                    }
-                                }
-                            }
+                            observePatientList(viewModel.patientListForPharmacist)
                         }
                     }
 
@@ -519,6 +498,43 @@ class PersonalDetailsFragment : Fragment() {
         }
     }
 
+    private fun observePatientList(listFlow: Flow<List<PatientDisplayWithVisitInfo>>) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            listFlow.collectLatest { list ->
+                itemAdapter?.submitList(list)
+                patientCount = list.size
+                if (!hasReceivedInitialPatientList) {
+                    hideCardSkeletonLoader()
+                }
+                if (!isShowingSearchResults) {
+                    binding.patientListContainer.patientCount.text =
+                        list.size.toString() + getResultStr(list.size)
+                }
+            }
+        }
+    }
+
+    private fun showCardSkeletonLoader() {
+        binding.patientListContainer.patientList.visibility = View.INVISIBLE
+        binding.patientListContainer.skeletonContainer.visibility = View.VISIBLE
+
+        if (skeletonPulseAnimation == null) {
+            skeletonPulseAnimation = AlphaAnimation(0.45f, 1f).apply {
+                duration = 700
+                repeatMode = Animation.REVERSE
+                repeatCount = Animation.INFINITE
+            }
+        }
+        binding.patientListContainer.skeletonContainer.startAnimation(skeletonPulseAnimation)
+    }
+
+    private fun hideCardSkeletonLoader() {
+        hasReceivedInitialPatientList = true
+        binding.patientListContainer.skeletonContainer.clearAnimation()
+        binding.patientListContainer.skeletonContainer.visibility = View.GONE
+        binding.patientListContainer.patientList.visibility = View.VISIBLE
+    }
+
     private fun savePatientFromSearch(apiPatient: PatientDisplayWithVisitInfo) {
         lifecycleScope.launch {
             try {
@@ -531,9 +547,9 @@ class PersonalDetailsFragment : Fragment() {
                     if (existingPatient != null) {
                         withContext(Dispatchers.Main) {
                             MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Patient Already Exists")
-                                .setMessage("A patient with Beneficiary ID $beneficiaryID already exists in the system.")
-                                .setPositiveButton("OK", null)
+                                .setTitle(getString(R.string.patient_already_exists))
+                                .setMessage(getString(R.string.patient_already_exists_message, beneficiaryID))
+                                .setPositiveButton(getString(R.string.ok_button), null)
                                 .show()
                         }
                         return@launch
@@ -659,9 +675,9 @@ class PersonalDetailsFragment : Fragment() {
                     } catch (e2: Exception) {
                         withContext(Dispatchers.Main) {
                             MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Error Saving Patient")
-                                .setMessage("Failed to save patient due to missing data. Please ensure all data is synced.")
-                                .setPositiveButton("OK", null)
+                                .setTitle(getString(R.string.error_saving_patient))
+                                .setMessage(getString(R.string.error_saving_patient_message))
+                                .setPositiveButton(getString(R.string.ok_button), null)
                                 .show()
                         }
                         return@launch
@@ -672,7 +688,7 @@ class PersonalDetailsFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             requireContext(),
-                            "Patient saved successfully",
+                            getString(R.string.patient_successfully_registered),
                             Toast.LENGTH_SHORT
                         ).show()
                         
@@ -952,10 +968,10 @@ class PersonalDetailsFragment : Fragment() {
     private val searchPrompt by lazy {
         MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.note_ben_reg))
             .setMessage(getString(R.string.no_patient_found))
-            .setPositiveButton("Search") { dialog, _ ->
+            .setPositiveButton(getString(R.string.search)) { dialog, _ ->
                 dialog.dismiss()
                 HomeViewModel.setSearchBool()
-            }.setNegativeButton("Proceed with Registration") { dialog, _ ->
+            }.setNegativeButton(getString(R.string.proceed_with_registration)) { dialog, _ ->
                 val intent = Intent(context, RegisterPatientActivity::class.java).apply {
                     putExtra("photoUri", photoURI.toString())
                     putExtra("facevector", embeddings)
@@ -987,6 +1003,9 @@ class PersonalDetailsFragment : Fragment() {
                 val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
                     patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
                 )
+                val labReports = procedureRepo.getProceduresWithComponent(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
+                )
 
                 val pdfDocument: PdfDocument = PdfDocument()
 
@@ -994,31 +1013,41 @@ class PersonalDetailsFragment : Fragment() {
         val content: Paint = Paint()
         val subheading: Paint = Paint()
 
-        val myPageInfo: PdfDocument.PageInfo? =
-            PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-
-        val myPage: PdfDocument.Page = pdfDocument.startPage(myPageInfo)
-        val canvas: Canvas = myPage.canvas
-
         // Set up initial positions for the table
         val xPosition = 75F
         var y = 270F // Declare y as a var
         val rowHeight = 50F
         val leftSideX = 50F
         val extraSpace = 10F
+        val bottomMargin = 60F  // start a new page when y > pageHeight - bottomMargin
+        val topMarginNewPage = 50F
+
+        var pageNumber = 1
+        var currentPage: PdfDocument.Page = run {
+            val pi = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber++).create()
+            pdfDocument.startPage(pi)
+        }
+        var canvas: Canvas = currentPage.canvas
+
+        // Checks if y is near the page bottom; if so, finishes the current page and starts a new one
+        fun checkPageBreak(currentY: Float): Pair<Canvas, Float> {
+            return if (currentY > pageHeight - bottomMargin) {
+                pdfDocument.finishPage(currentPage)
+                val pi = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber++).create()
+                currentPage = pdfDocument.startPage(pi)
+                canvas = currentPage.canvas
+                Pair(canvas, topMarginNewPage)
+            } else {
+                Pair(canvas, currentY)
+            }
+        }
 
         // Set up Paint for text
-        Paint().apply {
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            textSize = 15F
-            color = ContextCompat.getColor(appContext, android.R.color.black)
-            textAlign = Paint.Align.LEFT
-        }
 
         content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
         content.textSize = 15F
         content.color = ContextCompat.getColor(appContext, android.R.color.black)
-        content.textAlign = Paint.Align.CENTER
+        content.textAlign = Paint.Align.LEFT
 
         subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
         subheading.textSize = 16F
@@ -1081,13 +1110,14 @@ class PersonalDetailsFragment : Fragment() {
         val spaceAfterLine = 20F
 
         // Define fixed column widths
-        val columnWidth = 150F
+        val columnWidth = 135F
         y += spaceAfterLine
         y += 30
 
         val chiefComplaintHeader = "Chief Complaints"
         val chiefComplaintHeaderSize = 25F // Adjust the size as needed
         val chiefComplaintHeaderX = (pageWidth / 2).toFloat() // Center the heading
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
         canvas.drawText(chiefComplaintHeader, chiefComplaintHeaderX, y, subheading.apply {
             textSize = chiefComplaintHeaderSize
             textAlign = Paint.Align.CENTER
@@ -1097,14 +1127,20 @@ class PersonalDetailsFragment : Fragment() {
         y += rowHeight
 
 // Define fixed column widths for Chief Complaints
-        val chiefComplaintColumnWidth = 150F
+        val ccSnoWidth = 80F
+        val ccNameWidth = 200F
+        val ccDurationWidth = 130F
+        val ccUnitWidth = 150F
+        val ccDescWidth = 140F
 
 // Draw table header for Chief Complaints
-        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
-        canvas.drawText("Chief Complaint", xPosition + chiefComplaintColumnWidth, y, subheading)
-        canvas.drawText("Duration", xPosition + 2 * chiefComplaintColumnWidth, y, subheading)
-        canvas.drawText("Duration Unit", xPosition + 3 * chiefComplaintColumnWidth, y, subheading)
-        canvas.drawText("Description", xPosition + 4 * chiefComplaintColumnWidth, y, subheading)
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+        subheading.textAlign = Paint.Align.LEFT
+        canvas.drawText("S.No.", xPosition, y, subheading)
+        canvas.drawText("Chief Complaint", xPosition + ccSnoWidth, y, subheading)
+        canvas.drawText("Duration", xPosition + ccSnoWidth + ccNameWidth, y, subheading)
+        canvas.drawText("Duration Unit", xPosition + ccSnoWidth + ccNameWidth + ccDurationWidth, y, subheading)
+        canvas.drawText("Description", xPosition + ccSnoWidth + ccNameWidth + ccDurationWidth + ccUnitWidth, y, subheading)
 
 // Move down to the first row
         y += rowHeight // Reassign y
@@ -1115,54 +1151,20 @@ class PersonalDetailsFragment : Fragment() {
             for (chiefComplaint in chiefComplaints) {
                 // Draw each field with a fixed width
                 if (chiefComplaint != null) {
+                    checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
                     chiefComplaintCount++
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaintCount.toString(),
-                        xPosition,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.chiefComplaint ?: "",
-                        xPosition + chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.duration ?: "",
-                        xPosition + 2 * chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.durationUnit ?: "",
-                        xPosition + 3 * chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        chiefComplaint.description ?: "",
-                        xPosition + 4 * chiefComplaintColumnWidth,
-                        y,
-                        chiefComplaintColumnWidth,
-                        content
-                    )
-
+                    drawTextWithWrapping(canvas, chiefComplaintCount.toString(), xPosition, y, ccSnoWidth, content)
+                    drawTextWithWrapping(canvas, chiefComplaint.chiefComplaint ?: "", xPosition + ccSnoWidth, y, ccNameWidth, content)
+                    drawTextWithWrapping(canvas, chiefComplaint.duration ?: "", xPosition + ccSnoWidth + ccNameWidth, y, ccDurationWidth, content)
+                    drawTextWithWrapping(canvas, chiefComplaint.durationUnit ?: "", xPosition + ccSnoWidth + ccNameWidth + ccDurationWidth, y, ccUnitWidth, content)
+                    drawTextWithWrapping(canvas, chiefComplaint.description ?: "", xPosition + ccSnoWidth + ccNameWidth + ccDurationWidth + ccUnitWidth, y, ccDescWidth, content)
                     // Move down to the next row
                     y += rowHeight // Reassign y
                 }
             }
         }
 
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
         canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
         y += spaceAfterLine
         y += 30
@@ -1171,6 +1173,7 @@ class PersonalDetailsFragment : Fragment() {
         val vitalsSectionHeader = "Vitals"
         val vitalsSectionHeaderSize = 25F
         val vitalsSectionHeaderX = (pageWidth / 2).toFloat()
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
         canvas.drawText(vitalsSectionHeader, vitalsSectionHeaderX, y, subheading.apply {
             textSize = vitalsSectionHeaderSize
             textAlign = Paint.Align.CENTER
@@ -1183,25 +1186,19 @@ class PersonalDetailsFragment : Fragment() {
         val vitalsColumnWidth = 200F
 
         // Draw table header for Vitals
-        canvas.drawText("Vitals Name", xPosition + leftSideX, y, subheading)
-        canvas.drawText("Vitals Value", xPosition + leftSideX + vitalsColumnWidth, y, subheading)
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+        subheading.textAlign = Paint.Align.LEFT
+        canvas.drawText("Vitals Name", xPosition, y, subheading)
+        canvas.drawText("Vitals Value", xPosition + vitalsColumnWidth, y, subheading)
 
         // Move down to the first row
         y += rowHeight
 
         // Function to draw Vitals Name and Value
         fun drawVitals(vitalsName: String, vitalsValue: String) {
-            drawTextWithWrapping(
-                canvas, vitalsName, xPosition + leftSideX, y, vitalsColumnWidth, content
-            )
-            drawTextWithWrapping(
-                canvas,
-                vitalsValue,
-                xPosition + leftSideX + vitalsColumnWidth,
-                y,
-                vitalsColumnWidth,
-                content
-            )
+            checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+            drawTextWithWrapping(canvas, vitalsName, xPosition, y, vitalsColumnWidth, content)
+            drawTextWithWrapping(canvas, vitalsValue, xPosition + vitalsColumnWidth, y, vitalsColumnWidth, content)
             y += rowHeight
         }
 
@@ -1220,19 +1217,87 @@ class PersonalDetailsFragment : Fragment() {
             this?.rbs?.let { drawVitals("RBS", it) }
         }
 
-// Draw heading for the next section
-        val nextSectionHeader = "Prescription" // Replace with your desired heading
-        val nextSectionHeaderSize = 25F // Adjust the size as needed
-        val nextSectionHeaderX = (pageWidth / 2).toFloat() // Center the heading
+        // Lab Test Results section
+        if (labReports.isNotEmpty()) {
+            checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+            canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
+            y += spaceAfterLine
+            y += 30
+
+            val labSectionHeader = "Lab Test Results"
+            val labSectionHeaderSize = 25F
+            val labSectionHeaderX = (pageWidth / 2).toFloat()
+            checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+            canvas.drawText(labSectionHeader, labSectionHeaderX, y, subheading.apply {
+                textSize = labSectionHeaderSize
+                textAlign = Paint.Align.CENTER
+            })
+
+            y += rowHeight
+
+            val labColumnWidth = 125F
+            val labSnoWidth = 120F
+            val labRemarkWidth = 130F
+            val extraGap = 20F // Extra space between Result and Unit
+            checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+            subheading.textAlign = Paint.Align.LEFT
+            canvas.drawText("S.No.", xPosition, y, subheading)
+            canvas.drawText("Test Name", xPosition + labSnoWidth, y, subheading)
+            canvas.drawText("Result", xPosition + labSnoWidth + labColumnWidth, y, subheading)
+            canvas.drawText("Unit", xPosition + labSnoWidth + 2 * labColumnWidth + extraGap, y, subheading)
+            canvas.drawText("Remark", xPosition + labSnoWidth + 3 * labColumnWidth + extraGap, y, subheading)
+
+            y += rowHeight
+
+            var labSno = 0
+            for (labReport in labReports) {
+                val procedureName = labReport.procedure.procedureName ?: continue
+                val components = labReport.components
+                labSno++
+                if (components.isEmpty()) {
+                    checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+                    drawTextWithWrapping(canvas, labSno.toString(), xPosition, y, labSnoWidth, content)
+                    drawTextWithWrapping(canvas, procedureName, xPosition + labSnoWidth, y, labColumnWidth, content)
+                    drawTextWithWrapping(canvas, "Pending", xPosition + labSnoWidth + labColumnWidth, y, labColumnWidth, content)
+                    y += rowHeight
+                } else {
+                    for ((index, component) in components.withIndex()) {
+                        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+                        drawTextWithWrapping(canvas, if (index == 0) labSno.toString() else "", xPosition, y, labSnoWidth, content)
+                        drawTextWithWrapping(canvas, if (index == 0) procedureName else "", xPosition + labSnoWidth, y, labColumnWidth, content)
+                        val resultText = buildString {
+                            component.componentName?.let { append("$it: ") }
+                            append(component.testResultValue ?: "")
+                        }
+                        drawTextWithWrapping(canvas, resultText, xPosition + labSnoWidth + labColumnWidth, y, labColumnWidth, content)
+                        drawTextWithWrapping(canvas, component.testResultUnit ?: "", xPosition + labSnoWidth + 2 * labColumnWidth + extraGap, y, labColumnWidth, content)
+                        drawTextWithWrapping(canvas, component.remarks ?: "", xPosition + labSnoWidth + 3 * labColumnWidth + extraGap, y, labRemarkWidth, content)
+                        y += rowHeight
+                    }
+                }
+            }
+        }
+
+// Draw separator and heading for Prescription section
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+        canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
+        y += spaceAfterLine
+        y += 30
+
+        val nextSectionHeader = "Prescription"
+        val nextSectionHeaderSize = 25F
+        val nextSectionHeaderX = (pageWidth / 2).toFloat()
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
         canvas.drawText(nextSectionHeader, nextSectionHeaderX, y, subheading.apply {
             textSize = nextSectionHeaderSize
             textAlign = Paint.Align.CENTER
         })
         y += rowHeight
 
-
         // Draw table header
-        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
+        checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
+        subheading.textAlign = Paint.Align.LEFT
+        canvas.drawText("S.No.", xPosition, y, subheading)
         canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
         canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
         canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)
@@ -1247,62 +1312,24 @@ class PersonalDetailsFragment : Fragment() {
             for (prescription in prescriptions) {
                 // Draw each field with a fixed width
                 if (prescription != null) {
+                    checkPageBreak(y).also { (c, newY) -> canvas = c; y = newY }
                     count++
-                    drawTextWithWrapping(
-                        canvas, count.toString(), xPosition, y, columnWidth, content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.itemName,
-                        xPosition + columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.frequency ?: "",
-                        xPosition + 2 * columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
+                    drawTextWithWrapping(canvas, count.toString(), xPosition, y, columnWidth, content)
+                    drawTextWithWrapping(canvas, prescription.itemName, xPosition + columnWidth, y, columnWidth, content)
+                    drawTextWithWrapping(canvas, prescription.frequency ?: "", xPosition + 2 * columnWidth, y, columnWidth, content)
                     if (prescription.unit.isNullOrEmpty()) {
-                        drawTextWithWrapping(
-                            canvas,
-                            (prescription.duration) ?: "",
-                            xPosition + 3 * columnWidth,
-                            y,
-                            columnWidth,
-                            content
-                        )
+                        drawTextWithWrapping(canvas, (prescription.duration) ?: "", xPosition + 3 * columnWidth, y, columnWidth, content)
                     } else {
-                        drawTextWithWrapping(
-                            canvas,
-                            (prescription.duration + " " + prescription.unit),
-                            xPosition + 3 * columnWidth,
-                            y,
-                            columnWidth,
-                            content
-                        )
+                        drawTextWithWrapping(canvas, (prescription.duration + " " + prescription.unit), xPosition + 3 * columnWidth, y, columnWidth, content)
                     }
-
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.instructions,
-                        xPosition + 4 * columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
-
+                    drawTextWithWrapping(canvas, prescription.instructions, xPosition + 4 * columnWidth, y, columnWidth, content)
                     // Move down to the next row
                     y += rowHeight // Reassign y
                 }
             }
         }
 
-        pdfDocument.finishPage(myPage)
+        pdfDocument.finishPage(currentPage)
 
                 val outputStream: OutputStream
                 var pdfUri: Uri? = null
@@ -1737,8 +1764,8 @@ class PersonalDetailsFragment : Fragment() {
             val dialogView =
                 LayoutInflater.from(context).inflate(R.layout.dialog_esanjeevani_login, null)
             val dialog = context?.let {
-                MaterialAlertDialogBuilder(it).setTitle("eSanjeevani Login").setView(dialogView)
-                    .setNegativeButton("Cancel") { dialog, _ ->
+                MaterialAlertDialogBuilder(it).setTitle(getString(R.string.esanjeevani_login)).setView(dialogView)
+                    .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                         dialog.dismiss()
                     }.create()
             }
@@ -1836,6 +1863,8 @@ class PersonalDetailsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        binding.patientListContainer.skeletonContainer.clearAnimation()
+        skeletonPulseAnimation = null
         super.onDestroyView()
         _binding = null
     }

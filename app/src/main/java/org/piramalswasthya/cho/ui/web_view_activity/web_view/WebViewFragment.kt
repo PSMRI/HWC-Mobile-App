@@ -263,7 +263,7 @@ class WebViewFragment constructor(
                 } else {
                     // Permission denied, handle accordingly
                     // You may want to show a message or take other actions
-                    Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
                 }
             }
         }
