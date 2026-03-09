@@ -65,7 +65,8 @@ class PharmacistItemAdapter(
             binding.doseValue.text = item.dose ?: ""
             binding.quantityPrescribedValue.text = item.qtyPrescribed.toString() ?: ""
             binding.routeValue.text = item.route ?: ""
-            binding.quantityDispensedValue.text = item.qtyPrescribed.toString() ?: ""
+            // Local DTO has prescribed quantity only; dispensed quantity should not mirror prescribed.
+            binding.quantityDispensedValue.text = "0"
             binding.specialInstructionValue.text = item.dose ?: ""
             binding.btnViewBatch.text = if (issueType == "Manual Issue") {
                 "Select Batch"

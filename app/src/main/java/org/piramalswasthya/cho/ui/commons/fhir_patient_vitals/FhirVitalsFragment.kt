@@ -13,6 +13,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +33,7 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -85,6 +87,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     private var sbpValue: Int? = null
     private var dbpValue: Int? = null
     private var masterDb: MasterDb? = null
+    private var editPatientViewModel: EditPatientDetailsViewModel? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -104,6 +107,12 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
+
+        try {
+            editPatientViewModel = ViewModelProvider(requireActivity())[EditPatientDetailsViewModel::class.java]
+        } catch (_: Exception) {
+            // Fragment may not be hosted by EditPatientDetailsActivity
+        }
 
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
         Log.d("aryan","category --  ${masterDb?.visitMasterDb?.subCategory}")
@@ -145,6 +154,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     viewModel.tempNull = true
                     binding.temperatureEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -158,6 +168,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.bpSystolicEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -170,6 +181,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.bpDiastolicEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -182,6 +194,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.pulseRateEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -194,6 +207,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.spo2EditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -206,6 +220,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.respiratoryEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -218,6 +233,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.rbsEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -230,6 +246,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.heightEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -242,11 +259,31 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.weightEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
 
     }
+
+    /**
+     * Checks all TextInputLayout helper texts. If any has a non-null helperText
+     * (indicating a validation error), the Next/Submit button is disabled.
+     */
+    private fun updateNextButtonState() {
+        val hasErrors = binding.temperatureEditTxt.helperText != null ||
+                binding.bpSystolicEditTxt.helperText != null ||
+                binding.bpDiastolicEditTxt.helperText != null ||
+                binding.pulseRateEditTxt.helperText != null ||
+                binding.spo2EditTxt.helperText != null ||
+                binding.respiratoryEditTxt.helperText != null ||
+                binding.rbsEditTxt.helperText != null ||
+                binding.heightEditTxt.helperText != null ||
+                binding.weightEditTxt.helperText != null
+
+        editPatientViewModel?.setSubmitActive(!hasErrors)
+    }
+
     private fun validateBPSystolic(bpSystolic: String) {
         try {
             val isValid = bpSystolic.matches(Regex("^\\d{2,3}$")) &&

@@ -132,5 +132,7 @@
     <color name="gray_dark">#666666</color>
     <color name="gray_light">#E0E0E0</color>
     <color name="colorPrimary">#006496</color>
+    <color name="stock_green">#008000</color>
+    <color name="stock_red">#FF0000</color>
 
 </resources>

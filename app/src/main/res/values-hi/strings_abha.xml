@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="verify_aadhaar_number">आधार नंबर सत्यापित करें</string>
+    <string name="verify_aadhaar_otp">आधार OTP सत्यापित करें</string>
+    <string name="verify_mobile_number">मोबाइल नंबर सत्यापित करें</string>
+    <string name="enter_otp">OTP दर्ज करें</string>
+    <string name="verify_otp">OTP सत्यापित करें</string>
+    <string name="resend_otp">OTP पुनः भेजें</string>
+    <string name="full_name">पूरा नाम</string>
+    <string name="male">पुरुष</string>
+    <string name="female">महिला</string>
+    <string name="district">जिला</string>
+    <string name="aadhaar">आधार</string>
+    <string name="asha">आशा</string>
+    <string name="ashaname">आशा का नाम</string>
+    <string name="gov">सरकार</string>
+    <string name="enter_aadhaar_number">आधार नंबर दर्ज करें</string>
+    <string name="aadhaar_number">आधार नंबर</string>
+    <string name="verified">सत्यापित</string>
+    <string name="generate_otp">OTP भेजें</string>
+    <string name="send_otp">OTP भेजें</string>
+    <string name="select_abha">नाम चुनें</string>
+    <string name="pid">PID</string>
+    <string name="generate_abha">ABHA</string>
+    <string name="_30">30</string>
+    <string name="abha_number_generated_successfully">ABHA नंबर सफलतापूर्वक जनरेट हुआ</string>
+    <string name="abha_id">ABHA ID</string>
+    <string name="linked_toO_beneficiary">लाभार्थी से लिंक किया गया</string>
+    <string name="do_you_want_to_download_the_abha_card">क्या आप ABHA कार्ड डाउनलोड करना चाहते हैं?</string>
+    <string name="enter_mobile_number">मोबाइल नंबर दर्ज करें</string>
+    <string name="enter_number_for_abha">ABHA पंजीकरण के लिए आधार नंबर</string>
+    <string name="aadhaar_linked_mobile">आधार से लिंक मोबाइल नंबर या अन्य मोबाइल नंबर</string>
+    <string name="mobile_number">मोबाइल नंबर</string>
+    <string name="check_and_generate_otp">जांचें और OTP जनरेट करें</string>
+    <string name="textview">TextView</string>
+    <string name="download_abha_channel_id">ABHA कार्ड डाउनलोड हो रहा है</string>
+    <string name="create_abha_number">ABHA नंबर बनाएं</string>
+    <string name="d_o_b">जन्म तिथि</string>
+    <string name="check_circle">चेक सर्कल</string>
+    <string name="name_">नाम :</string>
+    <string name="abha_number_">ABHA नंबर :</string>
+    <string name="aadhaar_linked_mobile_number_or_other_mobile_number">आधार से लिंक मोबाइल नंबर या अन्य मोबाइल नंबर</string>
+    <string name="validate_fp">फिंगरप्रिंट सत्यापित करें</string>
+    <string name="generating_abha_for">दर्ज करें</string>
+    <string name="otp_sent_to">\"आधार से लिंक मोबाइल नंबर पर OTP भेजा गया\"</string>
+    <string name="str_create_abha">ABHA बनाएं</string>
+    <string name="str_search_abha">ABHA खोजें</string>
+    <string name="str_invalid_aadhaar_no">कृपया वैध आधार नंबर दर्ज करें</string>
+    <string name="str_invalid_mobile_no">कृपया वैध मोबाइल नंबर दर्ज करें</string>
+    <string name="str_invalid_ben_name">कृपया वैध लाभार्थी का नाम दर्ज करें</string>
+    <string name="str_here_abha_no">यह है आपका ABHA नंबर!</string>
+    <string name="str_abha_already_exist">यह ABHA पहले से मौजूद है!</string>
+    <string name="str_abha_successfully_created">ABHA खाता सफलतापूर्वक बनाया गया!</string>
+    <string name="str_abha_card_downloaded">आप डाउनलोड फ़ोल्डर में Abha कार्ड देख सकते हैं!!</string>
+
+    <string name="str_abha_otp_note">यह OTP केवल 10 मिनट के लिए वैध है</string>
+    <string name="str_enter_otp">OTP दर्ज करें:</string>
+    <string name="str_find_abha">पहले से ABHA है?\nअभी पता करें!</string>
+    <string name="str_get_your_abha">मोबाइल नंबर का उपयोग करके ABHA नंबर प्राप्त करें।</string>
+    <string name="enter_ben_name">लाभार्थी का नाम दर्ज करें</string>
+    <string name="str_didnt_receive_otp">OTP नहीं मिला? कृपया प्रतीक्षा करें </string>
+
+    <string name="str_declaration">मैं इसके द्वारा घोषणा करता/करती हूं कि:</string>
+    <string name="str_aadhaar_consent_1">मैं भारतीय विशिष्ट पहचान प्राधिकरण (\"UIDAI\") द्वारा जारी अपना आधार नंबर/वर्चुअल ID और अपनी जनसांख्यिकीय जानकारी स्वेच्छा से साझा कर रहा/रही हूं, ताकि आयुष्मान भारत स्वास्थ्य खाता नंबर (\"ABHA नंबर\") और आयुष्मान भारत स्वास्थ्य खाता पता (\"ABHA पता\") बनाया जा सके। मैं NHA को आधार (वित्तीय और अन्य सब्सिडी, लाभ और सेवाओं की लक्षित डिलीवरी) अधिनियम, 2016 के प्रावधानों के अनुसार उक्त उद्देश्य के लिए UIDAI के साथ आधार आधारित प्रमाणीकरण करने के लिए अपना आधार नंबर/वर्चुअल ID उपयोग करने का अधिकार देता/देती हूं। मैं समझता/समझती हूं कि सफल प्रमाणीकरण पर UIDAI मेरे e-KYC विवरण या \"हां\" की प्रतिक्रिया NHA के साथ साझा करेगा।</string>
+    <string name="str_aadhaar_consent_2">मैं आधार के अलावा दस्तावेज़ का उपयोग करके आयुष्मान भारत स्वास्थ्य खाता नंबर (\"ABHA नंबर\") और आयुष्मान भारत स्वास्थ्य खाता पता (\"ABHA पता\") बनाना चाहता/चाहती हूं। (आगे बढ़ने के लिए यहां क्लिक करें)</string>
+    <string name="str_aadhaar_consent_3">मैं इस एनकाउंटर के दौरान अपने पुराने सरकारी स्वास्थ्य रिकॉर्ड और जो जनरेट होंगे, उन्हें लिंक करने के लिए अपने ABHA पते और ABHA नंबर के उपयोग की सहमति देता/देती हूं।</string>
+    <string name="str_aadhaar_consent_4">मैं इस एनकाउंटर के दौरान मुझे स्वास्थ्य सेवा प्रदान करने के उद्देश्य से स्वास्थ्य सेवा प्रदाता(ओं) के साथ अपने सभी स्वास्थ्य रिकॉर्ड साझा करने का अधिकार देता/देती हूं।</string>
+
+    <string name="str_aadhaar_consent_5">मैं सार्वजनिक स्वास्थ्य उद्देश्यों के लिए अपने सरकारी स्वास्थ्य रिकॉर्ड की गुमनामीकरण और बाद के उपयोग की सहमति देता/देती हूं।</string>
+    <string name="str_aadhaar_consent_6">मैं, @ashaName, पुष्टि करता/करती हूं कि मैंने लाभार्थी को उक्त उद्देश्यों के लिए सहमति की सामग्री के बारे में due रूप से सूचित और समझाया है।</string>
+    <string name="str_aadhaar_consent_7">मैं, @beneficiaryName, को ऊपर बताई गई सहमति के बारे में समझाया गया है और मैं उक्त उद्देश्यों के लिए अपनी सहमति प्रदान करता/करती हूं।</string>
+    <string name="str_seconds">\" सेकंड\"</string>
+    <string name="str_aadhaar_otp_number">\"आधार पंजीकृत मोबाइल नंबर पर OTP भेजा गया जो @mobileNumber पर समाप्त होता है\"</string>
+    <string name="str_abha_otp_number">\"ABHA पंजीकृत मोबाइल नंबर पर OTP भेजा गया जो @mobileNumber पर समाप्त होता है\"</string>
+    <string name="str_otp_number_message">\"@mobileNumber पर समाप्त होने वाले मोबाइल नंबर पर OTP भेजा गया है।\"</string>
+
+
+</resources>

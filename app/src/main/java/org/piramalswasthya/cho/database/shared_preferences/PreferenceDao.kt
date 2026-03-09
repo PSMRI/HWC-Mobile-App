@@ -331,6 +331,8 @@ fun registerEsanjeevaniCred(userName: String,password: String) {
         return when (pref.getString(key, null)) {
             Languages.ENGLISH.symbol -> Languages.ENGLISH
             Languages.KANNADA.symbol -> Languages.KANNADA
+            Languages.HINDI.symbol -> Languages.HINDI
+            Languages.ASSAMESE.symbol -> Languages.ASSAMESE
             else -> Languages.ENGLISH
         }
     }

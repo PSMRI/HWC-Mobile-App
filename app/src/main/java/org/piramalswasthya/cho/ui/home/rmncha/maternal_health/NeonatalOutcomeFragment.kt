@@ -93,7 +93,8 @@ class NeonatalOutcomeFragment : Fragment() {
                             addToBackStack(null)
                         }
                     } else {
-                        android.widget.Toast.makeText(context, "Delivery record not found", android.widget.Toast.LENGTH_SHORT).show()
+                        android.widget.Toast.makeText(context,
+                            context?.getString(R.string.delivery_record_not_found), android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -141,6 +142,12 @@ class NeonatalOutcomeFragment : Fragment() {
             resultString = getString(R.string.result),
             logMessage = "Displaying infants for neonatal outcome"
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.neonatal_outcome)
     }
 
     override fun onDestroyView() {

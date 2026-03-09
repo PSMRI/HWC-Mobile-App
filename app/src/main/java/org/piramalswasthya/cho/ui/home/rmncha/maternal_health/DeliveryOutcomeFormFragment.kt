@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ANC_VISITS_KEY
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
+import org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -150,7 +151,8 @@ class DeliveryOutcomeFormFragment : Fragment() {
     private fun setupAncHistoryLink() {
         binding.tvViewAncHistory.visibility = View.VISIBLE
         binding.tvViewAncHistory.setOnClickListener {
-            startActivity(ANCVisitsActivity.getIntent(requireContext(), patientID))
+            val intent = SubModuleActivity.getDirectFragmentIntent(requireContext(), SHOW_ANC_VISITS_KEY)
+            startActivity(intent)
         }
     }
 

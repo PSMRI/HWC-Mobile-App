@@ -59,7 +59,7 @@ class AdolescentListAdapter(
             item.patient.dob?.let {
                 binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
             } ?: run {
-                binding.tvAge.text = "NA"
+                binding.tvAge.text = binding.root.context.getString(org.piramalswasthya.cho.R.string.na)
             }
 
             // Set beneficiary ID

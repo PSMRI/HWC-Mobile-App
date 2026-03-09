@@ -11,6 +11,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.InAppDb
@@ -90,39 +93,36 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     private suspend fun extracted(context: Context) {
         try {
             _state.postValue(State.SAVING)
-            if (dataLoadFlagManager.isDataLoaded()){
+            WorkerUtils.pushAuditDetailsWorker(context)
+
+            if (dataLoadFlagManager.isDataLoaded()) {
+                // Master data is fresh — kick off background sync and return immediately
+                // so the UI is not kept waiting by network calls the user can't see.
                 Log.d("syncing started first", "syncing started")
                 WorkerUtils.triggerAmritSyncWorker(context)
+                _state.postValue(State.SAVE_SUCCESS)
+                return
             }
-            WorkerUtils.pushAuditDetailsWorker(context)
-            registrarMasterDataRepo.saveGenderMasterResponseToCache()
-            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
-            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
-            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
-            registrarMasterDataRepo.saveReligionMasterResponseToCache()
-            languageRepo.saveResponseToCacheLang()
-            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
-            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
-            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
-            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
-            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
-            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
 
-            prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId)
-            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-            vaccineAndDoseTypeRepo.getVaccineDetailsFromServer()
-            doctorMaleMasterDataRepo.getDoctorMasterMaleData()
-
-            malMasterDataRepo.getMasterDataForNurse()
-            getStockDetailsOfSubStore()
-            if (!dataLoadFlagManager.isDataLoaded()){
-                Log.d("syncing started second", "syncing started")
-                WorkerUtils.triggerAmritSyncWorker(context)
+            // First login or stale data (>10 days): download all master data.
+            // registrarMasterData is included in the same parallel batch as the
+            // other calls so nothing runs serially before them.
+            coroutineScope {
+                val j0 = async { registrarMasterDataRepo.saveAllMasterDataToCache() }
+                val j1 = async { languageRepo.saveResponseToCacheLang() }
+                val j2 = async { visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache() }
+                val j3 = async { visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache() }
+                val j4 = async { vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache() }
+                val j5 = async { vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache() }
+                val j6 = async { vaccineAndDoseTypeRepo.getVaccineDetailsFromServer() }
+                val j7 = async { prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId) }
+                val j8 = async { doctorMaleMasterDataRepo.getDoctorMasterMaleData() }
+                val j9 = async { malMasterDataRepo.getMasterDataForNurse() }
+                val j10 = async { getStockDetailsOfSubStore() }
+                awaitAll(j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10)
             }
+
+            WorkerUtils.triggerAmritSyncWorker(context)
             dataLoadFlagManager.setDataLoaded(true)
             _state.postValue(State.SAVE_SUCCESS)
         } catch (_e: Exception) {
@@ -238,6 +238,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     fun processPatientDoctorBundle(dummyPatientDoctorBundle: PatientDoctorBundle){
         viewModelScope.launch {
             withContext(Dispatchers.IO){
+                var replaceLatestPending = false
                 try {
                     dummyPatientDoctorBundle.patient.syncState = SyncState.SHARED_OFFLINE
                     patientRepo.insertPatient(dummyPatientDoctorBundle.patient)
@@ -262,6 +263,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                             dummyPatientDoctorBundle.patientVisitInfoSync.patientID,
                             dummyPatientDoctorBundle.patientVisitInfoSync.benVisitNo!!
                         )
+                        replaceLatestPending = (existingPatientVisitInfoSync.pharmacist_flag ?: 0) == 1
                     }
                 }catch (e:Exception){
                     e.printStackTrace()
@@ -273,7 +275,8 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                         dummyPatientDoctorBundle.patient,
                         facilityID,
                         dummyPatientDoctorBundle,
-                        dummyPatientDoctorBundle.patientVisitInfoSync
+                        dummyPatientDoctorBundle.patientVisitInfoSync,
+                        replaceLatestPending = replaceLatestPending
                     )
                 }catch (e:Exception){
                     e.printStackTrace()
