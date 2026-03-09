@@ -6,6 +6,10 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.EntryPoint
@@ -77,9 +81,40 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavigation) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                bottomMargin = systemBars.bottom
+            }
+            insets
+        }
+
         handleInitialNavigation()
         setupNavigationListener()
         setupUIListeners()
+    }
+
+    private fun showBottomActions(submitTextRes: Int, cancelTextRes: Int = R.string.cancel) {
+        binding.bottomNavigation.visibility = View.VISIBLE
+        binding.linearLayout.visibility = View.VISIBLE
+        binding.btnSubmit.visibility = View.VISIBLE
+        binding.btnCancel.visibility = View.VISIBLE
+        binding.btnSubmit.isEnabled = true
+        binding.btnSubmit.text = resources.getString(submitTextRes)
+        binding.btnCancel.text = resources.getString(cancelTextRes)
+    }
+
+    private fun showCancelOnlyAction(cancelTextRes: Int = R.string.close) {
+        binding.bottomNavigation.visibility = View.VISIBLE
+        binding.linearLayout.visibility = View.VISIBLE
+        binding.btnSubmit.visibility = View.GONE
+        binding.btnCancel.visibility = View.VISIBLE
+        binding.btnCancel.text = resources.getString(cancelTextRes)
+    }
+
+    private fun hideBottomActions() {
+        binding.bottomNavigation.visibility = View.GONE
+        binding.linearLayout.visibility = View.GONE
     }
 
     private fun handleInitialNavigation() {
@@ -113,7 +148,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 )
             }
 
-            preferenceDao.isDoctorSelected() -> {
+            (preferenceDao.isDoctorSelected() && !preferenceDao.isUserCHO()) -> {
                 val viewRecord = intent?.getBooleanExtra("viewRecord", false) ?: false
                 val isFlowComplete = intent?.getBooleanExtra("isFlowComplete", false) ?: false
                 val isFollowupVisit = intent?.getBooleanExtra("isFollowupVisit", false) ?: false
@@ -189,101 +224,86 @@ class EditPatientDetailsActivity: AppCompatActivity() {
     }
 
     private fun setupNavigationListener() {
-        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
+        navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.fhirVisitDetailsFragment -> {
-                    binding.bottomNavigation.visibility = View.GONE
+                    hideBottomActions()
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.visit_details)
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
 
                 R.id.customVitalsFragment -> {
-                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.vitals_text)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
                     if (preferenceDao.isUserCHO()) {
-                        binding.btnSubmit.text = resources.getString(R.string.next)
+                        showBottomActions(R.string.next)
                     } else {
-                        binding.btnSubmit.text =
-                            resources.getString(R.string.submit_to_doctor_text)
+                        showBottomActions(R.string.submit_to_doctor_text)
                     }
                 }
 
                 R.id.pregnantWomanRegistrationFragment, R.id.pregnancyRegistrationFormFragment -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.title_register_pregnancy)
-                    binding.bottomNavigation.visibility = View.GONE
-                    binding.linearLayout.visibility = View.GONE
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    hideBottomActions()
                 }
 
                 R.id.cbacFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.cbac)
-                    binding.bottomNavigation.visibility = View.GONE
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    hideBottomActions()
                 }
 
                 R.id.pwAncFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.anc)
-                    binding.bottomNavigation.visibility = View.VISIBLE
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    showBottomActions(R.string.submit)
                 }
 
                 R.id.pncFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.pnc)
-                    binding.bottomNavigation.visibility = View.VISIBLE
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    showBottomActions(R.string.submit)
                 }
 
                 R.id.immunizationFormFragment -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.immunization)
-                    binding.bottomNavigation.visibility = View.VISIBLE
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    showBottomActions(R.string.submit)
                 }
 
                 R.id.eligibleCoupleTrackingFormFragment -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.eligible_couple_tracking)
-                    binding.bottomNavigation.visibility = View.GONE
-                    binding.linearLayout.visibility = View.GONE
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    hideBottomActions()
                 }
 
                 R.id.caseRecordCustom -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.case_record_text)
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    val navArgs = controller.currentBackStackEntry?.arguments ?: arguments
+                    val isClosedViewOnly =
+                        navArgs?.getBoolean("viewRecord", false) == true &&
+                            navArgs.getBoolean("isFlowComplete", false)
+                    if (isClosedViewOnly) {
+                        showCancelOnlyAction(R.string.close)
+                    } else {
+                        showBottomActions(R.string.submit)
+                    }
                 }
 
                 R.id.labTechnicianFormFragment -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.lab_record_text)
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    showBottomActions(R.string.submit)
                 }
 
                 R.id.selectBatchFragment -> {
                     binding.headerTextRegisterPatient.text = getString(R.string.batch_selection)
-                    binding.btnSubmit.text = resources.getString(R.string.save)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    showBottomActions(R.string.save)
                 }
 
                 R.id.pharmacistFormFragment -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.pharmacist_record_text)
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                    showBottomActions(R.string.submit)
                 }
             }
         }

@@ -200,14 +200,19 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
 
     override fun onSubmitAction() {
         Timber.d("submit button", dtos)
+        activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = false
+        viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
         viewModel.savePharmacistData(dtos, benVisitInfo)
         viewModel.isDataSaved.observe(viewLifecycleOwner){ state ->
             when (state!!) {
                 true -> {
+                    viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
                     careContextPrompt.show()
 //                    navigateNext()
                 }
-                else -> {}
+                else -> {
+                    activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = true
+                }
             }
         }
     }

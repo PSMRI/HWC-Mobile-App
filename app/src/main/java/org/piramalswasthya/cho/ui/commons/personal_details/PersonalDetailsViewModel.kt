@@ -36,10 +36,6 @@ class PersonalDetailsViewModel @Inject constructor(
     private val filter = MutableStateFlow("")
     private val listUpdateDebounceMs = 250L
 
-    private val latestVisitComparator =
-        compareByDescending<PatientDisplayWithVisitInfo> { it.visitDate?.time ?: 0L }
-            .thenByDescending { it.benVisitNo ?: 0 }
-
     private fun buildPatientListFlow(
         source: Flow<List<PatientDisplayWithVisitInfo>>,
         transform: (List<PatientDisplayWithVisitInfo>) -> List<PatientDisplayWithVisitInfo>
@@ -53,6 +49,20 @@ class PersonalDetailsViewModel @Inject constructor(
             .distinctUntilChanged()
             .flowOn(Dispatchers.Default)
     }
+
+    // One card per patient/beneficiary (latest visit only); no duplicate cards with same beneficiary key.
+    val patientListForPharmacist: Flow<List<PatientDisplayWithVisitInfo>> =
+        buildPatientListFlow(
+            source = patientVisitInfoSyncRepo.getPatientListFlowForPharmacist(),
+            transform = { list ->
+                val key: (PatientDisplayWithVisitInfo) -> String = { info ->
+                    info.patient.beneficiaryRegID?.toString() ?: info.patient.patientID
+                }
+                // Source query is already ordered by latest medicine assignment first.
+                // Keep the first card per beneficiary to avoid duplicates while preserving order.
+                list.distinctBy(key)
+            }
+        )
 
     val patientListForNurse: Flow<List<PatientDisplayWithVisitInfo>> =
         buildPatientListFlow(
@@ -70,22 +80,6 @@ class PersonalDetailsViewModel @Inject constructor(
         buildPatientListFlow(
             source = patientVisitInfoSyncRepo.getPatientDisplayListForLab(),
             transform = { list -> list }
-        )
-
-    // One card per patient/beneficiary (latest visit only); no duplicate cards with same beneficiary key.
-    val patientListForPharmacist: Flow<List<PatientDisplayWithVisitInfo>> =
-        buildPatientListFlow(
-            source = patientVisitInfoSyncRepo.getPatientListFlowForPharmacist(),
-            transform = { list ->
-                val key: (PatientDisplayWithVisitInfo) -> String = { info ->
-                    info.patient.beneficiaryRegID?.toString() ?: info.patient.patientID
-                }
-                list
-                    .groupBy(key)
-                    .values
-                    .mapNotNull { visits -> visits.maxWithOrNull(latestVisitComparator) }
-                    .sortedWith(latestVisitComparator)
-            }
         )
 
     var count : Int = 0

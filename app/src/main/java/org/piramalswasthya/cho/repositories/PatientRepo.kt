@@ -1057,4 +1057,10 @@ class PatientRepo @Inject constructor(
             prescriptionDao.getPrescription(patientID, benVisitNo, prescriptionID)
         }
     }
+
+    suspend fun getLatestPrescription(patientID: String, benVisitNo: Int): Prescription? {
+        return withContext(Dispatchers.IO) {
+            prescriptionDao.getLatestPrescriptionByPatientIdAndBenVisitNo(patientID, benVisitNo)
+        }
+    }
 }
