@@ -77,7 +77,7 @@ class ChildRegistrationListFragment : Fragment() {
     }
 
     private fun observeChildren() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             infantRegRepo.getRegisteredInfants().collectLatest { childrenList ->
                 allChildren = childrenList.sortedByDescending { it.infant.updatedDate }
                 filteredChildren = allChildren
@@ -104,11 +104,11 @@ class ChildRegistrationListFragment : Fragment() {
             val childBenId = child.childPatient?.beneficiaryID?.toString().orEmpty()
 
             childName.contains(normalized) ||
-                child.customName.lowercase().contains(normalized) ||
-                motherName.contains(normalized) ||
-                motherPhone.contains(normalized) ||
-                motherBenId.contains(normalized) ||
-                childBenId.contains(normalized)
+                    child.customName.lowercase().contains(normalized) ||
+                    motherName.contains(normalized) ||
+                    motherPhone.contains(normalized) ||
+                    motherBenId.contains(normalized) ||
+                    childBenId.contains(normalized)
         }
         updateUI()
     }
