@@ -470,11 +470,60 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             changeBtnView()
         }
         else if(subCat == DropdownConst.ent){
+            val validNoseChiefComplaints = listOf(
+                "Pain",
+                "Nasal discharge",
+                "Difficulty in breathing",
+                "open mouth breathing",
+                "Sinusitis",
+                "Nosebleed",
+                "Foreign body in nose"
+            )
+
+            val validEarChiefComplaints = listOf(
+                "Ear Pain",
+                "Ear discharge",
+                "Difficulty in hearing",
+                "Ear wax",
+                "Congenital Ear Malformation",
+                "Foreign body in ear."
+            )
+
+            val hasValidChiefComplaintForNose = if (viewModel.getIsFollowUp()) {
+                chiefComplaintDB2.any { item ->
+                    validNoseChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+                }
+            } else {
+                itemList.any { item ->
+                    validNoseChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+                }
+            }
+
+            val hasValidChiefComplaintForEar = if (viewModel.getIsFollowUp()) {
+                chiefComplaintDB2.any { item ->
+                    validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+                }
+            } else {
+                itemList.any { item ->
+                    validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+                }
+            }
+
+            var entFilteredReasons = DropdownConst.entReasons
+
+            if (!hasValidChiefComplaintForNose) {
+                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.nose }
+            }
+
+            if (!hasValidChiefComplaintForEar) {
+                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.ear }
+            }
+
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                DropdownConst.entReasons
+                entFilteredReasons
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
@@ -1109,6 +1158,28 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.reasonForVisitInput.setText("", false)
             viewModel.selectedReasonForVisit = ""
         }
+
+        if (binding.subCatInput.text.toString() == DropdownConst.ent) {
+            setReasonForVisitDropdown(DropdownConst.ent)
+            val currentReason = binding.reasonForVisitInput.text.toString()
+            if (currentReason == DropdownConst.nose || currentReason == DropdownConst.ear) {
+                // Check if current reason is still a valid option in the adapter
+                val adapter = binding.reasonForVisitInput.adapter
+                var isValid = false
+                if (adapter != null) {
+                    for (i in 0 until adapter.count) {
+                        if (adapter.getItem(i).toString() == currentReason) {
+                            isValid = true
+                            break
+                        }
+                    }
+                }
+                if (!isValid) {
+                    binding.reasonForVisitInput.setText("", false)
+                    viewModel.selectedReasonForVisit = ""
+                }
+            }
+        }
     }
 
     private fun extractFormValues() {
@@ -1618,7 +1689,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 }
             }
-            else if(reasonForVisit == DropdownConst.ear || reasonForVisit == DropdownConst.nose || reasonForVisit == DropdownConst.throat){
+            else if(reasonForVisit == DropdownConst.ear ){
                 saveVisitData { benVisitNo ->
                     isNavigationInProgress = true
                     binding.btnSubmit.isEnabled = false
@@ -1636,6 +1707,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToOralHealthFormFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitNo
+                        )
+                    )
+                }
+            }
+            else if(reasonForVisit == DropdownConst.nose){
+                saveVisitData { benVisitNo ->
+                    isNavigationInProgress = true
+                    binding.btnSubmit.isEnabled = false
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToNoseDiagnosisFormFragment(
                             patientID = benVisitInfo.patient.patientID,
                             benVisitNo = benVisitNo
                         )

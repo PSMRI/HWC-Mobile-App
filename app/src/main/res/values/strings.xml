@@ -1101,6 +1101,7 @@
     <string name="pain_symptom_assessment_saved">Pain and Symptom Assessment Saved</string>
     <string name="title_pain_symptom_assessment">Pain and Symptom Assessment</string>
     <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
+    <string name="title_nose_diagnosis">Nose Diagnosis</string>
     <string name="title_oral_health">Dental Form</string>
     <string name="oral_health_saved">Oral Health details saved</string>
     <string name="oral_health_referral_alert">Refer patient to Dentist at the secondary level.</string>

@@ -64,6 +64,7 @@ import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.NoseDiagnosisAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.OralHealthDao
 import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
@@ -156,6 +157,7 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.model.EarDiagnosisAssessment
+import org.piramalswasthya.cho.model.NoseDiagnosisAssessment
 import org.piramalswasthya.cho.model.PainAndSymptomAssessment
 import org.piramalswasthya.cho.model.OralHealth
 import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
@@ -251,6 +253,7 @@ import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
         StatusOfWomanMaster::class,
         OphthalmicVisit::class,
         EarDiagnosisAssessment::class,
+        NoseDiagnosisAssessment::class,
         PainAndSymptomAssessment::class,
         PsychosocialCaregiverSupport::class,
         OralHealth::class
@@ -333,6 +336,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val ophthalmicDao: OphthalmicDao
     abstract val earDiagnosisAssessmentDao: EarDiagnosisAssessmentDao
     abstract val oralHealthDao: OralHealthDao
+    abstract val noseDiagnosisAssessmentDao: NoseDiagnosisAssessmentDao
 
     companion object {
         @Volatile
@@ -822,7 +826,7 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-    
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
