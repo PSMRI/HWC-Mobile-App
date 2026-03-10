@@ -39,7 +39,7 @@ class OralHealthDataset(
             "Black spot",
             "Discoloration of tooth Cavity",
             "Hole in the tooth",
-            "Sensitivity to hot and cold, sweet and sour",
+            "Sensitivity to hot and cold / sweet and sour",
             "Food lodgment in the cavity/ between teeth",
             "Pain",
             "Swelling",
@@ -188,14 +188,14 @@ class OralHealthDataset(
             false -> NO
             else -> null
         }
-        toothDecaySymptoms.value = cache.toothDecaySymptoms
+        toothDecaySymptoms.value = if (cache.toothDecayPresent == true) cache.toothDecaySymptoms else null
 
         gumDiseasePresent.value = when (cache.gumDiseasePresent) {
             true -> YES
             false -> NO
             else -> null
         }
-        gumDiseaseSymptoms.value = cache.gumDiseaseSymptoms
+        gumDiseaseSymptoms.value = if (cache.gumDiseasePresent == true) cache.gumDiseaseSymptoms else null
     }
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
@@ -205,14 +205,14 @@ class OralHealthDataset(
                 NO -> false
                 else -> null
             }
-            it.toothDecaySymptoms = toothDecaySymptoms.value
+            it.toothDecaySymptoms = if (it.toothDecayPresent == true) toothDecaySymptoms.value else null
 
             it.gumDiseasePresent = when (gumDiseasePresent.value) {
                 YES -> true
                 NO -> false
                 else -> null
             }
-            it.gumDiseaseSymptoms = gumDiseaseSymptoms.value
+            it.gumDiseaseSymptoms = if (it.gumDiseasePresent == true) gumDiseaseSymptoms.value else null
         }
     }
 }
