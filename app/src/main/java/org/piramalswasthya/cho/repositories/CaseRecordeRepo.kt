@@ -82,17 +82,20 @@ class CaseRecordeRepo @Inject constructor(
         return caseRecordDao.getPrescriptionCasesRecordId(prescriptionId)
     }
     suspend fun getPrescriptionByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): List<PrescriptionCaseRecord?> {
-        return caseRecordDao.getPrescriptionByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+        val visitNo = benVisitInfo.benVisitNo ?: return emptyList()
+        return caseRecordDao.getPrescriptionByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, visitNo)
     }
     fun getDiagnosis(diagnosisId:String): LiveData<DiagnosisCaseRecord> {
         return caseRecordDao.getDiagnosisCasesRecordById(diagnosisId)
     }
     suspend fun getDiagnosisByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): List<DiagnosisCaseRecord?> {
-        return caseRecordDao.getDiagnosisByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+        val visitNo = benVisitInfo.benVisitNo ?: return emptyList()
+        return caseRecordDao.getDiagnosisByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, visitNo)
     }
 
     suspend fun getInvestigationCasesRecordByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): InvestigationCaseRecord? {
-        return caseRecordDao.getPrescriptionCasesRecordByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+        val visitNo = benVisitInfo.benVisitNo ?: return null
+        return caseRecordDao.getPrescriptionCasesRecordByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, visitNo)
     }
 
     suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){

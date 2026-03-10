@@ -3,8 +3,6 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
@@ -212,18 +210,24 @@ class BenFlowRepo @Inject constructor(
 
     @Transaction
     suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : List<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow, patientVisitInfoSync: PatientVisitInfoSync,docData:DoctorDataDownSync){
+        // Do not overwrite local case record while case is pending in pharmacist queue.
+        // Doctor edits before dispense are local-authoritative and must not be replaced by downsync payload.
+        val preserveLocalDoctorData = patientVisitInfoSync.pharmacist_flag == 1
+        if (!preserveLocalDoctorData) {
+            prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+            prescriptionCaseRecord?.let {
+                prescriptionDao.insertAll(it)
+            }
 
-        prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
-        prescriptionCaseRecord?.let {
-            prescriptionDao.insertAll(it)
-        }
+            investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+            investigationDao.insertInvestigation(investigationCaseRecord)
 
-        investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
-        investigationDao.insertInvestigation(investigationCaseRecord)
-
-        caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
-        diagnosisCaseRecords.let {
-            caseRecordeDao.insertAll(it)
+            caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+            diagnosisCaseRecords.let {
+                caseRecordeDao.insertAll(it)
+            }
+        } else {
+            Timber.d("Preserving local doctor data for pending pharmacist case %s/%s", patient.patientID, patientVisitInfoSync.benVisitNo)
         }
 
         patientVisitInfoSyncDao.updateAfterDoctorDataDownSync(patientVisitInfoSync.doctorFlag!!, patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo)
@@ -387,7 +391,7 @@ class BenFlowRepo @Inject constructor(
             patientID = patient.patientID,
             benVisitNo = benFlow.benVisitNo!!,
             pharmacistFlag = benFlow.pharmacist_flag!!,
-            visitCategory = benFlow.VisitCategory ?: ""
+            visitCategory = benFlow.VisitCategory?.takeIf { it.isNotBlank() } ?: "General OPD"
         )
     }
 
@@ -407,13 +411,16 @@ class BenFlowRepo @Inject constructor(
                     var isSuccess = true
 
                     var totalDownloaded = 0
+                    var lastReportedProgress = -1
 
                     for (i in 0 until benflowArray.length()) {
 
                         totalDownloaded++
                         if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
-                            withContext(Dispatchers.Main) {
-                                WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                            val progressPercent = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble()) * 100).toInt()
+                            if (progressPercent != lastReportedProgress) {
+                                lastReportedProgress = progressPercent
+                                WorkerUtils.totalPercentageCompleted.postValue(progressPercent)
                             }
                         }
 
@@ -427,42 +434,45 @@ class BenFlowRepo @Inject constructor(
                                 updateBenFlowId(benFlow, patient)
                                 checkAndDownsyncNurseData(benFlow, patient)
                                 checkAndDownsyncDoctorData(benFlow, patient)
-                            }
-                            val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(patient!!.patientID, SyncState.SHARED_OFFLINE)
-                            if(pvis!=null){
-                                val chiefComplaints = visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patient.patientID, pvis.benVisitNo)
-                                // Iterate through each chief complaint and update the benFlowID
-                                if (chiefComplaints.isNotEmpty()) {
+                                val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(
+                                    patient.patientID,
+                                    SyncState.SHARED_OFFLINE
+                                )
+                                if(pvis!=null){
+                                    val chiefComplaints = visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patient.patientID, pvis.benVisitNo)
                                     // Iterate through each chief complaint and update the benFlowID
-                                    chiefComplaints.forEach { complaint ->
-                                        // Update the benFlowID
-                                        val updatedComplaint = complaint.copy(benFlowID = pvis.benFlowID)
-                                        // Save the updated complaint back to the database
-                                        visitReasonsAndCategoriesDao.updateChiefComplaint(updatedComplaint)
+                                    if (chiefComplaints.isNotEmpty()) {
+                                        // Iterate through each chief complaint and update the benFlowID
+                                        chiefComplaints.forEach { complaint ->
+                                            // Update the benFlowID
+                                            val updatedComplaint = complaint.copy(benFlowID = pvis.benFlowID)
+                                            // Save the updated complaint back to the database
+                                            visitReasonsAndCategoriesDao.updateChiefComplaint(updatedComplaint)
+                                        }
+                                    } else {
+                                        // Handle the case when chiefComplaints is empty or null
+                                        println("No chief complaints found for patientID: ${patient.patientID} and benVisitNo: ${pvis.benVisitNo}")
                                     }
-                                } else {
-                                    // Handle the case when chiefComplaints is empty or null
-                                    println("No chief complaints found for patientID: ${patient.patientID} and benVisitNo: ${pvis.benVisitNo}")
+                                    // Fetch visitDb and update if not null
+                                    val visitDb = visitReasonsAndCategoriesDao.getVisitDbByPatientId(pvis.patientID)
+                                    if (visitDb != null) {
+                                        val updatedVisitDb = visitDb.copy(benFlowID = pvis.benFlowID)
+                                        visitReasonsAndCategoriesDao.updateVisitDB(updatedVisitDb)
+                                    } else {
+                                        // Handle the case when visitDb is null
+                                        println("No visitDb found for patientID: ${pvis.patientID}")
+                                    }
+                                    // Fetch vitals and update if not null
+                                    val vitals = vitalsDao.getPatientVitalsByPatientID(pvis.patientID)
+                                    if (vitals != null) {
+                                        val updatedVitals = vitals.copy(benFlowID = pvis.benFlowID)
+                                        vitalsDao.updateVitals(updatedVitals)
+                                    } else {
+                                        // Handle the case when vitals is null
+                                        println("No vitals found for patientID: ${pvis.patientID}")
+                                    }
+                                    patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = pvis.patientID, benVisitNo =  pvis.benVisitNo)
                                 }
-                                // Fetch visitDb and update if not null
-                                val visitDb = visitReasonsAndCategoriesDao.getVisitDbByPatientId(pvis.patientID)
-                                if (visitDb != null) {
-                                    val updatedVisitDb = visitDb.copy(benFlowID = pvis.benFlowID)
-                                    visitReasonsAndCategoriesDao.updateVisitDB(updatedVisitDb)
-                                } else {
-                                    // Handle the case when visitDb is null
-                                    println("No visitDb found for patientID: ${pvis.patientID}")
-                                }
-                                // Fetch vitals and update if not null
-                                val vitals = vitalsDao.getPatientVitalsByPatientID(pvis.patientID)
-                                if (vitals != null) {
-                                    val updatedVitals = vitals.copy(benFlowID = pvis.benFlowID)
-                                    vitalsDao.updateVitals(updatedVitals)
-                                } else {
-                                    // Handle the case when vitals is null
-                                    println("No vitals found for patientID: ${pvis.patientID}")
-                                }
-                                patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = pvis.patientID, benVisitNo =  pvis.benVisitNo)
                             }
                         } catch (e : Exception){
                             isSuccess = false
@@ -711,22 +721,55 @@ class BenFlowRepo @Inject constructor(
         patient: Patient,
         facilityID: Int,
         patientDoctorBundle: PatientDoctorBundle,
-        patientVisitInfoSync: PatientVisitInfoSync
+        patientVisitInfoSync: PatientVisitInfoSync,
+        replaceLatestPending: Boolean = false
     ) {
         try {
-            Log.d("Pharmacist","Deleting existing prescriptions for patientID: ${patient.patientID}, visitNo: ${patientVisitInfoSync.benVisitNo}")
-            prescriptionDao.deletePrescriptionByPatientIDAndBenVisitNo(
-                patient.patientID,
-                patientVisitInfoSync.benVisitNo
-            )
+            val existingPrescriptions =
+                prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(
+                    patient.patientID,
+                    patientVisitInfoSync.benVisitNo
+                ).orEmpty()
+            val existingPrimary = existingPrescriptions.firstOrNull {
+                (it.prescriptionID > 0L) || (it.visitCode > 0L)
+            } ?: existingPrescriptions.firstOrNull()
+            val benFlowForVisit = patientVisitInfoSync.benFlowID?.let { benFlowId ->
+                try {
+                    benFlowDao.getBenFlowByBenFlowID(benFlowId)
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            if (replaceLatestPending && existingPrescriptions.isNotEmpty()) {
+                // Doctor is editing an already-pending pharmacist cycle:
+                // replace only latest pending draft and preserve older dispensed history.
+                Log.d(
+                    "Pharmacist",
+                    "Replacing latest pending prescription for patientID=${patient.patientID}, visitNo=${patientVisitInfoSync.benVisitNo}"
+                )
+                prescriptionDao.deleteLatestPrescriptionByPatientIDAndBenVisitNo(
+                    patient.patientID,
+                    patientVisitInfoSync.benVisitNo
+                )
+            } else {
+                // New cycle (or first local copy): append current medicines to preserve previous dispensed cycles.
+                Log.d(
+                    "Pharmacist",
+                    "Preserving existing prescription history for patientID=${patient.patientID}, visitNo=${patientVisitInfoSync.benVisitNo}"
+                )
+            }
             Log.d("Pharmacist", "patient:in benflowrepo ${patient}")
 
 
             val prescription = Prescription(
-                prescriptionID = 0, // Placeholder
-                beneficiaryRegID = 0, // Placeholder, adjust as needed
-                visitCode = 0, // Placeholder, adjust as needed
-                consultantName = null, // Or a placeholder name
+                prescriptionID = existingPrimary?.prescriptionID
+                    ?: patientVisitInfoSync.prescriptionID?.toLong()
+                    ?: 0,
+                beneficiaryRegID = existingPrimary?.beneficiaryRegID ?: 0,
+                visitCode = existingPrimary?.visitCode
+                    ?: benFlowForVisit?.visitCode
+                    ?: 0,
+                consultantName = existingPrimary?.consultantName,
                 patientID = patient.patientID,
                 benFlowID = null,
                 benVisitNo = patientVisitInfoSync.benVisitNo
@@ -890,7 +933,10 @@ class BenFlowRepo @Inject constructor(
      * When doctor has submitted prescription locally (saved in Prescription_Cases_Recorde) but API
      * has not synced yet, copy that data to the Prescription table so pharmacist module can show medicines.
      */
-    suspend fun copyPrescriptionFromCaseRecordToPharmacistTable(benVisitInfo: PatientDisplayWithVisitInfo): Boolean {
+    suspend fun copyPrescriptionFromCaseRecordToPharmacistTable(
+        benVisitInfo: PatientDisplayWithVisitInfo,
+        replaceLatestPending: Boolean? = null
+    ): Boolean {
         return try {
             val prescriptionCaseRecordVal = caseRecordeDao.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
                 benVisitInfo.patient.patientID,
@@ -911,7 +957,8 @@ class BenFlowRepo @Inject constructor(
                 patient = benVisitInfo.patient,
                 facilityID = facilityID,
                 patientDoctorBundle = bundle,
-                patientVisitInfoSync = sync
+                patientVisitInfoSync = sync,
+                replaceLatestPending = replaceLatestPending ?: ((benVisitInfo.pharmacist_flag ?: 0) == 1)
             )
             true
         } catch (e: Exception) {

@@ -140,9 +140,9 @@ class InAppUpdateHelper(
     private fun showUpdateDownloadedSnackbar() {
         Snackbar.make(
             activity.findViewById(android.R.id.content),
-            "An update is ready to install.",
+            activity.getString(org.piramalswasthya.cho.R.string.update_ready_to_install),
             Snackbar.LENGTH_INDEFINITE
-        ).setAction("Restart") {
+        ).setAction(activity.getString(org.piramalswasthya.cho.R.string.restart)) {
             appUpdateManager.completeUpdate()
         }.show()
     }
@@ -150,9 +150,9 @@ class InAppUpdateHelper(
     private fun showRetrySnackbar() {
         Snackbar.make(
             activity.findViewById(android.R.id.content),
-            "Update was canceled or failed.",
+            activity.getString(org.piramalswasthya.cho.R.string.update_canceled_or_failed),
             Snackbar.LENGTH_LONG
-        ).setAction("Try Again") {
+        ).setAction(activity.getString(org.piramalswasthya.cho.R.string.try_again_btn)) {
             checkForUpdate()
         }.show()
     }

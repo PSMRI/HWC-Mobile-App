@@ -54,7 +54,7 @@
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="@color/white"
                     android:textStyle="bold"
-                    tools:text="baby 0 of SUSHMA" />
+                    tools:text="baby 0 of Mother" />
 
                 <ImageView
                     android:id="@+id/iv_sync"
@@ -105,7 +105,7 @@
                             android:text="@{item.getMotherFullName()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
-                            tools:text="SUSHMA SUB" />
+                            tools:text="Mother Name" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -128,7 +128,7 @@
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
-                            tools:text="30 YEARS" />
+                            tools:text="Mother Age" />
                     </LinearLayout>
 
                 </LinearLayout>

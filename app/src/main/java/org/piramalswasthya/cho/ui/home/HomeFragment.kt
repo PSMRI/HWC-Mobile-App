@@ -85,11 +85,11 @@ class HomeFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.note_ben_reg))
             .setMessage(getString(R.string.please_search_for_beneficiary))
-            .setPositiveButton("Search") { dialog, _ ->
+            .setPositiveButton(getString(R.string.search)) { dialog, _ ->
                 dialog.dismiss()
                 HomeViewModel.setSearchBool()
             }
-            .setNegativeButton("Proceed with Registration"){dialog, _->
+            .setNegativeButton(getString(R.string.proceed_with_registration)) { dialog, _ ->
                 val intent = Intent(context, RegisterPatientActivity::class.java)
                 startActivity(intent)
                 dialog.dismiss()
@@ -180,6 +180,7 @@ class HomeFragment : Fragment() {
         WorkerUtils.totalPercentageCompleted.observe(viewLifecycleOwner){
             if(it > 0){
                 binding.tvLoadProgress.text = getString(R.string.downloading) + " " + it.toString() + "%"
+                binding.pbLoadProgress.progress = it
             }
         }
         binding.registration.bringToFront()
@@ -237,7 +238,7 @@ class HomeFragment : Fragment() {
         }
         if(preferenceDao.isUserCHO() || preferenceDao.isUserRegistrar()){
             val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nav_nurse)
-            nurseItem?.title = "CHO"
+            nurseItem?.title = getString(R.string.cho_role)
             val choDrawable = context?.let { ContextCompat.getDrawable(it, R.drawable.ic_medical_briefcase) } // R.drawable.cho
 
             // Set the icon using the retrieved Drawable

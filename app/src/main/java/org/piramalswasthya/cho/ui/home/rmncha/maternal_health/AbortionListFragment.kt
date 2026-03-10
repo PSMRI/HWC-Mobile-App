@@ -1,13 +1,13 @@
 package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,42 +15,40 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.AbortionListAdapter
-import org.piramalswasthya.cho.databinding.ActivityAbortionListBinding
+import org.piramalswasthya.cho.databinding.FragmentAbortionListBinding
 import org.piramalswasthya.cho.model.AbortionDomain
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import timber.log.Timber
 import javax.inject.Inject
 
 /**
- * Activity to display list of women with abortion records
- * Shows women who have aborted pregnancies (isAborted = 1 and abortionDate is not null)
+ * Fragment to display list of women with abortion records.
+ * Shows women who have aborted pregnancies (isAborted = 1 and abortionDate is not null).
  */
 @AndroidEntryPoint
-class AbortionListActivity : AppCompatActivity() {
+class AbortionListFragment : Fragment() {
 
     @Inject
     lateinit var maternalHealthRepo: MaternalHealthRepo
 
-    private lateinit var binding: ActivityAbortionListBinding
+    private var _binding: FragmentAbortionListBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var adapter: AbortionListAdapter
     private var allAbortions: List<AbortionDomain> = emptyList()
     private var filteredAbortions: List<AbortionDomain> = emptyList()
 
-    companion object {
-        fun getIntent(context: Context): Intent {
-            return Intent(context, AbortionListActivity::class.java)
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAbortionListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAbortionListBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Set up toolbar
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.abortion_list)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
         setupSearch()
@@ -61,17 +59,15 @@ class AbortionListActivity : AppCompatActivity() {
         adapter = AbortionListAdapter(
             AbortionListAdapter.ClickListener(
                 clickedView = { patientID ->
-                    // Handle VIEW click - navigate to abortion form/view
                     Toast.makeText(
-                        this,
+                        requireContext(),
                         "View Abortion: $patientID",
                         Toast.LENGTH_SHORT
                     ).show()
                 },
                 clickedAdd = { patientID ->
-                    // Handle ADD click - navigate to abortion form
                     Toast.makeText(
-                        this,
+                        requireContext(),
                         "Add Abortion: $patientID",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -79,18 +75,18 @@ class AbortionListActivity : AppCompatActivity() {
             )
         )
 
-        binding.rvAbortionList.layoutManager = LinearLayoutManager(this)
+        binding.rvAbortionList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvAbortionList.adapter = adapter
     }
 
     private fun setupSearch() {
         binding.searchView.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // No action needed before text changes
+                // No-op
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // No action needed during text changes - handled in afterTextChanged
+                // No-op
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -100,10 +96,10 @@ class AbortionListActivity : AppCompatActivity() {
     }
 
     private fun observeAbortions() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             maternalHealthRepo.getAbortionPregnantWomanList().collectLatest { abortionsList ->
-                allAbortions = abortionsList.sortedByDescending { 
-                    it.abortionDate ?: 0L 
+                allAbortions = abortionsList.sortedByDescending {
+                    it.abortionDate ?: 0L
                 }
                 filteredAbortions = allAbortions
                 updateUI()
@@ -125,16 +121,17 @@ class AbortionListActivity : AppCompatActivity() {
                 val searchQuery = query.lowercase()
 
                 firstName.contains(searchQuery) ||
-                        lastName.contains(searchQuery) ||
-                        spouseName.contains(searchQuery) ||
-                        phoneNo.contains(searchQuery) ||
-                        beneficiaryID.contains(searchQuery)
+                    lastName.contains(searchQuery) ||
+                    spouseName.contains(searchQuery) ||
+                    phoneNo.contains(searchQuery) ||
+                    beneficiaryID.contains(searchQuery)
             }
         }
         updateUI()
     }
 
     private fun updateUI() {
+        if (_binding == null) return
         if (filteredAbortions.isEmpty()) {
             binding.flEmpty.visibility = View.VISIBLE
             binding.rvAbortionList.visibility = View.GONE
@@ -155,8 +152,14 @@ class AbortionListActivity : AppCompatActivity() {
         Timber.d("Displaying ${filteredAbortions.size} abortion records")
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.abortion_list)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

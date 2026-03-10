@@ -55,7 +55,7 @@
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="@color/white"
                     android:textStyle="bold"
-                    tools:text="1st baby of MINAKSI" />
+                    tools:text="1st baby of Mother" />
 
                 <ImageView
                     android:id="@+id/iv_sync"
@@ -106,7 +106,7 @@
                             android:text="@{item.getMotherFullName()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
-                            tools:text="MINAKSI FUSS" />
+                            tools:text="Mother name" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -130,7 +130,7 @@
                             android:text="@{item.getMotherAgeString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
-                            tools:text="29 YEARS" />
+                            tools:text="Age" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -240,7 +240,7 @@
                             android:text="@{item.motherPatient.spouseName ?? `Not Available`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
-                            tools:text="MANDE FUSS" />
+                            tools:text="Husband/Wife Name" />
                     </LinearLayout>
 
                 </LinearLayout>

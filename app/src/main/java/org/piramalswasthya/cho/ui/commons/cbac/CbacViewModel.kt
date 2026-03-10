@@ -654,14 +654,6 @@ class CbacViewModel @Inject constructor(
             missingFieldString = resources.getString(R.string.cbac_validation_heart_disease)
             return false
         }
-        if (cbac.cbac_sufferingtb_pos == 0) {
-            missingFieldString = resources.getString(R.string.cbac_validation_plsst)
-            return false
-        }
-        if (cbac.cbac_antitbdrugs_pos == 0) {
-            missingFieldString = resources.getString(R.string.cbac_validation_plsatb)
-            return false
-        }
         if (cbac.cbac_tbhistory_pos == 0) {
             missingFieldString = resources.getString(R.string.cbac_validation_plshtb)
             return false
@@ -684,6 +676,14 @@ class CbacViewModel @Inject constructor(
         }
         if (cbac.cbac_nightsweats_pos == 0) {
             missingFieldString = resources.getString(R.string.cbac_validation_plsnsw)
+            return false
+        }
+        if (cbac.cbac_sufferingtb_pos == 0) {
+            missingFieldString = resources.getString(R.string.cbac_validation_plsst)
+            return false
+        }
+        if (cbac.cbac_antitbdrugs_pos == 0) {
+            missingFieldString = resources.getString(R.string.cbac_validation_plsatb)
             return false
         }
         if (cbac.cbac_uicers_pos == 0) {

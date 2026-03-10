@@ -3,10 +3,18 @@ package org.piramalswasthya.cho
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.HiltAndroidApp
+import org.piramalswasthya.cho.network.TokenRefreshHolder
+import org.piramalswasthya.cho.network.TokenRefreshProvider
 import org.piramalswasthya.cho.ui.home_activity.DemoDataStore
 import timber.log.Timber
 import javax.inject.Inject
@@ -44,7 +52,66 @@ class CHOApplication : Application(), Configuration.Provider {
             Timber.plant(Timber.DebugTree())
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
+        // Global keyboard insets handler: ensures the layout resizes when the soft keyboard
+        // opens on ALL activities. Required because targetSdk 35 enforces edge-to-edge,
+        // which makes windowSoftInputMode="adjustResize" silently ignored.
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                val window = activity.window
+                val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+                insetsController.isAppearanceLightStatusBars = false
+                val statusBarBgView = View(activity).apply {
+                    tag = "status_bar_bg"
+                    setBackgroundColor(android.graphics.Color.parseColor("#24303C"))
+                }
 
+                val decorView = window.decorView as android.view.ViewGroup
+                decorView.addView(
+                    statusBarBgView,
+                    android.widget.FrameLayout.LayoutParams(
+                        android.widget.FrameLayout.LayoutParams.MATCH_PARENT, 0
+                    )
+                )
+
+                val rootView = activity.findViewById<View>(android.R.id.content)
+                ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                    val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+                    val systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                    val bottomPadding = maxOf(imeInsets.bottom, systemBarInsets.bottom)
+                    view.setPadding(
+                        systemBarInsets.left,
+                        systemBarInsets.top,
+                        systemBarInsets.right,
+                        bottomPadding
+                    )
+
+                    statusBarBgView.layoutParams.height = systemBarInsets.top
+                    statusBarBgView.requestLayout()
+                    WindowInsetsCompat.CONSUMED
+                }
+            }
+
+            override fun onActivityStarted(activity: Activity) { /* No action needed */ }
+            override fun onActivityResumed(activity: Activity) { /* No action needed */ }
+            override fun onActivityPaused(activity: Activity) { /* No action needed */ }
+            override fun onActivityStopped(activity: Activity) { /* No action needed */ }
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) { /* No action needed */ }
+            override fun onActivityDestroyed(activity: Activity) { /* No action needed */ }
+        })
+
+        // Set token refresh provider so AuthRefreshInterceptor can refresh JWT when expired
+        try {
+            val entryPoint = EntryPointAccessors.fromApplication(this, TokenRefreshEntryPoint::class.java)
+            TokenRefreshHolder.provider = entryPoint.tokenRefreshProvider()
+        } catch (e: Exception) {
+            Timber.w(e, "CHOApplication: Could not set TokenRefreshProvider")
+        }
+    }
+
+    @dagger.hilt.EntryPoint
+    @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
+    interface TokenRefreshEntryPoint {
+        fun tokenRefreshProvider(): TokenRefreshProvider
     }
 
     companion object {
