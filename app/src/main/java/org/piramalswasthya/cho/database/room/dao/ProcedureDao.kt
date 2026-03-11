@@ -37,7 +37,7 @@ interface ProcedureDao {
     @Query("select * from component_option where component_details_id = :componentId")
     fun getComponentOptions(componentId: Long): List<ComponentOption>?
 
-    @Query("update component_details set test_result_value = :testResultValue and remarks = :remarks where id = :id")
+    @Query("update component_details set test_result_value = :testResultValue, remarks = :remarks where id = :id")
     fun addComponentResult(id: Long, testResultValue: String?, remarks: String?)
 
     @Query("select * from procedure where patientID = :patientID and benVisitNo = :benVisitNo and procedure_id = :procedureID limit 1")
@@ -55,6 +55,7 @@ interface ProcedureDao {
     @Query("delete from PROCEDURE_DATA_DOWNSYNC where patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun deleteProcedureDownsyncByPatientIdAndVisitNo(patientID: String, benVisitNo: Int)
 
+    @Transaction
     @Query("select * from PROCEDURE_DATA_DOWNSYNC where patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun getProceduresWithComponent(patientID: String, benVisitNo: Int): List<ProcedureDataWithComponent>
 

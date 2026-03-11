@@ -669,7 +669,8 @@ data class BeneficiariesDTO(
     val beneficiaryAge: Int?,
     val sourceOfInformation: String?,
     val isHIVPos: String?,
-    val faceEmbedding: List<Float>?
+    val faceEmbedding: List<Float>?,
+    val benImage: String?
 
 
 )
@@ -760,7 +761,8 @@ data class BenDetailDTO(
     val familyId: String?,
     val other: String?,
     val headOfFamily_Relation: String?,
-    val faceEmbedding: List<Float>?
+    val faceEmbedding: List<Float>?,
+    val benImage: String?
 
 )
 

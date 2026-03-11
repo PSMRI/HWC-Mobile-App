@@ -47,7 +47,8 @@
         tools:targetApi="31">
         <activity
             android:name=".ui.outreach_activity.OutreachActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.abha_id_activity.AbhaIdActivity"
             android:exported="false"
@@ -62,63 +63,39 @@
             android:name=".ui.web_view_activity.WebViewActivity"
             android:exported="false"
             android:label="@string/title_activity_web_view"
-            android:theme="@style/Theme.CHO" />
+            android:theme="@style/Theme.CHO"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.edit_patient_details_activity.EditPatientDetailsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.register_patient_activity.RegisterPatientActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.register_patient_activity.scanAadhaar.CaptureAct"
             android:exported="false" />
         <activity
             android:name=".ui.master_location_settings.MasterLocationSettingsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.home_activity.HomeActivity"
             android:exported="false"
-            android:label="CPHC" />
+            android:label="CPHC"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.home.rmncha.SubModuleActivity"
             android:exported="false"
             android:label="@string/app_name"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.home.rmncha.eligible_couple.EligibleCoupleRegistrationActivity"
-            android:exported="false"
-            android:label="@string/eligible_couple_registration"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.home.rmncha.maternal_health.PregnantWomenRegistrationActivity"
-            android:exported="false"
-            android:label="@string/pregnant_women_registration"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.home.rmncha.maternal_health.ANCVisitsActivity"
-            android:exported="false"
-            android:label="@string/anc_visits"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.home.rmncha.maternal_health.DeliveryOutcomeActivity"
-            android:exported="false"
-            android:label="@string/delivery_outcome"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.home.rmncha.maternal_health.PNCMotherListActivity"
-            android:exported="false"
-            android:label="@string/pnc_mother_list"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.home.rmncha.maternal_health.AbortionListActivity"
-            android:exported="false"
-            android:label="@string/abortion_list"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
+            android:parentActivityName=".ui.home_activity.HomeActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.login_activity.LoginActivity"
             android:exported="true"

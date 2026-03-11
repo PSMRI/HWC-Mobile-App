@@ -20,7 +20,10 @@ class NoseDiagnosisRepo @Inject constructor(
         return noseDiagnosisAssessmentDao.getAssessmentByPatientId(patientID)
     }
 
-    suspend fun getAssessmentByPatientIdAndVisitNo(patientID: String, benVisitNo: Int): NoseDiagnosisAssessment? {
+    suspend fun getAssessmentByPatientIdAndVisitNo(
+        patientID: String,
+        benVisitNo: Int
+    ): NoseDiagnosisAssessment? {
         return noseDiagnosisAssessmentDao.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
     }
 }

@@ -1,8 +1,10 @@
 package org.piramalswasthya.cho.adapter
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
+import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,30 +13,70 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.home.HomeViewModel
-import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.DateTimeUtil
+import org.piramalswasthya.cho.utils.ImgUtils
 
 class PatientItemAdapter(
     private val apiService: ESanjeevaniApiService,
     var context: Context,
     private val clickListener: BenClickListener,
     private val showAbha: Boolean = false,
+    private val showEditButton: Boolean = false,
 ) : ListAdapter<PatientDisplayWithVisitInfo, PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
+
+    companion object {
+        // Bitmap cache for beneficiary photos to avoid repeated Base64 decode on scroll/rebind.
+        private val benImageBitmapCache = object : LruCache<String, Bitmap>(6 * 1024) {
+            override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / 1024
+        }
+    }
+
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplayWithVisitInfo>() {
+        private fun stableKey(item: PatientDisplayWithVisitInfo): String {
+            return item.patient.beneficiaryID?.toString()
+                ?: "${item.patient.patientID}_${item.benVisitNo ?: -1}"
+        }
+
         override fun areItemsTheSame(
             oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
-        ) = oldItem.patient.beneficiaryID == newItem.patient.beneficiaryID
+        ) = stableKey(oldItem) == stableKey(newItem)
 
         override fun areContentsTheSame(
             oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
-        ) = oldItem == newItem
+        ): Boolean {
+            val oldPatient = oldItem.patient
+            val newPatient = newItem.patient
 
+            return oldPatient.firstName == newPatient.firstName &&
+                    oldPatient.lastName == newPatient.lastName &&
+                    oldPatient.dob == newPatient.dob &&
+                    oldPatient.phoneNo == newPatient.phoneNo &&
+                    oldPatient.beneficiaryID == newPatient.beneficiaryID &&
+                    oldPatient.syncState == newPatient.syncState &&
+                    oldPatient.healthIdDetails?.healthIdNumber == newPatient.healthIdDetails?.healthIdNumber &&
+                    oldPatient.benImage == newPatient.benImage &&
+                    oldItem.genderName == newItem.genderName &&
+                    oldItem.villageName == newItem.villageName &&
+                    oldItem.visitDate == newItem.visitDate &&
+                    oldItem.referDate == newItem.referDate &&
+                    oldItem.referTo == newItem.referTo &&
+                    oldItem.nurseFlag == newItem.nurseFlag &&
+                    oldItem.doctorFlag == newItem.doctorFlag &&
+                    oldItem.labtechFlag == newItem.labtechFlag &&
+                    oldItem.pharmacist_flag == newItem.pharmacist_flag
+        }
+
+    }
+
+    init {
+        setHasStableIds(true)
     }
 
     class BenViewHolder private constructor(private val binding: PatientListItemViewBinding) :
@@ -52,20 +94,22 @@ class PatientItemAdapter(
             item: PatientDisplayWithVisitInfo,
             clickListener: BenClickListener?,
             showAbha: Boolean,
+            showEditButton: Boolean,
             mContext: Context
         ) {
             var gender = ""
             binding.benVisitInfo = item
             binding.clickListener = clickListener
             binding.showAbha = showAbha
+            binding.showEditButton = showEditButton
             binding.hasAbha = !item.patient.healthIdDetails?.healthIdNumber.isNullOrEmpty()
 
             val firstName = item.patient.firstName ?: ""
             val lastName = item.patient.lastName ?: ""
             val capitalizedFirstName = firstName.split(" ")
-                .joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+                .joinToString(" ") { token -> token.replaceFirstChar { it.uppercaseChar() } }
             val capitalizedLastName = lastName.split(" ")
-                .joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+                .joinToString(" ") { token -> token.replaceFirstChar { it.uppercaseChar() } }
 
             val fullName = "$capitalizedFirstName $capitalizedLastName"
             binding.patientName.text = fullName
@@ -76,54 +120,47 @@ class PatientItemAdapter(
 
             val visitDateText = item.visitDate?.let { DateTimeUtil.formatDate(it) }
             if (visitDateText.isNullOrBlank()) {
-                binding.visitDate.text = "NA"
-                binding.referDate.text = "NA"
+                binding.visitDate.text = ""
+                binding.referDate.text = ""
             } else {
                 binding.visitDate.text = visitDateText
                 binding.referDate.text = visitDateText
             }
-            binding.patientPhoneNo.text = item.patient.phoneNo ?: "NA"
+            binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
             if (item.villageName.isNullOrBlank()) {
-                binding.village.text = "NA"
+                binding.village.text = ""
             } else binding.village.text = item.villageName
 
             binding.patientGender.text = item.genderName
             gender = item.genderName.toString()
 
-            if (item.patient.dob != null) {
-                val type = DateTimeUtil.getPatientTypeByAge(item.patient.dob!!)
-                if (type == "new_born_baby") {
-                    binding.ivPatientIcon.setImageResource(R.drawable.ic_new_born_baby)
-                } else if (type == "infant") {
-                    binding.ivPatientIcon.setImageResource(R.drawable.ic_infant)
-                } else if (type == "child") {
-                    //male female check
-                    if (gender == "Male") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_boy)
-                    } else if (gender == "Female") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_girl)
+            // Try to load the beneficiary photo first; fall back to age/gender icon if none
+            val benImage = item.patient.benImage
+            if (!benImage.isNullOrEmpty()) {
+                val cacheKey = "${item.patient.patientID}:${benImage.hashCode()}"
+                val cachedBitmap = PatientItemAdapter.benImageBitmapCache.get(cacheKey)
+                if (cachedBitmap != null) {
+                    Glide.with(mContext)
+                        .load(cachedBitmap)
+                        .placeholder(R.drawable.ic_person)
+                        .circleCrop()
+                        .into(binding.ivPatientIcon)
+                } else {
+                    val base64Data = if (benImage.contains(",")) benImage.substringAfter(",") else benImage
+                    val bitmap = ImgUtils.decodeBase64ToBitmap(base64Data)
+                    if (bitmap != null) {
+                        PatientItemAdapter.benImageBitmapCache.put(cacheKey, bitmap)
+                        Glide.with(mContext)
+                            .load(bitmap)
+                            .placeholder(R.drawable.ic_person)
+                            .circleCrop()
+                            .into(binding.ivPatientIcon)
                     } else {
-
-                    }
-
-                } else if (type == "adolescence") {
-                    if (gender == "Male") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_boy)
-                    } else if (gender == "Female") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_girl)
-                    } else {
-
-                    }
-
-                } else if (type == "adult") {
-                    if (gender == "Male") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_male)
-                    } else if (gender == "Female") {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_female)
-                    } else {
-                        binding.ivPatientIcon.setImageResource(R.drawable.ic_unisex)
+                        setDefaultPatientIcon(item.patient.dob, gender, binding)
                     }
                 }
+            } else {
+                setDefaultPatientIcon(item.patient.dob, gender, binding)
             }
 
             if (item.patient.syncState == SyncState.SYNCED) {
@@ -183,15 +220,40 @@ class PatientItemAdapter(
             binding.executePendingBindings()
 
         }
+
+        private fun setDefaultPatientIcon(dob: java.util.Date?, gender: String, binding: PatientListItemViewBinding) {
+            if (dob != null) {
+                val type = DateTimeUtil.getPatientTypeByAge(dob)
+                when (type) {
+                    "new_born_baby" -> binding.ivPatientIcon.setImageResource(R.drawable.ic_new_born_baby)
+                    "infant" -> binding.ivPatientIcon.setImageResource(R.drawable.ic_infant)
+                    "child", "adolescence" -> {
+                        if (gender == "Male") binding.ivPatientIcon.setImageResource(R.drawable.ic_boy)
+                        else if (gender == "Female") binding.ivPatientIcon.setImageResource(R.drawable.ic_girl)
+                    }
+                    "adult" -> {
+                        if (gender == "Male") binding.ivPatientIcon.setImageResource(R.drawable.ic_male)
+                        else if (gender == "Female") binding.ivPatientIcon.setImageResource(R.drawable.ic_female)
+                        else binding.ivPatientIcon.setImageResource(R.drawable.ic_unisex)
+                    }
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(
         parent: ViewGroup, viewType: Int
     ) = BenViewHolder.from(parent)
 
+    override fun getItemId(position: Int): Long {
+        val item = getItem(position)
+        val uniqueKey = "${item.patient.patientID}:${item.benVisitNo ?: -1}"
+        return uniqueKey.hashCode().toLong()
+    }
+
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
 //        patientId = getItem(position).patient.patientID
-        holder.bind(getItem(position), clickListener, showAbha, holder.itemView.context)
+        holder.bind(getItem(position), clickListener, showAbha, showEditButton, holder.itemView.context)
 
     }
 

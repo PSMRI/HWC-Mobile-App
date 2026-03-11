@@ -45,6 +45,9 @@ interface HealthCenterDao {
     @Query("SELECT * from Item_Master_List where itemID = :id")
     fun getItemMasterListById(id:Int): ItemMasterList
 
+    @Query("SELECT quantityInHand FROM Item_Master_List WHERE itemID = :id")
+    suspend fun getItemMasterQtyInHandById(id: Int): Int?
+
     @Query("SELECT * from Counselling_Provided")
     fun getAllCounsellingProvided():LiveData<List<CounsellingProvided>>
 }

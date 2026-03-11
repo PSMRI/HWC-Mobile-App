@@ -64,7 +64,7 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_ba
         super.onViewCreated(view, savedInstanceState)
         val data = arguments?.getString("batchList")
         if(data==null){
-            Toast.makeText(requireContext(), "Medicine not available", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.medicine_not_available), Toast.LENGTH_SHORT).show()
         }
         val data2 = arguments?.getString("prescriptionDTO")
         val data3 = arguments?.getString("prescriptionItemDTO")
@@ -77,11 +77,11 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_ba
         binding.prescriptionIdValue.text = prescriptionDTO.prescriptionID.toString()
 
         binding.prescribedValue.text = prescriptionItemDTO.qtyPrescribed.toString()
-        binding.dispensedValue.text = prescriptionItemDTO.qtyPrescribed.toString()
+        binding.dispensedValue.text = "0"
         if(batch!=null){
             binding.batchValue.text = batch.batchNo
             binding.quantityInHandValue.text = batch.qty.toString()
-            binding.dispensedQuantityValue.text = prescriptionItemDTO.qtyPrescribed.toString()
+            binding.dispensedQuantityValue.text = "0"
             binding.expiryDateValue.text = batch.expiryDate
         }
 

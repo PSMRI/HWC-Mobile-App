@@ -69,7 +69,12 @@ class NoseDiagnosisFormViewModel @Inject constructor(
                     return@launch
                 }
 
-                val patient = patientID?.let { patientRepo.getPatientDisplay(it) }
+                if (patientID == null || benVisitNo == null) {
+                    Timber.Forest.e("Missing patientID ($patientID) or benVisitNo ($benVisitNo)")
+                    return@launch
+                }
+
+                val patient = patientRepo.getPatientDisplay(patientID)
                 if (patient == null) {
                     Timber.Forest.e("Patient not found for ID: $patientID")
                     return@launch
@@ -81,13 +86,10 @@ class NoseDiagnosisFormViewModel @Inject constructor(
                 _benAgeGender.value =
                     "${patient.patient.age} ${patient.ageUnit?.name} | ${patient.gender?.genderName}"
 
-                val existingRecord = if (benVisitNo != null) {
-                    noseDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(
-                        patient.patient.patientID, benVisitNo
-                    )
-                } else {
-                    noseDiagnosisRepo.getAssessmentByPatientId(patient.patient.patientID)
-                }
+                val existingRecord = noseDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(
+                    patientID,
+                    benVisitNo
+                )
 
                 assessmentCache = existingRecord ?: NoseDiagnosisAssessment(
                     patientID = patient.patient.patientID,

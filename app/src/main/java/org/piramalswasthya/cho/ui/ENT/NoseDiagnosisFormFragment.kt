@@ -157,6 +157,7 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
 
     override fun onCancelAction() {
         if (!findNavController().navigateUp()) {
+            onBackPressedCallback.remove()
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
@@ -165,6 +166,7 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
         R.id.fragment_nose_diagnosis_form
 
     override fun onDestroyView() {
+        activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
         super.onDestroyView()
         _binding = null
     }

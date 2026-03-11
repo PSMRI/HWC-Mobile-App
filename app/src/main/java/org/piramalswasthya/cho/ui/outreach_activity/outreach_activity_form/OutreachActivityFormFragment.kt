@@ -149,7 +149,7 @@ class OutreachActivityFormFragment : Fragment() {
                     inputDate == formattedDate
                 }
                 if (isDateExist) {
-                    Toast.makeText(requireContext(),"Events for this Date already exist",Toast.LENGTH_SHORT ).show()
+                    Toast.makeText(requireContext(), getString(R.string.events_for_date_already_exist), Toast.LENGTH_SHORT).show()
                     return@setOnClickListener;
                 }
 

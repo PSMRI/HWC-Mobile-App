@@ -52,7 +52,7 @@ class DeliveryOutcomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         // Handle back button press
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
@@ -96,7 +96,7 @@ class DeliveryOutcomeFragment : Fragment() {
     }
 
     private fun observePatients() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             maternalHealthRepo.getAllDeliveredWomen().collectLatest { patientsList ->
                 // Filter for delivered women (already filtered by DAO query)
                 allPatients = patientsList
@@ -124,6 +124,12 @@ class DeliveryOutcomeFragment : Fragment() {
             resultString = getString(R.string.result),
             logMessage = "Displaying delivered women"
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.delivery_outcome)
     }
 
     override fun onDestroyView() {

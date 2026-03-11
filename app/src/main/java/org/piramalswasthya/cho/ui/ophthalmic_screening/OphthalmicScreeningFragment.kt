@@ -54,11 +54,13 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         setupClickListeners()
         setupObservers()
         observeConditionSubFields()
+        observeInjuryFields()
         viewModel.loadOphthalmicVisit(args.patientID, args.benVisitNo, args.reasonForVisit)
 
         val headerTitle = when (args.reasonForVisit) {
             DropdownConst.REASON_SYMPTOMATIC -> getString(R.string.ophthalmic_symptomatic_title)
-            DropdownConst.REASON_FIRST_AID_EYE_INJURY -> getString(R.string.ophthalmic_injury_trauma_title)
+            DropdownConst.REASON_FIRST_AID_EYE_INJURY,
+            DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA -> getString(R.string.ophthalmic_injury_trauma_title)
             else -> getString(R.string.ophthalmic_screening_title)
         }
         activity?.findViewById<android.widget.TextView>(R.id.header_text_register_patient)?.text = headerTitle
@@ -108,6 +110,13 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         binding.actvCornealDiseaseType.setOnItemClickListener { _, _, position, _ ->
             viewModel.setCornealDiseaseType(cornealValues[position])
         }
+
+        val foreignBodyValues = DropdownConst.foreignBodyRemovalOptions
+        val foreignBodyAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, foreignBodyValues)
+        binding.actvForeignBodyRemoval.setAdapter(foreignBodyAdapter)
+        binding.actvForeignBodyRemoval.setOnItemClickListener { _, _, position, _ ->
+            viewModel.setForeignBodyRemoval(foreignBodyValues[position])
+        }
     }
 
     private fun setupClickListeners() {
@@ -119,6 +128,13 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
         binding.tvInjuryTypeSelection.setOnClickListener {
             showInjuryTypeMultiSelectDialog()
+        }
+
+        binding.rgChemicalExposure.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rb_chemical_exposure_yes -> viewModel.setChemicalExposure(true)
+                R.id.rb_chemical_exposure_no -> viewModel.setChemicalExposure(false)
+            }
         }
 
         binding.rgCataractSymptoms.setOnCheckedChangeListener { _, checkedId ->
@@ -190,7 +206,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
 
         AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.ophthalmic_injury_type_label))
+            .setTitle(getString(R.string.ophthalmic_select_injury_type))
             .setMultiChoiceItems(options, checkedItems) { _, which, isChecked ->
                 checkedItems[which] = isChecked
             }
@@ -215,15 +231,22 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         binding.btnNext.isEnabled = false
         viewModel.save {
             Toast.makeText(requireContext(), "Saved successfully", Toast.LENGTH_SHORT).show()
-            val benVisitInfo = args.benVisitInfo
-            if (benVisitInfo != null) {
-                findNavController().navigate(
-                    OphthalmicScreeningFragmentDirections
-                        .actionOphthalmicScreeningFragmentToFhirVisitDetailsFragment(benVisitInfo)
-                )
+            val isInjuryTrauma = args.reasonForVisit == DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA ||
+                    args.reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY
+            if (isInjuryTrauma) {
+                // PRD: "Next Button – Proceed to previous page."
+                findNavController().popBackStack()
             } else {
-                binding.btnNext.isEnabled = true
-                Toast.makeText(requireContext(), "Error returning to details", Toast.LENGTH_SHORT).show()
+                val benVisitInfo = args.benVisitInfo
+                if (benVisitInfo != null) {
+                    findNavController().navigate(
+                        OphthalmicScreeningFragmentDirections
+                            .actionOphthalmicScreeningFragmentToFhirVisitDetailsFragment(benVisitInfo)
+                    )
+                } else {
+                    binding.btnNext.isEnabled = true
+                    Toast.makeText(requireContext(), "Error returning to details", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -245,6 +268,14 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             OphthalmicScreeningViewModel.MissingField.CORNEAL -> Pair(R.string.ophthalmic_corneal_disease_type, binding.actvCornealDiseaseType)
             OphthalmicScreeningViewModel.MissingField.VITAMIN_A -> Pair(R.string.ophthalmic_vitamin_a_deficiency_label, binding.rgVitaminADeficiency)
             OphthalmicScreeningViewModel.MissingField.INJURY_TYPE -> Pair(R.string.ophthalmic_injury_type_label, binding.tvInjuryTypeSelection)
+            OphthalmicScreeningViewModel.MissingField.FOREIGN_BODY_REMOVAL -> Pair(
+                R.string.ophthalmic_foreign_body_removal_attempted,
+                binding.actvForeignBodyRemoval
+            )
+            OphthalmicScreeningViewModel.MissingField.CHEMICAL_EXPOSURE -> Pair(
+                R.string.ophthalmic_chemical_exposure_wash_performed,
+                binding.rgChemicalExposure
+            )
             else -> return
         }
 
@@ -294,6 +325,14 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             binding.llNearVaSection.visibility = if (show) View.VISIBLE else View.GONE
         }
 
+        viewModel.canProceed.observe(viewLifecycleOwner) { canProceed ->
+            if (args.reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY ||
+                args.reasonForVisit == DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA
+            ) {
+                binding.btnNext.isEnabled = canProceed
+            }
+        }
+
         viewModel.saveError.observe(viewLifecycleOwner) { failed ->
             if (failed) {
                 binding.btnNext.isEnabled = true
@@ -301,12 +340,45 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             }
         }
 
+        viewModel.caseIdConditions.observe(viewLifecycleOwner) { conditions ->
+            applyCaseIdConditionsDisplay(conditions)
+        }
+    }
+
+    private fun observeInjuryFields() {
         viewModel.injuryTypes.observe(viewLifecycleOwner) { types ->
             applyInjuryTypesDisplay(types)
         }
 
-        viewModel.caseIdConditions.observe(viewLifecycleOwner) { conditions ->
-            applyCaseIdConditionsDisplay(conditions)
+        viewModel.showForeignBodyRemovalField.observe(viewLifecycleOwner) { show ->
+            updateTextViewVisibility(show, binding.llForeignBodyRemovalField, binding.actvForeignBodyRemoval)
+        }
+
+        viewModel.showChemicalExposureField.observe(viewLifecycleOwner) { show ->
+            updateRadioGroupVisibility(show, binding.llChemicalExposureField, binding.rgChemicalExposure)
+        }
+
+        viewModel.showForeignBodyAlert.observe(viewLifecycleOwner) { show ->
+            binding.tvForeignBodyAlert.visibility = if (show) View.VISIBLE else View.GONE
+        }
+
+        viewModel.showChemicalExposureAlert.observe(viewLifecycleOwner) { show ->
+            binding.tvChemicalExposureAlert.visibility = if (show) View.VISIBLE else View.GONE
+        }
+
+        viewModel.foreignBodyRemoval.observe(viewLifecycleOwner) { value ->
+            if (!value.isNullOrEmpty() && binding.actvForeignBodyRemoval.text.toString() != value) {
+                binding.actvForeignBodyRemoval.setText(value, false)
+            }
+        }
+
+        viewModel.chemicalExposure.observe(viewLifecycleOwner) { value ->
+            applyRadioState(
+                binding.rgChemicalExposure,
+                value,
+                R.id.rb_chemical_exposure_yes,
+                R.id.rb_chemical_exposure_no
+            )
         }
     }
     private fun observeConditionSubFields() {
