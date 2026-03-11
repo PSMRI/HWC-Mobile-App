@@ -81,12 +81,7 @@ class PsychosocialCaregiverSupportDataset(
 
     // ---------------- Value Change Handler ----------------
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
-        val referralFollowUpResult = handleReferralFollowUpChange(formId, index)
-        if (referralFollowUpResult != -1) return referralFollowUpResult
-
-        return when (formId) {
-            else -> -1
-        }
+        return handleReferralFollowUpChange(formId, index)
     }
 
     // ---------------- Cache Helpers ----------------
@@ -98,17 +93,11 @@ class PsychosocialCaregiverSupportDataset(
     }
 
     private fun populateFromCache(cache: PsychosocialCaregiverSupport) {
-        psychosocialCounsellingProvided.value = when (cache.psychosocialCounsellingProvided) {
-            true -> "Yes"
-            false -> "No"
-            else -> null
-        }
+        psychosocialCounsellingProvided.value =
+            cache.psychosocialCounsellingProvided?.let { if (it) "Yes" else "No" }
 
-        caregiverCounsellingProvided.value = when (cache.caregiverCounsellingProvided) {
-            true -> "Yes"
-            false -> "No"
-            else -> null
-        }
+        caregiverCounsellingProvided.value =
+            cache.caregiverCounsellingProvided?.let { if (it) "Yes" else "No" }
 
         caregiverDistressIdentified.value =
             if (cache.caregiverDistressIdentified == true) "Yes" else null
