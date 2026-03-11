@@ -66,14 +66,14 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
         if (referralRequired.value == "Yes") {
             referralLevel.required = true
             list.add(referralLevel)
-        }
-        list.add(reasonForReferral)
-        list.add(followUpRequired)
-        if (followUpRequired.value == "Yes") {
-            followUpDate.required = true
-            followUpDate.min = System.currentTimeMillis()
-            followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
-            list.add(followUpDate)
+            list.add(reasonForReferral)
+            list.add(followUpRequired)
+            if (followUpRequired.value == "Yes") {
+                followUpDate.required = true
+                followUpDate.min = System.currentTimeMillis()
+                followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
+                list.add(followUpDate)
+            }
         }
     }
 
@@ -82,18 +82,29 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
             referralRequired.id -> {
                 if (index == 0) { // Yes
                     referralLevel.required = true
+                    val addItems = mutableListOf(referralLevel, reasonForReferral, followUpRequired)
+                    if (followUpRequired.value == "Yes") {
+                        followUpDate.required = true
+                        followUpDate.min = System.currentTimeMillis()
+                        followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
+                        addItems.add(followUpDate)
+                    }
                     triggerDependants(
                         source = referralRequired,
-                        addItems = listOf(referralLevel),
+                        addItems = addItems,
                         removeItems = emptyList()
                     )
                 } else { // No
                     referralLevel.value = null
                     referralLevel.required = false
+                    reasonForReferral.value = null
+                    followUpRequired.value = null
+                    followUpDate.value = null
+                    followUpDate.required = false
                     triggerDependants(
                         source = referralRequired,
                         addItems = emptyList(),
-                        removeItems = listOf(referralLevel)
+                        removeItems = listOf(referralLevel, reasonForReferral, followUpRequired, followUpDate)
                     )
                 }
                 referralRequired.id
@@ -137,13 +148,24 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
             "No" -> false
             else -> null
         }
-        cacheValue.referralLevel = referralLevel.value
-        cacheValue.reasonForReferral = reasonForReferral.value
-        cacheValue.followUpRequired = when (followUpRequired.value) {
-            "Yes" -> true
-            "No" -> false
-            else -> null
+        if (cacheValue.referralRequired == true) {
+            cacheValue.referralLevel = referralLevel.value
+            cacheValue.reasonForReferral = reasonForReferral.value
+            cacheValue.followUpRequired = when (followUpRequired.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
+            if (cacheValue.followUpRequired == true) {
+                cacheValue.followUpDate = followUpDate.value
+            } else {
+                cacheValue.followUpDate = null
+            }
+        } else {
+            cacheValue.referralLevel = null
+            cacheValue.reasonForReferral = null
+            cacheValue.followUpRequired = null
+            cacheValue.followUpDate = null
         }
-        cacheValue.followUpDate = followUpDate.value
     }
 }
