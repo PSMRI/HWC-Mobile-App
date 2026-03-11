@@ -55,7 +55,7 @@ class LabTechnicianFormViewModel @Inject constructor(
     val boolCall: LiveData<Boolean>
         get() = _boolCall
 
-    private var _procedures = MutableLiveData<List<ProcedureDTO>>(null)
+    private var _procedures = MutableLiveData<List<ProcedureDTO>>()
     val procedures: LiveData<List<ProcedureDTO>>
         get() = _procedures
 
