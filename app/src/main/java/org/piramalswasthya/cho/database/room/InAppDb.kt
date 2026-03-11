@@ -259,7 +259,7 @@ import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
         OralHealth::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 131, exportSchema = false
+    version = 132, exportSchema = false
 )
 
 
@@ -826,6 +826,22 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_131_132 = object : Migration(131, 132) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN referral_required INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN referral_level TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN reason_for_referral TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN follow_up_required INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN follow_up_date TEXT")
+
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN referral_required INTEGER")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN referral_level TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN reason_for_referral TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN follow_up_required INTEGER")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN follow_up_date TEXT")
+            }
+        }
+
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -863,7 +879,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_127_128,
                             MIGRATION_128_129,
                             MIGRATION_129_130,
-                            MIGRATION_130_131
+                            MIGRATION_130_131,
+                            MIGRATION_131_132
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

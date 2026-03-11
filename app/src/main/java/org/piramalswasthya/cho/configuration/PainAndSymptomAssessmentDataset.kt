@@ -5,6 +5,7 @@ import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PainAndSymptomAssessment
+import java.util.concurrent.TimeUnit
 
 class PainAndSymptomAssessmentDataset(
     context: Context,
@@ -63,6 +64,54 @@ class PainAndSymptomAssessmentDataset(
         required = true
     )
 
+    // ---------------- Section F: Referral & Follow-up ----------------
+
+    private val referralRequired = FormElement(
+        id = 6,
+        inputType = InputType.RADIO,
+        title = "Referral required",
+        entries = arrayOf("Yes", "No"),
+        required = true,
+        hasDependants = true
+    )
+
+    private val referralLevel = FormElement(
+        id = 7,
+        inputType = InputType.DROPDOWN,
+        title = "Referral level",
+        entries = arrayOf("PHC", "CHC", "District Hospital", "Palliative Care Unit"),
+        required = false
+    )
+
+    private val reasonForReferral = FormElement(
+        id = 8,
+        inputType = InputType.DROPDOWN,
+        title = "Reason for referral",
+        entries = arrayOf(
+            "Severe pain",
+            "Functional dependence",
+            "Dementia suspected",
+            "End-of-life care"
+        ),
+        required = true
+    )
+
+    private val followUpRequired = FormElement(
+        id = 9,
+        inputType = InputType.RADIO,
+        title = "Follow-up required",
+        entries = arrayOf("Yes", "No"),
+        required = true,
+        hasDependants = true
+    )
+
+    private val followUpDate = FormElement(
+        id = 10,
+        inputType = InputType.DATE_PICKER,
+        title = "Follow-up date",
+        required = false
+    )
+
     // ---------------- Setup Page ----------------
     suspend fun setUpPage(savedRecord: PainAndSymptomAssessment?) {
         cache = savedRecord ?: createDefaultCache()
@@ -79,6 +128,21 @@ class PainAndSymptomAssessmentDataset(
         }
 
         list.add(immediateReliefProvided)
+
+        // Section F
+        list.add(referralRequired)
+        if (referralRequired.value == "Yes") {
+            referralLevel.required = true
+            list.add(referralLevel)
+        }
+        list.add(reasonForReferral)
+        list.add(followUpRequired)
+        if (followUpRequired.value == "Yes") {
+            followUpDate.required = true
+            followUpDate.min = System.currentTimeMillis()
+            followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
+            list.add(followUpDate)
+        }
 
         setUpPage(list)
     }
@@ -125,6 +189,48 @@ class PainAndSymptomAssessmentDataset(
                 -1
             }
 
+            referralRequired.id -> {
+                if (index == 0) { // Yes
+                    referralLevel.required = true
+                    triggerDependants(
+                        source = referralRequired,
+                        addItems = listOf(referralLevel),
+                        removeItems = emptyList()
+                    )
+                } else { // No
+                    referralLevel.value = null
+                    referralLevel.required = false
+                    triggerDependants(
+                        source = referralRequired,
+                        addItems = emptyList(),
+                        removeItems = listOf(referralLevel)
+                    )
+                }
+                referralRequired.id
+            }
+
+            followUpRequired.id -> {
+                if (index == 0) { // Yes
+                    followUpDate.required = true
+                    followUpDate.min = System.currentTimeMillis()
+                    followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
+                    triggerDependants(
+                        source = followUpRequired,
+                        addItems = listOf(followUpDate),
+                        removeItems = emptyList()
+                    )
+                } else { // No
+                    followUpDate.value = null
+                    followUpDate.required = false
+                    triggerDependants(
+                        source = followUpRequired,
+                        addItems = emptyList(),
+                        removeItems = listOf(followUpDate)
+                    )
+                }
+                followUpRequired.id
+            }
+
             else -> -1
         }
     }
@@ -151,6 +257,21 @@ class PainAndSymptomAssessmentDataset(
             false -> "No"
             else -> null
         }
+
+        // Section F
+        referralRequired.value = when (cache.referralRequired) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+        referralLevel.value = cache.referralLevel
+        reasonForReferral.value = cache.reasonForReferral
+        followUpRequired.value = when (cache.followUpRequired) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+        followUpDate.value = cache.followUpDate
     }
 
     // ---------------- Map Values ----------------
@@ -173,6 +294,21 @@ class PainAndSymptomAssessmentDataset(
                 "No" -> false
                 else -> null
             }
+
+            // Section F
+            it.referralRequired = when (referralRequired.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
+            it.referralLevel = referralLevel.value
+            it.reasonForReferral = reasonForReferral.value
+            it.followUpRequired = when (followUpRequired.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
+            it.followUpDate = followUpDate.value
         }
     }
 }

@@ -5,6 +5,7 @@ import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
+import java.util.concurrent.TimeUnit
 
 class PsychosocialCaregiverSupportDataset(
     context: Context,
@@ -50,24 +51,131 @@ class PsychosocialCaregiverSupportDataset(
         etInputType = android.text.InputType.TYPE_CLASS_TEXT
     )
 
+    // ---------------- Section F: Referral & Follow-up ----------------
+
+    private val referralRequired = FormElement(
+        id = 5,
+        inputType = InputType.RADIO,
+        title = "Referral required",
+        entries = arrayOf("Yes", "No"),
+        required = true,
+        hasDependants = true
+    )
+
+    private val referralLevel = FormElement(
+        id = 6,
+        inputType = InputType.DROPDOWN,
+        title = "Referral level",
+        entries = arrayOf("PHC", "CHC", "District Hospital", "Palliative Care Unit"),
+        required = false
+    )
+
+    private val reasonForReferral = FormElement(
+        id = 7,
+        inputType = InputType.DROPDOWN,
+        title = "Reason for referral",
+        entries = arrayOf(
+            "Severe pain",
+            "Functional dependence",
+            "Dementia suspected",
+            "End-of-life care"
+        ),
+        required = true
+    )
+
+    private val followUpRequired = FormElement(
+        id = 8,
+        inputType = InputType.RADIO,
+        title = "Follow-up required",
+        entries = arrayOf("Yes", "No"),
+        required = true,
+        hasDependants = true
+    )
+
+    private val followUpDate = FormElement(
+        id = 9,
+        inputType = InputType.DATE_PICKER,
+        title = "Follow-up date",
+        required = false
+    )
+
     // ---------------- Setup Page ----------------
     suspend fun setUpPage(savedRecord: PsychosocialCaregiverSupport?) {
         cache = savedRecord ?: createDefaultCache()
         populateFromCache(cache)
 
-        val list = listOf(
-            psychosocialCounsellingProvided,
-            caregiverCounsellingProvided,
-            caregiverDistressIdentified,
-            counsellingRemarks
-        )
+        val list = mutableListOf<FormElement>()
+        list.add(psychosocialCounsellingProvided)
+        list.add(caregiverCounsellingProvided)
+        list.add(caregiverDistressIdentified)
+        list.add(counsellingRemarks)
+
+        // Section F
+        list.add(referralRequired)
+        if (referralRequired.value == "Yes") {
+            referralLevel.required = true
+            list.add(referralLevel)
+        }
+        list.add(reasonForReferral)
+        list.add(followUpRequired)
+        if (followUpRequired.value == "Yes") {
+            followUpDate.required = true
+            followUpDate.min = System.currentTimeMillis()
+            followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
+            list.add(followUpDate)
+        }
 
         setUpPage(list)
     }
 
     // ---------------- Value Change Handler ----------------
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
-        return -1 // No dependent logic required for this section
+        return when (formId) {
+
+            referralRequired.id -> {
+                if (index == 0) { // Yes
+                    referralLevel.required = true
+                    triggerDependants(
+                        source = referralRequired,
+                        addItems = listOf(referralLevel),
+                        removeItems = emptyList()
+                    )
+                } else { // No
+                    referralLevel.value = null
+                    referralLevel.required = false
+                    triggerDependants(
+                        source = referralRequired,
+                        addItems = emptyList(),
+                        removeItems = listOf(referralLevel)
+                    )
+                }
+                referralRequired.id
+            }
+
+            followUpRequired.id -> {
+                if (index == 0) { // Yes
+                    followUpDate.required = true
+                    followUpDate.min = System.currentTimeMillis()
+                    followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
+                    triggerDependants(
+                        source = followUpRequired,
+                        addItems = listOf(followUpDate),
+                        removeItems = emptyList()
+                    )
+                } else { // No
+                    followUpDate.value = null
+                    followUpDate.required = false
+                    triggerDependants(
+                        source = followUpRequired,
+                        addItems = emptyList(),
+                        removeItems = listOf(followUpDate)
+                    )
+                }
+                followUpRequired.id
+            }
+
+            else -> -1
+        }
     }
 
     // ---------------- Cache Helpers ----------------
@@ -95,6 +203,21 @@ class PsychosocialCaregiverSupportDataset(
             if (cache.caregiverDistressIdentified == true) "Yes" else null
 
         counsellingRemarks.value = cache.counsellingRemarks
+
+        // Section F
+        referralRequired.value = when (cache.referralRequired) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+        referralLevel.value = cache.referralLevel
+        reasonForReferral.value = cache.reasonForReferral
+        followUpRequired.value = when (cache.followUpRequired) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+        followUpDate.value = cache.followUpDate
     }
 
     // ---------------- Map Values ----------------
@@ -111,6 +234,21 @@ class PsychosocialCaregiverSupportDataset(
                 caregiverDistressIdentified.value == "Yes"
 
             it.counsellingRemarks = counsellingRemarks.value
+
+            // Section F
+            it.referralRequired = when (referralRequired.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
+            it.referralLevel = referralLevel.value
+            it.reasonForReferral = reasonForReferral.value
+            it.followUpRequired = when (followUpRequired.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
+            it.followUpDate = followUpDate.value
         }
     }
 }
