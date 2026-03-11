@@ -834,6 +834,7 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN follow_up_required INTEGER")
                 database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN follow_up_date TEXT")
 
+                // Elderly Health – Section F: Referral & Follow-up
                 database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN referral_required INTEGER")
                 database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN referral_level TEXT")
                 database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN reason_for_referral TEXT")
