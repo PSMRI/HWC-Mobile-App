@@ -58,6 +58,7 @@ import org.piramalswasthya.cho.network.AbhaApiService
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.FlwApiService
+import org.piramalswasthya.cho.network.interceptors.AuthRefreshInterceptor
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
@@ -77,11 +78,11 @@ object AppModule {
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
     private const val baseAmritUrl = "https://uatamrit.piramalswasthya.org/"
-    // "https://uatamrit.piramalswasthya.org/"
+    // "https://assamuat.piramalswasthya.org/"
     // "https://amritdemo.piramalswasthya.org/"
 
     private const val baseFlwUrl = "https://uatamrit.piramalswasthya.org/"
-    // "https://uatamrit.piramalswasthya.org/"
+//    "https://assamuat.piramalswasthya.org/"
     // "https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://abhasbx.abdm.gov.in/abha/api/"
@@ -119,6 +120,7 @@ object AppModule {
             .readTimeout(600, TimeUnit.SECONDS)
             .writeTimeout(600, TimeUnit.SECONDS)
             .addInterceptor(TokenInsertTmcInterceptor())
+            .addInterceptor(AuthRefreshInterceptor())
             .build()
     }
     @Singleton
