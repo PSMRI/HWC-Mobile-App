@@ -189,10 +189,10 @@ class PharmacistFormViewModel @Inject constructor(
             benFlowRepo.getAllocationItemForPharmacist(prescriptionDTO)
         }
     }
-//
+    //
     @SuppressLint("StaticFieldLeak")
     val context: Context = application.applicationContext
-//
+    //
     val state = savedStateHandle
     fun savePharmacistData(dtos: PrescriptionDTO?, benVisitInfo: PatientDisplayWithVisitInfo) {
         _isDataSaved.value = false
@@ -203,29 +203,29 @@ class PharmacistFormViewModel @Inject constructor(
                     return@launch
                 }
 
-               if(dtos!=null && dtos.itemList!=null){
-                   dtos.itemList.forEach { item->
-                       if(item.batchList!=null && item.batchList.isNotEmpty()){
-                           val firstBatch = item.batchList.first()
-                           Log.d("WU", "Batch1 ${firstBatch} ")
-                           val availableBatch =  batchDao.getBatchByStockEntityId(firstBatch.itemStockEntryID.toLong())
-                           Log.d("WU", "Batch2 ${availableBatch} ")
-                           if(availableBatch!=null) {
-                               val updatedBatch = availableBatch.copy(
-                                   quantityInHand = availableBatch.quantityInHand - (item.qtyPrescribed ?: 0)
-                               )
-                               Log.d("WU", "Batch3 ${updatedBatch}")
-                               if(updatedBatch.quantityInHand<=0){
-                                   batchDao.deleteBatch(availableBatch)
-                               }else{
-                                   batchDao.updateBatch(updatedBatch)
-                               }
-                           }
-                       }else{
-                           Toast.makeText(context, "Medicine not available", Toast.LENGTH_SHORT).show()
-                       }
-                   }
-               }
+                if(dtos!=null && dtos.itemList!=null){
+                    dtos.itemList.forEach { item->
+                        if(item.batchList!=null && item.batchList.isNotEmpty()){
+                            val firstBatch = item.batchList.first()
+                            Log.d("WU", "Batch1 ${firstBatch} ")
+                            val availableBatch =  batchDao.getBatchByStockEntityId(firstBatch.itemStockEntryID.toLong())
+                            Log.d("WU", "Batch2 ${availableBatch} ")
+                            if(availableBatch!=null) {
+                                val updatedBatch = availableBatch.copy(
+                                    quantityInHand = availableBatch.quantityInHand - (item.qtyPrescribed ?: 0)
+                                )
+                                Log.d("WU", "Batch3 ${updatedBatch}")
+                                if(updatedBatch.quantityInHand<=0){
+                                    batchDao.deleteBatch(availableBatch)
+                                }else{
+                                    batchDao.updateBatch(updatedBatch)
+                                }
+                            }
+                        }else{
+                            Toast.makeText(context, "Medicine not available", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
                 patientVisitInfoSyncRepo.markPharmacistDispensedLocally(
                     benVisitInfo.patient.patientID,
                     visitNo
@@ -318,21 +318,17 @@ class PharmacistFormViewModel @Inject constructor(
 
                                 if (updatedQty <= 0) {
                                     batchDao.deleteBatch(dbBatch)
-                                    Log.d("PharmacistVM", "Deleted empty batch: ${dbBatch.batchNo}")
                                 } else {
                                     batchDao.updateBatch(dbBatch.copy(quantityInHand = updatedQty))
-                                    Log.d("PharmacistVM", "Updated batch ${dbBatch.batchNo}: ${dbBatch.quantityInHand} -> $updatedQty")
                                 }
 
                                 remainingQty -= dispenseQty
-                                Log.d("PharmacistVM", "Dispensed $dispenseQty of ${item.genericDrugName}, remaining: $remainingQty")
                             } ?: run {
                                 Log.w("PharmacistVM", "Batch not found in database: ${batch.itemStockEntryID}")
                             }
                         }
 
                         if (remainingQty > 0) {
-                            Log.w("PharmacistVM", "Insufficient stock for ${item.genericDrugName}. Remaining: $remainingQty")
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(context, "Insufficient stock for ${item.genericDrugName}. Only ${prescribedQty - remainingQty} units dispensed.", Toast.LENGTH_LONG).show()
                             }
@@ -423,7 +419,6 @@ class PharmacistFormViewModel @Inject constructor(
             val result = benFlowRepo.getStockDetailsOfSubStore(facilityID)
             result is NetworkResult.Success
         } catch (e: Exception) {
-            Log.e("PharmacistViewModel", "Failed to refresh batch data", e)
             false
         }
     }
@@ -432,7 +427,7 @@ class PharmacistFormViewModel @Inject constructor(
         return try {
             // First try to get batches from local database
             var batches = batchDao.getBatchesByItemID(drugID.toInt())
-            
+
             // If no batches found locally, try to refresh from server
             if (batches.isEmpty()) {
                 val refreshSuccess = refreshBatchData()
@@ -440,7 +435,7 @@ class PharmacistFormViewModel @Inject constructor(
                     batches = batchDao.getBatchesByItemID(drugID.toInt())
                 }
             }
-            
+
             // Convert to PrescriptionBatchDTO format
             batches.filter { batch ->
                 // Only include non-expired batches with available quantity
@@ -458,7 +453,6 @@ class PharmacistFormViewModel @Inject constructor(
                 )
             }
         } catch (e: Exception) {
-            Log.e("PharmacistViewModel", "Error getting batches for medicine $drugID", e)
             emptyList()
         }
     }
@@ -501,7 +495,6 @@ class PharmacistFormViewModel @Inject constructor(
                 return networkInfo?.isConnected == true
             }
         } catch (e: Exception) {
-            Log.e("PharmacistViewModel", "Error checking network connectivity", e)
             false
         }
     }

@@ -39,6 +39,7 @@
     <string name="outreach">Outreach</string>
     <string name="system_issue">System Issue</string>
     <string name="manual_issue">Manual Issue</string>
+    <string name="no_batch_selected">Please select a batch before submitting</string>
     <string name="refresh_batch_data">Refresh Batch Data</string>
     <string name="batch_data_refreshed">Batch data refreshed successfully</string>
     <string name="batch_refresh_failed">Failed to refresh batch data. Please check your connection.</string>
@@ -50,6 +51,8 @@
     <string name="network_required_refresh">Network connection required to refresh batch data. Please connect to internet.</string>
     <string name="view_batch_disabled_system">View Batch is disabled in System Issue mode</string>
     <string name="system_issue_auto_allocation">System Issue mode: Automatic batch allocation enabled</string>
+    <string name="batch_selection_required">Please select batch for all medicines in Manual Issue mode</string>
+    <string name="batch_selection_required_for">Please select batch for: %s</string>
     <string name="refreshing">Refreshing...</string>
     <string name="last_refreshed_never">Last refreshed: Never</string>
     <string name="error_refreshing_batch_data">Error refreshing batch data</string>

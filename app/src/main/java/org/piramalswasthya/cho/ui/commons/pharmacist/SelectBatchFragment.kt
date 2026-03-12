@@ -77,34 +77,32 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
             findNavController().popBackStack()
             return
         }
-        
+
         val data2 = arguments?.getString("prescriptionDTO")
         val data3 = arguments?.getString("prescriptionItemDTO")
         benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
 
         prescriptionDTO = Gson().fromJson(data2, PrescriptionDTO::class.java)
         prescriptionItemDTO = Gson().fromJson(data3, PrescriptionItemDTO::class.java)
-        
+
         try {
             val batchType = object : TypeToken<List<PrescriptionBatchDTO>>() {}.type
             batch = Gson().fromJson(data, batchType)
-            
+
             if (batch.isEmpty()) {
                 Toast.makeText(requireContext(), "No batches available for this medicine.", Toast.LENGTH_LONG).show()
                 findNavController().popBackStack()
                 return
             }
-            
+
         } catch (e: Exception) {
-            Log.e("SelectBatch", "Error parsing batch data", e)
             Toast.makeText(requireContext(), "Error loading batch data. Please try again.", Toast.LENGTH_LONG).show()
             findNavController().popBackStack()
             return
         }
-        
+
         binding.prescribedValue.text = prescriptionItemDTO?.qtyPrescribed.toString()
-        Log.d("BatchJSON", "Loaded ${batch.size} batches for ${prescriptionItemDTO?.genericDrugName}")
-        
+
         itemAdapter = context?.let { it ->
             SelectBatchAdapter(it)
         }
@@ -128,7 +126,7 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
             .show()
     }
     fun navigateNext() {
-        requireActivity().finish()
+        findNavController().popBackStack()
     }
 
     override fun getFragmentId(): Int {
@@ -139,9 +137,9 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
         val selectedBatches = batch.filter { it.isSelected }
         val totalDispensed = selectedBatches.sumOf { it.dispenseQuantity }
         val prescribedQty = prescriptionItemDTO?.qtyPrescribed ?: 0
-        
+
         activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = false
-        
+
         when {
             selectedBatches.isEmpty() -> {
                 showErrorDialog(requireContext(), "No Selection", "Please select at least one batch to dispense.")
@@ -167,7 +165,7 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
             else -> {
                 // Update the prescription item with selected batches
                 prescriptionItemDTO?.batchList = batch
-                
+
                 viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
                 viewModel.savePharmacistDataforManual(prescriptionDTO, benVisitInfo)
                 viewModel.isDataSaved.observe(viewLifecycleOwner) { state ->
@@ -178,7 +176,6 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
                             navigateNext()
                         }
                         else -> {
-                            showErrorDialog(requireContext(), "Dispensing Failed", "Failed to dispense medicine. Please try again.")
                             activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = true
                         }
                     }

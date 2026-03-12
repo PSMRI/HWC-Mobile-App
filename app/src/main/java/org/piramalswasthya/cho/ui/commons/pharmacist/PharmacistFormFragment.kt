@@ -101,20 +101,20 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                             clickListener = PharmacistItemAdapter.PharmacistClickListener(clickedSelectBatch = { prescription ->
                                 val bundle = Bundle()
                                 bundle.putString("prescriptionItemDTO", Gson().toJson(prescription))
-                                
+
                                 // Use real-time batch fetching instead of relying on existing batchList
                                 lifecycleScope.launch {
                                     try {
                                         // Check network availability before proceeding
                                         if (!viewModel.isNetworkAvailable()) {
-                                            Toast.makeText(requireContext(), 
-                                                getString(R.string.network_required_manual_batch), 
+                                            Toast.makeText(requireContext(),
+                                                getString(R.string.network_required_manual_batch),
                                                 Toast.LENGTH_LONG).show()
                                             return@launch
                                         }
-                                        
+
                                         val availableBatches = viewModel.getBatchesForMedicine(prescription.drugID)
-                                        
+
                                         if (availableBatches.isNotEmpty()) {
                                             bundle.putString("batchList", Gson().toJson(availableBatches))
                                             bundle.putString("prescriptionDTO", Gson().toJson(dtos))
@@ -128,7 +128,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                             Toast.makeText(requireContext(), getString(R.string.no_batches_available), Toast.LENGTH_LONG).show()
                                         }
                                     } catch (e: Exception) {
-                                        Log.e("PharmacistForm", "Error fetching batches", e)
                                         Toast.makeText(requireContext(), "Error loading batch data. Please try again.", Toast.LENGTH_SHORT).show()
                                     }
                                 }
@@ -153,10 +152,10 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                         Toast.makeText(requireContext(), getString(R.string.medicine_not_available), Toast.LENGTH_SHORT).show()
                                     }
                                     */
-                                    
+
                                     // For now, just show a message that this feature is disabled
-                                    Toast.makeText(requireContext(), 
-                                        "View Batch is disabled in System Issue mode", 
+                                    Toast.makeText(requireContext(),
+                                        "View Batch is disabled in System Issue mode",
                                         Toast.LENGTH_SHORT).show()
                                 }
                             )
@@ -169,16 +168,16 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                 itemAdapter?.updateIssueType("Manual Issue")
                                 // Check network availability and show message if needed
                                 if (!viewModel.isNetworkAvailable()) {
-                                    Toast.makeText(requireContext(), 
-                                        getString(R.string.network_required_manual_batch) + ". Please connect to internet.", 
+                                    Toast.makeText(requireContext(),
+                                        getString(R.string.network_required_manual_batch) + ". Please connect to internet.",
                                         Toast.LENGTH_LONG).show()
                                 }
                             }
                             binding.btnSystemIssue.id -> {
                                 dtos?.issueType = "System Issue"
                                 itemAdapter?.updateIssueType("System Issue")
-                                Toast.makeText(requireContext(), 
-                                    getString(R.string.system_issue_auto_allocation), 
+                                Toast.makeText(requireContext(),
+                                    getString(R.string.system_issue_auto_allocation),
                                     Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -236,6 +235,10 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
 
     override fun onSubmitAction() {
         Timber.d("submit button", dtos)
+        if (!isManualIssueReadyForSubmit(dtos)) {
+            Toast.makeText(requireContext(), getString(R.string.no_batch_selected), Toast.LENGTH_SHORT).show()
+            return
+        }
         activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = false
         viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
         viewModel.savePharmacistData(dtos, benVisitInfo)
@@ -257,6 +260,16 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
         val intent = Intent(context, HomeActivity::class.java)
         startActivity(intent)
         requireActivity().finish()
+    }
+
+    private fun isManualIssueReadyForSubmit(dtos: PrescriptionDTO?): Boolean {
+        if (dtos?.issueType != "Manual Issue") return true
+        val items = dtos.itemList ?: return false
+        return items.all { item ->
+            val batches = item.batchList
+            if (batches.isNullOrEmpty()) return@all false
+            batches.any { it.isSelected && it.dispenseQuantity > 0 }
+        }
     }
 
     private val careContextPrompt by lazy {
