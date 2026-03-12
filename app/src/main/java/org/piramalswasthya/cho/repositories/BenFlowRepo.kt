@@ -649,8 +649,13 @@ class BenFlowRepo @Inject constructor(
                 itemName = "%%",
                 facilityID = facilityID.toString()
             )
+            Log.d("BatchAPI", "Calling batch API with facilityID: $facilityID")
+            
             val response = apiService.getPharmacistStockItemList(request)
             val responseBody = response.body()?.string()
+            
+            Log.d("BatchAPI", "API Response received: ${responseBody?.take(200)}...")
+            
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
@@ -658,6 +663,11 @@ class BenFlowRepo @Inject constructor(
                         val jsonObj = JSONObject(responseBody)
                         val dataArray = jsonObj.getJSONArray("data")
                         val batchList = mutableListOf<Batch>()
+                        var successCount = 0
+                        var failedCount = 0
+                        
+                        Log.d("BatchAPI", "Processing ${dataArray.length()} batch items")
+                        
                         for (i in 0 until dataArray.length()) {
                             val item = dataArray.getJSONObject(i).toString()
                             val apiItemStockEntry = Gson().fromJson(item, ApiItemStockEntry::class.java)
@@ -671,19 +681,34 @@ class BenFlowRepo @Inject constructor(
                                 quantityInHand = apiItemStockEntry.quantityInHand
                             )
 
-                            batchList.add(batch)
+                            // Try to insert each batch individually to handle foreign key constraints
+                            try {
+                                batchDao.insertBatch(batch)
+                                successCount++
+                            } catch (e: Exception) {
+                                failedCount++
+                                Log.w("BatchAPI", "Failed to insert batch for itemID ${apiItemStockEntry.itemID}: ${e.message}. Item may not exist in ItemMasterList.")
+                            }
                         }
-                        batchDao.insertAllBatches(batchList)
+                        
+                        Log.d("BatchAPI", "Batch insertion complete: $successCount successful, $failedCount failed")
+                        
+                        if (successCount > 0) {
+                            Log.d("BatchAPI", "Successfully inserted $successCount batches into database")
+                        }
+                        
+                        if (failedCount > 0) {
+                            Log.w("BatchAPI", "$failedCount batches were skipped due to missing items in ItemMasterList")
+                        }
 
-                        Log.d("Medicine list", "$batchList")
                         NetworkResult.Success(NetworkResponse())
                     } catch (e: Exception) {
-                        Log.e("Medicine list", "Error during parsing or deserialization", e)
+                        Log.e("BatchAPI", "Error during parsing or database insertion", e)
+                        NetworkResult.Error(0, e.message ?: "Failed to process batch data")
                     }
-                    NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {
-                    Log.d("Token Expired", "Token Expired")
+                    Log.d("BatchAPI", "Token expired, refreshing and retrying")
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
                     getStockDetailsOfSubStore(facilityID)

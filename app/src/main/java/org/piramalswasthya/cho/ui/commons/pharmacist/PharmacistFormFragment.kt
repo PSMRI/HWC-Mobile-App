@@ -4,10 +4,12 @@ package org.piramalswasthya.cho.ui.commons.pharmacist
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -95,27 +97,46 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                         PharmacistItemAdapter(
                             it,
                             dtos?.issueType ?: "",
-                            clickListener = PharmacistItemAdapter.PharmacistClickListener(clickedSelectBatch = { it
+                            networkAvailabilityCheck = { viewModel.isNetworkAvailable() },
+                            clickListener = PharmacistItemAdapter.PharmacistClickListener(clickedSelectBatch = { prescription ->
                                 val bundle = Bundle()
-                                bundle.putString("prescriptionItemDTO", Gson().toJson(it))
-                                if(it.batchList!= null && it.batchList.isNotEmpty()){
-                                    bundle.putString("batchList", Gson().toJson(it.batchList))
+                                bundle.putString("prescriptionItemDTO", Gson().toJson(prescription))
+                                
+                                // Use real-time batch fetching instead of relying on existing batchList
+                                lifecycleScope.launch {
+                                    try {
+                                        // Check network availability before proceeding
+                                        if (!viewModel.isNetworkAvailable()) {
+                                            Toast.makeText(requireContext(), 
+                                                getString(R.string.network_required_manual_batch), 
+                                                Toast.LENGTH_LONG).show()
+                                            return@launch
+                                        }
+                                        
+                                        val availableBatches = viewModel.getBatchesForMedicine(prescription.drugID)
+                                        
+                                        if (availableBatches.isNotEmpty()) {
+                                            bundle.putString("batchList", Gson().toJson(availableBatches))
+                                            bundle.putString("prescriptionDTO", Gson().toJson(dtos))
+                                            bundle.putSerializable("benVisitInfo", benVisitInfo)
 
-                                    bundle.putString("prescriptionDTO", Gson().toJson(dtos))
-                                    bundle.putSerializable("benVisitInfo", benVisitInfo)
-
-                                    val batchFragment = PrescriptionBatchFormFragment()
-                                    batchFragment.arguments = bundle
-                                    findNavController().navigate(
-                                        R.id.action_pharmacistFormFragment_to_selectBatchFragment, bundle
-                                    )
+                                            findNavController().navigate(
+                                                R.id.action_pharmacistFormFragment_to_selectBatchFragment, bundle
+                                            )
+                                        } else {
+                                            // Show retry dialog instead of just error message
+//                                            showBatchRetryDialog(prescription)
+                                        }
+                                    } catch (e: Exception) {
+                                        Log.e("PharmacistForm", "Error fetching batches", e)
+                                        Toast.makeText(requireContext(), "Error loading batch data. Please try again.", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
-                                else{
-                                    Toast.makeText(requireContext(), getString(R.string.medicine_not_available), Toast.LENGTH_SHORT).show()
-                                }
-
                             },
                                 clickedViewBatch = { prescription ->
+                                    // View Batch functionality is commented out for System Issue mode
+                                    // This was the original implementation for System Issue
+                                    /*
                                     val bundle = Bundle()
                                     bundle.putString("prescriptionItemDTO", Gson().toJson(prescription))
                                     if(prescription.batchList!= null && prescription.batchList.isNotEmpty()){
@@ -131,6 +152,12 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                     else{
                                         Toast.makeText(requireContext(), getString(R.string.medicine_not_available), Toast.LENGTH_SHORT).show()
                                     }
+                                    */
+                                    
+                                    // For now, just show a message that this feature is disabled
+                                    Toast.makeText(requireContext(), 
+                                        "View Batch is disabled in System Issue mode", 
+                                        Toast.LENGTH_SHORT).show()
                                 }
                             )
                         )
@@ -140,16 +167,25 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                             binding.btnManualIssue.id -> {
                                 dtos?.issueType = "Manual Issue"
                                 itemAdapter?.updateIssueType("Manual Issue")
-
+                                // Check network availability and show message if needed
+                                if (!viewModel.isNetworkAvailable()) {
+                                    Toast.makeText(requireContext(), 
+                                        getString(R.string.network_required_manual_batch) + ". Please connect to internet.", 
+                                        Toast.LENGTH_LONG).show()
+                                }
                             }
                             binding.btnSystemIssue.id -> {
                                 dtos?.issueType = "System Issue"
                                 itemAdapter?.updateIssueType("System Issue")
-
+                                Toast.makeText(requireContext(), 
+                                    getString(R.string.system_issue_auto_allocation), 
+                                    Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
-                    binding.pharmacistListContainer.pharmacistList.adapter = itemAdapter
+
+                    // Add refresh button functionality
+                    // Update network status indicatorbinding.pharmacistListContainer.pharmacistList.adapter = itemAdapter
                     lifecycleScope.launch {
                         viewModel.downloadPrescription(benVisitInfo = benVisitInfo)
                         viewModel.getPrescription(benVisitInfo = benVisitInfo)

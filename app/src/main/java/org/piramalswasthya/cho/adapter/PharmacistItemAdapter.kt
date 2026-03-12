@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.internal.notifyAll
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.PharmacistListItemViewBinding
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import timber.log.Timber
@@ -21,6 +22,7 @@ class PharmacistItemAdapter(
     private val context: Context,
     private var issueType: String,
     private val clickListener: PharmacistClickListener,
+    private val networkAvailabilityCheck: () -> Boolean
 ) : ListAdapter<PrescriptionItemDTO,PharmacistItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
 
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PrescriptionItemDTO>() {
@@ -50,7 +52,8 @@ class PharmacistItemAdapter(
         fun bind(
             item: PrescriptionItemDTO,
             issueType:String,
-            clickListener: PharmacistClickListener
+            clickListener: PharmacistClickListener,
+            networkAvailabilityCheck: () -> Boolean
         ) {
             Timber.d("*******************DAta Prescription DTO************** ",clickListener)
             binding.prescription = item
@@ -68,16 +71,41 @@ class PharmacistItemAdapter(
             // Local DTO has prescribed quantity only; dispensed quantity should not mirror prescribed.
             binding.quantityDispensedValue.text = "0"
             binding.specialInstructionValue.text = item.dose ?: ""
-            binding.btnViewBatch.text = if (issueType == "Manual Issue") {
-                "Select Batch"
-            } else {
-                "View Batch"
-            }
-            binding.btnViewBatch.setOnClickListener {
-                if (issueType == "Manual Issue") {
-                    clickListener.onClickSelectBatch(item)
-                } else {
-                    clickListener.onClickViewBatch(item)
+            
+            // Handle button visibility and text based on issue type and network availability
+            when (issueType) {
+                "Manual Issue" -> {
+                    val isNetworkAvailable = networkAvailabilityCheck()
+                    if (isNetworkAvailable) {
+                        binding.btnViewBatch.text = "Select Batch"
+                        binding.btnViewBatch.visibility = android.view.View.VISIBLE
+                        binding.btnViewBatch.isEnabled = true
+                        binding.btnViewBatch.setOnClickListener {
+                            clickListener.onClickSelectBatch(item)
+                        }
+                    } else {
+                        binding.btnViewBatch.visibility = android.view.View.GONE
+                        // Show a message that network is required for manual batch selection
+                        android.widget.Toast.makeText(binding.root.context, 
+                            binding.root.context.getString(R.string.network_required_manual_batch), 
+                            android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+                "System Issue" -> {
+                    // Hide/comment the view batch button for system issue
+                    binding.btnViewBatch.visibility = android.view.View.GONE
+                    // Alternatively, you can comment out the button functionality:
+                    /*
+                    binding.btnViewBatch.text = "View Batch"
+                    binding.btnViewBatch.visibility = android.view.View.VISIBLE
+                    binding.btnViewBatch.isEnabled = false
+                    binding.btnViewBatch.setOnClickListener {
+                        clickListener.onClickViewBatch(item)
+                    }
+                    */
+                }
+                else -> {
+                    binding.btnViewBatch.visibility = android.view.View.GONE
                 }
             }
             binding.executePendingBindings()
@@ -91,7 +119,7 @@ class PharmacistItemAdapter(
 
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
         drugID = getItem(position).drugID.toString()
-        holder.bind(getItem(position), issueType , clickListener)
+        holder.bind(getItem(position), issueType, clickListener, networkAvailabilityCheck)
 
 //        holder.itemView.findViewById<MaterialButton>(R.id.submit_btn).setOnClickListener { // When submit button is clicked
 //            network = isInternetAvailable(context)
