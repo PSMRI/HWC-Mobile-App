@@ -1,17 +1,16 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentFhirVisitDetailsBinding
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 
 //R.layout.fragment_fhir_visit_details
 
@@ -58,8 +57,7 @@ class FhirVisitDetailsFragment : Fragment(R.layout.fragment_fhir_visit_details),
     }
 
     override fun onCancelAction() {
-        val intent = Intent(context, WebViewActivity::class.java)
-        startActivity(intent)
+        findNavController().navigateUp()
     }
 
     fun navigateNext() {

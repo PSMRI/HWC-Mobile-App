@@ -59,7 +59,7 @@ import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.list.ChildImmunizationListViewModel
 import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.list.ChildImmunizationVaccineBottomSheetFragment
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil.getEddDateFromLmpDate
 import org.piramalswasthya.cho.utils.HelperUtil.setCustomOnClickListener
@@ -1026,8 +1026,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     when(it!!){
                         true ->{
                             WorkerUtils.triggerAmritSyncWorker(requireContext())
-                            val intent = Intent(context, HomeActivity::class.java)
-                            startActivity(intent)
                             requireActivity().finish()
                         }
                         else ->{
@@ -1699,8 +1697,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
     private fun onCancelCall() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
         requireActivity().finish()
     }
     //methods for voice to text conversion and update the input fields

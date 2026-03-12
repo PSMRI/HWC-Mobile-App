@@ -1,6 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +27,7 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.OtherCPHCServicesViewModel
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form.PncFormViewModel.State
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -166,8 +166,6 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                 when(it!!){
                     true ->{
                         WorkerUtils.triggerAmritSyncWorker(requireContext())
-                        val intent = Intent(context, HomeActivity::class.java)
-                        startActivity(intent)
                         requireActivity().finish()
                     }
                     else ->{

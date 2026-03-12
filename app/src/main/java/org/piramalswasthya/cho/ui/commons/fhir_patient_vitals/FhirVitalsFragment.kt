@@ -1,6 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -34,7 +34,7 @@ import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.utils.setBoxColor
@@ -727,8 +727,6 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                             when (it!!) {
                                 true -> {
                                     WorkerUtils.triggerAmritSyncWorker(requireContext())
-                                    val intent = Intent(context, HomeActivity::class.java)
-                                    startActivity(intent)
                                     requireActivity().finish()
                                 }
 

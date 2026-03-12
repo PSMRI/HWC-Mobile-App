@@ -2,7 +2,7 @@ package org.piramalswasthya.cho.ui.commons.pharmacist
 
 
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +29,7 @@ import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home.HomeViewModel
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
@@ -218,8 +218,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
     }
 
     override fun onCancelAction() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
         requireActivity().finish()
     }
 
@@ -391,8 +389,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
     }
 
     fun navigateNext() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
         requireActivity().finish()
     }
 
