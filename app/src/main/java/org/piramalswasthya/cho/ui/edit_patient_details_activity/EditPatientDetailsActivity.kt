@@ -225,6 +225,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
     private fun setupNavigationListener() {
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            viewModel.setBottomActionsVisible(true)
             when (destination.id) {
                 R.id.fhirVisitDetailsFragment -> {
                     showBottomActions(R.string.next)
@@ -330,6 +331,16 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         viewModel.submitActive.observe(this) {
             binding.btnSubmit.isEnabled = it
+        }
+
+        viewModel.bottomActionsVisible.observe(this) { visible ->
+            if (visible) {
+                binding.bottomNavigation.visibility = View.VISIBLE
+                binding.linearLayout.visibility = View.VISIBLE
+            } else {
+                binding.bottomNavigation.visibility = View.GONE
+                binding.linearLayout.visibility = View.GONE
+            }
         }
     }
 

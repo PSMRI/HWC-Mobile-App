@@ -698,6 +698,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             }
         }
         if (isValidData) {
+            parentViewModel.setBottomActionsVisible(false)
             composeView.setContent {
                 AddLoading(message = "Submitting...")
             }

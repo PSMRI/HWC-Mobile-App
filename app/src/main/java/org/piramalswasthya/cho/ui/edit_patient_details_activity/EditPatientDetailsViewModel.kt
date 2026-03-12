@@ -18,6 +18,10 @@ class EditPatientDetailsViewModel : ViewModel() {
     val submitActive: LiveData<Boolean>
         get() = _submitActive
 
+    private val _bottomActionsVisible = MutableLiveData(true)
+    val bottomActionsVisible: LiveData<Boolean>
+        get() = _bottomActionsVisible
+
     private var patientDetails: PatientDetails? = null
 
     fun savePatientDetails(firstName: String, lastName: String, contactNo: String, gender: String, age: String) {
@@ -42,5 +46,9 @@ class EditPatientDetailsViewModel : ViewModel() {
     fun setSubmitActive(boolean: Boolean) {
             _submitActive.postValue(boolean)
 
+    }
+
+    fun setBottomActionsVisible(visible: Boolean) {
+        _bottomActionsVisible.postValue(visible)
     }
 }
