@@ -1159,28 +1159,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             viewModel.selectedReasonForVisit = ""
         }
 
-        if (binding.subCatInput.text.toString() == DropdownConst.ent) {
-            setReasonForVisitDropdown(DropdownConst.ent)
-            val currentReason = binding.reasonForVisitInput.text.toString()
-            if (currentReason == DropdownConst.nose || currentReason == DropdownConst.ear) {
-                // Check if current reason is still a valid option in the adapter
-                val adapter = binding.reasonForVisitInput.adapter
-                var isValid = false
-                if (adapter != null) {
-                    for (i in 0 until adapter.count) {
-                        if (adapter.getItem(i).toString() == currentReason) {
-                            isValid = true
-                            break
-                        }
-                    }
-                }
-                if (!isValid) {
-                    binding.reasonForVisitInput.setText("", false)
-                    viewModel.selectedReasonForVisit = ""
-                }
-            }
-        }
+        validateEntReasonForVisit()
+    }
 
+    private fun validateEntReasonForVisit() {
         if (binding.subCatInput.text.toString() == DropdownConst.ent) {
             setReasonForVisitDropdown(DropdownConst.ent)
             val currentReason = binding.reasonForVisitInput.text.toString()
