@@ -125,7 +125,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                             )
                                         } else {
                                             // Show retry dialog instead of just error message
-//                                            showBatchRetryDialog(prescription)
+                                            Toast.makeText(requireContext(), getString(R.string.no_batches_available), Toast.LENGTH_LONG).show()
                                         }
                                     } catch (e: Exception) {
                                         Log.e("PharmacistForm", "Error fetching batches", e)
@@ -184,8 +184,8 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                         }
                     }
 
-                    // Add refresh button functionality
-                    // Update network status indicatorbinding.pharmacistListContainer.pharmacistList.adapter = itemAdapter
+
+                    binding.pharmacistListContainer.pharmacistList.adapter = itemAdapter
                     lifecycleScope.launch {
                         viewModel.downloadPrescription(benVisitInfo = benVisitInfo)
                         viewModel.getPrescription(benVisitInfo = benVisitInfo)
