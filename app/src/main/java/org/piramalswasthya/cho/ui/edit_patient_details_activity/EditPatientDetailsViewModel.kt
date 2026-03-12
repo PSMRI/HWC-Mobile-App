@@ -49,6 +49,6 @@ class EditPatientDetailsViewModel : ViewModel() {
     }
 
     fun setBottomActionsVisible(visible: Boolean) {
-        _bottomActionsVisible.postValue(visible)
+        _bottomActionsVisible.value = visible
     }
 }

@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.ui.commons.case_record.FormItemAdapter
 import org.piramalswasthya.cho.ui.setSpinnerItems
 import org.piramalswasthya.cho.utils.HelperUtil
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 
 class PrescriptionAdapter(
     private val isVisitDetail: Boolean? = null,
@@ -290,12 +291,29 @@ class PrescriptionAdapter(
 
         formMD.map { it.dropdownForMed }.toTypedArray()
             ?.let { holder.formOptions.setSpinnerItems(it) }
-        val setupDropdown = { field: AutoCompleteTextView ->
-            field.threshold = 0
-            field.setOnFocusChangeListener(if (isRowReadOnly) null else View.OnFocusChangeListener { _, hasFocus -> if (hasFocus) field.showDropDown() })
-            field.setOnClickListener(if (isRowReadOnly) null else View.OnClickListener { field.showDropDown() })
+
+        holder.formOptions.threshold = 0
+        holder.frequencyOptions.threshold = 0
+        holder.unitOption.threshold = 0
+        holder.instructionOption.threshold = 0
+
+        if (!isRowReadOnly) {
+            holder.formOptions.setupDropdownKeyboardHandling()
+            holder.frequencyOptions.setupDropdownKeyboardHandling()
+            holder.unitOption.setupDropdownKeyboardHandling()
+            holder.instructionOption.setupDropdownKeyboardHandling()
+
+            // Keep editable autocomplete behavior for text-entry dropdowns.
+            holder.formOptions.showSoftInputOnFocus = true
+            holder.formOptions.setOnTouchListener(null)
+            holder.formOptions.setOnFocusChangeListener(null)
+            holder.formOptions.setOnClickListener { holder.formOptions.showDropDown() }
+
+            holder.instructionOption.showSoftInputOnFocus = true
+            holder.instructionOption.setOnTouchListener(null)
+            holder.instructionOption.setOnFocusChangeListener(null)
+            holder.instructionOption.setOnClickListener { holder.instructionOption.showDropDown() }
         }
-        setupDropdown(holder.formOptions); setupDropdown(holder.frequencyOptions); setupDropdown(holder.unitOption); setupDropdown(holder.instructionOption)
 
         holder.formOptions.addTextChangedListener{
             itemData.form= it.toString()

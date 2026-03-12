@@ -503,7 +503,7 @@
                                     android:id="@+id/abha_number_label"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/abha_no"
+                                    android:text="@string/abha_id_label"
                                     android:textColor="@color/black"
                                     android:textSize="13sp"
                                     android:textStyle="normal" />
