@@ -258,6 +258,7 @@ class PrescriptionAdapter(
 
             selectedItem?.let {
                 holder.formOptions.setText(selectedName)
+                holder.formOptions.setSelection(holder.formOptions.text?.length ?: 0)
                 itemData.id = it.itemID
 
                 it.itemID?.let { id ->
@@ -289,6 +290,12 @@ class PrescriptionAdapter(
 
         formMD.map { it.dropdownForMed }.toTypedArray()
             ?.let { holder.formOptions.setSpinnerItems(it) }
+        val setupDropdown = { field: AutoCompleteTextView ->
+            field.threshold = 0
+            field.setOnFocusChangeListener(if (isRowReadOnly) null else View.OnFocusChangeListener { _, hasFocus -> if (hasFocus) field.showDropDown() })
+            field.setOnClickListener(if (isRowReadOnly) null else View.OnClickListener { field.showDropDown() })
+        }
+        setupDropdown(holder.formOptions); setupDropdown(holder.frequencyOptions); setupDropdown(holder.unitOption); setupDropdown(holder.instructionOption)
 
         holder.formOptions.addTextChangedListener{
             itemData.form= it.toString()
