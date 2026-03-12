@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -24,7 +25,6 @@ import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.home_activity.HomeActivityViewModel
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -68,6 +68,8 @@ class HomeFragment : Fragment() {
             .create()
     }
 
+
+    private val activityViewModel by activityViewModels<HomeActivityViewModel>()
 
     private lateinit var viewModel: HomeViewModel
 
@@ -175,6 +177,16 @@ class HomeFragment : Fragment() {
         }
         else{
             binding.registration.visibility = View.GONE
+        }
+
+        activityViewModel.currentRole.observe(viewLifecycleOwner) {
+            val newFragment = PersonalDetailsFragment()
+            childFragmentManager.beginTransaction()
+                .replace(binding.patientListFragment.id, newFragment)
+                .commit()
+            val showReg = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
+            binding.registration.visibility = if (showReg) View.VISIBLE else View.GONE
+            binding.registration.isEnabled = showReg
         }
 
         WorkerUtils.totalPercentageCompleted.observe(viewLifecycleOwner){
@@ -290,31 +302,28 @@ class HomeFragment : Fragment() {
 
         if(preferenceDao.isUserCHO()){
             nurseItem?.isChecked = true
-            preferenceDao.setSwitchRoles("Nurse")
+            activityViewModel.switchRole("Nurse")
         }
 //        else if(preferenceDao.isUserRegistrar()){
 //            registrarItem?.isChecked = true
-//            preferenceDao.setSwitchRoles("Registrar")
+//            activityViewModel.switchRole("Registrar")
 //        }
         else if(preferenceDao.isUserStaffNurseOrNurse()){
             nurseItem?.isChecked = true
-            preferenceDao.setSwitchRoles("Nurse")
+            activityViewModel.switchRole("Nurse")
         }
         else if(preferenceDao.isUserDoctorOrMO()){
             docItem?.isChecked = true
-            preferenceDao.setSwitchRoles("Doctor")
+            activityViewModel.switchRole("Doctor")
         }
         else if(preferenceDao.isUserLabTechnician()){
             labItem?.isChecked = true
-            preferenceDao.setSwitchRoles("Lab Technician")
+            activityViewModel.switchRole("Lab Technician")
         }
         else if(preferenceDao.isUserPharmacist()){
             phItem?.isChecked = true
-            preferenceDao.setSwitchRoles("Pharmacist")
+            activityViewModel.switchRole("Pharmacist")
         }
-
-        val refresh = Intent(requireContext(), HomeActivity::class.java)
-        startActivity(refresh)
 
     }
 
@@ -327,33 +336,23 @@ class HomeFragment : Fragment() {
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
 //                R.id.nav_registrar -> {
-//                    preferenceDao.setSwitchRoles("Registrar")
-//                    val refresh = Intent(requireContext(), HomeActivity::class.java)
-//                    startActivity(refresh)
+//                    activityViewModel.switchRole("Registrar")
 //                    true
 //                }
                 R.id.nav_nurse -> {
-                    preferenceDao.setSwitchRoles("Nurse")
-                    val refresh = Intent(requireContext(), HomeActivity::class.java)
-                    startActivity(refresh)
+                    activityViewModel.switchRole("Nurse")
                     true
                 }
                 R.id.nav_doctor -> {
-                    preferenceDao.setSwitchRoles("Doctor")
-                    val refresh = Intent(requireContext(), HomeActivity::class.java)
-                    startActivity(refresh)
+                    activityViewModel.switchRole("Doctor")
                     true
                 }
                 R.id.nav_lab_technician -> {
-                    preferenceDao.setSwitchRoles("Lab Technician")
-                    val refresh = Intent(requireContext(), HomeActivity::class.java)
-                    startActivity(refresh)
+                    activityViewModel.switchRole("Lab Technician")
                     true
                 }
                 R.id.nav_pharmacist -> {
-                    preferenceDao.setSwitchRoles("Pharmacist")
-                    val refresh = Intent(requireContext(), HomeActivity::class.java)
-                    startActivity(refresh)
+                    activityViewModel.switchRole("Pharmacist")
                     true
                 }
                 else -> {
