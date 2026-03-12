@@ -367,7 +367,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 listOf(DropdownConst.anc, DropdownConst.pnc)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
-            changeBtnView()
+
 //            viewModel.selectedReasonForVisit = DropdownConst.anc
 //            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
@@ -379,7 +379,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 listOf(DropdownConst.fpAndCs)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
-            changeBtnView()
+
 //            viewModel.selectedReasonForVisit = DropdownConst.fpAndCs
 //            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
@@ -391,7 +391,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 listOf(DropdownConst.immunization)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
-            changeBtnView()
+
 //            viewModel.selectedReasonForVisit = DropdownConst.immunization
 //            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
@@ -442,7 +442,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.rvAnc.visibility = View.VISIBLE
             binding.rvPnc.visibility = View.GONE
             binding.rvEct.visibility = View.GONE
-            changeBtnView()
+
         }
         else if(reasonForVisit == DropdownConst.pnc){
             binding.lmpDateText.visibility = View.GONE
@@ -461,7 +461,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.rvAnc.visibility = View.GONE
             binding.rvPnc.visibility = View.VISIBLE
             binding.rvEct.visibility = View.GONE
-            changeBtnView()
+
         }
         else if(reasonForVisit == DropdownConst.fpAndCs){
             binding.lmpDateText.visibility = View.GONE
@@ -470,7 +470,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.rvAnc.visibility = View.GONE
             binding.rvPnc.visibility = View.GONE
             binding.rvEct.visibility = View.VISIBLE
-            changeBtnView()
+
         }
         else if(reasonForVisit == DropdownConst.ncdScreening){
             binding.lmpDateText.visibility = View.GONE
@@ -479,12 +479,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.rvAnc.visibility = View.GONE
             binding.rvPnc.visibility = View.GONE
             binding.rvEct.visibility = View.GONE
-            if (viewModel.cbacId != 0) {
-                binding.btnSubmit.text = resources.getString(R.string.view)
-                binding.btnSubmit.backgroundTintList = resources.getColorStateList(R.color.colorAccent)
-            } else {
-                changeBtnView()
-            }
+
 
         }
         else{
@@ -538,12 +533,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //        viewModel.selectedReasonForVisit = ""
 //        binding.subCatInput.setText(viewModel.selectedSubCat, false)
 //        binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
-        binding.btnCancel.setOnClickListener {
-            onCancelCall()
-        }
-        binding.btnSubmit.setOnClickListener {
-            navigateNext()
-        }
+
         if(!preferenceDao.isUserCHO()){
             binding.patientList.visibility = View.GONE
         }
@@ -847,7 +837,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                    binding.usePrevious.visibility = View.VISIBLE
 //                    category = binding.radioButton1.text.toString()
                     category = binding.radioButton1.tag.toString()
-                    changeBtnView()
+
                 }
 
                 else -> {
@@ -1740,10 +1730,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         currChiefPos = position
     }
 
-    fun changeBtnView(){
-        binding.btnSubmit.text = resources.getString(R.string.next)
-        binding.btnSubmit.backgroundTintList = resources.getColorStateList(R.color.green)
-    }
+
 }
 
 fun AutoCompleteTextView.showDropdown(adapter: ArrayAdapter<String>?) {

@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.ui.commons.case_record.FormItemAdapter
 import org.piramalswasthya.cho.ui.setSpinnerItems
 import org.piramalswasthya.cho.utils.HelperUtil
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 
 class PrescriptionAdapter(
     private val isVisitDetail: Boolean? = null,
@@ -258,6 +259,7 @@ class PrescriptionAdapter(
 
             selectedItem?.let {
                 holder.formOptions.setText(selectedName)
+                holder.formOptions.setSelection(holder.formOptions.text?.length ?: 0)
                 itemData.id = it.itemID
 
                 it.itemID?.let { id ->
@@ -289,6 +291,29 @@ class PrescriptionAdapter(
 
         formMD.map { it.dropdownForMed }.toTypedArray()
             ?.let { holder.formOptions.setSpinnerItems(it) }
+
+        holder.formOptions.threshold = 0
+        holder.frequencyOptions.threshold = 0
+        holder.unitOption.threshold = 0
+        holder.instructionOption.threshold = 0
+
+        if (!isRowReadOnly) {
+            holder.formOptions.setupDropdownKeyboardHandling()
+            holder.frequencyOptions.setupDropdownKeyboardHandling()
+            holder.unitOption.setupDropdownKeyboardHandling()
+            holder.instructionOption.setupDropdownKeyboardHandling()
+
+            // Keep editable autocomplete behavior for text-entry dropdowns.
+            holder.formOptions.showSoftInputOnFocus = true
+            holder.formOptions.setOnTouchListener(null)
+            holder.formOptions.setOnFocusChangeListener(null)
+            holder.formOptions.setOnClickListener { holder.formOptions.showDropDown() }
+
+            holder.instructionOption.showSoftInputOnFocus = true
+            holder.instructionOption.setOnTouchListener(null)
+            holder.instructionOption.setOnFocusChangeListener(null)
+            holder.instructionOption.setOnClickListener { holder.instructionOption.showDropDown() }
+        }
 
         holder.formOptions.addTextChangedListener{
             itemData.form= it.toString()
