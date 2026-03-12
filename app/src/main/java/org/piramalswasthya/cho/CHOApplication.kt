@@ -27,8 +27,8 @@ class CHOApplication : Application(), Configuration.Provider {
 
     private val dataStore by lazy { DemoDataStore(this) }
 
-    override fun getWorkManagerConfiguration() =
-        Configuration.Builder()
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
 

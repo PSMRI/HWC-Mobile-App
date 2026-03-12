@@ -145,7 +145,7 @@
     <string name="benificiary_list">Benificiary List</string>
     <string name="title_activity_visit_details">VisitDetailsActivity</string>
     <string name="esanjeevni">eSanjeevani</string>
-    <string name="title_activity_web_view">WebViewActivity</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>

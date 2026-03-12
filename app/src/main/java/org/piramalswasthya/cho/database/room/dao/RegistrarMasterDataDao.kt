@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import org.piramalswasthya.cho.moddel.OccupationMaster
+import org.piramalswasthya.cho.model.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.CommunityMaster
 import org.piramalswasthya.cho.model.GenderMaster

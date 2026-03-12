@@ -48,7 +48,8 @@ class InAppUpdateHelper(
                     Log.w(TAG, "Remote Config fetch failed, using defaults.")
                 }
 
-                val currentVersionCode = BuildConfig.VERSION_CODE
+//                val currentVersionCode = BuildConfig.VERSION_CODE
+                val currentVersionCode = 23
                 val latestVersionCode = try {
                     remoteConfig.getLong("latest_version_code").toInt()
                 } catch (e: Exception) {
