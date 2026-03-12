@@ -227,7 +227,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.fhirVisitDetailsFragment -> {
-                    hideBottomActions()
+                    showBottomActions(R.string.next)
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.visit_details)
                 }
