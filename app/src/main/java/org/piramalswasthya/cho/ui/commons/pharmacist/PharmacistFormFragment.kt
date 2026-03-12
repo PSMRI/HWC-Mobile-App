@@ -25,6 +25,7 @@ import org.piramalswasthya.cho.databinding.AlertAbhaCcMappingBinding
 import org.piramalswasthya.cho.databinding.AlertCcMappingBinding
 import org.piramalswasthya.cho.databinding.FragmentPharmacistFormBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PrescriptionBatchDTO
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.UserCache
@@ -62,6 +63,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
     private var dtos: PrescriptionDTO? = null
 
     private var itemAdapter : PharmacistItemAdapter? = null
+    private val pendingBatchSelections = mutableMapOf<Long, List<PrescriptionBatchDTO>>()
 
     private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
     private var patientCount : Int = 0
@@ -88,15 +90,30 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
-        dtos?.issueType = "System Issue"
         viewModel = ViewModelProvider(this).get(PharmacistFormViewModel::class.java)
+        findNavController().currentBackStackEntry?.savedStateHandle
+            ?.getLiveData<String>("selected_batch_item")
+            ?.observe(viewLifecycleOwner) { json ->
+                val updatedItem = Gson().fromJson(json, PrescriptionItemDTO::class.java)
+                pendingBatchSelections[updatedItem.id] = updatedItem.batchList
+                val currentList = dtos?.itemList?.toMutableList() ?: return@observe
+                val index = currentList.indexOfFirst { it.id == updatedItem.id }
+                if (index >= 0) {
+                    currentList[index] = currentList[index].copy(batchList = updatedItem.batchList)
+                    dtos?.itemList = currentList
+                    itemAdapter?.submitList(currentList)
+                }
+                findNavController().currentBackStackEntry?.savedStateHandle?.remove<String>("selected_batch_item")
+            }
         viewModel.prescriptionObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 PharmacistFormViewModel.NetworkState.SUCCESS -> {
+                    val currentIssueType =
+                        if (binding.btnManualIssue.isChecked) "Manual Issue" else "System Issue"
                     itemAdapter = context?.let { it ->
                         PharmacistItemAdapter(
                             it,
-                            dtos?.issueType ?: "",
+                            currentIssueType,
                             networkAvailabilityCheck = { viewModel.isNetworkAvailable() },
                             clickListener = PharmacistItemAdapter.PharmacistClickListener(clickedSelectBatch = { prescription ->
                                 val bundle = Bundle()
@@ -194,18 +211,31 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                     viewModel.prescriptions.observe(viewLifecycleOwner) {
                         dtos = viewModel.prescriptions?.value
                         viewModel.prescriptions?.value?.let {it->
+                            if (it.issueType.isNullOrBlank()) {
+                                it.issueType =
+                                    if (binding.btnManualIssue.isChecked) "Manual Issue" else "System Issue"
+                            }
                             binding.consultantValue.text = it.consultantName
                             binding.visitCodeValue.text = it.visitCode.toString()
                             binding.prescriptionIdValue.text = it.prescriptionID.toString()
 
                             visitCode = it.visitCode
 
-                            it.itemList.let { it ->
-                                itemAdapter?.submitList(it)
+                            it.itemList.let { items ->
+                                val mergedItems = items.map { item ->
+                                    val updatedBatches = pendingBatchSelections[item.id]
+                                    if (updatedBatches != null) {
+                                        item.copy(batchList = updatedBatches)
+                                    } else {
+                                        item
+                                    }
+                                }
+                                dtos?.itemList = mergedItems
+                                itemAdapter?.submitList(mergedItems)
                                 binding.pharmacistListContainer.prescriptionCount.text =
                                     itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
-                                if (it != null) {
-                                    patientCount = it.size
+                                if (items != null) {
+                                    patientCount = items.size
                                 }
                             }
                         }

@@ -164,22 +164,23 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
             }
             else -> {
                 // Update the prescription item with selected batches
-                prescriptionItemDTO?.batchList = batch
-
-                viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
-                viewModel.savePharmacistDataforManual(prescriptionDTO, benVisitInfo)
-                viewModel.isDataSaved.observe(viewLifecycleOwner) { state ->
-                    when (state!!) {
-                        true -> {
-                            viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
-                            Toast.makeText(requireContext(), "Medicine dispensed successfully", Toast.LENGTH_SHORT).show()
-                            navigateNext()
-                        }
-                        else -> {
-                            activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = true
-                        }
+                val updatedItem = prescriptionItemDTO?.copy(batchList = batch)
+                prescriptionItemDTO = updatedItem
+                prescriptionDTO?.let { dto ->
+                    val currentList = dto.itemList.toMutableList()
+                    val index = updatedItem?.let { item -> currentList.indexOfFirst { it.drugID == item.drugID } } ?: -1
+                    if (index >= 0 && updatedItem != null) {
+                        currentList[index] = updatedItem
+                        dto.itemList = currentList
                     }
                 }
+                updatedItem?.let { item ->
+                    findNavController().previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("selected_batch_item", Gson().toJson(item))
+                }
+                activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = true
+                navigateNext()
             }
         }
     }

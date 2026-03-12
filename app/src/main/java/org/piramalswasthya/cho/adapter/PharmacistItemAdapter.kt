@@ -28,7 +28,7 @@ class PharmacistItemAdapter(
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PrescriptionItemDTO>() {
         override fun areItemsTheSame(
             oldItem: PrescriptionItemDTO, newItem: PrescriptionItemDTO
-        ) = oldItem.drugID == newItem.drugID
+        ) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
             oldItem: PrescriptionItemDTO, newItem: PrescriptionItemDTO
@@ -77,11 +77,16 @@ class PharmacistItemAdapter(
                 "Manual Issue" -> {
                     val isNetworkAvailable = networkAvailabilityCheck()
                     if (isNetworkAvailable) {
-                        binding.btnViewBatch.text = "Select Batch"
-                        binding.btnViewBatch.visibility = android.view.View.VISIBLE
-                        binding.btnViewBatch.isEnabled = true
-                        binding.btnViewBatch.setOnClickListener {
-                            clickListener.onClickSelectBatch(item)
+                        val hasSelectedBatch = item.batchList.any { it.isSelected && it.dispenseQuantity > 0 }
+                        if (hasSelectedBatch) {
+                            binding.btnViewBatch.visibility = android.view.View.GONE
+                        } else {
+                            binding.btnViewBatch.text = "Select Batch"
+                            binding.btnViewBatch.visibility = android.view.View.VISIBLE
+                            binding.btnViewBatch.isEnabled = true
+                            binding.btnViewBatch.setOnClickListener {
+                                clickListener.onClickSelectBatch(item)
+                            }
                         }
                     } else {
                         binding.btnViewBatch.visibility = android.view.View.GONE
