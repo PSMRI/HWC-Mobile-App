@@ -204,7 +204,8 @@ class PncFormDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.pnc_other_death_cause),
         required = true,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 300
     )
 
     private val placeOfDeath = FormElement(
