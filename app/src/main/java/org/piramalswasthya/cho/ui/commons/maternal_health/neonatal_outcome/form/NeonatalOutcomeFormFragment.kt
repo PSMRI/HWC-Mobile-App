@@ -98,6 +98,7 @@ class NeonatalOutcomeFormFragment : Fragment() {
                             .setMessage(it)
                             .setPositiveButton(getString(R.string.continue_btn), null)
                             .show()
+                        viewModel.resetAlertMessageFlow()
                     }
                 }
             }
