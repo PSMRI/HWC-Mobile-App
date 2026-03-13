@@ -76,24 +76,20 @@ class PharmacistItemAdapter(
             when (issueType) {
                 "Manual Issue" -> {
                     val isNetworkAvailable = networkAvailabilityCheck()
-                    if (isNetworkAvailable) {
-                        val hasSelectedBatch = item.batchList.any { it.isSelected && it.dispenseQuantity > 0 }
-                        if (hasSelectedBatch) {
-                            binding.btnViewBatch.visibility = android.view.View.GONE
+                    val hasSelectedBatch = item.batchList.any { it.isSelected && it.dispenseQuantity > 0 }
+                    binding.btnViewBatch.text = if (hasSelectedBatch) "Edit Batch" else "Select Batch"
+                    binding.btnViewBatch.visibility = android.view.View.VISIBLE
+                    binding.btnViewBatch.isEnabled = isNetworkAvailable
+                    binding.btnViewBatch.setOnClickListener {
+                        if (isNetworkAvailable) {
+                            clickListener.onClickSelectBatch(item)
                         } else {
-                            binding.btnViewBatch.text = "Select Batch"
-                            binding.btnViewBatch.visibility = android.view.View.VISIBLE
-                            binding.btnViewBatch.isEnabled = true
-                            binding.btnViewBatch.setOnClickListener {
-                                clickListener.onClickSelectBatch(item)
-                            }
+                            android.widget.Toast.makeText(
+                                binding.root.context,
+                                binding.root.context.getString(R.string.network_required_manual_batch),
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
                         }
-                    } else {
-                        binding.btnViewBatch.visibility = android.view.View.GONE
-                        // Show a message that network is required for manual batch selection
-                        android.widget.Toast.makeText(binding.root.context, 
-                            binding.root.context.getString(R.string.network_required_manual_batch), 
-                            android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }
                 "System Issue" -> {

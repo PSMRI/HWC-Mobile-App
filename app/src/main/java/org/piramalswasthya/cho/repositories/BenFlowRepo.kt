@@ -938,6 +938,53 @@ class BenFlowRepo @Inject constructor(
     }
 
     /**
+     * Refresh only header fields (consultantName, visitCode, prescriptionID) without touching local item list.
+     * This preserves local doctor edits while ensuring header data is visible.
+     */
+    suspend fun refreshPrescriptionHeaderOnly(benVisitInfo: PatientDisplayWithVisitInfo): NetworkResult<NetworkResponse> {
+        return networkResultInterceptor {
+            val benRegId = benVisitInfo.patient.beneficiaryRegID ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing beneficiaryRegID")
+            val benVisitNo = benVisitInfo.benVisitNo ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing benVisitNo")
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benRegId, benVisitNo)
+                ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing benFlow")
+
+            val visitCode = benFlow.visitCode
+                ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing visitCode")
+            val request = PrescribedMedicineDataRequest(
+                beneficiaryRegID = benFlow.beneficiaryRegID!!,
+                facilityID = facilityID,
+                visitCode = visitCode
+            )
+
+            val response = apiService.getPharmacistPrescriptionList(request)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").toString()
+                    val prescriptionDTO = Gson().fromJson(data, PrescriptionDTO::class.java)
+                    prescriptionDao.updatePrescriptionHeader(
+                        patientID = benVisitInfo.patient.patientID,
+                        benVisitNo = benVisitNo,
+                        prescriptionID = prescriptionDTO.prescriptionID,
+                        visitCode = prescriptionDTO.visitCode,
+                        consultantName = prescriptionDTO.consultantName
+                    )
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    refreshPrescriptionHeaderOnly(benVisitInfo)
+                },
+            )
+        }
+    }
+
+    /**
      * When doctor has submitted prescription locally (saved in Prescription_Cases_Recorde) but API
      * has not synced yet, copy that data to the Prescription table so pharmacist module can show medicines.
      */

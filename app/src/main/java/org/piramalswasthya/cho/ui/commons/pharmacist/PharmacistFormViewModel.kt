@@ -39,6 +39,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 @HiltViewModel
@@ -177,6 +178,17 @@ class PharmacistFormViewModel @Inject constructor(
                 benFlowRepo.pullPrescriptionListData(benVisitInfo)
                 listPrescription = patientRepo.getPrescriptions(benVisitInfo)
             }
+            val latest = listPrescription?.firstOrNull()
+            if (latest != null && isHeaderMissing(latest) && isNetworkAvailable()) {
+                when (benFlowRepo.refreshPrescriptionHeaderOnly(benVisitInfo)) {
+                    is NetworkResult.Success -> {
+                        listPrescription = patientRepo.getPrescriptions(benVisitInfo)
+                    }
+                    else -> {
+                        // keep existing local data
+                    }
+                }
+            }
             Log.d("MyPrescription", "Prescription $listPrescription")
             if (listPrescription != null && listPrescription.isNotEmpty()) {
                 _prescriptions.postValue(listPrescription[0])
@@ -206,19 +218,25 @@ class PharmacistFormViewModel @Inject constructor(
                 if(dtos!=null && dtos.itemList!=null){
                     dtos.itemList.forEach { item->
                         if(item.batchList!=null && item.batchList.isNotEmpty()){
-                            val firstBatch = item.batchList.first()
-                            Log.d("WU", "Batch1 ${firstBatch} ")
-                            val availableBatch =  batchDao.getBatchByStockEntityId(firstBatch.itemStockEntryID.toLong())
-                            Log.d("WU", "Batch2 ${availableBatch} ")
-                            if(availableBatch!=null) {
-                                val updatedBatch = availableBatch.copy(
-                                    quantityInHand = availableBatch.quantityInHand - (item.qtyPrescribed ?: 0)
-                                )
-                                Log.d("WU", "Batch3 ${updatedBatch}")
-                                if(updatedBatch.quantityInHand<=0){
-                                    batchDao.deleteBatch(availableBatch)
-                                }else{
-                                    batchDao.updateBatch(updatedBatch)
+                            val prescribedQty = item.qtyPrescribed ?: 0
+                            var remainingQty = prescribedQty
+                            item.batchList.forEach { batch ->
+                                if (remainingQty <= 0) return@forEach
+                                Log.d("WU", "Batch1 ${batch} ")
+                                val availableBatch =  batchDao.getBatchByStockEntityId(batch.itemStockEntryID.toLong())
+                                Log.d("WU", "Batch2 ${availableBatch} ")
+                                if(availableBatch!=null) {
+                                    val dispenseQty = minOf(availableBatch.quantityInHand, remainingQty)
+                                    val updatedBatch = availableBatch.copy(
+                                        quantityInHand = availableBatch.quantityInHand - dispenseQty
+                                    )
+                                    Log.d("WU", "Batch3 ${updatedBatch}")
+                                    if(updatedBatch.quantityInHand<=0){
+                                        batchDao.deleteBatch(availableBatch)
+                                    }else{
+                                        batchDao.updateBatch(updatedBatch)
+                                    }
+                                    remainingQty -= dispenseQty
                                 }
                             }
                         }else{
@@ -413,6 +431,12 @@ class PharmacistFormViewModel @Inject constructor(
         }
     }
 
+    private fun isHeaderMissing(dto: PrescriptionDTO): Boolean {
+        return dto.prescriptionID <= 0 ||
+            dto.visitCode <= 0 ||
+            dto.consultantName.isNullOrBlank()
+    }
+
     suspend fun refreshBatchData(): Boolean {
         return try {
             val facilityID = userRepo.getLoggedInUser()?.facilityID ?: return false
@@ -459,7 +483,9 @@ class PharmacistFormViewModel @Inject constructor(
 
     private fun calculateExpiryInDays(expiryDate: String): Int {
         return try {
-            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
             val expiry = sdf.parse(expiryDate)
             val today = Date()
             val diffInMillis = expiry?.time?.minus(today.time) ?: 0
@@ -471,8 +497,12 @@ class PharmacistFormViewModel @Inject constructor(
 
     private fun convertDateFormat(dateString: String): String {
         return try {
-            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
-            val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
+            val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
             val date = inputFormat.parse(dateString)
             outputFormat.format(date ?: Date())
         } catch (e: Exception) {

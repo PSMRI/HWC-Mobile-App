@@ -168,7 +168,7 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
                 prescriptionItemDTO = updatedItem
                 prescriptionDTO?.let { dto ->
                     val currentList = dto.itemList.toMutableList()
-                    val index = updatedItem?.let { item -> currentList.indexOfFirst { it.drugID == item.drugID } } ?: -1
+                    val index = updatedItem?.let { item -> currentList.indexOfFirst { it.id == item.id } } ?: -1
                     if (index >= 0 && updatedItem != null) {
                         currentList[index] = updatedItem
                         dto.itemList = currentList

@@ -122,14 +122,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                 // Use real-time batch fetching instead of relying on existing batchList
                                 lifecycleScope.launch {
                                     try {
-                                        // Check network availability before proceeding
-                                        if (!viewModel.isNetworkAvailable()) {
-                                            Toast.makeText(requireContext(),
-                                                getString(R.string.network_required_manual_batch),
-                                                Toast.LENGTH_LONG).show()
-                                            return@launch
-                                        }
-
                                         val availableBatches = viewModel.getBatchesForMedicine(prescription.drugID)
 
                                         if (availableBatches.isNotEmpty()) {
@@ -140,9 +132,18 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                             findNavController().navigate(
                                                 R.id.action_pharmacistFormFragment_to_selectBatchFragment, bundle
                                             )
+                                        } else if (!viewModel.isNetworkAvailable()) {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                getString(R.string.network_required_manual_batch),
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                         } else {
-                                            // Show retry dialog instead of just error message
-                                            Toast.makeText(requireContext(), getString(R.string.no_batches_available), Toast.LENGTH_LONG).show()
+                                            Toast.makeText(
+                                                requireContext(),
+                                                getString(R.string.no_batches_available),
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                         }
                                     } catch (e: Exception) {
                                         Toast.makeText(requireContext(), "Error loading batch data. Please try again.", Toast.LENGTH_SHORT).show()
