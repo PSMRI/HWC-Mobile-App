@@ -56,7 +56,6 @@ import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -1801,7 +1800,7 @@ class PersonalDetailsFragment : Fragment() {
                 } else {
                     viewModel.forgetUserEsanjeevani()
                 }
-                CoroutineScope(Dispatchers.Main).launch {
+                lifecycleScope.launch {
                     try {
                         var passWord =
                             encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))

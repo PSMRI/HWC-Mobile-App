@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentSender
 import android.net.Uri
 import android.util.Log
-import com.google.android.datatransport.BuildConfig
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -16,6 +15,7 @@ import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
+import org.piramalswasthya.cho.BuildConfig
 import org.piramalswasthya.cho.R
 
 class InAppUpdateHelper(
@@ -48,8 +48,7 @@ class InAppUpdateHelper(
                     Log.w(TAG, "Remote Config fetch failed, using defaults.")
                 }
 
-//                val currentVersionCode = BuildConfig.VERSION_CODE
-                val currentVersionCode = 23
+                val currentVersionCode = BuildConfig.VERSION_CODE
                 val latestVersionCode = try {
                     remoteConfig.getLong("latest_version_code").toInt()
                 } catch (e: Exception) {

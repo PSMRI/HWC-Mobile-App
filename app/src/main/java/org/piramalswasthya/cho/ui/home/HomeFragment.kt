@@ -70,6 +70,7 @@ class HomeFragment : Fragment() {
 
 
     private val activityViewModel by activityViewModels<HomeActivityViewModel>()
+    private var lastObservedRole: String? = null
 
     private lateinit var viewModel: HomeViewModel
 
@@ -167,23 +168,13 @@ class HomeFragment : Fragment() {
 
 //        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
-        val fragmentVisitDetails = PersonalDetailsFragment()
-
-        childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
-
-        if(preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()){
-            binding.registration.visibility = View.VISIBLE
-            binding.registration.isEnabled = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
-        }
-        else{
-            binding.registration.visibility = View.GONE
-        }
-
-        activityViewModel.currentRole.observe(viewLifecycleOwner) {
-            val newFragment = PersonalDetailsFragment()
-            childFragmentManager.beginTransaction()
-                .replace(binding.patientListFragment.id, newFragment)
-                .commit()
+        activityViewModel.currentRole.observe(viewLifecycleOwner) { role ->
+            if (role != lastObservedRole) {
+                lastObservedRole = role
+                childFragmentManager.beginTransaction()
+                    .replace(binding.patientListFragment.id, PersonalDetailsFragment())
+                    .commit()
+            }
             val showReg = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
             binding.registration.visibility = if (showReg) View.VISIBLE else View.GONE
             binding.registration.isEnabled = showReg
