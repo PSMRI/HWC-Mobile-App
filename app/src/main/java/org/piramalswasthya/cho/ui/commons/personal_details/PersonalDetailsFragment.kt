@@ -499,7 +499,7 @@ class PersonalDetailsFragment : Fragment() {
             listFlow.collectLatest { list ->
                 itemAdapter?.submitList(list)
                 patientCount = list.size
-                if (!hasReceivedInitialPatientList) {
+                if (!hasReceivedInitialPatientList && list.isNotEmpty()) {
                     hideCardSkeletonLoader()
                 }
                 if (!isShowingSearchResults) {
