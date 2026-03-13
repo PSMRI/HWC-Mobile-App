@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.ui.edit_patient_details_activity
 
-import android.content.Intent
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -24,7 +23,7 @@ import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragmentDirections
 import timber.log.Timber
 import javax.inject.Inject
@@ -312,8 +311,6 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
     private fun setupUIListeners() {
         binding.homeButton.setOnClickListener {
-            val intent = Intent(this, HomeActivity::class.java)
-            startActivity(intent)
             this.finish()
         }
 

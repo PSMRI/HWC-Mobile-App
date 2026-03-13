@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
-import org.piramalswasthya.cho.moddel.OccupationMaster
+import org.piramalswasthya.cho.model.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.CommunityMaster
 import org.piramalswasthya.cho.model.GenderMaster

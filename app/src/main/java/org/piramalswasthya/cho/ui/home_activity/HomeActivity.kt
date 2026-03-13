@@ -624,10 +624,7 @@ class HomeActivity : AppCompatActivity() {
                 prefDao.saveSetLanguage(currentLanguage)
                 Locale.setDefault(Locale(currentLanguage.symbol))
 
-                val refresh = Intent(this, HomeActivity::class.java)
-                finish()
-                startActivity(refresh)
-                this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                recreate()
 
                 dialog.dismiss()
             }

@@ -56,7 +56,6 @@ import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -97,7 +96,7 @@ import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
-import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
+import org.piramalswasthya.cho.utils.ESanjeevaniLauncher
 import timber.log.Timber
 import org.json.JSONObject
 import org.json.JSONArray
@@ -342,7 +341,6 @@ class PersonalDetailsFragment : Fragment() {
                                             putExtra("isFlowComplete", !isPendingAtPharmacist)
                                         }
                                         startActivity(intent)
-                                        requireActivity().finish()
                                     }
 
                                     // Lab + pharmacist done: open in view mode so case record shows correct UI (only Close, no plus, no refer)
@@ -365,7 +363,6 @@ class PersonalDetailsFragment : Fragment() {
                                             putExtra("isFlowComplete", !isDoctorLabReviewState)
                                         }
                                         startActivity(intent)
-                                        requireActivity().finish()
                                     }
 
                                     else -> {
@@ -383,7 +380,6 @@ class PersonalDetailsFragment : Fragment() {
                                             putExtra("isFlowComplete", false)
                                         }
                                         startActivity(intent)
-                                        requireActivity().finish()
                                     }
                                 }
 
@@ -1804,7 +1800,7 @@ class PersonalDetailsFragment : Fragment() {
                 } else {
                     viewModel.forgetUserEsanjeevani()
                 }
-                CoroutineScope(Dispatchers.Main).launch {
+                lifecycleScope.launch {
                     try {
                         var passWord =
                             encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))
@@ -1826,11 +1822,12 @@ class PersonalDetailsFragment : Fragment() {
                                 if (token != null) {
                                     TokenESanjeevaniInterceptor.setToken(token)
                                 }
-                                val intent = Intent(context, WebViewActivity::class.java)
-                                intent.putExtra("patientId", benVisitInfo.patient.patientID)
-                                intent.putExtra("usernameEs", usernameEs)
-                                intent.putExtra("passwordEs", passwordEs)
-                                context?.startActivity(intent)
+                                context?.let { ctx ->
+                                    ESanjeevaniLauncher.launch(
+                                        ctx, patientDao, apiService,
+                                        benVisitInfo.patient.patientID, usernameEs, passwordEs
+                                    )
+                                }
                                 dialog?.dismiss()
                             } else {
                                 errorEs = responseToken.message

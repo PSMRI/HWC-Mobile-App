@@ -297,6 +297,14 @@ class HomeActivityViewModel @Inject constructor (application: Application,
         _navigateToLoginPage.value = false
     }
 
+    private val _currentRole = MutableLiveData<String>(pref.getSwitchRole() ?: "Nurse")
+    val currentRole: LiveData<String> get() = _currentRole
+
+    fun switchRole(role: String) {
+        pref.setSwitchRoles(role)
+        _currentRole.value = role
+    }
+
     companion object {
 
         private val _state = MutableLiveData(State.IDLE)

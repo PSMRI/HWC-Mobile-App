@@ -138,7 +138,7 @@
     <string name="benificiary_list">लाभार्थी सूची</string>
     <string name="title_activity_visit_details">विज़िट विवरण एक्टिविटी</string>
     <string name="esanjeevni">eSanjeevani</string>
-    <string name="title_activity_web_view">वेबव्यू एक्टिविटी</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">पहला फ्रैगमेंट</string>
     <string name="second_fragment_label">दूसरा फ्रैगमेंट</string>

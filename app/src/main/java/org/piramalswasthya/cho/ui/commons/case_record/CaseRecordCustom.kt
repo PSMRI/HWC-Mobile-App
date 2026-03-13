@@ -2,7 +2,6 @@ package org.piramalswasthya.cho.ui.commons.case_record
 
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -73,7 +72,6 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFreq
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.tabletDosageList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.HelperUtil
 import org.piramalswasthya.cho.utils.HelperUtil.disableTextInputLayout
@@ -1993,8 +1991,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
     override fun onCancelAction() {
         if (isDoctorWorkflowRole()) {
-            val intent = Intent(context, HomeActivity::class.java)
-            startActivity(intent)
             requireActivity().finish()
         } else {
             findNavController().navigateUp()
@@ -2045,12 +2041,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                 getString(R.string.case_closed_successfully),
                                 Toast.LENGTH_SHORT
                             ).show()
-                            val intent = Intent(context, HomeActivity::class.java)
-                            startActivity(intent)
                             requireActivity().finish()
                         }
                     }
-                    
+
                     // Also observe error messages from closure validation
                     viewModel.errorMessage.removeObservers(viewLifecycleOwner)
                     viewModel.errorMessage.observe(viewLifecycleOwner) { errorMsg ->
@@ -2123,26 +2117,15 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         }
-                                        val intent = Intent(context, HomeActivity::class.java)
-                                        startActivity(intent)
                                         requireActivity().finish()
                                     }
 
-                                    else -> {
-
-//                                        requireActivity().runOnUiThread {
-//                                            Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-//                                        }
-                                    }
+                                    else -> {}
                                 }
                             }
                         }
 
-                        else -> {
-//                            requireActivity().runOnUiThread {
-//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-//                            }
-                        }
+                        else -> {}
                     }
                 }
             } else {
@@ -2192,16 +2175,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
-                                val intent = Intent(context, HomeActivity::class.java)
-                                startActivity(intent)
                                 requireActivity().finish()
                             }
 
-                            else -> {
-//                                requireActivity().runOnUiThread {
-//                                    Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-//                                }
-                            }
+                            else -> {}
                         }
 
                     }
@@ -2209,7 +2186,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 } else {
                     showToast()
                 }
-//                }
             }
         }
     }

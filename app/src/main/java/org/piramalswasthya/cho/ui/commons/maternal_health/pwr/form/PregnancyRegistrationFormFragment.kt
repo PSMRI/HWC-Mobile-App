@@ -361,7 +361,6 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                             intent.putExtra("benVisitInfo", navigationEvent.benVisitInfo)
                             intent.putExtra("navigateTo", "VITALS")
                             startActivity(intent)
-                            activity.finish()
                         }
                         viewModel.clearNavigation()
                     }
