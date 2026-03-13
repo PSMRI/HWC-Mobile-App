@@ -845,15 +845,6 @@ class ChildRegistrationDataset(
                 validateAllAlphabetsSpecialOnEditText(otherCauseOfDeath)
             }
 
-            birthCertificateIssued.id -> {
-                val selected = birthCertificateIssued.entries?.getOrNull(index)
-                birthCertificateIssued.value = selected
-                if (selected == birthCertificateIssued.entries?.getOrNull(2)) {
-                    emitAlertErrorMessage(R.string.no_alert_birth_certificate_legal)
-                }
-                -1
-            }
-
             else -> -1
         }
     }
