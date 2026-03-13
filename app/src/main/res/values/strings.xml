@@ -39,6 +39,23 @@
     <string name="outreach">Outreach</string>
     <string name="system_issue">System Issue</string>
     <string name="manual_issue">Manual Issue</string>
+    <string name="no_batch_selected">Please select a batch before submitting</string>
+    <string name="refresh_batch_data">Refresh Batch Data</string>
+    <string name="batch_data_refreshed">Batch data refreshed successfully</string>
+    <string name="batch_refresh_failed">Failed to refresh batch data. Please check your connection.</string>
+    <string name="no_batches_available">No batches available for this medicine</string>
+    <string name="batch_data_loading">Loading batch data...</string>
+    <string name="medicine_dispensed_successfully">Medicine dispensed successfully</string>
+    <string name="dispensing_failed">Failed to dispense medicine. Please try again.</string>
+    <string name="network_required_manual_batch">Network connection required for manual batch selection</string>
+    <string name="network_required_refresh">Network connection required to refresh batch data. Please connect to internet.</string>
+    <string name="view_batch_disabled_system">View Batch is disabled in System Issue mode</string>
+    <string name="system_issue_auto_allocation">System Issue mode: Automatic batch allocation enabled</string>
+    <string name="batch_selection_required">Please select batch for all medicines in Manual Issue mode</string>
+    <string name="batch_selection_required_for">Please select batch for: %s</string>
+    <string name="refreshing">Refreshing...</string>
+    <string name="last_refreshed_never">Last refreshed: Never</string>
+    <string name="error_refreshing_batch_data">Error refreshing batch data</string>
     <string name="wellness_activity">Wellness Activity</string>
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
@@ -801,6 +818,7 @@
 
     <!-- Child Care Sub-modules -->
     <string name="infant_list">Infant Registration List</string>
+    <string name="child_list">Child List</string>
     <string name="adolescent_list">Adolescent List</string>
     <string name="children_under_5_years">Children under 5 Years</string>
 
