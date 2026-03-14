@@ -277,7 +277,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="ANTRA Next Due Date"
+                        android:text="@string/antra_next_due_date"
                         android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
                         android:textColor="@color/black" />
 

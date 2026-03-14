@@ -143,24 +143,24 @@ data class PatientWithEcrDomain(
      * Get formatted ANTRA next due date string (range if possible)
      */
     fun getAntraDueDateString(): String {
+        // Create fresh each call so Locale.getDefault() reflects the current app language
+        val dueDateFormat = java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.getDefault())
         return antraInjectionDate?.let { injectionDate ->
             if (injectionDate > 0L) {
                 val cal = java.util.Calendar.getInstance()
                 cal.timeInMillis = injectionDate
 
                 cal.add(java.util.Calendar.DAY_OF_YEAR, 76)
-                val startDate = HelperUtil.getDateStringFromLong(cal.timeInMillis)
+                val startDate = dueDateFormat.format(cal.timeInMillis)
 
                 cal.timeInMillis = injectionDate
                 cal.add(java.util.Calendar.DAY_OF_YEAR, 120)
-                val endDate = HelperUtil.getDateStringFromLong(cal.timeInMillis)
+                val endDate = dueDateFormat.format(cal.timeInMillis)
 
-                if (startDate != null && endDate != null) "$startDate to $endDate"
-                else startDate ?: endDate ?: "NA"
+                "$startDate to $endDate"
             } else "NA"
         } ?: antraNextDueDate?.let { dueDate ->
-            if (dueDate > 0L) HelperUtil.getDateStringFromLong(dueDate) ?: "NA"
-            else "NA"
+            if (dueDate > 0L) dueDateFormat.format(dueDate) else "NA"
         } ?: "NA"
     }
 }

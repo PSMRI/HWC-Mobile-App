@@ -199,8 +199,9 @@ class EligibleCoupleTrackingFragment : Fragment() {
         }.filterNotNull() // Remove null entries (patients with positive pregnancy test)
             .sortedByDescending { it.patient.registrationDate?.time ?: 0L }
 
-        filteredPatients = allPatients
-        updateUI()
+        // Re-apply the current search query so any active filter survives a data reload
+        val currentQuery = if (_binding != null) binding.searchView.text.toString() else ""
+        filterPatients(currentQuery)
     }
 
     private fun filterPatients(query: String) {
