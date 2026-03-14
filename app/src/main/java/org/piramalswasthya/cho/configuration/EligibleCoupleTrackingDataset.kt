@@ -645,7 +645,14 @@ class EligibleCoupleTrackingDataset(
             form.lmpDate = lmpDate.value?.let { getLongFromDate(it) }
             form.isPregnancyTestDone = isPregnancyTestDone.value
             form.pregnancyTestResult = pregnancyTestResult.value
-            form.isPregnant = isPregnant.value
+            
+            // Explicitly set isPregnant based on test status since it might be removed from the UI and cleared
+            form.isPregnant = if (pregnancyTestResult.value == "Negative" || isPregnancyTestDone.value == "No") {
+                "No"
+            } else {
+                isPregnant.value
+            }
+            
             form.usingFamilyPlanning = usingFamilyPlanning.value?.let { it == "Yes" }
 
             // Handle method of contraception

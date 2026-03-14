@@ -24,7 +24,12 @@ class ECRegistrationAdapter(
         override fun areContentsTheSame(
             oldItem: PatientWithEcrDomain,
             newItem: PatientWithEcrDomain
-        ) = oldItem == newItem
+        ) = oldItem == newItem &&
+            oldItem.lastVisitDate == newItem.lastVisitDate &&
+            oldItem.methodOfContraception == newItem.methodOfContraception &&
+            oldItem.antraNextDueDate == newItem.antraNextDueDate &&
+            oldItem.antraInjectionDate == newItem.antraInjectionDate &&
+            oldItem.lmpDateFromTracking == newItem.lmpDateFromTracking
     }
 
     class PatientViewHolder private constructor(
@@ -46,29 +51,17 @@ class ECRegistrationAdapter(
             binding.patientWithEcr = item
             binding.clickListener = clickListener
 
-            // Handle ECR status display and Last Visit Date
-            if (item.ecr == null) {
-                // Not registered yet - hide LMP, Status, and Last Visit Date
-                binding.llLmpDate.visibility = View.INVISIBLE
-                binding.llBenStatus.visibility = View.INVISIBLE
-                binding.llLastVisitDate.visibility = View.INVISIBLE
-            } else {
-                // Already registered - show LMP and Status
-                binding.llLmpDate.visibility = View.VISIBLE
-                binding.llBenStatus.visibility = View.VISIBLE
+            // Always show LMP and Status layout blocks
+            binding.llLmpDate.visibility = View.VISIBLE
 
-                // LMP date and status text are bound via patientWithEcr.getFormattedLMPDate() and getECStatus()
-                val lmpDate = item.ecr.lmpDate
-                if (lmpDate != null && lmpDate > 0L) {
-                    val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(
-                        System.currentTimeMillis() - lmpDate
-                    )
-                    binding.ivMissState.visibility = if (daysSinceLMP > 35) View.VISIBLE else View.GONE
-                } else {
-                    binding.ivMissState.visibility = View.GONE
-                    binding.llLmpDate.visibility = View.INVISIBLE
-                    binding.llBenStatus.visibility = View.INVISIBLE
-                }
+            val lmpDate = item.ecr?.lmpDate ?: item.lmpDateFromTracking
+            if (lmpDate != null && lmpDate > 0L) {
+                val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(
+                    System.currentTimeMillis() - lmpDate
+                )
+                binding.ivMissState.visibility = if (daysSinceLMP > 35) View.VISIBLE else View.GONE
+            } else {
+                binding.ivMissState.visibility = View.GONE
             }
 
             // Show Last Visit Date if available
@@ -76,6 +69,13 @@ class ECRegistrationAdapter(
                 View.VISIBLE
             } else {
                 View.INVISIBLE
+            }
+
+            // Show ANTRA details if selected
+            binding.llAntraDetails.visibility = if (item.methodOfContraception == "ANTRA Injection") {
+                View.VISIBLE
+            } else {
+                View.GONE
             }
 
             binding.executePendingBindings()
@@ -95,7 +95,7 @@ class ECRegistrationAdapter(
     ) {
         fun onAddVisit(item: PatientWithEcrDomain) =
             onAddVisit?.let { it(item) }
-        
+
         fun onViewVisit(item: PatientWithEcrDomain) =
             onViewVisit?.let { it(item) }
     }

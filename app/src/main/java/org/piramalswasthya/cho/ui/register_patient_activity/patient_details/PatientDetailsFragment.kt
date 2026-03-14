@@ -914,7 +914,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val hintRes = if (genderId == 2) R.string.husband_s_name else if (genderId == 1) R.string.wife_s_name else R.string.spouse_name
                     binding.spouseNameText.hint = getText(hintRes)
 
-                    binding.spouseName.isEnabled = !isReadOnly
+                    binding.spouseName.isEnabled = !isReadOnly && (!isEditModeAfterRegistration || isAgeChangedInEditMode)
                     binding.spouseNameText.isEndIconVisible = binding.spouseName.isEnabled
 
                     val isSpouseNameFilled = binding.spouseName.text?.isNotEmpty() == true && isValidName(binding.spouseName.text.toString())

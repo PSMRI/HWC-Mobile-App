@@ -397,6 +397,7 @@ class PregnantWomanRegistrationDataset(
             savedRecord?.let { buildReadOnlyFormList(it, list) }
         } else {
             buildEditableFormList(savedRecord, list)
+            updateHighRiskStatus()
         }
 
         setUpPage(list)
@@ -1169,6 +1170,9 @@ class PregnantWomanRegistrationDataset(
             }
         }
 
+        if (formId == weight.id) {
+            validateDoubleMinMax(weight)
+        }
 
         updateBMI()
         updateHighRiskStatus()

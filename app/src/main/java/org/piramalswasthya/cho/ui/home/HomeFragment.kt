@@ -17,6 +17,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkQuery
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentHomeBinding
@@ -60,7 +61,8 @@ class HomeFragment : Fragment() {
             .setTitle(resources.getString(R.string.exit_application))
             .setMessage(resources.getString(R.string.do_you_want_to_exit_application))
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-                activity?.finish()
+                (requireActivity().application as CHOApplication).closeAllActivities()
+                System.exit(0)
             }
             .setNegativeButton(resources.getString(R.string.no)) { d, _ ->
                 d.dismiss()
