@@ -249,14 +249,14 @@ class EligibleCoupleTrackingDataset(
     private fun calculateAntraDueDateRange(injectionDate: Long): String {
         val cal = Calendar.getInstance()
         cal.timeInMillis = injectionDate
-        
+
         cal.add(Calendar.DAY_OF_YEAR, 76)
         val startDate = getDateFromLong(cal.timeInMillis)
-        
+
         cal.timeInMillis = injectionDate
         cal.add(Calendar.DAY_OF_YEAR, 120)
         val endDate = getDateFromLong(cal.timeInMillis)
-        
+
         return "$startDate to $endDate"
     }
 
@@ -291,11 +291,11 @@ class EligibleCoupleTrackingDataset(
                     setToStartOfTheDay()
                 }.timeInMillis
             } ?: dateOfReg
-            
+
             dateOfVisit.min = minDate
             // Ensure max is never less than min to avoid DatePicker crash
             dateOfVisit.max = if (now < minDate) minDate else now
-            
+
             // Set initial value within [min, max] range
             val initialValue = if (now < minDate) minDate else now
             dateOfVisit.value = getDateFromLong(initialValue)
@@ -310,7 +310,7 @@ class EligibleCoupleTrackingDataset(
             dateOfVisit.value = getDateFromLong(saved.visitDate)
             financialYear.value = saved.financialYear ?: getFinancialYear(dateOfVisit.value)
             month.value = saved.visitMonth ?: resources.getStringArray(R.array.visit_months)[getMonth(dateOfVisit.value)!!]
-            
+
             // Still refresh max to avoid stale current time
             dateOfVisit.max = if (now < (dateOfVisit.min ?: 0L)) dateOfVisit.min else now
 
@@ -645,7 +645,14 @@ class EligibleCoupleTrackingDataset(
             form.lmpDate = lmpDate.value?.let { getLongFromDate(it) }
             form.isPregnancyTestDone = isPregnancyTestDone.value
             form.pregnancyTestResult = pregnancyTestResult.value
-            form.isPregnant = isPregnant.value
+
+            // Explicitly set isPregnant based on test status since it might be removed from the UI and cleared
+            form.isPregnant = if (pregnancyTestResult.value == "Negative" || isPregnancyTestDone.value == "No") {
+                "No"
+            } else {
+                isPregnant.value
+            }
+
             form.usingFamilyPlanning = usingFamilyPlanning.value?.let { it == "Yes" }
 
             // Handle method of contraception
@@ -662,7 +669,7 @@ class EligibleCoupleTrackingDataset(
                 form.antraDose = antraDose.value
                 form.antraInjectionDate = antraInjectionDate.value?.let { getLongFromDate(it) }
                 // Save the first date of the range to database
-                form.antraDueDate = antraDueDate.value?.let { 
+                form.antraDueDate = antraDueDate.value?.let {
                     val firstDateStr = it.split(" to ")[0]
                     getLongFromDate(firstDateStr)
                 }

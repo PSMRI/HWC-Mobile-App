@@ -397,6 +397,7 @@ class PregnantWomanRegistrationDataset(
             savedRecord?.let { buildReadOnlyFormList(it, list) }
         } else {
             buildEditableFormList(savedRecord, list)
+            updateHighRiskStatus()
         }
 
         setUpPage(list)
@@ -414,7 +415,7 @@ class PregnantWomanRegistrationDataset(
         // Add all main fields in consistent order
 //        list.add(pregnancyTestAtFacility)
 //        list.add(uptResult)
-        
+
         list.addAll(getPregnancyBasicFields())
 
         // Add history fields if gravida > 1
@@ -775,14 +776,14 @@ class PregnantWomanRegistrationDataset(
 //
 //            val registrationFields = mutableListOf<FormElement>().apply {
 //                addAll(getPregnancyBasicFields())
-//                
+//
 //                // Only add history fields if gravida > 1
 //                if (gravidaValue > 1) {
 //                    add(historyOfAbortions)
 //                    add(previousLSCS)
 //                    add(complicationsInPreviousPregnancy)
 //                }
-//                
+//
 //                addAll(getPhysicalFields())
 //                addLabFieldsCombined(this)
 //                add(isHighRiskPregnancy)
@@ -808,7 +809,7 @@ class PregnantWomanRegistrationDataset(
 //                add(hivTestDate)
 //                add(hbsAgTestDate)
 //            }
-//            
+//
 //            triggerDependants(
 //                source = uptResult,
 //                addItems = emptyList(),
@@ -818,7 +819,7 @@ class PregnantWomanRegistrationDataset(
 //    }
 
     fun shouldNavigateToEligibleCouple(): Boolean {
-   
+
         return false // uptResult.value == "Negative"
     }
 
@@ -1092,7 +1093,7 @@ class PregnantWomanRegistrationDataset(
         val realIndex = if (index < 0) -index else index
         val clickedOption = entries[realIndex]
         val currentValue = field.value ?: ""
-        if (realIndex == 0) { 
+        if (realIndex == 0) {
             if (currentValue.contains(clickedOption)) {
                 field.value = clickedOption
             }
@@ -1101,7 +1102,7 @@ class PregnantWomanRegistrationDataset(
             if (currentValue.isNotEmpty()) {
                 selections.addAll(currentValue.split(",").map { it.trim() }.filter { it.isNotEmpty() })
             }
-            
+
             // If the option is present, it was checked.
             if (selections.contains(clickedOption)) {
                 // Remove "None" if it exists
@@ -1169,6 +1170,9 @@ class PregnantWomanRegistrationDataset(
             }
         }
 
+        if (formId == weight.id) {
+            validateDoubleMinMax(weight)
+        }
 
         updateBMI()
         updateHighRiskStatus()
@@ -1215,12 +1219,12 @@ class PregnantWomanRegistrationDataset(
         if (heightValue != null && heightValue > 0 && weightValue != null && weightValue > 0) {
             val bmiValue = calculateBMI(weightValue, heightValue)
             val category = getBMICategory(bmiValue)
-            
+
             // Swap BMI element to force UI refresh
             val oldBmi = _bmi
             val newBmi = if (_bmi.id == bmi1.id) bmi2 else bmi1
             _bmi = newBmi
-            
+
             newBmi.value = String.format("%.1f (%s)", bmiValue, category)
 
             // Trigger the swap in the list
@@ -1241,13 +1245,13 @@ class PregnantWomanRegistrationDataset(
             }
         } else {
             // Clear BMI if values are invalid
-             val oldBmi = _bmi
-             val newBmi = if (_bmi.id == bmi1.id) bmi2 else bmi1
-             _bmi = newBmi
-             
-             newBmi.value = ""
-             
-             triggerDependants(
+            val oldBmi = _bmi
+            val newBmi = if (_bmi.id == bmi1.id) bmi2 else bmi1
+            _bmi = newBmi
+
+            newBmi.value = ""
+
+            triggerDependants(
                 source = weight,
                 removeItems = listOf(oldBmi),
                 addItems = listOf(newBmi),
@@ -1361,7 +1365,7 @@ class PregnantWomanRegistrationDataset(
 
             // Map RCH ID
             cache.rchId = rchId.value?.toLongOrNull()
-            
+
 //            cache.pregnancyTestAtFacility = pregnancyTestAtFacility.value
 //            cache.uptResult = uptResult.value
 

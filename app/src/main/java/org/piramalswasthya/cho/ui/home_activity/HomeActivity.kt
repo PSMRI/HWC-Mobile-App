@@ -606,7 +606,8 @@ class HomeActivity : AppCompatActivity() {
             .setTitle(resources.getString(R.string.exit_application))
             .setMessage(resources.getString(R.string.do_you_want_to_exit_application))
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-                this.finish()
+                (application as CHOApplication).closeAllActivities()
+                System.exit(0)
             }
             .setNegativeButton(resources.getString(R.string.no)) { d, _ ->
                 d.dismiss()

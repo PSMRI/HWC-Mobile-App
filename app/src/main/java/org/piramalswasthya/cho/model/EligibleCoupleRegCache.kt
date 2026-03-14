@@ -79,9 +79,10 @@ data class PatientWithEcrDomain(
      * Returns "Missed Period" if LMP date is > 35 days ago, otherwise "Under Review"
      */
     fun getECStatus(): String {
-        return if (ecr?.lmpDate != null && ecr.lmpDate!! > 0L) {
+        val finalLmpDate = ecr?.lmpDate ?: lmpDateFromTracking
+        return if (finalLmpDate != null && finalLmpDate > 0L) {
             val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(
-                System.currentTimeMillis() - ecr.lmpDate!!
+                System.currentTimeMillis() - finalLmpDate
             )
             if (daysSinceLMP > 35) "Missed Period" else "Under Review"
         } else {
@@ -103,10 +104,12 @@ data class PatientWithEcrDomain(
      * Get formatted LMP date string
      */
     fun getFormattedLMPDate(): String {
-        return ecr?.lmpDate?.let { lmpDate ->
-            if (lmpDate > 0L) HelperUtil.getDateStringFromLong(lmpDate) ?: "NA"
-            else "NA"
-        } ?: "NA"
+        val finalLmpDate = ecr?.lmpDate ?: lmpDateFromTracking
+        return if (finalLmpDate != null && finalLmpDate > 0L) {
+            HelperUtil.getDateStringFromLong(finalLmpDate) ?: "NA"
+        } else {
+            "NA"
+        }
     }
 
     /**
@@ -121,6 +124,10 @@ data class PatientWithEcrDomain(
      * This will be set by the adapter/fragment after loading ECT data.
      */
     var lastVisitDate: Long? = null
+    var methodOfContraception: String? = null
+    var antraNextDueDate: Long? = null
+    var antraInjectionDate: Long? = null
+    var lmpDateFromTracking: Long? = null
 
     /**
      * Get formatted last visit date string
@@ -128,6 +135,31 @@ data class PatientWithEcrDomain(
     fun getLastVisitDateString(): String {
         return lastVisitDate?.let { visitDate ->
             if (visitDate > 0L) HelperUtil.getDateStringFromLong(visitDate) ?: "NA"
+            else "NA"
+        } ?: "NA"
+    }
+
+    /**
+     * Get formatted ANTRA next due date string (range if possible)
+     */
+    fun getAntraDueDateString(): String {
+        return antraInjectionDate?.let { injectionDate ->
+            if (injectionDate > 0L) {
+                val cal = java.util.Calendar.getInstance()
+                cal.timeInMillis = injectionDate
+
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 76)
+                val startDate = HelperUtil.getDateStringFromLong(cal.timeInMillis)
+
+                cal.timeInMillis = injectionDate
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 120)
+                val endDate = HelperUtil.getDateStringFromLong(cal.timeInMillis)
+
+                if (startDate != null && endDate != null) "$startDate to $endDate"
+                else startDate ?: endDate ?: "NA"
+            } else "NA"
+        } ?: antraNextDueDate?.let { dueDate ->
+            if (dueDate > 0L) HelperUtil.getDateStringFromLong(dueDate) ?: "NA"
             else "NA"
         } ?: "NA"
     }
