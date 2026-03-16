@@ -9,7 +9,7 @@ import org.piramalswasthya.cho.model.PainAndSymptomAssessment
 class PainAndSymptomAssessmentDataset(
     context: Context,
     currentLanguage: Languages
-) : Dataset(context, currentLanguage) {
+) : ReferralFollowUpDataset(context, currentLanguage) {
 
     private lateinit var cache: PainAndSymptomAssessment
 
@@ -63,6 +63,18 @@ class PainAndSymptomAssessmentDataset(
         required = true
     )
 
+    // ---------------- Section F: Referral & Follow-up ----------------
+
+    override val referralRequired = createReferralRequired(6)
+
+    override val referralLevel = createReferralLevel(7)
+
+    override val reasonForReferral = createReasonForReferral(8)
+
+    override val followUpRequired = createFollowUpRequired(9)
+
+    override val followUpDate = createFollowUpDate(10)
+
     // ---------------- Setup Page ----------------
     suspend fun setUpPage(savedRecord: PainAndSymptomAssessment?) {
         cache = savedRecord ?: createDefaultCache()
@@ -80,11 +92,17 @@ class PainAndSymptomAssessmentDataset(
 
         list.add(immediateReliefProvided)
 
+        // Section F
+        addReferralFollowUpElements(list)
+
         setUpPage(list)
     }
 
     // ---------------- Value Change Handler ----------------
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
+        val referralFollowUpResult = handleReferralFollowUpChange(formId, index)
+        if (referralFollowUpResult != -1) return referralFollowUpResult
+
         return when (formId) {
 
             symptomsPresent.id -> {
@@ -151,6 +169,9 @@ class PainAndSymptomAssessmentDataset(
             false -> "No"
             else -> null
         }
+
+        // Section F
+        populateReferralFollowUpFromCache(cache)
     }
 
     // ---------------- Map Values ----------------
@@ -173,6 +194,9 @@ class PainAndSymptomAssessmentDataset(
                 "No" -> false
                 else -> null
             }
+
+            // Section F
+            mapReferralFollowUpValues(it)
         }
     }
 }
