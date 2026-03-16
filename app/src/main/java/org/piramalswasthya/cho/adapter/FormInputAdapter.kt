@@ -478,6 +478,11 @@ class FormInputAdapter(
 
             if (item.errorText != null) binding.clRi.setBackgroundResource(R.drawable.state_errored)
             else binding.clRi.setBackgroundResource(0)
+            // Clear listeners before removing views to prevent false unchecked callbacks
+            // that would strip values from item.value during rebind
+            for (i in 0 until binding.llChecks.childCount) {
+                (binding.llChecks.getChildAt(i) as? CheckBox)?.setOnCheckedChangeListener(null)
+            }
             binding.llChecks.removeAllViews()
             binding.llChecks.apply {
                 item.entries?.let { items ->
