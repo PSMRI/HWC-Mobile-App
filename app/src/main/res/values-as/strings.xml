@@ -919,7 +919,7 @@
 
     <string name="do_alert_post_term_delivery">পোষ্ট-টাৰ্ম প্ৰসব</string>
     <string name="do_alert_preterm_delivery">প্ৰি-টাৰ্ম প্ৰসব</string>
-    <string name="do_alert_home_delivery">ঘৰত প্ৰসব হৈছে। ঝুঁকি বিষয়ে পৰামৰ্শ দিয়ক আৰু তাৎক্ষণিক PNC নিশ্চিত কৰক।</string>
+    <string name="do_alert_home_delivery">ঘৰত প্ৰসব হৈছে। ঝুঁকি বিষয়ে পৰামৰ্শ দিয়ক আৰু ২৪ ঘণ্টাৰ ভিতৰত তাৎক্ষণিক PNC নিশ্চিত কৰক।</string>
     <string name="do_alert_on_the_way">২৪ ঘণ্টাৰ ভিতৰত জৰুৰী PNC ঘৰ ভ্ৰমণ প্ৰয়োজন।</string>
     <string name="do_alert_unskilled_delivery">অদক্ষ প্ৰসব। উচ্চ ঝুঁকিৰ PNC প্ৰয়োজন।</string>
     <string name="do_alert_extremely_preterm">অত্যন্ত প্ৰি-টাৰ্ম (&lt;28 সপ্তাহ)</string>
