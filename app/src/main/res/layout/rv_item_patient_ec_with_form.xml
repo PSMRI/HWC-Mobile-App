@@ -141,28 +141,7 @@
                             tools:text="Age" />
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:padding="4dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/no_of_children"
-                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/black" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@{patientWithEcr.ecr != null ? String.valueOf(patientWithEcr.ecr.noOfChildren) : `0`}"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/black"
-                            tools:text="2" />
-                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -213,35 +192,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@{patientWithEcr.patient.phoneNo ?? ``}"
+                            android:text="@{patientWithEcr.patient.phoneNo != null &amp;&amp; !patientWithEcr.patient.phoneNo.empty ? patientWithEcr.patient.phoneNo : @string/not_available}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
                             tools:text="9957027233" />
                     </LinearLayout>
 
-                    <!-- RCH ID not available in Patient entity, displaying NA -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:padding="4dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/tv_rch_id"
-                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/black" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="NA"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/black"
-                            tools:text="NA" />
-                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -278,30 +235,7 @@
                             tools:text="01-01-2025" />
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:id="@+id/llBenStatus"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:padding="4dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/status"
-                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/black" />
-
-                        <TextView
-                            android:id="@+id/benStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@{patientWithEcr.getECStatus()}"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/black"
-                            tools:text="Missed Period" />
-                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/llLastVisitDate"
@@ -330,7 +264,34 @@
 
                 </LinearLayout>
 
-                <!-- Row 4: Action Buttons -->
+                <!-- Row 4: ANTRA Next Due Date -->
+                <LinearLayout
+                    android:id="@+id/ll_antra_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingHorizontal="4dp"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/antra_next_due_date"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                        android:textColor="@color/black" />
+
+                    <TextView
+                        android:id="@+id/tv_antra_due_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{patientWithEcr.getAntraDueDateString()}"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="@color/black"
+                        tools:text="01-01-2025" />
+                </LinearLayout>
+
+                <!-- Row 5: Action Buttons -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

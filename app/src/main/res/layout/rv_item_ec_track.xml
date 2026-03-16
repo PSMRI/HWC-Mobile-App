@@ -192,6 +192,33 @@
 
                 </LinearLayout>
 
+                <!-- Row 2a: ANTRA Due Date -->
+                <LinearLayout
+                    android:id="@+id/ll_antra_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingHorizontal="4dp"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ANTRA Next Due Date"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                        android:textColor="@color/black" />
+
+                    <TextView
+                        android:id="@+id/tv_antra_due_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{visit.getAntraDueDateString()}"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="@color/black"
+                        tools:text="01-01-2025 to 15-02-2025" />
+                </LinearLayout>
+
                 <!-- Row 3: View Button -->
                 <LinearLayout
                     android:layout_width="match_parent"

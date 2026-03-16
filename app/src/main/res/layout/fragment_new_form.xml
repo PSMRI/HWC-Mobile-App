@@ -183,7 +183,7 @@
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_weight="1"
-                                    android:text="Date"
+                                    android:text="Injection Date"
                                     android:textColor="@android:color/white"
                                     android:textStyle="bold"
                                     android:padding="8dp"

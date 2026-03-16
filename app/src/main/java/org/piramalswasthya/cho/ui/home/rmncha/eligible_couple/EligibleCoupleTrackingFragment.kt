@@ -47,6 +47,7 @@ class EligibleCoupleTrackingFragment : Fragment() {
     private lateinit var adapter: ECRegistrationAdapter
     private var allPatients: List<PatientWithEcrDomain> = emptyList()
     private var filteredPatients: List<PatientWithEcrDomain> = emptyList()
+    private var currentPatientsList: List<org.piramalswasthya.cho.model.PatientDisplay>? = null
 
     companion object {
         // Status of Woman ID for Eligible Couple (as per user requirement)
@@ -99,7 +100,7 @@ class EligibleCoupleTrackingFragment : Fragment() {
 
                     // Navigate to tracking form for new visit
                     val patientId = patientWithEcr.patient.patientID
-                    
+
                     // Navigate to Eligible Couple Tracking Form Fragment
                     val fragment = org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form.EligibleCoupleTrackingFormFragment().apply {
                         arguments = Bundle().apply {
@@ -107,7 +108,7 @@ class EligibleCoupleTrackingFragment : Fragment() {
                             putLong("createdDate", 0L) // 0L means new visit
                         }
                     }
-                    
+
                     requireActivity().supportFragmentManager.commit {
                         replace(R.id.fragment_container, fragment)
                         addToBackStack("ECT_FORM_TRANSACTION")
@@ -136,57 +137,71 @@ class EligibleCoupleTrackingFragment : Fragment() {
     private fun observePatients() {
         lifecycleScope.launch {
             patientRepo.getPatientListFlow().collectLatest { patientsList ->
-                // Filter eligible couples directly from Patient table
-                // Show only patients with statusOfWomanID = 1 (Eligible Couple)
-                val filteredPatientsList = patientsList
-                    .filter { patientDisplay ->
-                        // Filter criteria:
-                        // 1. Female gender (genderID = 2)
-                        // 2. Age between 15-49 years (reproductive age)
-                        // 3. statusOfWomanID = 1 (Eligible Couple)
-                        val isFemale = patientDisplay.patient.genderID == 2
-                        val age = patientDisplay.patient.age ?: 0
-                        val isReproductiveAge = age in 15..49
-                        val statusOfWomanID = patientDisplay.patient.statusOfWomanID
-                        val isEligibleCouple = statusOfWomanID == STATUS_ELIGIBLE_COUPLE
-
-                        isFemale && isReproductiveAge && isEligibleCouple
-                    }
-
-                // Load ECR data and latest visit date for each patient in parallel
-                allPatients = withContext(Dispatchers.IO) {
-                    filteredPatientsList.map { patientDisplay ->
-                        async {
-                            // Load ECR data if available
-                            val ecr = ecrRepo.getSavedECR(patientDisplay.patient.patientID)
-                            // Load latest visit to check for positive pregnancy test
-                            val latestVisit = ecrRepo.getLatestEctByBenId(patientDisplay.patient.patientID)
-                            
-                            // Check if latest visit has positive pregnancy test
-                            val hasPositivePregnancyTest = latestVisit?.let { visit ->
-                                visit.isPregnancyTestDone == "Yes" && visit.pregnancyTestResult == "Positive"
-                            } ?: false
-                            
-                            // Return null if pregnancy test is positive (to filter out)
-                            if (hasPositivePregnancyTest) {
-                                null
-                            } else {
-                                PatientWithEcrDomain(
-                                    patient = patientDisplay.patient,
-                                    ecr = ecr
-                                ).apply {
-                                    lastVisitDate = latestVisit?.visitDate
-                                }
-                            }
-                        }
-                    }.awaitAll()
-                }.filterNotNull() // Remove null entries (patients with positive pregnancy test)
-                 .sortedByDescending { it.patient.registrationDate?.time ?: 0L }
-
-                filteredPatients = allPatients
-                updateUI()
+                currentPatientsList = patientsList
+                processPatientsList(patientsList)
             }
         }
+    }
+
+    private suspend fun processPatientsList(patientsList: List<org.piramalswasthya.cho.model.PatientDisplay>) {
+        // Show only patients with statusOfWomanID = 1 (Eligible Couple)
+        val filteredPatientsList = patientsList
+            .filter { patientDisplay ->
+                // Filter criteria:
+                // 1. Female gender (genderID = 2)
+                // 2. Age between 15-49 years (reproductive age)
+                // 3. statusOfWomanID = 1 (Eligible Couple)
+                val isFemale = patientDisplay.patient.genderID == 2
+                val age = patientDisplay.patient.age ?: 0
+                val isReproductiveAge = age in 15..49
+                val statusOfWomanID = patientDisplay.patient.statusOfWomanID
+                val isEligibleCouple = statusOfWomanID == STATUS_ELIGIBLE_COUPLE
+
+                isFemale && isReproductiveAge && isEligibleCouple
+            }
+
+        // Load ECR data and latest visit date for each patient in parallel
+        allPatients = withContext(Dispatchers.IO) {
+            filteredPatientsList.map { patientDisplay ->
+                async {
+                    // Load ECR data if available
+                    val ecr = ecrRepo.getSavedECR(patientDisplay.patient.patientID)
+                    // Load latest visit to check for positive pregnancy test
+                    val latestVisit = ecrRepo.getLatestEctByBenId(patientDisplay.patient.patientID)
+
+                    // Check if latest visit has positive pregnancy test
+                    val hasPositivePregnancyTest = latestVisit?.let { visit ->
+                        visit.isPregnancyTestDone == "Yes" && visit.pregnancyTestResult == "Positive"
+                    } ?: false
+
+                    // Return null if pregnancy test is positive (to filter out)
+                    if (hasPositivePregnancyTest) {
+                        null
+                    } else {
+                        PatientWithEcrDomain(
+                            patient = patientDisplay.patient,
+                            ecr = ecr
+                        ).apply {
+                            lastVisitDate = latestVisit?.visitDate
+                            methodOfContraception = latestVisit?.methodOfContraception
+                            antraInjectionDate = latestVisit?.antraInjectionDate
+                            lmpDateFromTracking = latestVisit?.lmpDate
+                            // Set ANTRA next due date if latest visit has ANTRA injection
+                            antraNextDueDate = if (latestVisit?.methodOfContraception == "ANTRA Injection") {
+                                latestVisit.antraDueDate
+                            } else {
+                                null
+                            }
+                        }
+                    }
+                }
+            }.awaitAll()
+        }.filterNotNull() // Remove null entries (patients with positive pregnancy test)
+            .sortedByDescending { it.patient.registrationDate?.time ?: 0L }
+
+        // Re-apply the current search query so any active filter survives a data reload
+        val currentQuery = if (_binding != null) binding.searchView.text.toString() else ""
+        filterPatients(currentQuery)
     }
 
     private fun filterPatients(query: String) {
@@ -211,6 +226,13 @@ class EligibleCoupleTrackingFragment : Fragment() {
         super.onResume()
         (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
             getString(R.string.ec_tracking_title)
+
+        // Re-process list on resume to catch any updates saved in tracking forms
+        currentPatientsList?.let {
+            lifecycleScope.launch {
+                processPatientsList(it)
+            }
+        }
     }
 
     override fun onDestroyView() {
