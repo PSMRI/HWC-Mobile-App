@@ -107,7 +107,8 @@ class NeonatalOutcomeDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.no_other_congenital_anomaly),
         required = false,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 300
     )
 
     // Q10: Newborn Complications
@@ -149,7 +150,8 @@ class NeonatalOutcomeDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.no_other_cause_of_death),
         required = false,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 300
     )
 
     // Q14: Birth dose vaccines given
@@ -169,7 +171,8 @@ class NeonatalOutcomeDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.no_reason_for_no_vaccines),
         required = false,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 200
     )
 
     // Q16: Vitamin K injection given?
@@ -188,7 +191,8 @@ class NeonatalOutcomeDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.no_reason_for_no_vitamin_k),
         required = false,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 200
     )
 
     // Q18: Birth Certificate issued?
@@ -196,10 +200,10 @@ class NeonatalOutcomeDataset(
         id = 17,
         inputType = InputType.RADIO,
         title = resources.getString(R.string.no_birth_certificate_issued),
-        arrayId = R.array.no_birth_certificate_array,
         entries = resources.getStringArray(R.array.no_birth_certificate_array),
         required = true,
-        hasDependants = false
+        hasDependants = false,
+        hasAlertError = true
     )
 
     // ─── Helper: restore conditional (dependant) fields into the list ──
@@ -293,6 +297,14 @@ class NeonatalOutcomeDataset(
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
+            sex.id -> {
+                val selectedValue = sex.entries?.getOrNull(index)
+                sex.value = selectedValue
+                if (selectedValue == sex.entries?.getOrNull(2)) {
+                    emitAlertErrorMessage(R.string.no_alert_ambiguous_sex)
+                }
+                -1
+            }
             criedImmediately.id -> {
                 val selectedValue = criedImmediately.entries?.getOrNull(index)
                 criedImmediately.value = selectedValue
@@ -356,6 +368,25 @@ class NeonatalOutcomeDataset(
             }
             birthWeight.id -> {
                 validateIntMinMax(birthWeight)
+                if (birthWeight.errorText == null) {
+                    birthWeight.value?.toIntOrNull()?.let { weightInGm ->
+                        when {
+                            weightInGm < 1000 -> emitAlertErrorMessage(R.string.no_alert_elbw)
+                            weightInGm < 1500 -> emitAlertErrorMessage(R.string.no_alert_vlbw)
+                            weightInGm < 2500 -> emitAlertErrorMessage(R.string.no_alert_lbw)
+                            weightInGm >= 4000 -> emitAlertErrorMessage(R.string.no_alert_macrosomia)
+                        }
+                    }
+                }
+                -1
+            }
+            birthCertificateIssued.id -> {
+                val selected = birthCertificateIssued.entries?.getOrNull(index)
+                birthCertificateIssued.value = selected
+                if (selected == birthCertificateIssued.entries?.getOrNull(2)) { // "No (Not applied)"
+                    emitAlertErrorMessage(R.string.no_alert_birth_certificate_legal)
+                }
+                -1
             }
             else -> -1
         }

@@ -9,8 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNeonatalOutcomeBinding
 import org.piramalswasthya.cho.ui.commons.maternal_health.neonatal_outcome.form.NeonatalOutcomeFormViewModel.State
@@ -83,6 +86,21 @@ class NeonatalOutcomeFormFragment : Fragment() {
             error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 viewModel.clearError()
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.alertMessageFlow.collect { message ->
+                message?.let {
+                    if (isAdded) {
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(getString(R.string.alert_title))
+                            .setMessage(it)
+                            .setPositiveButton(getString(R.string.continue_btn), null)
+                            .show()
+                        viewModel.resetAlertMessageFlow()
+                    }
+                }
             }
         }
     }

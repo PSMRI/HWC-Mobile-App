@@ -1031,8 +1031,8 @@
     <string name="no_alert_lbw">Low Birth Weight (LBW): 1500-2499g. Close monitoring required.</string>
     <string name="no_alert_vlbw">Very Low Birth Weight (VLBW): 1000-1499g. Immediate SNCU referral recommended.</string>
     <string name="no_alert_elbw">Extremely Low Birth Weight (ELBW): \u003c1000g. Critical - NICU care required.</string>
-    <string name="no_alert_macrosomia">Macrosomia: \u003e4000g. Screen mother for gestational diabetes.</string>
-    <string name="no_alert_ambiguous_sex">Ambiguous genitalia detected. Immediate pediatric/specialist review required.</string>
+    <string name="no_alert_macrosomia">Macrosomia (flag for maternal GDM screening)</string>
+    <string name="no_alert_ambiguous_sex">Ambiguous genitalia detected. Pediatric specialist referral required.</string>
     <string name="no_alert_stillbirth">Stillbirth recorded. Stillbirth audit form will be triggered.</string>
     <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
     <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
@@ -1077,7 +1077,6 @@
         <item>Intubation</item>
         <item>Chest compressions</item>
         <item>Medications</item>
-        <item>None</item>
     </string-array>
 
     <string-array name="no_congenital_anomaly_array">

@@ -53,6 +53,11 @@ class NeonatalOutcomeFormViewModel @Inject constructor(
 
     private val dataset = NeonatalOutcomeDataset(context, preferenceDao.getCurrentLanguage())
     val formElements = dataset.listFlow
+    val alertMessageFlow = dataset.alertErrorMessageFlow
+
+    fun resetAlertMessageFlow() {
+        viewModelScope.launch { dataset.resetErrorMessageFlow() }
+    }
     
     // We only need one outcome for the specific babyIndex
     private var currentOutcome: NeonatalOutcomeCache? = null
