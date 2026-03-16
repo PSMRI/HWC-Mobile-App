@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -68,6 +69,12 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         return binding.root
     }
 
+    private val pallorFormId = 22
+    private val severePallorIndex = 3
+    private val vaginalBleedingFormId = 23
+    private val heavyBleedingIndex = 1
+    private val foulSmellingDischargeIndex = 2
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -85,6 +92,14 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                         viewModel.updateListOnValueChanged(formId, index)
                         hardCodedListUpdate(formId)
+                        if (formId == pallorFormId && index == severePallorIndex) {
+                            showReferralAlertToFacility()
+                        }
+                        if (formId == vaginalBleedingFormId &&
+                            (index == heavyBleedingIndex || index == foulSmellingDischargeIndex)
+                        ) {
+                            showReferralAlertToFacility()
+                        }
                     }, isEnabled = !recordExists
                 )
                 binding.form.rvInputForm.adapter = adapter
@@ -178,7 +193,6 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
     }
 
     fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
-
         val visitDB = VisitDB(
             visitId = generateUuid(),
             category = "PNC",
@@ -259,6 +273,19 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
 
     override fun onCancelAction() {
         requireActivity().finish()
+    }
+
+    private fun showReferralAlertForSeverePallor() {
+        showReferralAlertToFacility()
+    }
+
+    private fun showReferralAlertToFacility() {
+        if (!isAdded || context == null) return
+        AlertDialog.Builder(requireContext())
+            .setTitle("Alert")
+            .setMessage("Referal to Facility")
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
 }

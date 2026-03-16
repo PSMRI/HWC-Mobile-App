@@ -637,8 +637,10 @@
         <item>CONDOM</item>
         <item>MALE STERILIZATION</item>
         <item>FEMALE STERILIZATION</item>
-        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
-        <item>ANY OTHER (SPECIFY)</item>
+        <item>POST PARTUM STERILIZATION (PPS)</item>
+        <item>Minilap</item>
+        <item>None</item>
+        <item>OTHER</item>
     </string-array>
     <string-array name="pnc_mother_danger_sign_array">
         <item>PPH</item>

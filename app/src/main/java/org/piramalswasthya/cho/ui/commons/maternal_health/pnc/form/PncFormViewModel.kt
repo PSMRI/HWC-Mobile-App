@@ -246,7 +246,7 @@ class PncFormViewModel @Inject constructor(
         if (is42ndDayPnc || isAfter60Days) {
             val allPncVisits = pncRepo.getAllPNCsByPatId(patientID)
             val permanentSterilizationMethods = context.resources.getStringArray(R.array.sterilization_methods_array).toList()
-            
+
             val hasPermanentSterilization = allPncVisits.any { pncVisit ->
                 pncVisit.contraceptionMethod?.let { method ->
                     permanentSterilizationMethods.any { sterilizationMethod ->
@@ -271,7 +271,7 @@ class PncFormViewModel @Inject constructor(
                         }
                     } ?: false
                 }
-                
+
                 if (hasFemalePermanentSterilization) {
                     // Update to Permanently Sterilized status
                     // patient.reproductiveStatus = "Permanently Sterilised"
@@ -283,7 +283,7 @@ class PncFormViewModel @Inject constructor(
                 // Move record to Eligible Couple and ECT Tracking sections
                 // patient.reproductiveStatus = "Eligible Couple"
             }
-            
+
             patient.syncState = SyncState.UNSYNCED
             patientRepo.updateRecord(patient)
         }
