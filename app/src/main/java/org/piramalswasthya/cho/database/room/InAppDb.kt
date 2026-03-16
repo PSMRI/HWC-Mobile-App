@@ -869,6 +869,8 @@ abstract class InAppDb : RoomDatabase() {
                         phq9_moving_slowly INTEGER,
                         phq9_self_harm_thoughts INTEGER,
                         phq9_total_score INTEGER,
+                        phq9_severity TEXT,
+                        phq9_recommended_action TEXT,
                         substance_alcohol_use INTEGER,
                         substance_tobacco_use INTEGER,
                         substance_other_use INTEGER,

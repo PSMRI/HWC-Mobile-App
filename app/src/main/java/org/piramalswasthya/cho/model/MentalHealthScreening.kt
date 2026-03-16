@@ -82,6 +82,12 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "phq9_total_score")
     var phq9TotalScore: Int? = null,
 
+    @ColumnInfo(name = "phq9_severity")
+    var phq9Severity: String? = null,
+
+    @ColumnInfo(name = "phq9_recommended_action")
+    var phq9RecommendedAction: String? = null,
+
     // ── Substance Use Screening (enabled by Q2=Yes) ──────────────────
 
     @ColumnInfo(name = "substance_alcohol_use")

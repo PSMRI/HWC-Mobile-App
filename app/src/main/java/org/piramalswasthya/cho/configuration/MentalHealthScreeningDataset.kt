@@ -120,7 +120,8 @@ class MentalHealthScreeningDataset(
         inputType = InputType.RADIO,
         title = "Little interest or pleasure in doing things",
         entries = phq9Options,
-        required = true
+        required = true,
+        hasDependants = true
     )
 
     private val phq9FeelingDown = FormElement(
@@ -128,15 +129,17 @@ class MentalHealthScreeningDataset(
         inputType = InputType.RADIO,
         title = "Feeling down, depressed, or hopeless",
         entries = phq9Options,
-        required = true
+        required = true,
+        hasDependants = true
     )
 
     private val phq9SleepTrouble = FormElement(
         id = 203,
         inputType = InputType.RADIO,
-        title = "Trouble falling/staying asleep, or sleeping too much",
+        title = "Trouble falling or staying asleep, or sleeping too much",
         entries = phq9Options,
-        required = true
+        required = true,
+        hasDependants = true
     )
 
     private val phq9FeelingTired = FormElement(
@@ -144,7 +147,8 @@ class MentalHealthScreeningDataset(
         inputType = InputType.RADIO,
         title = "Feeling tired or having little energy",
         entries = phq9Options,
-        required = true
+        required = true,
+        hasDependants = true
     )
 
     private val phq9Appetite = FormElement(
@@ -152,45 +156,64 @@ class MentalHealthScreeningDataset(
         inputType = InputType.RADIO,
         title = "Poor appetite or overeating",
         entries = phq9Options,
-        required = true
+        required = true,
+        hasDependants = true
     )
 
     private val phq9FeelingBad = FormElement(
         id = 206,
         inputType = InputType.RADIO,
-        title = "Feeling bad about yourself — or that you are a failure",
+        title = "Feeling bad about yourself \u2014 or that you are a failure or have let yourself or your family down",
         entries = phq9Options,
-        required = true
+        required = true,
+        hasDependants = true
     )
 
     private val phq9Concentration = FormElement(
         id = 207,
         inputType = InputType.RADIO,
-        title = "Trouble concentrating on things",
+        title = "Trouble concentrating on things, such as reading the newspaper or watching television",
         entries = phq9Options,
-        required = true
+        required = true,
+        hasDependants = true
     )
 
     private val phq9MovingSlowly = FormElement(
         id = 208,
         inputType = InputType.RADIO,
-        title = "Moving or speaking slowly, or being fidgety/restless",
+        title = "Moving or speaking so slowly that other people could have noticed, or being unusually restless",
         entries = phq9Options,
-        required = true
+        required = true,
+        hasDependants = true
     )
 
     private val phq9SelfHarmThoughts = FormElement(
         id = 209,
         inputType = InputType.RADIO,
-        title = "Thoughts that you would be better off dead or of hurting yourself",
+        title = "Thoughts that you would be better off dead or of hurting yourself in some way",
         entries = phq9Options,
-        required = true
+        required = true,
+        hasDependants = true
     )
 
     private val phq9TotalScore = FormElement(
         id = 210,
         inputType = InputType.TEXT_VIEW,
         title = "PHQ-9 Total Score",
+        required = false
+    )
+
+    private val phq9Severity = FormElement(
+        id = 211,
+        inputType = InputType.TEXT_VIEW,
+        title = "Depression Severity",
+        required = false
+    )
+
+    private val phq9RecommendedAction = FormElement(
+        id = 212,
+        inputType = InputType.TEXT_VIEW,
+        title = "Recommended Action",
         required = false
     )
 
@@ -432,7 +455,16 @@ class MentalHealthScreeningDataset(
     private val phq9Elements = listOf(
         phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
         phq9FeelingTired, phq9Appetite, phq9FeelingBad, phq9Concentration,
-        phq9MovingSlowly, phq9SelfHarmThoughts, phq9TotalScore
+        phq9MovingSlowly, phq9SelfHarmThoughts, phq9TotalScore,
+        phq9Severity, phq9RecommendedAction
+    )
+
+    // ── PHQ-9 question elements only (for score calculation) ─────────
+
+    private val phq9QuestionElements = listOf(
+        phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
+        phq9FeelingTired, phq9Appetite, phq9FeelingBad,
+        phq9Concentration, phq9MovingSlowly, phq9SelfHarmThoughts
     )
 
     private val substanceElements = listOf(
@@ -517,6 +549,61 @@ class MentalHealthScreeningDataset(
         return emotionalBehaviouralConcerns.value == "Yes" ||
                 selfHarmSuicideThoughts.value == "Yes" ||
                 isPostpartum.value == "Yes"
+    }
+
+    // ── PHQ-9 Severity Classification ────────────────────────────────
+
+    fun calculatePhq9Score(): Int {
+        return phq9QuestionElements.sumOf { extractPhq9Score(it.value) ?: 0 }
+    }
+
+    private fun getPhq9Severity(score: Int): String {
+        return when {
+            score <= 4  -> "Minimal Depression (0\u20134)"
+            score <= 9  -> "Mild Depression (5\u20139)"
+            score <= 14 -> "Moderate Depression (10\u201314)"
+            score <= 19 -> "Moderately Severe Depression (15\u201319)"
+            else        -> "Severe Depression (20\u201327)"
+        }
+    }
+
+    private fun getPhq9RecommendedAction(score: Int): String {
+        return when {
+            score <= 4  -> "Psychoeducation"
+            score <= 9  -> "Psychoeducation + Watchful waiting"
+            score <= 14 -> "Counselling + Refer to MO/PHC"
+            score <= 19 -> "Counselling + Urgent referral to MO/PHC"
+            else        -> "Emergency referral \u2014 Immediate psychiatric evaluation"
+        }
+    }
+
+    fun getPhq9ReferralAlert(score: Int): String? {
+        return when {
+            score >= 20 -> "EMERGENCY: PHQ-9 score $score (\u226520). Immediate referral for psychiatric evaluation required."
+            score >= 15 -> "URGENT: PHQ-9 score $score (\u226515). Urgent referral to MO/PHC recommended."
+            score >= 10 -> "ALERT: PHQ-9 score $score (\u226510). Referral to MO/PHC recommended."
+            else -> null
+        }
+    }
+
+    /**
+     * Recalculates PHQ-9 total score, severity, and recommended action
+     * based on current form values. Updates the display fields.
+     */
+    private fun recalculatePhq9Results() {
+        val score = calculatePhq9Score()
+        phq9TotalScore.value = score.toString()
+        phq9Severity.value = getPhq9Severity(score)
+        phq9RecommendedAction.value = getPhq9RecommendedAction(score)
+
+        // Auto-set referral required if score >= 10
+        if (score >= 10) {
+            referralRequired.value = "Yes"
+            reasonForReferral.value = when {
+                isPostpartum.value == "Yes" -> "Post-partum depression"
+                else -> "Depression (PHQ-9 score \u226510)"
+            }
+        }
     }
 
     // ── Value Change Handler ─────────────────────────────────────────
@@ -617,6 +704,12 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
+            // PHQ-9 question answers -> recalculate score, severity, action
+            in phq9QuestionElements.map { it.id } -> {
+                recalculatePhq9Results()
+                formId
+            }
+
             // Handle referral & follow-up changes
             else -> {
                 val result = handleReferralFollowUpChange(formId, index)
@@ -673,6 +766,8 @@ class MentalHealthScreeningDataset(
         phq9MovingSlowly.value = null
         phq9SelfHarmThoughts.value = null
         phq9TotalScore.value = null
+        phq9Severity.value = null
+        phq9RecommendedAction.value = null
     }
 
     private fun clearSubstanceValues() {
@@ -736,6 +831,8 @@ class MentalHealthScreeningDataset(
         phq9MovingSlowly.value = cache.phq9MovingSlowly?.let { phq9Options.getOrNull(it) }
         phq9SelfHarmThoughts.value = cache.phq9SelfHarmThoughts?.let { phq9Options.getOrNull(it) }
         phq9TotalScore.value = cache.phq9TotalScore?.toString()
+        phq9Severity.value = cache.phq9Severity
+        phq9RecommendedAction.value = cache.phq9RecommendedAction
 
         // Substance Use
         substanceAlcoholUse.value =
@@ -821,6 +918,10 @@ class MentalHealthScreeningDataset(
                     it.phq9FeelingTired, it.phq9Appetite, it.phq9FeelingBad,
                     it.phq9Concentration, it.phq9MovingSlowly, it.phq9SelfHarmThoughts
                 ).sum()
+
+                // Severity classification & recommended action
+                it.phq9Severity = getPhq9Severity(it.phq9TotalScore ?: 0)
+                it.phq9RecommendedAction = getPhq9RecommendedAction(it.phq9TotalScore ?: 0)
             } else {
                 it.phq9LittleInterest = null
                 it.phq9FeelingDown = null
@@ -832,6 +933,8 @@ class MentalHealthScreeningDataset(
                 it.phq9MovingSlowly = null
                 it.phq9SelfHarmThoughts = null
                 it.phq9TotalScore = null
+                it.phq9Severity = null
+                it.phq9RecommendedAction = null
             }
 
             // Substance Use

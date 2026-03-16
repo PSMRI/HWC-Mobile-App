@@ -5,8 +5,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.configuration.MentalHealthScreeningDataset
+import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.repositories.MentalHealthScreeningRepo
@@ -14,6 +17,7 @@ import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +27,8 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
-    private val mentalHealthScreeningRepo: MentalHealthScreeningRepo
+    private val mentalHealthScreeningRepo: MentalHealthScreeningRepo,
+    private val deliveryOutcomeDao: DeliveryOutcomeDao
 ) : BaseFormViewModel() {
 
     val patientID: String? = savedStateHandle["patientID"]
@@ -35,6 +40,9 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
     val formList = dataset.listFlow
 
     private lateinit var screeningCache: MentalHealthScreeningCache
+
+    // Track the last alert score threshold to avoid repeated alerts
+    private var lastAlertedScoreThreshold: Int = 0
 
     init {
         viewModelScope.launch {
@@ -58,9 +66,12 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
                     benVisitNo = benVisitNo
                 )
 
-                // TODO: Auto-derive postpartum status from RMNCH+A data
-                // Check if the patient is a postpartum woman (<=12 months after delivery)
-                val isPostpartumFromRmncha = false // To be integrated with delivery outcome data
+                // Auto-derive postpartum status from RMNCH+A delivery outcome data
+                // A woman is postpartum if she had a delivery within the last 12 months
+                val isPostpartumFromRmncha = checkPostpartumStatus(
+                    patient.patient.patientID,
+                    patient.patient.genderID
+                )
 
                 dataset.setUpPage(
                     savedRecord = existingRecord,
@@ -73,15 +84,70 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Checks if the patient is a postpartum woman (female with delivery
+     * within the last 12 months) based on delivery outcome records.
+     */
+    private suspend fun checkPostpartumStatus(
+        patientID: String,
+        genderID: Int?
+    ): Boolean {
+        // Only applicable for female patients (genderID == 2)
+        if (genderID != 2) return false
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val deliveryOutcome = deliveryOutcomeDao.getDeliveryOutcome(patientID)
+                if (deliveryOutcome?.dateOfDelivery != null) {
+                    val twelveMonthsAgo = System.currentTimeMillis() -
+                            TimeUnit.DAYS.toMillis(365)
+                    deliveryOutcome.dateOfDelivery!! >= twelveMonthsAgo
+                } else {
+                    false
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error checking postpartum status")
+                false
+            }
+        }
+    }
+
     // ── Form Updates ──────────────────────────────────────────────────
 
     fun updateListOnValueChanged(formId: Int, index: Int) {
-        launchUpdateList(
-            dataset,
-            formId,
-            index,
-            "Error updating Mental Health Screening form"
-        )
+        viewModelScope.launch {
+            try {
+                dataset.updateList(formId, index)
+
+                // After PHQ-9 recalculation, check for referral alerts
+                val score = dataset.calculatePhq9Score()
+                checkAndShowPhq9Alert(score)
+            } catch (e: Exception) {
+                Timber.e(e, "Error updating Mental Health Screening form")
+            }
+        }
+    }
+
+    /**
+     * Shows a referral alert dialog when PHQ-9 score crosses a threshold.
+     * Only shows each alert level once per session to avoid spamming.
+     */
+    private fun checkAndShowPhq9Alert(score: Int) {
+        val currentThreshold = when {
+            score >= 20 -> 20
+            score >= 15 -> 15
+            score >= 10 -> 10
+            else -> 0
+        }
+
+        // Only alert when crossing a new threshold upward
+        if (currentThreshold > lastAlertedScoreThreshold) {
+            lastAlertedScoreThreshold = currentThreshold
+            val alert = dataset.getPhq9ReferralAlert(score)
+            if (alert != null) {
+                _showAlert.postValue(alert)
+            }
+        }
     }
 
     // ── Save ──────────────────────────────────────────────────────────
