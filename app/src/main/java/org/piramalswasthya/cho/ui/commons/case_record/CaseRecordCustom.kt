@@ -286,17 +286,17 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             setCaseEditorVisibility(false)
 
             getVisitResObserver(benVisitInfo)
-             if (isClosedViewOnly) {
-                 applyReadOnlyCaseUi(btnSubmit, btnCancel)
-             } else if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && isDoctorWorkflowRole() && benVisitInfo.pharmacist_flag != 9 ){
-                 applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
+            if (isClosedViewOnly) {
+                applyReadOnlyCaseUi(btnSubmit, btnCancel)
+            } else if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && isDoctorWorkflowRole() && benVisitInfo.pharmacist_flag != 9 ){
+                applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
 
-             } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && isDoctorWorkflowRole() && benVisitInfo.pharmacist_flag == 9 ) {
-                 // Lab done + medicine dispensed: doctor reviews results.
-                 // Doctor can add new tests/medicines (starts new cycle) OR submit without changes (closes case with confirmation).
-                 applyEditableCaseUi(btnSubmit, btnCancel, R.string.close_case_btn)
+            } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && isDoctorWorkflowRole() && benVisitInfo.pharmacist_flag == 9 ) {
+                // Lab done + medicine dispensed: doctor reviews results.
+                // Doctor can add new tests/medicines (starts new cycle) OR submit without changes (closes case with confirmation).
+                applyEditableCaseUi(btnSubmit, btnCancel, R.string.close_case_btn)
 
-             } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && isDoctorWorkflowRole() && benVisitInfo.pharmacist_flag != 9 )
+            } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && isDoctorWorkflowRole() && benVisitInfo.pharmacist_flag != 9 )
             {
                 applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
 
@@ -305,18 +305,18 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
 
             } else {
-                 // Already filled (lab + pharmacist submitted): only Close button; no Submit/Cancel; no plus icons; no refer section
-                 applyReadOnlyCaseUi(btnSubmit, btnCancel)
-              }
+                // Already filled (lab + pharmacist submitted): only Close button; no Submit/Cancel; no plus icons; no refer section
+                applyReadOnlyCaseUi(btnSubmit, btnCancel)
+            }
 
 
             lifecycleScope.launch {
                 val isDoctorCanEditInView = benVisitInfo.nurseFlag == 9 &&
-                    ((benVisitInfo.doctorFlag == 1 || benVisitInfo.doctorFlag == 3) ||
-                        (benVisitInfo.doctorFlag == 9 && benVisitInfo.pharmacist_flag == 1)) &&
-                    benVisitInfo.pharmacist_flag != 9 &&
-                    isDoctorWorkflowRole() &&
-                    !isClosedViewOnly
+                        ((benVisitInfo.doctorFlag == 1 || benVisitInfo.doctorFlag == 3) ||
+                                (benVisitInfo.doctorFlag == 9 && benVisitInfo.pharmacist_flag == 1)) &&
+                        benVisitInfo.pharmacist_flag != 9 &&
+                        isDoctorWorkflowRole() &&
+                        !isClosedViewOnly
                 if (isFollowupVisit == true && isDoctorCanEditInView){
                     btnSubmit?.visibility = View.VISIBLE
                     // Always use Submit for new data, Close Case for review only
@@ -442,7 +442,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
                     val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
                     val isDoctorEditBeforeDispense = benVisitInfo.nurseFlag == 9 &&
-                        (benVisitInfo.doctorFlag == 3 || benVisitInfo.doctorFlag == 9)
+                            (benVisitInfo.doctorFlag == 3 || benVisitInfo.doctorFlag == 9)
                     if (isDoctorEditBeforeDispense) {
                         applyEditableCaseUi(btnSubmit, btnCancel, R.string.submit)
                     } else {
@@ -452,7 +452,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
                     val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
                     val isLabReviewWithDispensedMedicine = benVisitInfo.nurseFlag == 9 &&
-                        benVisitInfo.doctorFlag == 3
+                            benVisitInfo.doctorFlag == 3
 
                     if (isLabReviewWithDispensedMedicine) {
                         applyEditableCaseUi(btnSubmit, btnCancel, R.string.close_case_btn)
@@ -468,24 +468,24 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         // Special case: doctorFlag=3 AND pharmacist_flag=9 → doctor reviews lab+dispensed medicine and can add new or close
         val isDoctorReviewingAfterLabAndDispense =
             benVisitInfo.nurseFlag == 9 &&
-                benVisitInfo.doctorFlag == 3 &&
-                effectivePharmacistFlag == 9 &&
-                !isClosedViewOnly
+                    benVisitInfo.doctorFlag == 3 &&
+                    effectivePharmacistFlag == 9 &&
+                    !isClosedViewOnly
         if (isDoctorReviewingAfterLabAndDispense) {
             activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = View.VISIBLE
             activity?.findViewById<Button>(R.id.btnSubmit)?.text = getString(R.string.close_case_btn)
         }
         val isDoctorEditingPendingDispense = benVisitInfo.nurseFlag == 9 &&
-            benVisitInfo.doctorFlag == 9 && effectivePharmacistFlag == 1
+                benVisitInfo.doctorFlag == 9 && effectivePharmacistFlag == 1
         val isDoctorCanEdit = (isDoctorWorkflowRole() ||
-            isDoctorReviewingAfterLabAndDispense ||
-            isDoctorEditingPendingDispense) &&
-            benVisitInfo.nurseFlag == 9 &&
-            (benVisitInfo.doctorFlag == 1 || benVisitInfo.doctorFlag == 3 || benVisitInfo.doctorFlag == 9) &&
-            (effectivePharmacistFlag != 9 || isDoctorReviewingAfterLabAndDispense)
+                isDoctorReviewingAfterLabAndDispense ||
+                isDoctorEditingPendingDispense) &&
+                benVisitInfo.nurseFlag == 9 &&
+                (benVisitInfo.doctorFlag == 1 || benVisitInfo.doctorFlag == 3 || benVisitInfo.doctorFlag == 9) &&
+                (effectivePharmacistFlag != 9 || isDoctorReviewingAfterLabAndDispense)
         val isAlreadyFilledReadOnly = isClosedViewOnly ||
-            (viewRecordFragment == true && !isDoctorCanEdit) ||
-            (!isFreshCaseEntryFromVisitDetails && effectivePharmacistFlag == 9 && !isDoctorReviewingAfterLabAndDispense)
+                (viewRecordFragment == true && !isDoctorCanEdit) ||
+                (!isFreshCaseEntryFromVisitDetails && effectivePharmacistFlag == 9 && !isDoctorReviewingAfterLabAndDispense)
         isAlreadyFilledReadOnlyForVisibility = isAlreadyFilledReadOnly
         if (isAlreadyFilledReadOnly) {
             applyReadOnlyCaseUi(
@@ -1062,9 +1062,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         if (::pAdapter.isInitialized) {
             pAdapter.notifyDataSetChanged()
             updateSubmitButtonText()
+            binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
         }
     }
-    
+
     override fun onDestroyView() {
         // Clean up all observers to prevent memory leaks
         viewModel.benFlows.removeObservers(viewLifecycleOwner)
@@ -1079,11 +1080,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         viewModel.vitalsDB.removeObservers(viewLifecycleOwner)
         viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
         viewModel.isDataDeleted.removeObservers(viewLifecycleOwner)
-        
+
         Timber.d("onDestroyView: All observers cleaned up")
         super.onDestroyView()
     }
-    
+
     fun convertToDiagnosisValues(diagnosisCaseRecords: List<DiagnosisCaseRecord?>): List<DiagnosisValue> {
         itemListD.clear()
         val diagnosisValuesList = mutableListOf<DiagnosisValue>()
@@ -1111,7 +1112,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
 
-        fun convertToPrescriptionValues(prescriptionTemplateDB: List<PrescriptionTemplateDB?>) {
+    fun convertToPrescriptionValues(prescriptionTemplateDB: List<PrescriptionTemplateDB?>) {
         for (templateDB in prescriptionTemplateDB) {
             val prescriptionValue = templateDB?.let {
                 it?.drugName?.let { it1 ->
@@ -1155,7 +1156,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
                 }
             }
-            )
+        )
 
 
         if (!syncBottomSheet.isVisible)
@@ -1163,7 +1164,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
     private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
-     //   hideNullFieldsW(vitals)
+        //   hideNullFieldsW(vitals)
         binding.inputHeight.setText(vitals?.height?:"")
         binding.inputWeight.setText(vitals?.weight?:"")
         binding.inputBmi.setText(vitals.bmi?:"")
@@ -1178,7 +1179,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
     private fun populateVitalsFields() {
-     //   hideNullFields()
+        //   hideNullFields()
         // Check if the masterDb and vitalsMasterDb are not null
         if (masterDb != null && masterDb?.vitalsMasterDb != null) {
             val vitals = masterDb?.vitalsMasterDb
@@ -1250,18 +1251,18 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.spo2EditTxt.visibility = View.VISIBLE
         }
         //Custtomr layout validation not required start
-/*
-        if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
-            binding.bpSystolicEditTxt.visibility = View.GONE
-        } else {
-            binding.bpSystolicEditTxt.visibility = View.VISIBLE
-        }*/
+        /*
+                if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
+                    binding.bpSystolicEditTxt.visibility = View.GONE
+                } else {
+                    binding.bpSystolicEditTxt.visibility = View.VISIBLE
+                }*/
 
-       /* if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
-            binding.bpDiastolicEditTxt.visibility = View.GONE
-        } else {
-            binding.bpDiastolicEditTxt.visibility = View.VISIBLE
-        }*/
+        /* if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
+             binding.bpDiastolicEditTxt.visibility = View.GONE
+         } else {
+             binding.bpDiastolicEditTxt.visibility = View.VISIBLE
+         }*/
         //Custtomr layout validation not required end
 
         if (itemRs.isNullOrEmpty() || itemRs.equals("null")) {
@@ -1325,12 +1326,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.spo2EditTxt.visibility = View.GONE
         }
         //Custtomr layout validation not required start
-      /*  if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
-            binding.bpSystolicEditTxt.visibility = View.GONE
-        }
-        if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
-            binding.bpDiastolicEditTxt.visibility = View.GONE
-        }*/
+        /*  if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
+              binding.bpSystolicEditTxt.visibility = View.GONE
+          }
+          if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
+              binding.bpDiastolicEditTxt.visibility = View.GONE
+          }*/
         //Custtomr layout validation not required end
 
         if (itemRs.isNullOrEmpty() || itemRs.equals("null")) {
@@ -1430,7 +1431,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 ) { _, which, isChecked ->
                     if (isChecked) {
 //                        if (!disabledItems.contains(which)) {
-                            selectedTestName.add(which)
+                        selectedTestName.add(which)
 //                        } else {
 //                            Toast.makeText(
 //                                requireContext(),
@@ -1507,7 +1508,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             if (item.isDispensed) {
                 continue
             }
-            if (item.form.isEmpty() || item.frequency.isEmpty() || item.duration.isEmpty()) {
+            val hasForm = item.form.isNotEmpty() || item.id != null
+            if (!hasForm || item.frequency.isEmpty() || item.duration.isEmpty()) {
                 return true
             }
         }
@@ -1540,7 +1542,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
         return selectedIds != existingIds
     }
-    
+
     /**
      * Updates the submit button text based on whether new tests or medicines are selected.
      * - "Close Case" when no new test/medicine (just reviewing)
@@ -1548,23 +1550,23 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
      */
     private fun updateSubmitButtonText() {
         val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit) ?: return
-        
+
         // Only update for lab review state (doctorFlag=3 and pharmacist_flag=9)
         val isLabReviewState = benVisitInfo.nurseFlag == 9 &&
-            benVisitInfo.doctorFlag == 3 &&
-            isDoctorWorkflowRole()
-        
+                benVisitInfo.doctorFlag == 3 &&
+                isDoctorWorkflowRole()
+
         if (!isLabReviewState) return
-        
+
         val currentPharmacistFlag = effectivePharmacistFlagForVisibility ?: benVisitInfo.pharmacist_flag ?: 0
         if (currentPharmacistFlag != 9) return
-        
+
         val hasNewTest = hasTestSelectionChanged()
-        
+
         // Check if new medicine is selected
         val newRowsStart = dispensedLockedPrescriptionCount.coerceAtMost(itemListP.size)
         val hasNewMedicine = itemListP.drop(newRowsStart).any { it.id != null }
-        
+
         // Update button text
         btnSubmit.text = if (hasNewTest || hasNewMedicine) {
             getString(R.string.submit)
@@ -1999,7 +2001,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
     fun navigateNext() {
         val isDoctorLabReviewCase = ::benVisitInfo.isInitialized &&
-            benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3
+                benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3
         if (isDoctorExistingVisitFlow() || isDoctorLabReviewCase) {
             val visitNo = benVisitInfo.benVisitNo
             if (visitNo == null || visitNo <= 0) {
@@ -2015,8 +2017,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             // If doctor picks a new test → let the normal save flow handle it (new lab cycle)
             // If doctor submits with no test → close case with confirmation dialog
             val isLabReviewState = benVisitInfo.nurseFlag == 9 &&
-                benVisitInfo.doctorFlag == 3 &&
-                isDoctorWorkflowRole()
+                    benVisitInfo.doctorFlag == 3 &&
+                    isDoctorWorkflowRole()
 
             if (isLabReviewState) {
                 val currentPharmacistFlag = effectivePharmacistFlagForVisibility ?: benVisitInfo.pharmacist_flag ?: 0
@@ -2056,7 +2058,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                             ).show()
                         }
                     }
-                    
+
                     AlertDialog.Builder(requireContext())
                         .setTitle(getString(R.string.info))
                         .setMessage(getString(R.string.case_close_confirmation))
