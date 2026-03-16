@@ -68,10 +68,14 @@ class PharmacistItemAdapter(
             binding.doseValue.text = item.dose ?: ""
             binding.quantityPrescribedValue.text = item.qtyPrescribed.toString() ?: ""
             binding.routeValue.text = item.route ?: ""
-            // Local DTO has prescribed quantity only; dispensed quantity should not mirror prescribed.
-            binding.quantityDispensedValue.text = "0"
+            val dispensedQty = if (issueType == "Manual Issue") {
+                item.batchList.filter { it.isSelected }.sumOf { it.dispenseQuantity }
+            } else {
+                item.batchList.sumOf { it.qty }
+            }
+            binding.quantityDispensedValue.text = dispensedQty.toString()
             binding.specialInstructionValue.text = item.dose ?: ""
-            
+
             // Handle button visibility and text based on issue type and network availability
             when (issueType) {
                 "Manual Issue" -> {
