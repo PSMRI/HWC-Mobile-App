@@ -83,5 +83,19 @@
             app:destination="@id/customVitalsFragment" />
     </fragment>
 
+    <!-- Mental Health Screening Form Fragment -->
+    <fragment
+        android:id="@+id/mentalHealthScreeningFormFragment"
+        android:name="org.piramalswasthya.cho.ui.mental_health.MentalHealthScreeningFormFragment"
+        android:label="Mental Health Screening"
+        tools:layout="@layout/fragment_mental_health_screening_form">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer" />
+    </fragment>
+
 </navigation>
 

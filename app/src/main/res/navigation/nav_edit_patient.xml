@@ -53,6 +53,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_noseDiagnosisFormFragment"
             app:destination="@id/fragment_nose_diagnosis_form" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_mentalHealthScreeningFormFragment"
+            app:destination="@id/mentalHealthScreeningFormFragment" />
 
     </fragment>
 
@@ -315,6 +318,18 @@
         android:id="@+id/fragment_nose_diagnosis_form"
         android:name="org.piramalswasthya.cho.ui.ENT.NoseDiagnosisFormFragment"
         android:label="Nose Diagnosis" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/mentalHealthScreeningFormFragment"
+        android:name="org.piramalswasthya.cho.ui.mental_health.MentalHealthScreeningFormFragment"
+        android:label="Mental Health Screening" >
         <argument
             android:name="patientID"
             app:argType="string" />

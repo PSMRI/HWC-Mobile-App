@@ -548,6 +548,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
         }
+        else if(subCat == DropdownConst.mentalHealth){
+            val subCatAdapter = SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                listOf(DropdownConst.mentalHealthScreening)
+            )
+            binding.reasonForVisitInput.setAdapter(subCatAdapter)
+            changeBtnView()
+        }
         else{
             viewModel.selectedReasonForVisit = ""
             binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
@@ -1743,6 +1753,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPsychosocialCaregiverSupportFormFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitNo
+                        )
+                    )
+                }
+            }
+            else if(reasonForVisit == DropdownConst.mentalHealth || reasonForVisit == DropdownConst.mentalHealthScreening){
+                saveVisitData { benVisitNo ->
+                    isNavigationInProgress = true
+                    binding.btnSubmit.isEnabled = false
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToMentalHealthScreeningFormFragment(
                             patientID = benVisitInfo.patient.patientID,
                             benVisitNo = benVisitNo
                         )
