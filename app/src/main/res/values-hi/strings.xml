@@ -1144,4 +1144,5 @@
         <item>In process</item>
         <item>No (Not applied)</item>
     </string-array>
+    <string name="antra_next_due_date">ANTRA की अगली देय तिथि</string>
 </resources>

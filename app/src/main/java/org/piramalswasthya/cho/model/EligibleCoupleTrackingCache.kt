@@ -53,11 +53,33 @@ data class EligibleCoupleTrackingCache(
 ) : FormDataModel {
 
     companion object {
-        private val dateFormat = SimpleDateFormat("EEE, MMM dd yyyy", Locale.getDefault())
-
         fun getECTFilledDateFromLong(long: Long): String {
+            // Create fresh each call so Locale.getDefault() reflects the current app language
+            val dateFormat = SimpleDateFormat("EEE, MMM dd yyyy", Locale.getDefault())
             return "Visited on ${dateFormat.format(long)}"
         }
+    }
+
+    fun getAntraDueDateString(): String {
+        // Create fresh each call so Locale.getDefault() reflects the current app language
+        val dueDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        return antraInjectionDate?.let { injectionDate ->
+            if (injectionDate > 0L) {
+                val cal = java.util.Calendar.getInstance()
+                cal.timeInMillis = injectionDate
+
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 76)
+                val startDate = dueDateFormat.format(cal.timeInMillis)
+
+                cal.timeInMillis = injectionDate
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 120)
+                val endDate = dueDateFormat.format(cal.timeInMillis)
+
+                "$startDate to $endDate"
+            } else "NA"
+        } ?: antraDueDate?.let { dueDate ->
+            if (dueDate > 0L) dueDateFormat.format(dueDate) else "NA"
+        } ?: "NA"
     }
 
     fun asNetworkModel(benId: Long): ECTNetwork {

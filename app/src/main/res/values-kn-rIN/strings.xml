@@ -465,4 +465,5 @@
     <!-- Status of Woman -->
     <string name="status_of_woman">ಮಹಿಳೆಯ ಸ್ಥಿತಿ <font color="#FF0000">*</font></string>
     <string name="select_status_of_woman">ಮಹಿಳೆಯ ಸ್ಥಿತಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="antra_next_due_date">ANTRA ಮುಂದಿನ ನಿಗದಿತ ದಿನಾಂಕ</string>
 </resources>

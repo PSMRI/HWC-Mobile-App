@@ -79,9 +79,10 @@ data class PatientWithEcrDomain(
      * Returns "Missed Period" if LMP date is > 35 days ago, otherwise "Under Review"
      */
     fun getECStatus(): String {
-        return if (ecr?.lmpDate != null && ecr.lmpDate!! > 0L) {
+        val finalLmpDate = ecr?.lmpDate ?: lmpDateFromTracking
+        return if (finalLmpDate != null && finalLmpDate > 0L) {
             val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(
-                System.currentTimeMillis() - ecr.lmpDate!!
+                System.currentTimeMillis() - finalLmpDate
             )
             if (daysSinceLMP > 35) "Missed Period" else "Under Review"
         } else {
@@ -103,10 +104,12 @@ data class PatientWithEcrDomain(
      * Get formatted LMP date string
      */
     fun getFormattedLMPDate(): String {
-        return ecr?.lmpDate?.let { lmpDate ->
-            if (lmpDate > 0L) HelperUtil.getDateStringFromLong(lmpDate) ?: "NA"
-            else "NA"
-        } ?: "NA"
+        val finalLmpDate = ecr?.lmpDate ?: lmpDateFromTracking
+        return if (finalLmpDate != null && finalLmpDate > 0L) {
+            HelperUtil.getDateStringFromLong(finalLmpDate) ?: "NA"
+        } else {
+            "NA"
+        }
     }
 
     /**
@@ -121,6 +124,10 @@ data class PatientWithEcrDomain(
      * This will be set by the adapter/fragment after loading ECT data.
      */
     var lastVisitDate: Long? = null
+    var methodOfContraception: String? = null
+    var antraNextDueDate: Long? = null
+    var antraInjectionDate: Long? = null
+    var lmpDateFromTracking: Long? = null
 
     /**
      * Get formatted last visit date string
@@ -129,6 +136,31 @@ data class PatientWithEcrDomain(
         return lastVisitDate?.let { visitDate ->
             if (visitDate > 0L) HelperUtil.getDateStringFromLong(visitDate) ?: "NA"
             else "NA"
+        } ?: "NA"
+    }
+
+    /**
+     * Get formatted ANTRA next due date string (range if possible)
+     */
+    fun getAntraDueDateString(): String {
+        // Create fresh each call so Locale.getDefault() reflects the current app language
+        val dueDateFormat = java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.getDefault())
+        return antraInjectionDate?.let { injectionDate ->
+            if (injectionDate > 0L) {
+                val cal = java.util.Calendar.getInstance()
+                cal.timeInMillis = injectionDate
+
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 76)
+                val startDate = dueDateFormat.format(cal.timeInMillis)
+
+                cal.timeInMillis = injectionDate
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 120)
+                val endDate = dueDateFormat.format(cal.timeInMillis)
+
+                "$startDate to $endDate"
+            } else "NA"
+        } ?: antraNextDueDate?.let { dueDate ->
+            if (dueDate > 0L) dueDateFormat.format(dueDate) else "NA"
         } ?: "NA"
     }
 }
