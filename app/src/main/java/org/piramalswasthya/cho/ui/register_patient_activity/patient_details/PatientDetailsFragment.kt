@@ -207,10 +207,21 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     withContext(dispatcherProvider.main) {
                         if (matchedPatient != null) {
                             val patientInfo = viewModel.patientRepo.getPatientDisplayListForNurseByPatient(matchedPatient.patientID)
-                            populateForm(patientInfo)
-                            isEditModeAfterRegistration = true
-                            setFormEditable(true)
-                            Toast.makeText(requireContext(), "Existing beneficiary found. You can edit and update.", Toast.LENGTH_LONG).show()
+                            val matchedName = "${patientInfo.patient.firstName ?: ""} ${patientInfo.patient.lastName ?: ""}".trim()
+                            AlertDialog.Builder(requireContext())
+                                .setTitle("Existing Beneficiary Found")
+                                .setMessage("A matching beneficiary was found: $matchedName.\n\nDo you want to load their details for editing?")
+                                .setPositiveButton("Yes, Load Details") { dialog, _ ->
+                                    populateForm(patientInfo)
+                                    isEditModeAfterRegistration = true
+                                    setFormEditable(true)
+                                    dialog.dismiss()
+                                }
+                                .setNegativeButton("No, New Registration") { dialog, _ ->
+                                    dialog.dismiss()
+                                }
+                                .setCancelable(false)
+                                .show()
                         } else {
                             Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
                         }
@@ -348,6 +359,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             } else {
                 setFormEditable(false)
             }
+        } else {
+            // New registration — reset all state to avoid stale data
+            patient = Patient()
+            embeddings = null
+            isEditModeAfterRegistration = false
+            viewModel.resetFormState()
         }
     }
 

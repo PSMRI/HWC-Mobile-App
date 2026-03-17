@@ -30,6 +30,7 @@ interface PatientDao {
     @Query("SELECT * FROM PATIENT WHERE patientID = :patientID")
     suspend fun getPatient(patientID : String) : Patient
 
+    @Transaction
     @Query("SELECT * FROM PATIENT WHERE patientID = :patientID")
     suspend fun getPatientDisplay(patientID : String) : PatientDisplay
 
@@ -125,6 +126,7 @@ interface PatientDao {
     @Query("SELECT * FROM PATIENT WHERE syncState =:unsynced ")
     suspend fun getPatientListUnsynced(unsynced: SyncState = SyncState.UNSYNCED) : List<PatientDisplay>
 
+    @Transaction
     @Query("SELECT * FROM PATIENT WHERE patientID =:patientID")
     suspend fun getPatientById(patientID: String) : PatientDisplay
     @Transaction

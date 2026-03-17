@@ -188,6 +188,23 @@ class PatientDetailsViewModel @Inject constructor(
             fetchStatusOfWoman()
         }
     }
+    fun resetFormState() {
+        selectedAgeUnitEnum = AgeUnitEnum.YEARS
+        enteredAge = null
+        maritalStatusId = null
+        maritalStatusName = null
+        enteredAgeYears = null
+        enteredAgeMonths = null
+        enteredAgeWeeks = null
+        enteredAgeDays = null
+        selectedDateOfBirth = null
+        selectedAgeUnit = AgeUnit(3, "Years")
+        selectedMaritalStatus = null
+        selectedGenderMaster = null
+        selectedVillage = null
+        selectedStatusOfWoman = null
+    }
+
     fun setDob(boolean: Boolean){
         _dobVal.value = boolean
     }
