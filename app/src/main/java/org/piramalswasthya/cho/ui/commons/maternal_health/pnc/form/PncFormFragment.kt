@@ -74,6 +74,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
     private val vaginalBleedingFormId = 23
     private val heavyBleedingIndex = 1
     private val foulSmellingDischargeIndex = 2
+    private val maternalSymptomsFormId = 20
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -99,6 +100,25 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                             (index == heavyBleedingIndex || index == foulSmellingDischargeIndex)
                         ) {
                             showReferralAlertToFacility()
+                        }
+                        if (formId == maternalSymptomsFormId) {
+                            val pncAdapter = binding.form.rvInputForm.adapter as? FormInputAdapter
+                            val rowPosition = pncAdapter?.currentList?.indexOfFirst { it.id == maternalSymptomsFormId } ?: -1
+                            if (rowPosition >= 0) {
+                                pncAdapter?.notifyItemChanged(rowPosition)
+                            }
+
+                            // Count actual symptoms selected (exclude "None") for referral alert
+                            val maternalSymptomsItem = pncAdapter?.currentList?.find { it.id == maternalSymptomsFormId }
+                            val currentValue = maternalSymptomsItem?.value
+                            val selectedSymptoms = currentValue
+                                ?.split(",")
+                                ?.map { it.trim() }
+                                ?.filter { it.isNotBlank() && !it.equals("None", ignoreCase = true) }
+                                ?: emptyList()
+                            if (selectedSymptoms.size >= 2) {
+                                showReferralAlertToFacility()
+                            }
                         }
                     }, isEnabled = !recordExists
                 )

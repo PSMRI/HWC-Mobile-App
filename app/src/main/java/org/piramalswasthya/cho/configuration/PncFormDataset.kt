@@ -753,19 +753,43 @@ class PncFormDataset(
             anyDangerSign.id -> handleDangerSignChange(index)
 
             maternalSymptoms.id -> {
-                // Check if "Other" is selected
+                val realIndex = if (index < 0) -index else index
+                val clickedOption = maternalSymptoms.entries?.getOrNull(realIndex) ?: return -1
+                val currentValue = maternalSymptoms.value ?: ""
+
+                if (clickedOption.equals("None", ignoreCase = true)) {
+                    if (currentValue.contains("None", ignoreCase = true)) {
+                        maternalSymptoms.value = "None"
+                    }
+                } else {
+                    val selections = mutableSetOf<String>()
+                    if (currentValue.isNotEmpty()) {
+                        selections.addAll(currentValue.split(",").map { it.trim() }.filter { it.isNotEmpty() })
+                    }
+                    if (selections.contains(clickedOption)) {
+                        val noneEntry = maternalSymptoms.entries?.find { it.equals("None", ignoreCase = true) }
+                        if (noneEntry != null && selections.contains(noneEntry)) {
+                            selections.remove(noneEntry)
+                        }
+                        maternalSymptoms.value = selections.joinToString(", ")
+                    }
+                }
+
+                // Handle "Other" field visibility
                 val selectedValues = maternalSymptoms.value?.split(",")?.map { it.trim() } ?: emptyList()
                 val hasOther = selectedValues.any { it.equals(maternalSymptoms.entries!!.last(), ignoreCase = true) }
-                
-                // Update referral requirement based on all conditions
+
+                // Update referral logic
                 updateReferralRequirement()
-                
-                return triggerDependants(
+
+                triggerDependants(
                     source = maternalSymptoms,
                     passedIndex = if (hasOther) maternalSymptoms.entries!!.lastIndex else -1,
                     triggerIndex = maternalSymptoms.entries!!.lastIndex,
                     target = otherMaternalSymptoms
                 )
+                
+                return getIndexById(maternalSymptoms.id)
             }
 
             otherMaternalSymptoms.id -> {
@@ -812,6 +836,14 @@ class PncFormDataset(
                     triggerIndex = causeOfDeath.entries!!.lastIndex,
                     target = otherDeathCause
                 )
+            }
+
+            otherPpcMethod.id -> {
+                validateAllAlphabetsSpaceOnEditText(otherPpcMethod)
+            }
+
+            otherDeathCause.id -> {
+                validateAllAlphabetsSpaceOnEditText(otherDeathCause)
             }
 
             placeOfDeath.id -> {

@@ -495,10 +495,6 @@ class FormInputAdapter(
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
                         )
-                        if (!isEnabled) {
-                            cbx.isClickable = false
-                            cbx.isFocusable = false
-                        }
                         cbx.id = View.generateViewId()
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) cbx.setTextAppearance(
                             context, android.R.style.TextAppearance_Material_Medium
@@ -510,6 +506,11 @@ class FormInputAdapter(
                         cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                        }
+                        if (!isEnabled) {
+                            cbx.isClickable = false
+                            cbx.isFocusable = false
+                            cbx.isEnabled = false
                         }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
