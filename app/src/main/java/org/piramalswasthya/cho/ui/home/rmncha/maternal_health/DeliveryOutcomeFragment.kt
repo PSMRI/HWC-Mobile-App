@@ -11,6 +11,7 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.DeliveryOutcomeAdapter
@@ -97,15 +98,21 @@ class DeliveryOutcomeFragment : Fragment() {
 
     private fun observePatients() {
         viewLifecycleOwner.lifecycleScope.launch {
-            maternalHealthRepo.getAllDeliveredWomen().collectLatest { patientsList ->
-                // Filter for delivered women (already filtered by DAO query)
+            combine(
+                maternalHealthRepo.getAllDeliveredWomen(),
+                maternalHealthRepo.getNeonatalOutcomeEligibleWomenPatientIDs()
+            ) { patientsList, filledDOIds ->
                 allPatients = patientsList
-                    .map { it.asDomainModel() }
+                    .map {
+                        val domainModel = it.asDomainModel()
+                        domainModel.isDeliveryOutcomeFilled = filledDOIds.contains(it.patient.patientID)
+                        domainModel
+                    }
                     .sortedByDescending { it.pwr?.dateOfRegistration ?: 0L }
 
                 filteredPatients = allPatients
                 updateUI()
-            }
+            }.collectLatest { }
         }
     }
 

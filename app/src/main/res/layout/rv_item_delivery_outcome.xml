@@ -11,6 +11,8 @@
         <variable
             name="clickListener"
             type="org.piramalswasthya.cho.adapter.DeliveryOutcomeAdapter.ClickListener" />
+
+        <import type="android.view.View" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -278,14 +280,27 @@
                     android:paddingTop="8dp">
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_register_delivery"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/holo_red_dark"
+                        android:onClick="@{() -> clickListener.onClickView(patientWithPwr)}"
+                        android:text="@string/register"
+                        android:textColor="@color/white"
+                        android:visibility="@{patientWithPwr.isDeliveryOutcomeFilled ? View.GONE : View.VISIBLE}" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_view_delivery"
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:backgroundTint="@color/green"
                         android:onClick="@{() -> clickListener.onClickView(patientWithPwr)}"
                         android:text="@string/view"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/white"
+                        android:visibility="@{patientWithPwr.isDeliveryOutcomeFilled ? View.VISIBLE : View.GONE}" />
 
                 </LinearLayout>
 
