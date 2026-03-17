@@ -1,7 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AAM</string>
     <string name="all_td_doses_message"> সকল TD মাত্ৰা দিয়া হৈছে</string>
+    <string name="anc_alert_bradycardia">ব্ৰেডিকাৰ্ডিয়া ধৰা পৰিছে — উচ্চ ঝুঁকিৰ গৰ্ভাৱস্থা</string>
+    <string name="anc_alert_tachycardia">টেকিকাৰ্ডিয়া ধৰা পৰিছে — উচ্চ ঝুঁকিৰ গৰ্ভাৱস্থা</string>
+    <string name="anc_alert_blood_sugar_high">ৰক্ত চেনি (উপবাস) — উচ্চ ঝুঁকিৰ গৰ্ভাৱস্থা</string>
+    <string name="anc_alert_urine_sugar_hrp">মূত্ৰত চেনি পজিটিভ — উচ্চ ঝুঁকিৰ গৰ্ভাৱস্থা</string>
+    <string name="anc_alert_urine_albumin_hrp">মূত্ৰত এলবিউমিন পজিটিভ — উচ্চ ঝুঁকিৰ গৰ্ভাৱস্থা</string>
+    <string name="anc_alert_hb_severe_anemia">গভীৰ ৰক্তাল্পতা — উচ্চ ঝুঁকিৰ গৰ্ভাৱস্থা</string>
+    <string name="anc_alert_bp_hrp">অস্বাভাৱিক ৰক্তচাপ ধৰা পৰিছে — উচ্চ ঝুঁকিৰ গৰ্ভাৱস্থা</string>
+    <string name="anc_alert_danger_signs_hrp">সতৰ্কতা: বিপদ সংকেত(সমূহ) নিৰ্বাচিত — উচ্চ ঝুঁকিৰ গৰ্ভাৱস্থা</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
@@ -32,6 +39,23 @@
     <string name="outreach">আউটৰিচ</string>
     <string name="system_issue">চিস্টেম সমস্যা</string>
     <string name="manual_issue">মেনুৱেল ইছ্যু</string>
+    <string name="no_batch_selected">দাখিল কৰাৰ আগতে এটা বেচ নিৰ্বাচন কৰক</string>
+    <string name="refresh_batch_data">বেচ ডাটা সতেজ কৰক</string>
+    <string name="batch_data_refreshed">বেচ ডাটা সফলভাৱে সতেজ কৰা হৈছে</string>
+    <string name="batch_refresh_failed">বেচ ডাটা সতেজ কৰিব পৰা নগ’ল। অনুগ্ৰহ কৰি আপোনাৰ সংযোগ পৰীক্ষা কৰক।</string>
+    <string name="no_batches_available">এই ঔষধৰ বাবে কোনো বেচ উপলব্ধ নাই</string>
+    <string name="batch_data_loading">বেচ ডাটা ল’ড হৈ আছে...</string>
+    <string name="medicine_dispensed_successfully">ঔষধ সফলভাৱে বিতৰণ কৰা হৈছে</string>
+    <string name="dispensing_failed">ঔষধ বিতৰণ কৰিব পৰা নগ’ল। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।</string>
+    <string name="network_required_manual_batch">হাতে বেচ নিৰ্বাচনৰ বাবে নেটৱৰ্ক সংযোগ আৱশ্যক</string>
+    <string name="network_required_refresh">বেচ ডাটা সতেজ কৰিবলৈ নেটৱৰ্ক সংযোগ আৱশ্যক। অনুগ্ৰহ কৰি ইণ্টাৰনেটত সংযোগ কৰক।</string>
+    <string name="view_batch_disabled_system">চিষ্টেম সমস্যাৰ মোডত বেচ দৰ্শন নিষ্ক্ৰিয় কৰা হৈছে</string>
+    <string name="system_issue_auto_allocation">চিষ্টেম সমস্যাৰ মোড: স্বয়ংক্ৰিয় বেচ বণ্টন সক্ৰিয়</string>
+    <string name="batch_selection_required">হাতে ইছ্যু মোডত সকলো ঔষধৰ বাবে বেচ নিৰ্বাচন কৰক</string>
+    <string name="batch_selection_required_for">অনুগ্ৰহ কৰি বেচ নিৰ্বাচন কৰক: %s</string>
+    <string name="refreshing">সতেজ কৰি আছে...</string>
+    <string name="last_refreshed_never">শেষ সতেজ কৰা: কেতিয়াও নহয়</string>
+    <string name="error_refreshing_batch_data">বেচ ডাটা সতেজ কৰাত ত্ৰুটি</string>
     <string name="wellness_activity">সুস্থতা কাৰ্য্যকলাপ</string>
     <string name="training">প্ৰশিক্ষণ</string>
     <string name="health_mela">স্বাস্থ্য মেলা</string>
@@ -323,7 +347,7 @@
     <string name="toast_file_uploaded">আপুনি ফাইলটো আপলোড কৰিছে</string>
     <string name="toast_file_size_max">অনুগ্ৰহ কৰি 5MB তকৈ কম ফাইল নিৰ্ব্বাচন কৰক</string>
     <string name="nav_item_1_text">নাম : <b>%s</b></string>
-    <string name="nav_item_2_text">ব্যৱহাৰকাৰী নাম : <b>%s</b></string>
+    <string name="nav_item_4_text">ম’বাইল নম্বৰ : <b>%s</b></string>    <string name="nav_item_2_text">ব্যৱহাৰকাৰী নাম : <b>%s</b></string>
     <string name="nav_item_3_text">ব্যৱহাৰকাৰী ID :  <b>%d</b></string>
     <string name="PREF_user_entry">লগ-ইন-ব্যৱহাৰকাৰী</string>
     <string name="PREF_user_name">ব্যৱহাৰকাৰীৰ নাম</string>
@@ -356,6 +380,8 @@
     <string name="something_wend_wong">কিবা এটা ভুল হ’ল</string>
     <string name="loading_form">প্ৰপত্ৰ লোড কৰা হৈছে</string>
     <string name="loading">লোড কৰা হৈছে অনুগ্ৰহ কৰি অপেক্ষা কৰক....</string>
+    <string name="initial_setup_title">প্ৰাৰম্ভিক ব্যৱস্থা</string>
+    <string name="initial_setup_subtitle">প্ৰয়োজনীয় ডাটা ডাউনলোড হৈ আছে। প্ৰথমবাৰৰ লগইনত এইটো কেইমিনিট সময় ল’ব পাৰে।</string>
     <string name="personal_information">ৰোগীৰ পঞ্জীয়ন</string>
     <string name="location_information">স্থানৰ তথ্য</string>
     <string name="other_information">অন্যান্য তথ্য</string>
@@ -386,6 +412,9 @@
     <string name="beneficiary_abha_number">হিতাধিকাৰী আভা নম্বৰ।</string>
     <string name="no_records_found">কোনো ৰেকৰ্ড পোৱা নগ\'ল!!</string>
     <string name="patients_cnt_display">ৰোগী</string>
+    <string name="subtractSign">-</string>
+    <string name="addSign">+</string>
+    <string name="_1">1</string>
     <string name="form_medicine_dosage">ৰূপ/ঔষধ/মাত্ৰা</string>
     <string name="councilling_advice">পৰামৰ্শ/ পৰামৰ্শ</string>
     <string name="refer">উল্লেখ</string>
@@ -396,6 +425,10 @@
     <string name="nurseDataNotSaved">এই ৰেকৰ্ডৰ বাবে নাৰ্ছৰ তথ্য সংৰক্ষণ কৰা নহয়</string>
     <string name="dataSavedCaseRecord">কেছ ৰেকৰ্ড তথ্য সংৰক্ষণ কৰা হৈছে</string>
     <string name="pendingForLabtech">লেবৰ ফলাফলৰ বাবে বাকী আছে</string>
+    <string name="pending_for_pharmacist_dispense">ফাৰ্মাচিষ্টৰ বিতৰণৰ বাবে অপেক্ষাৰত</string>
+    <string name="case_close_confirmation">এই কেছটো বন্ধ কৰা হৈছে। আপুনি আগবাঢ়িব বিচাৰে নেকি?</string>
+    <string name="case_closed_successfully">কেছ সফলভাৱে বন্ধ কৰা হৈছে</string>
+    <string name="close_case_btn">কেছ বন্ধ কৰক</string>
     <string name="flowCompleted">প্ৰবাহ সম্পূৰ্ণ হৈছে</string>
     <string name="unsyncedNurseData">অচিংকড নাৰ্ছৰ তথ্য পোৱা গৈছে। অনুগ্ৰহ কৰি সিঙ্ক কৰক আৰু পুনৰ চেষ্টা কৰক</string>
     <string name="diagnosisCannotBeEmpty">অনুগ্ৰহ কৰি অস্থায়ী প্ৰৱেশ কৰক</string>
@@ -495,6 +528,9 @@
     <string name="alert_popup">সতৰ্ক</string>
     <string name="phone_no_not_found">ফোন নং পোৱা নগ\'ল।</string>
 
+    <string name="esanjeevaniusername_local_saved" translatable="false">esanjeevaniUsername-local-saved</string>
+    <string name="esanjeevanipassword_local_saved" translatable="false">esanjeevaniPassword-local-saved</string>
+
     <string name="new_chief_complaint_str">নতুন মুখ্য অভিযোগ</string>
     <string name="follow_up_str">খতিয়ান লোৱা</string>
 
@@ -554,8 +590,13 @@
     <string name="iv_sync_state_tv">SYNC STATE</string>
     <string name="high_risk">হাই ৰিস্ক</string>
 
+    <string name="tv_required_text_asterisk">*</string>
+
     <string name="btn_submit">দাখিল কৰক</string>
     <string name="edit">সম্পাদনা কৰক</string>
+
+    <string name="radio_title_ds">%s<span> **</span></string>
+    <string name="radio_title">%s<span> *</span></string>
 
     <string name="anc_visit_number">ANC %1d ভ্ৰমণ কৰক</string>
     <string name="anc_visits">এ এন চি ভ্ৰমণ</string>
@@ -990,6 +1031,9 @@
     <string name="child_reg_list">শিশু নিবন্ধন তালিকা</string>
     <string name="no_children_found">কোনো শিশু পোৱা নগ\'ল</string>
 
+    <string name="name_of_child">শিশুৰ নাম</string>
+    <string name="child_registration_saved">শিশুৰ পঞ্জীয়ন সফলভাৱে সংৰক্ষণ কৰা হৈছে</string>
+
     <string name="abortion_date">গৰ্ভপাতৰ তাৰিখ</string>
     <string name="no_abortion_records_found">গৰ্ভপাতৰ কোনো ৰেকৰ্ড পোৱা নগ\'ল</string>
 
@@ -997,13 +1041,13 @@
     <string name="no_adolescents_found">কোনো কিশোৰ-কিশোৰী পোৱা নগ\'ল</string>
     <string name="no_children_under_5_found">৫ বছৰৰ তলৰ কোনো শিশু পোৱা নগ\'ল</string>
 
-    <string name="check_sam">SAM পৰীক্ষা কৰক</string>
-    <string name="ors">অ’ আৰ এছ</string>
-    <string name="ifa">আই এফ এ</string>
-    <string name="add_visit">ভ্ৰমণ যোগ কৰক</string>
-    <string name="view_visit">ভিজিট চাওক</string>
-    <string name="visit_history">ইতিহাস ভ্ৰমণ কৰক</string>
-    <string name="no_of_children">শিশুৰ সংখ্যা</string>
+    <string name="check_sam">Check SAM</string>
+    <string name="ors">ORS</string>
+    <string name="ifa">IFA</string>
+    <string name="add_visit">Add Visit</string>
+    <string name="view_visit">View Visit</string>
+    <string name="visit_history">Visit History</string>
+    <string name="no_of_children">No. of Children</string>
 
     <string name="select_mariital_status">বৈবাহিক অৱস্থা নিৰ্বাচন কৰক</string>
     <string name="select_status_of_woman">মহিলাৰ অৱস্থা নিৰ্বাচন কৰক</string>
@@ -1082,6 +1126,8 @@
     <string name="no_alert_neonatal_death">নৱজাতকৰ মৃত্যুৰ ৰেকৰ্ড। ডেথ অডিট ফৰ্ম ট্ৰিগাৰ কৰা হ’ব।</string>
     <string name="no_alert_complications">জটিলতাৰ বাবে তাৎক্ষণিকভাৱে শিশু/বিশেষজ্ঞৰ পৰ্যালোচনাৰ প্ৰয়োজন।</string>
     <string name="no_alert_pnc_counseling">নৱজাতকৰ যত্নৰ ক্ষেত্ৰত মাতৃৰ বাবে সঠিক পিএনচি পৰামৰ্শ নিশ্চিত কৰা।</string>
+
+    <string name="no_alert_birth_certificate_legal">জন্ম পঞ্জীয়ন এটা আইনী বাধ্যবাধকতা।</string>
 
     <!-- Validation -->
     <string name="no_error_birth_weight_range">জন্মৰ সময়ত ওজন ৫০০গ্ৰামৰ পৰা ৬০০০গ্ৰামৰ ভিতৰত হ’ব লাগিব</string>
@@ -1276,7 +1322,18 @@
     <string name="error_saving_patient_message">তথ্য নোহোৱাৰ বাবে ৰোগীক সংৰক্ষণ কৰাত ব্যৰ্থ। অনুগ্ৰহ কৰি সকলো তথ্য ছিঙ্ক কৰাটো নিশ্চিত কৰক।</string>
     <string name="case_closure_yes">হয়</string>
     <string name="case_closure_no">নহয়</string>
-    <string name="pref_location_data">pref_স্থান_তথ্য</string>
+    <string name="pref_location_data">pref_location_data</string>
     <string name="title_activity_user_master_loc">UserMasterLocActivity</string>
 
+    <string name="stock_label">ষ্টকত আছে: %1$d</string>
+    <string name="out_of_stock">ষ্টকত নাই</string>
+
+    <!-- Case Closure Strings -->
+    <string name="case_closure_confirmation_title">কেছ বন্ধ কৰক</string>
+    <string name="case_closure_confirmation_message">এই কেছটো বন্ধ কৰা হৈছে। আপুনি আগবাঢ়িব বিচাৰে নেকি?</string>
+    <string name="case_closure_error_pending_lab">কেছ বন্ধ কৰিব পৰা নাযায়: লেব টেষ্ট অপেক্ষাৰত আছে</string>
+    <string name="case_closure_error_undispensed_medicine">কেছ বন্ধ কৰিব পৰা নাযায়: ঔষধ বিতৰণ কৰা হোৱা নাই</string>
+    <string name="case_closure_success">কেছ সফলভাৱে বন্ধ কৰা হৈছে</string>
+    <string name="case_closure_error">কেছ বন্ধ কৰাত ত্ৰুটি</string>
+    <string name="antra_next_due_date">ANTRA পৰৱৰ্তী তাৰিখ</string>
 </resources>
