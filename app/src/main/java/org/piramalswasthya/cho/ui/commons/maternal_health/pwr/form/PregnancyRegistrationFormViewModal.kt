@@ -236,6 +236,11 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                     registrationCache.createdDate = System.currentTimeMillis()
                 }
 
+                // Refresh isFirstAncSubmitted to avoid overwriting newer ANC state
+                maternalHealthRepo.getSavedRegistrationRecord(registrationCache.patientID)?.let { latest ->
+                    registrationCache.isFirstAncSubmitted = latest.isFirstAncSubmitted
+                }
+
                 // Map form values to cache
                 dataset.mapValues(registrationCache, 1) // Assuming pageNumber = 1
 
