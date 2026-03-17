@@ -1523,7 +1523,11 @@ class PersonalDetailsFragment : Fragment() {
                             rid.contains(query)
                 }
 
-                if (!isNetworkAvailable) {
+                val canUseApi =
+                    isNetworkAvailable &&
+                            (preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected())
+
+                if (!canUseApi) {
                     withContext(Dispatchers.Main) {
                         if (currentSearchQuery == query) {
                             isShowingSearchResults = false
