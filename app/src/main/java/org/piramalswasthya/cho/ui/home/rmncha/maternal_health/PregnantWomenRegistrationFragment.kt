@@ -109,8 +109,9 @@ class PregnantWomenRegistrationFragment : Fragment() {
                         val isFemale = patient.patient.genderID == 2
                         val age = patient.patient.age ?: 0
                         val isReproductiveAge = age in 15..49
+                        val isPostnatal = patient.patient.statusOfWomanID == 3
 
-                        isFemale && isReproductiveAge
+                        isFemale && isReproductiveAge && !isPostnatal
                     }
                     .sortedByDescending { it.patient.registrationDate }
 

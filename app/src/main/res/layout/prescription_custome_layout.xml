@@ -61,7 +61,7 @@
         android:layout_marginTop="@dimen/_3sdp"
         android:hint="@string/Frequency"
         android:textSize="18sp"
-        app:endIconMode="clear_text"
+        app:endIconMode="dropdown_menu"
         app:layout_constraintTop_toBottomOf="@+id/dosagesDropDown">
 
         <AutoCompleteTextView
@@ -141,7 +141,7 @@
         android:hint="@string/Unit"
         android:layout_marginTop="@dimen/_3sdp"
         android:textSize="18sp"
-        app:endIconMode="clear_text"
+        app:endIconMode="dropdown_menu"
         app:layout_constraintTop_toBottomOf="@+id/duration"> <!-- Set text color hint to black -->
 
         <AutoCompleteTextView
@@ -164,7 +164,7 @@
         android:paddingBottom="10dp"
         android:layout_marginTop="@dimen/_3sdp"
         android:textSize="18sp"
-        app:endIconMode="clear_text"
+        app:endIconMode="dropdown_menu"
         app:layout_constraintTop_toBottomOf="@+id/unitDropDown">
 
         <AutoCompleteTextView
@@ -172,7 +172,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:inputType="text"
+            android:inputType="none"
             android:textSize="18sp" />
 
     </com.google.android.material.textfield.TextInputLayout>

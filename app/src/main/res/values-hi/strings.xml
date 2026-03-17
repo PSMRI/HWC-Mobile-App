@@ -550,7 +550,7 @@
     <string name="pnc_visit_date">PNC Visit Date</string>
     <string name="pnc_ifa_tabs_given">No. of IFA Tablets given</string>
     <string name="pnc_contraception_method">Method of Contraception</string>
-    <string name="pnc_any_contraception_method">Any Method of Contraception</string>
+    <string name="pnc_any_contraception_method">क्या दंपति ने प्रसव के बाद गर्भधारण से बचने के लिए परिवार नियोजन की किसी विधि का उपयोग किया है?</string>
     <string name="pnc_other_ppc_method">Other Contraception Method</string>
     <string name="pnc_mother_danger_sign">Mother Danger Sign</string>
     <string name="pnc_other_danger_sign">Other Danger Sign</string>

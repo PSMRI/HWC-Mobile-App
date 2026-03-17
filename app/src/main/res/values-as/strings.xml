@@ -572,7 +572,7 @@
     <string name="pnc_visit_date">পিএনচি ভ্ৰমণৰ তাৰিখ</string>
     <string name="pnc_ifa_tabs_given">IFA Tablets ৰ সংখ্যা দিয়া হৈছে</string>
     <string name="pnc_contraception_method">গৰ্ভনিৰোধৰ পদ্ধতি</string>
-    <string name="pnc_any_contraception_method">গৰ্ভনিৰোধৰ যিকোনো পদ্ধতি</string>
+    <string name="pnc_any_contraception_method">প্ৰসৱৰ পিছত গৰ্ভধাৰণ ৰোধ কৰিবলৈ দম্পতিয়ে ব্যৱহাৰ কৰা পৰিয়াল পৰিকল্পনা পদ্ধতি কি?</string>
     <string name="pnc_other_ppc_method">অন্যান্য পিপিচি পদ্ধতি</string>
     <string name="pnc_mother_danger_sign">মাতৃ বিপদৰ চিন</string>
     <string name="pnc_other_danger_sign">অন্যান্য বিপদৰ চিন</string>
