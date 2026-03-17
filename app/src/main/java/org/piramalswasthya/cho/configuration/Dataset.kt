@@ -807,16 +807,34 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
 
     fun getLocalValueInArray(arrayId: Int, entry: String?): String? {
         entry?.let {
-            return resources.getStringArray(arrayId)[englishResources.getStringArray(arrayId)
-                .indexOf(it)]
+            val englishArray = englishResources.getStringArray(arrayId)
+            val index = englishArray.indexOf(it)
+            if (index != -1) {
+                return resources.getStringArray(arrayId)[index]
+            }
+            // Value may already be in the local language — check the local array
+            val localArray = resources.getStringArray(arrayId)
+            if (localArray.contains(it)) {
+                return it
+            }
+            return it // Fallback: return the entry as-is to avoid crash
         }
         return null
     }
 
     fun getEnglishValueInArray(arrayId: Int, entry: String?): String? {
         entry?.let {
-            return englishResources.getStringArray(arrayId)[resources.getStringArray(arrayId)
-                .indexOf(it)]
+            val localArray = resources.getStringArray(arrayId)
+            val index = localArray.indexOf(it)
+            if (index != -1) {
+                return englishResources.getStringArray(arrayId)[index]
+            }
+            // Value may already be in English — check the English array
+            val englishArray = englishResources.getStringArray(arrayId)
+            if (englishArray.contains(it)) {
+                return it
+            }
+            return it // Fallback: return the entry as-is to avoid crash
         }
         return null
     }
