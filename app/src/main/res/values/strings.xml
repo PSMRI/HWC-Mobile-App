@@ -588,13 +588,13 @@
     <string name="pnc_ifa_tabs_given">No. of IFA Tablets given</string>
     <string name="pnc_contraception_method">Method of Contraception</string>
     <string name="pnc_any_contraception_method">Any Method of Contraception</string>
-    <string name="pnc_other_ppc_method">Other PPC Method</string>
+    <string name="pnc_other_ppc_method">Other Contraception Method</string>
     <string name="pnc_mother_danger_sign">Mother Danger Sign</string>
     <string name="pnc_other_danger_sign">Other Danger Sign</string>
     <string name="pnc_referral_facility">Referral Facility</string>
     <string name="pnc_mother_death">Mother Death</string>
     <string name="pnc_death_date">Date of Death</string>
-    <string name="pnc_death_cause">Probable Cause of Mother Death</string>
+    <string name="pnc_death_cause">Cause of Maternal Death</string>
     <string name="pnc_other_death_cause">Other Death Cause</string>
     <string name="pnc_death_place">Place of Death</string>
     <string name="pnc_remarks">Remarks</string>

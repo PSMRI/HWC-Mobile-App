@@ -120,6 +120,14 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                                 showReferralAlertToFacility()
                             }
                         }
+
+                        if (formId == pallorFormId || formId == vaginalBleedingFormId || formId == maternalSymptomsFormId || formId == 19 /* anyDangerSign */) {
+                            val pncAdapter = binding.form.rvInputForm.adapter as? FormInputAdapter
+                            val referralIndex = pncAdapter?.currentList?.indexOfFirst { it.id == 9 /* referralFacility */ } ?: -1
+                            if (referralIndex >= 0) {
+                                pncAdapter?.notifyItemChanged(referralIndex)
+                            }
+                        }
                     }, isEnabled = !recordExists
                 )
                 binding.form.rvInputForm.adapter = adapter
@@ -293,10 +301,6 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
 
     override fun onCancelAction() {
         requireActivity().finish()
-    }
-
-    private fun showReferralAlertForSeverePallor() {
-        showReferralAlertToFacility()
     }
 
     private fun showReferralAlertToFacility() {
