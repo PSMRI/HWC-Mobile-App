@@ -875,7 +875,7 @@
     <string name="do_error_date_range">Date must be between %1$s and %2$s</string>
     <string name="do_alert_post_term_delivery">Post-term delivery</string>
     <string name="do_alert_preterm_delivery">Preterm delivery</string>
-    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit.</string>
+    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit within 24 hours.</string>
     <string name="do_alert_on_the_way">Urgent PNC home visit within 24 hours required.</string>
     <string name="do_alert_unskilled_delivery">Unskilled delivery. High-risk PNC needed.</string>
     <string name="do_alert_extremely_preterm">Extremely Preterm (&lt;28 weeks)</string>

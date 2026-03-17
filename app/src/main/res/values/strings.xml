@@ -912,7 +912,7 @@
     <string name="do_error_date_range">Date must be between %1$s and %2$s</string>
     <string name="do_alert_post_term_delivery">Post-term delivery</string>
     <string name="do_alert_preterm_delivery">Preterm delivery</string>
-    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit.</string>
+    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit within 24 hours.</string>
     <string name="do_alert_on_the_way">Urgent PNC home visit within 24 hours required.</string>
     <string name="do_alert_unskilled_delivery">Unskilled delivery. High-risk PNC needed.</string>
     <string name="do_alert_extremely_preterm">Extremely Preterm (&lt;28 weeks)</string>
@@ -1076,7 +1076,7 @@
     <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
     <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
     <string name="no_alert_pnc_counseling">Ensure proper PNC counseling for mother on newborn care.</string>
-    <string name="no_alert_birth_certificate_legal">Provide information to family: birth registration is a legal requirement.</string>
+    <string name="no_alert_birth_certificate_legal">Birth registration is a legal requirement.</string>
 
     <!-- Validation -->
     <string name="no_error_birth_weight_range">Birth weight must be between 500g and 6000g</string>
