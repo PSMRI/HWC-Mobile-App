@@ -99,17 +99,17 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                     _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
 
                     if (existingRecord != null) {
-                        // Self-healing: Check if ANC 1 is actually completed
-                        if (existingRecord.isFirstAncSubmitted) {
-                            val completedAncRecords = maternalHealthRepo.getCompletedActiveAncRecords(patientID!!)
-                            val isAnc1Completed = completedAncRecords.any { it.visitNumber == 1 }
+                        val completedAncRecords = maternalHealthRepo.getCompletedActiveAncRecords(patientID!!)
+                        val hasCompletedAnc = completedAncRecords.isNotEmpty()
 
-                            if (!isAnc1Completed) {
-                                Timber.w("Validation Fixed: isFirstAncSubmitted was true but ANC 1 not completed. Resetting flag.")
-                                existingRecord.isFirstAncSubmitted = false
-                                // Update DB asynchronously to fix persistent state
-                                maternalHealthRepo.persistRegisterRecord(existingRecord)
-                            }
+                        if (existingRecord.isFirstAncSubmitted && !hasCompletedAnc) {
+                            Timber.w("Validation Fixed: isFirstAncSubmitted was true but no ANC completed. Resetting flag.")
+                            existingRecord.isFirstAncSubmitted = false
+                            maternalHealthRepo.persistRegisterRecord(existingRecord)
+                        } else if (!existingRecord.isFirstAncSubmitted && hasCompletedAnc) {
+                            Timber.w("Validation Fixed: ANC completed but isFirstAncSubmitted was false. Setting flag.")
+                            existingRecord.isFirstAncSubmitted = true
+                            maternalHealthRepo.persistRegisterRecord(existingRecord)
                         }
 
                         // Use existing record

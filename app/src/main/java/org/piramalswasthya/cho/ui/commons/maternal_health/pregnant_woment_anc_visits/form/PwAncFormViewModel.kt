@@ -127,7 +127,8 @@ class PwAncFormViewModel @Inject constructor(
             // Schedule pre-creates all 4 visit records (no weight); so lock only when a later visit has weight.
             val allAncRecords = maternalHealthRepo.getAllActiveAncRecords(patientID)
             val maxCompletedVisitNumber = allAncRecords.filter { it.weight != null }.maxOfOrNull { it.visitNumber } ?: 0
-            val isOldVisit = visitNumber < maxCompletedVisitNumber
+            val hasDelivered = allAncRecords.any { it.pregnantWomanDelivered == true }
+            val isOldVisit = hasDelivered || visitNumber < maxCompletedVisitNumber
             
             savedAnc?.let {
                 val registerRecordOrNull = maternalHealthRepo.getSavedRegistrationRecord(patientID)
@@ -206,7 +207,8 @@ class PwAncFormViewModel @Inject constructor(
                     // Per Jira MHWC-197: Lock when a newer visit is completed (weight set). Schedule pre-creates all visits.
                     val allAncRecords = maternalHealthRepo.getAllActiveAncRecords(patientID)
                     val maxCompletedVisitNumber = allAncRecords.filter { it.weight != null }.maxOfOrNull { it.visitNumber } ?: 0
-                    val isOld = selectedVisit < maxCompletedVisitNumber
+                    val hasDelivered = allAncRecords.any { it.pregnantWomanDelivered == true }
+                    val isOld = hasDelivered || selectedVisit < maxCompletedVisitNumber
                     lastAncVisitNumber = allAncRecords.maxOfOrNull { it.visitNumber } ?: 0
                     _isOldVisit.postValue(isOld)
                     dataset.setUpPage(
@@ -284,15 +286,16 @@ class PwAncFormViewModel @Inject constructor(
                          }
                     }
                     
-                    // Set isFirstAncSubmitted to true if this is the 1st ANC visit and it's being completed
-                    if (ancCache.visitNumber == 1 && isCompletedNow) {
+                    if (isCompletedNow) {
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
-                            it.isFirstAncSubmitted = true
-                            if (it.processed != "N") it.processed = "U"
-                            it.syncState = SyncState.UNSYNCED
-                            it.updatedDate = System.currentTimeMillis()
-                            maternalHealthRepo.persistRegisterRecord(it)
-                            Timber.d("Setting isFirstAncSubmitted to true for patient $patientID")
+                            if (!it.isFirstAncSubmitted) {
+                                it.isFirstAncSubmitted = true
+                                if (it.processed != "N") it.processed = "U"
+                                it.syncState = SyncState.UNSYNCED
+                                it.updatedDate = System.currentTimeMillis()
+                                maternalHealthRepo.persistRegisterRecord(it)
+                                Timber.d("Setting isFirstAncSubmitted to true for patient $patientID")
+                            }
                         }
                     }
                     if (ancCache.pregnantWomanDelivered == true) {
