@@ -112,7 +112,7 @@ class PncFormDataset(
 
     private val maternalSymptoms = FormElement(
         id = 20,
-        inputType = InputType.DROPDOWN,
+        inputType = InputType.CHECKBOXES,
         title = resources.getString(R.string.pnc_maternal_symptoms),
         entries = resources.getStringArray(R.array.pnc_maternal_symptoms_array),
         required = true,
@@ -124,7 +124,8 @@ class PncFormDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.pnc_other_maternal_symptoms),
         required = true,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 50
     )
 
     private val pallor = FormElement(
@@ -387,7 +388,9 @@ class PncFormDataset(
             // Check for Severe pallor → referral alert
             if (it.pallor?.equals("Severe", ignoreCase = true) == true) {
                 referralFacility.required = true
-                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
+                if (it.referralFacility.isNullOrBlank()) {
+                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
+                }
             }
             
             vaginalBleeding.value = it.vaginalBleeding
@@ -396,7 +399,9 @@ class PncFormDataset(
             if (vaginalBleedingValue.contains("heavy", ignoreCase = true) || 
                 vaginalBleedingValue.contains("foul smell", ignoreCase = true)) {
                 referralFacility.required = true
-                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
+                if (it.referralFacility.isNullOrBlank()) {
+                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
+                }
             }
             motherDangerSign.value = it.motherDangerSign
             if (it.motherDangerSign == motherDangerSign.entries!!.last()) {
@@ -483,7 +488,6 @@ class PncFormDataset(
         
         if (hasAnyDangerSign) {
             referralFacility.required = true
-            // Don't set errorText for anyDangerSign as it's the primary condition
             referralFacility.errorText = null
             return
         }
@@ -495,7 +499,12 @@ class PncFormDataset(
         
         if (actualSymptoms.size >= 2) {
             referralFacility.required = true
-            referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_multiple_symptoms)
+            // Only show alert if no facility selected yet; clear once selected so it doesn't block submission
+            if (referralFacility.value.isNullOrBlank()) {
+                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_multiple_symptoms)
+            } else {
+                referralFacility.errorText = null
+            }
             return
         }
         
@@ -503,7 +512,11 @@ class PncFormDataset(
         val pallorValue = pallor.value?.trim() ?: ""
         if (pallorValue.equals("Severe", ignoreCase = true)) {
             referralFacility.required = true
-            referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
+            if (referralFacility.value.isNullOrBlank()) {
+                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
+            } else {
+                referralFacility.errorText = null
+            }
             return
         }
         
@@ -512,7 +525,11 @@ class PncFormDataset(
         if (vaginalBleedingValue.contains("heavy", ignoreCase = true) || 
             vaginalBleedingValue.contains("foul smell", ignoreCase = true)) {
             referralFacility.required = true
-            referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
+            if (referralFacility.value.isNullOrBlank()) {
+                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
+            } else {
+                referralFacility.errorText = null
+            }
             return
         }
         
@@ -736,19 +753,47 @@ class PncFormDataset(
             anyDangerSign.id -> handleDangerSignChange(index)
 
             maternalSymptoms.id -> {
-                // Check if "Other" is selected
+                val realIndex = if (index < 0) -index else index
+                val clickedOption = maternalSymptoms.entries?.getOrNull(realIndex) ?: return -1
+                val currentValue = maternalSymptoms.value ?: ""
+
+                if (clickedOption.equals("None", ignoreCase = true)) {
+                    if (currentValue.contains("None", ignoreCase = true)) {
+                        maternalSymptoms.value = "None"
+                    }
+                } else {
+                    val selections = mutableSetOf<String>()
+                    if (currentValue.isNotEmpty()) {
+                        selections.addAll(currentValue.split(",").map { it.trim() }.filter { it.isNotEmpty() })
+                    }
+                    if (selections.contains(clickedOption)) {
+                        val noneEntry = maternalSymptoms.entries?.find { it.equals("None", ignoreCase = true) }
+                        if (noneEntry != null && selections.contains(noneEntry)) {
+                            selections.remove(noneEntry)
+                        }
+                        maternalSymptoms.value = selections.joinToString(", ")
+                    }
+                }
+
+                // Handle "Other" field visibility
                 val selectedValues = maternalSymptoms.value?.split(",")?.map { it.trim() } ?: emptyList()
                 val hasOther = selectedValues.any { it.equals(maternalSymptoms.entries!!.last(), ignoreCase = true) }
-                
-                // Update referral requirement based on all conditions
+
+                // Update referral logic
                 updateReferralRequirement()
-                
-                return triggerDependants(
+
+                triggerDependants(
                     source = maternalSymptoms,
                     passedIndex = if (hasOther) maternalSymptoms.entries!!.lastIndex else -1,
                     triggerIndex = maternalSymptoms.entries!!.lastIndex,
                     target = otherMaternalSymptoms
                 )
+                
+                return getIndexById(maternalSymptoms.id)
+            }
+
+            otherMaternalSymptoms.id -> {
+                validateAllAlphabetsSpaceOnEditText(otherMaternalSymptoms)
             }
 
             motherDangerSign.id ->
@@ -773,6 +818,11 @@ class PncFormDataset(
                 return if (referralFacility.required && referralFacilityIndex != -1) referralFacilityIndex else -1
             }
 
+            referralFacility.id -> {
+                updateReferralRequirement()
+                getIndexById(referralFacility.id)
+            }
+
             motherDeath.id -> handleMotherDeathChange(index)
 
             causeOfDeath.id -> {
@@ -782,6 +832,14 @@ class PncFormDataset(
                     triggerIndex = causeOfDeath.entries!!.lastIndex,
                     target = otherDeathCause
                 )
+            }
+
+            otherPpcMethod.id -> {
+                validateAllAlphabetsSpaceOnEditText(otherPpcMethod)
+            }
+
+            otherDeathCause.id -> {
+                validateAllAlphabetsSpaceOnEditText(otherDeathCause)
             }
 
             placeOfDeath.id -> {
