@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -94,12 +95,12 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                         viewModel.updateListOnValueChanged(formId, index)
                         hardCodedListUpdate(formId)
                         if (formId == pallorFormId && index == severePallorIndex) {
-                            showReferralAlertToFacility()
+                            showReferralAlertToFacility(R.string.pnc_referral_alert_severe_pallor)
                         }
                         if (formId == vaginalBleedingFormId &&
                             (index == heavyBleedingIndex || index == foulSmellingDischargeIndex)
                         ) {
-                            showReferralAlertToFacility()
+                            showReferralAlertToFacility(R.string.pnc_referral_alert_vaginal_bleeding)
                         }
                         if (formId == maternalSymptomsFormId) {
                             val pncAdapter = binding.form.rvInputForm.adapter as? FormInputAdapter
@@ -117,7 +118,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                                 ?.filter { it.isNotBlank() && !it.equals("None", ignoreCase = true) }
                                 ?: emptyList()
                             if (selectedSymptoms.size >= 2) {
-                                showReferralAlertToFacility()
+                                showReferralAlertToFacility(R.string.pnc_referral_alert_multiple_symptoms)
                             }
                         }
 
@@ -303,11 +304,11 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         requireActivity().finish()
     }
 
-    private fun showReferralAlertToFacility() {
+    private fun showReferralAlertToFacility(@StringRes messageResId: Int) {
         if (!isAdded || context == null) return
         AlertDialog.Builder(requireContext())
-            .setTitle("Alert")
-            .setMessage("Referal to Facility")
+            .setTitle(getString(R.string.alert_title))
+            .setMessage(getString(messageResId))
             .setPositiveButton(android.R.string.ok, null)
             .show()
     }

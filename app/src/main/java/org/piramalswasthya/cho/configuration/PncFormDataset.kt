@@ -819,12 +819,8 @@ class PncFormDataset(
             }
 
             referralFacility.id -> {
-                // Clear the informational alert errorText once the user selects a facility
-                // so it doesn't block form submission
-                if (!referralFacility.value.isNullOrBlank()) {
-                    referralFacility.errorText = null
-                }
-                -1
+                updateReferralRequirement()
+                getIndexById(referralFacility.id)
             }
 
             motherDeath.id -> handleMotherDeathChange(index)

@@ -673,12 +673,12 @@
     <string-array name="sterilization_methods_array">
         <item>MALE STERILIZATION</item>
         <item>FEMALE STERILIZATION</item>
-        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>POST PARTUM STERILIZATION (PPS)</item>
         <item>Minilap</item>
     </string-array>
     <string-array name="female_sterilization_methods_array">
         <item>FEMALE STERILIZATION</item>
-        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>POST PARTUM STERILIZATION (PPS)</item>
         <item>Minilap</item>
     </string-array>
     <string-array name="visit_months">
