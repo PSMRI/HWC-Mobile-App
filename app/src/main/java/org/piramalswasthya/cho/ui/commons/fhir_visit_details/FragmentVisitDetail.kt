@@ -467,7 +467,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 DropdownConst.ophthalmicReasonForVisitList
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
-            changeBtnView()
         }
         else if(subCat == DropdownConst.ent){
             val validNoseChiefComplaints = listOf(
@@ -526,7 +525,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 entFilteredReasons
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
-            changeBtnView()
         }
         else if(subCat == DropdownConst.oral){
             val subCatAdapter = SubCategoryAdapter(
@@ -536,7 +534,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 DropdownConst.oralReasons
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
-            changeBtnView()
         }
         else if(subCat == DropdownConst.elderlyAndPalliative){
             val subCatAdapter = SubCategoryAdapter(
@@ -546,7 +543,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 listOf(DropdownConst.persistentPain, DropdownConst.psychosocialCaregiverSupport)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
-            changeBtnView()
         }
         else{
             viewModel.selectedReasonForVisit = ""
@@ -646,7 +642,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         super.onResume()
 
         isNavigationInProgress = false
-        binding.btnSubmit.isEnabled = true
+//        binding.btnSubmit.isEnabled = true
         deliveryDate = null
         binding.deliveryDate.setText("")
         if (binding.subCatInput.text.isNullOrBlank()) {
@@ -1669,7 +1665,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 reasonForVisit == DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA
             ){
                 isNavigationInProgress = true
-                binding.btnSubmit.isEnabled = false
+//                binding.btnSubmit.isEnabled = false
                 saveVisitData(skipChiefComplaintValidation = true) { benVisitNo ->
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToOphthalmicScreeningFragment(
@@ -1684,7 +1680,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else if(reasonForVisit == DropdownConst.ear ){
                 saveVisitData { benVisitNo ->
                     isNavigationInProgress = true
-                    binding.btnSubmit.isEnabled = false
+//                    binding..isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEarDiagnosisFormFragment(
                             patientID = benVisitInfo.patient.patientID,
@@ -1695,7 +1691,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
             else if(reasonForVisit == DropdownConst.dental){
                 isNavigationInProgress = true
-                binding.btnSubmit.isEnabled = false
+//                binding.btnSubmit.isEnabled = false
                 saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToOralHealthFormFragment(
@@ -1708,7 +1704,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else if(reasonForVisit == DropdownConst.nose){
                 saveVisitData { benVisitNo ->
                     isNavigationInProgress = true
-                    binding.btnSubmit.isEnabled = false
+//                    binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToNoseDiagnosisFormFragment(
                             patientID = benVisitInfo.patient.patientID,
@@ -1720,7 +1716,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else if(reasonForVisit == DropdownConst.persistentPain){
                 saveVisitData { benVisitNo ->
                     isNavigationInProgress = true
-                    binding.btnSubmit.isEnabled = false
+//                    binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPainAndSymptomAssessmentFormFragment(
                             patientID = benVisitInfo.patient.patientID,
@@ -1732,7 +1728,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else if(reasonForVisit == DropdownConst.psychosocialCaregiverSupport){
                 saveVisitData { benVisitNo ->
                     isNavigationInProgress = true
-                    binding.btnSubmit.isEnabled = false
+//                    binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPsychosocialCaregiverSupportFormFragment(
                             patientID = benVisitInfo.patient.patientID,
@@ -1999,7 +1995,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private fun saveVisitData(skipChiefComplaintValidation: Boolean = false, onSuccess: (Int) -> Unit) {
         if (!skipChiefComplaintValidation && !addChiefComplaintsData()) {
             isNavigationInProgress = false
-            binding.btnSubmit.isEnabled = true
+//            binding.btnSubmit.isEnabled = true
             return
         }
 
@@ -2089,12 +2085,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     } else if (it == false) {
                         viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
                         isNavigationInProgress = false
-                        binding.btnSubmit.isEnabled = true
+//                        binding.btnSubmit.isEnabled = true
                     }
                 }
             } catch (e: Exception) {
                 isNavigationInProgress = false
-                binding.btnSubmit.isEnabled = true
+//                binding.btnSubmit.isEnabled = true
                 Timber.e(e, "Error saving visit data")
                 Toast.makeText(requireContext(), "Error saving data", Toast.LENGTH_SHORT).show()
             }

@@ -35,15 +35,15 @@ class PainAndSymptomAssessmentDataset(
         required = true
     )
 
-    // ---------------- Other Symptoms Present ----------------
-    private val symptomsPresent = FormElement(
-        id = 3,
-        inputType = InputType.RADIO,
-        title = "Other symptoms present",
-        entries = arrayOf("Yes", "No"),
-        required = true,
-        hasDependants = true
-    )
+    // ---------------- Other Symptoms Present (Removed) ----------------
+//    private val symptomsPresent = FormElement(
+//        id = 3,
+//        inputType = InputType.RADIO,
+//        title = "Other symptoms present",
+//        entries = arrayOf("Yes", "No"),
+//        required = true,
+//        hasDependants = true
+//    )
 
     // ---------------- Other Symptoms Severity ----------------
     private val otherSymptomsSeverity = FormElement(
@@ -83,12 +83,15 @@ class PainAndSymptomAssessmentDataset(
         val list = mutableListOf<FormElement>()
         list.add(painSeverity)
         list.add(painDuration)
-        list.add(symptomsPresent)
+//        list.add(symptomsPresent)
+//
+//        if (symptomsPresent.value == "Yes") {
+//            otherSymptomsSeverity.required = true
+//            list.add(otherSymptomsSeverity)
+//        }
 
-        if (symptomsPresent.value == "Yes") {
-            otherSymptomsSeverity.required = true
-            list.add(otherSymptomsSeverity)
-        }
+        // Directly show otherSymptomsSeverity
+        list.add(otherSymptomsSeverity)
 
         list.add(immediateReliefProvided)
 
@@ -105,25 +108,25 @@ class PainAndSymptomAssessmentDataset(
 
         return when (formId) {
 
-            symptomsPresent.id -> {
-                if (index == 0) { // Yes
-                    otherSymptomsSeverity.required = true
-                    triggerDependants(
-                        source = symptomsPresent,
-                        addItems = listOf(otherSymptomsSeverity),
-                        removeItems = emptyList()
-                    )
-                } else { // No
-                    otherSymptomsSeverity.value = null
-                    otherSymptomsSeverity.required = false
-                    triggerDependants(
-                        source = symptomsPresent,
-                        addItems = emptyList(),
-                        removeItems = listOf(otherSymptomsSeverity)
-                    )
-                }
-                symptomsPresent.id
-            }
+//            symptomsPresent.id -> {
+//                if (index == 0) { // Yes
+//                    otherSymptomsSeverity.required = true
+//                    triggerDependants(
+//                        source = symptomsPresent,
+//                        addItems = listOf(otherSymptomsSeverity),
+//                        removeItems = emptyList()
+//                    )
+//                } else { // No
+//                    otherSymptomsSeverity.value = null
+//                    otherSymptomsSeverity.required = false
+//                    triggerDependants(
+//                        source = symptomsPresent,
+//                        addItems = emptyList(),
+//                        removeItems = listOf(otherSymptomsSeverity)
+//                    )
+//                }
+//                symptomsPresent.id
+//            }
 
             painSeverity.id -> {
                 if (painSeverity.value == "Severe") {
@@ -158,11 +161,11 @@ class PainAndSymptomAssessmentDataset(
     private fun populateFromCache(cache: PainAndSymptomAssessment) {
         painSeverity.value = cache.painSeverity
         painDuration.value = cache.painDuration
-        symptomsPresent.value = when (cache.symptomsPresent) {
-            true -> "Yes"
-            false -> "No"
-            else -> null
-        }
+//        symptomsPresent.value = when (cache.symptomsPresent) {
+//            true -> "Yes"
+//            false -> "No"
+//            else -> null
+//        }
         otherSymptomsSeverity.value = cache.otherSymptomsSeverity
         immediateReliefProvided.value = when (cache.immediateReliefProvided) {
             true -> "Yes"
@@ -181,11 +184,11 @@ class PainAndSymptomAssessmentDataset(
             it.painSeverity = painSeverity.value
             it.painDuration = painDuration.value
 
-            it.symptomsPresent = when (symptomsPresent.value) {
-                "Yes" -> true
-                "No" -> false
-                else -> null
-            }
+//            it.symptomsPresent = when (symptomsPresent.value) {
+//                "Yes" -> true
+//                "No" -> false
+//                else -> null
+//            }
 
             it.otherSymptomsSeverity = otherSymptomsSeverity.value
 
