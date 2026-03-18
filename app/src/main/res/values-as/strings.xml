@@ -513,6 +513,7 @@
     <string name="prescription_id">প্ৰেছক্ৰিপচন আইডি:</string>
 
     <string name="form_label">প্ৰপত্ৰ:</string>
+    <string name="available_quantity">উপলব্ধ পৰিমাণ:</string>
     <string name="prescribed_label">নিৰ্ধাৰিত:</string>
     <string name="prescribed_label_qt">নিৰ্ধাৰিত পৰিমাণ:</string>
 
