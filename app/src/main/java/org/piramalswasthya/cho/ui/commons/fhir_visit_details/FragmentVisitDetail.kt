@@ -1159,6 +1159,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             viewModel.selectedReasonForVisit = ""
         }
 
+        validateEntReasonForVisit()
+    }
+
+    private fun validateEntReasonForVisit() {
         if (binding.subCatInput.text.toString() == DropdownConst.ent) {
             setReasonForVisitDropdown(DropdownConst.ent)
             val currentReason = binding.reasonForVisitInput.text.toString()

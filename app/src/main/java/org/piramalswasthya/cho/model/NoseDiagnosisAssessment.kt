@@ -20,6 +20,12 @@ data class NoseDiagnosisAssessment(
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,
 
+    @ColumnInfo(name = "difficulty_breathing")
+    var difficultyBreathing: Boolean? = null,
+
+    @ColumnInfo(name = "open_mouth_breathing")
+    var openMouthBreathing: Boolean? = null
+
 
 
 ) : FormDataModel
