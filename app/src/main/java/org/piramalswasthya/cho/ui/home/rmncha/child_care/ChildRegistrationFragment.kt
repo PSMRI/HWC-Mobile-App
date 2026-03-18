@@ -12,6 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.configuration.ChildRegistrationDataset
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -196,7 +197,11 @@ class ChildRegistrationFragment : Fragment() {
             dataset.alertErrorMessageFlow.collect { message ->
                 message?.let {
                     if (isAdded) {
-                        Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(getString(R.string.alert_title))
+                            .setMessage(it)
+                            .setPositiveButton(getString(R.string.continue_btn), null)
+                            .show()
                     }
                     dataset.resetErrorMessageFlow()
                 }

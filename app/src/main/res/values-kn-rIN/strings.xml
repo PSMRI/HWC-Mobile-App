@@ -121,7 +121,7 @@
     <string name="benificiary_list">Benificiary List</string>
     <string name="title_activity_visit_details">VisitDetailsActivity</string>
     <string name="esanjeevni">eSanjeevani</string>
-    <string name="title_activity_web_view">WebViewActivity</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -375,7 +375,7 @@
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">No matching patient found. Please choose an option from below.</string>
     <string name="no_patient_found">No matching patient found.Please select an option.</string>
-    <string name="pref_location_data">pref_location_data</string>
+    <string name="pref_location_data" translatable="false">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">ಫಲಾನುಭವಿ ಹೆಸರು:</string>
     <string name="abha_no">ಎ.ಬಿ.ಎಚ್.ಎ ಐ.ಡಿ:</string>
@@ -465,4 +465,5 @@
     <!-- Status of Woman -->
     <string name="status_of_woman">ಮಹಿಳೆಯ ಸ್ಥಿತಿ <font color="#FF0000">*</font></string>
     <string name="select_status_of_woman">ಮಹಿಳೆಯ ಸ್ಥಿತಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="antra_next_due_date">ANTRA ಮುಂದಿನ ನಿಗದಿತ ದಿನಾಂಕ</string>
 </resources>

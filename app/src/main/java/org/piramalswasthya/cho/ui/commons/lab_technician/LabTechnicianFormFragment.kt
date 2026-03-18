@@ -1,7 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.lab_technician
 
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -45,7 +45,7 @@ import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -698,6 +698,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             }
         }
         if (isValidData) {
+            parentViewModel.setBottomActionsVisible(false)
             composeView.setContent {
                 AddLoading(message = "Submitting...")
             }
@@ -716,14 +717,10 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
     }
 
     override fun onCancelAction() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
         requireActivity().finish()
     }
 
     fun navigateNext() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
         requireActivity().finish()
     }
 

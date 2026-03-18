@@ -51,12 +51,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
-import com.google.mediapipe.framework.image.BitmapImageBuilder
-import com.google.mediapipe.tasks.core.BaseOptions
-import com.google.mediapipe.tasks.vision.core.RunningMode
-import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -97,7 +92,7 @@ import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
-import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
+import org.piramalswasthya.cho.utils.ESanjeevaniLauncher
 import timber.log.Timber
 import org.json.JSONObject
 import org.json.JSONArray
@@ -342,7 +337,6 @@ class PersonalDetailsFragment : Fragment() {
                                             putExtra("isFlowComplete", !isPendingAtPharmacist)
                                         }
                                         startActivity(intent)
-                                        requireActivity().finish()
                                     }
 
                                     // Lab + pharmacist done: open in view mode so case record shows correct UI (only Close, no plus, no refer)
@@ -365,7 +359,6 @@ class PersonalDetailsFragment : Fragment() {
                                             putExtra("isFlowComplete", !isDoctorLabReviewState)
                                         }
                                         startActivity(intent)
-                                        requireActivity().finish()
                                     }
 
                                     else -> {
@@ -383,7 +376,6 @@ class PersonalDetailsFragment : Fragment() {
                                             putExtra("isFlowComplete", false)
                                         }
                                         startActivity(intent)
-                                        requireActivity().finish()
                                     }
                                 }
 
@@ -503,7 +495,7 @@ class PersonalDetailsFragment : Fragment() {
             listFlow.collectLatest { list ->
                 itemAdapter?.submitList(list)
                 patientCount = list.size
-                if (!hasReceivedInitialPatientList) {
+                if (!hasReceivedInitialPatientList && list.isNotEmpty()) {
                     hideCardSkeletonLoader()
                 }
                 if (!isShowingSearchResults) {
@@ -794,19 +786,9 @@ class PersonalDetailsFragment : Fragment() {
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
             if (result) {
-                try {
-                    // Initialize MediaPipe Face Detector
-                    val baseOptionsBuilder =
-                        BaseOptions.builder().setModelAssetPath("blaze_face_short_range.tflite")
-
-                    val options = FaceDetector.FaceDetectorOptions.builder()
-                        .setBaseOptions(baseOptionsBuilder.build()).setMinDetectionConfidence(0.5f)
-                        .setRunningMode(RunningMode.IMAGE).build()
-
-                    val faceDetector = FaceDetector.createFromOptions(requireContext(), options)
-
-                    // Load image from URI
-                    val imageBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                // Load image from URI
+                val imageBitmap = try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         val source =
                             ImageDecoder.createSource(requireContext().contentResolver, photoURI)
                         ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
@@ -815,116 +797,76 @@ class PersonalDetailsFragment : Fragment() {
                             requireContext().contentResolver, photoURI
                         )
                     }
-
-                    // Convert to MPImage
-                    val mpImage = BitmapImageBuilder(imageBitmap).build()
-
-                    // Detect faces
-                    val detectionResult = faceDetector.detect(mpImage)
-
-                    // Handle detection results
-                    when {
-                        detectionResult.detections().isEmpty() -> {
-                            Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT)
-                                .show()
-                            faceDetector.close()
-                        }
-
-                        detectionResult.detections().size > 1 -> {
-                            Toast.makeText(
-                                requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT
-                            ).show()
-                            faceDetector.close()
-                        }
-
-                        else -> {
-                            val detection = detectionResult.detections()[0]
-                            val boundingBox = detection.boundingBox()
-
-                            // Check for degenerate bounding box before coercion
-                            if (boundingBox.right <= boundingBox.left || boundingBox.bottom <= boundingBox.top) {
-                                Toast.makeText(
-                                    requireContext(), "Invalid face detection", Toast.LENGTH_SHORT
-                                ).show()
-                                faceDetector.close()
-                                return@registerForActivityResult
-                            }
-
-// Ensure bounding box stays within image bounds
-                            val left = boundingBox.left.toInt().coerceAtLeast(0)
-                            val top = boundingBox.top.toInt().coerceAtLeast(0)
-                            val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
-                            val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
-
-                            val width = (right - left).coerceAtLeast(1)
-                            val height = (bottom - top).coerceAtLeast(1)
-
-// No need to validate width/height again — coercion guarantees ≥ 1
-
-
-                            // Crop face from image
-                            val faceBitmap = Bitmap.createBitmap(
-                                imageBitmap, left, top, width, height
-                            )
-
-                            // Clean up detector
-                            faceDetector.close()
-
-                            // Get face embeddings
-                            embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
-
-                            // Compare faces and find matching patient
-                            lifecycleScope.launch {
-                                val matchedPatient = compareFacesL2Norm(embeddings!!)
-                                if (matchedPatient != null) {
-                                    val visitInfo = PatientVisitInfoSync()
-                                    val benVisitInfo = PatientDisplayWithVisitInfo(
-                                        matchedPatient,
-                                        genderName = null,
-                                        villageName = null,
-                                        ageUnit = null,
-                                        maritalStatus = null,
-                                        nurseDataSynced = visitInfo.nurseDataSynced,
-                                        doctorDataSynced = visitInfo.doctorDataSynced,
-                                        createNewBenFlow = visitInfo.createNewBenFlow,
-                                        prescriptionID = visitInfo.prescriptionID,
-                                        benVisitNo = visitInfo.benVisitNo,
-                                        visitCategory = visitInfo.visitCategory,
-                                        benFlowID = visitInfo.benFlowID,
-                                        nurseFlag = visitInfo.nurseFlag,
-                                        doctorFlag = visitInfo.doctorFlag,
-                                        labtechFlag = visitInfo.labtechFlag,
-                                        pharmacist_flag = visitInfo.pharmacist_flag,
-                                        visitDate = visitInfo.visitDate,
-                                        referDate = visitInfo.referDate,
-                                        referTo = visitInfo.referTo,
-                                        referralReason = visitInfo.referralReason
-                                    )
-                                    itemAdapter?.submitList(listOf(benVisitInfo))
-                                    binding.patientListContainer.patientCount.text =
-                                        "1 Matched Patient"
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "1 matching patient found",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "No matching patient found",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    searchPrompt.show()
-                                }
-                            }
-                        }
-                    }
-
                 } catch (e: Exception) {
-                    Log.e("FaceDetection", "Face detection failed", e)
+                    Log.e("FaceDetection", "Image load failed", e)
                     Toast.makeText(
-                        requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT
+                        requireContext(),
+                        getString(R.string.face_detection_failed, e.message.orEmpty()),
+                        Toast.LENGTH_SHORT
                     ).show()
+                    return@registerForActivityResult
+                }
+
+                // Generate embeddings on the full image (best-effort without MediaPipe face detection)
+                embeddings = try {
+                    faceNetModel.getFaceEmbedding(imageBitmap)
+                } catch (e: Exception) {
+                    Log.e("FaceEmbedding", "Embedding generation failed", e)
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.failed_to_generate_face_embeddings),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    null
+                }
+
+                if (embeddings == null) {
+                    return@registerForActivityResult
+                }
+
+                // Compare faces and find matching patient
+                lifecycleScope.launch {
+                    val matchedPatient = compareFacesL2Norm(embeddings!!)
+                    if (matchedPatient != null) {
+                        val visitInfo = PatientVisitInfoSync()
+                        val benVisitInfo = PatientDisplayWithVisitInfo(
+                            matchedPatient,
+                            genderName = null,
+                            villageName = null,
+                            ageUnit = null,
+                            maritalStatus = null,
+                            nurseDataSynced = visitInfo.nurseDataSynced,
+                            doctorDataSynced = visitInfo.doctorDataSynced,
+                            createNewBenFlow = visitInfo.createNewBenFlow,
+                            prescriptionID = visitInfo.prescriptionID,
+                            benVisitNo = visitInfo.benVisitNo,
+                            visitCategory = visitInfo.visitCategory,
+                            benFlowID = visitInfo.benFlowID,
+                            nurseFlag = visitInfo.nurseFlag,
+                            doctorFlag = visitInfo.doctorFlag,
+                            labtechFlag = visitInfo.labtechFlag,
+                            pharmacist_flag = visitInfo.pharmacist_flag,
+                            visitDate = visitInfo.visitDate,
+                            referDate = visitInfo.referDate,
+                            referTo = visitInfo.referTo,
+                            referralReason = visitInfo.referralReason
+                        )
+                        itemAdapter?.submitList(listOf(benVisitInfo))
+                        binding.patientListContainer.patientCount.text =
+                            "1 Matched Patient"
+                        Toast.makeText(
+                            requireContext(),
+                            "1 matching patient found",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "No matching patient found",
+                            Toast.LENGTH_SHORT
+                        ).show()
+//                        searchPrompt.show()
+                    }
                 }
             }
         }
@@ -1527,7 +1469,11 @@ class PersonalDetailsFragment : Fragment() {
                             rid.contains(query)
                 }
 
-                if (!isNetworkAvailable) {
+                val canUseApi =
+                    isNetworkAvailable &&
+                            (preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected())
+
+                if (!canUseApi) {
                     withContext(Dispatchers.Main) {
                         if (currentSearchQuery == query) {
                             isShowingSearchResults = false
@@ -1804,7 +1750,7 @@ class PersonalDetailsFragment : Fragment() {
                 } else {
                     viewModel.forgetUserEsanjeevani()
                 }
-                CoroutineScope(Dispatchers.Main).launch {
+                lifecycleScope.launch {
                     try {
                         var passWord =
                             encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))
@@ -1826,11 +1772,12 @@ class PersonalDetailsFragment : Fragment() {
                                 if (token != null) {
                                     TokenESanjeevaniInterceptor.setToken(token)
                                 }
-                                val intent = Intent(context, WebViewActivity::class.java)
-                                intent.putExtra("patientId", benVisitInfo.patient.patientID)
-                                intent.putExtra("usernameEs", usernameEs)
-                                intent.putExtra("passwordEs", passwordEs)
-                                context?.startActivity(intent)
+                                context?.let { ctx ->
+                                    ESanjeevaniLauncher.launch(
+                                        ctx, patientDao, apiService,
+                                        benVisitInfo.patient.patientID, usernameEs, passwordEs
+                                    )
+                                }
                                 dialog?.dismiss()
                             } else {
                                 errorEs = responseToken.message

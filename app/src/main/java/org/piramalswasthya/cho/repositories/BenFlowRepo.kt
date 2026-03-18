@@ -259,7 +259,7 @@ class BenFlowRepo @Inject constructor(
             }
 
         }
-        
+
     }
 
 
@@ -609,48 +609,50 @@ class BenFlowRepo @Inject constructor(
 
 
 
-        suspend fun getAllocationItemForPharmacist(prescriptionDTO: PrescriptionDTO): NetworkResult<NetworkResponse> {
-            return networkResultInterceptor {
-                val listAllocation: MutableList<AllocationItemDataRequest> = mutableListOf()
-                prescriptionDTO.itemList.forEach { prescriptionItemDTO ->
-                    val allocationItemDataRequest = AllocationItemDataRequest(
-                        itemID = prescriptionItemDTO.drugID,
-                        quantity = prescriptionItemDTO.qtyPrescribed
-                    )
-                    listAllocation.add(allocationItemDataRequest)
-                }
-                Timber.d("******************* prescriptionBatchDTO Item DTO************** ",listAllocation)
-                val facilityID = userDao.getLoggedInUserFacilityID()
-                val response = apiService.getPharmacistAllocationItemList(listAllocation, facilityID)
-                val responseBody = response.body()?.string()
-
-                refreshTokenInterceptor(
-                    responseBody = responseBody,
-                    onSuccess = {
-                        val jsonObj = JSONObject(responseBody)
-                        val data = jsonObj.getJSONObject("data").toString()
-                        val prescriptionBatchApiDTO = Gson().fromJson(data, PrescriptionBatchApiDTO::class.java)
-                        Timber.d("******************* prescriptionBatchDTO Item DTO************** ",prescriptionBatchApiDTO)
-
-                        NetworkResult.Success(NetworkResponse())
-                    },
-                    onTokenExpired = {
-                        val user = userRepo.getLoggedInUser()!!
-                        userRepo.refreshTokenTmc(user.userName, user.password)
-                        getAllocationItemForPharmacist(prescriptionDTO)
-                    },
+    suspend fun getAllocationItemForPharmacist(prescriptionDTO: PrescriptionDTO): NetworkResult<NetworkResponse> {
+        return networkResultInterceptor {
+            val listAllocation: MutableList<AllocationItemDataRequest> = mutableListOf()
+            prescriptionDTO.itemList.forEach { prescriptionItemDTO ->
+                val allocationItemDataRequest = AllocationItemDataRequest(
+                    itemID = prescriptionItemDTO.drugID,
+                    quantity = prescriptionItemDTO.qtyPrescribed
                 )
+                listAllocation.add(allocationItemDataRequest)
             }
+            Timber.d("******************* prescriptionBatchDTO Item DTO************** ",listAllocation)
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            val response = apiService.getPharmacistAllocationItemList(listAllocation, facilityID)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").toString()
+                    val prescriptionBatchApiDTO = Gson().fromJson(data, PrescriptionBatchApiDTO::class.java)
+                    Timber.d("******************* prescriptionBatchDTO Item DTO************** ",prescriptionBatchApiDTO)
+
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getAllocationItemForPharmacist(prescriptionDTO)
+                },
+            )
+        }
     }
 
-     suspend fun getStockDetailsOfSubStore(facilityID: Int): NetworkResult<NetworkResponse>{
+    suspend fun getStockDetailsOfSubStore(facilityID: Int): NetworkResult<NetworkResponse>{
         return networkResultInterceptor {
             val request = StockItemRequest(
                 itemName = "%%",
                 facilityID = facilityID.toString()
             )
+
             val response = apiService.getPharmacistStockItemList(request)
             val responseBody = response.body()?.string()
+
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
@@ -658,6 +660,9 @@ class BenFlowRepo @Inject constructor(
                         val jsonObj = JSONObject(responseBody)
                         val dataArray = jsonObj.getJSONArray("data")
                         val batchList = mutableListOf<Batch>()
+                        var successCount = 0
+                        var failedCount = 0
+
                         for (i in 0 until dataArray.length()) {
                             val item = dataArray.getJSONObject(i).toString()
                             val apiItemStockEntry = Gson().fromJson(item, ApiItemStockEntry::class.java)
@@ -671,19 +676,22 @@ class BenFlowRepo @Inject constructor(
                                 quantityInHand = apiItemStockEntry.quantityInHand
                             )
 
-                            batchList.add(batch)
+                            // Try to insert each batch individually to handle foreign key constraints
+                            try {
+                                batchDao.insertBatch(batch)
+                                successCount++
+                            } catch (e: Exception) {
+                                failedCount++
+                                Log.w("BatchAPI", "Failed to insert batch for itemID ${apiItemStockEntry.itemID}: ${e.message}. Item may not exist in ItemMasterList.")
+                            }
                         }
-                        batchDao.insertAllBatches(batchList)
 
-                        Log.d("Medicine list", "$batchList")
                         NetworkResult.Success(NetworkResponse())
                     } catch (e: Exception) {
-                        Log.e("Medicine list", "Error during parsing or deserialization", e)
+                        NetworkResult.Error(0, e.message ?: "Failed to process batch data")
                     }
-                    NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {
-                    Log.d("Token Expired", "Token Expired")
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
                     getStockDetailsOfSubStore(facilityID)
@@ -819,12 +827,12 @@ class BenFlowRepo @Inject constructor(
                     }
                 }
             }
-            } catch (e: Exception){
-                e.printStackTrace()
-                Log.d("Pharmacist",e.toString())
-            }
-
+        } catch (e: Exception){
+            e.printStackTrace()
+            Log.d("Pharmacist",e.toString())
         }
+
+    }
 
     fun parseDate(dateString: String): Date {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
@@ -926,6 +934,53 @@ class BenFlowRepo @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
             false
+        }
+    }
+
+    /**
+     * Refresh only header fields (consultantName, visitCode, prescriptionID) without touching local item list.
+     * This preserves local doctor edits while ensuring header data is visible.
+     */
+    suspend fun refreshPrescriptionHeaderOnly(benVisitInfo: PatientDisplayWithVisitInfo): NetworkResult<NetworkResponse> {
+        return networkResultInterceptor {
+            val benRegId = benVisitInfo.patient.beneficiaryRegID ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing beneficiaryRegID")
+            val benVisitNo = benVisitInfo.benVisitNo ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing benVisitNo")
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benRegId, benVisitNo)
+                ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing benFlow")
+
+            val visitCode = benFlow.visitCode
+                ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing visitCode")
+            val request = PrescribedMedicineDataRequest(
+                beneficiaryRegID = benFlow.beneficiaryRegID!!,
+                facilityID = facilityID,
+                visitCode = visitCode
+            )
+
+            val response = apiService.getPharmacistPrescriptionList(request)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").toString()
+                    val prescriptionDTO = Gson().fromJson(data, PrescriptionDTO::class.java)
+                    prescriptionDao.updatePrescriptionHeader(
+                        patientID = benVisitInfo.patient.patientID,
+                        benVisitNo = benVisitNo,
+                        prescriptionID = prescriptionDTO.prescriptionID,
+                        visitCode = prescriptionDTO.visitCode,
+                        consultantName = prescriptionDTO.consultantName
+                    )
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    refreshPrescriptionHeaderOnly(benVisitInfo)
+                },
+            )
         }
     }
 

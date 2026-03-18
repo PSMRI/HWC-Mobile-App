@@ -84,6 +84,23 @@ interface PrescriptionDao {
     @Transaction
     @Query("UPDATE prescription SET issueType = :issueType WHERE prescriptionID =:prescriptionID")
     suspend fun updatePrescription(issueType: String?, prescriptionID: Long) : Int
+
+    @Query(
+        "UPDATE prescription SET " +
+                "prescriptionID = :prescriptionID, " +
+                "visitCode = :visitCode, " +
+                "consultantName = :consultantName " +
+                "WHERE id = (" +
+                "select id from prescription where patientID = :patientID and benVisitNo = :benVisitNo order by id desc limit 1" +
+                ")"
+    )
+    suspend fun updatePrescriptionHeader(
+        patientID: String,
+        benVisitNo: Int,
+        prescriptionID: Long,
+        visitCode: Long,
+        consultantName: String?
+    ): Int
 //
 //    @Query("select * from component_details where procedure_id = :procedureId and test_component_id = :testComponentID")
 //    fun getComponentDetails(procedureId: Long, testComponentID: Long): ComponentDetails

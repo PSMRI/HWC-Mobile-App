@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_form
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -18,13 +17,14 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.BuildConfig
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOutreachActivityFormBinding
-import org.piramalswasthya.cho.ui.outreach_activity.OutreachActivity
+
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -179,8 +179,7 @@ class OutreachActivityFormFragment : Fragment() {
             viewModel.isDataSaved.observe(viewLifecycleOwner) {
                 when (it) {
                     true -> {
-                        requireActivity().finish()
-                        startActivity(Intent(requireContext(), OutreachActivity::class.java))
+                        findNavController().popBackStack(R.id.outreachActiviityListFragment, false)
                         binding.rlSaving.visibility = View.GONE
                     }
 

@@ -1,6 +1,6 @@
 package org.piramalswasthya.cho.ui.register_patient_activity.other_informations
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +16,7 @@ import org.piramalswasthya.cho.databinding.FragmentOtherInformationsBinding
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.utils.generateUuid
 
 @AndroidEntryPoint
@@ -109,9 +109,7 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
             patient!!.patientID = generateUuid()
             viewModel.insertPatient(patient!!)
         }
-        val intent = Intent(context, HomeActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
+        requireActivity().finish()
     }
 
     fun updatePatientDetails(){

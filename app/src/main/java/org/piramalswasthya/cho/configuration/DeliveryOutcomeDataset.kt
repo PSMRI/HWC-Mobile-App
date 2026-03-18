@@ -13,11 +13,7 @@ import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-/**
- * Dataset for Delivery Outcome form per MHWC-199 requirements
- * Implements all validations, alerts, and conditional field visibility
- * Also handles mother's condition, complications, and admission status post-delivery
- */
+
 class DeliveryOutcomeDataset(
     context: Context, currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
@@ -32,17 +28,17 @@ class DeliveryOutcomeDataset(
         private const val EXTREMELY_PRETERM_WEEKS = 28
         private const val VERY_PRETERM_WEEKS = 32
         private const val POST_TERM_WEEKS = 42
-        
+
         // Indices in do_place_of_delivery_array
         private const val PLACE_PRIVATE_HOSPITAL_INDEX = 6
         private const val PLACE_HOME_DELIVERY_INDEX = 7
         private const val PLACE_ON_THE_WAY_INDEX = 8
-        
+
         // Indices in do_mode_of_delivery_array
         private const val MODE_ASSISTED_INDEX = 1
         private const val MODE_LSCS_INDEX = 2
         private const val MODE_EMERGENCY_LSCS_INDEX = 3
-        
+
         // Indices in do_delivery_conducted_by_array
         private const val CONDUCTED_BY_DAI_TBA_INDEX = 4
         private const val CONDUCTED_BY_FAMILY_MEMBER_INDEX = 5
@@ -274,7 +270,7 @@ class DeliveryOutcomeDataset(
         if (pwr.lmpDate <= 0) {
             throw IllegalStateException("Invalid LMP date: ${pwr.lmpDate}")
         }
-        
+
         // Store LMP and calculate EDD
         lmpDate = pwr.lmpDate
         eddDate = getEddFromLmp(lmpDate)
@@ -308,13 +304,13 @@ class DeliveryOutcomeDataset(
             dateOfDischarge.min = deliveryDateMillis
             // Calculate and display initial gestational age
             updateGestationalAge(System.currentTimeMillis())
-            
+
             // Initialize mother condition fields
             motherCondition.value = null
             motherCurrentlyAdmitted.value = null
             maternalComplications.value = null
             dateOfDischarge.value = null
-            
+
             // Initialize new outcome fields
             stillBirth.value = "0"
             deliveryOutcome.value = null
@@ -335,7 +331,7 @@ class DeliveryOutcomeDataset(
             deliveryDateMillis = saved.dateOfDelivery ?: System.currentTimeMillis()
             dateOfDischarge.min = deliveryDateMillis
             dateOfDischarge.max = System.currentTimeMillis()
-            
+
             timeOfDelivery.value = saved.timeOfDelivery
             placeOfDelivery.value = getLocalValueInArray(
                 R.array.do_place_of_delivery_array,
@@ -374,19 +370,19 @@ class DeliveryOutcomeDataset(
             handlePlaceOfDeliveryChange(placeOfDelivery.value)
             handleModeOfDeliveryChange(modeOfDelivery.value)
             handleDeliveryConductedByChange(deliveryConductedBy.value)
-            
+
             // Add mother condition fields (second half of form)
             formElements.add(motherCondition)
-            
+
             // Add maternal complications if mother condition is "Complication" or "Critical"
             val conditionIndex = resources.getStringArray(R.array.do_mother_condition_array).indexOf(motherCondition.value)
             if (conditionIndex == 1 || conditionIndex == 2) {
                 formElements.add(maternalComplications)
             }
-            
+
             // Always add admission status field
             formElements.add(motherCurrentlyAdmitted)
-            
+
             // Add discharge date if mother is discharged (not currently admitted)
             if (motherCurrentlyAdmitted.value == resources.getStringArray(R.array.do_mother_admitted_array)[1]) {
                 formElements.add(dateOfDischarge)
@@ -422,7 +418,7 @@ class DeliveryOutcomeDataset(
             this.deliveryDateMillis = saved.dateOfDelivery ?: deliveryDateMillis
             dateOfDelivery.min = this.deliveryDateMillis
             dateOfDischarge.min = this.deliveryDateMillis
-            
+
             motherCondition.value = saved.motherCondition
             motherCurrentlyAdmitted.value = when (saved.motherCurrentlyAdmitted) {
                 true -> resources.getStringArray(R.array.do_mother_admitted_array)[0]
@@ -455,11 +451,11 @@ class DeliveryOutcomeDataset(
      */
     private fun calculateGestationalAge(deliveryDate: Long): String {
         if (lmpDate <= 0) return "NA"
-        
+
         val daysDiff = TimeUnit.MILLISECONDS.toDays(deliveryDate - lmpDate)
         val weeks = (daysDiff / DAYS_IN_WEEK).toInt()
         val days = (daysDiff % DAYS_IN_WEEK).toInt()
-        
+
         return "${weeks}w ${days}d"
     }
 
@@ -485,14 +481,14 @@ class DeliveryOutcomeDataset(
 
         if (lmpDate > 0) {
             val weeks = TimeUnit.MILLISECONDS.toDays(deliveryDate - lmpDate).toInt() / DAYS_IN_WEEK
-            
+
             // Show gestational age classification alert in dialog
             when {
                 weeks < EXTREMELY_PRETERM_WEEKS -> emitAlertErrorMessage(R.string.do_alert_extremely_preterm)
                 weeks < VERY_PRETERM_WEEKS -> emitAlertErrorMessage(R.string.do_alert_very_preterm)
                 weeks < PRETERM_THRESHOLD_WEEKS -> emitAlertErrorMessage(R.string.do_alert_moderate_preterm)
-                weeks >= POST_TERM_WEEKS -> emitAlertErrorMessage(R.string.do_alert_post_term)
-                // Term (37-42 weeks) - no alert needed, it's normal
+                weeks < POST_TERM_WEEKS -> emitAlertErrorMessage(R.string.do_alert_term)
+                else -> emitAlertErrorMessage(R.string.do_alert_post_term)
             }
         }
     }
@@ -524,9 +520,8 @@ class DeliveryOutcomeDataset(
             return false
         }
 
-        // If >14 days from EDD → Show alert: "Post-term delivery" (per JIRA)
         val daysFromEDD = TimeUnit.MILLISECONDS.toDays(deliveryDateLong - eddDate).toInt()
-        if (daysFromEDD > POST_TERM_THRESHOLD_DAYS) {
+        if (daysFromEDD >= POST_TERM_THRESHOLD_DAYS) {
             emitAlertErrorMessage(R.string.do_alert_post_term_delivery)
         }
 
@@ -873,7 +868,7 @@ class DeliveryOutcomeDataset(
         val form = cacheModel as DeliveryOutcomeCache
         val admittedYes = resources.getStringArray(R.array.do_mother_admitted_array)[0]
         val conditionMaternalDeath = resources.getStringArray(R.array.do_mother_condition_array)[3]
-        
+
         // Map delivery details fields
         form.dateOfDelivery = getLongFromDate(dateOfDelivery.value, DATE_FORMAT_DD_MM_YYYY)?.takeIf { it != 0L } ?: deliveryDateMillis
         form.timeOfDelivery = timeOfDelivery.value
@@ -884,7 +879,7 @@ class DeliveryOutcomeDataset(
         form.indicationForLSCS = indicationForLSCS.value
         form.indicationForLSCSOther = indicationForLSCSOther.value
         form.privateHospitalName = privateHospitalName.value
-        
+
         // Map mother condition fields
         form.motherCondition = motherCondition.value
         form.maternalComplications = maternalComplications.value?.takeIf { s -> s.isNotBlank() }

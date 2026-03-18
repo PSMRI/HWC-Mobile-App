@@ -39,6 +39,23 @@
     <string name="outreach">Outreach</string>
     <string name="system_issue">System Issue</string>
     <string name="manual_issue">Manual Issue</string>
+    <string name="no_batch_selected">Please select a batch before submitting</string>
+    <string name="refresh_batch_data">Refresh Batch Data</string>
+    <string name="batch_data_refreshed">Batch data refreshed successfully</string>
+    <string name="batch_refresh_failed">Failed to refresh batch data. Please check your connection.</string>
+    <string name="no_batches_available">No batches available for this medicine</string>
+    <string name="batch_data_loading">Loading batch data...</string>
+    <string name="medicine_dispensed_successfully">Medicine dispensed successfully</string>
+    <string name="dispensing_failed">Failed to dispense medicine. Please try again.</string>
+    <string name="network_required_manual_batch">Network connection required for manual batch selection</string>
+    <string name="network_required_refresh">Network connection required to refresh batch data. Please connect to internet.</string>
+    <string name="view_batch_disabled_system">View Batch is disabled in System Issue mode</string>
+    <string name="system_issue_auto_allocation">System Issue mode: Automatic batch allocation enabled</string>
+    <string name="batch_selection_required">Please select batch for all medicines in Manual Issue mode</string>
+    <string name="batch_selection_required_for">Please select batch for: %s</string>
+    <string name="refreshing">Refreshing...</string>
+    <string name="last_refreshed_never">Last refreshed: Never</string>
+    <string name="error_refreshing_batch_data">Error refreshing batch data</string>
     <string name="wellness_activity">Wellness Activity</string>
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
@@ -186,6 +203,8 @@
     <string name="ophthalmic_select_injury_type">Select Injury Type(s)</string>
     <string name="ophthalmic_foreign_body_removal_attempted">Foreign Body Removal Attempted</string>
     <string name="ophthalmic_chemical_exposure_wash_performed">Chemical Exposure \u2013 Thorough Wash Performed</string>
+
+    <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
 
@@ -458,7 +477,7 @@
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
     <string name="no_patient_found">No matching patient found. Please choose an option from below.</string>
-    <string name="pref_location_data">pref_location_data</string>
+    <string name="pref_location_data" translatable="false">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">Beneficiary Name:</string>
     <string name="abha_no">Abha No:</string>
@@ -528,6 +547,7 @@
     <string name="visit_code">Visit Code:</string>
     <string name="prescription_id">Prescription ID:</string>
     <string name="form_label">Form: </string>
+    <string name="available_quantity">Available Quantity: </string>
     <string name="prescribed_label">Prescribed: </string>
     <string name="prescribed_label_qt">Prescribed Quantity: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
@@ -611,14 +631,14 @@
     <string name="pnc_visit_date">PNC Visit Date</string>
     <string name="pnc_ifa_tabs_given">No. of IFA Tablets given</string>
     <string name="pnc_contraception_method">Method of Contraception</string>
-    <string name="pnc_any_contraception_method">Any Method of Contraception</string>
-    <string name="pnc_other_ppc_method">Other PPC Method</string>
+    <string name="pnc_any_contraception_method">Family planning method used by the couple after delivery to avoid pregnancy?</string>
+    <string name="pnc_other_ppc_method">Other Contraception Method</string>
     <string name="pnc_mother_danger_sign">Mother Danger Sign</string>
     <string name="pnc_other_danger_sign">Other Danger Sign</string>
     <string name="pnc_referral_facility">Referral Facility</string>
     <string name="pnc_mother_death">Mother Death</string>
     <string name="pnc_death_date">Date of Death</string>
-    <string name="pnc_death_cause">Probable Cause of Mother Death</string>
+    <string name="pnc_death_cause">Cause of Maternal Death</string>
     <string name="pnc_other_death_cause">Other Death Cause</string>
     <string name="pnc_death_place">Place of Death</string>
     <string name="pnc_remarks">Remarks</string>
@@ -661,8 +681,10 @@
         <item>CONDOM</item>
         <item>MALE STERILIZATION</item>
         <item>FEMALE STERILIZATION</item>
-        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
-        <item>ANY OTHER (SPECIFY)</item>
+        <item>POST PARTUM STERILIZATION (PPS)</item>
+        <item>Minilap</item>
+        <item>None</item>
+        <item>OTHER</item>
     </string-array>
     <string-array name="pnc_mother_danger_sign_array">
         <item>PPH</item>
@@ -842,6 +864,7 @@
 
     <!-- Child Care Sub-modules -->
     <string name="infant_list">Infant Registration List</string>
+    <string name="child_list">Child List</string>
     <string name="adolescent_list">Adolescent List</string>
     <string name="children_under_5_years">Children under 5 Years</string>
 
@@ -935,7 +958,7 @@
     <string name="do_error_date_range">Date must be between %1$s and %2$s</string>
     <string name="do_alert_post_term_delivery">Post-term delivery</string>
     <string name="do_alert_preterm_delivery">Preterm delivery</string>
-    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit.</string>
+    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit within 24 hours.</string>
     <string name="do_alert_on_the_way">Urgent PNC home visit within 24 hours required.</string>
     <string name="do_alert_unskilled_delivery">Unskilled delivery. High-risk PNC needed.</string>
     <string name="do_alert_extremely_preterm">Extremely Preterm (&lt;28 weeks)</string>
@@ -1093,13 +1116,13 @@
     <string name="no_alert_lbw">Low Birth Weight (LBW): 1500-2499g. Close monitoring required.</string>
     <string name="no_alert_vlbw">Very Low Birth Weight (VLBW): 1000-1499g. Immediate SNCU referral recommended.</string>
     <string name="no_alert_elbw">Extremely Low Birth Weight (ELBW): \u003c1000g. Critical - NICU care required.</string>
-    <string name="no_alert_macrosomia">Macrosomia: \u003e4000g. Screen mother for gestational diabetes.</string>
-    <string name="no_alert_ambiguous_sex">Ambiguous genitalia detected. Immediate pediatric/specialist review required.</string>
+    <string name="no_alert_macrosomia">Macrosomia (flag for maternal GDM screening)</string>
+    <string name="no_alert_ambiguous_sex">Ambiguous genitalia detected. Pediatric specialist referral required.</string>
     <string name="no_alert_stillbirth">Stillbirth recorded. Stillbirth audit form will be triggered.</string>
     <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
     <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
     <string name="no_alert_pnc_counseling">Ensure proper PNC counseling for mother on newborn care.</string>
-    <string name="no_alert_birth_certificate_legal">Provide information to family: birth registration is a legal requirement.</string>
+    <string name="no_alert_birth_certificate_legal">Birth registration is a legal requirement.</string>
 
     <!-- Validation -->
     <string name="no_error_birth_weight_range">Birth weight must be between 500g and 6000g</string>
@@ -1150,7 +1173,6 @@
         <item>Intubation</item>
         <item>Chest compressions</item>
         <item>Medications</item>
-        <item>None</item>
     </string-array>
 
     <string-array name="no_congenital_anomaly_array">
@@ -1309,4 +1331,5 @@
     <string name="case_closure_error_undispensed_medicine">Cannot close case: Medicine has not been dispensed</string>
     <string name="case_closure_success">Case closed successfully</string>
     <string name="case_closure_error">Error closing case</string>
+    <string name="antra_next_due_date">ANTRA Next Due Date</string>
 </resources>

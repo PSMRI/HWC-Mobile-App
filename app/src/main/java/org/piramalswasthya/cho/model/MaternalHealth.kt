@@ -283,6 +283,12 @@ data class PatientWithPwrDomain(
     }
 
     /**
+     * Indicates if the Delivery Outcome form has been filled and submitted for the patient.
+     * Default is false, but gets assigned when cross-referenced against the outcomes repo.
+     */
+    var isDeliveryOutcomeFilled: Boolean = false
+
+    /**
      * Check if pregnancy is active
      */
     fun isActive(): Boolean {

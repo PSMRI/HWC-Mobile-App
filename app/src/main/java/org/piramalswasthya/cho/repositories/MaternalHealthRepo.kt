@@ -354,6 +354,13 @@ class MaternalHealthRepo @Inject constructor(
     }
 
     /**
+     * Get patientIDs of women who have a saved delivery outcome
+     */
+    fun getNeonatalOutcomeEligibleWomenPatientIDs(): Flow<List<String>> {
+        return maternalHealthDao.getNeonatalOutcomeEligibleWomenPatientIDs()
+    }
+
+    /**
      * Get count of women eligible for neonatal outcome
      */
     fun getNeonatalOutcomeEligibleWomenCount(): Flow<Int> {

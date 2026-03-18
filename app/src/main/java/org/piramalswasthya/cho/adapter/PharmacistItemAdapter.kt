@@ -1,17 +1,15 @@
 package org.piramalswasthya.cho.adapter
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import okhttp3.internal.notifyAll
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.PharmacistListItemViewBinding
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import timber.log.Timber
@@ -21,12 +19,13 @@ class PharmacistItemAdapter(
     private val context: Context,
     private var issueType: String,
     private val clickListener: PharmacistClickListener,
+    private val networkAvailabilityCheck: () -> Boolean
 ) : ListAdapter<PrescriptionItemDTO,PharmacistItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
 
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PrescriptionItemDTO>() {
         override fun areItemsTheSame(
             oldItem: PrescriptionItemDTO, newItem: PrescriptionItemDTO
-        ) = oldItem.drugID == newItem.drugID
+        ) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
             oldItem: PrescriptionItemDTO, newItem: PrescriptionItemDTO
@@ -50,7 +49,8 @@ class PharmacistItemAdapter(
         fun bind(
             item: PrescriptionItemDTO,
             issueType:String,
-            clickListener: PharmacistClickListener
+            clickListener: PharmacistClickListener,
+            networkAvailabilityCheck: () -> Boolean
         ) {
             Timber.d("*******************DAta Prescription DTO************** ",clickListener)
             binding.prescription = item
@@ -65,19 +65,52 @@ class PharmacistItemAdapter(
             binding.doseValue.text = item.dose ?: ""
             binding.quantityPrescribedValue.text = item.qtyPrescribed.toString() ?: ""
             binding.routeValue.text = item.route ?: ""
-            // Local DTO has prescribed quantity only; dispensed quantity should not mirror prescribed.
-            binding.quantityDispensedValue.text = "0"
-            binding.specialInstructionValue.text = item.dose ?: ""
-            binding.btnViewBatch.text = if (issueType == "Manual Issue") {
-                "Select Batch"
+            val dispensedQty = if (issueType == "Manual Issue") {
+                item.batchList.filter { it.isSelected }.sumOf { it.dispenseQuantity }
             } else {
-                "View Batch"
+//                item.batchList.sumOf { it.qty }
+                item.qtyPrescribed.toString() ?: ""
             }
-            binding.btnViewBatch.setOnClickListener {
-                if (issueType == "Manual Issue") {
-                    clickListener.onClickSelectBatch(item)
-                } else {
-                    clickListener.onClickViewBatch(item)
+            binding.quantityValue.text = item.batchList.sumOf { it.qty }.toString()
+
+            binding.quantityDispensedValue.text = dispensedQty.toString()
+            binding.specialInstructionValue.text = item.instructions ?: ""
+
+            // Handle button visibility and text based on issue type and network availability
+            when (issueType) {
+                "Manual Issue" -> {
+                    val isNetworkAvailable = networkAvailabilityCheck()
+                    val hasSelectedBatch = item.batchList.any { it.isSelected && it.dispenseQuantity > 0 }
+                    binding.btnViewBatch.text = if (hasSelectedBatch) "Edit Batch" else "Select Batch"
+                    binding.btnViewBatch.visibility = android.view.View.VISIBLE
+                    binding.btnViewBatch.isEnabled = isNetworkAvailable
+                    binding.btnViewBatch.setOnClickListener {
+                        if (isNetworkAvailable) {
+                            clickListener.onClickSelectBatch(item)
+                        } else {
+                            android.widget.Toast.makeText(
+                                binding.root.context,
+                                binding.root.context.getString(R.string.network_required_manual_batch),
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+                "System Issue" -> {
+                    // Hide/comment the view batch button for system issue
+                    binding.btnViewBatch.visibility = android.view.View.GONE
+                    // Alternatively, you can comment out the button functionality:
+                    /*
+                    binding.btnViewBatch.text = "View Batch"
+                    binding.btnViewBatch.visibility = android.view.View.VISIBLE
+                    binding.btnViewBatch.isEnabled = false
+                    binding.btnViewBatch.setOnClickListener {
+                        clickListener.onClickViewBatch(item)
+                    }
+                    */
+                }
+                else -> {
+                    binding.btnViewBatch.visibility = android.view.View.GONE
                 }
             }
             binding.executePendingBindings()
@@ -91,7 +124,7 @@ class PharmacistItemAdapter(
 
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
         drugID = getItem(position).drugID.toString()
-        holder.bind(getItem(position), issueType , clickListener)
+        holder.bind(getItem(position), issueType, clickListener, networkAvailabilityCheck)
 
 //        holder.itemView.findViewById<MaterialButton>(R.id.submit_btn).setOnClickListener { // When submit button is clicked
 //            network = isInternetAvailable(context)

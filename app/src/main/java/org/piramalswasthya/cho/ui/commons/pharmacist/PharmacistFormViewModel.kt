@@ -2,6 +2,9 @@ package org.piramalswasthya.cho.ui.commons.pharmacist
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
@@ -17,6 +20,7 @@ import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PrescriptionBatchDTO
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.network.BenHealthDetails
@@ -29,8 +33,13 @@ import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.BenVisitRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,6 +51,7 @@ class PharmacistFormViewModel @Inject constructor(
     private val benFlowRepo: BenFlowRepo,
     private val patientRepo: PatientRepo,
     private val batchDao: BatchDao,
+    private val userRepo: UserRepo,
     private val caseClosureManager: org.piramalswasthya.cho.helpers.CaseClosureManager
 ) : ViewModel() {
 
@@ -168,6 +178,17 @@ class PharmacistFormViewModel @Inject constructor(
                 benFlowRepo.pullPrescriptionListData(benVisitInfo)
                 listPrescription = patientRepo.getPrescriptions(benVisitInfo)
             }
+            val latest = listPrescription?.firstOrNull()
+            if (latest != null && isHeaderMissing(latest) && isNetworkAvailable()) {
+                when (benFlowRepo.refreshPrescriptionHeaderOnly(benVisitInfo)) {
+                    is NetworkResult.Success -> {
+                        listPrescription = patientRepo.getPrescriptions(benVisitInfo)
+                    }
+                    else -> {
+                        // keep existing local data
+                    }
+                }
+            }
             Log.d("MyPrescription", "Prescription $listPrescription")
             if (listPrescription != null && listPrescription.isNotEmpty()) {
                 _prescriptions.postValue(listPrescription[0])
@@ -180,10 +201,10 @@ class PharmacistFormViewModel @Inject constructor(
             benFlowRepo.getAllocationItemForPharmacist(prescriptionDTO)
         }
     }
-//
+    //
     @SuppressLint("StaticFieldLeak")
     val context: Context = application.applicationContext
-//
+    //
     val state = savedStateHandle
     fun savePharmacistData(dtos: PrescriptionDTO?, benVisitInfo: PatientDisplayWithVisitInfo) {
         _isDataSaved.value = false
@@ -194,29 +215,35 @@ class PharmacistFormViewModel @Inject constructor(
                     return@launch
                 }
 
-               if(dtos!=null && dtos.itemList!=null){
-                   dtos.itemList.forEach { item->
-                       if(item.batchList!=null && item.batchList.isNotEmpty()){
-                           val firstBatch = item.batchList.first()
-                           Log.d("WU", "Batch1 ${firstBatch} ")
-                           val availableBatch =  batchDao.getBatchByStockEntityId(firstBatch.itemStockEntryID.toLong())
-                           Log.d("WU", "Batch2 ${availableBatch} ")
-                           if(availableBatch!=null) {
-                               val updatedBatch = availableBatch.copy(
-                                   quantityInHand = availableBatch.quantityInHand - (item.qtyPrescribed ?: 0)
-                               )
-                               Log.d("WU", "Batch3 ${updatedBatch}")
-                               if(updatedBatch.quantityInHand<=0){
-                                   batchDao.deleteBatch(availableBatch)
-                               }else{
-                                   batchDao.updateBatch(updatedBatch)
-                               }
-                           }
-                       }else{
-                           Toast.makeText(context, "Medicine not available", Toast.LENGTH_SHORT).show()
-                       }
-                   }
-               }
+                if(dtos!=null && dtos.itemList!=null){
+                    dtos.itemList.forEach { item->
+                        if(item.batchList!=null && item.batchList.isNotEmpty()){
+                            val prescribedQty = item.qtyPrescribed ?: 0
+                            var remainingQty = prescribedQty
+                            item.batchList.forEach { batch ->
+                                if (remainingQty <= 0) return@forEach
+                                Log.d("WU", "Batch1 ${batch} ")
+                                val availableBatch =  batchDao.getBatchByStockEntityId(batch.itemStockEntryID.toLong())
+                                Log.d("WU", "Batch2 ${availableBatch} ")
+                                if(availableBatch!=null) {
+                                    val dispenseQty = minOf(availableBatch.quantityInHand, remainingQty)
+                                    val updatedBatch = availableBatch.copy(
+                                        quantityInHand = availableBatch.quantityInHand - dispenseQty
+                                    )
+                                    Log.d("WU", "Batch3 ${updatedBatch}")
+                                    if(updatedBatch.quantityInHand<=0){
+                                        batchDao.deleteBatch(availableBatch)
+                                    }else{
+                                        batchDao.updateBatch(updatedBatch)
+                                    }
+                                    remainingQty -= dispenseQty
+                                }
+                            }
+                        }else{
+                            Toast.makeText(context, "Medicine not available", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
                 patientVisitInfoSyncRepo.markPharmacistDispensedLocally(
                     benVisitInfo.patient.patientID,
                     visitNo
@@ -303,24 +330,29 @@ class PharmacistFormViewModel @Inject constructor(
                             if (remainingQty <= 0) return@forEach
 
                             val availableBatch = batchDao.getBatchByStockEntityId(batch.itemStockEntryID.toLong())
-                            availableBatch?.let {
-                                val dispenseQty = minOf(batch.dispenseQuantity, remainingQty)
-                                val updatedQty = it.quantityInHand - dispenseQty
+                            availableBatch?.let { dbBatch ->
+                                val dispenseQty = minOf(batch.dispenseQuantity, remainingQty, dbBatch.quantityInHand)
+                                val updatedQty = dbBatch.quantityInHand - dispenseQty
 
                                 if (updatedQty <= 0) {
-                                    batchDao.deleteBatch(it)
+                                    batchDao.deleteBatch(dbBatch)
                                 } else {
-                                    batchDao.updateBatch(it.copy(quantityInHand = updatedQty))
+                                    batchDao.updateBatch(dbBatch.copy(quantityInHand = updatedQty))
                                 }
 
                                 remainingQty -= dispenseQty
+                            } ?: run {
+                                Log.w("PharmacistVM", "Batch not found in database: ${batch.itemStockEntryID}")
                             }
                         }
 
                         if (remainingQty > 0) {
-                            Toast.makeText(context, "Insufficient stock for ${item.genericDrugName}", Toast.LENGTH_SHORT).show()
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Insufficient stock for ${item.genericDrugName}. Only ${prescribedQty - remainingQty} units dispensed.", Toast.LENGTH_LONG).show()
+                            }
                         }
-
+                    } else {
+                        Log.w("PharmacistVM", "No batches selected for ${item.genericDrugName}")
                     }
 
                 }
@@ -396,6 +428,104 @@ class PharmacistFormViewModel @Inject constructor(
             )
         } else {
             benVisitInfo.copy(pharmacist_flag = 9)
+        }
+    }
+
+    private fun isHeaderMissing(dto: PrescriptionDTO): Boolean {
+        return dto.prescriptionID <= 0 ||
+            dto.visitCode <= 0 ||
+            dto.consultantName.isNullOrBlank()
+    }
+
+    suspend fun refreshBatchData(): Boolean {
+        return try {
+            val facilityID = userRepo.getLoggedInUser()?.facilityID ?: return false
+            val result = benFlowRepo.getStockDetailsOfSubStore(facilityID)
+            result is NetworkResult.Success
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun getBatchesForMedicine(drugID: Long): List<PrescriptionBatchDTO> {
+        return try {
+            // First try to get batches from local database
+            var batches = batchDao.getBatchesByItemID(drugID.toInt())
+
+            // If no batches found locally, try to refresh from server
+            if (batches.isEmpty()) {
+                val refreshSuccess = refreshBatchData()
+                if (refreshSuccess) {
+                    batches = batchDao.getBatchesByItemID(drugID.toInt())
+                }
+            }
+
+            // Convert to PrescriptionBatchDTO format
+            batches.filter { batch ->
+                // Only include non-expired batches with available quantity
+                val expiryDays = calculateExpiryInDays(batch.expiryDate)
+                expiryDays > 0 && batch.quantityInHand > 0
+            }.map { batch ->
+                PrescriptionBatchDTO(
+                    expiresIn = calculateExpiryInDays(batch.expiryDate),
+                    batchNo = batch.batchNo,
+                    expiryDate = convertDateFormat(batch.expiryDate),
+                    itemStockEntryID = batch.stockEntityId.toInt(),
+                    qty = batch.quantityInHand,
+                    isSelected = false,
+                    dispenseQuantity = 0
+                )
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun calculateExpiryInDays(expiryDate: String): Int {
+        return try {
+            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
+            val expiry = sdf.parse(expiryDate)
+            val today = Date()
+            val diffInMillis = expiry?.time?.minus(today.time) ?: 0
+            (diffInMillis / (1000 * 60 * 60 * 24)).toInt()
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+    private fun convertDateFormat(dateString: String): String {
+        return try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
+            val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
+            val date = inputFormat.parse(dateString)
+            outputFormat.format(date ?: Date())
+        } catch (e: Exception) {
+            dateString
+        }
+    }
+
+    fun isNetworkAvailable(): Boolean {
+        return try {
+            val connectivityManager = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val network = connectivityManager.activeNetwork ?: return false
+                val networkCapabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+                return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+            } else {
+                @Suppress("DEPRECATION")
+                val networkInfo = connectivityManager.activeNetworkInfo
+                return networkInfo?.isConnected == true
+            }
+        } catch (e: Exception) {
+            false
         }
     }
 

@@ -138,7 +138,7 @@
     <string name="benificiary_list">लाभार्थी सूची</string>
     <string name="title_activity_visit_details">विज़िट विवरण एक्टिविटी</string>
     <string name="esanjeevni">eSanjeevani</string>
-    <string name="title_activity_web_view">वेबव्यू एक्टिविटी</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">पहला फ्रैगमेंट</string>
     <string name="second_fragment_label">दूसरा फ्रैगमेंट</string>
@@ -403,7 +403,7 @@
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
     <string name="no_patient_found">No matching patient found. Please choose an option from below.</string>
-    <string name="pref_location_data">pref_location_data</string>
+    <string name="pref_location_data" translatable="false">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">Beneficiary Name:</string>
     <string name="abha_no">Abha No:</string>
@@ -550,14 +550,14 @@
     <string name="pnc_visit_date">PNC Visit Date</string>
     <string name="pnc_ifa_tabs_given">No. of IFA Tablets given</string>
     <string name="pnc_contraception_method">Method of Contraception</string>
-    <string name="pnc_any_contraception_method">Any Method of Contraception</string>
-    <string name="pnc_other_ppc_method">Other PPC Method</string>
+    <string name="pnc_any_contraception_method">क्या दंपति ने प्रसव के बाद गर्भधारण से बचने के लिए परिवार नियोजन की किसी विधि का उपयोग किया है?</string>
+    <string name="pnc_other_ppc_method">Other Contraception Method</string>
     <string name="pnc_mother_danger_sign">Mother Danger Sign</string>
     <string name="pnc_other_danger_sign">Other Danger Sign</string>
     <string name="pnc_referral_facility">Referral Facility</string>
     <string name="pnc_mother_death">Mother Death</string>
     <string name="pnc_death_date">Date of Death</string>
-    <string name="pnc_death_cause">Probable Cause of Mother Death</string>
+    <string name="pnc_death_cause">Cause of Maternal Death</string>
     <string name="pnc_other_death_cause">Other Death Cause</string>
     <string name="pnc_death_place">Place of Death</string>
     <string name="pnc_remarks">Remarks</string>
@@ -600,8 +600,10 @@
         <item>CONDOM</item>
         <item>MALE STERILIZATION</item>
         <item>FEMALE STERILIZATION</item>
-        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
-        <item>ANY OTHER (SPECIFY)</item>
+        <item>POST PARTUM STERILIZATION (PPS)</item>
+        <item>Minilap</item>
+        <item>None</item>
+        <item>OTHER</item>
     </string-array>
     <string-array name="pnc_mother_danger_sign_array">
         <item>PPH</item>
@@ -671,12 +673,12 @@
     <string-array name="sterilization_methods_array">
         <item>MALE STERILIZATION</item>
         <item>FEMALE STERILIZATION</item>
-        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>POST PARTUM STERILIZATION (PPS)</item>
         <item>Minilap</item>
     </string-array>
     <string-array name="female_sterilization_methods_array">
         <item>FEMALE STERILIZATION</item>
-        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>POST PARTUM STERILIZATION (PPS)</item>
         <item>Minilap</item>
     </string-array>
     <string-array name="visit_months">
@@ -875,7 +877,7 @@
     <string name="do_error_date_range">Date must be between %1$s and %2$s</string>
     <string name="do_alert_post_term_delivery">Post-term delivery</string>
     <string name="do_alert_preterm_delivery">Preterm delivery</string>
-    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit.</string>
+    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit within 24 hours.</string>
     <string name="do_alert_on_the_way">Urgent PNC home visit within 24 hours required.</string>
     <string name="do_alert_unskilled_delivery">Unskilled delivery. High-risk PNC needed.</string>
     <string name="do_alert_extremely_preterm">Extremely Preterm (&lt;28 weeks)</string>
@@ -1031,8 +1033,8 @@
     <string name="no_alert_lbw">Low Birth Weight (LBW): 1500-2499g. Close monitoring required.</string>
     <string name="no_alert_vlbw">Very Low Birth Weight (VLBW): 1000-1499g. Immediate SNCU referral recommended.</string>
     <string name="no_alert_elbw">Extremely Low Birth Weight (ELBW): \u003c1000g. Critical - NICU care required.</string>
-    <string name="no_alert_macrosomia">Macrosomia: \u003e4000g. Screen mother for gestational diabetes.</string>
-    <string name="no_alert_ambiguous_sex">Ambiguous genitalia detected. Immediate pediatric/specialist review required.</string>
+    <string name="no_alert_macrosomia">Macrosomia (flag for maternal GDM screening)</string>
+    <string name="no_alert_ambiguous_sex">Ambiguous genitalia detected. Pediatric specialist referral required.</string>
     <string name="no_alert_stillbirth">Stillbirth recorded. Stillbirth audit form will be triggered.</string>
     <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
     <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
@@ -1077,7 +1079,6 @@
         <item>Intubation</item>
         <item>Chest compressions</item>
         <item>Medications</item>
-        <item>None</item>
     </string-array>
 
     <string-array name="no_congenital_anomaly_array">
@@ -1145,4 +1146,5 @@
         <item>In process</item>
         <item>No (Not applied)</item>
     </string-array>
+    <string name="antra_next_due_date">ANTRA की अगली देय तिथि</string>
 </resources>

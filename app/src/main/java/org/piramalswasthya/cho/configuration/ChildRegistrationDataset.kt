@@ -72,6 +72,7 @@ class ChildRegistrationDataset(
         entries = resources.getStringArray(R.array.no_sex_array),
         required = true,
         hasDependants = false,
+        hasAlertError = true,
         orientation = LinearLayout.VERTICAL,
     )
 
@@ -159,6 +160,7 @@ class ChildRegistrationDataset(
         title = resources.getString(R.string.no_other_congenital_anomaly),
         required = false,
         hasDependants = false,
+        etMaxLength = 300
     )
 
     // Q10: Newborn Complications (multi-select)
@@ -201,7 +203,8 @@ class ChildRegistrationDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.no_other_cause_of_death),
         required = false,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 300
     )
 
     private var breastFeedingStarted = FormElement(
@@ -230,7 +233,8 @@ class ChildRegistrationDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.no_reason_for_no_vaccines),
         required = false,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 200
     )
 
     private val opv0Dose = FormElement(
@@ -276,7 +280,8 @@ class ChildRegistrationDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.no_reason_for_no_vitamin_k),
         required = false,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 200
     )
 
     private val vitkDose = FormElement(
@@ -297,6 +302,7 @@ class ChildRegistrationDataset(
         entries = resources.getStringArray(R.array.no_birth_certificate_array),
         required = true,
         hasDependants = false,
+        hasAlertError = true,
         orientation = LinearLayout.VERTICAL
     )
 
@@ -789,6 +795,15 @@ class ChildRegistrationDataset(
                 updateIndex
             }
 
+            birthCertificateIssued.id -> {
+                val selected = birthCertificateIssued.entries?.getOrNull(index)
+                birthCertificateIssued.value = selected
+                if (selected == birthCertificateIssued.entries?.getOrNull(2)) { // "No (Not applied)"
+                    emitAlertErrorMessage(R.string.no_alert_birth_certificate_legal)
+                }
+                -1
+            }
+
             weight.id -> {
                 val validation = validateIntMinMax(weight)
                 if (weight.errorText == null) {
@@ -797,7 +812,7 @@ class ChildRegistrationDataset(
                             weightInGm < 1000 -> emitAlertErrorMessage(R.string.no_alert_elbw)
                             weightInGm < 1500 -> emitAlertErrorMessage(R.string.no_alert_vlbw)
                             weightInGm < 2500 -> emitAlertErrorMessage(R.string.no_alert_lbw)
-                            weightInGm > 4000 -> emitAlertErrorMessage(R.string.no_alert_macrosomia)
+                            weightInGm >= 4000 -> emitAlertErrorMessage(R.string.no_alert_macrosomia)
                         }
                     }
                 }
@@ -828,15 +843,6 @@ class ChildRegistrationDataset(
 
             otherCauseOfDeath.id -> {
                 validateAllAlphabetsSpecialOnEditText(otherCauseOfDeath)
-            }
-
-            birthCertificateIssued.id -> {
-                val selected = birthCertificateIssued.entries?.getOrNull(index)
-                birthCertificateIssued.value = selected
-                if (selected == birthCertificateIssued.entries?.getOrNull(2)) {
-                    emitAlertErrorMessage(R.string.no_alert_birth_certificate_legal)
-                }
-                -1
             }
 
             else -> -1

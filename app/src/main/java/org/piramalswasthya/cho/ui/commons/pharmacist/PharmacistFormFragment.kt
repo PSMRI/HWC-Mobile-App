@@ -2,12 +2,14 @@ package org.piramalswasthya.cho.ui.commons.pharmacist
 
 
 
-import android.content.Intent
+
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -23,13 +25,14 @@ import org.piramalswasthya.cho.databinding.AlertAbhaCcMappingBinding
 import org.piramalswasthya.cho.databinding.AlertCcMappingBinding
 import org.piramalswasthya.cho.databinding.FragmentPharmacistFormBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PrescriptionBatchDTO
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home.HomeViewModel
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
@@ -60,6 +63,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
     private var dtos: PrescriptionDTO? = null
 
     private var itemAdapter : PharmacistItemAdapter? = null
+    private val pendingBatchSelections = mutableMapOf<Long, List<PrescriptionBatchDTO>>()
 
     private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
     private var patientCount : Int = 0
@@ -86,36 +90,70 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
-        dtos?.issueType = "System Issue"
         viewModel = ViewModelProvider(this).get(PharmacistFormViewModel::class.java)
+        findNavController().currentBackStackEntry?.savedStateHandle
+            ?.getLiveData<String>("selected_batch_item")
+            ?.observe(viewLifecycleOwner) { json ->
+                val updatedItem = Gson().fromJson(json, PrescriptionItemDTO::class.java)
+                pendingBatchSelections[updatedItem.id] = updatedItem.batchList
+                val currentList = dtos?.itemList?.toMutableList() ?: return@observe
+                val index = currentList.indexOfFirst { it.id == updatedItem.id }
+                if (index >= 0) {
+                    currentList[index] = currentList[index].copy(batchList = updatedItem.batchList)
+                    dtos?.itemList = currentList
+                    itemAdapter?.submitList(currentList)
+                }
+                findNavController().currentBackStackEntry?.savedStateHandle?.remove<String>("selected_batch_item")
+            }
         viewModel.prescriptionObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 PharmacistFormViewModel.NetworkState.SUCCESS -> {
+                    val currentIssueType =
+                        if (binding.btnManualIssue.isChecked) "Manual Issue" else "System Issue"
                     itemAdapter = context?.let { it ->
                         PharmacistItemAdapter(
                             it,
-                            dtos?.issueType ?: "",
-                            clickListener = PharmacistItemAdapter.PharmacistClickListener(clickedSelectBatch = { it
+                            currentIssueType,
+                            networkAvailabilityCheck = { viewModel.isNetworkAvailable() },
+                            clickListener = PharmacistItemAdapter.PharmacistClickListener(clickedSelectBatch = { prescription ->
                                 val bundle = Bundle()
-                                bundle.putString("prescriptionItemDTO", Gson().toJson(it))
-                                if(it.batchList!= null && it.batchList.isNotEmpty()){
-                                    bundle.putString("batchList", Gson().toJson(it.batchList))
+                                bundle.putString("prescriptionItemDTO", Gson().toJson(prescription))
 
-                                    bundle.putString("prescriptionDTO", Gson().toJson(dtos))
-                                    bundle.putSerializable("benVisitInfo", benVisitInfo)
+                                // Use real-time batch fetching instead of relying on existing batchList
+                                lifecycleScope.launch {
+                                    try {
+                                        val availableBatches = viewModel.getBatchesForMedicine(prescription.drugID)
 
-                                    val batchFragment = PrescriptionBatchFormFragment()
-                                    batchFragment.arguments = bundle
-                                    findNavController().navigate(
-                                        R.id.action_pharmacistFormFragment_to_selectBatchFragment, bundle
-                                    )
+                                        if (availableBatches.isNotEmpty()) {
+                                            bundle.putString("batchList", Gson().toJson(availableBatches))
+                                            bundle.putString("prescriptionDTO", Gson().toJson(dtos))
+                                            bundle.putSerializable("benVisitInfo", benVisitInfo)
+
+                                            findNavController().navigate(
+                                                R.id.action_pharmacistFormFragment_to_selectBatchFragment, bundle
+                                            )
+                                        } else if (!viewModel.isNetworkAvailable()) {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                getString(R.string.network_required_manual_batch),
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        } else {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                getString(R.string.no_batches_available),
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(requireContext(), "Error loading batch data. Please try again.", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
-                                else{
-                                    Toast.makeText(requireContext(), getString(R.string.medicine_not_available), Toast.LENGTH_SHORT).show()
-                                }
-
                             },
                                 clickedViewBatch = { prescription ->
+                                    // View Batch functionality is commented out for System Issue mode
+                                    // This was the original implementation for System Issue
+                                    /*
                                     val bundle = Bundle()
                                     bundle.putString("prescriptionItemDTO", Gson().toJson(prescription))
                                     if(prescription.batchList!= null && prescription.batchList.isNotEmpty()){
@@ -131,6 +169,12 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                     else{
                                         Toast.makeText(requireContext(), getString(R.string.medicine_not_available), Toast.LENGTH_SHORT).show()
                                     }
+                                    */
+
+                                    // For now, just show a message that this feature is disabled
+                                    Toast.makeText(requireContext(),
+                                        "View Batch is disabled in System Issue mode",
+                                        Toast.LENGTH_SHORT).show()
                                 }
                             )
                         )
@@ -140,15 +184,24 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                             binding.btnManualIssue.id -> {
                                 dtos?.issueType = "Manual Issue"
                                 itemAdapter?.updateIssueType("Manual Issue")
-
+                                // Check network availability and show message if needed
+                                if (!viewModel.isNetworkAvailable()) {
+                                    Toast.makeText(requireContext(),
+                                        getString(R.string.network_required_manual_batch) + ". Please connect to internet.",
+                                        Toast.LENGTH_LONG).show()
+                                }
                             }
                             binding.btnSystemIssue.id -> {
                                 dtos?.issueType = "System Issue"
                                 itemAdapter?.updateIssueType("System Issue")
-
+                                Toast.makeText(requireContext(),
+                                    getString(R.string.system_issue_auto_allocation),
+                                    Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
+
+
                     binding.pharmacistListContainer.pharmacistList.adapter = itemAdapter
                     lifecycleScope.launch {
                         viewModel.downloadPrescription(benVisitInfo = benVisitInfo)
@@ -159,18 +212,31 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                     viewModel.prescriptions.observe(viewLifecycleOwner) {
                         dtos = viewModel.prescriptions?.value
                         viewModel.prescriptions?.value?.let {it->
+                            if (it.issueType.isNullOrBlank()) {
+                                it.issueType =
+                                    if (binding.btnManualIssue.isChecked) "Manual Issue" else "System Issue"
+                            }
                             binding.consultantValue.text = it.consultantName
                             binding.visitCodeValue.text = it.visitCode.toString()
                             binding.prescriptionIdValue.text = it.prescriptionID.toString()
 
                             visitCode = it.visitCode
 
-                            it.itemList.let { it ->
-                                itemAdapter?.submitList(it)
+                            it.itemList.let { items ->
+                                val mergedItems = items.map { item ->
+                                    val updatedBatches = pendingBatchSelections[item.id]
+                                    if (updatedBatches != null) {
+                                        item.copy(batchList = updatedBatches)
+                                    } else {
+                                        item
+                                    }
+                                }
+                                dtos?.itemList = mergedItems
+                                itemAdapter?.submitList(mergedItems)
                                 binding.pharmacistListContainer.prescriptionCount.text =
                                     itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
-                                if (it != null) {
-                                    patientCount = it.size
+                                if (items != null) {
+                                    patientCount = items.size
                                 }
                             }
                         }
@@ -200,6 +266,10 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
 
     override fun onSubmitAction() {
         Timber.d("submit button", dtos)
+        if (!isManualIssueReadyForSubmit(dtos)) {
+            Toast.makeText(requireContext(), getString(R.string.no_batch_selected), Toast.LENGTH_SHORT).show()
+            return
+        }
         activity?.findViewById<View>(R.id.btnSubmit)?.isEnabled = false
         viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
         viewModel.savePharmacistData(dtos, benVisitInfo)
@@ -218,9 +288,17 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
     }
 
     override fun onCancelAction() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
         requireActivity().finish()
+    }
+
+    private fun isManualIssueReadyForSubmit(dtos: PrescriptionDTO?): Boolean {
+        if (dtos?.issueType != "Manual Issue") return true
+        val items = dtos.itemList ?: return false
+        return items.all { item ->
+            val batches = item.batchList
+            if (batches.isNullOrEmpty()) return@all false
+            batches.any { it.isSelected && it.dispenseQuantity > 0 }
+        }
     }
 
     private val careContextPrompt by lazy {
@@ -391,8 +469,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
     }
 
     fun navigateNext() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
         requireActivity().finish()
     }
 

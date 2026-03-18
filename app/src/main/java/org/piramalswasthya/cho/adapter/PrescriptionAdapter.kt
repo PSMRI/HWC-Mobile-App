@@ -22,6 +22,8 @@ import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.ui.commons.case_record.FormItemAdapter
 import org.piramalswasthya.cho.ui.setSpinnerItems
 import org.piramalswasthya.cho.utils.HelperUtil
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
+import org.piramalswasthya.cho.utils.KeyboardUtils
 
 class PrescriptionAdapter(
     private val isVisitDetail: Boolean? = null,
@@ -258,6 +260,7 @@ class PrescriptionAdapter(
 
             selectedItem?.let {
                 holder.formOptions.setText(selectedName)
+                holder.formOptions.setSelection(holder.formOptions.text?.length ?: 0)
                 itemData.id = it.itemID
 
                 it.itemID?.let { id ->
@@ -289,6 +292,38 @@ class PrescriptionAdapter(
 
         formMD.map { it.dropdownForMed }.toTypedArray()
             ?.let { holder.formOptions.setSpinnerItems(it) }
+
+        holder.formOptions.threshold = 0
+        holder.frequencyOptions.threshold = 0
+        holder.unitOption.threshold = 0
+        holder.instructionOption.threshold = 0
+
+        if (!isRowReadOnly) {
+            holder.formOptions.setupDropdownKeyboardHandling()
+
+            // Keep editable autocomplete behavior for text-entry dropdowns.
+            holder.formOptions.showSoftInputOnFocus = true
+            holder.formOptions.setOnTouchListener(null)
+            holder.formOptions.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) holder.formOptions.showDropDown()
+            }
+            holder.formOptions.setOnClickListener { holder.formOptions.showDropDown() }
+
+            // Frequency, Unit, Instruction are pure dropdowns (endIconMode=dropdown_menu).
+            // Do NOT apply setupDropdownKeyboardHandling — it conflicts with Material's
+            // dropdown_menu behaviour, causing a grey/disabled look and blocking field taps.
+            val dropdownFields = listOf(holder.frequencyOptions, holder.unitOption, holder.instructionOption)
+            for (field in dropdownFields) {
+                field.setOnClickListener { field.showDropDown() }
+                field.setOnFocusChangeListener { _, hasFocus ->
+                    if (hasFocus) {
+                        KeyboardUtils.hideKeyboard(field)
+                        field.showDropDown()
+                    }
+                }
+            }
+        }
+
 
         holder.formOptions.addTextChangedListener{
             itemData.form= it.toString()

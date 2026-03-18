@@ -126,7 +126,9 @@ class PatientItemAdapter(
                 binding.visitDate.text = visitDateText
                 binding.referDate.text = visitDateText
             }
-            binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
+            binding.patientPhoneNo.text = item.patient.phoneNo
+                ?.takeIf { it.isNotBlank() }
+                ?: mContext.getString(R.string.not_available)
             if (item.villageName.isNullOrBlank()) {
                 binding.village.text = ""
             } else binding.village.text = item.villageName

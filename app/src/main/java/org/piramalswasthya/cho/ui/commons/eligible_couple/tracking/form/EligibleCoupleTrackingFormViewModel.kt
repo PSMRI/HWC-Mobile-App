@@ -144,7 +144,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     fun updateListOnValueChanged(formId: Int, index: Int) {
         viewModelScope.launch {
             dataset.updateList(formId, index)
-            
+
             // Trigger alerts immediately on selection (Requirement Phase 2)
             if (formId == dataset.getContraceptionMethodId()) {
                 if (dataset.isAntraSelected()) {
@@ -180,6 +180,15 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                     dataset.mapValues(eligibleCoupleTracking, 1)
                     ecrRepo.saveEct(eligibleCoupleTracking)
                     Timber.d("ECT data saved successfully for patient: $patientID")
+
+                    // Update LMP Date in ECR Cache so it reflects on the Tracking List Card
+                    eligibleCoupleTracking.lmpDate?.let { newLmpDate ->
+                        ecrRepo.getSavedECR(patientID)?.let { ecr ->
+                            ecr.lmpDate = newLmpDate
+                            ecr.syncState = SyncState.UNSYNCED
+                            ecrRepo.updateECR(ecr)
+                        }
+                    }
 
                     // Check statuses in background
                     isPregnant = dataset.isPregnancyPositive()

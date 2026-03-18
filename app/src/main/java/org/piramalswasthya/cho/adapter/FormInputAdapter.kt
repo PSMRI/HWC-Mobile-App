@@ -478,6 +478,11 @@ class FormInputAdapter(
 
             if (item.errorText != null) binding.clRi.setBackgroundResource(R.drawable.state_errored)
             else binding.clRi.setBackgroundResource(0)
+            // Clear listeners before removing views to prevent false unchecked callbacks
+            // that would strip values from item.value during rebind
+            for (i in 0 until binding.llChecks.childCount) {
+                (binding.llChecks.getChildAt(i) as? CheckBox)?.setOnCheckedChangeListener(null)
+            }
             binding.llChecks.removeAllViews()
             binding.llChecks.apply {
                 item.entries?.let { items ->
@@ -490,10 +495,6 @@ class FormInputAdapter(
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
                         )
-                        if (!isEnabled) {
-                            cbx.isClickable = false
-                            cbx.isFocusable = false
-                        }
                         cbx.id = View.generateViewId()
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) cbx.setTextAppearance(
                             context, android.R.style.TextAppearance_Material_Medium
@@ -505,6 +506,11 @@ class FormInputAdapter(
                         cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                        }
+                        if (!isEnabled) {
+                            cbx.isClickable = false
+                            cbx.isFocusable = false
+                            cbx.isEnabled = false
                         }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
