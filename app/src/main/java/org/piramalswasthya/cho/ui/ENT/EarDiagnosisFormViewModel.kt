@@ -35,6 +35,8 @@ class EarDiagnosisFormViewModel @Inject constructor(
     private lateinit var assessmentCache: EarDiagnosisAssessment
 
     init {
+        setupDatasetCallbacks()
+
         viewModelScope.launch {
             try {
                 val patient = loadPatientDetails(userRepo, patientRepo, patientID)
@@ -58,6 +60,12 @@ class EarDiagnosisFormViewModel @Inject constructor(
             } catch (e: Exception) {
                 Timber.e(e, "Error initializing EarDiagnosisFormViewModel")
             }
+        }
+    }
+
+    private fun setupDatasetCallbacks() {
+        dataset.onShowAlert = { message ->
+            _showAlert.postValue(message)
         }
     }
 
