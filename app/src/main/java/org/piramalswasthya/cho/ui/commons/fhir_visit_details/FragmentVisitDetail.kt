@@ -1082,6 +1082,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         DropdownConst.ophthalmicChiefComplaints.mapTo(mutableSetOf()) { normalizeComplaint(it) }
     }
 
+    private val normalizedOralChiefComplaints: Set<String> by lazy {
+        DropdownConst.oralChiefComplaints.mapTo(mutableSetOf()) { normalizeComplaint(it) }
+    }
+
     private fun normalizeComplaint(value: String?): String {
         return value
             ?.lowercase(Locale.ROOT)
@@ -1095,10 +1099,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private fun hasOphthalmicChiefComplaint(): Boolean =
         itemList.any { normalizeComplaint(it.chiefComplaint) in normalizedOphthalmicChiefComplaints }
 
+    private fun hasOralChiefComplaint(): Boolean =
+        itemList.any { normalizeComplaint(it.chiefComplaint) in normalizedOralChiefComplaints }
+
 
     private fun rebuildSubCategoryAdapter() {
         if (!::benVisitInfo.isInitialized) return
         val includeOphthalmic = hasOphthalmicChiefComplaint()
+        val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
+        val selectedCategoryRadioButton = view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
+        val selectedCategory = selectedCategoryRadioButton?.tag.toString()
+        val isNewCC = binding.radioButton3.isChecked
+        val oralOnly = selectedCategory == "Other CPHC Services" && isNewCC && hasOralChiefComplaint()
 
         fun List<String>.withOptionalOphthalmic(): List<String> =
             if (includeOphthalmic) {
@@ -1106,31 +1118,35 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
             else this.filter { it != DropdownConst.ophthalmic }
 
-        val options: List<String> = when {
-            ageCheckForChild(benVisitInfo.patient.dob) -> when {
-                ageCheckForFemaleChild(benVisitInfo.patient.dob) &&
-                        benVisitInfo.genderName?.lowercase() == "female" ->
-                    DropdownConst.age_0_to_1.withOptionalOphthalmic()
-                age15To18ForFemaleChild(benVisitInfo.patient.dob) &&
-                        benVisitInfo.genderName?.lowercase() == "female" ->
-                    DropdownConst.female_1_to_59.withOptionalOphthalmic()
-                else -> DropdownConst.age_0_to_1.withOptionalOphthalmic()
-            }
-            ageCheckForElderly(benVisitInfo.patient.dob) -> when (benVisitInfo.genderName?.lowercase()) {
-                "male"   -> DropdownConst.male_elderly.withOptionalOphthalmic()
-                "female" -> DropdownConst.female_elderly.withOptionalOphthalmic()
-                else     -> listOf(DropdownConst.oral)
-            }
-            benVisitInfo.genderName?.lowercase() == "male" &&
+        val options: List<String> = if (oralOnly) {
+            listOf(DropdownConst.oral)
+        } else {
+            when {
+                ageCheckForChild(benVisitInfo.patient.dob) -> when {
+                    ageCheckForFemaleChild(benVisitInfo.patient.dob) &&
+                            benVisitInfo.genderName?.lowercase() == "female" ->
+                        DropdownConst.age_0_to_1.withOptionalOphthalmic()
+                    age15To18ForFemaleChild(benVisitInfo.patient.dob) &&
+                            benVisitInfo.genderName?.lowercase() == "female" ->
+                        DropdownConst.female_1_to_59.withOptionalOphthalmic()
+                    else -> DropdownConst.age_0_to_1.withOptionalOphthalmic()
+                }
+                ageCheckForElderly(benVisitInfo.patient.dob) -> when (benVisitInfo.genderName?.lowercase()) {
+                    "male"   -> DropdownConst.male_elderly.withOptionalOphthalmic()
+                    "female" -> DropdownConst.female_elderly.withOptionalOphthalmic()
+                    else     -> listOf(DropdownConst.oral)
+                }
+                benVisitInfo.genderName?.lowercase() == "male" &&
+                        ageCheckForNCD(benVisitInfo.patient.dob) ->
+                    DropdownConst.male_ncd.withOptionalOphthalmic()
+                ageCheckForFemale(benVisitInfo.patient.dob) &&
+                        benVisitInfo.genderName?.lowercase() == "female" -> when {
                     ageCheckForNCD(benVisitInfo.patient.dob) ->
-                DropdownConst.male_ncd.withOptionalOphthalmic()
-            ageCheckForFemale(benVisitInfo.patient.dob) &&
-                    benVisitInfo.genderName?.lowercase() == "female" -> when {
-                ageCheckForNCD(benVisitInfo.patient.dob) ->
-                    DropdownConst.female_ncd.withOptionalOphthalmic()
-                else -> DropdownConst.female_1_to_59.withOptionalOphthalmic()
+                        DropdownConst.female_ncd.withOptionalOphthalmic()
+                    else -> DropdownConst.female_1_to_59.withOptionalOphthalmic()
+                }
+                else -> listOf(DropdownConst.oral)
             }
-            else -> listOf(DropdownConst.oral)
         }
 
         val currentSubCat = binding.subCatInput.text?.toString() ?: ""
