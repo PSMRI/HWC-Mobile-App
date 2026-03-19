@@ -143,7 +143,6 @@ class ANCVisitsFragment : Fragment() {
                         val isFemale = patient.patient.genderID == 2
                         val age = patient.patient.age ?: 0
                         val isReproductiveAge = age in 15..49
-
                         val isEligibleForANC = patient.pwr?.lmpDate?.let { lmpDate ->
                             val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(
                                 System.currentTimeMillis() - lmpDate

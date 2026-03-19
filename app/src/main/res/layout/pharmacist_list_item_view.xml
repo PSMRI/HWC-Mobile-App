@@ -59,6 +59,7 @@
               android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:layout_weight="2"
+              android:visibility="gone"
               app:layout_constraintTop_toTopOf="parent"
               app:layout_constraintStart_toStartOf="parent"
               android:orientation="horizontal">
@@ -80,11 +81,11 @@
           </LinearLayout>
 
           <LinearLayout
+              android:id="@+id/duration_ll"
               android:layout_width="0dp"
-              app:layout_constraintEnd_toEndOf="parent"
               app:layout_constraintTop_toTopOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
               android:layout_height="wrap_content"
-              android:layout_weight="2"
               android:orientation="horizontal">
 
             <TextView
@@ -102,6 +103,32 @@
                 android:layout_marginStart="8dp" />
 
           </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/quantity_ll"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:gravity="end"
+                app:layout_constraintStart_toEndOf="@+id/duration_ll"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/quantity_lable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/available_quantity"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/quantity_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
           <LinearLayout
             android:id="@+id/card_second_row"
@@ -140,6 +167,7 @@
                   android:layout_width="0dp"
                   android:layout_height="wrap_content"
                   android:layout_weight="2"
+                  android:visibility="gone"
                   android:orientation="horizontal"
                   android:gravity="end">
 
@@ -196,6 +224,7 @@
               app:layout_constraintTop_toTopOf="parent"
               android:layout_height="wrap_content"
               android:layout_weight="2"
+              android:visibility="gone"
               android:orientation="horizontal">
 
             <TextView
@@ -290,14 +319,14 @@
               style="@style/Widget.MaterialComponents.Button.OutlinedButton"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginStart="70dp"
               android:backgroundTint="@color/default_button"
               android:text="@string/view_batch"
               android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
               android:textColor="@color/white"
               app:cornerRadius="@dimen/padding_normal"
               app:layout_constraintBottom_toBottomOf="parent"
-              app:layout_constraintStart_toStartOf="parent" />
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintEnd_toEndOf="parent"/>
 
 
 

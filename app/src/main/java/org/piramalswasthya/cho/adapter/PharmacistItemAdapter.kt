@@ -1,17 +1,14 @@
 package org.piramalswasthya.cho.adapter
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import okhttp3.internal.notifyAll
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.PharmacistListItemViewBinding
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
@@ -71,10 +68,13 @@ class PharmacistItemAdapter(
             val dispensedQty = if (issueType == "Manual Issue") {
                 item.batchList.filter { it.isSelected }.sumOf { it.dispenseQuantity }
             } else {
-                item.batchList.sumOf { it.qty }
+//                item.batchList.sumOf { it.qty }
+                item.qtyPrescribed.toString() ?: ""
             }
+            binding.quantityValue.text = item.batchList.sumOf { it.qty }.toString()
+
             binding.quantityDispensedValue.text = dispensedQty.toString()
-            binding.specialInstructionValue.text = item.dose ?: ""
+            binding.specialInstructionValue.text = item.instructions ?: ""
 
             // Handle button visibility and text based on issue type and network availability
             when (issueType) {

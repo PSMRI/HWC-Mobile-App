@@ -436,7 +436,7 @@
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
     <string name="no_patient_found">No matching patient found. Please choose an option from below.</string>
-    <string name="pref_location_data">pref_location_data</string>
+    <string name="pref_location_data" translatable="false">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">Beneficiary Name:</string>
     <string name="abha_no">Abha No:</string>
@@ -506,6 +506,7 @@
     <string name="visit_code">Visit Code:</string>
     <string name="prescription_id">Prescription ID:</string>
     <string name="form_label">Form: </string>
+    <string name="available_quantity">Available Quantity: </string>
     <string name="prescribed_label">Prescribed: </string>
     <string name="prescribed_label_qt">Prescribed Quantity: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
@@ -587,7 +588,7 @@
     <string name="pnc_visit_date">PNC Visit Date</string>
     <string name="pnc_ifa_tabs_given">No. of IFA Tablets given</string>
     <string name="pnc_contraception_method">Method of Contraception</string>
-    <string name="pnc_any_contraception_method">Any Method of Contraception</string>
+    <string name="pnc_any_contraception_method">Family planning method used by the couple after delivery to avoid pregnancy?</string>
     <string name="pnc_other_ppc_method">Other Contraception Method</string>
     <string name="pnc_mother_danger_sign">Mother Danger Sign</string>
     <string name="pnc_other_danger_sign">Other Danger Sign</string>
