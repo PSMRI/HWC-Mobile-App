@@ -897,49 +897,38 @@ class PersonalDetailsFragment : Fragment() {
                                 return@registerForActivityResult
                             }
 
-                // Compare faces and find matching patient
-                lifecycleScope.launch {
-                    val matchedPatient = compareFacesL2Norm(embeddings!!)
-                    if (matchedPatient != null) {
-                        val visitInfo = PatientVisitInfoSync()
-                        val benVisitInfo = PatientDisplayWithVisitInfo(
-                            matchedPatient,
-                            genderName = null,
-                            villageName = null,
-                            ageUnit = null,
-                            maritalStatus = null,
-                            nurseDataSynced = visitInfo.nurseDataSynced,
-                            doctorDataSynced = visitInfo.doctorDataSynced,
-                            createNewBenFlow = visitInfo.createNewBenFlow,
-                            prescriptionID = visitInfo.prescriptionID,
-                            benVisitNo = visitInfo.benVisitNo,
-                            visitCategory = visitInfo.visitCategory,
-                            benFlowID = visitInfo.benFlowID,
-                            nurseFlag = visitInfo.nurseFlag,
-                            doctorFlag = visitInfo.doctorFlag,
-                            labtechFlag = visitInfo.labtechFlag,
-                            pharmacist_flag = visitInfo.pharmacist_flag,
-                            visitDate = visitInfo.visitDate,
-                            referDate = visitInfo.referDate,
-                            referTo = visitInfo.referTo,
-                            referralReason = visitInfo.referralReason
-                        )
-                        itemAdapter?.submitList(listOf(benVisitInfo))
-                        binding.patientListContainer.patientCount.text =
-                            "1 Matched Patient"
-                        Toast.makeText(
-                            requireContext(),
-                            "1 matching patient found",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "No matching patient found",
-                            Toast.LENGTH_SHORT
-                        ).show()
-//                        searchPrompt.show()
+                            // Compare faces and find matching patient
+                            lifecycleScope.launch {
+                                val matchedPatient = compareFacesL2Norm(embeddings!!)
+                                if (matchedPatient != null) {
+                                    val benVisitInfo = withContext(Dispatchers.IO) {
+                                        patientDao.getPatientDisplayListForNurseByPatient(matchedPatient.patientID)
+                                    }
+                                    itemAdapter?.submitList(listOf(benVisitInfo))
+                                    binding.patientListContainer.patientCount.text =
+                                        "1 Matched Patient"
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "1 matching patient found",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "No matching patient found",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    searchPrompt.show()
+                                }
+                            }
+                        }
                     }
+
+                } catch (e: Exception) {
+                    Log.e("FaceDetection", "Face detection failed", e)
+                    Toast.makeText(
+                        requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
