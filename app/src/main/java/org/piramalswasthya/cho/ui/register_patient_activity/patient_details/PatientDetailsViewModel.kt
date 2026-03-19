@@ -27,6 +27,7 @@ import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.utils.AgeUnitEnum
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -337,11 +338,20 @@ class PatientDetailsViewModel @Inject constructor(
         }
     }
 
-    fun getFilteredStatusOfWomanOptions(genderId: Int?, ageInYears: Int?, maritalStatusName: String?): List<StatusOfWomanMaster> {
+    fun getFilteredStatusOfWomanOptions(
+        genderId: Int?,
+        ageInYears: Int?,
+        maritalStatusId: Int?,
+        maritalStatusName: String?
+    ): List<StatusOfWomanMaster> {
         // Strictly for females (genderId = 2)
         if (genderId != 2) return emptyList()
 
-        val mStatus = maritalStatusName?.lowercase()
+        val mStatus = maritalStatusName?.trim()?.lowercase(Locale.ROOT)
+        val isMarried = maritalStatusId == 2 ||
+            (mStatus?.contains("married") == true && mStatus.contains("unmarried").not() && mStatus.contains("never").not())
+        val isUnmarried = maritalStatusId == 1 ||
+            (mStatus?.contains("unmarried") == true || mStatus?.contains("never") == true || mStatus?.contains("single") == true)
 
         // Handle age-based logic
         return when {
@@ -350,32 +360,37 @@ class PatientDetailsViewModel @Inject constructor(
 
             // Female < 10 -> Not Applicable
             ageInYears < 10 ->
-                statusOfWomanList.filter { it.statusID == 7 }
+                filterStatusOfWomanByCodes("NA")
 
             // Female, ≥50 -> Elderly only
             ageInYears >= 50 ->
-                statusOfWomanList.filter { it.statusID == 4 }
+                filterStatusOfWomanByCodes("EL")
 
         // Ranges where Marital Status matters (15-49)
         ageInYears in 15..49 -> {
             when {
                 mStatus == null -> emptyList()
-                mStatus.contains("married") && !mStatus.contains("unmarried") && !mStatus.contains("never") -> 
-                    statusOfWomanList.filter { it.statusID in listOf(1, 2, 3, 6) }
-                mStatus.contains("unmarried") || mStatus.contains("never") || mStatus.contains("single") -> {
-                    if (ageInYears in 15..19) statusOfWomanList.filter { it.statusID == 5 } // Adolescent
-                    else statusOfWomanList.filter { it.statusID == 7 } // 20+ unmarried -> NA
+                isMarried ->
+                    filterStatusOfWomanByCodes("EC", "PW", "PN", "ST")
+                isUnmarried -> {
+                    if (ageInYears in 15..19) filterStatusOfWomanByCodes("AD") // Adolescent
+                    else filterStatusOfWomanByCodes("NA") // 20+ unmarried -> NA
                 }
-                else -> statusOfWomanList.filter { it.statusID == 7 } // Widow/Divorced -> NA
+                else -> filterStatusOfWomanByCodes("NA") // Widow/Divorced -> NA
             }
         }
             
             ageInYears in 10..14 ->
-                statusOfWomanList.filter { it.statusID == 5 }
+                filterStatusOfWomanByCodes("AD")
 
             // Default
-            else -> statusOfWomanList.filter { it.statusID == 7 }
+            else -> filterStatusOfWomanByCodes("NA")
         }
+    }
+
+    private fun filterStatusOfWomanByCodes(vararg codes: String): List<StatusOfWomanMaster> {
+        val codeSet = codes.map { it.uppercase(Locale.ROOT) }.toSet()
+        return statusOfWomanList.filter { it.statusCode.uppercase(Locale.ROOT) in codeSet }
     }
 
 

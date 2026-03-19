@@ -453,8 +453,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.firstNameText.isEndIconVisible = binding.firstName.isEnabled
         binding.lastNameText.isEndIconVisible = binding.lastName.isEnabled
         binding.phoneNoText.isEndIconVisible = binding.phoneNo.isEnabled
-        val currentStatus = viewModel.selectedMaritalStatus?.status?.lowercase()?.trim() ?: ""
-        val isUnmarried = currentStatus.contains("unmarried") || currentStatus.contains("never") || currentStatus.contains("single")
+        val isUnmarried = isUnmarriedStatus(
+            viewModel.selectedMaritalStatus?.maritalStatusID,
+            viewModel.selectedMaritalStatus?.status
+        )
         val isChild = (viewModel.enteredAgeYears ?: 0) < 15
         val canEditFatherName = isEditable && (isUnmarried || isChild || !isEditModeAfterRegistration)
         binding.fatherNameEditText.isEnabled = canEditFatherName
@@ -1263,11 +1265,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                             // Fix: Ensure dropdown is enabled for Unmarried status in Edit mode
                             if (isEditModeAfterRegistration) {
-                                val currentStatus = m.status.lowercase().trim()
-                                val isUnmarried = currentStatus.contains("unmarried") ||
-                                        currentStatus.contains("never") ||
-                                        currentStatus.contains("single")
-                                binding.maritalStatusDropdown.isEnabled = isUnmarried
+                                binding.maritalStatusDropdown.isEnabled =
+                                    isUnmarriedStatus(m.maritalStatusID, m.status)
                             }
 
                             isProgrammaticChange = false
@@ -1793,7 +1792,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         val maritalStatusName = viewModel.selectedMaritalStatus?.status?.trim()
         viewModel.filteredStatusOfWomanList = viewModel.getFilteredStatusOfWomanOptions(
-            genderId, ageInYears, maritalStatusName
+            genderId,
+            ageInYears,
+            viewModel.selectedMaritalStatus?.maritalStatusID,
+            maritalStatusName
         )
 
         setupStatusOfWomanDropdownContent()
@@ -1887,6 +1889,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             binding.statusOfWomanDropdown.setText("", false)
             viewModel.setStatusOfWoman(false)
         }
+    }
+
+    private fun isUnmarriedStatus(maritalStatusId: Int?, maritalStatusName: String?): Boolean {
+        if (maritalStatusId == 1) return true
+        val currentStatus = maritalStatusName?.lowercase(Locale.ROOT)?.trim().orEmpty()
+        return currentStatus.contains("unmarried") ||
+            currentStatus.contains("never") ||
+            currentStatus.contains("single")
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
