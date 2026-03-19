@@ -1088,8 +1088,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             ?: ""
     }
 
-    private fun hasOphthalmicChiefComplaint(): Boolean =
-        itemList.any { normalizeComplaint(it.chiefComplaint) in normalizedOphthalmicChiefComplaints }
+    private fun hasOphthalmicChiefComplaint(): Boolean {
+        val complaints = if (viewModel.getIsFollowUp()) {
+            chiefComplaintDB2.map { it.chiefComplaint }
+        } else {
+            itemList.map { it.chiefComplaint }
+        }
+        return complaints.any { normalizeComplaint(it) in normalizedOphthalmicChiefComplaints }
+    }
 
 
     private fun rebuildSubCategoryAdapter() {
@@ -1126,7 +1132,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     DropdownConst.female_ncd.withOptionalOphthalmic()
                 else -> DropdownConst.female_1_to_59.withOptionalOphthalmic()
             }
-            else -> listOf(DropdownConst.oral)
+            else -> listOf(DropdownConst.oral).withOptionalOphthalmic()
         }
 
         val currentSubCat = binding.subCatInput.text?.toString() ?: ""
@@ -1702,7 +1708,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if(reasonForVisit == DropdownConst.nose){
-                saveVisitData { benVisitNo ->
+                isNavigationInProgress = true
+                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
                     isNavigationInProgress = true
 //                    binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
@@ -1714,7 +1721,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if(reasonForVisit == DropdownConst.persistentPain){
-                saveVisitData { benVisitNo ->
+                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
                     isNavigationInProgress = true
 //                    binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
@@ -1726,7 +1733,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if(reasonForVisit == DropdownConst.psychosocialCaregiverSupport){
-                saveVisitData { benVisitNo ->
+                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
                     isNavigationInProgress = true
 //                    binding.btnSubmit.isEnabled = false
                     findNavController().navigate(

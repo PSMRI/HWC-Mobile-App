@@ -11,7 +11,7 @@ import org.piramalswasthya.cho.model.EarDiagnosisAssessment
 interface EarDiagnosisAssessmentDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(assessment: EarDiagnosisAssessment)
+    suspend fun insert(assessment: EarDiagnosisAssessment): Long
 
     @Update
     suspend fun update(assessment: EarDiagnosisAssessment)

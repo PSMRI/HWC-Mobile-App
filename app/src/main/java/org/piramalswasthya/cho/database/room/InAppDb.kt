@@ -259,7 +259,7 @@ import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
         OralHealth::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 132, exportSchema = false
+    version = 133, exportSchema = false
 )
 
 

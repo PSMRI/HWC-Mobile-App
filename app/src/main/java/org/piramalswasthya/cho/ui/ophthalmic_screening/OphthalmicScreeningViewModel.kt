@@ -579,6 +579,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         }
 
         _showVisualImpairmentAlert.value = result.alert
+        _showCaseIdSection.value = (reason == DropdownConst.REASON_SYMPTOMATIC) || result.caseIdByVA
         _canProceed.value = result.fieldsValid && !result.caseIdByVA
     }
 

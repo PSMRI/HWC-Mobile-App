@@ -10,7 +10,7 @@ import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
 @Dao
 interface PsychosocialCaregiverSupportDao {
 
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(assessment: PsychosocialCaregiverSupport)
 
     @Update

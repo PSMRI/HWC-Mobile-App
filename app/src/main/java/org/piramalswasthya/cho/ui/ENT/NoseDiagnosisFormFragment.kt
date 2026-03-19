@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNoseDiagnosisFormBinding
+import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
 @AndroidEntryPoint
@@ -103,25 +104,26 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
-                NoseDiagnosisFormViewModel.State.IDLE -> Unit
+                BaseFormViewModel.State.IDLE -> Unit
 
-                NoseDiagnosisFormViewModel.State.SAVING -> {
+                BaseFormViewModel.State.SAVING -> {
                     binding.llContent.visibility = View.GONE
                     binding.pbForm.visibility = View.VISIBLE
                 }
 
-                NoseDiagnosisFormViewModel.State.SAVE_SUCCESS -> {
+                BaseFormViewModel.State.SAVE_SUCCESS -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Nose Diagnosis Saved", Toast.LENGTH_LONG).show()
                     findNavController().navigateUp()
                 }
 
-                NoseDiagnosisFormViewModel.State.SAVE_FAILED -> {
+                BaseFormViewModel.State.SAVE_FAILED -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Save failed", Toast.LENGTH_LONG).show()
                 }
+                else -> Unit
             }
         }
 

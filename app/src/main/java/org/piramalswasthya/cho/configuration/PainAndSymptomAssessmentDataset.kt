@@ -5,9 +5,11 @@ import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PainAndSymptomAssessment
+import org.piramalswasthya.cho.R
+
 
 class PainAndSymptomAssessmentDataset(
-    context: Context,
+    private val context: Context,
     currentLanguage: Languages
 ) : ReferralFollowUpDataset(context, currentLanguage) {
 
@@ -15,12 +17,18 @@ class PainAndSymptomAssessmentDataset(
 
     var onShowAlert: ((String) -> Unit)? = null
 
+    private val optionMild = context.getString(R.string.mild)
+    private val optionModerate = context.getString(R.string.moderate)
+    private val optionSevere = context.getString(R.string.severe)
+    private val optionYes = context.getString(R.string.yes)
+    private val optionNo = context.getString(R.string.no)
+
     // ---------------- Pain Severity ----------------
     private val painSeverity = FormElement(
         id = 1,
         inputType = InputType.DROPDOWN,
-        title = "Pain severity",
-        entries = arrayOf("Mild", "Moderate", "Severe"),
+        title = context.getString(R.string.pain_severity),
+        entries = arrayOf(optionMild, optionModerate, optionSevere),
         required = true,
         hasDependants = true,
         hasAlertError = true
@@ -30,8 +38,12 @@ class PainAndSymptomAssessmentDataset(
     private val painDuration = FormElement(
         id = 2,
         inputType = InputType.DROPDOWN,
-        title = "Pain duration",
-        entries = arrayOf("< 1 month", "1–6 months", "> 6 months"),
+        title = context.getString(R.string.pain_duration),
+        entries = arrayOf(
+            context.getString(R.string.pain_duration_less_than_one_month),
+            context.getString(R.string.pain_duration_one_to_six_months),
+            context.getString(R.string.pain_duration_more_than_six_months)
+        ),
         required = true
     )
 
@@ -49,8 +61,8 @@ class PainAndSymptomAssessmentDataset(
     private val otherSymptomsSeverity = FormElement(
         id = 4,
         inputType = InputType.DROPDOWN,
-        title = "Other symptoms severity",
-        entries = arrayOf("Mild", "Moderate", "Severe"),
+        title = context.getString(R.string.other_symptoms_severity),
+        entries = arrayOf(optionMild, optionModerate, optionSevere),
         required = false
     )
 
@@ -58,8 +70,8 @@ class PainAndSymptomAssessmentDataset(
     private val immediateReliefProvided = FormElement(
         id = 5,
         inputType = InputType.RADIO,
-        title = "Immediate relief provided",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.immediate_relief_provided),
+        entries = arrayOf(optionYes, optionNo),
         required = true
     )
 
@@ -129,18 +141,18 @@ class PainAndSymptomAssessmentDataset(
 //            }
 
             painSeverity.id -> {
-                if (painSeverity.value == "Severe") {
+                if (painSeverity.value == optionSevere) {
                     onShowAlert?.invoke(
-                        "Severe pain detected. Referral to higher facility is recommended."
+                        context.getString(R.string.severe_pain_referral_alert)
                     )
                 }
                 -1
             }
 
             otherSymptomsSeverity.id -> {
-                if (otherSymptomsSeverity.value == "Severe") {
+                if (otherSymptomsSeverity.value == optionSevere) {
                     onShowAlert?.invoke(
-                        "Severe symptoms detected. Referral to higher facility is recommended."
+                        context.getString(R.string.severe_symptoms_referral_alert)
                     )
                 }
                 -1
@@ -168,8 +180,8 @@ class PainAndSymptomAssessmentDataset(
 //        }
         otherSymptomsSeverity.value = cache.otherSymptomsSeverity
         immediateReliefProvided.value = when (cache.immediateReliefProvided) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
 
@@ -193,8 +205,8 @@ class PainAndSymptomAssessmentDataset(
             it.otherSymptomsSeverity = otherSymptomsSeverity.value
 
             it.immediateReliefProvided = when (immediateReliefProvided.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
 

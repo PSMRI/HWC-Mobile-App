@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.configuration
 
 import android.content.Context
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.NoseDiagnosisAssessment
 import org.piramalswasthya.cho.model.FormElement
@@ -8,7 +9,7 @@ import org.piramalswasthya.cho.model.InputType
 
 
 class NoseDiagnosisDataset(
-    context: Context,
+    private val context: Context,
     currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
 
@@ -16,13 +17,18 @@ class NoseDiagnosisDataset(
 
     var onShowAlert: ((String) -> Unit)? = null
 
+    private val optionYes = context.getString(R.string.yes)
+    private val optionNo = context.getString(R.string.no)
+
     /* -------------------- FORM ELEMENTS -------------------- */
 
     private val difficultyBreathing = FormElement(
         id = 1,
         inputType = InputType.RADIO,
-        title = "Difficulty in Breathing",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.difficulty_in_breathing),
+        entries = arrayOf(optionYes, optionNo),
+        trueIndex = 0,
+        falseIndex = 1,
         required = true,
         hasAlertError = true
     )
@@ -30,8 +36,10 @@ class NoseDiagnosisDataset(
     private val openMouthBreathing = FormElement(
         id = 2,
         inputType = InputType.RADIO,
-        title = "Open Mouth Breathing",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.open_mouth_breathing),
+        entries = arrayOf(optionYes, optionNo),
+        trueIndex = 0,
+        falseIndex = 1,
         required = false,
         hasAlertError = true
     )
@@ -50,18 +58,28 @@ class NoseDiagnosisDataset(
         return when (formId) {
 
             difficultyBreathing.id -> {
-                if (index == 0) {
+                difficultyBreathing.booleanValue = when (index) {
+                    difficultyBreathing.trueIndex -> true
+                    difficultyBreathing.falseIndex -> false
+                    else -> null
+                }
+                if (difficultyBreathing.booleanValue == true) {
                     onShowAlert?.invoke(
-                        "Difficulty in breathing detected. Diagnose URI / Rhinitis / Sinusitis. Refer if not manageable at HWC."
+                        context.getString(R.string.difficulty_in_breathing_alert)
                     )
                 }
                 -1
             }
 
             openMouthBreathing.id -> {
-                if (index == 0) {
+                openMouthBreathing.booleanValue = when (index) {
+                    openMouthBreathing.trueIndex -> true
+                    openMouthBreathing.falseIndex -> false
+                    else -> null
+                }
+                if (openMouthBreathing.booleanValue == true) {
                     onShowAlert?.invoke(
-                        "Open mouth breathing detected. Diagnose URI / Rhinitis / Sinusitis. Refer if not manageable at HWC."
+                        context.getString(R.string.open_mouth_breathing_alert)
                     )
                 }
                 -1
@@ -79,23 +97,25 @@ class NoseDiagnosisDataset(
     }
 
     private fun populateFromCache(cache: NoseDiagnosisAssessment) {
+        difficultyBreathing.booleanValue = cache.difficultyBreathing
         difficultyBreathing.value = when (cache.difficultyBreathing) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
 
+        openMouthBreathing.booleanValue = cache.openMouthBreathing
         openMouthBreathing.value = when (cache.openMouthBreathing) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
     }
+
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as NoseDiagnosisAssessment).let {
-            it.difficultyBreathing = difficultyBreathing.value == "Yes"
-            it.openMouthBreathing = openMouthBreathing.value == "Yes"
-
+            it.difficultyBreathing = difficultyBreathing.booleanValue
+            it.openMouthBreathing = openMouthBreathing.booleanValue
         }
     }
 }

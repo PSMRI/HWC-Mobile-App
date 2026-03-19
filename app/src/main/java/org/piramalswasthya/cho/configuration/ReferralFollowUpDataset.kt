@@ -6,8 +6,13 @@ import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.ReferralFollowUpModel
 import java.util.concurrent.TimeUnit
+import org.piramalswasthya.cho.R
 
-abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Languages) : Dataset(context, currentLanguage) {
+
+abstract class ReferralFollowUpDataset(private val context: Context, currentLanguage: Languages) : Dataset(context, currentLanguage) {
+
+    private val optionYes = context.getString(R.string.yes)
+    private val optionNo = context.getString(R.string.no)
 
     protected abstract val referralRequired: FormElement
     protected abstract val referralLevel: FormElement
@@ -18,8 +23,10 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
     protected fun createReferralRequired(id: Int) = FormElement(
         id = id,
         inputType = InputType.RADIO,
-        title = "Referral required",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.referral_required_title),
+        entries = context.resources.getStringArray(R.array.referral_required_options),
+        trueIndex = 0,
+        falseIndex = 1,
         required = true,
         hasDependants = true
     )
@@ -27,29 +34,26 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
     protected fun createReferralLevel(id: Int) = FormElement(
         id = id,
         inputType = InputType.DROPDOWN,
-        title = "Referral level",
-        entries = arrayOf("PHC", "CHC", "District Hospital", "Palliative Care Unit"),
+        title = context.getString(R.string.referral_level_title),
+        entries = context.resources.getStringArray(R.array.referral_level_options),
         required = false
     )
 
     protected fun createReasonForReferral(id: Int) = FormElement(
         id = id,
         inputType = InputType.DROPDOWN,
-        title = "Reason for referral",
-        entries = arrayOf(
-            "Severe pain",
-            "Functional dependence",
-            "Dementia suspected",
-            "End-of-life care"
-        ),
+        title = context.getString(R.string.reason_for_referral_title),
+        entries = context.resources.getStringArray(R.array.reason_for_referral_options),
         required = true
     )
 
     protected fun createFollowUpRequired(id: Int) = FormElement(
         id = id,
         inputType = InputType.RADIO,
-        title = "Follow-up required",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.follow_up_required_title),
+        entries = context.resources.getStringArray(R.array.follow_up_required_options),
+        trueIndex = 0,
+        falseIndex = 1,
         required = true,
         hasDependants = true
     )
@@ -57,18 +61,18 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
     protected fun createFollowUpDate(id: Int) = FormElement(
         id = id,
         inputType = InputType.DATE_PICKER,
-        title = "Follow-up date",
+        title = context.getString(R.string.follow_up_date_title),
         required = false
     )
 
     protected fun addReferralFollowUpElements(list: MutableList<FormElement>) {
         list.add(referralRequired)
-        if (referralRequired.value == "Yes") {
+        if (referralRequired.value == optionYes) {
             referralLevel.required = true
             list.add(referralLevel)
             list.add(reasonForReferral)
             list.add(followUpRequired)
-            if (followUpRequired.value == "Yes") {
+            if (followUpRequired.value == optionYes) {
                 followUpDate.required = true
                 followUpDate.min = System.currentTimeMillis()
                 followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
@@ -80,10 +84,10 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
     protected suspend fun handleReferralFollowUpChange(formId: Int, index: Int): Int {
         return when (formId) {
             referralRequired.id -> {
-                if (index == 0) { // Yes
+                if (index == referralRequired.trueIndex) {
                     referralLevel.required = true
                     val addItems = mutableListOf(referralLevel, reasonForReferral, followUpRequired)
-                    if (followUpRequired.value == "Yes") {
+                    if (followUpRequired.value == optionYes) {
                         followUpDate.required = true
                         followUpDate.min = System.currentTimeMillis()
                         followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
@@ -94,7 +98,7 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
                         addItems = addItems,
                         removeItems = emptyList()
                     )
-                } else { // No
+                } else {
                     referralLevel.value = null
                     referralLevel.required = false
                     reasonForReferral.value = null
@@ -110,7 +114,7 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
                 referralRequired.id
             }
             followUpRequired.id -> {
-                if (index == 0) { // Yes
+                if (index == followUpRequired.trueIndex) {
                     followUpDate.required = true
                     followUpDate.min = System.currentTimeMillis()
                     followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
@@ -119,7 +123,7 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
                         addItems = listOf(followUpDate),
                         removeItems = emptyList()
                     )
-                } else { // No
+                } else {
                     followUpDate.value = null
                     followUpDate.required = false
                     triggerDependants(
@@ -135,25 +139,33 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
     }
 
     protected fun populateReferralFollowUpFromCache(cacheValue: ReferralFollowUpModel) {
-        referralRequired.value = if (cacheValue.referralRequired == true) "Yes" else if (cacheValue.referralRequired == false) "No" else null
+        referralRequired.value = when (cacheValue.referralRequired) {
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
         referralLevel.value = cacheValue.referralLevel
         reasonForReferral.value = cacheValue.reasonForReferral
-        followUpRequired.value = if (cacheValue.followUpRequired == true) "Yes" else if (cacheValue.followUpRequired == false) "No" else null
+        followUpRequired.value = when (cacheValue.followUpRequired) {
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
         followUpDate.value = cacheValue.followUpDate
     }
 
     protected fun mapReferralFollowUpValues(cacheValue: ReferralFollowUpModel) {
         cacheValue.referralRequired = when (referralRequired.value) {
-            "Yes" -> true
-            "No" -> false
+            optionYes -> true
+            optionNo -> false
             else -> null
         }
         if (cacheValue.referralRequired == true) {
             cacheValue.referralLevel = referralLevel.value
             cacheValue.reasonForReferral = reasonForReferral.value
             cacheValue.followUpRequired = when (followUpRequired.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
             if (cacheValue.followUpRequired == true) {
