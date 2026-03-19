@@ -51,6 +51,10 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
+import com.google.mediapipe.framework.image.BitmapImageBuilder
+import com.google.mediapipe.tasks.core.BaseOptions
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -132,7 +136,7 @@ class PersonalDetailsFragment : Fragment() {
     private var errorEs: String = ""
     private var network: Boolean = false
     private var currentFileName: String? = null
-    private lateinit var photoURI: Uri
+    private var photoURI: Uri? = null
     private var currentPhotoPath: String? = null
     private var isShowingSearchResults: Boolean = false
     private var currentSearchQuery: String = ""
@@ -204,9 +208,18 @@ class PersonalDetailsFragment : Fragment() {
             .create()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        photoURI?.let { outState.putParcelable("photoURI", it) }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        if (savedInstanceState != null) {
+            @Suppress("DEPRECATION")
+            photoURI = savedInstanceState.getParcelable("photoURI")
+        }
         HomeViewModel.resetSearchBool()
         _binding = FragmentPersonalDetailsBinding.inflate(inflater, container, false)
         return binding.root
@@ -755,10 +768,11 @@ class PersonalDetailsFragment : Fragment() {
         }
 
         photoFile?.also {
-            photoURI = FileProvider.getUriForFile(
+            val uri = FileProvider.getUriForFile(
                 requireContext(), requireContext().packageName + ".provider", it
             )
-            takePictureLauncher.launch(photoURI)
+            photoURI = uri
+            takePictureLauncher.launch(uri)
         }
     }
 
@@ -786,43 +800,102 @@ class PersonalDetailsFragment : Fragment() {
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
             if (result) {
-                // Load image from URI
-                val imageBitmap = try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val uri = photoURI
+                if (uri == null) {
+                    Toast.makeText(requireContext(), "Photo capture failed. Please try again.", Toast.LENGTH_SHORT).show()
+                    return@registerForActivityResult
+                }
+                try {
+                    // Initialize MediaPipe Face Detector
+                    val baseOptionsBuilder =
+                        BaseOptions.builder().setModelAssetPath("blaze_face_short_range.tflite")
+
+                    val options = FaceDetector.FaceDetectorOptions.builder()
+                        .setBaseOptions(baseOptionsBuilder.build()).setMinDetectionConfidence(0.75f)
+                        .setRunningMode(RunningMode.IMAGE).build()
+
+                    val faceDetector = FaceDetector.createFromOptions(requireContext(), options)
+
+                    // Load image from URI, downsampled to avoid OOM on high-res cameras
+                    val maxDimension = 1024
+                    val imageBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         val source =
-                            ImageDecoder.createSource(requireContext().contentResolver, photoURI)
-                        ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
+                            ImageDecoder.createSource(requireContext().contentResolver, uri)
+                        ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
+                            val size = info.size
+                            val sampleSize = maxOf(size.width, size.height) / maxDimension
+                            if (sampleSize > 1) {
+                                decoder.setTargetSampleSize(sampleSize)
+                            }
+                            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                        }
                     } else {
                         @Suppress("DEPRECATION") MediaStore.Images.Media.getBitmap(
-                            requireContext().contentResolver, photoURI
+                            requireContext().contentResolver, uri
                         )
-                    }
-                } catch (e: Exception) {
-                    Log.e("FaceDetection", "Image load failed", e)
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.face_detection_failed, e.message.orEmpty()),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@registerForActivityResult
-                }
+                    }.copy(Bitmap.Config.ARGB_8888, true)
 
-                // Generate embeddings on the full image (best-effort without MediaPipe face detection)
-                embeddings = try {
-                    faceNetModel.getFaceEmbedding(imageBitmap)
-                } catch (e: Exception) {
-                    Log.e("FaceEmbedding", "Embedding generation failed", e)
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.failed_to_generate_face_embeddings),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    null
-                }
+                    // Convert to MPImage
+                    val mpImage = BitmapImageBuilder(imageBitmap).build()
 
-                if (embeddings == null) {
-                    return@registerForActivityResult
-                }
+                    // Detect faces
+                    val detectionResult = faceDetector.detect(mpImage)
+
+                    // Handle detection results
+                    when {
+                        detectionResult.detections().isEmpty() -> {
+                            Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT)
+                                .show()
+                            faceDetector.close()
+                        }
+
+                        detectionResult.detections().size > 1 -> {
+                            Toast.makeText(
+                                requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT
+                            ).show()
+                            faceDetector.close()
+                        }
+
+                        else -> {
+                            val detection = detectionResult.detections()[0]
+                            val boundingBox = detection.boundingBox()
+
+                            // Check for degenerate bounding box before coercion
+                            if (boundingBox.right <= boundingBox.left || boundingBox.bottom <= boundingBox.top) {
+                                Toast.makeText(
+                                    requireContext(), "Invalid face detection", Toast.LENGTH_SHORT
+                                ).show()
+                                faceDetector.close()
+                                return@registerForActivityResult
+                            }
+
+// Ensure bounding box stays within image bounds
+                            val left = boundingBox.left.toInt().coerceAtLeast(0)
+                            val top = boundingBox.top.toInt().coerceAtLeast(0)
+                            val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
+                            val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
+
+                            val width = (right - left).coerceAtLeast(1)
+                            val height = (bottom - top).coerceAtLeast(1)
+
+// No need to validate width/height again — coercion guarantees ≥ 1
+
+
+                            // Crop face from image
+                            val faceBitmap = Bitmap.createBitmap(
+                                imageBitmap, left, top, width, height
+                            )
+
+                            // Clean up detector
+                            faceDetector.close()
+
+                            // Get face embeddings
+                            embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+
+                            if (embeddings == null) {
+                                Toast.makeText(requireContext(), "Failed to generate face embeddings", Toast.LENGTH_SHORT).show()
+                                return@registerForActivityResult
+                            }
 
                 // Compare faces and find matching patient
                 lifecycleScope.launch {
@@ -915,7 +988,7 @@ class PersonalDetailsFragment : Fragment() {
                 HomeViewModel.setSearchBool()
             }.setNegativeButton(getString(R.string.proceed_with_registration)) { dialog, _ ->
                 val intent = Intent(context, RegisterPatientActivity::class.java).apply {
-                    putExtra("photoUri", photoURI.toString())
+                    putExtra("photoUri", photoURI?.toString())
                     putExtra("facevector", embeddings)
                 }
                 startActivity(intent)
