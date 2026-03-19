@@ -312,6 +312,11 @@ class FormInputAdapter(
 
             binding.actvRvDropdown.setOnItemClickListener { _, _, index, _ ->
                 item.value = item.entries?.get(index)
+                item.booleanValue = when (index) {
+                    item.trueIndex -> true
+                    item.falseIndex -> false
+                    else -> null
+                }
                 Timber.d("Item DD : $item")
 //                if (item.hasDependants || item.hasAlertError) {
                 formValueListener?.onValueChanged(item, index)
@@ -391,16 +396,20 @@ class FormInputAdapter(
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
                                 item.value = it
+                                val index = item.entries!!.indexOf(it)
+                                item.booleanValue = when (index) {
+                                    item.trueIndex -> true
+                                    item.falseIndex -> false
+                                    else -> null
+                                }
                                 if (item.hasDependants || item.hasAlertError) {
                                     Timber.d(
                                         "listener trigger : ${item.id} ${
-                                            item.entries!!.indexOf(
-                                                it
-                                            )
+                                            index
                                         } $it"
                                     )
                                     formValueListener?.onValueChanged(
-                                        item, item.entries!!.indexOf(it)
+                                        item, index
                                     )
                                 }
                             }

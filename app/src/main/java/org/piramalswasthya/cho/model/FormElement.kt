@@ -34,4 +34,7 @@ data class FormElement(
     val showYearFirstInDatePicker : Boolean = false,
     /** Date format for DATE_PICKER (e.g. "dd/MM/yyyy"). Null = use default dd-MM-yyyy. */
     var dateFormat: String? = null,
+    var booleanValue: Boolean? = null,
+    var trueIndex: Int? = null,
+    var falseIndex: Int? = null,
 )

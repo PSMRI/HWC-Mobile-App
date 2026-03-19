@@ -42,6 +42,7 @@ import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
+import org.piramalswasthya.cho.database.room.dao.OphthalmicDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
@@ -63,6 +64,11 @@ import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.model.OccupationMaster
+import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.NoseDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.OralHealthDao
+import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.AshaDueListCache
 import org.piramalswasthya.cho.model.AlcoholDropdown
@@ -112,6 +118,7 @@ import org.piramalswasthya.cho.model.MasterLocation
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
 import org.piramalswasthya.cho.model.OutreachDropdownList
+import org.piramalswasthya.cho.model.OphthalmicVisit
 import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PastSurgeryHistory
@@ -149,6 +156,12 @@ import org.piramalswasthya.cho.model.VisitCategory
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.model.EarDiagnosisAssessment
+import org.piramalswasthya.cho.model.NoseDiagnosisAssessment
+import org.piramalswasthya.cho.model.PainAndSymptomAssessment
+import org.piramalswasthya.cho.model.OralHealth
+import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
+
 
 @Database(
     entities = [
@@ -237,10 +250,16 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         ComponentDetailsMaster::class,
         ComponentOptionsMaster::class,
         AshaDueListCache::class,
-        StatusOfWomanMaster::class
+        StatusOfWomanMaster::class,
+        OphthalmicVisit::class,
+        EarDiagnosisAssessment::class,
+        NoseDiagnosisAssessment::class,
+        PainAndSymptomAssessment::class,
+        PsychosocialCaregiverSupport::class,
+        OralHealth::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 127, exportSchema = false
+    version = 133, exportSchema = false
 )
 
 
@@ -308,10 +327,16 @@ abstract class InAppDb : RoomDatabase() {
     abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
+    abstract val painAndSymptomAssessmentDao: PainAndSymptomAssessmentDao
+    abstract val psychosocialCaregiverSupportDao: PsychosocialCaregiverSupportDao
 
 
     // This comment is for Github glitch
     abstract val statusOfWomanDao: StatusOfWomanDao
+    abstract val ophthalmicDao: OphthalmicDao
+    abstract val earDiagnosisAssessmentDao: EarDiagnosisAssessmentDao
+    abstract val oralHealthDao: OralHealthDao
+    abstract val noseDiagnosisAssessmentDao: NoseDiagnosisAssessmentDao
 
     companion object {
         @Volatile
@@ -677,6 +702,167 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_126_127 = object : Migration(126, 127) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `OPHTHALMIC_VISIT` (" +
+                            "`visitId` TEXT NOT NULL, " +
+                            "`patientID` TEXT NOT NULL, " +
+                            "`benVisitNo` INTEGER NOT NULL, " +
+                            "`isDiabetic` INTEGER, " +
+                            "`screeningPerformed` INTEGER, " +
+                            "`visualAcuityChartUsed` TEXT, " +
+                            "`distVARight` TEXT, " +
+                            "`distVALeft` TEXT, " +
+                            "`nearVA` TEXT, " +
+                            "`caseIdConditions` TEXT, " +
+                            "`cataractSymptoms` INTEGER, " +
+                            "`glaucomaSymptoms` INTEGER, " +
+                            "`diabeticRetinopathySymptoms` INTEGER, " +
+                            "`presbyopiaSymptoms` INTEGER, " +
+                            "`trachomaStatus` TEXT, " +
+                            "`cornealDiseaseType` TEXT, " +
+                            "`vitaminADeficiency` INTEGER, " +
+                            "`injuryType` TEXT, " +
+                            "`foreignBodyRemoval` TEXT, " +
+                            "`chemicalExposure` INTEGER, " +
+                            "`createdBy` TEXT NOT NULL, " +
+                            "`createdDate` INTEGER NOT NULL, " +
+                            "`updatedBy` TEXT NOT NULL, " +
+                            "`updatedDate` INTEGER NOT NULL, " +
+                            "`syncState` INTEGER NOT NULL, " +
+                            "PRIMARY KEY(`visitId`), " +
+                            "FOREIGN KEY(`patientID`) REFERENCES `PATIENT`(`patientID`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ophthalmic_visit_patientID` ON `OPHTHALMIC_VISIT` (`patientID`)")
+            }
+        }
+        val MIGRATION_127_128 = object : Migration(127, 128) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS EAR_DIAGNOSIS_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                difficulty_hearing INTEGER,
+                whisper_test_response TEXT,
+                hearing_test_outcome TEXT,
+                ear_pain INTEGER,
+                ear_discharge_present INTEGER,
+                foreign_body_in_ear TEXT,
+                ear_condition_type TEXT,
+                congenital_ear_malformation INTEGER
+            )
+        """.trimIndent()
+                )
+            }
+        }
+        val MIGRATION_128_129 = object : Migration(128, 129) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS PAIN_SYMPTOM_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                pain_severity TEXT,
+                pain_duration TEXT,
+                symptoms_present INTEGER,
+                other_symptoms_severity TEXT,
+                immediate_relief_provided INTEGER
+            )
+            """.trimIndent()
+                )
+            }
+        }
+        val MIGRATION_129_130 = object : Migration(129, 130) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS PSYCHOSOCIAL_CAREGIVER_SUPPORT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                psychosocial_counselling_provided INTEGER,
+                caregiver_counselling_provided INTEGER,
+                caregiver_distress_identified INTEGER,
+                counselling_remarks TEXT
+            )
+            """.trimIndent()
+                )
+            }
+        }
+        val MIGRATION_130_131 = object : Migration(130, 131) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS ORAL_HEALTH (
+                oral_health_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                tooth_decay_present INTEGER,
+                tooth_decay_symptoms TEXT,
+                gum_disease_present INTEGER,
+                gum_disease_symptoms TEXT,
+                irregular_teeth_jaws INTEGER,
+                abnormal_growth_ulcer INTEGER,
+                cleft_lip_palate INTEGER,
+                dental_fluorosis INTEGER,
+                dental_emergency TEXT,
+                created_date INTEGER,
+                created_by TEXT
+            )
+            """.trimIndent()
+                )
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_oral_health_patient_id " +
+                        "ON ORAL_HEALTH(patient_id)"
+                )
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_oral_health_patient_visit " +
+                        "ON ORAL_HEALTH(patient_id, ben_visit_no)"
+                )
+            }
+        }
+
+        val MIGRATION_131_132 = object : Migration(131, 132) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN referral_required INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN referral_level TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN reason_for_referral TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN follow_up_required INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN follow_up_date TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN referral_required INTEGER")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN referral_level TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN reason_for_referral TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN follow_up_required INTEGER")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN follow_up_date TEXT")
+            }
+        }
+
+        val MIGRATION_132_133 = object : Migration(132, 133) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS NOSE_DIAGNOSIS_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                difficulty_breathing INTEGER,
+                open_mouth_breathing INTEGER,
+                nose_bleed INTEGER,
+                systolic_bp INTEGER,
+                diastolic_bp INTEGER,
+                foreign_body_nose TEXT,
+                sinusitis INTEGER
+            )
+            """.trimIndent()
+                )
+            }
+        }
+
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -708,7 +894,14 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_122_123,
                             MIGRATION_123_124,
                             MIGRATION_124_125,
-                            MIGRATION_125_126
+                            MIGRATION_125_126,
+                            MIGRATION_126_127,
+                            MIGRATION_127_128,
+                            MIGRATION_128_129,
+                            MIGRATION_129_130,
+                            MIGRATION_130_131,
+                            MIGRATION_131_132,
+                            MIGRATION_132_133
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
