@@ -1279,4 +1279,8 @@
     <string name="case_closure_success">Case closed successfully</string>
     <string name="case_closure_error">Error closing case</string>
     <string name="antra_next_due_date">ANTRA Next Due Date</string>
+
+    <string name="refer_date">Refer Date:</string>
+    <string name="referred_from">Referred From:</string>
+    <string name="referred_to">Referred To:</string>
 </resources>
