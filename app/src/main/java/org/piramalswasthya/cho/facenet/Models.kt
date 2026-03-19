@@ -7,7 +7,7 @@ class Models {
             "FaceNet" ,
             "facenet.tflite" ,
             0.4f ,
-            10f ,
+            5.0f ,
             128 ,
             160
         )
