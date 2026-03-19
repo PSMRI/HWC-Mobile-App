@@ -1401,6 +1401,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         val dropdown = binding.villageDropdown
 
         dropdown.post {
+            val defaultMaxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
             if (::villageAdapter.isInitialized) {
                 val itemCount = villageAdapter.count
                 if (itemCount > 0) {
@@ -1420,15 +1421,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val bottomPaddingDp = 16f
                     val bottomPaddingPx = (bottomPaddingDp * resources.displayMetrics.density).toInt()
                     val calculatedHeight = (itemCount * itemHeightPx) + bottomPaddingPx
-                    val maxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
-                    dropdown.dropDownHeight = minOf(calculatedHeight, maxHeight)
+                    dropdown.dropDownHeight = minOf(calculatedHeight, defaultMaxHeight)
                 } else {
-                    val maxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
-                    dropdown.dropDownHeight = maxHeight
+                    // Prevent large blank popup when filter returns no village rows.
+                    dropdown.dropDownHeight = ViewGroup.LayoutParams.WRAP_CONTENT
                 }
             } else {
-                val maxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
-                dropdown.dropDownHeight = maxHeight
+                dropdown.dropDownHeight = defaultMaxHeight
             }
         }
     }

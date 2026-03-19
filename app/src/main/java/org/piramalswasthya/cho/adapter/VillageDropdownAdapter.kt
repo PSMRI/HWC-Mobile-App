@@ -22,13 +22,15 @@ class VillageDropdownAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)
-        (view as? TextView)?.text = dataList[position].villageName
+        val item = getItem(position)
+        (view as? TextView)?.text = item?.villageName.orEmpty()
         return view
     }
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getDropDownView(position, convertView, parent)
-        (view as? TextView)?.text = dataList[position].villageName
+        val item = getItem(position)
+        (view as? TextView)?.text = item?.villageName.orEmpty()
         return view
     }
 

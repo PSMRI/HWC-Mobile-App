@@ -344,47 +344,12 @@ class PatientDetailsViewModel @Inject constructor(
         maritalStatusId: Int?,
         maritalStatusName: String?
     ): List<StatusOfWomanMaster> {
-        // Strictly for females (genderId = 2)
-        if (genderId != 2) return emptyList()
-
-        val mStatus = maritalStatusName?.trim()?.lowercase(Locale.ROOT)
-        val isMarried = maritalStatusId == 2 ||
-            (mStatus?.contains("married") == true && mStatus.contains("unmarried").not() && mStatus.contains("never").not())
-        val isUnmarried = maritalStatusId == 1 ||
-            (mStatus?.contains("unmarried") == true || mStatus?.contains("never") == true || mStatus?.contains("single") == true)
-
-        // Handle age-based logic
-        return when {
-            // Age not entered yet -> empty list
-            ageInYears == null -> emptyList()
-
-            // Female < 10 -> Not Applicable
-            ageInYears < 10 ->
-                filterStatusOfWomanByCodes("NA")
-
-            // Female, ≥50 -> Elderly only
-            ageInYears >= 50 ->
-                filterStatusOfWomanByCodes("EL")
-
-        // Ranges where Marital Status matters (15-49)
-        ageInYears in 15..49 -> {
-            when {
-                mStatus == null -> emptyList()
-                isMarried ->
-                    filterStatusOfWomanByCodes("EC", "PW", "PN", "ST")
-                isUnmarried -> {
-                    if (ageInYears in 15..19) filterStatusOfWomanByCodes("AD") // Adolescent
-                    else filterStatusOfWomanByCodes("NA") // 20+ unmarried -> NA
-                }
-                else -> filterStatusOfWomanByCodes("NA") // Widow/Divorced -> NA
-            }
-        }
-            
-            ageInYears in 10..14 ->
-                filterStatusOfWomanByCodes("AD")
-
-            // Default
-            else -> filterStatusOfWomanByCodes("NA")
+        // For now, show all status-of-woman options for females and none for non-females.
+        // This avoids over-restricting the dropdown to a single value like "Elderly".
+        return if (genderId == 2) {
+            statusOfWomanList
+        } else {
+            emptyList()
         }
     }
 
