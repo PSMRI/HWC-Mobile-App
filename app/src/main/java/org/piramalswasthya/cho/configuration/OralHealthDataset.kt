@@ -143,96 +143,83 @@ class OralHealthDataset(
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
-            toothDecayPresent.id -> {
-                if (index == 0) {
-                    toothDecaySymptoms.required = true
-                    triggerDependants(
-                        source = toothDecayPresent,
-                        addItems = listOf(toothDecaySymptoms),
-                        removeItems = emptyList()
-                    )
-                } else {
-                    toothDecaySymptoms.value = null
-                    toothDecaySymptoms.required = false
-                    lastSelectedToothDecaySymptoms = emptySet()
-                    triggerDependants(
-                        source = toothDecayPresent,
-                        addItems = emptyList(),
-                        removeItems = listOf(toothDecaySymptoms)
-                    )
-                }
-            }
-
-            toothDecaySymptoms.id -> {
-                val currentSelections = toSelectionSet(toothDecaySymptoms.value)
-                val isNewSelection = currentSelections.size > lastSelectedToothDecaySymptoms.size
-                if (isNewSelection) {
-                    onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
-                }
-                lastSelectedToothDecaySymptoms = currentSelections
-                -1
-            }
-
-            gumDiseasePresent.id -> {
-                if (index == 0) {
-                    gumDiseaseSymptoms.required = true
-                    triggerDependants(
-                        source = gumDiseasePresent,
-                        addItems = listOf(gumDiseaseSymptoms),
-                        removeItems = emptyList()
-                    )
-                } else {
-                    gumDiseaseSymptoms.value = null
-                    gumDiseaseSymptoms.required = false
-                    lastSelectedGumDiseaseSymptoms = emptySet()
-                    triggerDependants(
-                        source = gumDiseasePresent,
-                        addItems = emptyList(),
-                        removeItems = listOf(gumDiseaseSymptoms)
-                    )
-                }
-            }
-
-            gumDiseaseSymptoms.id -> {
-                val currentSelections = toSelectionSet(gumDiseaseSymptoms.value)
-                val isNewSelection = currentSelections.size > lastSelectedGumDiseaseSymptoms.size
-                if (isNewSelection) {
-                    onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
-                }
-                lastSelectedGumDiseaseSymptoms = currentSelections
-                -1
-            }
-
-            irregularTeethJaws.id -> {
-                if (index == 0) {
-                    onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
-                }
-                -1
-            }
-
-            abnormalGrowthUlcer.id -> {
-                if (index == 0) {
-                    onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
-                }
-                -1
-            }
-
-            cleftLipPalate.id -> {
-                if (index == 0) {
-                    onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
-                }
-                -1
-            }
-
-            dentalFluorosis.id -> {
-                if (index == 0) {
-                    onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
-                }
-                -1
-            }
-
+            toothDecayPresent.id -> handleToothDecayPresent(index)
+            toothDecaySymptoms.id -> handleToothDecaySymptoms()
+            gumDiseasePresent.id -> handleGumDiseasePresent(index)
+            gumDiseaseSymptoms.id -> handleGumDiseaseSymptoms()
+            irregularTeethJaws.id,
+            abnormalGrowthUlcer.id,
+            cleftLipPalate.id,
+            dentalFluorosis.id -> handleSimpleAlert(index)
             else -> -1
         }
+    }
+
+    private fun handleToothDecayPresent(index: Int): Int {
+        return if (index == 0) {
+            toothDecaySymptoms.required = true
+            triggerDependants(
+                source = toothDecayPresent,
+                addItems = listOf(toothDecaySymptoms),
+                removeItems = emptyList()
+            )
+        } else {
+            toothDecaySymptoms.value = null
+            toothDecaySymptoms.required = false
+            lastSelectedToothDecaySymptoms = emptySet()
+            triggerDependants(
+                source = toothDecayPresent,
+                addItems = emptyList(),
+                removeItems = listOf(toothDecaySymptoms)
+            )
+        }
+    }
+
+    private fun handleToothDecaySymptoms(): Int {
+        val currentSelections = toSelectionSet(toothDecaySymptoms.value)
+        val isNewSelection = currentSelections.size > lastSelectedToothDecaySymptoms.size
+        if (isNewSelection) {
+            onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
+        }
+        lastSelectedToothDecaySymptoms = currentSelections
+        return -1
+    }
+
+    private fun handleGumDiseasePresent(index: Int): Int {
+        return if (index == 0) {
+            gumDiseaseSymptoms.required = true
+            triggerDependants(
+                source = gumDiseasePresent,
+                addItems = listOf(gumDiseaseSymptoms),
+                removeItems = emptyList()
+            )
+        } else {
+            gumDiseaseSymptoms.value = null
+            gumDiseaseSymptoms.required = false
+            lastSelectedGumDiseaseSymptoms = emptySet()
+            triggerDependants(
+                source = gumDiseasePresent,
+                addItems = emptyList(),
+                removeItems = listOf(gumDiseaseSymptoms)
+            )
+        }
+    }
+
+    private fun handleGumDiseaseSymptoms(): Int {
+        val currentSelections = toSelectionSet(gumDiseaseSymptoms.value)
+        val isNewSelection = currentSelections.size > lastSelectedGumDiseaseSymptoms.size
+        if (isNewSelection) {
+            onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
+        }
+        lastSelectedGumDiseaseSymptoms = currentSelections
+        return -1
+    }
+
+    private fun handleSimpleAlert(index: Int): Int {
+        if (index == 0) {
+            onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
+        }
+        return -1
     }
 
     private fun createDefaultCache(): OralHealth {

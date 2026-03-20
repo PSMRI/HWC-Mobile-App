@@ -329,7 +329,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     requireContext(),
                     R.layout.dropdown_subcategory,
                     R.id.tv_dropdown_item_text,
-                    DropdownConst.female_1_to_59)
+                    DropdownConst.female_15_to_18)
                 binding.subCatInput.setAdapter(subCatAdapter)
                 isAdapterSet = true
             } else {
@@ -1116,7 +1116,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val isFemale = benVisitInfo.genderName?.lowercase() == "female"
         return when {
             ageCheckForFemaleChild(benVisitInfo.patient.dob) && isFemale -> DropdownConst.age_0_to_1
-            age15To18ForFemaleChild(benVisitInfo.patient.dob) && isFemale -> DropdownConst.female_1_to_59
+            age15To18ForFemaleChild(benVisitInfo.patient.dob) && isFemale -> DropdownConst.female_15_to_18
             else -> DropdownConst.age_0_to_1
         }
     }
