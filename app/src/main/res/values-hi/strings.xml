@@ -284,16 +284,16 @@
     <string name="higher_center">उच्च केंद्र</string>
     <string name="reason_for_referral">प्रेषण का कारण</string>
     <string name="linkage_with_other_health_services">अन्य स्वास्थ्य सेवाओं के साथ संपर्क</string>
-    <string name="date_of_birth">Date Of Birth <font color="#FF0000">*</font></string>
-    <string name="age_in_unit">Age in Unit <font color="#FF0000">*</font></string>
+    <string name="date_of_birth">जन्मतिथि<font color="#FF0000">*</font></string>
+    <string name="age_in_unit">यूनिट में आयु <font color="#FF0000">*</font></string>
     <string name="phone_number">फ़ोन नंबर</string>
     <string name="registration_date">पंजीकरण की तारीख</string>
-    <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
-    <string name="spouse_name">Spouse Name <font color="#FF0000">*</font></string>
-    <string name="wife_name">Wife Name <font color="#FF0000">*</font></string>
-    <string name="husband_s_name">Husband\'s Name <font color="#FF0000">*</font></string>
-    <string name="wife_s_name">Wife\'s Name <font color="#FF0000">*</font></string>
-    <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
+    <string name="marital_status">वैवाहिक स्थिति <font color="#FF0000">*</font></string>
+    <string name="spouse_name">जीवनसाथी का नाम <font color="#FF0000">*</font></string>
+    <string name="wife_name">पत्नी का नाम <font color="#FF0000">*</font></string>
+    <string name="husband_s_name">पति का नाम <font color="#FF0000">*</font></string>
+    <string name="wife_s_name">पत्नी का नाम <font color="#FF0000">*</font></string>
+    <string name="age_at_marriage">विवाह के समय आयु <font color="#FF0000">*</font></string>
     <string name="revisit_date">पुनः भ्रमण की तिथि</string>
     <string name="saved">सफलतापूर्वक सहेजा गया (</string>
     <string name="error_in_saving_refer_and_revisit_information">प्रेषण और पुनः भ्रमण की जानकारी सहेजने में त्रुटि</string>
@@ -455,8 +455,8 @@
     <string name="visit_code">विज़िट कोड:</string>
     <string name="prescription_id">प्रिस्क्रिप्शन आईडी:</string>
     <string name="form_label">फॉर्म</string>
-    <string name="prescribed_label">Prescribed: </string>
-    <string name="prescribed_label_qt">Prescribed Quantity: </string>
+    <string name="prescribed_label">निर्धारित:</string>
+    <string name="prescribed_label_qt">निर्धारित मात्रा:</string>
     <string name="patient_registered_successfully">रोगी का पंजीकरण सफलतापूर्वक हो गया है।</string>
     <string name="father_s_name">Father\'s Name <font color="#FF0000">*</font></string>
     <string name="exit_application">एप्लिकेशन से बाहर निकलें</string>
