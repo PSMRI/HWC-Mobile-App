@@ -387,7 +387,7 @@
                                     android:id="@+id/refer_date_label"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/refer_date"
+                                    android:text="Refer Date:"
                                     android:textColor="@color/colorAccent"
                                     android:textStyle="bold" />
 
@@ -426,7 +426,7 @@
                                     android:id="@+id/refer_from_label"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/referred_from"
+                                    android:text="Referred From:"
                                     android:textColor="@color/colorAccent"
                                     android:textStyle="bold" />
 
@@ -465,7 +465,7 @@
                                     android:id="@+id/refer_to_label"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/referred_to"
+                                    android:text="Referred To:"
                                     android:textColor="@color/colorAccent"
                                     android:textStyle="bold" />
 

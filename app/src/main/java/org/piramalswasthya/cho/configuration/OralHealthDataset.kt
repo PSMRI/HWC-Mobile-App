@@ -39,7 +39,7 @@ class OralHealthDataset(
             "Black spot",
             "Discoloration of tooth Cavity",
             "Hole in the tooth",
-            "Sensitivity to hot and cold, sweet and sour",
+            "Sensitivity to hot and cold / sweet and sour",
             "Food lodgment in the cavity/ between teeth",
             "Pain",
             "Swelling",
@@ -74,42 +74,6 @@ class OralHealthDataset(
         hasAlertError = true
     )
 
-    private val irregularTeethJaws = FormElement(
-        id = 5,
-        inputType = InputType.RADIO,
-        title = "Irregular Teeth/Jaws",
-        entries = arrayOf(YES, NO),
-        required = false,
-        hasAlertError = true
-    )
-
-    private val abnormalGrowthUlcer = FormElement(
-        id = 6,
-        inputType = InputType.RADIO,
-        title = "Abnormal Growth/Ulcer",
-        entries = arrayOf(YES, NO),
-        required = false,
-        hasAlertError = true
-    )
-
-    private val cleftLipPalate = FormElement(
-        id = 7,
-        inputType = InputType.RADIO,
-        title = "Cleft Lip/Palate",
-        entries = arrayOf(YES, NO),
-        required = false,
-        hasAlertError = true
-    )
-
-    private val dentalFluorosis = FormElement(
-        id = 8,
-        inputType = InputType.RADIO,
-        title = "Dental Fluorosis",
-        entries = arrayOf(YES, NO),
-        required = false,
-        hasAlertError = true
-    )
-
     suspend fun setUpPage(savedRecord: OralHealth?) {
         cache = savedRecord ?: createDefaultCache()
         populateFromCache(cache)
@@ -133,93 +97,73 @@ class OralHealthDataset(
             gumDiseaseSymptoms.required = false
         }
 
-        list.add(irregularTeethJaws)
-        list.add(abnormalGrowthUlcer)
-        list.add(cleftLipPalate)
-        list.add(dentalFluorosis)
-
         setUpPage(list)
     }
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
-            toothDecayPresent.id -> handleToothDecayPresent(index)
-            toothDecaySymptoms.id -> handleToothDecaySymptoms()
-            gumDiseasePresent.id -> handleGumDiseasePresent(index)
-            gumDiseaseSymptoms.id -> handleGumDiseaseSymptoms()
-            irregularTeethJaws.id,
-            abnormalGrowthUlcer.id,
-            cleftLipPalate.id,
-            dentalFluorosis.id -> handleSimpleAlert(index)
+            toothDecayPresent.id -> {
+                if (index == 0) {
+                    toothDecaySymptoms.required = true
+                    triggerDependants(
+                        source = toothDecayPresent,
+                        addItems = listOf(toothDecaySymptoms),
+                        removeItems = emptyList()
+                    )
+                } else {
+                    toothDecaySymptoms.value = null
+                    toothDecaySymptoms.required = false
+                    lastSelectedToothDecaySymptoms = emptySet()
+                    triggerDependants(
+                        source = toothDecayPresent,
+                        addItems = emptyList(),
+                        removeItems = listOf(toothDecaySymptoms)
+                    )
+                }
+            }
+
+            toothDecaySymptoms.id -> {
+                val currentSelections = toSelectionSet(toothDecaySymptoms.value)
+                val isNewSelection = currentSelections.size > lastSelectedToothDecaySymptoms.size
+                if (isNewSelection) {
+                    onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
+                }
+                lastSelectedToothDecaySymptoms = currentSelections
+                -1
+            }
+
+            gumDiseasePresent.id -> {
+                if (index == 0) {
+                    gumDiseaseSymptoms.required = true
+                    triggerDependants(
+                        source = gumDiseasePresent,
+                        addItems = listOf(gumDiseaseSymptoms),
+                        removeItems = emptyList()
+                    )
+                } else {
+                    gumDiseaseSymptoms.value = null
+                    gumDiseaseSymptoms.required = false
+                    lastSelectedGumDiseaseSymptoms = emptySet()
+                    triggerDependants(
+                        source = gumDiseasePresent,
+                        addItems = emptyList(),
+                        removeItems = listOf(gumDiseaseSymptoms)
+                    )
+                }
+            }
+
+            gumDiseaseSymptoms.id -> {
+                val currentSelections = toSelectionSet(gumDiseaseSymptoms.value)
+                val isNewSelection = currentSelections.size > lastSelectedGumDiseaseSymptoms.size
+                if (isNewSelection) {
+                    onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
+                }
+                lastSelectedGumDiseaseSymptoms = currentSelections
+                -1
+            }
+
             else -> -1
         }
-    }
-
-    private fun handleToothDecayPresent(index: Int): Int {
-        return if (index == 0) {
-            toothDecaySymptoms.required = true
-            triggerDependants(
-                source = toothDecayPresent,
-                addItems = listOf(toothDecaySymptoms),
-                removeItems = emptyList()
-            )
-        } else {
-            toothDecaySymptoms.value = null
-            toothDecaySymptoms.required = false
-            lastSelectedToothDecaySymptoms = emptySet()
-            triggerDependants(
-                source = toothDecayPresent,
-                addItems = emptyList(),
-                removeItems = listOf(toothDecaySymptoms)
-            )
-        }
-    }
-
-    private fun handleToothDecaySymptoms(): Int {
-        val currentSelections = toSelectionSet(toothDecaySymptoms.value)
-        val isNewSelection = currentSelections.size > lastSelectedToothDecaySymptoms.size
-        if (isNewSelection) {
-            onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
-        }
-        lastSelectedToothDecaySymptoms = currentSelections
-        return -1
-    }
-
-    private fun handleGumDiseasePresent(index: Int): Int {
-        return if (index == 0) {
-            gumDiseaseSymptoms.required = true
-            triggerDependants(
-                source = gumDiseasePresent,
-                addItems = listOf(gumDiseaseSymptoms),
-                removeItems = emptyList()
-            )
-        } else {
-            gumDiseaseSymptoms.value = null
-            gumDiseaseSymptoms.required = false
-            lastSelectedGumDiseaseSymptoms = emptySet()
-            triggerDependants(
-                source = gumDiseasePresent,
-                addItems = emptyList(),
-                removeItems = listOf(gumDiseaseSymptoms)
-            )
-        }
-    }
-
-    private fun handleGumDiseaseSymptoms(): Int {
-        val currentSelections = toSelectionSet(gumDiseaseSymptoms.value)
-        val isNewSelection = currentSelections.size > lastSelectedGumDiseaseSymptoms.size
-        if (isNewSelection) {
-            onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
-        }
-        lastSelectedGumDiseaseSymptoms = currentSelections
-        return -1
-    }
-
-    private fun handleSimpleAlert(index: Int): Int {
-        if (index == 0) {
-            onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
-        }
-        return -1
     }
 
     private fun createDefaultCache(): OralHealth {
@@ -238,23 +182,13 @@ class OralHealthDataset(
             ?: emptySet()
     }
 
-    private fun String?.toYesNoBool(): Boolean? = when (this) {
-        YES -> true
-        NO  -> false
-        else -> null
-    }
-
     private fun populateFromCache(cache: OralHealth) {
         toothDecayPresent.value = when (cache.toothDecayPresent) {
             true -> YES
             false -> NO
             else -> null
         }
-        toothDecaySymptoms.value = if (cache.toothDecayPresent == true) {
-            normalizeToothDecaySymptoms(cache.toothDecaySymptoms)
-        } else {
-            null
-        }
+        toothDecaySymptoms.value = if (cache.toothDecayPresent == true) cache.toothDecaySymptoms else null
 
         gumDiseasePresent.value = when (cache.gumDiseasePresent) {
             true -> YES
@@ -262,48 +196,23 @@ class OralHealthDataset(
             else -> null
         }
         gumDiseaseSymptoms.value = if (cache.gumDiseasePresent == true) cache.gumDiseaseSymptoms else null
-
-        irregularTeethJaws.value = when (cache.irregularTeethJaws) {
-            true -> YES
-            false -> NO
-            else -> null
-        }
-        abnormalGrowthUlcer.value = when (cache.abnormalGrowthUlcer) {
-            true -> YES
-            false -> NO
-            else -> null
-        }
-        cleftLipPalate.value = when (cache.cleftLipPalate) {
-            true -> YES
-            false -> NO
-            else -> null
-        }
-        dentalFluorosis.value = when (cache.dentalFluorosis) {
-            true -> YES
-            false -> NO
-            else -> null
-        }
-    }
-
-    private fun normalizeToothDecaySymptoms(value: String?): String? {
-        return value?.replace(
-            "Discoloration of tooth Cavity",
-            "Discoloration of tooth, Cavity"
-        )
     }
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as OralHealth).let {
-            it.toothDecayPresent  = toothDecayPresent.value.toYesNoBool()
+            it.toothDecayPresent = when (toothDecayPresent.value) {
+                YES -> true
+                NO -> false
+                else -> null
+            }
             it.toothDecaySymptoms = if (it.toothDecayPresent == true) toothDecaySymptoms.value else null
 
-            it.gumDiseasePresent  = gumDiseasePresent.value.toYesNoBool()
+            it.gumDiseasePresent = when (gumDiseasePresent.value) {
+                YES -> true
+                NO -> false
+                else -> null
+            }
             it.gumDiseaseSymptoms = if (it.gumDiseasePresent == true) gumDiseaseSymptoms.value else null
-
-            it.irregularTeethJaws  = irregularTeethJaws.value.toYesNoBool()
-            it.abnormalGrowthUlcer = abnormalGrowthUlcer.value.toYesNoBool()
-            it.cleftLipPalate      = cleftLipPalate.value.toYesNoBool()
-            it.dentalFluorosis     = dentalFluorosis.value.toYesNoBool()
         }
     }
 }
