@@ -161,7 +161,8 @@ import org.piramalswasthya.cho.model.NoseDiagnosisAssessment
 import org.piramalswasthya.cho.model.PainAndSymptomAssessment
 import org.piramalswasthya.cho.model.OralHealth
 import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
-
+import org.piramalswasthya.cho.database.room.dao.MentalHealthScreeningDao
+import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 
 @Database(
     entities = [
@@ -256,10 +257,11 @@ import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
         NoseDiagnosisAssessment::class,
         PainAndSymptomAssessment::class,
         PsychosocialCaregiverSupport::class,
-        OralHealth::class
+        OralHealth::class,
+        MentalHealthScreeningCache::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 133, exportSchema = false
+    version = 134, exportSchema = false
 )
 
 
@@ -337,6 +339,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val earDiagnosisAssessmentDao: EarDiagnosisAssessmentDao
     abstract val oralHealthDao: OralHealthDao
     abstract val noseDiagnosisAssessmentDao: NoseDiagnosisAssessmentDao
+    abstract val mentalHealthScreeningDao: MentalHealthScreeningDao
 
     companion object {
         @Volatile
@@ -861,6 +864,65 @@ abstract class InAppDb : RoomDatabase() {
                 )
             }
         }
+        val MIGRATION_133_134 = object : Migration(133, 134) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS MENTAL_HEALTH_SCREENING (
+                        screening_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patient_id TEXT NOT NULL,
+                        ben_visit_no INTEGER,
+                        emotional_behavioural_concerns INTEGER,
+                        substance_use_concerns INTEGER,
+                        self_harm_suicide_thoughts INTEGER,
+                        memory_loss_confusion INTEGER,
+                        seizures_fits_loc INTEGER,
+                        is_postpartum INTEGER,
+                        phq9_little_interest INTEGER,
+                        phq9_feeling_down INTEGER,
+                        phq9_sleep_trouble INTEGER,
+                        phq9_feeling_tired INTEGER,
+                        phq9_appetite INTEGER,
+                        phq9_feeling_bad INTEGER,
+                        phq9_concentration INTEGER,
+                        phq9_moving_slowly INTEGER,
+                        phq9_self_harm_thoughts INTEGER,
+                        phq9_total_score INTEGER,
+                        substance_alcohol_use INTEGER,
+                        substance_tobacco_use INTEGER,
+                        substance_other_use INTEGER,
+                        substance_other_specify TEXT,
+                        substance_frequency TEXT,
+                        brief_intervention_given INTEGER,
+                        suicide_current_thoughts INTEGER,
+                        suicide_plan INTEGER,
+                        suicide_previous_attempt INTEGER,
+                        suicide_hopelessness INTEGER,
+                        suicide_risk_level TEXT,
+                        dementia_progressive_memory_loss INTEGER,
+                        dementia_forgetting_recent INTEGER,
+                        dementia_disorientation INTEGER,
+                        dementia_daily_activities INTEGER,
+                        dementia_behavioural_changes INTEGER,
+                        epilepsy_recurrent_seizures INTEGER,
+                        epilepsy_jerky_movements INTEGER,
+                        epilepsy_tongue_bite INTEGER,
+                        epilepsy_confusion_after INTEGER,
+                        epilepsy_loc_duration TEXT,
+                        referral_required INTEGER,
+                        referral_level TEXT,
+                        reason_for_referral TEXT,
+                        follow_up_required INTEGER,
+                        follow_up_date TEXT
+                    )
+                """.trimIndent())
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_mhs_patient_id ON MENTAL_HEALTH_SCREENING(patient_id)"
+                )
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_mhs_patient_visit ON MENTAL_HEALTH_SCREENING(patient_id, ben_visit_no)"
+                )
+            }
+        }
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -901,7 +963,9 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_129_130,
                             MIGRATION_130_131,
                             MIGRATION_131_132,
-                            MIGRATION_132_133
+                            MIGRATION_132_133,
+                            MIGRATION_133_134
+
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

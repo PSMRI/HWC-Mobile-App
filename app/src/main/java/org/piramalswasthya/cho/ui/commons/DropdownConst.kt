@@ -30,18 +30,20 @@ class DropdownConst {
         val elderlyAndPalliative: String = "Elderly & Palliative"
         val persistentPain: String = "Persistent pain"
         val psychosocialCaregiverSupport: String = "Psychosocial Caregiver Support"
+        val mentalHealth: String = "Mental Health"
+        val mentalHealthScreening: String = "Mental Health Screening"
 
 
 
 
 
-        val male_ncd: List<String> = listOf(ncdScreening, ophthalmic, ent, oral)
-        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep, ophthalmic, ent, oral)
-        val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization, ophthalmic, ent, oral)
-        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral)
+        val male_ncd: List<String> = listOf(ncdScreening, ophthalmic, ent, oral, mentalHealth)
+        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep, ophthalmic, ent, oral, mentalHealth)
+        val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization, ophthalmic, ent, oral, mentalHealth)
+        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral, mentalHealth)
 
-        val male_elderly: List<String> = listOf(ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative)
-        val female_elderly: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative)
+        val male_elderly: List<String> = listOf(ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
+        val female_elderly: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
         val age_0_to_1: List<String> = listOf(neonatalAndInfant, ent, oral)
 
         val visualAcuityList = listOf("6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60", "<6/60")

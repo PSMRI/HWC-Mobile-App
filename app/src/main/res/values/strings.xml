@@ -1124,6 +1124,8 @@
     <string name="days_optional">Days</string>
     <string name="save_btn">Save</string>
     <string name="cancel_btn">Cancel</string>
+    <string name="title_mental_health_screening">Mental Health Screening</string>
+    <string name="mental_health_screening_saved">Mental Health Screening saved successfully</string>
     <string name="edit_btn">Edit</string>
     <string name="age_years_required">Age in years is required</string>
     <string name="beneficiary_updated_successfully">Beneficiary details updated successfully</string>
