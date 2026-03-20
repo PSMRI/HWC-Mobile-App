@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AAM</string>
     <string name="all_td_doses_message"> सभी TD खुराक दी जा चुकी हैं</string>
@@ -13,130 +13,141 @@
     <string name="title_activity_login">लॉगिन एक्टिविटी</string>
     <string name="prompt_email">ईमेल</string>
     <string name="prompt_password">पासवर्ड</string>
-    <string name="action_sign_in">पंजीयन</string>
-    <string name="action_sign_in_short">दाखिल करना</string>
-    <string name="welcome">स्वागत है!</string>
-    <string name="invalid_username">यह मान्य उपयोगकर्ता नाम नहीं है</string>
+    <string name="action_sign_in">साइन इन या पंजीकरण करें</string>
+    <string name="action_sign_in_short">साइन इन</string>
+    <string name="welcome">"स्वागत है !"</string>
+    <string name="invalid_username">वैध उपयोगकर्ता नाम नहीं</string>
     <string name="invalid_password">पासवर्ड 5 से अधिक अक्षर का होना चाहिए</string>
     <string name="PREF_current_saved_language" translatable="false">Locale.Helper.Selected.Language</string>
     <string name="til_username_hint_text">उपयोगकर्ता नाम</string>
-    <string name="login_failed">लॉगिन विफल</string>
+    <string name="login_failed">"लॉगिन विफल"</string>
+
     <string name="hello_blank_fragment">हैलो ब्लैंक फ्रैगमेंट</string>
-    <string name="next">अगला</string>
+    <string name="next">आगे</string>
     <string name="til_password_hint_text">पासवर्ड</string>
-    <string name="login">लॉग इन करें</string>
-    <string name="app_title">एचडब्ल्यूसी मोबाइल ऐप</string>
-    <string name="hwc">एचडब्ल्यूसी</string>
-    <string name="facility">सुविधा केंद्र</string>
+    <string name="login">लॉगिन</string>
+    <string name="app_title">HWC मोबाइल ऐप</string>
+    <string name="hwc">HWC</string>
+    <string name="facility">सुविधा</string>
     <string name="outreach">आउटरीच</string>
-    <string name="system_issue">सिस्टम संबंधी समस्या</string>
+    <string name="system_issue">सिस्टम समस्या</string>
     <string name="manual_issue">मैनुअल समस्या</string>
-    <string name="wellness_activity">स्वास्थ्य गतिविधि</string>
+    <string name="wellness_activity">वेलनेस गतिविधि</string>
     <string name="training">प्रशिक्षण</string>
     <string name="health_mela">स्वास्थ्य मेला</string>
     <string name="vhsnc_vhsnd">VHSNC/VHSND</string>
     <string name="add_patient">रोगी जोड़ें\n</string>
     <string name="query_hint_patient_search">खोजने के लिए यहां टैप करें</string>
-    <string name="title_patient_list">पंजीकृत मरीज़</string>
-    <string name="login_settings">लॉगिन_सेटिंग्स</string>
+    <string name="title_patient_list">पंजीकृत रोगी</string>
+    <string name="login_settings">login_settings</string>
     <string name="last_sync_time">last_sync_time</string>
     <string name="last_patient_sync_time">last_patient_sync_time</string>
     <string name="last_benflow_sync_time">last_benflow_sync_time</string>
     <string name="last_cbac_sync_time">last_benflow_sync_time</string>
     <string name="personal_details">व्यक्तिगत विवरण</string>
-    <string name="first_name">पहला नाम</string>
+    <string name="first_name">पहला नाम <font color="#FF0000">*</font></string>
     <string name="village_hint">गांव <font color="#FF0000">*</font></string>
     <string name="last_name_surname">उपनाम/उपनाम </string>
     <string name="contact_no">संपर्क नंबर</string>
     <string name="gender">लिंग <font color="#FF0000">*</font></string>
-    <string name="age">आयु</string>
-    <string name="select_subcategory">उपश्रेणी का चयन करें</string>
+    <string name="age">उम्र <font color="#FF0000">*</font></string>
+    <string name="select_subcategory">उपश्रेणी चुनें</string>
     <string-array name="subcategories_array">
         <item>सामान्य संचारी रोगों का प्रबंधन</item>
         <item>तीव्र साधारण बीमारियों और मामूली बीमारियों के लिए आउट पेशेंट केयर</item>
     </string-array>
-    <string name="select_category">श्रेणी चुनना</string>
+
+    <string name="select_category">श्रेणी चुनें</string>
     <string-array name="categories_array">
         <item>सामान्य OPD केयर</item>
     </string-array>
-    <string name="select_reason_for_visit">यात्रा का कारण चुनें</string>
+
+    <string name="select_reason_for_visit">विज़िट का कारण चुनें</string>
     <string-array name="reason_for_visit_array">
         <item>नई मुख्य शिकायत(एं)</item>
         <item>फॉलो अप</item>
     </string-array>
-    <string name="select_unit_of_duration">अवधि की इकाई का चयन करें</string>
-    <string name="visit_details">यात्रा विवरण</string>
-    <string name="duration">अवधि</string>
-    <string name="duration2">अवधि:</string>
+    <string name="select_unit_of_duration">अवधि की इकाई चुनें</string>
+    <string name="visit_details">विज़िट विवरण</string>
+    <string name="duration">अवधि <font color="#FF0000">*</font></string>
+    <string name="duration2">अवधि: </string>
     <string name="dispensed">वितरित: </string>
     <string-array name="unit_of_duration_array">
         <item>घंटा</item>
     </string-array>
-    <string name="abha_number">आभा संख्या</string>
+    <string name="abha_number">ABHA नंबर</string>
     <string name="name">नाम</string>
     <string name="phone_no">फोन नंबर</string>
     <string name="registration">पंजीकरण</string>
-    <string name="advance_search">आधुनिक खोज</string>
+    <string name="advance_search">उन्नत खोज</string>
     <string name="household_search">खोज</string>
+
     <string name="do_you_want_to_go_back">क्या आप वापस जाना चाहते हैं?</string>
     <string name="offline">ऑफलाइन</string>
     <string name="something_went_wrong_nunable_to_connect_to_server_ntry_again_later">कुछ गलत हो गया !\nसर्वर से कनेक्ट नहीं हो पा रहा !\nबाद में पुनः प्रयास करें!</string>
     <string name="try_again">पुनः प्रयास करें!</string>
-    <string name="go_to_home">होम पेज पर जाएं</string>
+    <string name="go_to_home">होम पर जाएं</string>
     <string name="tv_ben_name_ph">लाभार्थी का नाम</string>
-    <string name="otp_resent">ओटीपी पुनः भेजा गया</string>
+    <string name="otp_resent">OTP पुनः भेजा गया</string>
+
     <string name="medication_form">फॉर्म</string>
     <string name="medicine_text">दवा</string>
-    <string name="dosage_text">मात्रा बनाने की विधि</string>
-    <string name="submit_btn_text">जमा करना</string>
+    <string name="dosage_text">खुराक</string>
+    <string name="submit_btn_text">जमा करें</string>
     <string name="frequency_text">आवृत्ति</string>
-    <string name="vitals_text">नब्ज</string>
+    <string name="vitals_text">महत्वपूर्ण संकेत</string>
     <string name="location_details">स्थान विवरण</string>
     <string name="personal_info">व्यक्तिगत जानकारी</string>
-    <string name="revisit_details_text">विवरणों पर दोबारा नज़र डालें</string>
-    <string name="case_record_text">केस रिकॉर्ड</string>
-    <string name="lab_record_text">प्रयोगशाला रिकॉर्ड</string>
+    <string name="revisit_details_text">पुनः विज़िट विवरण</string>
+    <string name="case_record_text">मामला रिकॉर्ड</string>
+    <string name="lab_record_text">लैब रिकॉर्ड</string>
     <string name="pharmacist_record_text">फार्मासिस्ट रिकॉर्ड</string>
-    <string name="anc">एएनसी</string>
-    <string name="pnc">पीएनसी</string>
+
+
+    <string name="anc">ANC</string>
+    <string name="pnc">PNC</string>
     <string name="immunization">टीकाकरण</string>
-    <string name="weight_kg_text">वजन (किलोग्राम)</string>
-    <string name="temperature_f_text">तापमान (फ़ारेनहाइट)</string>
-    <string name="bp_mmhg_diastolic_text">रक्तचाप (mmHg) डायस्टोलिक</string>
-    <string name="bp_mmhg_systolic_text">रक्तचाप (mmHg) सिस्टोलिक</string>
-    <string name="submit_to_doctor_text">डॉक्टर को प्रस्तुत करें</string>
-    <string name="prescription_text">दवा पर्ची</string>
-    <string name="investigation">जाँच पड़ताल</string>
-    <string name="examination_text">परीक्षा</string>
-    <string name="other_info">अन्य सूचना</string>
+
+    <string name="weight_kg_text">वजन(किग्रा)</string>
+    <string name="temperature_f_text">तापमान(F)</string>
+    <string name="bp_mmhg_diastolic_text">बीपी (mmHg) डायस्टोलिक</string>
+    <string name="bp_mmhg_systolic_text">बीपी (mmHg) सिस्टोलिक</string>
+    <string name="submit_to_doctor_text">डॉक्टर को भेजें</string>
+    <string name="prescription_text">प्रिस्क्रिप्शन</string>
+    <string name="investigation">जांच</string>
+    <string name="examination_text">जांच</string>
+    <string name="other_info">अन्य जानकारी</string>
     <string name="info">जानकारी</string>
-    <string name="want_care_context">डेटा सफलतापूर्वक सहेज लिया गया है। क्या आप केयर कॉन्टेक्स्ट को लिंक D76करना चाहते हैं?</string>
-    <string name="cancel_care_context">क्या आप केयर कॉन्टेक्स्ट को रद्द करना चाहते हैं?</string>
+    <string name="want_care_context">डेटा सफलतापूर्वक सहेजा गया। क्या आप केयर कॉन्टेक्स्ट लिंक करना चाहते हैं?</string>
+    <string name="cancel_care_context">क्या आप केयर कॉन्टेक्स्ट रद्द करना चाहते हैं?</string>
     <string name="abha_care_context">ABHA केयर कॉन्टेक्स्ट मैपिंग</string>
-    <string name="generate_abha_otp">ओटीपी जनरेट करें</string>
-    <string name="created_date">निर्माण दिनांक</string>
-    <string name="otp_sent">आपके पंजीकृत मोबाइल नंबर पर OTP भेजा गया है</string>
-    <string name="add_text">जोड़ना</string>
-    <string name="stock_warning_text">स्टॉक उपलब्ध नहीं है</string>
-    <string name="view_prescription_text">दवा पर्चा को देखें</string>
-    <string name="submit">जमा करना</string>
-    <string name="categories_heading">वर्ग</string>
-    <string name="categories_subcategory">उपश्रेणी</string>
-    <string name="categories_reasonFV">भ्रमण का कारण</string>
+    <string name="generate_abha_otp">OTP जनरेट करें</string>
+    <string name="created_date">निर्माण तिथि</string>
+    <string name="otp_sent">OTP आपके पंजीकृत मोबाइल नंबर पर भेजा गया</string>
+    <string name="add_text">जोड़ें</string>
+    <string name="stock_warning_text">स्टॉक उपलब्ध नहीं</string>
+    <string name="view_prescription_text">प्रिस्क्रिप्शन देखें</string>
+    <string name="submit">जमा करें</string>
+    <string name="categories_heading">श्रेणी</string>
+    <string name="categories_subcategory">उप श्रेणी</string>
+    <string name="categories_reasonFV">विज़िट का कारण</string>
     <string name="DurationInUnit">इकाई में अवधि</string>
-    <string name="cancel">रद्द करना</string>
-    <string name="previous">पहले का</string>
-    <string name="anthropometry">एन्थ्रोपोमेट्री</string>
-    <string name="benificiary_list">लाभार्थियों की सूची</string>
-    <string name="title_activity_visit_details">भ्रमण विवरण</string>
-    <string name="esanjeevni">ई-संजीवनी</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="previous">पिछला</string>
+    <string name="anthropometry">मानवमिति</string>
+    <string name="benificiary_list">लाभार्थी सूची</string>
+    <string name="title_activity_visit_details">विज़िट विवरण एक्टिविटी</string>
+    <string name="esanjeevni">eSanjeevani</string>
+
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">पहला अंश</string>
-    <string name="second_fragment_label">दूसरा अंश</string>
-    <string name="title_activity_abha_id">आभाआईडीएक्टिविटी</string>
-    <string name="aadhar_disclaimer_consent_disclaimer">ABHA नंबर बनाने के लिए सहमति</string>
+    <string name="first_fragment_label">पहला फ्रैगमेंट</string>
+    <string name="second_fragment_label">दूसरा फ्रैगमेंट</string>
+
+    <string name="title_activity_abha_id">ABHA ID एक्टिविटी</string>
+    <string name="aadhar_disclaimer_consent_disclaimer">ABHA नंबर निर्माण के लिए सहमति</string>
     <string name="aadhar_disclaimer_consent_text">मैं इसके द्वारा घोषणा करता/करती हूं कि मैं UIDAI द्वारा जारी अपना आधार नंबर और जनसांख्यिकीय जानकारी राष्ट्रीय स्वास्थ्य प्राधिकरण (NHA) के साथ केवल ABHA नंबर निर्माण के उद्देश्य से स्वेच्छा से साझा कर रहा/रही हूं। मैं समझता/समझती हूं कि मेरा ABHA नंबर ABDM द्वारा समय-समय पर अधिसूचित उद्देश्यों के लिए स्वास्थ्य सेवा प्रावधान सहित उपयोग और साझा किया जा सकता है। \n\nFurther,I am aware that my personal identifiable information (Name, Address, Age, Date of Birth, Gender and Photograph) may be made available to the entities working in the NationalDigital Health Ecosystem (NDHE)which inter alia includes stakeholders and entities such as healthcare professionals (e.g. doctors), facilities (e.g. hospitals, laboratories) and data fiduciaries (e.g. health programmers), which are registered with or linked to the Ayushman Bharat Digital Mission (ABDM), and various processes there under. I authorize NHA to use myAadhaar number for performing Aadhaar based authentication with UIDAI as per the provisions of the Aadhaar (Targeted Delivery of Financial and other Subsidies, Benefits and Services) Act, 2016 for the aforesaid purpose.I understand that UIDAI will share my e-KYC details, or response of “Yes” with NHA upon successful authentication. I have been duly informed about the option of using other IDs apart from Aadhaar; however,I consciously choose to use Aadhaar number for the purpose of availing benefits across the NDHE.I am aware that my personal identifiable information excluding Aadhaar number can be used and shared for purposes as mentioned above.I reserve the right to revoke the given consent at any point of time as per provisions of Aadhar Act and Regulations.</string>
     <string name="generate_abha_id">ABHA नंबर बनाएं</string>
+
     <string name="aadhar_consent_text">मैं इसके द्वारा पुष्टि करता/करती हूं कि मैंने व्यक्ति को ABHA नंबर निर्माण के लिए उसके आधार नंबर का उपयोग करते हुए नीचे दी गई सहमति प्रक्रिया समझाई है</string>
     <string name="PREF_rem_me_uname">user-name-local-saved</string>
     <string name="title_activity_nav">नेव एक्टिविटी</string>
@@ -146,425 +157,431 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">नेविगेशन हेडर</string>
     <string name="action_settings">सेटिंग्स</string>
-    <string name="menu_home">मुख्य पृष्ठ</string>
+
+    <string name="menu_home">होम</string>
     <string name="menu_gallery">गैलरी</string>
-    <string name="menu_slideshow">स्लाइड शो</string>
-    <string name="error_while_logging_in">लॉग इन करते समय त्रुटि हुई!!</string>
+    <string name="menu_slideshow">स्लाइडशो</string>
+    <string name="error_while_logging_in">लॉगिन में त्रुटि!!</string>
     <string name="invalid_username_entered">अमान्य उपयोगकर्ता नाम!!</string>
     <string name="confirm_go_back">क्या आप वापस जाना चाहते हैं?</string>
-    <string name="downloading_abha_card">आभा कार्ड डाउनलोड हो रहा है</string>
+    <string name="downloading_abha_card">ABHA कार्ड डाउनलोड हो रहा है</string>
     <string name="downloading">डाउनलोड हो रहा है</string>
     <string name="downloading_percentage">डाउनलोड हो रहा है %d%</string>
-    <string name="download_failed_retry">डाउनलोड विफल रहा, कृपया पुनः प्रयास करें</string>
-    <string name="otp_was_resent">ओटीपी दोबारा भेजा गया।</string>
-    <string name="please_confirm_to_logout">कृपया लॉगआउट की पुष्टि करें।</string>
-    <string name="logout">लॉग आउट</string>
-    <string name="select_yes">हाँ</string>
+    <string name="download_failed_retry">डाउनलोड विफल, कृपया पुनः प्रयास करें</string>
+    <string name="otp_was_resent">OTP पुनः भेजा गया।</string>
+    <string name="please_confirm_to_logout">लॉगआउट करने की पुष्टि करें।</string>
+    <string name="logout">लॉगआउट</string>
+    <string name="select_yes">हां</string>
     <string name="select_no">नहीं</string>
     <string name="history_text">इतिहास</string>
-    <string name="previous_comorbidity_conditions">पूर्व सह-रुग्णता स्थितियाँ</string>
-    <string name="time_period_ago">कुछ समय पहले</string>
+    <string name="previous_comorbidity_conditions">पिछली सहरुग्णता स्थितियां</string>
+    <string name="time_period_ago">समय अवधि पहले</string>
     <string name="fever">बुखार</string>
     <string name="_3_days">3 दिन</string>
-    <string name="_1_month_ago">1 महीने पहले</string>
-    <string name="close">बंद करना</string>
+    <string name="_1_month_ago">1 महीना पहले</string>
+    <string name="close">बंद करें</string>
     <string name="illness">बीमारी</string>
-    <string name="previous_alcohol_history">शराब के सेवन का पिछला इतिहास</string>
-    <string name="previous_allergic_history">एलर्जी का पूर्व इतिहास</string>
+    <string name="previous_alcohol_history">पिछला शराब इतिहास</string>
+    <string name="previous_allergic_history">पिछला एलर्जी इतिहास</string>
     <string name="previous_illness">पिछली बीमारी</string>
-    <string name="previous_medication_history">पहले की दवाइयों का इतिहास</string>
-    <string name="previous_tobacco_history">तंबाकू का पूर्व इतिहास</string>
-    <string name="associated_ailments">संबंधित बीमारियाँ</string>
-    <string name="select_associated_ailments">संबंधित बीमारियों का चयन करें</string>
+    <string name="previous_medication_history">पिछला दवा इतिहास</string>
+    <string name="previous_tobacco_history">पिछला तंबाकू इतिहास</string>
+    <string name="associated_ailments">संबंधित बीमारियां</string>
+    <string name="select_associated_ailments">संबंधित बीमारियां चुनें</string>
     <string name="enter_duration">अवधि दर्ज करें  <font color="#FF0000">*</font></string>
     <string name="enter_inspection">निरीक्षण</string>
     <string name="duration_unit">अवधि इकाई</string>
-    <string name="select_duration_unit">अवधि इकाई का चयन करें</string>
-    <string name="f_h_of_member">सदस्य का एफ/एच</string>
-    <string name="select_f_h_of_member">सदस्य के परिवार/परिवार का चयन करें</string>
-    <string name="inactive_for_future_visit">भविष्य में आने के लिए निष्क्रिय</string>
-    <string name="add">जोड़ना</string>
-    <string name="reset">रीसेट करें</string>
-    <string name="delete">मिटाना</string>
-    <string name="alcohol_use_status">शराब के सेवन की स्थिति</string>
-    <string name="select_alcohol_use_status">शराब के सेवन की स्थिति चुनें</string>
+    <string name="select_duration_unit">अवधि इकाई चुनें</string>
+    <string name="f_h_of_member">सदस्य का F/H</string>
+    <string name="select_f_h_of_member">सदस्य का F/H चुनें</string>
+    <string name="inactive_for_future_visit">भविष्य की विज़िट के लिए निष्क्रिय</string>
+    <string name="add">जोड़ें</string>
+    <string name="reset">रीसेट</string>
+    <string name="delete">हटाएं</string>
+    <string name="alcohol_use_status">शराब उपयोग स्थिति</string>
+    <string name="select_alcohol_use_status">शराब उपयोग स्थिति चुनें</string>
     <string name="allergy_name">एलर्जी का नाम</string>
     <string name="enter_allergy_name">एलर्जी का नाम दर्ज करें</string>
-    <string name="type_of_allergic_reaction">एलर्जी प्रतिक्रिया का प्रकार</string>
-    <string name="select_type_of_allergic_reaction">एलर्जी प्रतिक्रिया का प्रकार चुनें</string>
+    <string name="type_of_allergic_reaction">एलर्जिक प्रतिक्रिया का प्रकार</string>
+    <string name="select_type_of_allergic_reaction">एलर्जिक प्रतिक्रिया का प्रकार चुनें</string>
     <string name="genetic_disorder">आनुवंशिक विकार</string>
-    <string name="enter_genetic_disorder">आनुवंशिक विकार में प्रवेश करें</string>
-    <string name="select_illness">बीमारी का चयन करें</string>
-    <string name="select_time_period_ago">कुछ समय पहले का समय चुनें</string>
+    <string name="enter_genetic_disorder">आनुवंशिक विकार दर्ज करें</string>
+    <string name="select_illness">बीमारी चुनें</string>
+    <string name="select_time_period_ago">समय अवधि पहले चुनें</string>
     <string name="current_medication">वर्तमान दवा</string>
     <string name="enter_medication">दवा दर्ज करें</string>
     <string name="h_o_surgery">सर्जरी का इतिहास</string>
     <string name="select_h_o_surgery">सर्जरी का इतिहास चुनें</string>
-    <string name="tobacco_use_status">तंबाकू सेवन की स्थिति</string>
-    <string name="select_tobacco_use_status">तंबाकू सेवन की स्थिति चुनें</string>
-    <string name="past_history">अतीत का इतिहास</string>
+    <string name="tobacco_use_status">तंबाकू उपयोग स्थिति</string>
+    <string name="select_tobacco_use_status">तंबाकू उपयोग स्थिति चुनें</string>
+    <string name="past_history">पिछला इतिहास</string>
     <string name="previous_history">पिछला इतिहास</string>
     <string name="past_illness">पिछली बीमारी</string>
-    <string name="past_h_o_surgery">पहले सर्जरी का इतिहास रहा है</string>
-    <string name="covid_vaccination_status">कोविड टीकाकरण की स्थिति</string>
+    <string name="past_h_o_surgery">पिछली सर्जरी का इतिहास</string>
+    <string name="covid_vaccination_status">कोविड टीकाकरण स्थिति</string>
     <string name="age_group">आयु वर्ग</string>
-    <string name="vaccination_status">टीकाकरण की स्थिति</string>
-    <string name="select_vaccination_status">टीकाकरण की स्थिति चुनें</string>
-    <string name="vaccination_type">टीकाकरण का प्रकार</string>
-    <string name="select_vaccination_type">टीकाकरण का प्रकार चुनें</string>
+    <string name="vaccination_status">टीकाकरण स्थिति</string>
+    <string name="select_vaccination_status">टीकाकरण स्थिति चुनें</string>
+    <string name="vaccination_type">टीकाकरण प्रकार</string>
+    <string name="select_vaccination_type">टीकाकरण प्रकार चुनें</string>
     <string name="dose_taken">ली गई खुराक</string>
-    <string name="select_dose_taken">ली गई खुराक का चयन करें</string>
-    <string name="medication_history">दवाओं का इतिहास</string>
+    <string name="select_dose_taken">ली गई खुराक चुनें</string>
+    <string name="medication_history">दवा इतिहास</string>
     <string name="personal_history_habit_risk_factor">व्यक्तिगत इतिहास (आदत/जोखिम कारक)</string>
-    <string name="personal_tobacco_history">व्यक्तिगत तंबाकू सेवन का इतिहास</string>
-    <string name="personal_alcohol_history">व्यक्तिगत शराब का इतिहास</string>
-    <string name="personal_alergy_history">व्यक्तिगत एलर्जी का इतिहास</string>
-    <string name="choose_abha_gen_mode">आभा जन मोड चुनें</string>
-    <string name="abha_gen_mode">आभा जन मोड</string>
+    <string name="personal_tobacco_history">व्यक्तिगत तंबाकू इतिहास</string>
+    <string name="personal_alcohol_history">व्यक्तिगत शराब इतिहास</string>
+    <string name="personal_alergy_history">व्यक्तिगत एलर्जी इतिहास</string>
+
+    <string name="choose_abha_gen_mode">ABHA जनरेट मोड चुनें</string>
+    <string name="abha_gen_mode">ABHA जनरेट मोड</string>
     <string name="state">राज्य</string>
     <string name="choose_state">राज्य चुनें</string>
-    <string name="district_town_city">जिला/कस्बा/नगर</string>
+    <string name="district_town_city">जिला/शहर/नगर</string>
     <string name="choose_district">जिला चुनें</string>
     <string name="taluk_tehsil">तालुक/तहसील</string>
     <string name="choose_taluk">तालुक चुनें</string>
-    <string name="street_panchayat_village">गली/पंचायत/गाँव</string>
+    <string name="street_panchayat_village">गली/पंचायत/गांव</string>
     <string name="choose_panchayat">पंचायत चुनें</string>
-    <string name="select_sub_category">उपश्रेणी</string>
-    <string name="select_chief_complaint">मुख्य शिकायतें</string>
+    <string name="select_sub_category">उप श्रेणी</string>
+    <string name="select_chief_complaint">मुख्य शिकायतें  <font color="#FF0000">*</font></string>
     <string name="select_chief_complaint_without_astrict">मुख्य शिकायतें</string>
     <string name="enter_your_description">विवरण दर्ज करें</string>
-    <string name="select_file">फ़ाइल का चयन करें</string>
+    <string name="select_file">फ़ाइल चुनें</string>
     <string name="upload_file">फ़ाइल अपलोड करें</string>
-    <string name="category"> </string>
-    <string name="sub_category"> </string>
+    <string name="category">श्रेणी (<font color="#FF0000">*</font>)</string>
+    <string name="sub_category">उप श्रेणी (<font color="#FF0000">*</font>)</string>
     <string name="select_and_upload_file">फ़ाइल अपलोड करें</string>
     <string name="selected_file">चयनित फ़ाइल</string>
-    <string name="chief_complaint"> </string>
-    <string name="unit_of_duration"> </string>
+    <string name="chief_complaint">मुख्य शिकायतें (<font color="#FF0000">*</font>)</string>
+    <string name="unit_of_duration">अवधि की इकाई (<font color="#FF0000">*</font>)</string>
     <string name="description">विवरण</string>
-    <string name="enter_other_associated_ailments">अन्य संबंधित बीमारियों को दर्ज करें</string>
-    <string name="select_allergy_status">एलर्जी की स्थिति चुनें</string>
-    <string name="allergy_type">एलर्जी का प्रकार</string>
-    <string name="select_allergy_type">एलर्जी का प्रकार चुनें</string>
-    <string name="enter_other_type_of_allergic_reaction">अन्य प्रकार की एलर्जी प्रतिक्रिया दर्ज करें</string>
-    <string name="allergy_status">एलर्जी की स्थिति</string>
-    <string name="enter_weight">वज़न दर्ज करें</string>
-    <string name="height_cm">ऊंचाई (सेमी)</string>
-    <string name="bmi">बीएमआई</string>
-    <string name="waist_circumference_cm">कमर की परिधि (सेमी)</string>
-    <string name="temperature_f">तापमान (फ़ारेनहाइट)</string>
-    <string name="pulse_rate_min">नाड़ी की दर (बीपीएम)</string>
-    <string name="spo2">एसपीओ2(%)</string>
-    <string name="respiratory_per_min">श्वसन दर (प्रति मिनट)</string>
-    <string name="rbs_mg_dl">आरबीएस परिणाम (मिलीग्राम/डेसीलीटर)</string>
-    <string name="previous_allergy_history">एलर्जी का पूर्व इतिहास</string>
-    <string name="outpatient_care">बाह्य रोगी देखभाल</string>
+    <string name="enter_other_associated_ailments">Enter Other Associated Ailments</string>
+    <string name="select_allergy_status">Select Allergy Status</string>
+    <string name="allergy_type">Allergy Type</string>
+    <string name="select_allergy_type">Select Allergy Type</string>
+    <string name="enter_other_type_of_allergic_reaction">Enter other Type of Allergic Reaction</string>
+    <string name="allergy_status">Allergy Status</string>
+    <string name="enter_weight">Enter Weight</string>
+    <string name="height_cm">Height(cm)</string>
+    <string name="bmi">BMI</string>
+    <string name="waist_circumference_cm">Waist Circumference(cm)</string>
+    <string name="temperature_f">Temperature (F)</string>
+    <string name="pulse_rate_min">Pulse Rate (BPM)</string>
+    <string name="spo2">SPO2(%)</string>
+    <string name="respiratory_per_min">Respiratory Rate(per min)</string>
+    <string name="rbs_mg_dl">RBS Result(mg/dl)</string>
+    <string name="previous_allergy_history">Previous Allergy History</string>
+    <string name="outpatient_care">OutPatient Care</string>
     <string name="file_type">Upload File(Size limit :5 MB)\nSupported File Formats \n(.msg,.pdf,.png,.jpeg,.doc,.docx,.xlsx,.xls,.csv,.txt)</string>
     <string name="lonic_url">http://loinc.org</string>
     <string name="vital_signs_panel">Vital signs panel</string>
     <string name="vital_signs_panel_code_text">Vital signs Panel</string>
     <string name="observation_category_url">http://terminology.hl7.org/CodeSystem/observation-category</string>
-    <string name="vital_signs">जीवन के संकेत</string>
+    <string name="vital_signs">Vital Signs</string>
     <string name="vital_signs_code">vital-signs</string>
-    <string name="height_cm_text">ऊंचाई_सेमी</string>
-    <string name="weight_kg">वजन_किलोग्राम</string>
-    <string name="bmi_text">बीएमआई</string>
-    <string name="waistcircumference_cm">कमर की परिधि (सेमी में)</string>
-    <string name="temperature">तापमान</string>
-    <string name="pulserate">नब्ज़ दर</string>
+    <string name="height_cm_text">height_cm</string>
+    <string name="weight_kg">weight_Kg</string>
+    <string name="bmi_text">bMI</string>
+    <string name="waistcircumference_cm">waistCircumference_cm</string>
+    <string name="temperature">temperature</string>
+    <string name="pulserate">pulseRate</string>
     <string name="spo2_text">sPO2</string>
-    <string name="systolicbp_1streading">सिस्टोलिकबीपी_पहलीरीडिंग</string>
-    <string name="diastolicbp_1streading">डायस्टोलिक बीपी_पहली रीडिंग</string>
-    <string name="respiratoryrate">श्वसन दर</string>
+    <string name="systolicbp_1streading">systolicBP_1stReading</string>
+    <string name="diastolicbp_1streading">diastolicBP_1stReading</string>
+    <string name="respiratoryrate">respiratoryRate</string>
     <string name="rbstestresult">rbsTestResult</string>
-    <string name="vitals_information_is_saved">महत्वपूर्ण जानकारी सुरक्षित रखी जाती है।</string>
+    <string name="vitals_information_is_saved">Vitals information is saved.</string>
     <string name="overweight_txt">*Overweight</string>
     <string name="obese_txt">*Obese</string>
     <string name="normal_txt">*Normal</string>
-    <string name="higher_center">उच्च केंद्र</string>
-    <string name="reason_for_referral">प्रेषण का कारण</string>
-    <string name="linkage_with_other_health_services">अन्य स्वास्थ्य सेवाओं के साथ संपर्क</string>
+    <string name="higher_center">Higher Center</string>
+    <string name="reason_for_referral">Reason for referral</string>
+    <string name="linkage_with_other_health_services">Linkage with other health services</string>
     <string name="date_of_birth">Date Of Birth <font color="#FF0000">*</font></string>
     <string name="age_in_unit">Age in Unit <font color="#FF0000">*</font></string>
-    <string name="phone_number">फ़ोन नंबर</string>
-    <string name="registration_date">पंजीकरण की तारीख</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="registration_date">Registration Date</string>
     <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
     <string name="spouse_name">Spouse Name <font color="#FF0000">*</font></string>
     <string name="wife_name">Wife Name <font color="#FF0000">*</font></string>
     <string name="husband_s_name">Husband\'s Name <font color="#FF0000">*</font></string>
     <string name="wife_s_name">Wife\'s Name <font color="#FF0000">*</font></string>
     <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
-    <string name="revisit_date">पुनः भ्रमण की तिथि</string>
-    <string name="saved">सफलतापूर्वक सहेजा गया (</string>
-    <string name="error_in_saving_refer_and_revisit_information">प्रेषण और पुनः भ्रमण की जानकारी सहेजने में त्रुटि</string>
-    <string name="error">System.Xml.XmlElement</string>
-    <string name="toast_msg_duration_unit">कृपया अवधि इकाई का चयन करें</string>
-    <string name="toast_msg_duration">कृपया अवधि दर्ज करें</string>
-    <string name="toast_msg_chief">कृपया मुख्य शिकायत का चयन करें</string>
-    <string name="toast_upload_file">कृपया चयनित फ़ाइल अपलोड करें</string>
-    <string name="toast_sub_cat_select">कृपया उपश्रेणी चुनें</string>
-    <string name="toast_cat_select">कृपया श्रेणी चुनें</string>
-    <string name="toast_file_uploaded">आपने फ़ाइल अपलोड कर दी है</string>
-    <string name="toast_file_size_max">कृपया 5MB से कम आकार की फ़ाइल चुनें</string>
+
+    <string name="revisit_date">Revisit Date</string>
+    <string name="saved">Saved !!</string>
+    <string name="error_in_saving_refer_and_revisit_information">Error in Saving Refer and Revisit Information</string>
+    <string name="error">Error!</string>
+    <string name="toast_msg_duration_unit">Please Select Duration Unit</string>
+    <string name="toast_msg_duration">"Please Enter Duration"</string>
+    <string name="toast_msg_chief">Please Select Chief Complaint</string>
+    <string name="toast_upload_file">Please Upload the Selected File</string>
+    <string name="toast_sub_cat_select">Please Select Sub Category</string>
+    <string name="toast_cat_select">Please Select Category</string>
+    <string name="toast_file_uploaded">You have uploaded the file</string>
+    <string name="toast_file_size_max">Please select file less than 5MB</string>
     <string name="nav_item_1_text">Name : <b>%s</b></string>
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">लॉग-इन उपयोगकर्ता</string>
-    <string name="PREF_user_name">उपयोगकर्ता नाम</string>
-    <string name="individual_s_consent_for_creation_of_abha_number">ABHA नंबर बनाने के लिए व्यक्ति की सहमति।</string>
-    <string name="exit">बाहर निकलना</string>
-    <string name="timer">घड़ी</string>
-    <string name="yes">हाँ</string>
-    <string name="no">नहीं</string>
-    <string name="fp_tv">आगे बढ़ने के लिए कृपया अपनी उंगली को फिंगरप्रिंट सेंसर पर रखें।</string>
-    <string name="fp_try_again">उंगली पहचानी नहीं गई। पुनः प्रयास करें!</string>
-    <string name="fingerprint_captured">फिंगरप्रिंट कैप्चर हो गया!</string>
-    <string name="parent_gurdian_name">माता-पिता/अभिभावक का नाम</string>
-    <string name="religion">धर्म</string>
-    <string name="community">समुदाय</string>
-    <string name="select_test_name">जांच का नाम</string>
-    <string name="diagnosis">निदान</string>
+    <string name="PREF_user_entry">logged-in-user</string>
+    <string name="PREF_user_name">user name</string>
+    <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>
+    <string name="exit">Exit</string>
+    <string name="timer">timer</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="fp_tv">Please Place your Finger on the fingerprint sensor to proceed</string>
+    <string name="fp_try_again">Finger Not Recognised Try Again!</string>
+    <string name="fingerprint_captured">FingerPrint Captured!</string>
+    <string name="parent_gurdian_name">Parent/Gurdian name</string>
+    <string name="religion">Religion</string>
+    <string name="community">Community</string>
+    <string name="select_test_name">Test Name</string>
+    <string name="diagnosis">Diagnosis</string>
     <string name="provisional_diagnosis">Provisional/Final Diagnosis <font color="#FF0000">*</font></string>
-    <string name="dosage">मात्रा बनाने की विधि</string>
+    <string name="dosage">Dosage</string>
     <string name="dose">Dose: </string>
-    <string name="frequency">आवृत्ति</string>
-    <string name="frequency2">आवृत्ति:</string>
-    <string name="batch_no">दल संख्या:</string>
-    <string name="instructions">निर्देश</string>
-    <string name="unit">इकाई</string>
-    <string name="route">मार्ग</string>
-    <string name="route2">मार्ग</string>
-    <string name="external_investigation">बाह्य जांच</string>
-    <string name="save_successful">सफलतापूर्वक सहेजा गया\n</string>
-    <string name="success">सफलता</string>
-    <string name="something_wend_wong">कुछ गलत हो गया</string>
-    <string name="loading_form">फॉर्म लोड हो रहा है</string>
-    <string name="loading">लोड हो रहा है कृपया प्रतीक्षा करें....</string>
-    <string name="personal_information">रोगी पंजीकरण</string>
-    <string name="location_information">स्थान की जानकारी</string>
-    <string name="other_information">अन्य सूचना</string>
-    <string name="invalid_phone_number">एक वैध फ़ोन नंबर दर्ज करें</string>
-    <string name="enter_a_valid_phone_number">एक वैध फ़ोन नंबर दर्ज करें</string>
-    <string name="enter_your_first_name">अपना पहला नाम दर्ज करें</string>
-    <string name="enter_last_name">अपना अंतिम नाम दर्ज करें</string>
-    <string name="fill_dob">अपनी जन्मतिथि भरें</string>
-    <string name="enter_your_age">अपनी उम्र दर्ज करें</string>
-    <string name="select_age_in_unit">यूनिट में आयु का चयन करें</string>
-    <string name="select_marital_status">वैवाहिक स्थिति का चयन करें</string>
-    <string name="enter_spouse_name">जीवनसाथी का नाम दर्ज करें</string>
-    <string name="enter_husband_name">पति का नाम दर्ज करें</string>
-    <string name="enter_wife_name">पत्नी का नाम दर्ज करें</string>
-    <string name="enter_age_at_marriage">विवाह के समय आयु दर्ज करें</string>
-    <string name="select_gender">लिंग का चयन करें</string>
-    <string name="select_village">गाँव चुनें</string>
-    <string name="enter_father_s_name_error">पिता का वैध नाम दर्ज करें</string>
-    <string name="are_you_sure">क्या आपको यकीन है?</string>
-    <string name="cancel_confirmation_message">क्या आप रद्द करना चाहते हैं? जो डेटा सेव नहीं किया गया है, वह खो जाएगा।</string>
-    <string name="patient_registered_successfully_title">रोगी का पंजीकरण सफलतापूर्वक हो गया है।</string>
-    <string name="patient_edited_successfully_title">मरीज का विवरण सफलतापूर्वक संपादित हो गया।</string>
-    <string name="network_error">नेटवर्क त्रुटि!!</string>
-    <string name="linked_to_beneficiary">लाभार्थी से जुड़ा हुआ</string>
-    <string name="duration_tv">अवधि</string>
+    <string name="frequency">Frequency</string>
+    <string name="frequency2">Frequency:</string>
+    <string name="batch_no">Batch No:</string>
+    <string name="instructions">Instructions</string>
+    <string name="unit">Unit</string>
+    <string name="route">Route</string>
+    <string name="route2">Route: </string>
+    <string name="external_investigation">External Investigation</string>
+    <string name="save_successful">Save Successful\n</string>
+    <string name="success">Success</string>
+    <string name="something_wend_wong">Something Went Wrong</string>
+    <string name="loading_form">Loading Form</string>
+    <string name="loading">Loading Please Wait....</string>
+    <string name="personal_information">Patient Registration</string>
+    <string name="location_information">Location Information</string>
+    <string name="other_information">Other Information</string>
+    <string name="invalid_phone_number">Enter a Valid Phone Number</string>
+    <string name="enter_a_valid_phone_number">Enter a valid phone number</string>
+    <string name="enter_your_first_name">Enter Your First Name</string>
+    <string name="enter_last_name">Enter Your Last Name</string>
+    <string name="fill_dob">Fill Your Date Of Birth</string>
+    <string name="enter_your_age">Enter Your Age</string>
+    <string name="select_age_in_unit">Select Age in Unit</string>
+    <string name="select_marital_status">Select Marital Status</string>
+    <string name="enter_spouse_name">Enter Spouse Name</string>
+    <string name="enter_husband_name">Enter Husband Name</string>
+    <string name="enter_wife_name">Enter Wife Name</string>
+    <string name="enter_age_at_marriage">Enter age at Marriage</string>
+    <string name="select_gender">Select Gender</string>
+    <string name="select_village">Select Village</string>
+    <string name="enter_father_s_name_error">Enter a valid Father\'s Name</string>
+    <string name="are_you_sure">Are you Sure?</string>
+    <string name="cancel_confirmation_message">Do you want to cancel? Any unsaved data will be lost.</string>
+    <string name="patient_registered_successfully_title">Patient Registered successfully</string>
+    <string name="patient_edited_successfully_title">Patient details edited successfully</string>
+    <string name="network_error">Network Error!!</string>
+    <string name="linked_to_beneficiary">Linked to Beneficiary</string>
+    <string name="duration_tv">Duration</string>
     <string name="url_uat_esanjeevani">https://uat.esanjeevani.in/#/external-provider-signin/</string>
-    <string name="something_went_wrong">कुछ गलत हो गया !</string>
-    <string name="beneficiary_abha_number">लाभार्थी का ABHA नंबर।</string>
-    <string name="no_records_found">कोई रिकॉर्ड नहीं मिला!!</string>
-    <string name="patients_cnt_display">मरीजों</string>
+    <string name="something_went_wrong">Something went wrong !</string>
+    <string name="beneficiary_abha_number">Beneficiary ABHA Number.</string>
+    <string name="no_records_found">No Records Found!!</string>
+    <string name="patients_cnt_display">" Patients"</string>
     <string name="subtractSign">-</string>
     <string name="addSign">+</string>
     <string name="_1">1</string>
-    <string name="form_medicine_dosage">प्रारूप / दवा / मात्रा</string>
-    <string name="councilling_advice">परामर्श/सलाह</string>
-    <string name="refer">संदर्भ देना</string>
-    <string name="instruction">Nirdesh</string>
-    <string name="Unit">इकाई</string>
-    <string name="Frequency">आवृत्ति</string>
-    <string name="Prescription">दवा पर्ची</string>
-    <string name="nurseDataNotSaved">इस रिकॉर्ड के लिए नर्स का डेटा सहेजा नहीं गया है।</string>
-    <string name="dataSavedCaseRecord">केस रिकॉर्ड डेटा सहेजा गया</string>
-    <string name="pendingForLabtech">प्रयोगशाला परिणाम प्रतीक्षित</string>
-    <string name="flowCompleted">प्रवाह पूर्ण हुआ</string>
-    <string name="unsyncedNurseData">नर्सों का डेटा सिंक्रोनाइज़ नहीं हुआ है। कृपया सिंक्रोनाइज़ करके पुनः प्रयास करें।</string>
-    <string name="diagnosisCannotBeEmpty">कृपया अनंतिम मान दर्ज करें</string>
-    <string name="note_ben_reg">टिप्पणी!</string>
-    <string name="please_search_for_beneficiary">पंजीकरण से पहले लाभार्थी की खोज अवश्य करें।</string>
-    <string name="no_patient_found">कोई मेल खाने वाला मरीज नहीं मिला। कृपया नीचे दिए गए विकल्पों में से एक चुनें।</string>
-    <string name="pref_location_data">वरीयता स्थान डेटा</string>
-    <string name="chief_complaint2">मुख्य शिकायत सूची</string>
-    <string name="beneficiary_name">लाभार्थी का नाम:</string>
-    <string name="abha_no">आभा क्रमांक:</string>
-    <string name="ben_id">लाभार्थी आईडी</string>
-    <string name="ben_age">आयु:</string>
-    <string name="quantity_prescribed">निर्धारित मात्रा:</string>
-    <string name="quantity_in_hand">उपलब्ध मात्रा:</string>
-    <string name="quantity_dispensed">वितरित मात्रा:</string>
-    <string name="special_instructions">विशेष निर्देश:</string>
-    <string name="dispensed_quantity">वितरित मात्रा:</string>
-    <string name="expiry_date">समाप्ति तिथि:</string>
-    <string name="ben_phone_no">फोन नंबर:</string>
-    <string name="ben_gender">लिंग:</string>
-    <string name="abha">आभा</string>
-    <string name="view_batch">बैच देखें</string>
-    <string name="ok_button">ठीक है</string>
-    <string name="change_role">भूमिका बदलें</string>
-    <string name="password_local_saved">पासवर्ड-स्थानीय-सहेजा गया</string>
-    <string name="remember_me">मुझे याद करो</string>
-    <string name="other_cphc_services">अन्य सीपीएचसी सेवाएं</string>
-    <string name="reason_for_visit">भ्रमण का कारण</string>
-    <string name="ben_card_name">नाम:</string>
-    <string name="beneficiary_id">लाभार्थी आईडी:</string>
-    <string name="beneficiary_id_format">लाभार्थी आईडी: %s</string>
-    <string name="beneficiary_id_label">लाभार्थी आईडी:</string>
-    <string name="master_longitude">मुख्य देशांतर</string>
-    <string name="get_location">स्थान प्राप्त करें</string>
-    <string name="master_latitude">मुख्य अक्षांश</string>
-    <string name="get_gps_location">जीपीएस लोकेशन प्राप्त करें</string>
-    <string name="retry">पुन: प्रयास करें</string>
-    <string name="please_select_your_language">कृपया अपनी भाषा चुनें</string>
+    <string name="form_medicine_dosage">Form/Medicine/Dosage</string>
+    <string name="councilling_advice">Counselling/ Advice</string>
+    <string name="refer">Refer</string>
+    <string name="instruction">Instruction</string>
+    <string name="Unit">Unit</string>
+    <string name="Frequency">Frequency</string>
+    <string name="Prescription">Prescription</string>
+    <string name="nurseDataNotSaved">Nurse data is not saved for this record</string>
+    <string name="dataSavedCaseRecord">Case Record Data Saved</string>
+    <string name="pendingForLabtech">Pending For Lab Result</string>
+    <string name="flowCompleted">Flow Completed</string>
+    <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
+    <string name="diagnosisCannotBeEmpty">Please Enter Provisional</string>
+    <string name="note_ben_reg">Note!</string>
+    <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
+    <string name="no_patient_found">No matching patient found. Please choose an option from below.</string>
+    <string name="pref_location_data" translatable="false">pref_location_data</string>
+    <string name="chief_complaint2">Chief Complaint List</string>
+    <string name="beneficiary_name">Beneficiary Name:</string>
+    <string name="abha_no">Abha No:</string>
+    <string name="ben_id">Ben Id:</string>
+    <string name="ben_age">Age:</string>
+    <string name="quantity_prescribed">Quantity Prescribed:</string>
+    <string name="quantity_in_hand">Quantity In Hand:</string>
+    <string name="quantity_dispensed">Quantity Dispensed:</string>
+    <string name="special_instructions">Special Instructions:</string>
+    <string name="dispensed_quantity">Dispensed Quantity:</string>
+    <string name="expiry_date">Expiry Date:</string>
+    <string name="ben_phone_no">Phone No:</string>
+    <string name="ben_gender">Gender:</string>
+    <string name="abha">ABHA</string>
+    <string name="view_batch">View Batch</string>
+    <string name="ok_button">Ok</string>
+    <string name="change_role">Change Role</string>
+    <string name="password_local_saved">password-local-saved</string>
+    <string name="remember_me">Remember Me</string>
+    <string name="other_cphc_services">Other CPHC Services</string>
+    <string name="reason_for_visit">Reason For Visit</string>
+    <string name="ben_card_name">Name:</string>
+    <string name="beneficiary_id">Beneficiary ID:</string>
+    <string name="beneficiary_id_format">Beneficiary ID: %s</string>
+    <string name="beneficiary_id_label">Beneficiary ID: </string>
+    <string name="master_longitude">Master Longitude</string>
+    <string name="get_location">Get Location</string>
+    <string name="master_latitude">Master Latitude</string>
+    <string name="get_gps_location">Get GPS Location</string>
+    <string name="retry">Retry</string>
+    <string name="please_select_your_language">Please Select Your Language</string>
     <string name="please_select_your_language_kannada">ದಯವಿಟ್ಟು ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
 
     <string name="english_lang">English</string>
     <string name="kannada_lang">ಕನ್ನಡ</string>
     <string name="hindi_lang">हिंदी</string>
     <string name="assamese">অসমীয়া</string>
-    <string name="registrar_role">रजिस्ट्रार</string>
-    <string name="nurse_role">नर्स</string>
-    <string name="doctor_role">चिकित्सक</string>
-    <string name="pharmacist_role">फार्मेसिस्ट</string>
-    <string name="lab_technician_role">प्रयोगशाला तकनीशियन</string>
-    <string name="patient_successfully_registered">रोगी का पंजीकरण सफलतापूर्वक हो गया है।</string>
-    <string name="tap_to_take_photo">फोटो लेने के लिए टैप करें</string>
-    <string name="photo">तस्वीर</string>
-    <string name="permission_to_access_the_camera_denied">कैमरा एक्सेस करने की अनुमति नहीं दी गई!</string>
-    <string name="User_Login_Type">उपयोगकर्ता_लॉगिन_प्रकार</string>
+    <string name="registrar_role">Registrar</string>
+    <string name="nurse_role">Nurse</string>
+    <string name="doctor_role">Doctor</string>
+    <string name="pharmacist_role">Pharmacist</string>
+    <string name="lab_technician_role">Lab Technician</string>
+    <string name="patient_successfully_registered">Patient Registered Successfully.</string>
+    <string name="tap_to_take_photo">Tap to take photo</string>
+    <string name="photo">Photo</string>
+    <string name="permission_to_access_the_camera_denied">Permission to access the Camera denied!</string>
+    <string name="User_Login_Type">User_Login_Type</string>
     <string name="pwr_by_text" translatable="false">Powered by\n <b>Piramal Foundation</b></string>
-    <string name="opd_count">ओपीडी संख्या:</string>
-    <string name="female_opd">महिला:</string>
-    <string name="others_opd">अन्य:</string>
-    <string name="ncd_count">एनसीडी की संख्या:</string>
-    <string name="anc_count">एएनसी\nगणना:</string>
-    <string name="pnc_count">पीएनसी की संख्या</string>
-    <string name="family_count">परिवार\nसंख्या:</string>
-    <string name="immunization_tv">टीकाकरण\nसंख्या:</string>
-    <string name="count_imm">गिनती करना:</string>
-    <string name="hbnc_count">एचबीएनसी गणना</string>
-    <string name="hbyc_count">एचबीवाईसी\nगणना:</string>
-    <string name="select_menu">चुनना</string>
-    <string name="male_opd">पुरुष:</string>
-    <string name="consultant_name">सलाहकार का नाम:</string>
-    <string name="visit_code">विज़िट कोड:</string>
-    <string name="prescription_id">प्रिस्क्रिप्शन आईडी:</string>
-    <string name="form_label">फॉर्म</string>
+    <string name="opd_count">OPD Count :</string>
+    <string name="female_opd">Female:</string>
+    <string name="others_opd">Others:</string>
+    <string name="ncd_count">NCD Count:</string>
+    <string name="anc_count">ANC\nCount:</string>
+    <string name="pnc_count">PNC Count :</string>
+    <string name="family_count">Family\nCount:</string>
+    <string name="immunization_tv">Immunization\nCount:</string>
+    <string name="count_imm">Count:</string>
+    <string name="hbnc_count">HBNC Count</string>
+    <string name="hbyc_count">HBYC\nCount:</string>
+    <string name="select_menu">Select</string>
+    <string name="male_opd">Male:</string>
+    <string name="consultant_name">Consultant Name:</string>
+    <string name="visit_code">Visit Code:</string>
+    <string name="prescription_id">Prescription ID:</string>
+    <string name="form_label">Form: </string>
     <string name="prescribed_label">Prescribed: </string>
     <string name="prescribed_label_qt">Prescribed Quantity: </string>
-    <string name="patient_registered_successfully">रोगी का पंजीकरण सफलतापूर्वक हो गया है।</string>
+    <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name <font color="#FF0000">*</font></string>
-    <string name="exit_application">एप्लिकेशन से बाहर निकलें</string>
-    <string name="do_you_want_to_exit_application">क्या आप एप्लिकेशन से बाहर निकलना चाहते हैं?</string>
-    <string name="patient_cnt_display">" मरीज़"</string>
-    <string name="alert_popup">चेतावनी</string>
-    <string name="phone_no_not_found">फ़ोन नंबर नहीं मिला।</string>
+    <string name="exit_application">Exit Application</string>
+    <string name="do_you_want_to_exit_application">Do you want to exit application</string>
+    <string name="patient_cnt_display">" Patient"</string>
+    <string name="alert_popup">Alert</string>
+    <string name="phone_no_not_found">Phone No. not found.</string>
     <string name="esanjeevaniusername_local_saved" translatable="false">esanjeevaniUsername-local-saved</string>
     <string name="esanjeevanipassword_local_saved" translatable="false">esanjeevaniPassword-local-saved</string>
-    <string name="new_chief_complaint_str">नई मुख्य शिकायत</string>
-    <string name="follow_up_str">पालन ​​करें</string>
-    <string name="title_activity_user_master_loc">उपयोगकर्ता मास्टरलोक गतिविधि</string>
-    <string name="report">प्रतिवेदन</string>
-    <string name="component_name">घटक का नाम</string>
-    <string name="result">परिणाम</string>
-    <string name="meas_unit">मापन इकाई</string>
-    <string name="remarks">टिप्पणी</string>
-    <string name="select_test_name_date">जांच का नाम (दिनांक)</string>
-    <string name="result_meas_unit">परिणाम -मापन इकाई</string>
-    <string name="date_time">तिथि और समय</string>
-    <string name="Use_Previous_data">पुरानी मुख्य शिकायतों और महत्वपूर्ण डेटा जमा करें</string>
-    <string name="save_template">टेम्पलेट सहेजें</string>
-    <string name="enter_temp_name">टेम्पलेट का नाम दर्ज करें</string>
-    <string name="select_temp_to_fill">भरने के लिए टेम्पलेट का नाम चुनें</string>
+    <string name="new_chief_complaint_str">New Chief Complaint</string>
+    <string name="follow_up_str">Follow Up</string>
+    <string name="title_activity_user_master_loc">UserMasterLocActivity</string>
+    <string name="report">Report</string>
+    <string name="component_name">Component Name</string>
+    <string name="result">Result</string>
+    <string name="meas_unit">Measurement Unit</string>
+    <string name="remarks">Remarks</string>
+    <string name="select_test_name_date">Test Name - (Date)</string>
+    <string name="result_meas_unit">Result -Measurement Unit</string>
+    <string name="date_time">Date and Time</string>
+    <string name="Use_Previous_data">Submit Old Chief Complaints and vitals data</string>
+    <string name="save_template">Save Template</string>
+    <string name="enter_temp_name">Enter Template Name</string>
+    <string name="select_temp_to_fill">Select Template Name To Fill</string>
     <string name="template_save">Template Name saved </string>
-    <string name="form_name">फ़ार्म का नाम</string>
-    <string name="Sync_state">सिंक स्थिति</string>
-    <string name="patient_form">पंजीकरण</string>
-    <string name="sync">सिंक</string>
-    <string name="pharmacy_form">फार्मेसी फॉर्म</string>
-    <string name="lab_form">प्रयोगशाला तकनीशियन प्रपत्र</string>
-    <string name="doctor_form">केस रिकॉर्ड</string>
-    <string name="nurse_form">भ्रमण और जीवन संकेत</string>
-    <string name="Yes_state">हाँ</string>
-    <string name="No_state">नहीं</string>
-    <string name="duration_prescription">अवधि</string>
-    <string name="form_input_empty_error">आवश्यक फ़ील्ड खाली नहीं हो सकता!</string>
-    <string name="form_input_upper_case_error">केवल बड़े अक्षरों में लिखे गए अक्षर ही स्वीकार्य हैं!</string>
-    <string name="form_input_missing_entry_error">फ़ील्ड में %1d अंक होने चाहिए।</string>
-    <string name="form_input_alphabet_space_only_error">केवल अक्षर और खाली स्थान ही अनुमत हैं!</string>
-    <string name="form_input_alphabet_special_only_error">केवल अक्षर और विशेष वर्ण ही अनुमत हैं!</string>
-    <string name="form_input_min_limit_error">%1s, %2d से बड़ा या बराबर होना चाहिए</string>
-    <string name="form_input_alph_numeric_space_only_error">केवल अक्षर और अंक ही स्वीकार्य हैं!</string>
-    <string name="form_input__no_alpha_space_error">अक्षर या रिक्त स्थान की अनुमति नहीं है!</string>
-    <string name="form_input_digit_only_error">केवल अंक ही मान्य हैं!</string>
-    <string name="form_input_min_limit_error_decimal">%1s, %2.1f से बड़ा या बराबर होना चाहिए।</string>
-    <string name="form_input_max_limit_error">%1s, %2d से कम या उसके बराबर होना चाहिए</string>
-    <string name="form_input_max_limit_error_decimal">%1s, %2.1f से कम या उसके बराबर होना चाहिए।</string>
-    <string name="form_input_error_invalid_mobile">अमान्य मोबाइल नंबर!</string>
-    <string name="form_input_error_invalid_rch">अमान्य आरसीएच आईडी!</string>
-    <string name="form_input_error_invalid_mcp">अमान्य एमसीपी नंबर!</string>
-    <string name="form_input_error_invalid_aadhar">आधार नंबर अमान्य है!</string>
-    <string name="view">देखना</string>
-    <string name="back">पीछे</string>
-    <string name="something_wend_wong_contact_testing">कुछ गड़बड़ हो गई! संपर्क परीक्षण!</string>
-    <string name="iv_sync_state_tv">सिंक स्टेट</string>
-    <string name="high_risk">भारी जोखिम</string>
+    <string name="form_name">Form Name</string>
+    <string name="Sync_state">Sync Status</string>
+    <string name="patient_form">Registrations</string>
+    <string name="sync">Sync</string>
+    <string name="pharmacy_form">Pharmacy Form</string>
+    <string name="lab_form">Lab Technician Form</string>
+    <string name="doctor_form">Case Record</string>
+    <string name="nurse_form">Visit and Vitals</string>
+    <string name="Yes_state">YES</string>
+    <string name="No_state">NO</string>
+    <string name="duration_prescription">Duration</string>
+
+    <string name="form_input_empty_error">Required field cannot be empty !</string>
+    <string name="form_input_upper_case_error">Only Alphabets in upper case allowed!</string>
+    <string name="form_input_missing_entry_error">Field must contain %1d digits.</string>
+    <string name="form_input_alphabet_space_only_error">Only Alphabets and whitespace allowed!</string>
+    <string name="form_input_alphabet_special_only_error">Only Alphabets and special characters allowed!</string>
+    <string name="form_input_min_limit_error">%1s should be greater than or equal to %2d</string>
+    <string name="form_input_alph_numeric_space_only_error">Only Alphabets and Numerics allowed!</string>
+    <string name="form_input__no_alpha_space_error">No Alphabets or spaces allowed!</string>
+    <string name="form_input_digit_only_error">Only Digits allowed!</string>
+    <string name="form_input_min_limit_error_decimal">%1s should be greater than or equal to %2.1f</string>
+    <string name="form_input_max_limit_error">%1s should be lesser than or equal to %2d</string>
+    <string name="form_input_max_limit_error_decimal">%1s should be lesser than or equal to %2.1f</string>
+    <string name="form_input_error_invalid_mobile">Invalid Mobile Number !</string>
+    <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
+    <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
+    <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
+
+    <string name="view">VIEW</string>
+    <string name="back">Back</string>
+    <string name="something_wend_wong_contact_testing">Something wend wong! Contact testing!</string>
+    <string name="iv_sync_state_tv">SYNC STATE</string>
+    <string name="high_risk">High Risk</string>
     <string name="tv_required_text_asterisk">*</string>
-    <string name="btn_submit">जमा करना</string>
-    <string name="edit">संपादन करना</string>
-    <string name="radio_title_ds">%डी</string>
-    <string name="radio_title">%डी</string>
-    <string name="anc_visit_number">एएनसी विज़िट %1d</string>
-    <string name="anc_visits">एएनसी दौरे</string>
-    <string name="pnc_visit_number">दिन %1d पर पीएनसी का दौरा</string>
-    <string name="pnc_visits">पीएनसी भ्रमण</string>
-    <string name="view_visits">भ्रमण देखें</string>
-    <string name="icon_title_pmr">गर्भवती महिलाओं का पंजीकरण</string>
-    <string name="title_register_pregnancy">गर्भवती महिला का पंजीकरण</string>
-    <string name="title_view_pregnancy_registration">गर्भावस्था पंजीकरण देखें</string>
+    <string name="btn_submit">Submit</string>
+    <string name="edit">EDIT</string>
+    <string name="radio_title_ds">%s<span> **</span></string>
+    <string name="radio_title">%s<span> *</span></string>
+    <string name="anc_visit_number">ANC Visit %1d</string>
+    <string name="anc_visits">ANC Visits</string>
+    <string name="pnc_visit_number">PNC Visit on Day %1d</string>
+    <string name="pnc_visits">PNC Visits</string>
+    <string name="view_visits">View Visits</string>
+
+    <string name="icon_title_pmr">Pregnant Women Registration</string>
+    <string name="title_register_pregnancy">Pregnant Woman Registration</string>
+    <string name="title_view_pregnancy_registration">View Pregnancy Registration</string>
     <string name="pwr_eligibility_error">Pregnancy Registration form is not available </string>
     <!--  Post Natal Care  -->
-    <string name="pnc_period">पीएनसी अवधि</string>
-    <string name="pnc_visit_date">पीएनसी भ्रमण की तिथि</string>
-    <string name="pnc_ifa_tabs_given">दी गई आईएफए टैबलेट की संख्या</string>
-    <string name="pnc_contraception_method">गर्भनिरोध की विधि</string>
-    <string name="pnc_any_contraception_method">गर्भनिरोध की कोई भी विधि</string>
+    <string name="pnc_period">PNC Period</string>
+    <string name="pnc_visit_date">PNC Visit Date</string>
+    <string name="pnc_ifa_tabs_given">No. of IFA Tablets given</string>
+    <string name="pnc_contraception_method">Method of Contraception</string>
+    <string name="pnc_any_contraception_method">क्या दंपति ने प्रसव के बाद गर्भधारण से बचने के लिए परिवार नियोजन की किसी विधि का उपयोग किया है?</string>
     <string name="pnc_other_ppc_method">Other Contraception Method</string>
-    <string name="pnc_mother_danger_sign">माँ के लिए खतरे का संकेत</string>
-    <string name="pnc_other_danger_sign">अन्य खतरे के संकेत</string>
-    <string name="pnc_referral_facility">रेफरल सुविधा</string>
-    <string name="pnc_mother_death">माँ की मृत्यु</string>
-    <string name="pnc_death_date">मृत्यु तिथि</string>
+    <string name="pnc_mother_danger_sign">Mother Danger Sign</string>
+    <string name="pnc_other_danger_sign">Other Danger Sign</string>
+    <string name="pnc_referral_facility">Referral Facility</string>
+    <string name="pnc_mother_death">Mother Death</string>
+    <string name="pnc_death_date">Date of Death</string>
     <string name="pnc_death_cause">Cause of Maternal Death</string>
-    <string name="pnc_other_death_cause">मृत्यु के अन्य कारण</string>
-    <string name="pnc_death_place">मृत्यु स्थल</string>
-    <string name="pnc_remarks">टिप्पणी</string>
-    <string name="pnc_calcium_supplementation">कैल्शियम अनुपूरण</string>
-    <string name="pnc_maternal_symptoms">मातृ लक्षण</string>
-    <string name="pnc_other_maternal_symptoms">अन्य मातृ लक्षण</string>
-    <string name="pnc_pallor">पीलापन (एनीमिया की जांच)</string>
-    <string name="pnc_vaginal_bleeding">योनि से रक्तस्राव</string>
-    <string name="pnc_date_of_sterilization">नसबंदी की तिथि</string>
-    <string name="pnc_any_danger_sign">क्या कोई खतरे के संकेत हैं? क्या कोई उच्च जोखिम की पहचान की गई है?</string>
-    <string name="other_place_of_death">मृत्यु का अन्य स्थान</string>
-    <string name="pnc_ifa_max_error">आईएफए टैबलेट की संख्या 400 से अधिक नहीं हो सकती।</string>
-    <string name="pnc_calcium_max_error">कैल्शियम सप्लीमेंट की मात्रा 400 से अधिक नहीं होनी चाहिए।</string>
-    <string name="pnc_referral_alert_multiple_symptoms">रेफरल आवश्यक: मां में 2 या अधिक लक्षण पाए गए</string>
-    <string name="pnc_referral_alert_severe_pallor">रेफरल आवश्यक: गंभीर पीलापन पाया गया</string>
-    <string name="pnc_referral_alert_vaginal_bleeding">रेफरल आवश्यक: अत्यधिक रक्तस्राव या दुर्गंधयुक्त स्राव का पता चला</string>
-    <string name="tracking_form_filled_successfully">ट्रैकिंग फॉर्म सफलतापूर्वक भर गया</string>
-    <string name="form_save_failed">फॉर्म सेव करने में विफल। कृपया पुनः प्रयास करें।</string>
-    <string name="tracking_date">भ्रमण की तिथि</string>
-    <string name="visit_history_title">भ्रमण इतिहास</string>
-    <string name="no_visits_found">कोई भ्रमण नहीं मिला</string>
-    <string name="visit_count_icon">भ्रमण संख्या आइकन</string>
-    <string name="error_loading_visits">भ्रमण लोड करने में त्रुटि। कृपया पुनः प्रयास करें।</string>
-    <string name="long_to_string">%डी</string>
+    <string name="pnc_other_death_cause">Other Death Cause</string>
+    <string name="pnc_death_place">Place of Death</string>
+    <string name="pnc_remarks">Remarks</string>
+    <string name="pnc_calcium_supplementation">Calcium supplementation</string>
+    <string name="pnc_maternal_symptoms">Maternal Symptoms</string>
+    <string name="pnc_other_maternal_symptoms">Other maternal symptoms</string>
+    <string name="pnc_pallor">Pallor (Anemia check)</string>
+    <string name="pnc_vaginal_bleeding">Vaginal Bleeding</string>
+    <string name="pnc_date_of_sterilization">Date of Sterilization</string>
+    <string name="pnc_any_danger_sign">Any Danger Signs?\nAny High-risk identified?</string>
+    <string name="other_place_of_death">Other Place of Death</string>
+    <string name="pnc_ifa_max_error">IFA Tablets cannot exceed 400</string>
+    <string name="pnc_calcium_max_error">Calcium supplementation cannot exceed 400</string>
+    <string name="pnc_referral_alert_multiple_symptoms">Referral required: 2 or more maternal symptoms detected</string>
+    <string name="pnc_referral_alert_severe_pallor">Referral required: Severe pallor detected</string>
+    <string name="pnc_referral_alert_vaginal_bleeding">Referral required: Heavy bleeding or foul-smelling discharge detected</string>
+    <string name="tracking_form_filled_successfully">Tracking form filled successfully</string>
+    <string name="form_save_failed">Failed to save form. Please try again.</string>
+    <string name="tracking_date">Date of Visit</string>
+    <string name="visit_history_title">Visit History</string>
+    <string name="no_visits_found">No visits found</string>
+    <string name="visit_count_icon">Visit count icon</string>
+    <string name="error_loading_visits">Error loading visits. Please try again.</string>
+    <string name="long_to_string">%d</string>
     <string-array name="pnc_period_array">
         <item>1st Day</item>
         <item>3rd Day</item>
@@ -691,6 +708,7 @@
         <item>MiniLap</item>
         <item>Any Other Method</item>
     </string-array>
+
     <string-array name="antra_doses">
         <item>1st Dose</item>
         <item>2nd Dose</item>
@@ -703,108 +721,121 @@
         <item>9th Dose</item>
         <item>10th Dose</item>
     </string-array>
-    <string name="template_null">टेम्पलेट का नाम दर्ज करें</string>
-    <string name="templte_exists">टेम्पलेट का नाम पहले से मौजूद है</string>
-    <string name="delete_temp">टेम्पलेट हटाएं</string>
-    <string name="temp_name">टेम्पलेट नाम</string>
-    <string name="villageName">गाँव का नाम:</string>
-    <string name="required">आवश्यक</string>
-    <string name="version">संस्करण 6.0.0</string>
-    <string name="str_duration">अवधि:</string>
-    <string name="edd_date">ईडीडी तिथि</string>
-    <string name="update_btn">अद्यतन</string>
+
+    <string name="template_null">Enter Template Name</string>
+    <string name="templte_exists">Template name already exists</string>
+    <string name="delete_temp">Delete Template</string>
+    <string name="temp_name">Template Name</string>
+    <string name="villageName">Village Name:</string>
+    <string name="required">Required</string>
+    <string name="version">Version 6.0.0</string>
+    <string name="str_duration">Duration:</string>
+    <string name="edd_date">EDD Date</string>
+    <string name="update_btn">Update</string>
+
+
     <!-- EC Tracking Form -->
-    <string name="ec_tracking_title">लक्ष्य दंपत्ति ट्रैकिंग</string>
-    <string name="is_pregnancy_test_done">क्या गर्भावस्था परीक्षण किया गया है?</string>
-    <string name="pregnancy_test_result">गर्भावस्था परीक्षण का परिणाम</string>
-    <string name="is_woman_pregnant">क्या महिला गर्भवती है?</string>
-    <string name="using_family_planning">क्या आप परिवार नियोजन की किसी विधि का उपयोग कर रहे हैं / क्या आप ऐसी किसी विधि का उपयोग करना चाहते हैं?</string>
-    <string name="method_of_contraception_label">गर्भनिरोध की विधि</string>
-    <string name="any_other_method">कोई अन्य विधि</string>
-    <string name="antra_dose">अंतरा खुराक</string>
-    <string name="antra_injection_date">ANTRA इंजेक्शन की तिथि</string>
-    <string name="antra_due_date">अगले इंजेक्शन की नियत तिथि</string>
-    <string name="date_of_sterilization">नसबंदी की तिथि</string>
-    <string name="incentive_alert_title">प्रोत्साहन संबंधी जानकारी</string>
-    <string name="antra_incentive_alert">प्रोत्साहन राशि प्राप्त करने के लिए कृपया एमसीए कार्ड की फोटो अपलोड करें।</string>
-    <string name="sterilization_incentive_alert">प्रोत्साहन राशि प्राप्त करने के लिए कृपया डिस्चार्ज समरी की फोटो अपलोड करें।</string>
-    <string name="one_visit_per_month_error">महीने में केवल एक बार आने की अनुमति है।</string>
-    <string name="visit_date_before_registration_error">यात्रा की तिथि ईसी पंजीकरण तिथि से पहले नहीं हो सकती।</string>
-    <string name="lmp_backdated_limit_error">अंतिम मासिक धर्म अवधि (एलएमपी) की तारीख को अधिकतम 6 महीने तक ही पीछे किया जा सकता है।</string>
-    <string name="sterilization_backdated_limit_error">नसबंदी की तिथि को अधिकतम 2 महीने तक ही पीछे किया जा सकता है।</string>
-    <string name="antra_backdated_limit_error">ANTRA इंजेक्शन की तिथि को अधिकतम 2 महीने तक ही पीछे किया जा सकता है।</string>
-    <string name="antra_dose_restart_alert">अंतराल 120 दिनों से अधिक है। पहली खुराक से पुनः शुरू करना होगा।</string>
-    <string name="not_available">उपलब्ध नहीं है</string>
+    <string name="ec_tracking_title">Eligible Couple Tracking</string>
+    <string name="is_pregnancy_test_done">Is Pregnancy Test Done?</string>
+    <string name="pregnancy_test_result">Pregnancy Test Result</string>
+    <string name="is_woman_pregnant">Is the Woman Pregnant?</string>
+    <string name="using_family_planning">Are you using / Do you want to use any Family Planning Method?</string>
+    <string name="method_of_contraception_label">Method of Contraception</string>
+    <string name="any_other_method">Any Other Method</string>
+    <string name="antra_dose">ANTRA Dose</string>
+    <string name="antra_injection_date">Date of ANTRA Injection</string>
+    <string name="antra_due_date">Due Date of Next Injection</string>
+    <string name="date_of_sterilization">Date of Sterilization</string>
+    <string name="incentive_alert_title">Incentive Information</string>
+    <string name="antra_incentive_alert">Please upload MCA Card photo to claim your Incentive</string>
+    <string name="sterilization_incentive_alert">Please upload Discharge Summary photo to claim your Incentive</string>
+    <string name="one_visit_per_month_error">Only one visit is allowed per month</string>
+    <string name="visit_date_before_registration_error">Visit date cannot be before EC Registration date</string>
+    <string name="lmp_backdated_limit_error">LMP date can only be backdated up to 6 months</string>
+    <string name="sterilization_backdated_limit_error">Date of sterilization can only be backdated up to 2 months</string>
+    <string name="antra_backdated_limit_error">Date of ANTRA injection can only be backdated up to 2 months</string>
+    <string name="antra_dose_restart_alert">Gap is more than 120 days. Restarting from Dose 1.</string>
+    <string name="not_available">not available</string>
+
+
     <!-- RMNCHA+ Dashboard Module Strings -->
-    <string name="all_beneficiaries">सभी लाभार्थी</string>
-    <string name="eligible_couple_list">लक्ष्य दंपति सूची</string>
-    <string name="maternal_health">मातृ स्वास्थ्य</string>
-    <string name="child_care">बाल देखभाल</string>
-    <string name="disease_control">रोग नियंत्रण</string>
-    <string name="communicable_diseases">संक्रामक रोग</string>
-    <string name="routine_immunization">नियमित टीकाकरण</string>
-    <string name="high_risk_assessment">उच्च जोखिम मूल्यांकन</string>
-    <string name="general_opd_care_list">सामान्य ओपीडी देखभाल सूची</string>
-    <string name="death_reports">मृत्यु की रिपोर्ट</string>
-    <string name="village_level_forms">ग्राम स्तरीय प्रपत्र</string>
-    <string name="cd_icon_grid_icon">आइकन ग्रिड आइटम</string>
+    <string name="all_beneficiaries">All Beneficiaries</string>
+    <string name="eligible_couple_list">Eligible Couple List</string>
+    <string name="maternal_health">Maternal Health</string>
+    <string name="child_care">Child Care</string>
+    <string name="disease_control">Disease Control</string>
+    <string name="communicable_diseases">Communicable Diseases</string>
+    <string name="routine_immunization">Routine Immunization</string>
+    <string name="high_risk_assessment">High Risk Assessment</string>
+    <string name="general_opd_care_list">General OPD Care List</string>
+    <string name="death_reports">Death Reports</string>
+    <string name="village_level_forms">Village Level Forms</string>
+    <string name="cd_icon_grid_icon">Icon Grid Item</string>
+
     <!-- Maternal Health Sub-modules -->
-    <string name="pregnant_women_registration">गर्भवती महिलाओं का पंजीकरण</string>
-    <string name="delivery_outcome">प्रसव परिणाम</string>
-    <string name="pnc_mother_list">पीएनसी माताओं की सूची</string>
-    <string name="infant_registration">शिशु पंजीकरण</string>
-    <string name="child_registration">बाल पंजीकरण</string>
-    <string name="abortion_list">गर्भपात सूची</string>
-    <string name="e_pmsma_list">ई-पीएमएसएमए सूची</string>
+    <string name="pregnant_women_registration">Pregnant Women Registration</string>
+    <string name="delivery_outcome">Delivery Outcome</string>
+    <string name="pnc_mother_list">PNC Mother List</string>
+    <string name="infant_registration">Infant Registration</string>
+    <string name="child_registration">Child Registration</string>
+    <string name="abortion_list">Abortion List</string>
+    <string name="e_pmsma_list">e-PMSMA List</string>
+
     <!-- Child Care Sub-modules -->
     <string name="infant_list">Infant Registration List</string>
-    <string name="child_list">बच्चों की सूची</string>
-    <string name="adolescent_list">किशोर सूची</string>
-    <string name="children_under_5_years">5 वर्ष से कम आयु के बच्चे</string>
+    <string name="child_list">Child List</string>
+    <string name="adolescent_list">Adolescent List</string>
+    <string name="children_under_5_years">Children under 5 Years</string>
+
     <!-- Eligible Couple Sub-modules -->
-    <string name="eligible_couple_registration">लक्ष्य दंपत्ति पंजीकरण</string>
-    <string name="eligible_couple_tracking">लक्ष्य दंपत्ति ट्रैकिंग</string>
+    <string name="eligible_couple_registration">Eligible Couple Registration</string>
+    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
+
     <!-- Eligible Couple List Strings -->
     <string name="husband_name">Husband Name </string>
-    <string name="lmp_date">एलएमपी तिथि</string>
-    <string name="missed_period">मासिक धर्म छूट गया</string>
-    <string name="under_review">समीक्षा के अंतर्गत</string>
-    <string name="register">पंजीकरण करवाना</string>
-    <string name="no_eligible_couples_found">कोई पात्र दंपत्ति नहीं मिली</string>
-    <string name="no_registered_couples_found">कोई पंजीकृत जोड़े नहीं मिले</string>
-    <string name="call">बुलाना</string>
-    <string name="no_data">कोई डेटा नहीं</string>
-    <string name="search">खोज</string>
-    <string name="status">स्थिति</string>
-    <string name="age_ben">आयु</string>
-    <string name="tv_mob_no_ph">मोबाइल नंबर</string>
-    <string name="tv_rch_id">आरसीएच आईडी</string>
+    <string name="lmp_date">LMP Date</string>
+    <string name="missed_period">Missed Period</string>
+    <string name="under_review">Under Review</string>
+    <string name="register">Register</string>
+    <string name="no_eligible_couples_found">No Eligible Couples Found</string>
+    <string name="no_registered_couples_found">No Registered Couples Found</string>
+    <string name="call">Call</string>
+    <string name="no_data">No Data</string>
+    <string name="search">Search</string>
+    <string name="status">Status</string>
+    <string name="age_ben">Age</string>
+    <string name="tv_mob_no_ph">Mobile Number</string>
+    <string name="tv_rch_id">RCH ID</string>
+
+
     <!-- Pregnant Women Registration Strings -->
-    <string name="no_pregnant_women_found">कोई गर्भवती महिला नहीं मिली</string>
+    <string name="no_pregnant_women_found">No Pregnant Women Found</string>
+
     <!-- ANC Visits Strings -->
-    <string name="weeks_of_pregnancy">गर्भावस्था के सप्ताह</string>
-    <string name="edd">ईडीडी</string>
-    <string name="last_visit_date">अंतिम भ्रमण तिथि</string>
-    <string name="add_anc_visit">एएनसी भ्रमण तिथि</string>
-    <string name="add_pmsma">पीएमएसएमए जोड़ें</string>
-    <string name="no_anc_eligible_women_found">कोई भी एएनसी योग्य महिला नहीं मिली</string>
+    <string name="weeks_of_pregnancy">Weeks Of Pregnancy</string>
+    <string name="edd">EDD</string>
+    <string name="last_visit_date">Last Visit Date</string>
+    <string name="add_anc_visit">ADD ANC VISIT</string>
+    <string name="add_pmsma">ADD PMSMA</string>
+    <string name="no_anc_eligible_women_found">No ANC Eligible Women Found</string>
+
     <!-- Delivery Outcome Strings -->
-    <string name="no_delivered_women_found">प्रसव कराने वाली कोई महिला नहीं मिली</string>
-    <string name="do_mother_condition">प्रसव के तुरंत बाद माँ की स्थिति</string>
-    <string name="do_maternal_complications">मातृ संबंधी जटिलताएँ</string>
-    <string name="do_mother_currently_admitted">क्या माता वर्तमान में अस्पताल में भर्ती हैं?</string>
-    <string name="do_discharge_date">छुट्टी की तिथि</string>
-    <string name="do_discharge_time">छुट्टी का समय</string>
-    <string name="do_delivery_outcome">प्रसव के परिणाम</string>
-    <string name="do_live_birth">जीवित जन्म</string>
-    <string name="do_still_birth">मृत जन्म</string>
-    <string name="do_next">अगला</string>
-    <string name="do_inform_district_nodal_officer">जिला नोडल अधिकारी को सूचित करें</string>
-    <string name="do_alert_intensive_pnc">इस मां के लिए गहन प्रसवोत्तर देखभाल निगरानी की सिफारिश की जाती है।</string>
-    <string name="do_hysterectomy_note">गर्भाशय निकालने की सर्जरी के लिए परिवार नियोजन की स्थिति और पात्र दंपत्तियों की जानकारी अपडेट की जाएगी।</string>
-    <string name="do_maternal_death_audit">मातृ मृत्यु लेखापरीक्षा प्रपत्र खोला जाएगा।</string>
-    <string name="do_discharge_date_before_delivery">प्रसव की तारीख से पहले डिस्चार्ज की तारीख नहीं हो सकती।</string>
-    <string name="do_vitals_and_prescription">महत्वपूर्ण जानकारी एवं पर्ची</string>
+    <string name="no_delivered_women_found">No Delivered Women Found</string>
+    <string name="do_mother_condition">Mother\'s Condition Immediately Post-Delivery</string>
+    <string name="do_maternal_complications">Maternal Complications</string>
+    <string name="do_mother_currently_admitted">Mother Currently Admitted?</string>
+    <string name="do_discharge_date">Date of Discharge</string>
+    <string name="do_discharge_time">Time of Discharge</string>
+    <string name="do_delivery_outcome">Outcomes of Delivery</string>
+    <string name="do_live_birth">Live Birth</string>
+    <string name="do_still_birth">Still Birth</string>
+    <string name="do_next">Next</string>
+    <string name="do_inform_district_nodal_officer">Inform District Nodal Officer</string>
+    <string name="do_alert_intensive_pnc">Intensive PNC monitoring recommended for this mother.</string>
+    <string name="do_hysterectomy_note">Family planning status and eligible couple tracking will be updated for hysterectomy.</string>
+    <string name="do_maternal_death_audit">Maternal death audit form will be opened.</string>
+    <string name="do_discharge_date_before_delivery">Discharge date cannot be before delivery date.</string>
+    <string name="do_vitals_and_prescription">Vitals &amp; Prescription</string>
     <string-array name="do_mother_condition_array">
         <item>Healthy / Stable</item>
         <item>Complication (specify)</item>
@@ -828,33 +859,35 @@
         <item>Yes (Still in hospital)</item>
         <item>No (Discharged)</item>
     </string-array>
-    <string name="do_woman_name">महिला का नाम</string>
-    <string name="do_woman_age">आयु</string>
-    <string name="do_case_id">मामले आईडी:</string>
-    <string name="do_view_anc_history">एएनसी का इतिहास देखें</string>
-    <string name="do_delivery_date">प्रसव की तारीख</string>
-    <string name="do_delivery_time">प्रसव का समय</string>
-    <string name="do_gestational_age_at_delivery">प्रसव के समय गर्भकालीन आयु</string>
-    <string name="do_place_of_delivery">प्रसव का स्थान</string>
-    <string name="do_private_hospital_name">यदि निजी अस्पताल है, तो नाम निर्दिष्ट करें</string>
-    <string name="do_delivery_conducted_by">प्रसव कराया गया</string>
-    <string name="do_mode_of_delivery">प्रसव का तरीका</string>
-    <string name="do_indication_for_lscs">एलएससीएस/आपातकालीन एलएससीएस/सहायता प्राप्त एलएससीएस के लिए संकेत</string>
-    <string name="do_indication_for_lscs_other">अन्य (निर्दिष्ट करे)</string>
-    <string name="do_error_future_date">भविष्य की तिथि नहीं हो सकती</string>
-    <string name="do_error_date_range">तिथि 1% और 2% के बीच होनी चाहिए।</string>
-    <string name="do_alert_post_term_delivery">प्रसवोत्तर प्रसव</string>
-    <string name="do_alert_preterm_delivery">समयपूर्व प्रसव</string>
+
+    <string name="do_woman_name">Name of the woman</string>
+    <string name="do_woman_age">Age</string>
+    <string name="do_case_id">Case ID:</string>
+    <string name="do_view_anc_history">View ANC History</string>
+    <string name="do_delivery_date">Date of Delivery</string>
+    <string name="do_delivery_time">Time of Delivery</string>
+    <string name="do_gestational_age_at_delivery">Gestational Age at Delivery</string>
+    <string name="do_place_of_delivery">Place of Delivery</string>
+    <string name="do_private_hospital_name">If Private Hospital, specify name</string>
+    <string name="do_delivery_conducted_by">Delivery conducted by</string>
+    <string name="do_mode_of_delivery">Mode of Delivery</string>
+    <string name="do_indication_for_lscs">Indication for LSCS/Emergency LSCS/Assisted</string>
+    <string name="do_indication_for_lscs_other">Other (specify)</string>
+    <string name="do_error_future_date">Cannot be a future date</string>
+    <string name="do_error_date_range">Date must be between %1$s and %2$s</string>
+    <string name="do_alert_post_term_delivery">Post-term delivery</string>
+    <string name="do_alert_preterm_delivery">Preterm delivery</string>
     <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit within 24 hours.</string>
-    <string name="do_alert_on_the_way">प्रसव के 24 घंटे के भीतर तुरंत पीएनसी घर भ्रमण आवश्यक है</string>
-    <string name="do_alert_unskilled_delivery">अकुशल प्रसव सहायक। उच्च जोखिम वाली प्रसवोत्तर देखभाल की आवश्यकता है।</string>
-    <string name="do_alert_extremely_preterm">अत्यधिक समय से पहले जन्मा (&lt;28 सप्ताह)</string>
-    <string name="do_alert_very_preterm">बहुत समयपूर्व जन्म (28-32 सप्ताह)</string>
-    <string name="do_alert_moderate_preterm">मध्यम से देर से समय से पहले जन्म (32-37 सप्ताह)</string>
-    <string name="do_alert_term">अवधि (37-42 सप्ताह)</string>
-    <string name="do_alert_post_term">प्रसवोत्तर (&gt;42 सप्ताह)</string>
-    <string name="do_error_indication_required">कृपया कम से कम एक संकेत चुनें</string>
-    <string name="do_error_indication_other_required">कृपया संकेत स्पष्ट करें</string>
+    <string name="do_alert_on_the_way">Urgent PNC home visit within 24 hours required.</string>
+    <string name="do_alert_unskilled_delivery">Unskilled delivery. High-risk PNC needed.</string>
+    <string name="do_alert_extremely_preterm">Extremely Preterm (&lt;28 weeks)</string>
+    <string name="do_alert_very_preterm">Very Preterm (28–32 weeks)</string>
+    <string name="do_alert_moderate_preterm">Moderate to Late Preterm (32–37 weeks)</string>
+    <string name="do_alert_term">Term (37–42 weeks)</string>
+    <string name="do_alert_post_term">Post-term (&gt;42 weeks)</string>
+    <string name="do_error_indication_required">Please select at least one indication</string>
+    <string name="do_error_indication_other_required">Please specify the indication</string>
+
     <string-array name="do_place_of_delivery_array">
         <item>Sub-Centre</item>
         <item>Primary Health Centre (PHC)</item>
@@ -896,130 +929,148 @@
         <item>Maternal request</item>
         <item>Other (specify)</item>
     </string-array>
+
+
     <!-- PNC Mother List Strings -->
-    <string name="delivery_date">प्रसव की तारीख</string>
-    <string name="days_since_delivery">प्रसव के बाद से दिन</string>
-    <string name="no_pnc_mothers_found">कोई प्रसवोत्तर देखभाल करने वाली माताएँ नहीं मिलीं</string>
+    <string name="delivery_date">Date of Delivery</string>
+    <string name="days_since_delivery">Days Since Delivery</string>
+    <string name="no_pnc_mothers_found">No PNC Mothers Found</string>
+
     <!-- Infant Registration Strings -->
-    <string name="infant_reg_list">शिशु पंजीकरण सूची</string>
-    <string name="mother_name">मां का नाम</string>
-    <string name="no_infants_found">कोई शिशु नहीं मिला</string>
+    <string name="infant_reg_list">Infant Reg List</string>
+    <string name="mother_name">Mother\'s Name</string>
+    <string name="no_infants_found">No Infants Found</string>
+
     <!-- Child Registration Strings -->
     <string name="child_reg_list">Child Registration List</string>
-    <string name="no_children_found">कोई बच्चा नहीं मिला</string>
+    <string name="no_children_found">No Children Found</string>
+
     <!-- Abortion List Strings -->
-    <string name="abortion_date">गर्भपात की तिथि</string>
-    <string name="no_abortion_records_found">गर्भपात से संबंधित कोई रिकॉर्ड नहीं मिला</string>
+    <string name="abortion_date">Abortion Date</string>
+    <string name="no_abortion_records_found">No Abortion Records Found</string>
+
     <!-- e-PMSMA List Strings -->
-    <string name="no_pmsma_women_found">कोई पीएमएसएमए महिला नहीं मिली</string>
+    <string name="no_pmsma_women_found">No PMSMA Women Found</string>
+
     <!-- Adolescent List Strings -->
-    <string name="no_adolescents_found">कोई किशोर नहीं मिला</string>
+    <string name="no_adolescents_found">No Adolescents Found</string>
+
     <!-- Children under 5 Years List Strings -->
-    <string name="no_children_under_5_found">5 वर्ष से कम आयु के कोई बच्चे नहीं मिले</string>
-    <string name="check_sam">एसएएम की जाँच करें</string>
-    <string name="ors">ओआरएस</string>
-    <string name="ifa">यदि एक</string>
-    <string name="add_visit">भ्रमण जोड़े</string>
-    <string name="view_visit">भ्रमण देखे</string>
-    <string name="visit_history">भ्रमण इतिहास</string>
-    <string name="no_of_children">बच्चों की संख्या</string>
-    <string name="select_mariital_status">वैवाहिक स्थिति का चयन करें</string>
-    <string name="select_status_of_woman">महिला की स्थिति का चयन करें</string>
-    <string name="duplicate_face_detected">डुप्लिकेट चेहरा पाया गया</string>
-    <string name="duplicate_face_message">सिस्टम में एक मिलता-जुलता चेहरा मिला है। क्या आप मौजूदा रिकॉर्ड का उपयोग करना चाहते हैं या नया पंजीकरण कराना चाहते हैं?</string>
-    <string name="use_existing">मौजूदा का उपयोग करें</string>
-    <string name="continue_new">नया जारी रखें</string>
+    <string name="no_children_under_5_found">No Children under 5 Years Found</string>
+    <string name="check_sam">Check SAM</string>
+    <string name="ors">ORS</string>
+    <string name="ifa">IFA</string>
+    <string name="add_visit">Add Visit</string>
+    <string name="view_visit">View Visit</string>
+    <string name="visit_history">Visit History</string>
+    <string name="no_of_children">No. of Children</string>
+    <string name="select_mariital_status">Select Marital Status</string>
+    <string name="select_status_of_woman">Select Status of Woman</string>
+    <string name="duplicate_face_detected">Duplicate face detected</string>
+    <string name="duplicate_face_message">A similar face was found in the system. Do you want to use the existing record or continue with new registration?</string>
+    <string name="use_existing">Use Existing</string>
+    <string name="continue_new">Continue New</string>
+
     <!-- Status of Woman -->
     <string name="status_of_woman">Status of Woman <font color="#FF0000">*</font></string>
-    <string name="does_beneficiary_have_abha">क्या लाभार्थी के पास ABHA आईडी है?</string>
-    <string name="abha_id_number">ABHA आईडी नंबर (14 अंक)</string>
-    <string name="abha_enrollment_alert">कृपया लाभार्थी को ABHA ID के पंजीकरण के लिए परामर्श दें</string>
-    <string name="patient_details_edited_successfully">मरीज का विवरण सफलतापूर्वक संपादित हो गया।</string>
-    <string name="invalid_abha_format">ABHA आईडी 14 अंकों की होनी चाहिए।</string>
+    <string name="does_beneficiary_have_abha">Does beneficiary have ABHA ID?</string>
+    <string name="abha_id_number">ABHA ID Number (14 digits)</string>
+    <string name="abha_enrollment_alert">Please counsel the beneficiary to enroll for ABHA ID</string>
+    <string name="patient_details_edited_successfully">Patient details edited successfully</string>
+    <string name="invalid_abha_format">ABHA ID must be 14 digits</string>
+
     <!-- Beneficiary Card -->
-    <string name="beneficiary_card_title">लाभार्थी कार्ड</string>
-    <string name="age_gender_label">आयु / लिंग</string>
-    <string name="phone_number_label">फ़ोन नंबर</string>
-    <string name="village_name_label">गाँव का नाम</string>
-    <string name="abha_id_label">आभा आईडी</string>
-    <string name="generate_abha_id_btn">ABHA आईडी जनरेट करें</string>
-    <string name="continue_btn">जारी रखना</string>
-    <string name="view_beneficiary_card">कार्ड देखें</string>
+    <string name="beneficiary_card_title">Beneficiary Card</string>
+    <string name="age_gender_label">Age / Gender</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="village_name_label">Village Name</string>
+    <string name="abha_id_label">ABHA ID</string>
+    <string name="generate_abha_id_btn">Generate ABHA ID</string>
+    <string name="continue_btn">Continue</string>
+    <string name="view_beneficiary_card">View Card</string>
+
     <!-- Edit Beneficiary Details -->
-    <string name="edit_beneficiary_details">लाभार्थी विवरण संपादित करें</string>
-    <string name="last_name_optional">अंतिम नाम (वैकल्पिक)</string>
-    <string name="phone_number_optional">फ़ोन नंबर (वैकल्पिक)</string>
-    <string name="age_mandatory">आयु</string>
+    <string name="edit_beneficiary_details">Edit Beneficiary Details</string>
+    <string name="last_name_optional">Last Name (Optional)</string>
+    <string name="phone_number_optional">Phone Number (Optional)</string>
+    <string name="age_mandatory">Age <font color="#FF0000">*</font></string>
     <string name="years_mandatory">Years <font color="#FF0000">*</font></string>
-    <string name="months_optional">महीने</string>
-    <string name="days_optional">दिन</string>
-    <string name="save_btn">सहेजें</string>
-    <string name="cancel_btn">रद्द करना</string>
-    <string name="edit_btn">संपादन करना</string>
-    <string name="age_years_required">आयु (वर्षों में) आवश्यक है</string>
-    <string name="beneficiary_updated_successfully">लाभार्थी का विवरण सफलतापूर्वक अपडेट हो गया है।</string>
-    <string name="status_of_woman_required">महिला का दर्जा आवश्यक है</string>
-    <string name="speak_now">अब बोलो...</string>
-    <string name="speech_recognition_error">वाक् पहचान उपलब्ध नहीं है</string>
-    <string name="beneficiary_photo_content_description">%s की तस्वीर</string>
-    <string name="desc_patient_photo">मरीज की तस्वीर</string>
+    <string name="months_optional">Months</string>
+    <string name="days_optional">Days</string>
+    <string name="save_btn">Save</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="edit_btn">Edit</string>
+    <string name="age_years_required">Age in years is required</string>
+    <string name="beneficiary_updated_successfully">Beneficiary details updated successfully</string>
+    <string name="status_of_woman_required">Status of Woman is required</string>
+    <string name="speak_now">Speak now...</string>
+    <string name="speech_recognition_error">Speech recognition not available</string>
+    <string name="beneficiary_photo_content_description">Photo of %s</string>
+    <string name="desc_patient_photo">Patient photo</string>
+
     <!-- Neonatal Outcome Strings -->
-    <string name="neonatal_outcome">नवजात शिशु का परिणाम</string>
-    <string name="baby_number">शिशु %1d</string>
-    <string name="no_outcome_at_birth">जन्म के समय परिणाम</string>
-    <string name="no_sex">लिंग</string>
-    <string name="no_cried_immediately">क्या जन्म के तुरंत बाद बच्चा रोया था?</string>
-    <string name="no_type_of_resuscitation">पुनर्जीवन का प्रकार</string>
-    <string name="no_birth_weight">जन्म के समय वजन (ग्राम में)</string>
-    <string name="no_congenital_anomaly_detected">क्या कोई जन्मजात असामान्यता पाई गई है?</string>
-    <string name="no_type_of_congenital_anomaly">जन्मजात विकृति का प्रकार</string>
-    <string name="no_other_congenital_anomaly">अन्य जन्मजात असामान्यता (स्पष्ट करें)</string>
-    <string name="no_newborn_complications">नवजात शिशु संबंधी जटिलताएं</string>
-    <string name="no_current_status_of_baby">बच्चे की वर्तमान स्थिति</string>
-    <string name="no_cause_of_death">मृत्यु का कारण</string>
-    <string name="no_other_cause_of_death">मृत्यु का अन्य कारण (स्पष्ट करें)</string>
-    <string name="no_birth_dose_vaccines_given">जन्म के समय टीके की खुराक दी गई</string>
-    <string name="no_reason_for_no_vaccines">जन्म के समय टीके की खुराक न देने का कारण</string>
-    <string name="no_vitamin_k_injection_given">क्या विटामिन K का इंजेक्शन दिया गया?</string>
-    <string name="no_reason_for_no_vitamin_k">विटामिन K का इंजेक्शन न देने का कारण</string>
-    <string name="no_birth_certificate_issued">क्या जन्म प्रमाण पत्र जारी किया गया है?</string>
+    <string name="neonatal_outcome">Neonatal Outcome</string>
+    <string name="baby_number">Baby %1d</string>
+    <string name="no_outcome_at_birth">Outcome at Birth</string>
+    <string name="no_sex">Sex</string>
+    <string name="no_cried_immediately">Cried immediately after birth?</string>
+    <string name="no_type_of_resuscitation">Type of Resuscitation</string>
+    <string name="no_birth_weight">Birth Weight (in grams)</string>
+    <string name="no_congenital_anomaly_detected">Any congenital anomaly detected?</string>
+    <string name="no_type_of_congenital_anomaly">Type of congenital anomaly</string>
+    <string name="no_other_congenital_anomaly">Other congenital anomaly (specify)</string>
+    <string name="no_newborn_complications">Newborn Complications</string>
+    <string name="no_current_status_of_baby">Current Status of Baby</string>
+    <string name="no_cause_of_death">Cause of Death</string>
+    <string name="no_other_cause_of_death">Other cause of death (specify)</string>
+    <string name="no_birth_dose_vaccines_given">Birth dose vaccines given</string>
+    <string name="no_reason_for_no_vaccines">Reason for not giving birth dose vaccines</string>
+    <string name="no_vitamin_k_injection_given">Vitamin K injection given?</string>
+    <string name="no_reason_for_no_vitamin_k">Reason for not giving Vitamin K injection</string>
+    <string name="no_birth_certificate_issued">Birth Certificate issued?</string>
+
     <!-- Alerts -->
-    <string name="no_alert_lbw">कम जन्म भार (एलबीडब्ल्यू): 1500-2499 ग्राम। गहन निगरानी आवश्यक है।</string>
-    <string name="no_alert_vlbw">अत्यंत कम जन्म भार (VLBW): 1000-1499 ग्राम। तत्काल एसएनसीयू रेफरल की सिफारिश की जाती है।</string>
-    <string name="no_alert_elbw">अत्यंत कम जन्म भार (ELBW): 1000 ग्राम। गंभीर - NICU देखभाल आवश्यक है।</string>
+    <string name="no_alert_lbw">Low Birth Weight (LBW): 1500-2499g. Close monitoring required.</string>
+    <string name="no_alert_vlbw">Very Low Birth Weight (VLBW): 1000-1499g. Immediate SNCU referral recommended.</string>
+    <string name="no_alert_elbw">Extremely Low Birth Weight (ELBW): \u003c1000g. Critical - NICU care required.</string>
     <string name="no_alert_macrosomia">Macrosomia (flag for maternal GDM screening)</string>
     <string name="no_alert_ambiguous_sex">Ambiguous genitalia detected. Pediatric specialist referral required.</string>
-    <string name="no_alert_stillbirth">मृत जन्म दर्ज किया गया है। मृत जन्म ऑडिट फॉर्म प्रारंभ किया जाएगा</string>
-    <string name="no_alert_neonatal_death">नवजात मृत्यु दर्ज की गई है। नवजात मृत्यु ऑडिट फॉर्म प्रारंभ किया जाएगा</string>
-    <string name="no_alert_complications">जटिलताओं की स्थिति में तत्काल बाल रोग विशेषज्ञ/विशेषज्ञ से परामर्श आवश्यक है।</string>
-    <string name="no_alert_pnc_counseling">नवजात शिशु की देखभाल के संबंध में मां को उचित प्रसवोत्तर परामर्श सुनिश्चित करें।</string>
+    <string name="no_alert_stillbirth">Stillbirth recorded. Stillbirth audit form will be triggered.</string>
+    <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
+    <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
+    <string name="no_alert_pnc_counseling">Ensure proper PNC counseling for mother on newborn care.</string>
+
     <!-- Validation -->
-    <string name="no_error_birth_weight_range">जन्म के समय शिशु का वजन 500 ग्राम से 6000 ग्राम के बीच होना चाहिए।</string>
-    <string name="no_error_birth_weight_required">कृपया जन्म के समय का वजन दर्ज करें</string>
-    <string name="no_error_outcome_required">कृपया जन्म के समय परिणाम का चयन करें</string>
-    <string name="no_error_sex_required">कृपया लिंग चुनें</string>
-    <string name="no_error_crying_status_required">कृपया रोने की स्थिति चुनें</string>
-    <string name="no_error_resuscitation_required">कृपया पुनर्जीवन का प्रकार चुनें</string>
-    <string name="no_error_current_status_required">कृपया बच्चे की वर्तमान स्थिति का चयन करें</string>
-    <string name="no_error_cause_of_death_required">कृपया मृत्यु का कारण चुनें</string>
-    <string name="no_error_vaccines_required">कृपया दिए गए टीकों का चयन करें</string>
-    <string name="no_error_vitamin_k_required">कृपया बताएं कि क्या विटामिन K दिया गया था</string>
+    <string name="no_error_birth_weight_range">Birth weight must be between 500g and 6000g</string>
+    <string name="no_error_birth_weight_required">Please enter birth weight</string>
+    <string name="no_error_outcome_required">Please select outcome at birth</string>
+    <string name="no_error_sex_required">Please select sex</string>
+    <string name="no_error_crying_status_required">Please select crying status</string>
+    <string name="no_error_resuscitation_required">Please select type of resuscitation</string>
+    <string name="no_error_current_status_required">Please select current status of baby</string>
+    <string name="no_error_cause_of_death_required">Please select cause of death</string>
+    <string name="no_error_vaccines_required">Please select vaccines given</string>
+    <string name="no_error_vitamin_k_required">Please select if Vitamin K was given</string>
+
     <string-array name="no_outcome_at_birth_array">
         <item>Live Birth</item>
         <item>Still Birth (Fresh)</item>
         <item>Still Birth (Macerated)</item>
         <item>Diedrelative during delivery</item>
     </string-array>
+
     <string-array name="no_sex_array">
         <item>Male</item>
         <item>Female</item>
         <item>Ambiguous</item>
     </string-array>
+
     <string-array name="no_cried_immediately_array">
         <item>Immediate cry</item>
         <item>Cried after resuscitation</item>
         <item>Did not cry</item>
     </string-array>
+
     <string-array name="no_type_of_resuscitation_array">
         <item>Stimulation</item>
         <item>Suctioning</item>
@@ -1029,11 +1080,13 @@
         <item>Chest compressions</item>
         <item>Medications</item>
     </string-array>
+
     <string-array name="no_congenital_anomaly_array">
         <item>Yes</item>
         <item>No</item>
         <item>Suspected (under evaluation)</item>
     </string-array>
+
     <string-array name="no_type_of_congenital_anomaly_array">
         <item>Neural tube defect</item>
         <item>Cleft lip/palate</item>
@@ -1047,6 +1100,7 @@
         <item>Other</item>
         <item>None</item>
     </string-array>
+
     <string-array name="no_newborn_complications_array">
         <item>Birth asphyxia</item>
         <item>Respiratory distress</item>
@@ -1060,12 +1114,14 @@
         <item>None</item>
         <item>Other</item>
     </string-array>
+
     <string-array name="no_current_status_array">
         <item>Healthy and with mother</item>
         <item>Admitted (SNCU/NICU)</item>
         <item>Admitted (General ward)</item>
         <item>Died</item>
     </string-array>
+
     <string-array name="no_cause_of_death_array">
         <item>Birth asphyxia</item>
         <item>Prematurity</item>
@@ -1077,83 +1133,18 @@
         <item>Unknown</item>
         <item>Other</item>
     </string-array>
+
     <string-array name="no_birth_dose_vaccines_array">
         <item>BCG</item>
         <item>Hepatitis B (Birth dose)</item>
         <item>OPV-0</item>
         <item>None</item>
     </string-array>
+
     <string-array name="no_birth_certificate_array">
         <item>Yes</item>
         <item>In process</item>
         <item>No (Not applied)</item>
     </string-array>
     <string name="antra_next_due_date">ANTRA की अगली देय तिथि</string>
-    <string name="tab_dashboard">डैशबोर्ड</string>
-    <string name="cho_role">सामुदायिक स्वास्थ्य अधिकारी</string>
-    <string name="proceed_with_registration">पंजीकरण की प्रक्रिया आगे बढ़ाएं</string>
-    <string name="no_face_detected">कोई चेहरा नहीं पहचाना गया</string>
-    <string name="multiple_faces_detected">कई चेहरे पहचाने गए</string>
-    <string name="invalid_face_detection">चेहरे की पहचान अमान्य है</string>
-    <string name="failed_to_generate_face_embeddings">चेहरे के एम्बेडिंग उत्पन्न करने में विफल</string>
-    <string name="face_embeddings_generated">चेहरे के एम्बेडिंग उत्पन्न हुए</string>
-    <string name="face_detection_failed">चेहरे की पहचान विफल: %1$s</string>
-    <string name="unable_to_fetch_details">विवरण प्राप्त करने में असमर्थ</string>
-    <string name="na">उपलब्ध नहीं है</string>
-    <string name="previous_activity">पिछली गतिविधि</string>
-    <string name="activity_details">गतिविधि विवरण</string>
-    <string name="activity_form">गतिविधि प्रपत्र</string>
-    <string name="medicine_not_available">दवा उपलब्ध नहीं है</string>
-    <string name="login_failed_toast">लॉगिन विफल</string>
-    <string name="processing">प्रक्रिया जारी है…</string>
-    <string name="invalid_input">अमान्य निवेश</string>
-    <string name="delivery_record_not_found">डिलीवरी रिकॉर्ड नहीं मिला</string>
-    <string name="save_successful_toast">सफलतापूर्वक सहेजा गया</string>
-    <string name="invalid_data_entered">गलत डेटा दर्ज किया गया</string>
-    <string name="please_wait_master_location">कृपया प्रतीक्षा करें जब तक कि मुख्य स्थान निर्देशांक प्राप्त नहीं हो जाते।</string>
-    <string name="data_saved">डेटा सुरक्षित है!</string>
-    <string name="error_saving_master_location">मुख्य लोकेशन को सहेजते समय त्रुटि हुई</string>
-    <string name="please_fill_all_details">कृपया सभी विवरण भरें</string>
-    <string name="all_pnc_visits_completed">सभी प्रसवपूर्व स्वास्थ्य देखभाल (PNC) भ्रमण पूरे हो गए हैं</string>
-    <string name="all_4_anc_visits_completed">सभी 4 ANC भ्रमण पूरे हो गए हैं</string>
-    <string name="verify_abha_otp">ABHA OTP सत्यापित करें</string>
-    <string name="events_for_date_already_exist">इस तिथि के लिए कार्यक्रम पहले से मौजूद हैं</string>
-    <string name="proceed_to_home">होम पेज पर जाएं</string>
-    <string name="invalid_image_try_again">अमान्य छवि! पुनः प्रयास करें</string>
-    <string name="exception_image_processing_failed">अपवाद! छवि प्रसंस्करण विफल रहा</string>
-    <string name="eyes_closed_try_again">आंखें बंद! फिर से कोशिश करो</string>
-    <string name="home_visit">घर भ्रमण</string>
-    <string name="please_capture_image_to_continue">आगे बढ़ने के लिए कृपया छवि कैप्चर करें।</string>
-    <string name="loading_patient_data_please_wait">मरीज का डेटा लोड हो रहा है, कृपया प्रतीक्षा करें…</string>
-    <string name="please_enter_beneficiary_name">कृपया लाभार्थी का नाम दर्ज करें</string>
-    <string name="batch_selection">बैच चयन</string>
-    <string name="template_deleted">टेम्पलेट हटा दिया गया</string>
-    <string name="max_duration_allowed_6">अवधि के लिए अधिकतम अनुमत मान 6 है।</string>
-    <string name="location_update_message">आप निर्धारित बिंदु से 2 मीटर से अधिक दूर चले गए हैं। क्या आप अपना स्थान अपडेट करना चाहते हैं?</string>
-    <string name="beneficiary_abha_mapping">लाभार्थी ABHA मैपिंग।</string>
-    <string name="alert_title">चेतावनी</string>
-    <string name="please_confirm_logout_exit">कृपया लॉगआउट करने और बाहर निकलने की पुष्टि करें।</string>
-    <string name="login_away_from_facility">आप अपने कार्यालय से बाहर रहकर लॉग इन करने का प्रयास कर रहे हैं। क्या आप पुनः प्रयास करना चाहेंगे?</string>
-    <string name="patient_already_exists">रोगी पहले से मौजूद है</string>
-    <string name="error_saving_patient">मरीज को बचाने में त्रुटि</string>
-    <string name="esanjeevani_login">ई-संजीवनी लॉगिन</string>
-    <string name="update_ready_to_install">अपडेट इंस्टॉल करने के लिए तैयार है।</string>
-    <string name="restart">पुनः आरंभ करें</string>
-    <string name="applytxt">आवेदन करना</string>
-    <string name="choose_application_language">आवेदन की भाषा चुनें</string>
-    <string name="update_canceled_or_failed">अपडेट रद्द कर दिया गया या असफल रहा।</string>
-    <string name="try_again_btn">पुनः प्रयास करें</string>
-    <string name="permission_denied">अनुमति नहीं मिली</string>
-    <string name="not_scheduled">निर्धारित नहीं</string>
-    <string name="location_provider_gps_disabled">स्थान प्रदाता/जीपीएस अक्षम</string>
-    <string name="invalid_image_multiple_faces">अमान्य छवि! एकाधिक चेहरे पाए गए</string>
-    <string name="linking_abha_to_beneficiary">ABHA को लाभार्थी से जोड़ना</string>
-    <string name="error_saving_patient_message">डेटा अपर्याप्त होने के कारण मरीज़ को सहेजने में विफलता मिली। कृपया सुनिश्चित करें कि सभी डेटा सिंक हो गए हैं।</string>
-    <string name="case_closure_yes">हाँ</string>
-    <string name="case_closure_no">नहीं</string>
-    <string name="anc_visit_number_format">एएनसी विज़िट %1d</string>
-    <string name="completed_with_date">पूर्ण</string>
-    <string name="nav_error">नेविगेशन त्रुटि:</string>
-    <string name="ben_visit_date">भ्रमण तिथि:</string>
-    <string name="ben_visit_num">विज़िट संख्या:</string>
 </resources>
