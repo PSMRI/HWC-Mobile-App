@@ -123,6 +123,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         photoURI?.let { outState.putParcelable("photoURI", it) }
+        outState.putString("currentFileName", currentFileName)
+        outState.putString("currentPhotoPath", currentPhotoPath)
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -133,6 +135,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         if (savedInstanceState != null) {
             @Suppress("DEPRECATION")
             photoURI = savedInstanceState.getParcelable("photoURI")
+            currentFileName = savedInstanceState.getString("currentFileName")
+            currentPhotoPath = savedInstanceState.getString("currentPhotoPath")
         }
         binding.ivImgCapture.setOnClickListener {
             if (::dialog.isInitialized && dialog.isShowing) {
@@ -231,11 +235,19 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     when {
                         detectionResult.detections().isEmpty() -> {
                             // No face — keep the placeholder, show toast
+                            embeddings = null
+                            photoURI = null
+                            currentFileName = null
+                            currentPhotoPath = null
                             Toast.makeText(requireContext(), getString(R.string.no_face_detected), Toast.LENGTH_SHORT).show()
                             binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                             faceDetector.close()
                         }
                         detectionResult.detections().size > 1 -> {
+                            embeddings = null
+                            photoURI = null
+                            currentFileName = null
+                            currentPhotoPath = null
                             Toast.makeText(requireContext(), getString(R.string.multiple_faces_detected), Toast.LENGTH_SHORT).show()
                             binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                             faceDetector.close()
@@ -258,6 +270,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                             // Validate dimensions
                             if (width <= 0 || height <= 0 || left >= imageBitmap.width || top >= imageBitmap.height) {
+                                embeddings = null
+                                photoURI = null
+                                currentFileName = null
+                                currentPhotoPath = null
                                 Toast.makeText(requireContext(), getString(R.string.invalid_face_detection), Toast.LENGTH_SHORT).show()
                                 binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                                 faceDetector.close()
@@ -280,7 +296,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
 
                             if (embeddings == null) {
+                                photoURI = null
+                                currentFileName = null
+                                currentPhotoPath = null
                                 Toast.makeText(requireContext(), getString(R.string.failed_to_generate_face_embeddings), Toast.LENGTH_SHORT).show()
+                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                                 return@registerForActivityResult
                             }
 
@@ -302,6 +322,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     }
 
                 } catch (e: Exception) {
+                    embeddings = null
+                    photoURI = null
+                    currentFileName = null
+                    currentPhotoPath = null
                     Toast.makeText(requireContext(), getString(R.string.face_detection_failed, e.message.orEmpty()), Toast.LENGTH_SHORT).show()
                     binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                 }

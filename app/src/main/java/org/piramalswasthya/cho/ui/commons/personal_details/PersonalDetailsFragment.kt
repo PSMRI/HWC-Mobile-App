@@ -211,6 +211,8 @@ class PersonalDetailsFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         photoURI?.let { outState.putParcelable("photoURI", it) }
+        outState.putString("currentFileName", currentFileName)
+        outState.putString("currentPhotoPath", currentPhotoPath)
     }
 
     override fun onCreateView(
@@ -219,6 +221,8 @@ class PersonalDetailsFragment : Fragment() {
         if (savedInstanceState != null) {
             @Suppress("DEPRECATION")
             photoURI = savedInstanceState.getParcelable("photoURI")
+            currentFileName = savedInstanceState.getString("currentFileName")
+            currentPhotoPath = savedInstanceState.getString("currentPhotoPath")
         }
         HomeViewModel.resetSearchBool()
         _binding = FragmentPersonalDetailsBinding.inflate(inflater, container, false)
@@ -875,11 +879,16 @@ class PersonalDetailsFragment : Fragment() {
                             val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
                             val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
 
-                            val width = (right - left).coerceAtLeast(1)
-                            val height = (bottom - top).coerceAtLeast(1)
+                            val width = right - left
+                            val height = bottom - top
 
-// No need to validate width/height again — coercion guarantees ≥ 1
-
+                            if (width <= 0 || height <= 0 || left >= imageBitmap.width || top >= imageBitmap.height) {
+                                Toast.makeText(
+                                    requireContext(), "Invalid face detection", Toast.LENGTH_SHORT
+                                ).show()
+                                faceDetector.close()
+                                return@registerForActivityResult
+                            }
 
                             // Crop face from image
                             val faceBitmap = Bitmap.createBitmap(
