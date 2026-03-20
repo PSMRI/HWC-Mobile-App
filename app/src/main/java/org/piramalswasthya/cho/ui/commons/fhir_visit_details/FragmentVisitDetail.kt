@@ -80,6 +80,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     companion object {
         private const val DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss"
+        private const val OTHER_CPHC_SERVICES = "Other CPHC Services"
     }
 
     var fragmentContainerId = 0
@@ -328,7 +329,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     requireContext(),
                     R.layout.dropdown_subcategory,
                     R.id.tv_dropdown_item_text,
-                    DropdownConst.female_1_to_59)
+                    DropdownConst.female_15_to_18)
                 binding.subCatInput.setAdapter(subCatAdapter)
                 isAdapterSet = true
             } else {
@@ -1063,7 +1064,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val selectedCategory = selectedCategoryRadioButton?.tag.toString()
         val isNewCC = binding.radioButton3.isChecked
 
-        if (selectedCategory == "Other CPHC Services" && isNewCC) {
+        if (selectedCategory == OTHER_CPHC_SERVICES && isNewCC) {
             val isValid = !isAnyItemEmpty()
             binding.subCatDropDown.isEnabled = isValid
             binding.reasonForVisitDropDown.isEnabled = isValid
@@ -1076,6 +1077,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     private val normalizedOphthalmicChiefComplaints: Set<String> by lazy {
         DropdownConst.ophthalmicChiefComplaints.mapTo(mutableSetOf()) { normalizeComplaint(it) }
+    }
+
+    private val normalizedOralChiefComplaints: Set<String> by lazy {
+        DropdownConst.oralChiefComplaints.mapTo(mutableSetOf()) { normalizeComplaint(it) }
     }
 
     private fun normalizeComplaint(value: String?): String {
@@ -1097,43 +1102,64 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         return complaints.any { normalizeComplaint(it) in normalizedOphthalmicChiefComplaints }
     }
 
+    private fun hasOralChiefComplaint(): Boolean {
+        val complaints = if (viewModel.getIsFollowUp()) {
+            chiefComplaintDB2.map { it.chiefComplaint }
+        } else {
+            itemList.map { it.chiefComplaint }
+        }
+        return complaints.any { normalizeComplaint(it) in normalizedOralChiefComplaints }
+    }
+
+
+    private fun resolveChildSubCategoryOptions(): List<String> {
+        val isFemale = benVisitInfo.genderName?.lowercase() == "female"
+        return when {
+            ageCheckForFemaleChild(benVisitInfo.patient.dob) && isFemale -> DropdownConst.age_0_to_1
+            age15To18ForFemaleChild(benVisitInfo.patient.dob) && isFemale -> DropdownConst.female_15_to_18
+            else -> DropdownConst.age_0_to_1
+        }
+    }
+
+    private fun resolveElderlySubCategoryOptions(): List<String> =
+        when (benVisitInfo.genderName?.lowercase()) {
+            "male"   -> DropdownConst.male_elderly
+            "female" -> DropdownConst.female_elderly
+            else     -> listOf(DropdownConst.oral)
+        }
+
+    private fun resolveFemaleSubCategoryOptions(): List<String> =
+        if (ageCheckForNCD(benVisitInfo.patient.dob)) DropdownConst.female_ncd
+        else DropdownConst.female_1_to_59
+
+    private fun resolveBaseSubCategoryOptions(): List<String> = when {
+        ageCheckForChild(benVisitInfo.patient.dob) -> resolveChildSubCategoryOptions()
+        ageCheckForElderly(benVisitInfo.patient.dob) -> resolveElderlySubCategoryOptions()
+        benVisitInfo.genderName?.lowercase() == "male" && ageCheckForNCD(benVisitInfo.patient.dob) ->
+            DropdownConst.male_ncd
+        ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female" ->
+            resolveFemaleSubCategoryOptions()
+        else -> listOf(DropdownConst.oral)
+    }
 
     private fun rebuildSubCategoryAdapter() {
         if (!::benVisitInfo.isInitialized) return
         val includeOphthalmic = hasOphthalmicChiefComplaint()
+        val includeOral = hasOralChiefComplaint()
 
         fun List<String>.withOptionalOphthalmic(): List<String> =
             if (includeOphthalmic) {
                 if (contains(DropdownConst.ophthalmic)) this else this + DropdownConst.ophthalmic
-            }
-            else this.filter { it != DropdownConst.ophthalmic }
+            } else this.filter { it != DropdownConst.ophthalmic }
 
-        val options: List<String> = when {
-            ageCheckForChild(benVisitInfo.patient.dob) -> when {
-                ageCheckForFemaleChild(benVisitInfo.patient.dob) &&
-                        benVisitInfo.genderName?.lowercase() == "female" ->
-                    DropdownConst.age_0_to_1.withOptionalOphthalmic()
-                age15To18ForFemaleChild(benVisitInfo.patient.dob) &&
-                        benVisitInfo.genderName?.lowercase() == "female" ->
-                    DropdownConst.female_1_to_59.withOptionalOphthalmic()
-                else -> DropdownConst.age_0_to_1.withOptionalOphthalmic()
-            }
-            ageCheckForElderly(benVisitInfo.patient.dob) -> when (benVisitInfo.genderName?.lowercase()) {
-                "male"   -> DropdownConst.male_elderly.withOptionalOphthalmic()
-                "female" -> DropdownConst.female_elderly.withOptionalOphthalmic()
-                else     -> listOf(DropdownConst.oral)
-            }
-            benVisitInfo.genderName?.lowercase() == "male" &&
-                    ageCheckForNCD(benVisitInfo.patient.dob) ->
-                DropdownConst.male_ncd.withOptionalOphthalmic()
-            ageCheckForFemale(benVisitInfo.patient.dob) &&
-                    benVisitInfo.genderName?.lowercase() == "female" -> when {
-                ageCheckForNCD(benVisitInfo.patient.dob) ->
-                    DropdownConst.female_ncd.withOptionalOphthalmic()
-                else -> DropdownConst.female_1_to_59.withOptionalOphthalmic()
-            }
-            else -> listOf(DropdownConst.oral).withOptionalOphthalmic()
-        }
+        fun List<String>.withOptionalOral(): List<String> =
+            if (includeOral) {
+                if (contains(DropdownConst.oral)) this else this + DropdownConst.oral
+            } else this.filter { it != DropdownConst.oral }
+
+        val options = resolveBaseSubCategoryOptions()
+            .withOptionalOphthalmic()
+            .withOptionalOral()
 
         val currentSubCat = binding.subCatInput.text?.toString() ?: ""
         binding.subCatInput.setAdapter(
@@ -1585,7 +1611,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val selectedCategoryRadioButton =
             view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
         val selectedCategory = selectedCategoryRadioButton?.tag.toString()
-        if(selectedCategory == "Other CPHC Services"){
+        if(selectedCategory == OTHER_CPHC_SERVICES){
             val reasonForVisit = binding.reasonForVisitInput.text.toString()
             if(reasonForVisit == DropdownConst.anc){
 

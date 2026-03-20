@@ -186,7 +186,6 @@ class OphthalmicScreeningViewModel @Inject constructor(
         currentBenVisitNo = benVisitNo
         _reasonForVisit.value = reasonForVisit
         _showScreeningModule.value = (reasonForVisit == DropdownConst.screening)
-        _showCaseIdSection.value = (reasonForVisit == DropdownConst.REASON_SYMPTOMATIC)
         _showInjuryTraumaModule.value = isInjuryTraumaReason(reasonForVisit)
         resetFields()
 
@@ -427,10 +426,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
         val injuryTypes = _injuryTypes.value ?: emptyList()
         _showForeignBodyAlert.value = injuryTypes.contains(DropdownConst.INJURY_MECHANICAL_FOREIGN_BODY) &&
                 _foreignBodyRemoval.value == DropdownConst.FOREIGN_BODY_LODGED_IN_CORNEA
-        // Alert fires only after the user has answered the "Chemical Exposure – Thorough Wash
-        // Performed" Yes/No field (PRD: alert is conditional on the field, not on injury type alone).
         _showChemicalExposureAlert.value = injuryTypes.contains(DropdownConst.INJURY_CHEMICAL) &&
-                _chemicalExposure.value == true
+                _chemicalExposure.value != null
     }
 
 
@@ -478,13 +475,13 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private fun deriveAlerts() {
         val conditions = _caseIdConditions.value ?: emptyList()
         _showCataractAlert.value = conditions.contains(DropdownConst.CONDITION_CATARACT) &&
-                _cataractSymptoms.value == true
+                (_cataractSymptoms.value ?: false)
         _showGlaucomaAlert.value = conditions.contains(DropdownConst.CONDITION_GLAUCOMA) &&
-                _glaucomaSymptoms.value == true
+                (_glaucomaSymptoms.value ?: false)
         _showDrAlert.value = conditions.contains(DropdownConst.CONDITION_DIABETIC_RETINOPATHY) &&
-                _drSymptoms.value == true
+                (_drSymptoms.value ?: false)
         _showPresbyopiaAlert.value = conditions.contains(DropdownConst.CONDITION_PRESBYOPIA) &&
-                _presbyopiaSymptoms.value == true
+                (_presbyopiaSymptoms.value ?: false)
         val trachoma = _trachomaStatus.value
         _showTrachomaAlert.value = conditions.contains(DropdownConst.CONDITION_TRACHOMA) &&
                 (trachoma == DropdownConst.TRACHOMA_SUSPECTED_ACTIVE ||
@@ -492,7 +489,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _showCornealAlert.value = conditions.contains(DropdownConst.CONDITION_CORNEAL_DISEASE) &&
                 !_cornealDiseaseType.value.isNullOrEmpty()
         _showVitaminAAlert.value = conditions.contains(DropdownConst.CONDITION_DRY_EYE) &&
-                _vitaminADeficiency.value == true
+                (_vitaminADeficiency.value ?: false)
     }
 
     private fun updateSectionVisibility() {
@@ -500,15 +497,13 @@ class OphthalmicScreeningViewModel @Inject constructor(
         val screening = _isScreeningPerformed.value
         val chart = _chartUsed.value
 
-        _showChartSection.value = (diabetic == false)
+        _showChartSection.value = (diabetic?.not() ?: false)
 
-        _showDistVASection.value = when {
-            diabetic == true && screening == true -> true
-            diabetic == false && chart == DropdownConst.CHART_SNELLENS -> true
-            else -> false
-        }
+        _showDistVASection.value =
+            (diabetic ?: false) && (screening ?: false) ||
+                    (diabetic?.not() ?: false) && chart == DropdownConst.CHART_SNELLENS
 
-        _showNearVASection.value = (diabetic == false && chart == DropdownConst.CHART_NEAR_VISION)
+        _showNearVASection.value = (diabetic?.not() ?: false) && chart == DropdownConst.CHART_NEAR_VISION
 
         val conditions = _caseIdConditions.value ?: emptyList()
         updateConditionSubFieldVisibility(conditions)
@@ -553,9 +548,9 @@ class OphthalmicScreeningViewModel @Inject constructor(
 
         val isMando = reason == DropdownConst.REASON_SYMPTOMATIC && (
                 isVisualImpairment(rightVA ?: "") ||
-                isVisualImpairment(leftVA ?: "") ||
-                isNearVAReduced(nearVaValue)
-        )
+                        isVisualImpairment(leftVA ?: "") ||
+                        isNearVAReduced(nearVaValue)
+                )
         _isCaseIdMandatory.value = isMando
 
         val result = when {
@@ -566,20 +561,20 @@ class OphthalmicScreeningViewModel @Inject constructor(
                     caseIdByVA = false
                 )
             reason == DropdownConst.REASON_SYMPTOMATIC -> {
-                val validCaseId = if (isMando) caseIds.isNotEmpty() else true
+                val validCaseId = !isMando || caseIds.isNotEmpty()
                 val subFieldsValid = areVisibleSubFieldsAnswered()
                 ValidationResult(fieldsValid = validCaseId && subFieldsValid, alert = false, caseIdByVA = false)
             }
-            reason == DropdownConst.screening && diabetic == true ->
+            reason == DropdownConst.screening && (diabetic ?: false) ->
                 validateDiabeticPath(rightVA, leftVA)
-            reason == DropdownConst.screening && diabetic == false ->
+            reason == DropdownConst.screening && (diabetic?.not() ?: false) ->
                 validateNonDiabeticPath(rightVA, leftVA, nearVaValue)
             else ->
                 ValidationResult(fieldsValid = false, alert = false, caseIdByVA = false)
         }
 
+        _showCaseIdSection.value = reason == DropdownConst.REASON_SYMPTOMATIC || result.caseIdByVA
         _showVisualImpairmentAlert.value = result.alert
-        _showCaseIdSection.value = (reason == DropdownConst.REASON_SYMPTOMATIC) || result.caseIdByVA
         _canProceed.value = result.fieldsValid && !result.caseIdByVA
     }
 
@@ -656,11 +651,6 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private fun getMissingInjuryTraumaField(): MissingField {
         val injuries = _injuryTypes.value ?: emptyList()
         if (injuries.isEmpty()) return MissingField.INJURY_TYPE
-        if (injuries.contains(DropdownConst.INJURY_CHEMICAL) &&
-            _chemicalExposure.value == null
-        ) {
-            return MissingField.CHEMICAL_EXPOSURE
-        }
         return MissingField.NONE
     }
 
@@ -730,7 +720,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
 
                 var conditionsJson: String? = null
                 val conditions = _caseIdConditions.value
-                if (conditions?.isNotEmpty() == true) {
+                if (!conditions.isNullOrEmpty()) {
                     try {
                         conditionsJson = moshiAdapter.toJson(conditions)
                     } catch (e: Exception) {

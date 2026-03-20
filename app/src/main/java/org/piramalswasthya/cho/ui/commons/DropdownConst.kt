@@ -26,6 +26,15 @@ class DropdownConst {
         val dental: String = "Dental"
         val entReasons: List<String> = listOf(ear, nose, throat)
         val oralReasons: List<String> = listOf(dental)
+        val oralChiefComplaints: Set<String> = setOf(
+            "Dental Decay",
+            "Gum diseases",
+            "Irregular arrangement of teeth and jaws",
+            "Abnormal growth, patch or ulcers",
+            "Cleft lip/ palate",
+            "Dental Fluorosis",
+            "Dental Emergencies"
+        )
 
         val elderlyAndPalliative: String = "Elderly & Palliative"
         val persistentPain: String = "Persistent pain"
