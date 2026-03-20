@@ -1147,4 +1147,108 @@
         <item>No (Not applied)</item>
     </string-array>
     <string name="antra_next_due_date">ANTRA की अगली देय तिथि</string>
+
+    <!-- Mental Health Screening Strings - Hindi -->
+    <!-- Response Options -->
+    <string name="yes_option">हाँ</string>
+    <string name="no_option">नहीं</string>
+
+    <!-- Initial Screening Questions -->
+    <string name="emotional_behavioural_concerns">मानसिक या व्यवहार संबंधी समस्याएं मौजूद हैं</string>
+    <string name="substance_use_concerns">पदार्थों के उपयोग से संबंधित समस्याएं मौजूद हैं</string>
+    <string name="self_harm_suicide_thoughts">आत्महत्या या आत्मक्षति के विचार मौजूद हैं</string>
+    <string name="memory_loss_confusion">स्मृति हानि या भ्रम मौजूद है</string>
+    <string name="seizures_fits_loc">दौरे, मिर्गी, या चेतना का नुकसान मौजूद है</string>
+    <string name="postpartum_woman">प्रसव के बाद की महिला (≤12 महीने बाद)</string>
+
+    <!-- PHQ-9 Depression Screening -->
+    <string name="phq9_section_title">PHQ-9 अवसाद स्क्रीनिंग</string>
+    <string name="phq9_little_interest">चीजों में रुचि या खुशी की कमी</string>
+    <string name="phq9_feeling_down">उदास, निराश, या असहाय महसूस करना</string>
+    <string name="phq9_sleep_trouble">सोने में परेशानी, या बहुत अधिक नींद आना</string>
+    <string name="phq9_feeling_tired">थकान या ऊर्जा की कमी महसूस करना</string>
+    <string name="phq9_appetite">भूख में कमी या अधिक भोजन करना</string>
+    <string name="phq9_feeling_bad">अपने बारे में बुरा महसूस करना या असफल महसूस करना</string>
+    <string name="phq9_concentration">ध्यान केंद्रित करने में कठिनाई</string>
+    <string name="phq9_moving_slowly">धीरे-धीरे हिलना-डुलना या सुस्त दिखना</string>
+    <string name="phq9_self_harm_thoughts">आत्महत्या या आत्मक्षति के विचार</string>
+    <string name="phq9_total_score">PHQ-9 कुल स्कोर</string>
+
+    <string-array name="phq9_options">
+        <item>0 - बिल्कुल नहीं</item>
+        <item>1 - कई दिन</item>
+        <item>2 - आधे से अधिक दिन</item>
+        <item>3 - लगभग हर दिन</item>
+    </string-array>
+
+    <!-- Substance Use Screening & Brief Intervention -->
+    <string name="substance_section_title">पदार्थ उपयोग स्क्रीनिंग और संक्षिप्त हस्तक्षेप</string>
+    <string name="substance_alcohol_use">शराब का उपयोग</string>
+    <string name="substance_tobacco_use">तंबाकू का उपयोग</string>
+    <string name="substance_other_use">अन्य पदार्थों का उपयोग</string>
+    <string name="substance_other_specify">अन्य पदार्थ निर्दिष्ट करें</string>
+    <string name="substance_frequency">पदार्थ उपयोग की आवृत्ति</string>
+    <string name="brief_intervention_given">संक्षिप्त हस्तक्षेप दिया गया</string>
+
+    <string-array name="substance_frequency_options">
+        <item>रोज</item>
+        <item>साप्ताहिक</item>
+        <item>मासिक</item>
+        <item>कभी-कभार</item>
+    </string-array>
+
+    <!-- Suicide Risk Screening -->
+    <string name="suicide_section_title">आत्महत्या के जोखिम की स्क्रीनिंग</string>
+    <string name="suicide_current_thoughts">आत्महत्या या आत्मक्षति के वर्तमान विचार</string>
+    <string name="suicide_plan">आत्मक्षति की विशिष्ट योजना है</string>
+    <string name="suicide_previous_attempt">पहले आत्महत्या का प्रयास</string>
+    <string name="suicide_hopelessness">निराशा या बोझ होने की भावना व्यक्त की गई</string>
+    <string name="suicide_risk_level">आत्महत्या का जोखिम स्तर</string>
+
+    <string-array name="suicide_risk_options">
+        <item>कम</item>
+        <item>मध्यम</item>
+        <item>उच्च</item>
+    </string-array>
+
+    <!-- Dementia Screening Checklist -->
+    <string name="dementia_section_title">मनोभ्रंश स्क्रीनिंग चेकलिस्ट</string>
+    <string name="dementia_progressive_memory_loss">प्रगतिशील स्मृति हानि</string>
+    <string name="dementia_forgetting_recent">हाल की घटनाएं भूल जाना</string>
+    <string name="dementia_disorientation">समय/स्थान के प्रति भ्रम</string>
+    <string name="dementia_daily_activities">दैनिक गतिविधियों को प्रबंधित करने में कठिनाई</string>
+    <string name="dementia_behavioural_changes">व्यवहार परिवर्तन</string>
+
+    <!-- Epilepsy Screening Checklist -->
+    <string name="epilepsy_section_title">मिर्गी स्क्रीनिंग चेकलिस्ट</string>
+    <string name="epilepsy_recurrent_seizures">बार-बार दौरे/मिर्गी</string>
+    <string name="epilepsy_jerky_movements">एपिसोड के दौरान झटकेदार गतिविधि</string>
+    <string name="epilepsy_tongue_bite">एपीसोड के दौरान जीभ में कटौती या असंयम</string>
+    <string name="epilepsy_confusion_after">एपिसोड के बाद भ्रम</string>
+    <string name="epilepsy_loc_duration">चेतना हानि की अवधि</string>
+
+    <string-array name="epilepsy_duration_options">
+        <item>5 मिनट से कम</item>
+        <item>5–15 मिनट</item>
+        <item>15 मिनट से अधिक</item>
+    </string-array>
+
+    <!-- Mental Health Referral Reasons -->
+    <string name="mental_health_reason_for_referral">रेफरल का कारण</string>
+    <string-array name="mental_health_referral_reasons">
+        <item>अवसाद (PHQ-9 स्कोर ≥10)</item>
+        <item>आत्महत्या का जोखिम पहचाना गया</item>
+        <item>पदार्थ उपयोग विकार</item>
+        <item>मनोभ्रंश संदिग्ध</item>
+        <item>मिर्गी संदिग्ध</item>
+        <item>प्रसवोत्तर अवसाद</item>
+        <item>गंभीर मानसिक विकार संदिग्ध</item>
+        <item>अन्य</item>
+    </string-array>
+
+    <!-- Yes/No Options Array -->
+    <string-array name="yes_no_options">
+        <item>हाँ</item>
+        <item>नहीं</item>
+    </string-array>
 </resources>

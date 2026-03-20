@@ -1754,8 +1754,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if(reasonForVisit == DropdownConst.mentalHealth || reasonForVisit == DropdownConst.mentalHealthScreening){
-                saveVisitData { benVisitNo ->
-                    isNavigationInProgress = true
+
+                isNavigationInProgress = true
+                saveVisitData (skipChiefComplaintValidation = viewModel.getIsFollowUp()){ benVisitNo ->
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToMentalHealthScreeningFormFragment(
                             patientID = benVisitInfo.patient.patientID,

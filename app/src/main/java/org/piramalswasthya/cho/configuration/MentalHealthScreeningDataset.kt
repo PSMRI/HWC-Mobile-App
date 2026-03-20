@@ -5,403 +5,480 @@ import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
-
+import org.piramalswasthya.cho.R
 class MentalHealthScreeningDataset(
-    context: Context,
+    private val context: Context,
     currentLanguage: Languages
 ) : ReferralFollowUpDataset(context, currentLanguage) {
 
-    companion object {
-        // PHQ-9 scoring options
-        private val phq9Options = arrayOf(
-            "0 - Not at all",
-            "1 - Several days",
-            "2 - More than half the days",
-            "3 - Nearly every day"
-        )
-
-        private val substanceFrequencyOptions = arrayOf(
-            "Daily",
-            "Weekly",
-            "Monthly",
-            "Occasionally"
-        )
-
-        private val suicideRiskOptions = arrayOf(
-            "Low",
-            "Moderate",
-            "High"
-        )
-
-        private val epilepsyDurationOptions = arrayOf(
-            "Less than 5 minutes",
-            "5–15 minutes",
-            "More than 15 minutes"
-        )
-    }
+    // Resource-backed arrays
+    private lateinit var phq9Options: Array<String>
+    private lateinit var substanceFrequencyOptions: Array<String>
+    private lateinit var suicideRiskOptions: Array<String>
+    private lateinit var epilepsyDurationOptions: Array<String>
+    private lateinit var yesNoOptions: Array<String>
 
     private lateinit var cache: MentalHealthScreeningCache
+
+    init {
+        // Load all string arrays from resources
+        loadResourceStrings()
+    }
+
+    private fun loadResourceStrings() {
+        context.resources.apply {
+            phq9Options = getStringArray(R.array.phq9_options)
+            substanceFrequencyOptions = getStringArray(R.array.substance_frequency_options)
+            suicideRiskOptions = getStringArray(R.array.suicide_risk_options)
+            epilepsyDurationOptions = getStringArray(R.array.epilepsy_duration_options)
+            yesNoOptions = getStringArray(R.array.yes_no_options)
+        }
+    }
 
     // ── Section 1: Initial Screening Questions (Mandatory Radio) ─────
 
     // Q1
-    private val emotionalBehaviouralConcerns = FormElement(
-        id = 101,
-        inputType = InputType.RADIO,
-        title = "Emotional or behavioural concerns present",
-        entries = arrayOf("Yes", "No"),
-        required = true,
-        hasDependants = true
-    )
+    private val emotionalBehaviouralConcerns: FormElement by lazy {
+        FormElement(
+            id = 101,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.emotional_behavioural_concerns),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
 
     // Q2
-    private val substanceUseConcerns = FormElement(
-        id = 102,
-        inputType = InputType.RADIO,
-        title = "Substance use related concerns present",
-        entries = arrayOf("Yes", "No"),
-        required = true,
-        hasDependants = true
-    )
+    private val substanceUseConcerns: FormElement by lazy {
+        FormElement(
+            id = 102,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.substance_use_concerns),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
 
     // Q3
-    private val selfHarmSuicideThoughts = FormElement(
-        id = 103,
-        inputType = InputType.RADIO,
-        title = "Thoughts of self-harm or suicide present",
-        entries = arrayOf("Yes", "No"),
-        required = true,
-        hasDependants = true
-    )
+    private val selfHarmSuicideThoughts: FormElement by lazy {
+        FormElement(
+            id = 103,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.self_harm_suicide_thoughts),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
 
     // Q4
-    private val memoryLossConfusion = FormElement(
-        id = 104,
-        inputType = InputType.RADIO,
-        title = "Memory loss or confusion present",
-        entries = arrayOf("Yes", "No"),
-        required = true,
-        hasDependants = true
-    )
+    private val memoryLossConfusion: FormElement by lazy {
+        FormElement(
+            id = 104,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.memory_loss_confusion),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
 
     // Q5
-    private val seizuresFitsLoc = FormElement(
-        id = 105,
-        inputType = InputType.RADIO,
-        title = "Seizures, fits, or loss of consciousness present",
-        entries = arrayOf("Yes", "No"),
-        required = true,
-        hasDependants = true
-    )
+    private val seizuresFitsLoc: FormElement by lazy {
+        FormElement(
+            id = 105,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.seizures_fits_loc),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
 
     // Q6 (auto-derived from RMNCH+A, but shown as read-only info)
-    private val isPostpartum = FormElement(
-        id = 106,
-        inputType = InputType.RADIO,
-        title = "Post-partum woman (\u226412 months after delivery)",
-        entries = arrayOf("Yes", "No"),
-        required = false,
-        hasDependants = true
-    )
+    private val isPostpartum: FormElement by lazy {
+        FormElement(
+            id = 106,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.postpartum_woman),
+            entries = yesNoOptions,
+            required = false,
+            hasDependants = true
+        )
+    }
 
     // ── Section 2: PHQ-9 Depression Screening ────────────────────────
     // Enabled by Q1=Yes OR Q3=Yes OR Q6=Yes
 
-    private val phq9Header = FormElement(
-        id = 200,
-        inputType = InputType.HEADLINE,
-        title = "PHQ-9 Depression Screening",
-        required = false
-    )
+    private val phq9Header: FormElement by lazy {
+        FormElement(
+            id = 200,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.phq9_section_title),
+            required = false
+        )
+    }
 
-    private val phq9LittleInterest = FormElement(
-        id = 201,
-        inputType = InputType.RADIO,
-        title = "Little interest or pleasure in doing things",
-        entries = phq9Options,
-        required = true
-    )
+    private val phq9LittleInterest: FormElement by lazy {
+        FormElement(
+            id = 201,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.phq9_little_interest),
+            entries = phq9Options,
+            required = true
+        )
+    }
 
-    private val phq9FeelingDown = FormElement(
-        id = 202,
-        inputType = InputType.RADIO,
-        title = "Feeling down, depressed, or hopeless",
-        entries = phq9Options,
-        required = true
-    )
+    private val phq9FeelingDown: FormElement by lazy {
+        FormElement(
+            id = 202,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.phq9_feeling_down),
+            entries = phq9Options,
+            required = true
+        )
+    }
 
-    private val phq9SleepTrouble = FormElement(
-        id = 203,
-        inputType = InputType.RADIO,
-        title = "Trouble falling/staying asleep, or sleeping too much",
-        entries = phq9Options,
-        required = true
-    )
+    private val phq9SleepTrouble: FormElement by lazy {
+        FormElement(
+            id = 203,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.phq9_sleep_trouble),
+            entries = phq9Options,
+            required = true
+        )
+    }
 
-    private val phq9FeelingTired = FormElement(
-        id = 204,
-        inputType = InputType.RADIO,
-        title = "Feeling tired or having little energy",
-        entries = phq9Options,
-        required = true
-    )
+    private val phq9FeelingTired: FormElement by lazy {
+        FormElement(
+            id = 204,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.phq9_feeling_tired),
+            entries = phq9Options,
+            required = true
+        )
+    }
 
-    private val phq9Appetite = FormElement(
-        id = 205,
-        inputType = InputType.RADIO,
-        title = "Poor appetite or overeating",
-        entries = phq9Options,
-        required = true
-    )
+    private val phq9Appetite: FormElement by lazy {
+        FormElement(
+            id = 205,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.phq9_appetite),
+            entries = phq9Options,
+            required = true
+        )
+    }
 
-    private val phq9FeelingBad = FormElement(
-        id = 206,
-        inputType = InputType.RADIO,
-        title = "Feeling bad about yourself — or that you are a failure",
-        entries = phq9Options,
-        required = true
-    )
+    private val phq9FeelingBad: FormElement by lazy {
+        FormElement(
+            id = 206,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.phq9_feeling_bad),
+            entries = phq9Options,
+            required = true
+        )
+    }
 
-    private val phq9Concentration = FormElement(
-        id = 207,
-        inputType = InputType.RADIO,
-        title = "Trouble concentrating on things",
-        entries = phq9Options,
-        required = true
-    )
+    private val phq9Concentration: FormElement by lazy {
+        FormElement(
+            id = 207,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.phq9_concentration),
+            entries = phq9Options,
+            required = true
+        )
+    }
 
-    private val phq9MovingSlowly = FormElement(
-        id = 208,
-        inputType = InputType.RADIO,
-        title = "Moving or speaking slowly, or being fidgety/restless",
-        entries = phq9Options,
-        required = true
-    )
+    private val phq9MovingSlowly: FormElement by lazy {
+        FormElement(
+            id = 208,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.phq9_moving_slowly),
+            entries = phq9Options,
+            required = true
+        )
+    }
 
-    private val phq9SelfHarmThoughts = FormElement(
-        id = 209,
-        inputType = InputType.RADIO,
-        title = "Thoughts that you would be better off dead or of hurting yourself",
-        entries = phq9Options,
-        required = true
-    )
+    private val phq9SelfHarmThoughts: FormElement by lazy {
+        FormElement(
+            id = 209,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.phq9_self_harm_thoughts),
+            entries = phq9Options,
+            required = true
+        )
+    }
 
-    private val phq9TotalScore = FormElement(
-        id = 210,
-        inputType = InputType.TEXT_VIEW,
-        title = "PHQ-9 Total Score",
-        required = false
-    )
+    private val phq9TotalScore: FormElement by lazy {
+        FormElement(
+            id = 210,
+            inputType = InputType.TEXT_VIEW,
+            title = context.getString(R.string.phq9_total_score),
+            required = false
+        )
+    }
 
     // ── Section 3: Substance Use Screening & Brief Intervention ──────
     // Enabled by Q2=Yes
 
-    private val substanceHeader = FormElement(
-        id = 300,
-        inputType = InputType.HEADLINE,
-        title = "Substance Use Screening & Brief Intervention",
-        required = false
-    )
+    private val substanceHeader: FormElement by lazy {
+        FormElement(
+            id = 300,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.substance_section_title),
+            required = false
+        )
+    }
 
-    private val substanceAlcoholUse = FormElement(
-        id = 301,
-        inputType = InputType.RADIO,
-        title = "Alcohol use",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val substanceAlcoholUse: FormElement by lazy {
+        FormElement(
+            id = 301,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.substance_alcohol_use),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val substanceTobaccoUse = FormElement(
-        id = 302,
-        inputType = InputType.RADIO,
-        title = "Tobacco use",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val substanceTobaccoUse: FormElement by lazy {
+        FormElement(
+            id = 302,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.substance_tobacco_use),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val substanceOtherUse = FormElement(
-        id = 303,
-        inputType = InputType.RADIO,
-        title = "Other substance use",
-        entries = arrayOf("Yes", "No"),
-        required = true,
-        hasDependants = true
-    )
+    private val substanceOtherUse: FormElement by lazy {
+        FormElement(
+            id = 303,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.substance_other_use),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
 
-    private val substanceOtherSpecify = FormElement(
-        id = 304,
-        inputType = InputType.EDIT_TEXT,
-        title = "Specify other substance",
-        required = true,
-        etMaxLength = 200,
-        etInputType = android.text.InputType.TYPE_CLASS_TEXT
-    )
+    private val substanceOtherSpecify: FormElement by lazy {
+        FormElement(
+            id = 304,
+            inputType = InputType.EDIT_TEXT,
+            title = context.getString(R.string.substance_other_specify),
+            required = true,
+            etMaxLength = 200,
+            etInputType = android.text.InputType.TYPE_CLASS_TEXT
+        )
+    }
 
-    private val substanceFrequency = FormElement(
-        id = 305,
-        inputType = InputType.DROPDOWN,
-        title = "Frequency of substance use",
-        entries = substanceFrequencyOptions,
-        required = true
-    )
+    private val substanceFrequency: FormElement by lazy {
+        FormElement(
+            id = 305,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.substance_frequency),
+            entries = substanceFrequencyOptions,
+            required = true
+        )
+    }
 
-    private val briefInterventionGiven = FormElement(
-        id = 306,
-        inputType = InputType.RADIO,
-        title = "Brief intervention given",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val briefInterventionGiven: FormElement by lazy {
+        FormElement(
+            id = 306,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.brief_intervention_given),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
     // ── Section 4: Suicide Risk Screening ────────────────────────────
     // Enabled by Q3=Yes (shown AFTER PHQ-9)
 
-    private val suicideHeader = FormElement(
-        id = 400,
-        inputType = InputType.HEADLINE,
-        title = "Suicide Risk Screening",
-        required = false
-    )
+    private val suicideHeader: FormElement by lazy {
+        FormElement(
+            id = 400,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.suicide_section_title),
+            required = false
+        )
+    }
 
-    private val suicideCurrentThoughts = FormElement(
-        id = 401,
-        inputType = InputType.RADIO,
-        title = "Current thoughts of self-harm or ending life",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val suicideCurrentThoughts: FormElement by lazy {
+        FormElement(
+            id = 401,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.suicide_current_thoughts),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val suicidePlan = FormElement(
-        id = 402,
-        inputType = InputType.RADIO,
-        title = "Has a specific plan to harm self",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val suicidePlan: FormElement by lazy {
+        FormElement(
+            id = 402,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.suicide_plan),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val suicidePreviousAttempt = FormElement(
-        id = 403,
-        inputType = InputType.RADIO,
-        title = "Previous suicide attempt",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val suicidePreviousAttempt: FormElement by lazy {
+        FormElement(
+            id = 403,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.suicide_previous_attempt),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val suicideHopelessness = FormElement(
-        id = 404,
-        inputType = InputType.RADIO,
-        title = "Expressed hopelessness or being a burden",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val suicideHopelessness: FormElement by lazy {
+        FormElement(
+            id = 404,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.suicide_hopelessness),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val suicideRiskLevel = FormElement(
-        id = 405,
-        inputType = InputType.DROPDOWN,
-        title = "Suicide risk level",
-        entries = suicideRiskOptions,
-        required = true
-    )
+    private val suicideRiskLevel: FormElement by lazy {
+        FormElement(
+            id = 405,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.suicide_risk_level),
+            entries = suicideRiskOptions,
+            required = true
+        )
+    }
 
     // ── Section 5: Dementia Screening Checklist ──────────────────────
     // Enabled by Q4=Yes
 
-    private val dementiaHeader = FormElement(
-        id = 500,
-        inputType = InputType.HEADLINE,
-        title = "Dementia Screening Checklist",
-        required = false
-    )
+    private val dementiaHeader: FormElement by lazy {
+        FormElement(
+            id = 500,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.dementia_section_title),
+            required = false
+        )
+    }
 
-    private val dementiaProgressiveMemoryLoss = FormElement(
-        id = 501,
-        inputType = InputType.RADIO,
-        title = "Progressive memory loss",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val dementiaProgressiveMemoryLoss: FormElement by lazy {
+        FormElement(
+            id = 501,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.dementia_progressive_memory_loss),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val dementiaForgettingRecent = FormElement(
-        id = 502,
-        inputType = InputType.RADIO,
-        title = "Forgetting recent events",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val dementiaForgettingRecent: FormElement by lazy {
+        FormElement(
+            id = 502,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.dementia_forgetting_recent),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val dementiaDisorientation = FormElement(
-        id = 503,
-        inputType = InputType.RADIO,
-        title = "Disorientation to time/place",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val dementiaDisorientation: FormElement by lazy {
+        FormElement(
+            id = 503,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.dementia_disorientation),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val dementiaDailyActivities = FormElement(
-        id = 504,
-        inputType = InputType.RADIO,
-        title = "Difficulty managing daily activities",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val dementiaDailyActivities: FormElement by lazy {
+        FormElement(
+            id = 504,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.dementia_daily_activities),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val dementiaBehaviouralChanges = FormElement(
-        id = 505,
-        inputType = InputType.RADIO,
-        title = "Behavioural changes",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val dementiaBehaviouralChanges: FormElement by lazy {
+        FormElement(
+            id = 505,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.dementia_behavioural_changes),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
     // ── Section 6: Epilepsy Screening Checklist ──────────────────────
     // Enabled by Q5=Yes
 
-    private val epilepsyHeader = FormElement(
-        id = 600,
-        inputType = InputType.HEADLINE,
-        title = "Epilepsy Screening Checklist",
-        required = false
-    )
+    private val epilepsyHeader: FormElement by lazy {
+        FormElement(
+            id = 600,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.epilepsy_section_title),
+            required = false
+        )
+    }
 
-    private val epilepsyRecurrentSeizures = FormElement(
-        id = 601,
-        inputType = InputType.RADIO,
-        title = "Recurrent seizures/fits",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val epilepsyRecurrentSeizures: FormElement by lazy {
+        FormElement(
+            id = 601,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.epilepsy_recurrent_seizures),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val epilepsyJerkyMovements = FormElement(
-        id = 602,
-        inputType = InputType.RADIO,
-        title = "Jerky movements during episode",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val epilepsyJerkyMovements: FormElement by lazy {
+        FormElement(
+            id = 602,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.epilepsy_jerky_movements),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val epilepsyTongueBite = FormElement(
-        id = 603,
-        inputType = InputType.RADIO,
-        title = "Tongue bite or incontinence during episode",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val epilepsyTongueBite: FormElement by lazy {
+        FormElement(
+            id = 603,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.epilepsy_tongue_bite),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val epilepsyConfusionAfter = FormElement(
-        id = 604,
-        inputType = InputType.RADIO,
-        title = "Confusion after episode",
-        entries = arrayOf("Yes", "No"),
-        required = true
-    )
+    private val epilepsyConfusionAfter: FormElement by lazy {
+        FormElement(
+            id = 604,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.epilepsy_confusion_after),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
 
-    private val epilepsyLocDuration = FormElement(
-        id = 605,
-        inputType = InputType.DROPDOWN,
-        title = "Duration of loss of consciousness",
-        entries = epilepsyDurationOptions,
-        required = true
-    )
+    private val epilepsyLocDuration: FormElement by lazy {
+        FormElement(
+            id = 605,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.epilepsy_loc_duration),
+            entries = epilepsyDurationOptions,
+            required = true
+        )
+    }
 
     // ── Section F: Referral & Follow-up ──────────────────────────────
 
@@ -410,17 +487,8 @@ class MentalHealthScreeningDataset(
     override val reasonForReferral = FormElement(
         id = 703,
         inputType = InputType.DROPDOWN,
-        title = "Reason for referral",
-        entries = arrayOf(
-            "Depression (PHQ-9 score \u226510)",
-            "Suicide risk identified",
-            "Substance use disorder",
-            "Dementia suspected",
-            "Epilepsy suspected",
-            "Post-partum depression",
-            "Severe mental disorder suspected",
-            "Other"
-        ),
+        title = context.getString(R.string.mental_health_reason_for_referral),
+        entries = context.resources.getStringArray(R.array.mental_health_referral_reasons),
         required = true
     )
     override val followUpRequired = createFollowUpRequired(704)
@@ -791,16 +859,22 @@ class MentalHealthScreeningDataset(
     private fun extractPhq9Score(value: String?): Int? {
         return value?.firstOrNull()?.digitToIntOrNull()
     }
+    private fun yesNoToBoolean(value: String?): Boolean? =
+        when (value?.trim()?.lowercase()) {
+            "yes" -> true
+            "no" -> false
+            else -> null
+        }
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as MentalHealthScreeningCache).let {
             // Initial screening
-            it.emotionalBehaviouralConcerns = emotionalBehaviouralConcerns.value == "Yes"
-            it.substanceUseConcerns = substanceUseConcerns.value == "Yes"
-            it.selfHarmSuicideThoughts = selfHarmSuicideThoughts.value == "Yes"
-            it.memoryLossConfusion = memoryLossConfusion.value == "Yes"
-            it.seizuresFitsLoc = seizuresFitsLoc.value == "Yes"
-            it.isPostpartum = isPostpartum.value == "Yes"
+            it.emotionalBehaviouralConcerns = yesNoToBoolean(emotionalBehaviouralConcerns.value)
+            it.substanceUseConcerns = yesNoToBoolean(substanceUseConcerns.value)
+            it.selfHarmSuicideThoughts = yesNoToBoolean(selfHarmSuicideThoughts.value)
+            it.memoryLossConfusion = yesNoToBoolean(memoryLossConfusion.value)
+            it.seizuresFitsLoc = yesNoToBoolean(seizuresFitsLoc.value)
+            it.isPostpartum = yesNoToBoolean(isPostpartum.value)
 
             // PHQ-9
             if (shouldShowPhq9()) {

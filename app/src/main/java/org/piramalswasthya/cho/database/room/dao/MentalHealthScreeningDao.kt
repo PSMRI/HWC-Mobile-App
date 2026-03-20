@@ -11,7 +11,7 @@ import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 interface MentalHealthScreeningDao {
 
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
-    suspend fun insert(screening: MentalHealthScreeningCache)
+    suspend fun insert(screening: MentalHealthScreeningCache): Long
 
     @Update
     suspend fun update(screening: MentalHealthScreeningCache)

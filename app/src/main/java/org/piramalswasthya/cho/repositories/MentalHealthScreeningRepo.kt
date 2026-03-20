@@ -8,11 +8,13 @@ class MentalHealthScreeningRepo @Inject constructor(
     private val mentalHealthScreeningDao: MentalHealthScreeningDao
 ) {
 
-    suspend fun saveScreening(screening: MentalHealthScreeningCache) {
-        if (screening.screeningId == 0L) {
-            mentalHealthScreeningDao.insert(screening)
+    suspend fun saveScreening(screening: MentalHealthScreeningCache): MentalHealthScreeningCache {
+        return if (screening.screeningId == 0L) {
+            val screeningId = mentalHealthScreeningDao.insert(screening)
+            screening.copy(screeningId = screeningId)
         } else {
             mentalHealthScreeningDao.update(screening)
+            screening
         }
     }
 

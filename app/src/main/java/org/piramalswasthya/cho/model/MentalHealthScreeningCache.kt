@@ -4,9 +4,16 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
+import androidx.room.Index
 import org.piramalswasthya.cho.configuration.FormDataModel
 
-@Entity(tableName = "MENTAL_HEALTH_SCREENING")
+@Entity(
+    tableName = "MENTAL_HEALTH_SCREENING",
+    indices = [
+        Index(value = ["patient_id"], name = "index_mhs_patient_id"),
+        Index(value = ["patient_id", "ben_visit_no"], name = "index_mhs_patient_visit")
+    ]
+)
 @JsonClass(generateAdapter = true)
 data class MentalHealthScreeningCache(
 
