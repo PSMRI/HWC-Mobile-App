@@ -1441,4 +1441,8 @@
         <item>হয়</item>
         <item>নহয়</item>
     </string-array>
+
+    <!-- Mental Health Screening Form Titles and Messages -->
+    <string name="title_mental_health_screening">মানসিক স্বাস্থ্য পৰীক্ষা</string>
+    <string name="mental_health_screening_saved">মানসিক স্বাস্থ্য পৰীক্ষা সফলভাৱে সংৰক্ষণ কৰা হৈছে</string>
 </resources>

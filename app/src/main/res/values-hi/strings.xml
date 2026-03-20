@@ -1149,10 +1149,6 @@
     <string name="antra_next_due_date">ANTRA की अगली देय तिथि</string>
 
     <!-- Mental Health Screening Strings - Hindi -->
-    <!-- Response Options -->
-    <string name="yes_option">हाँ</string>
-    <string name="no_option">नहीं</string>
-
     <!-- Initial Screening Questions -->
     <string name="emotional_behavioural_concerns">मानसिक या व्यवहार संबंधी समस्याएं मौजूद हैं</string>
     <string name="substance_use_concerns">पदार्थों के उपयोग से संबंधित समस्याएं मौजूद हैं</string>

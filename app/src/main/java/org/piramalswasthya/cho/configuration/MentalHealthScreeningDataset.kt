@@ -555,22 +555,22 @@ class MentalHealthScreeningDataset(
             list.addAll(phq9Elements)
         }
 
-        if (substanceUseConcerns.value == "Yes") {
+        if (isYes(substanceUseConcerns.value)) {
             list.addAll(substanceElements)
-            if (substanceOtherUse.value == "Yes") {
+            if (isYes(substanceOtherUse.value)) {
                 list.add(list.indexOf(substanceOtherUse) + 1, substanceOtherSpecify)
             }
         }
 
-        if (selfHarmSuicideThoughts.value == "Yes") {
+        if (isYes(selfHarmSuicideThoughts.value)) {
             list.addAll(suicideElements)
         }
 
-        if (memoryLossConfusion.value == "Yes") {
+        if (isYes(memoryLossConfusion.value)) {
             list.addAll(dementiaElements)
         }
 
-        if (seizuresFitsLoc.value == "Yes") {
+        if (isYes(seizuresFitsLoc.value)) {
             list.addAll(epilepsyElements)
         }
 
@@ -581,15 +581,40 @@ class MentalHealthScreeningDataset(
     }
 
     private fun shouldShowPhq9(): Boolean {
-        return emotionalBehaviouralConcerns.value == "Yes" ||
-                selfHarmSuicideThoughts.value == "Yes" ||
-                isPostpartum.value == "Yes"
+        return isYes(emotionalBehaviouralConcerns.value) ||
+                isYes(selfHarmSuicideThoughts.value) ||
+                isYes(isPostpartum.value)
+    }
+
+    /**
+     * Recalculates PHQ-9 total score based on current form values.
+     * Extracts numeric scores from each PHQ-9 question and sums them.
+     */
+    private fun computePhq9Total() {
+        val scores = listOfNotNull(
+            extractPhq9Score(phq9LittleInterest.value),
+            extractPhq9Score(phq9FeelingDown.value),
+            extractPhq9Score(phq9SleepTrouble.value),
+            extractPhq9Score(phq9FeelingTired.value),
+            extractPhq9Score(phq9Appetite.value),
+            extractPhq9Score(phq9FeelingBad.value),
+            extractPhq9Score(phq9Concentration.value),
+            extractPhq9Score(phq9MovingSlowly.value),
+            extractPhq9Score(phq9SelfHarmThoughts.value)
+        )
+        phq9TotalScore.value = if (scores.isNotEmpty()) scores.sum().toString() else null
     }
 
     // ── Value Change Handler ─────────────────────────────────────────
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
+            // PHQ-9 items (201-209) -> Recalculate total
+            in 201..209 -> {
+                computePhq9Total()
+                formId
+            }
+
             // Q1: Emotional/behavioural concerns -> Enable PHQ-9
             emotionalBehaviouralConcerns.id -> {
                 rebuildConditionalSections()
@@ -780,17 +805,17 @@ class MentalHealthScreeningDataset(
     private fun populateFromCache(cache: MentalHealthScreeningCache) {
         // Initial screening questions
         emotionalBehaviouralConcerns.value =
-            cache.emotionalBehaviouralConcerns?.let { if (it) "Yes" else "No" }
+            cache.emotionalBehaviouralConcerns?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         substanceUseConcerns.value =
-            cache.substanceUseConcerns?.let { if (it) "Yes" else "No" }
+            cache.substanceUseConcerns?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         selfHarmSuicideThoughts.value =
-            cache.selfHarmSuicideThoughts?.let { if (it) "Yes" else "No" }
+            cache.selfHarmSuicideThoughts?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         memoryLossConfusion.value =
-            cache.memoryLossConfusion?.let { if (it) "Yes" else "No" }
+            cache.memoryLossConfusion?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         seizuresFitsLoc.value =
-            cache.seizuresFitsLoc?.let { if (it) "Yes" else "No" }
+            cache.seizuresFitsLoc?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         isPostpartum.value =
-            cache.isPostpartum?.let { if (it) "Yes" else "No" }
+            cache.isPostpartum?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
 
         // PHQ-9
         phq9LittleInterest.value = cache.phq9LittleInterest?.let { phq9Options.getOrNull(it) }
@@ -806,48 +831,48 @@ class MentalHealthScreeningDataset(
 
         // Substance Use
         substanceAlcoholUse.value =
-            cache.substanceAlcoholUse?.let { if (it) "Yes" else "No" }
+            cache.substanceAlcoholUse?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         substanceTobaccoUse.value =
-            cache.substanceTobaccoUse?.let { if (it) "Yes" else "No" }
+            cache.substanceTobaccoUse?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         substanceOtherUse.value =
-            cache.substanceOtherUse?.let { if (it) "Yes" else "No" }
+            cache.substanceOtherUse?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         substanceOtherSpecify.value = cache.substanceOtherSpecify
         substanceFrequency.value = cache.substanceFrequency
         briefInterventionGiven.value =
-            cache.briefInterventionGiven?.let { if (it) "Yes" else "No" }
+            cache.briefInterventionGiven?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
 
         // Suicide Risk
         suicideCurrentThoughts.value =
-            cache.suicideCurrentThoughts?.let { if (it) "Yes" else "No" }
+            cache.suicideCurrentThoughts?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         suicidePlan.value =
-            cache.suicidePlan?.let { if (it) "Yes" else "No" }
+            cache.suicidePlan?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         suicidePreviousAttempt.value =
-            cache.suicidePreviousAttempt?.let { if (it) "Yes" else "No" }
+            cache.suicidePreviousAttempt?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         suicideHopelessness.value =
-            cache.suicideHopelessness?.let { if (it) "Yes" else "No" }
+            cache.suicideHopelessness?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         suicideRiskLevel.value = cache.suicideRiskLevel
 
         // Dementia
         dementiaProgressiveMemoryLoss.value =
-            cache.dementiaProgressiveMemoryLoss?.let { if (it) "Yes" else "No" }
+            cache.dementiaProgressiveMemoryLoss?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         dementiaForgettingRecent.value =
-            cache.dementiaForgettingRecent?.let { if (it) "Yes" else "No" }
+            cache.dementiaForgettingRecent?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         dementiaDisorientation.value =
-            cache.dementiaDisorientation?.let { if (it) "Yes" else "No" }
+            cache.dementiaDisorientation?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         dementiaDailyActivities.value =
-            cache.dementiaDailyActivities?.let { if (it) "Yes" else "No" }
+            cache.dementiaDailyActivities?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         dementiaBehaviouralChanges.value =
-            cache.dementiaBehaviouralChanges?.let { if (it) "Yes" else "No" }
+            cache.dementiaBehaviouralChanges?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
 
         // Epilepsy
         epilepsyRecurrentSeizures.value =
-            cache.epilepsyRecurrentSeizures?.let { if (it) "Yes" else "No" }
+            cache.epilepsyRecurrentSeizures?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         epilepsyJerkyMovements.value =
-            cache.epilepsyJerkyMovements?.let { if (it) "Yes" else "No" }
+            cache.epilepsyJerkyMovements?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         epilepsyTongueBite.value =
-            cache.epilepsyTongueBite?.let { if (it) "Yes" else "No" }
+            cache.epilepsyTongueBite?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         epilepsyConfusionAfter.value =
-            cache.epilepsyConfusionAfter?.let { if (it) "Yes" else "No" }
+            cache.epilepsyConfusionAfter?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         epilepsyLocDuration.value = cache.epilepsyLocDuration
 
         // Section F
@@ -859,10 +884,17 @@ class MentalHealthScreeningDataset(
     private fun extractPhq9Score(value: String?): Int? {
         return value?.firstOrNull()?.digitToIntOrNull()
     }
+
+    private fun isYes(value: String?): Boolean =
+        value == yesNoOptions.getOrNull(0)
+
+    private fun isNo(value: String?): Boolean =
+        value == yesNoOptions.getOrNull(1)
+
     private fun yesNoToBoolean(value: String?): Boolean? =
-        when (value?.trim()?.lowercase()) {
-            "yes" -> true
-            "no" -> false
+        when {
+            value == yesNoOptions.getOrNull(0) -> true
+            value == yesNoOptions.getOrNull(1) -> false
             else -> null
         }
 
@@ -908,14 +940,14 @@ class MentalHealthScreeningDataset(
             }
 
             // Substance Use
-            if (substanceUseConcerns.value == "Yes") {
-                it.substanceAlcoholUse = substanceAlcoholUse.value == "Yes"
-                it.substanceTobaccoUse = substanceTobaccoUse.value == "Yes"
-                it.substanceOtherUse = substanceOtherUse.value == "Yes"
+            if (isYes(substanceUseConcerns.value)) {
+                it.substanceAlcoholUse = isYes(substanceAlcoholUse.value)
+                it.substanceTobaccoUse = isYes(substanceTobaccoUse.value)
+                it.substanceOtherUse = isYes(substanceOtherUse.value)
                 it.substanceOtherSpecify =
                     if (it.substanceOtherUse == true) substanceOtherSpecify.value else null
                 it.substanceFrequency = substanceFrequency.value
-                it.briefInterventionGiven = briefInterventionGiven.value == "Yes"
+                it.briefInterventionGiven = isYes(briefInterventionGiven.value)
             } else {
                 it.substanceAlcoholUse = null
                 it.substanceTobaccoUse = null
@@ -926,11 +958,11 @@ class MentalHealthScreeningDataset(
             }
 
             // Suicide Risk
-            if (selfHarmSuicideThoughts.value == "Yes") {
-                it.suicideCurrentThoughts = suicideCurrentThoughts.value == "Yes"
-                it.suicidePlan = suicidePlan.value == "Yes"
-                it.suicidePreviousAttempt = suicidePreviousAttempt.value == "Yes"
-                it.suicideHopelessness = suicideHopelessness.value == "Yes"
+            if (isYes(selfHarmSuicideThoughts.value)) {
+                it.suicideCurrentThoughts = isYes(suicideCurrentThoughts.value)
+                it.suicidePlan = isYes(suicidePlan.value)
+                it.suicidePreviousAttempt = isYes(suicidePreviousAttempt.value)
+                it.suicideHopelessness = isYes(suicideHopelessness.value)
                 it.suicideRiskLevel = suicideRiskLevel.value
             } else {
                 it.suicideCurrentThoughts = null
@@ -941,12 +973,12 @@ class MentalHealthScreeningDataset(
             }
 
             // Dementia
-            if (memoryLossConfusion.value == "Yes") {
-                it.dementiaProgressiveMemoryLoss = dementiaProgressiveMemoryLoss.value == "Yes"
-                it.dementiaForgettingRecent = dementiaForgettingRecent.value == "Yes"
-                it.dementiaDisorientation = dementiaDisorientation.value == "Yes"
-                it.dementiaDailyActivities = dementiaDailyActivities.value == "Yes"
-                it.dementiaBehaviouralChanges = dementiaBehaviouralChanges.value == "Yes"
+            if (isYes(memoryLossConfusion.value)) {
+                it.dementiaProgressiveMemoryLoss = isYes(dementiaProgressiveMemoryLoss.value)
+                it.dementiaForgettingRecent = isYes(dementiaForgettingRecent.value)
+                it.dementiaDisorientation = isYes(dementiaDisorientation.value)
+                it.dementiaDailyActivities = isYes(dementiaDailyActivities.value)
+                it.dementiaBehaviouralChanges = isYes(dementiaBehaviouralChanges.value)
             } else {
                 it.dementiaProgressiveMemoryLoss = null
                 it.dementiaForgettingRecent = null
@@ -956,11 +988,11 @@ class MentalHealthScreeningDataset(
             }
 
             // Epilepsy
-            if (seizuresFitsLoc.value == "Yes") {
-                it.epilepsyRecurrentSeizures = epilepsyRecurrentSeizures.value == "Yes"
-                it.epilepsyJerkyMovements = epilepsyJerkyMovements.value == "Yes"
-                it.epilepsyTongueBite = epilepsyTongueBite.value == "Yes"
-                it.epilepsyConfusionAfter = epilepsyConfusionAfter.value == "Yes"
+            if (isYes(seizuresFitsLoc.value)) {
+                it.epilepsyRecurrentSeizures = isYes(epilepsyRecurrentSeizures.value)
+                it.epilepsyJerkyMovements = isYes(epilepsyJerkyMovements.value)
+                it.epilepsyTongueBite = isYes(epilepsyTongueBite.value)
+                it.epilepsyConfusionAfter = isYes(epilepsyConfusionAfter.value)
                 it.epilepsyLocDuration = epilepsyLocDuration.value
             } else {
                 it.epilepsyRecurrentSeizures = null

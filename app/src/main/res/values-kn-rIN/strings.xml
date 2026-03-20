@@ -468,6 +468,10 @@
     <string name="antra_next_due_date">ANTRA ಮುಂದಿನ ನಿಗದಿತ ದಿನಾಂಕ</string>
 
     <!-- Mental Health Screening Strings - Kannada -->
+    <!-- Form Title and Success Message -->
+    <string name="title_mental_health_screening">ಮಾನಸಿಕ ಆರೋಗ್ಯ ಪರೀಕ್ಷೆ</string>
+    <string name="mental_health_screening_saved">ಮಾನಸಿಕ ಆರೋಗ್ಯ ಪರೀಕ್ಷೆ ಯಶಸ್ವಿಯಾಗಿ ಸಂರಕ್ಷಿತವಾಗಿದೆ</string>
+
     <!-- Response Options -->
     <string name="yes_option">ಹೌದು</string>
     <string name="no_option">ಇಲ್ಲ</string>
@@ -542,7 +546,7 @@
     <string name="epilepsy_section_title">ಮೃಗ್ಮಟಿ ಪರೀಕ್ಷೆ ಪಟ್ಟಿ</string>
     <string name="epilepsy_recurrent_seizures">ಪುನರಾವರ್ತಿತ ಆಲೋಪ/ಫಿಟ್ಸ್</string>
     <string name="epilepsy_jerky_movements">ಎಪಿಸೋಡ್ ಸಮಯದಲ್ಲಿ ಜೆರ್ಕಿ ಚಲನೆ</string>
-    <string name="epilepsy_tongue_bite">ಎಪಿಸೋಡ್ ಸಮಯದಲ್ಲಿ ನಾಲಿಗೆ 咬ುವುದು ಅಥವಾ ಅಸಂಬದ್ಧತೆ</string>
+    <string name="epilepsy_tongue_bite">ಎಪಿಸೋಡ್ ಸಮಯದಲ್ಲಿ ನಾಲಿಗೆ ಕಚ್ಚುವುದು ಅಥವಾ ಅಸಂಬದ್ಧತೆ</string>
     <string name="epilepsy_confusion_after">ಎಪಿಸೋಡ್ ನಂತರ ಗೊಂಬೆತನೆ</string>
     <string name="epilepsy_loc_duration">ಚೇತನ್ಯ ನಷ್ಟದ ಅವಧಿ</string>
 
