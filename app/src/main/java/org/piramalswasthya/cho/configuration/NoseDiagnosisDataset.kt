@@ -21,6 +21,28 @@ class NoseDiagnosisDataset(
     private val optionNo = context.getString(R.string.no)
     private val foreignBodyOptions = context.resources.getStringArray(R.array.nose_foreign_body_options)
 
+    private val FOREIGN_BODY_ANTERIOR = 0
+    private val FOREIGN_BODY_POSTERIOR = 1
+    private val FOREIGN_BODY_NONE = 2
+
+    private fun foreignBodyStringToIndex(value: String?): Int? {
+        return when (value) {
+            foreignBodyOptions.getOrNull(FOREIGN_BODY_ANTERIOR) -> FOREIGN_BODY_ANTERIOR
+            foreignBodyOptions.getOrNull(FOREIGN_BODY_POSTERIOR) -> FOREIGN_BODY_POSTERIOR
+            foreignBodyOptions.getOrNull(FOREIGN_BODY_NONE) -> FOREIGN_BODY_NONE
+            else -> null
+        }
+    }
+
+    private fun indexToForeignBodyString(index: Int?): String? {
+        return when (index) {
+            FOREIGN_BODY_ANTERIOR -> foreignBodyOptions.getOrNull(FOREIGN_BODY_ANTERIOR)
+            FOREIGN_BODY_POSTERIOR -> foreignBodyOptions.getOrNull(FOREIGN_BODY_POSTERIOR)
+            FOREIGN_BODY_NONE -> foreignBodyOptions.getOrNull(FOREIGN_BODY_NONE)
+            else -> null
+        }
+    }
+
     /* -------------------- FORM ELEMENTS -------------------- */
 
     private val difficultyBreathing = FormElement(
@@ -189,7 +211,7 @@ class NoseDiagnosisDataset(
             }
 
             foreignBodyNose.id -> {
-                if (foreignBodyNose.value == context.getString(R.string.foreign_body_posterior)) {
+                if (index == FOREIGN_BODY_POSTERIOR) {
                     onShowAlert?.invoke(
                         context.getString(R.string.foreign_body_posterior_alert)
                     )
@@ -240,7 +262,11 @@ class NoseDiagnosisDataset(
         systolicBP.value = cache.systolicBP?.toString()
         diastolicBP.value = cache.diastolicBP?.toString()
 
-        foreignBodyNose.value = cache.foreignBodyNose
+
+        // Convert stored index to display string for UI
+        val foreignBodyIndex = cache.foreignBodyNose?.toIntOrNull()
+        foreignBodyNose.value = indexToForeignBodyString(foreignBodyIndex)
+
         sinusitis.value = when (cache.sinusitis) {
             true -> context.getString(R.string.sinusitis_with_pain)
             false -> optionNo
@@ -252,11 +278,29 @@ class NoseDiagnosisDataset(
         (cacheModel as NoseDiagnosisAssessment).let {
             it.difficultyBreathing = difficultyBreathing.booleanValue
             it.openMouthBreathing = openMouthBreathing.booleanValue
-            it.noseBleed = noseBleed.value == optionYes
-            it.systolicBP = systolicBP.value?.toIntOrNull()
-            it.diastolicBP = diastolicBP.value?.toIntOrNull()
-            it.foreignBodyNose = foreignBodyNose.value
-            it.sinusitis = sinusitis.value == context.getString(R.string.sinusitis_with_pain)
+            val hasNoseBleed: Boolean? = when (noseBleed.value) {
+                optionYes -> true
+                optionNo -> false
+                else -> null
+            }
+
+            it.noseBleed = hasNoseBleed
+
+            it.systolicBP = if (hasNoseBleed == true) {
+                systolicBP.value?.toIntOrNull()
+            } else null
+
+            it.diastolicBP = if (hasNoseBleed == true) {
+                diastolicBP.value?.toIntOrNull()
+            } else null
+            // Store stable index as string instead of localized display text
+            it.foreignBodyNose = foreignBodyStringToIndex(foreignBodyNose.value)?.toString()
+            it.sinusitis = when (sinusitis.value) {
+                context.getString(R.string.sinusitis_with_pain) -> true
+                optionNo -> false
+                else -> null
+            }
+
         }
     }
 }
