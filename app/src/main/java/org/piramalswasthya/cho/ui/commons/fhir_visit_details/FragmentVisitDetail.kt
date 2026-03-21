@@ -73,6 +73,7 @@ import java.util.Locale
 import java.util.TimeZone
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.compareTo
 
 @AndroidEntryPoint
 class FragmentVisitDetail : Fragment(), NavigationAdapter,
@@ -1480,6 +1481,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 )
                 chiefComplaintDB2.add(chiefC) // Add the item to the list
             }
+            rebuildSubCategoryAdapter()
         }
         if (chiefComplaintDB2.size==0){
             binding.usePrevious.visibility = View.GONE

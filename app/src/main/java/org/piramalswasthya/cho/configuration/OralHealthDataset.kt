@@ -251,7 +251,7 @@ class OralHealthDataset(
             else -> null
         }
         toothDecaySymptoms.value = if (cache.toothDecayPresent == true) {
-            normalizeToothDecaySymptoms(cache.toothDecaySymptoms)
+            cache.toothDecaySymptoms
         } else {
             null
         }
@@ -285,12 +285,6 @@ class OralHealthDataset(
         }
     }
 
-    private fun normalizeToothDecaySymptoms(value: String?): String? {
-        return value?.replace(
-            "Discoloration of tooth Cavity",
-            "Discoloration of tooth, Cavity"
-        )
-    }
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as OralHealth).let {
