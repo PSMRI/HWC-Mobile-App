@@ -27,37 +27,29 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,
 
-    // ── Q1: Emotional or behavioural concerns ─────────────────────────
 
     @ColumnInfo(name = "emotional_behavioural_concerns")
     var emotionalBehaviouralConcerns: Boolean? = null,
 
-    // ── Q2: Substance use related concerns ────────────────────────────
 
     @ColumnInfo(name = "substance_use_concerns")
     var substanceUseConcerns: Boolean? = null,
 
-    // ── Q3: Thoughts of self-harm or suicide ──────────────────────────
 
     @ColumnInfo(name = "self_harm_suicide_thoughts")
     var selfHarmSuicideThoughts: Boolean? = null,
 
-    // ── Q4: Memory loss or confusion ──────────────────────────────────
 
     @ColumnInfo(name = "memory_loss_confusion")
     var memoryLossConfusion: Boolean? = null,
 
-    // ── Q5: Seizures, fits, or loss of consciousness ──────────────────
 
     @ColumnInfo(name = "seizures_fits_loc")
     var seizuresFitsLoc: Boolean? = null,
 
-    // ── Q6: Post-partum woman (auto-derived) ──────────────────────────
 
     @ColumnInfo(name = "is_postpartum")
     var isPostpartum: Boolean? = null,
-
-    // ── PHQ-9 Screening (enabled by Q1=Yes, Q3=Yes, or Q6=Yes) ───────
 
     @ColumnInfo(name = "phq9_little_interest")
     var phq9LittleInterest: Int? = null,
@@ -89,7 +81,26 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "phq9_total_score")
     var phq9TotalScore: Int? = null,
 
-    // ── Substance Use Screening (enabled by Q2=Yes) ──────────────────
+    @ColumnInfo(name = "phq9_depression_severity")
+    var phq9DepressionSeverity: String? = null,
+
+    @ColumnInfo(name = "phq9_system_action")
+    var phq9SystemAction: String? = null,
+
+    @ColumnInfo(name = "substance_current_tobacco_use")
+    var substanceCurrentTobaccoUse: Boolean? = null,
+
+    @ColumnInfo(name = "substance_tobacco_type")
+    var substanceTobaccoType: String? = null,
+
+    @ColumnInfo(name = "substance_tobacco_frequency")
+    var substanceTobaccoFrequency: String? = null,
+
+    @ColumnInfo(name = "substance_tobacco_outcome")
+    var substanceTobaccoOutcome: String? = null,
+
+    @ColumnInfo(name = "substance_system_action")
+    var substanceSystemAction: String? = null,
 
     @ColumnInfo(name = "substance_alcohol_use")
     var substanceAlcoholUse: Boolean? = null,
@@ -109,7 +120,6 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "brief_intervention_given")
     var briefInterventionGiven: Boolean? = null,
 
-    // ── Suicide Risk Screening (enabled by Q3=Yes, after PHQ-9) ──────
 
     @ColumnInfo(name = "suicide_current_thoughts")
     var suicideCurrentThoughts: Boolean? = null,
@@ -126,7 +136,6 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "suicide_risk_level")
     var suicideRiskLevel: String? = null,
 
-    // ── Dementia Screening (enabled by Q4=Yes) ───────────────────────
 
     @ColumnInfo(name = "dementia_progressive_memory_loss")
     var dementiaProgressiveMemoryLoss: Boolean? = null,
@@ -143,8 +152,6 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "dementia_behavioural_changes")
     var dementiaBehaviouralChanges: Boolean? = null,
 
-    // ── Epilepsy Screening (enabled by Q5=Yes) ───────────────────────
-
     @ColumnInfo(name = "epilepsy_recurrent_seizures")
     var epilepsyRecurrentSeizures: Boolean? = null,
 
@@ -160,7 +167,6 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "epilepsy_loc_duration")
     var epilepsyLocDuration: String? = null,
 
-    // ── Referral & Follow-up ─────────────────────────────────────────
 
     @ColumnInfo(name = "referral_required")
     override var referralRequired: Boolean? = null,

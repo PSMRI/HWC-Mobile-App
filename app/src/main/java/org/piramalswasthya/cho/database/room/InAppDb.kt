@@ -912,7 +912,14 @@ abstract class InAppDb : RoomDatabase() {
                         referral_level TEXT,
                         reason_for_referral TEXT,
                         follow_up_required INTEGER,
-                        follow_up_date TEXT
+                        follow_up_date TEXT,
+                        phq9_depression_severity TEXT,
+                        phq9_system_action TEXT,
+                        substance_current_tobacco_use INTEGER,
+                        substance_tobacco_type TEXT,
+                        substance_tobacco_frequency TEXT,
+                        substance_tobacco_outcome TEXT,
+                        substance_system_action TEXT
                     )
                 """.trimIndent())
                 database.execSQL(

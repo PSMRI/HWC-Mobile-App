@@ -9,11 +9,13 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.configuration.MentalHealthScreeningDataset
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
+import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.MentalHealthScreeningRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +25,9 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
-    private val mentalHealthScreeningRepo: MentalHealthScreeningRepo
+    private val mentalHealthScreeningRepo: MentalHealthScreeningRepo,
+    private val deliveryOutcomeRepo: DeliveryOutcomeRepo
+
 ) : BaseFormViewModel() {
 
     val patientID: String? = savedStateHandle["patientID"]
@@ -37,6 +41,14 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
     private lateinit var screeningCache: MentalHealthScreeningCache
 
     init {
+        viewModelScope.launch {
+            dataset.alertErrorMessageFlow.collect { message ->
+                message?.let {
+                    _showAlert.value = it
+                    dataset.resetErrorMessageFlow()
+                }
+            }
+        }
         viewModelScope.launch {
             try {
                 val patient = loadPatientDetails(userRepo, patientRepo, patientID)
@@ -58,9 +70,13 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
                     benVisitNo = benVisitNo
                 )
 
-                // TODO: Auto-derive postpartum status from RMNCH+A data
-                // Check if the patient is a postpartum woman (<=12 months after delivery)
-                val isPostpartumFromRmncha = false // To be integrated with delivery outcome data
+                val deliveryOutcome = deliveryOutcomeRepo.getDeliveryOutcome(patient.patient.patientID)
+                val isPostpartumFromRmncha = deliveryOutcome?.dateOfDelivery?.let { deliveryDateMs ->
+                    val twelveMonthsInMs = TimeUnit.DAYS.toMillis(365)
+                    val now = System.currentTimeMillis()
+                    (now - deliveryDateMs) in 0..twelveMonthsInMs
+                } ?: false
+
 
                 dataset.setUpPage(
                     savedRecord = existingRecord,

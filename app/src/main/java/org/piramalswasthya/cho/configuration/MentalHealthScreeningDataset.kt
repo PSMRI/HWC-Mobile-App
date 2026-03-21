@@ -11,7 +11,6 @@ class MentalHealthScreeningDataset(
     currentLanguage: Languages
 ) : ReferralFollowUpDataset(context, currentLanguage) {
 
-    // Resource-backed arrays
     private lateinit var phq9Options: Array<String>
     private lateinit var substanceFrequencyOptions: Array<String>
     private lateinit var suicideRiskOptions: Array<String>
@@ -19,9 +18,9 @@ class MentalHealthScreeningDataset(
     private lateinit var yesNoOptions: Array<String>
 
     private lateinit var cache: MentalHealthScreeningCache
+    private var lastPhq9AlertLevel = 0
 
     init {
-        // Load all string arrays from resources
         loadResourceStrings()
     }
 
@@ -101,7 +100,7 @@ class MentalHealthScreeningDataset(
     private val isPostpartum: FormElement by lazy {
         FormElement(
             id = 106,
-            inputType = InputType.RADIO,
+            inputType = InputType.TEXT_VIEW,
             title = context.getString(R.string.postpartum_woman),
             entries = yesNoOptions,
             required = false,
@@ -127,7 +126,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.phq9_little_interest),
             entries = phq9Options,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -137,7 +137,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.phq9_feeling_down),
             entries = phq9Options,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -147,7 +148,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.phq9_sleep_trouble),
             entries = phq9Options,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -157,7 +159,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.phq9_feeling_tired),
             entries = phq9Options,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -167,7 +170,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.phq9_appetite),
             entries = phq9Options,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -177,7 +181,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.phq9_feeling_bad),
             entries = phq9Options,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -187,7 +192,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.phq9_concentration),
             entries = phq9Options,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -197,7 +203,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.phq9_moving_slowly),
             entries = phq9Options,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -207,18 +214,30 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.phq9_self_harm_thoughts),
             entries = phq9Options,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
-    private val phq9TotalScore: FormElement by lazy {
-        FormElement(
-            id = 210,
-            inputType = InputType.TEXT_VIEW,
-            title = context.getString(R.string.phq9_total_score),
-            required = false
-        )
-    }
+    private var phq9TotalScore = FormElement(
+        id = 210,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.phq9_total_score),
+        required = false
+    )
+    private var phq9DepressionSeverity = FormElement(
+        id = 211,
+        inputType = InputType.TEXT_VIEW,
+        title = "Depression Severity",
+        required = false
+    )
+
+    private var phq9SystemAction = FormElement(
+        id = 212,
+        inputType = InputType.TEXT_VIEW,
+        title = "System Action",
+        required = false
+    )
 
     // ── Section 3: Substance Use Screening & Brief Intervention ──────
     // Enabled by Q2=Yes
@@ -231,6 +250,44 @@ class MentalHealthScreeningDataset(
             required = false
         )
     }
+    private val substanceCurrentTobaccoUse = FormElement(
+        id = 307,
+        inputType = InputType.RADIO,
+        title = "Current tobacco use",
+        entries = arrayOf("Yes", "No"),
+        required = true,
+        hasDependants = true
+    )
+
+    private val substanceTobaccoType = FormElement(
+        id = 308,
+        inputType = InputType.DROPDOWN,
+        title = "Type of tobacco use",
+        entries = arrayOf("Smoking", "Smokeless", "Both"),
+        required = true
+    )
+
+    private val substanceTobaccoFrequency = FormElement(
+        id = 309,
+        inputType = InputType.DROPDOWN,
+        title = "Frequency of tobacco use",
+        entries = arrayOf("Occasional", "Daily"),
+        required = true
+    )
+
+    private var substanceTobaccoOutcome = FormElement(
+        id = 310,
+        inputType = InputType.TEXT_VIEW,
+        title = "Tobacco use outcome",
+        required = false
+    )
+
+    private var substanceSystemAction = FormElement(
+        id = 311,
+        inputType = InputType.TEXT_VIEW,
+        title = "System action",
+        required = false
+    )
 
     private val substanceAlcoholUse: FormElement by lazy {
         FormElement(
@@ -499,12 +556,13 @@ class MentalHealthScreeningDataset(
     private val phq9Elements = listOf(
         phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
         phq9FeelingTired, phq9Appetite, phq9FeelingBad, phq9Concentration,
-        phq9MovingSlowly, phq9SelfHarmThoughts, phq9TotalScore
+        phq9MovingSlowly, phq9SelfHarmThoughts, phq9TotalScore, phq9DepressionSeverity, phq9SystemAction
     )
 
     private val substanceElements = listOf(
-        substanceHeader, substanceAlcoholUse, substanceTobaccoUse,
-        substanceOtherUse, substanceFrequency, briefInterventionGiven
+        substanceHeader, substanceCurrentTobaccoUse,
+        substanceTobaccoOutcome, substanceSystemAction, substanceOtherUse,
+        substanceFrequency, briefInterventionGiven, substanceAlcoholUse, substanceTobaccoUse
     )
 
     private val suicideElements = listOf(
@@ -533,10 +591,8 @@ class MentalHealthScreeningDataset(
             benVisitNo = null
         )
 
-        // Auto-derive postpartum status
-        if (isPostpartumFromRmncha) {
-            cache.isPostpartum = true
-        }
+        // Always write the RMNCH+A-derived postpartum status to the cache (true or false)
+        cache.isPostpartum = isPostpartumFromRmncha
 
         populateFromCache(cache)
 
@@ -555,22 +611,27 @@ class MentalHealthScreeningDataset(
             list.addAll(phq9Elements)
         }
 
-        if (isYes(substanceUseConcerns.value)) {
+        if (substanceUseConcerns.value == "Yes") {
             list.addAll(substanceElements)
-            if (isYes(substanceOtherUse.value)) {
+            if (substanceCurrentTobaccoUse.value == "Yes") {
+                val idx = list.indexOf(substanceCurrentTobaccoUse)
+                list.add(idx + 1, substanceTobaccoType)
+                list.add(idx + 2, substanceTobaccoFrequency)
+            }
+            if (substanceOtherUse.value == "Yes") {
                 list.add(list.indexOf(substanceOtherUse) + 1, substanceOtherSpecify)
             }
         }
 
-        if (isYes(selfHarmSuicideThoughts.value)) {
+        if (selfHarmSuicideThoughts.value == "Yes") {
             list.addAll(suicideElements)
         }
 
-        if (isYes(memoryLossConfusion.value)) {
+        if (memoryLossConfusion.value == "Yes") {
             list.addAll(dementiaElements)
         }
 
-        if (isYes(seizuresFitsLoc.value)) {
+        if (seizuresFitsLoc.value == "Yes") {
             list.addAll(epilepsyElements)
         }
 
@@ -581,9 +642,9 @@ class MentalHealthScreeningDataset(
     }
 
     private fun shouldShowPhq9(): Boolean {
-        return isYes(emotionalBehaviouralConcerns.value) ||
-                isYes(selfHarmSuicideThoughts.value) ||
-                isYes(isPostpartum.value)
+        return emotionalBehaviouralConcerns.value == "Yes" ||
+                selfHarmSuicideThoughts.value == "Yes" ||
+                cache.isPostpartum == true
     }
 
     /**
@@ -609,12 +670,6 @@ class MentalHealthScreeningDataset(
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
-            // PHQ-9 items (201-209) -> Recalculate total
-            in 201..209 -> {
-                computePhq9Total()
-                formId
-            }
-
             // Q1: Emotional/behavioural concerns -> Enable PHQ-9
             emotionalBehaviouralConcerns.id -> {
                 rebuildConditionalSections()
@@ -623,20 +678,10 @@ class MentalHealthScreeningDataset(
 
             // Q2: Substance use concerns -> Enable Substance Use Screening
             substanceUseConcerns.id -> {
-                if (index == 0) { // Yes
-                    triggerDependants(
-                        source = substanceUseConcerns,
-                        addItems = substanceElements,
-                        removeItems = emptyList()
-                    )
-                } else { // No
+                if (substanceUseConcerns.value != "Yes") {
                     clearSubstanceValues()
-                    triggerDependants(
-                        source = substanceUseConcerns,
-                        addItems = emptyList(),
-                        removeItems = substanceElements + listOf(substanceOtherSpecify)
-                    )
                 }
+                rebuildConditionalSections()
                 formId
             }
 
@@ -648,64 +693,47 @@ class MentalHealthScreeningDataset(
 
             // Q4: Memory loss/confusion -> Enable Dementia Screening
             memoryLossConfusion.id -> {
-                if (index == 0) { // Yes
-                    triggerDependants(
-                        source = memoryLossConfusion,
-                        addItems = dementiaElements,
-                        removeItems = emptyList()
-                    )
-                } else { // No
+                if (memoryLossConfusion.value != "Yes") {
                     clearDementiaValues()
-                    triggerDependants(
-                        source = memoryLossConfusion,
-                        addItems = emptyList(),
-                        removeItems = dementiaElements
-                    )
                 }
+                rebuildConditionalSections()
                 formId
             }
 
             // Q5: Seizures/fits -> Enable Epilepsy Screening
             seizuresFitsLoc.id -> {
-                if (index == 0) { // Yes
-                    triggerDependants(
-                        source = seizuresFitsLoc,
-                        addItems = epilepsyElements,
-                        removeItems = emptyList()
-                    )
-                } else { // No
+                if (seizuresFitsLoc.value != "Yes") {
                     clearEpilepsyValues()
-                    triggerDependants(
-                        source = seizuresFitsLoc,
-                        addItems = emptyList(),
-                        removeItems = epilepsyElements
-                    )
                 }
-                formId
-            }
-
-            // Q6: Postpartum -> Enable PHQ-9 for postpartum depression
-            isPostpartum.id -> {
                 rebuildConditionalSections()
                 formId
             }
 
+            // Q6: Postpartum is auto-derived (read-only TEXT_VIEW), no user interaction handled
+
             // Substance Other Use -> show/hide specify field
             substanceOtherUse.id -> {
-                if (index == 0) { // Yes
-                    triggerDependants(
-                        source = substanceOtherUse,
-                        addItems = listOf(substanceOtherSpecify),
-                        removeItems = emptyList()
-                    )
-                } else { // No
+                if (substanceOtherUse.value != "Yes") {
                     substanceOtherSpecify.value = null
-                    triggerDependants(
-                        source = substanceOtherUse,
-                        addItems = emptyList(),
-                        removeItems = listOf(substanceOtherSpecify)
-                    )
                 }
+                rebuildConditionalSections()
+                formId
+            }
+
+            substanceTobaccoUse.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
+            substanceCurrentTobaccoUse.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
+            phq9LittleInterest.id, phq9FeelingDown.id, phq9SleepTrouble.id,
+            phq9FeelingTired.id, phq9Appetite.id, phq9FeelingBad.id,
+            phq9Concentration.id, phq9MovingSlowly.id, phq9SelfHarmThoughts.id -> {
+                rebuildConditionalSections()
                 formId
             }
 
@@ -717,40 +745,157 @@ class MentalHealthScreeningDataset(
         }
     }
 
+
     /**
      * Rebuilds PHQ-9 and Suicide Risk sections based on current Q1, Q3, Q6 values.
      * PHQ-9 is shown if ANY of Q1, Q3, Q6 = Yes.
      * Suicide Risk is shown if Q3 = Yes (after PHQ-9).
      */
     private suspend fun rebuildConditionalSections() {
-        val showPhq9 = shouldShowPhq9()
-        val showSuicideRisk = selfHarmSuicideThoughts.value == "Yes"
+        val list = mutableListOf<FormElement>()
 
-        // Determine what to add and remove
-        val addItems = mutableListOf<FormElement>()
-        val removeItems = mutableListOf<FormElement>()
+        // Initial screening questions (always shown)
+        list.add(emotionalBehaviouralConcerns)
+        list.add(substanceUseConcerns)
+        list.add(selfHarmSuicideThoughts)
+        list.add(memoryLossConfusion)
+        list.add(seizuresFitsLoc)
+        list.add(isPostpartum)
 
-        if (showPhq9) {
-            addItems.addAll(phq9Elements)
-        } else {
-            clearPhq9Values()
-            removeItems.addAll(phq9Elements)
+        // Update auto-derived values FIRST before building the list
+        updatePhq9Outcome()
+        updateTobaccoOutcome()
+
+        // Conditionally add sections based on current values
+        if (shouldShowPhq9()) {
+            // Create fresh copies of auto-derived PHQ-9 fields to ensure DiffUtil detects changes
+            val phq9ElementsWithFreshCopies = listOf(
+                phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
+                phq9FeelingTired, phq9Appetite, phq9FeelingBad, phq9Concentration,
+                phq9MovingSlowly, phq9SelfHarmThoughts,
+                phq9TotalScore.copy(), phq9DepressionSeverity.copy(), phq9SystemAction.copy()
+            )
+            list.addAll(phq9ElementsWithFreshCopies)
         }
 
-        if (showSuicideRisk) {
-            addItems.addAll(suicideElements)
-        } else {
-            clearSuicideValues()
-            removeItems.addAll(suicideElements)
+        if (substanceUseConcerns.value == "Yes") {
+            val substanceElementsWithFreshCopies = listOf(
+                substanceHeader, substanceCurrentTobaccoUse,
+                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(),
+                substanceOtherUse, substanceFrequency, briefInterventionGiven,
+                substanceAlcoholUse, substanceTobaccoUse
+            )
+            list.addAll(substanceElementsWithFreshCopies)
+            if (substanceCurrentTobaccoUse.value == "Yes") {
+                val idx = list.indexOf(substanceCurrentTobaccoUse)
+                list.add(idx + 1, substanceTobaccoType)
+                list.add(idx + 2, substanceTobaccoFrequency)
+            }
+            if (substanceOtherUse.value == "Yes") {
+                list.add(list.indexOf(substanceOtherUse) + 1, substanceOtherSpecify)
+            }
         }
 
-        // Use a dummy source to trigger the rebuild
-        triggerDependants(
-            source = emotionalBehaviouralConcerns,
-            addItems = addItems,
-            removeItems = removeItems
-        )
+        if (selfHarmSuicideThoughts.value == "Yes") {
+            list.addAll(suicideElements)
+        }
+
+        if (memoryLossConfusion.value == "Yes") {
+            list.addAll(dementiaElements)
+        }
+
+        if (seizuresFitsLoc.value == "Yes") {
+            list.addAll(epilepsyElements)
+        }
+
+        // Section F
+        addReferralFollowUpElements(list)
+
+        // Emit the updated list with fresh copies of auto-derived fields
+        setUpPage(list)
     }
+
+
+    private suspend fun updatePhq9Outcome() {
+        val score = listOfNotNull(
+            extractPhq9Score(phq9LittleInterest.value),
+            extractPhq9Score(phq9FeelingDown.value),
+            extractPhq9Score(phq9SleepTrouble.value),
+            extractPhq9Score(phq9FeelingTired.value),
+            extractPhq9Score(phq9Appetite.value),
+            extractPhq9Score(phq9FeelingBad.value),
+            extractPhq9Score(phq9Concentration.value),
+            extractPhq9Score(phq9MovingSlowly.value),
+            extractPhq9Score(phq9SelfHarmThoughts.value)
+        ).sum()
+
+        // Alert Logic
+        val currentLevel = when {
+            score >= 20 -> 3
+            score >= 15 -> 2
+            score >= 10 -> 1
+            else -> 0
+        }
+
+        if (currentLevel > 0 && currentLevel != lastPhq9AlertLevel) {
+            val alertMsg = when (currentLevel) {
+                3 -> R.string.phq9_alert_emergency
+                2 -> R.string.phq9_alert_urgent
+                else -> R.string.phq9_alert_referral_mo_phc
+            }
+            emitAlertErrorMessage(alertMsg)
+        }
+        lastPhq9AlertLevel = currentLevel
+
+        phq9TotalScore.value = score.toString()
+        phq9DepressionSeverity.value = when (score) {
+            in 0..4 -> "Minimal"
+            in 5..9 -> "Mild"
+            in 10..14 -> "Moderate"
+            in 15..19 -> "Moderately Severe"
+            else -> "Severe"
+        }
+        phq9SystemAction.value = when (score) {
+            in 0..9 -> "Psychoeducation"
+            in 10..14 -> "Counselling - Refer to MO/PHC"
+            in 15..19 -> "Referral - Urgent referral"
+            else -> "Referral - Emergency referral"
+        }
+        phq9SystemAction.errorText = when {
+            score >= 20 -> "⚠️ EMERGENCY REFERRAL REQUIRED"
+            score >= 15 -> "⚠️ URGENT REFERRAL REQUIRED"
+            score >= 10 -> "⚠️ REFERRAL TO MO/PHC REQUIRED"
+            else -> null
+        }
+        phq9SystemAction.hasAlertError = score >= 10
+        if (score >= 10) {
+            referralRequired.value = referralRequired.entries!!.first()
+        } else {
+            referralRequired.value = referralRequired.entries!!.last()
+        }
+    }
+
+    private fun updateTobaccoOutcome() {
+        if (substanceCurrentTobaccoUse.value != "Yes") {
+            substanceTobaccoType.value = null
+            substanceTobaccoFrequency.value = null
+        }
+        val currentUse = substanceCurrentTobaccoUse.value
+        val previousUse = substanceTobaccoUse.value
+
+        substanceTobaccoOutcome.value = when {
+            currentUse == "Yes" || previousUse == "Yes" -> "Use identified"
+            currentUse == "No" && previousUse == "No" -> "No use identified"
+            else -> null
+        }
+
+        substanceSystemAction.value = when (substanceTobaccoOutcome.value) {
+            "Use identified" -> "Brief counselling"
+            "No use identified" -> "Close screening"
+            else -> null
+        }
+    }
+
 
     // ── Clear Helpers ────────────────────────────────────────────────
 
@@ -765,9 +910,16 @@ class MentalHealthScreeningDataset(
         phq9MovingSlowly.value = null
         phq9SelfHarmThoughts.value = null
         phq9TotalScore.value = null
+        phq9DepressionSeverity.value = null
+        phq9SystemAction.value = null
     }
 
     private fun clearSubstanceValues() {
+        substanceCurrentTobaccoUse.value = null
+        substanceTobaccoType.value = null
+        substanceTobaccoFrequency.value = null
+        substanceTobaccoOutcome.value = null
+        substanceSystemAction.value = null
         substanceAlcoholUse.value = null
         substanceTobaccoUse.value = null
         substanceOtherUse.value = null
@@ -828,19 +980,26 @@ class MentalHealthScreeningDataset(
         phq9MovingSlowly.value = cache.phq9MovingSlowly?.let { phq9Options.getOrNull(it) }
         phq9SelfHarmThoughts.value = cache.phq9SelfHarmThoughts?.let { phq9Options.getOrNull(it) }
         phq9TotalScore.value = cache.phq9TotalScore?.toString()
+        phq9DepressionSeverity.value = cache.phq9DepressionSeverity
+        phq9SystemAction.value = cache.phq9SystemAction
 
         // Substance Use
+        substanceCurrentTobaccoUse.value =
+            cache.substanceCurrentTobaccoUse?.let { if (it) "Yes" else "No" }
+        substanceTobaccoType.value = cache.substanceTobaccoType
+        substanceTobaccoFrequency.value = cache.substanceTobaccoFrequency
+        substanceTobaccoOutcome.value = cache.substanceTobaccoOutcome
+        substanceSystemAction.value = cache.substanceSystemAction
         substanceAlcoholUse.value =
-            cache.substanceAlcoholUse?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+            cache.substanceAlcoholUse?.let { if (it) "Yes" else "No" }
         substanceTobaccoUse.value =
-            cache.substanceTobaccoUse?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+            cache.substanceTobaccoUse?.let { if (it) "Yes" else "No" }
         substanceOtherUse.value =
-            cache.substanceOtherUse?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+            cache.substanceOtherUse?.let { if (it) "Yes" else "No" }
         substanceOtherSpecify.value = cache.substanceOtherSpecify
         substanceFrequency.value = cache.substanceFrequency
         briefInterventionGiven.value =
-            cache.briefInterventionGiven?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-
+            cache.briefInterventionGiven?.let { if (it) "Yes" else "No" }
         // Suicide Risk
         suicideCurrentThoughts.value =
             cache.suicideCurrentThoughts?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
@@ -898,6 +1057,7 @@ class MentalHealthScreeningDataset(
             else -> null
         }
 
+
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as MentalHealthScreeningCache).let {
             // Initial screening
@@ -926,6 +1086,8 @@ class MentalHealthScreeningDataset(
                     it.phq9FeelingTired, it.phq9Appetite, it.phq9FeelingBad,
                     it.phq9Concentration, it.phq9MovingSlowly, it.phq9SelfHarmThoughts
                 ).sum()
+                it.phq9DepressionSeverity = phq9DepressionSeverity.value
+                it.phq9SystemAction = phq9SystemAction.value
             } else {
                 it.phq9LittleInterest = null
                 it.phq9FeelingDown = null
@@ -939,16 +1101,27 @@ class MentalHealthScreeningDataset(
                 it.phq9TotalScore = null
             }
 
-            // Substance Use
-            if (isYes(substanceUseConcerns.value)) {
-                it.substanceAlcoholUse = isYes(substanceAlcoholUse.value)
-                it.substanceTobaccoUse = isYes(substanceTobaccoUse.value)
-                it.substanceOtherUse = isYes(substanceOtherUse.value)
+
+                // Substance Use
+            if (substanceUseConcerns.value == "Yes") {
+                it.substanceCurrentTobaccoUse = substanceCurrentTobaccoUse.value == "Yes"
+                it.substanceTobaccoType = if (it.substanceCurrentTobaccoUse == true) substanceTobaccoType.value else null
+                it.substanceTobaccoFrequency = if (it.substanceCurrentTobaccoUse == true) substanceTobaccoFrequency.value else null
+                it.substanceTobaccoOutcome = substanceTobaccoOutcome.value
+                it.substanceSystemAction = substanceSystemAction.value
+                it.substanceAlcoholUse = substanceAlcoholUse.value == "Yes"
+                it.substanceTobaccoUse = substanceTobaccoUse.value == "Yes"
+                it.substanceOtherUse = substanceOtherUse.value == "Yes"
                 it.substanceOtherSpecify =
                     if (it.substanceOtherUse == true) substanceOtherSpecify.value else null
                 it.substanceFrequency = substanceFrequency.value
-                it.briefInterventionGiven = isYes(briefInterventionGiven.value)
+                it.briefInterventionGiven = briefInterventionGiven.value == "Yes"
             } else {
+                it.substanceCurrentTobaccoUse = null
+                it.substanceTobaccoType = null
+                it.substanceTobaccoFrequency = null
+                it.substanceTobaccoOutcome = null
+                it.substanceSystemAction = null
                 it.substanceAlcoholUse = null
                 it.substanceTobaccoUse = null
                 it.substanceOtherUse = null
@@ -956,6 +1129,7 @@ class MentalHealthScreeningDataset(
                 it.substanceFrequency = null
                 it.briefInterventionGiven = null
             }
+
 
             // Suicide Risk
             if (isYes(selfHarmSuicideThoughts.value)) {
