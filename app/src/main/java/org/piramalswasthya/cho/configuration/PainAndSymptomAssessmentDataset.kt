@@ -7,7 +7,6 @@ import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PainAndSymptomAssessment
 import org.piramalswasthya.cho.R
 
-
 class PainAndSymptomAssessmentDataset(
     private val context: Context,
     currentLanguage: Languages

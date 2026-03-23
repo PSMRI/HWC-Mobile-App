@@ -1124,6 +1124,8 @@
     <string name="days_optional">Days</string>
     <string name="save_btn">Save</string>
     <string name="cancel_btn">Cancel</string>
+    <string name="title_mental_health_screening">Mental Health Screening</string>
+    <string name="mental_health_screening_saved">Mental Health Screening saved successfully</string>
     <string name="edit_btn">Edit</string>
     <string name="age_years_required">Age in years is required</string>
     <string name="beneficiary_updated_successfully">Beneficiary details updated successfully</string>
@@ -1402,4 +1404,112 @@
     <string name="refer_date">Refer Date:</string>
     <string name="referred_from">Referred From:</string>
     <string name="referred_to">Referred To:</string>
+
+    <!-- Mental Health Screening Strings -->
+    <!-- Response Options -->
+    <string name="yes_option">Yes</string>
+    <string name="no_option">No</string>
+
+    <!-- Initial Screening Questions -->
+    <string name="emotional_behavioural_concerns">Emotional or behavioural concerns present</string>
+    <string name="substance_use_concerns">Substance use related concerns present</string>
+    <string name="self_harm_suicide_thoughts">Thoughts of self-harm or suicide present</string>
+    <string name="memory_loss_confusion">Memory loss or confusion present</string>
+    <string name="seizures_fits_loc">Seizures, fits, or loss of consciousness present</string>
+    <string name="postpartum_woman">Post-partum woman (≤12 months after delivery)</string>
+
+    <!-- PHQ-9 Depression Screening -->
+    <string name="phq9_section_title">PHQ-9 Depression Screening</string>
+    <string name="phq9_little_interest">Little interest or pleasure in doing things</string>
+    <string name="phq9_feeling_down">Feeling down, depressed, or hopeless</string>
+    <string name="phq9_sleep_trouble">Trouble falling/staying asleep, or sleeping too much</string>
+    <string name="phq9_feeling_tired">Feeling tired or having little energy</string>
+    <string name="phq9_appetite">Poor appetite or overeating</string>
+    <string name="phq9_feeling_bad">Feeling bad about yourself — or that you are a failure</string>
+    <string name="phq9_concentration">Trouble concentrating on things</string>
+    <string name="phq9_moving_slowly">Moving or speaking slowly, or being fidgety/restless</string>
+    <string name="phq9_self_harm_thoughts">Thoughts that you would be better off dead or of hurting yourself</string>
+    <string name="phq9_total_score">PHQ-9 Total Score</string>
+
+    <string-array name="phq9_options">
+        <item>0 - Not at all</item>
+        <item>1 - Several days</item>
+        <item>2 - More than half the days</item>
+        <item>3 - Nearly every day</item>
+    </string-array>
+
+    <!-- Substance Use Screening & Brief Intervention -->
+    <string name="substance_section_title">Substance Use Screening and Brief Intervention</string>
+    <string name="substance_alcohol_use">Alcohol use</string>
+    <string name="substance_tobacco_use">Tobacco use</string>
+    <string name="substance_other_use">Other substance use</string>
+    <string name="substance_other_specify">Specify other substance</string>
+    <string name="substance_frequency">Frequency of substance use</string>
+    <string name="brief_intervention_given">Brief intervention given</string>
+
+    <string-array name="substance_frequency_options">
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Occasionally</item>
+    </string-array>
+
+    <!-- Suicide Risk Screening -->
+    <string name="suicide_section_title">Suicide Risk Screening</string>
+    <string name="suicide_current_thoughts">Current thoughts of self-harm or ending life</string>
+    <string name="suicide_plan">Has a specific plan to harm self</string>
+    <string name="suicide_previous_attempt">Previous suicide attempt</string>
+    <string name="suicide_hopelessness">Expressed hopelessness or being a burden</string>
+    <string name="suicide_risk_level">Suicide risk level</string>
+
+    <string-array name="suicide_risk_options">
+        <item>Low</item>
+        <item>Moderate</item>
+        <item>High</item>
+    </string-array>
+
+    <!-- Dementia Screening Checklist -->
+    <string name="dementia_section_title">Dementia Screening Checklist</string>
+    <string name="dementia_progressive_memory_loss">Progressive memory loss</string>
+    <string name="dementia_forgetting_recent">Forgetting recent events</string>
+    <string name="dementia_disorientation">Disorientation to time/place</string>
+    <string name="dementia_daily_activities">Difficulty managing daily activities</string>
+    <string name="dementia_behavioural_changes">Behavioural changes</string>
+
+    <!-- Epilepsy Screening Checklist -->
+    <string name="epilepsy_section_title">Epilepsy Screening Checklist</string>
+    <string name="epilepsy_recurrent_seizures">Recurrent seizures/fits</string>
+    <string name="epilepsy_jerky_movements">Jerky movements during episode</string>
+    <string name="epilepsy_tongue_bite">Tongue bite or incontinence during episode</string>
+    <string name="epilepsy_confusion_after">Confusion after episode</string>
+    <string name="epilepsy_loc_duration">Duration of loss of consciousness</string>
+
+    <string-array name="epilepsy_duration_options">
+        <item>Less than 5 minutes</item>
+        <item>5–15 minutes</item>
+        <item>More than 15 minutes</item>
+    </string-array>
+
+    <!-- Mental Health Referral Reasons -->
+    <string name="mental_health_reason_for_referral">Reason for referral</string>
+    <string-array name="mental_health_referral_reasons">
+        <item>Depression (PHQ-9 score ≥10)</item>
+        <item>Suicide risk identified</item>
+        <item>Substance use disorder</item>
+        <item>Dementia suspected</item>
+        <item>Epilepsy suspected</item>
+        <item>Post-partum depression</item>
+        <item>Severe mental disorder suspected</item>
+        <item>Other</item>
+    </string-array>
+
+    <!-- Yes/No Options Array -->
+    <string-array name="yes_no_options">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <!-- PHQ-9 Alert Strings -->
+    <string name="phq9_alert_referral_mo_phc">Refer to MO/PHC (PHQ-9 score ≥ 10)</string>
+    <string name="phq9_alert_urgent">Urgent referral (PHQ-9 score ≥ 15)</string>
+    <string name="phq9_alert_emergency">Emergency referral (PHQ-9 score ≥ 20)</string>
 </resources>
