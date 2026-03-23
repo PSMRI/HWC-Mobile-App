@@ -1183,6 +1183,30 @@
     <string name="title_pain_symptom_assessment">Pain and Symptom Assessment</string>
     <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
     <string name="title_nose_diagnosis">Nose Diagnosis Form</string>
+
+    <!-- Nose Diagnosis Form Strings -->
+    <string name="nose_bleed_title">Nose Bleed (Epistaxis)</string>
+    <string name="systolic_bp_title">Systolic BP (mmHg)</string>
+    <string name="diastolic_bp_title">Diastolic BP (mmHg)</string>
+    <string name="foreign_body_nose_title">Foreign Body Nose</string>
+    <string name="foreign_body_anterior">Yes (anterior visible)</string>
+    <string name="foreign_body_posterior">Yes (posterior visible)</string>
+    <string name="sinusitis_title">Sinusitis</string>
+    <string name="sinusitis_with_pain">Yes (Facial pain / tenderness)</string>
+
+    <!-- Nose Diagnosis Alert Messages -->
+    <string name="nose_bleed_alert_systolic_bp">Systolic BP &gt; 120 mmHg. Refer patient to specialist at secondary level.</string>
+    <string name="nose_bleed_alert_diastolic_bp">Diastolic BP &gt; 80 mmHg. Refer patient to specialist at secondary level.</string>
+    <string name="foreign_body_posterior_alert">Posterior visible detected. Refer patient to specialist at secondary level.</string>
+    <string name="sinusitis_alert">Chronic sinusitis suspected. Refer patient to specialist at secondary level.</string>
+
+    <!-- Nose Diagnosis Dropdown/Radio Options -->
+    <string-array name="nose_foreign_body_options">
+        <item>Yes (anterior visible)</item>
+        <item>Yes (posterior visible)</item>
+        <item>No</item>
+    </string-array>
+
     <string name="title_oral_health">Dental Form</string>
     <string name="oral_health_saved">Oral Health details saved</string>
     <string name="oral_health_referral_alert">Refer patient to Dentist at the secondary level.</string>
