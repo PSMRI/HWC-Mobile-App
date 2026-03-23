@@ -19,4 +19,11 @@ class ThroatDiagnosisRepo @Inject constructor(
     suspend fun getAssessmentByPatientId(patientID: String): ThroatDiagnosisAssessment? {
         return throatDiagnosisAssessmentDao.getAssessmentByPatientId(patientID)
     }
+
+    suspend fun getAssessmentByPatientIdAndVisitNo(
+        patientID: String,
+        benVisitNo: Int
+    ): ThroatDiagnosisAssessment? {
+        return throatDiagnosisAssessmentDao.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+    }
 }

@@ -15,16 +15,7 @@ class ThroatDiagnosisDataset(
 
     var onShowAlert: ((String) -> Unit)? = null
 
-    /* -------------------- FORM ELEMENTS -------------------- */
 
-    private val throatSymptomsPresent = FormElement(
-        id = 10,
-        inputType = InputType.RADIO,
-        title = "Throat Symptoms Present?",
-        entries = arrayOf("Yes", "No"),
-        required = true,
-        hasDependants = true
-    )
 
     private val symptoms = FormElement(
         id = 1,
@@ -115,10 +106,7 @@ class ThroatDiagnosisDataset(
         populateFromCache(cache)
 
         val list = mutableListOf<FormElement>()
-        list.add(throatSymptomsPresent)
-        if (throatSymptomsPresent.value == "Yes") {
-            list.add(symptoms)
-        }
+        list.add(symptoms)
         list.addAll(
             listOf(
                 neckSwelling,
@@ -138,23 +126,7 @@ class ThroatDiagnosisDataset(
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         when (formId) {
-            throatSymptomsPresent.id -> {
-                if (index == 0) {
-                    triggerDependants(
-                        source = throatSymptomsPresent,
-                        addItems = listOf(symptoms),
-                        removeItems = emptyList()
-                    )
-                } else {
-                    symptoms.value = null
-                    triggerDependants(
-                        source = throatSymptomsPresent,
-                        addItems = emptyList(),
-                        removeItems = listOf(symptoms)
-                    )
-                }
-                throatSymptomsPresent.id
-            }
+
 
             neckSwelling.id -> {
                 if (index == 0) {
@@ -206,7 +178,11 @@ class ThroatDiagnosisDataset(
         when (formId) {
             symptoms.id -> {
                 val symptomList = symptoms.entries!!
-                val selectedSymptoms = symptoms.value?.split(",") ?: emptyList()
+                val selectedSymptoms = symptoms.value
+                    ?.split(",")
+                    ?.map { it.trim() }
+                    ?.filter { it.isNotEmpty() }
+                    ?: emptyList()
                 val selectedItems = BooleanArray(symptomList.size) {
                     selectedSymptoms.contains(symptomList[it])
                 }
@@ -236,7 +212,6 @@ class ThroatDiagnosisDataset(
         ThroatDiagnosisAssessment(patientID = "", benVisitNo = null)
 
     private fun populateFromCache(cache: ThroatDiagnosisAssessment) {
-        throatSymptomsPresent.value = if (cache.symptoms.isNullOrEmpty()) "No" else "Yes"
         symptoms.value = cache.symptoms?.joinToString(", ")
         neckSwelling.value = when (cache.neckSwelling) {
             true -> "Yes"

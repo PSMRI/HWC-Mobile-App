@@ -523,7 +523,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
             val hasValidChiefComplaintForThroat = if (viewModel.getIsFollowUp()) {
                 chiefComplaintDB2.any { item ->
-                    validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+                    validThroatChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
                 }
             } else {
                 itemList.any { item ->
