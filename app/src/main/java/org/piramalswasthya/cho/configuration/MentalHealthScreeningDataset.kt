@@ -35,9 +35,8 @@ class MentalHealthScreeningDataset(
         }
     }
 
-    // ── Section 1: Initial Screening Questions (Mandatory Radio) ─────
 
-    // Q1
+
     private val emotionalBehaviouralConcerns: FormElement by lazy {
         FormElement(
             id = 101,
@@ -49,7 +48,7 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // Q2
+
     private val substanceUseConcerns: FormElement by lazy {
         FormElement(
             id = 102,
@@ -61,7 +60,7 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // Q3
+
     private val selfHarmSuicideThoughts: FormElement by lazy {
         FormElement(
             id = 103,
@@ -85,7 +84,7 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // Q5
+
     private val seizuresFitsLoc: FormElement by lazy {
         FormElement(
             id = 105,
@@ -97,7 +96,7 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // Q6 (auto-derived from RMNCH+A, but shown as read-only info)
+
     private val isPostpartum: FormElement by lazy {
         FormElement(
             id = 106,
@@ -109,8 +108,7 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // ── Section 2: PHQ-9 Depression Screening ────────────────────────
-    // Enabled by Q1=Yes OR Q3=Yes OR Q6=Yes
+
 
     private val phq9Header: FormElement by lazy {
         FormElement(
@@ -240,8 +238,7 @@ class MentalHealthScreeningDataset(
         required = false
     )
 
-    // ── Section 3: Substance Use Screening & Brief Intervention ──────
-    // Enabled by Q2=Yes
+
 
     private val substanceHeader: FormElement by lazy {
         FormElement(
@@ -368,8 +365,7 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // ── Section 4: Suicide Risk Screening ────────────────────────────
-    // Enabled by Q3=Yes (shown AFTER PHQ-9)
+
 
     private val suicideHeader: FormElement by lazy {
         FormElement(
@@ -442,8 +438,7 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // ── Section 5: Dementia Screening Checklist ──────────────────────
-    // Enabled by Q4=Yes
+
 
     private val dementiaHeader: FormElement by lazy {
         FormElement(
@@ -504,8 +499,7 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // ── Section 6: Epilepsy Screening Checklist ──────────────────────
-    // Enabled by Q5=Yes
+
 
     private val epilepsyHeader: FormElement by lazy {
         FormElement(
@@ -566,7 +560,6 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // ── Section F: Referral & Follow-up ──────────────────────────────
 
     override val referralRequired = createReferralRequired(701)
     override val referralLevel = createReferralLevel(702)
@@ -580,7 +573,6 @@ class MentalHealthScreeningDataset(
     override val followUpRequired = createFollowUpRequired(704)
     override val followUpDate = createFollowUpDate(705)
 
-    // ── All PHQ-9 form elements ──────────────────────────────────────
 
     private val phq9Elements = listOf(
         phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
@@ -609,7 +601,6 @@ class MentalHealthScreeningDataset(
         epilepsyTongueBite, epilepsyConfusionAfter, epilepsyLocDuration
     )
 
-    // ── Setup Page ───────────────────────────────────────────────────
 
     suspend fun setUpPage(
         savedRecord: MentalHealthScreeningCache?,
@@ -620,14 +611,12 @@ class MentalHealthScreeningDataset(
             benVisitNo = null
         )
 
-        // Always write the RMNCH+A-derived postpartum status to the cache (true or false)
         cache.isPostpartum = isPostpartumFromRmncha
 
         populateFromCache(cache)
 
         val list = mutableListOf<FormElement>()
 
-        // Initial screening questions (always shown)
         list.add(emotionalBehaviouralConcerns)
         list.add(substanceUseConcerns)
         list.add(selfHarmSuicideThoughts)
@@ -635,7 +624,6 @@ class MentalHealthScreeningDataset(
         list.add(seizuresFitsLoc)
         list.add(isPostpartum)
 
-        // Conditionally add sub-screening sections based on saved values
         if (shouldShowPhq9()) {
             list.addAll(phq9Elements)
         }
@@ -664,7 +652,6 @@ class MentalHealthScreeningDataset(
             list.addAll(epilepsyElements)
         }
 
-        // Section F
         addReferralFollowUpElements(list)
 
         setUpPage(list)
@@ -676,10 +663,7 @@ class MentalHealthScreeningDataset(
                 cache.isPostpartum == true
     }
 
-    /**
-     * Recalculates PHQ-9 total score based on current form values.
-     * Extracts numeric scores from each PHQ-9 question and sums them.
-     */
+
     private fun computePhq9Total() {
         val scores = listOfNotNull(
             extractPhq9Score(phq9LittleInterest.value),
@@ -695,17 +679,14 @@ class MentalHealthScreeningDataset(
         phq9TotalScore.value = if (scores.isNotEmpty()) scores.sum().toString() else null
     }
 
-    // ── Value Change Handler ─────────────────────────────────────────
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
-            // Q1: Emotional/behavioural concerns -> Enable PHQ-9
             emotionalBehaviouralConcerns.id -> {
                 rebuildConditionalSections()
                 formId
             }
 
-            // Q2: Substance use concerns -> Enable Substance Use Screening
             substanceUseConcerns.id -> {
                 if (substanceUseConcerns.value != "Yes") {
                     clearSubstanceValues()
@@ -714,13 +695,11 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
-            // Q3: Self-harm/suicide -> Enable PHQ-9 then Suicide Risk Screening
             selfHarmSuicideThoughts.id -> {
                 rebuildConditionalSections()
                 formId
             }
 
-            // Q4: Memory loss/confusion -> Enable Dementia Screening
             memoryLossConfusion.id -> {
                 if (memoryLossConfusion.value != "Yes") {
                     clearDementiaValues()
@@ -729,7 +708,6 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
-            // Q5: Seizures/fits -> Enable Epilepsy Screening
             seizuresFitsLoc.id -> {
                 if (seizuresFitsLoc.value != "Yes") {
                     clearEpilepsyValues()
@@ -738,9 +716,7 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
-            // Q6: Postpartum is auto-derived (read-only TEXT_VIEW), no user interaction handled
 
-            // Substance Other Use -> show/hide specify field
             substanceOtherUse.id -> {
                 if (substanceOtherUse.value != "Yes") {
                     substanceOtherSpecify.value = null
@@ -781,16 +757,9 @@ class MentalHealthScreeningDataset(
         }
     }
 
-
-    /**
-     * Rebuilds PHQ-9 and Suicide Risk sections based on current Q1, Q3, Q6 values.
-     * PHQ-9 is shown if ANY of Q1, Q3, Q6 = Yes.
-     * Suicide Risk is shown if Q3 = Yes (after PHQ-9).
-     */
     private suspend fun rebuildConditionalSections() {
         val list = mutableListOf<FormElement>()
 
-        // Initial screening questions (always shown)
         list.add(emotionalBehaviouralConcerns)
         list.add(substanceUseConcerns)
         list.add(selfHarmSuicideThoughts)
@@ -798,14 +767,11 @@ class MentalHealthScreeningDataset(
         list.add(seizuresFitsLoc)
         list.add(isPostpartum)
 
-        // Update auto-derived values FIRST before building the list
         updatePhq9Outcome()
         updateTobaccoOutcome()
         computeSuicideRiskLevel()
 
-        // Conditionally add sections based on current values
         if (shouldShowPhq9()) {
-            // Create fresh copies of auto-derived PHQ-9 fields to ensure DiffUtil detects changes
             val phq9ElementsWithFreshCopies = listOf(
                 phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
                 phq9FeelingTired, phq9Appetite, phq9FeelingBad, phq9Concentration,
@@ -850,10 +816,8 @@ class MentalHealthScreeningDataset(
             list.addAll(epilepsyElements)
         }
 
-        // Section F
         addReferralFollowUpElements(list)
 
-        // Emit the updated list with fresh copies of auto-derived fields
         setUpPage(list)
     }
 
@@ -948,7 +912,6 @@ class MentalHealthScreeningDataset(
             suicideImmediateAssess.value
         )
 
-        // Only compute once at least one field has been answered
         val answeredCount = fields.count { it != null }
         if (answeredCount == 0) {
             suicideRiskLevel.value = null
@@ -960,8 +923,8 @@ class MentalHealthScreeningDataset(
         val yesCount = fields.count { isYes(it) }
 
         suicideRiskLevel.value = when {
-            yesCount in 0..1    -> suicideRiskOptions.getOrElse(0) { "Low" }
-            yesCount in 2..3 -> suicideRiskOptions.getOrElse(1) { "Moderate" }
+            yesCount  ==0  -> suicideRiskOptions.getOrElse(0) { "Low" }
+            yesCount in 1..2 -> suicideRiskOptions.getOrElse(1) { "Moderate" }
             else             -> suicideRiskOptions.getOrElse(2) { "High" }
         }
 
@@ -994,7 +957,6 @@ class MentalHealthScreeningDataset(
     }
 
 
-    // ── Clear Helpers ────────────────────────────────────────────────
 
     private fun clearPhq9Values() {
         phq9LittleInterest.value = null
@@ -1051,7 +1013,6 @@ class MentalHealthScreeningDataset(
         epilepsyLocDuration.value = null
     }
 
-    // ── Populate from Cache ──────────────────────────────────────────
 
     private fun populateFromCache(cache: MentalHealthScreeningCache) {
         // Initial screening questions
