@@ -121,6 +121,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
     private fun setupClickListeners() {
         binding.btnNext.setOnClickListener { navigateAfterSave() }
+        binding.btnCancel.setOnClickListener { onCancelAction() }
 
         binding.tvCaseIdSelection.setOnClickListener {
             showCaseIdMultiSelectDialog()

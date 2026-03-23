@@ -1338,6 +1338,29 @@
     <string name="case_closure_error">কেছ বন্ধ কৰাত ত্ৰুটি</string>
     <string name="antra_next_due_date">ANTRA পৰৱৰ্তী তাৰিখ</string>
 
+    <!-- Nose Diagnosis Form Strings -->
+    <string name="nose_bleed_title">নাকৰ ৰক্তপাত (Epistaxis)</string>
+    <string name="systolic_bp_title">সিষ্ট’লিক BP (mmHg)</string>
+    <string name="diastolic_bp_title">ডায়াষ্ট’লিক BP (mmHg)</string>
+    <string name="foreign_body_nose_title">নাকত বিদেশী বস্তু</string>
+    <string name="foreign_body_anterior">হয় (আগফালে দৃশ্যমান)</string>
+    <string name="foreign_body_posterior">হয় (পিছফালে দৃশ্যমান)</string>
+    <string name="sinusitis_title">ছাইনাছাইটিছ</string>
+    <string name="sinusitis_with_pain">হয় (মুখৰ বেদনা / কোমলতা)</string>
+
+    <!-- Nose Diagnosis Alert Messages -->
+    <string name="nose_bleed_alert_systolic_bp">সিষ্ট’লিক BP &gt; 120 mmHg। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="nose_bleed_alert_diastolic_bp">ডায়াষ্ট’লিক BP &gt; 80 mmHg। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="foreign_body_posterior_alert">পিছফালে দৃশ্যমান পোৱা গৈছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="sinusitis_alert">দীৰ্ঘকালীন ছাইনাছাইটিছ সন্দেহ কৰা হৈছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+
+    <!-- Nose Diagnosis Dropdown/Radio Options -->
+    <string-array name="nose_foreign_body_options">
+        <item>হয় (আগফালে দৃশ্যমান)</item>
+        <item>হয় (পিছফালে দৃশ্যমান)</item>
+        <item>নাই</item>
+    </string-array>
+
     <!-- Mental Health Screening Strings - Assamese -->
     <!-- Response Options -->
     <string name="yes_option">হয়</string>
@@ -1441,6 +1464,11 @@
         <item>হয়</item>
         <item>নহয়</item>
     </string-array>
+
+    <!-- PHQ-9 Alert Strings -->
+    <string name="phq9_alert_referral_mo_phc">MO/PHC লৈ প্ৰেৰণ কৰক (PHQ-9 স্ক’ৰ ≥ 10)</string>
+    <string name="phq9_alert_urgent">জৰুৰী প্ৰেৰণ (PHQ-9 স্ক’ৰ ≥ 15)</string>
+    <string name="phq9_alert_emergency">আপাতকালীন প্ৰেৰণ (PHQ-9 স্ক’ৰ ≥ 20)</string>
 
     <!-- Mental Health Screening Form Titles and Messages -->
     <string name="title_mental_health_screening">মানসিক স্বাস্থ্য পৰীক্ষা</string>
