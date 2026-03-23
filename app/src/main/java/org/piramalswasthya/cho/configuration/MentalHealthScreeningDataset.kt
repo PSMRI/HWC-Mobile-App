@@ -904,9 +904,9 @@ class MentalHealthScreeningDataset(
             else -> "Referral - Emergency referral"
         }
         phq9SystemAction.errorText = when {
-            score >= 20 -> "EMERGENCY REFERRAL REQUIRED"
-            score >= 15 -> "URGENT REFERRAL REQUIRED"
-            score >= 10 -> "REFERRAL TO MO/PHC REQUIRED"
+            score >= 20 -> context.getString(R.string.phq9_alert_emergency)
+            score >= 15 -> context.getString(R.string.phq9_alert_urgent)
+            score >= 10 -> context.getString(R.string.phq9_alert_referral_mo_phc)
             else -> null
         }
         phq9SystemAction.hasAlertError = score >= 10
@@ -939,25 +939,7 @@ class MentalHealthScreeningDataset(
         }
     }
 
-    /**
-     * Computes the Suicide Risk Level automatically based on four clinical indicators:
-     * - Previous suicide attempt      (suicidePreviousAttempt)
-     * - Current intent or plan        (suicidePlan)
-     * - Access to means               (suicideHopelessness – labeled "Access to means" in strings)
-     * - CHO assesses immediate risk   (suicideImmediateAssess)
-     *
-     * Rules (count of "Yes" across the 4 clinical indicators):
-     *   0 Yes  → Low
-     *   1–2 Yes → Moderate
-     *   3–4 Yes → High
-     *   null   → no field answered yet
-     *
-     * The 4 indicators are:
-     *   1. Previous suicide attempt    (suicidePreviousAttempt)
-     *   2. Current intent or plan      (suicidePlan)
-     *   3. Access to means             (suicideHopelessness)
-     *   4. CHO assesses immediate risk (suicideImmediateAssess)
-     */
+
     private suspend fun computeSuicideRiskLevel() {
         val fields = listOf(
             suicidePreviousAttempt.value,
