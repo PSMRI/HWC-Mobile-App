@@ -19,6 +19,7 @@ class MentalHealthScreeningDataset(
 
     private lateinit var cache: MentalHealthScreeningCache
     private var lastPhq9AlertLevel = 0
+    private var lastSuicideRiskLevel = ""
 
     init {
         loadResourceStrings()
@@ -250,6 +251,22 @@ class MentalHealthScreeningDataset(
             required = false
         )
     }
+    private val substanceTobaccoHeader: FormElement by lazy {
+        FormElement(
+            id = 312,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.substance_tobacco_title),
+            required = false
+        )
+    }
+    private val substanceAlcoholHeader: FormElement by lazy {
+        FormElement(
+            id = 313,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.substance_alcohol_title),
+            required = false
+        )
+    }
     private val substanceCurrentTobaccoUse = FormElement(
         id = 307,
         inputType = InputType.RADIO,
@@ -369,7 +386,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.suicide_current_thoughts),
             entries = yesNoOptions,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -379,7 +397,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.suicide_plan),
             entries = yesNoOptions,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -389,7 +408,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.suicide_previous_attempt),
             entries = yesNoOptions,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -399,17 +419,26 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.suicide_hopelessness),
             entries = yesNoOptions,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
-    private val suicideRiskLevel: FormElement by lazy {
+    private var suicideRiskLevel = FormElement(
+        id = 405,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.suicide_risk_level),
+        required = false
+    )
+
+    private val suicideImmediateAssess: FormElement by lazy {
         FormElement(
-            id = 405,
-            inputType = InputType.DROPDOWN,
-            title = context.getString(R.string.suicide_risk_level),
-            entries = suicideRiskOptions,
-            required = true
+            id = 406,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.suicide_immediate_assess),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -560,14 +589,14 @@ class MentalHealthScreeningDataset(
     )
 
     private val substanceElements = listOf(
-        substanceHeader, substanceCurrentTobaccoUse,
-        substanceTobaccoOutcome, substanceSystemAction, substanceOtherUse,
+        substanceHeader,substanceTobaccoHeader, substanceCurrentTobaccoUse,
+        substanceTobaccoOutcome, substanceSystemAction, substanceAlcoholHeader, substanceOtherUse,
         substanceFrequency, briefInterventionGiven, substanceAlcoholUse, substanceTobaccoUse
     )
 
     private val suicideElements = listOf(
-        suicideHeader, suicideCurrentThoughts, suicidePlan,
-        suicidePreviousAttempt, suicideHopelessness, suicideRiskLevel
+        suicideHeader, suicidePreviousAttempt, suicidePlan,
+        suicideCurrentThoughts, suicideHopelessness, suicideImmediateAssess, suicideRiskLevel
     )
 
     private val dementiaElements = listOf(
@@ -737,6 +766,13 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
+            suicidePreviousAttempt.id, suicidePlan.id,
+            suicideCurrentThoughts.id, suicideHopelessness.id,
+            suicideImmediateAssess.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
             // Handle referral & follow-up changes
             else -> {
                 val result = handleReferralFollowUpChange(formId, index)
@@ -765,6 +801,7 @@ class MentalHealthScreeningDataset(
         // Update auto-derived values FIRST before building the list
         updatePhq9Outcome()
         updateTobaccoOutcome()
+        computeSuicideRiskLevel()
 
         // Conditionally add sections based on current values
         if (shouldShowPhq9()) {
@@ -780,8 +817,8 @@ class MentalHealthScreeningDataset(
 
         if (substanceUseConcerns.value == "Yes") {
             val substanceElementsWithFreshCopies = listOf(
-                substanceHeader, substanceCurrentTobaccoUse,
-                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(),
+                substanceHeader,substanceTobaccoHeader, substanceCurrentTobaccoUse,
+                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(),substanceAlcoholHeader,
                 substanceOtherUse, substanceFrequency, briefInterventionGiven,
                 substanceAlcoholUse, substanceTobaccoUse
             )
@@ -797,7 +834,12 @@ class MentalHealthScreeningDataset(
         }
 
         if (selfHarmSuicideThoughts.value == "Yes") {
-            list.addAll(suicideElements)
+            val suicideElementsWithFreshCopies = listOf(
+                suicideHeader, suicidePreviousAttempt, suicidePlan,
+                suicideCurrentThoughts, suicideHopelessness, suicideImmediateAssess,
+                suicideRiskLevel.copy()
+            )
+            list.addAll(suicideElementsWithFreshCopies)
         }
 
         if (memoryLossConfusion.value == "Yes") {
@@ -862,9 +904,9 @@ class MentalHealthScreeningDataset(
             else -> "Referral - Emergency referral"
         }
         phq9SystemAction.errorText = when {
-            score >= 20 -> "⚠️ EMERGENCY REFERRAL REQUIRED"
-            score >= 15 -> "⚠️ URGENT REFERRAL REQUIRED"
-            score >= 10 -> "⚠️ REFERRAL TO MO/PHC REQUIRED"
+            score >= 20 -> "EMERGENCY REFERRAL REQUIRED"
+            score >= 15 -> "URGENT REFERRAL REQUIRED"
+            score >= 10 -> "REFERRAL TO MO/PHC REQUIRED"
             else -> null
         }
         phq9SystemAction.hasAlertError = score >= 10
@@ -884,16 +926,89 @@ class MentalHealthScreeningDataset(
         val previousUse = substanceTobaccoUse.value
 
         substanceTobaccoOutcome.value = when {
-            currentUse == "Yes" || previousUse == "Yes" -> "Use identified"
-            currentUse == "No" && previousUse == "No" -> "No use identified"
-            else -> null
+            currentUse == "Yes"                      -> "Use identified"
+            currentUse == "No"                       -> "No use identified"
+            currentUse == null && previousUse == "Yes" -> "Use identified"
+            else                                     -> null
         }
 
         substanceSystemAction.value = when (substanceTobaccoOutcome.value) {
-            "Use identified" -> "Brief counselling"
+            "Use identified"    -> "Brief counselling"
             "No use identified" -> "Close screening"
-            else -> null
+            else                -> null
         }
+    }
+
+    /**
+     * Computes the Suicide Risk Level automatically based on four clinical indicators:
+     * - Previous suicide attempt      (suicidePreviousAttempt)
+     * - Current intent or plan        (suicidePlan)
+     * - Access to means               (suicideHopelessness – labeled "Access to means" in strings)
+     * - CHO assesses immediate risk   (suicideImmediateAssess)
+     *
+     * Rules (count of "Yes" across the 4 clinical indicators):
+     *   0 Yes  → Low
+     *   1–2 Yes → Moderate
+     *   3–4 Yes → High
+     *   null   → no field answered yet
+     *
+     * The 4 indicators are:
+     *   1. Previous suicide attempt    (suicidePreviousAttempt)
+     *   2. Current intent or plan      (suicidePlan)
+     *   3. Access to means             (suicideHopelessness)
+     *   4. CHO assesses immediate risk (suicideImmediateAssess)
+     */
+    private suspend fun computeSuicideRiskLevel() {
+        val fields = listOf(
+            suicidePreviousAttempt.value,
+            suicidePlan.value,
+            suicideHopelessness.value,
+            suicideImmediateAssess.value
+        )
+
+        // Only compute once at least one field has been answered
+        val answeredCount = fields.count { it != null }
+        if (answeredCount == 0) {
+            suicideRiskLevel.value = null
+            suicideRiskLevel.hasAlertError = false
+            suicideRiskLevel.errorText = null
+            return
+        }
+
+        val yesCount = fields.count { isYes(it) }
+
+        suicideRiskLevel.value = when {
+            yesCount in 0..1    -> suicideRiskOptions.getOrElse(0) { "Low" }
+            yesCount in 2..3 -> suicideRiskOptions.getOrElse(1) { "Moderate" }
+            else             -> suicideRiskOptions.getOrElse(2) { "High" }
+        }
+
+        // Alert when risk is Moderate or High
+        val riskValue = suicideRiskLevel.value ?: ""
+        val moderate  = suicideRiskOptions.getOrElse(1) { "Moderate" }
+        val high      = suicideRiskOptions.getOrElse(2) { "High" }
+
+        when (riskValue) {
+            high -> {
+                suicideRiskLevel.hasAlertError = true
+                suicideRiskLevel.errorText = context.getString(R.string.suicide_risk_alert_high)
+                if (lastSuicideRiskLevel != high) {
+                    emitAlertErrorMessage(R.string.suicide_risk_alert_high)
+                }
+            }
+            moderate -> {
+                suicideRiskLevel.hasAlertError = true
+                suicideRiskLevel.errorText = context.getString(R.string.suicide_risk_alert_moderate)
+                if (lastSuicideRiskLevel != moderate) {
+                    emitAlertErrorMessage(R.string.suicide_risk_alert_moderate)
+                }
+            }
+            else -> {
+                suicideRiskLevel.hasAlertError = false
+                suicideRiskLevel.errorText = null
+            }
+        }
+        lastSuicideRiskLevel = riskValue
     }
 
 
@@ -933,7 +1048,9 @@ class MentalHealthScreeningDataset(
         suicidePlan.value = null
         suicidePreviousAttempt.value = null
         suicideHopelessness.value = null
+        suicideImmediateAssess.value =null
         suicideRiskLevel.value = null
+
     }
 
     private fun clearDementiaValues() {
@@ -1009,6 +1126,8 @@ class MentalHealthScreeningDataset(
             cache.suicidePreviousAttempt?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         suicideHopelessness.value =
             cache.suicideHopelessness?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        suicideImmediateAssess.value =
+            cache.suicideImmediateAssess?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         suicideRiskLevel.value = cache.suicideRiskLevel
 
         // Dementia
@@ -1102,7 +1221,7 @@ class MentalHealthScreeningDataset(
             }
 
 
-                // Substance Use
+            // Substance Use
             if (substanceUseConcerns.value == "Yes") {
                 it.substanceCurrentTobaccoUse = substanceCurrentTobaccoUse.value == "Yes"
                 it.substanceTobaccoType = if (it.substanceCurrentTobaccoUse == true) substanceTobaccoType.value else null
@@ -1137,12 +1256,14 @@ class MentalHealthScreeningDataset(
                 it.suicidePlan = isYes(suicidePlan.value)
                 it.suicidePreviousAttempt = isYes(suicidePreviousAttempt.value)
                 it.suicideHopelessness = isYes(suicideHopelessness.value)
+                it.suicideImmediateAssess = isYes(suicideImmediateAssess.value)
                 it.suicideRiskLevel = suicideRiskLevel.value
             } else {
                 it.suicideCurrentThoughts = null
                 it.suicidePlan = null
                 it.suicidePreviousAttempt = null
                 it.suicideHopelessness = null
+                it.suicideImmediateAssess = null
                 it.suicideRiskLevel = null
             }
 

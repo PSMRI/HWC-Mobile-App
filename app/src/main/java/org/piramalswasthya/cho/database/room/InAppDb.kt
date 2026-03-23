@@ -919,7 +919,8 @@ abstract class InAppDb : RoomDatabase() {
                         substance_tobacco_type TEXT,
                         substance_tobacco_frequency TEXT,
                         substance_tobacco_outcome TEXT,
-                        substance_system_action TEXT
+                        substance_system_action TEXT,
+                        suicide_immediate_assess INTEGER
                     )
                 """.trimIndent())
                 database.execSQL(
