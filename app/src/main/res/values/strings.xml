@@ -1185,6 +1185,7 @@
     <string name="title_pain_symptom_assessment">Pain and Symptom Assessment</string>
     <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
     <string name="title_nose_diagnosis">Nose Diagnosis Form</string>
+    <string name="title_throat_diagnosis">Throat Diagnosis Form</string>
 
     <!-- Nose Diagnosis Form Strings -->
     <string name="nose_bleed_title">Nose Bleed (Epistaxis)</string>

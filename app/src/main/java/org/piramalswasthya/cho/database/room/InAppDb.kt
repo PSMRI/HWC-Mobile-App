@@ -162,7 +162,10 @@ import org.piramalswasthya.cho.model.PainAndSymptomAssessment
 import org.piramalswasthya.cho.model.OralHealth
 import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
 import org.piramalswasthya.cho.database.room.dao.MentalHealthScreeningDao
+import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
+import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
+
 
 @Database(
     entities = [
@@ -258,10 +261,11 @@ import org.piramalswasthya.cho.model.MentalHealthScreeningCache
         PainAndSymptomAssessment::class,
         PsychosocialCaregiverSupport::class,
         OralHealth::class,
-        MentalHealthScreeningCache::class
+        MentalHealthScreeningCache::class,
+        ThroatDiagnosisAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 134, exportSchema = false
+    version = 135, exportSchema = false
 )
 
 
@@ -340,6 +344,8 @@ abstract class InAppDb : RoomDatabase() {
     abstract val oralHealthDao: OralHealthDao
     abstract val noseDiagnosisAssessmentDao: NoseDiagnosisAssessmentDao
     abstract val mentalHealthScreeningDao: MentalHealthScreeningDao
+    abstract val throatDiagnosisAssessmentDao: ThroatDiagnosisAssessmentDao
+
 
     companion object {
         @Volatile
@@ -930,6 +936,28 @@ abstract class InAppDb : RoomDatabase() {
                 )
             }
         }
+        val MIGRATION_134_135 = object : Migration(134, 135) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS THROAT_DIAGNOSIS_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                symptoms TEXT,
+                neck_swelling INTEGER,
+                difficulty_swallowing INTEGER,
+                tonsillitis INTEGER,
+                pharyngitis INTEGER,
+                laryngitis INTEGER,
+                sinusitis INTEGER,
+                cleft_lip INTEGER,
+                cleft_palate INTEGER
+            )
+            """.trimIndent()
+                )
+            }
+        }
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -971,7 +999,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_130_131,
                             MIGRATION_131_132,
                             MIGRATION_132_133,
-                            MIGRATION_133_134
+                            MIGRATION_133_134,
+                            MIGRATION_134_135
 
                         )
                         .fallbackToDestructiveMigration()
