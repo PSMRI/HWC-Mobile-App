@@ -28,6 +28,7 @@ class OralHealthDataset(
     private lateinit var cache: OralHealth
     private var lastSelectedToothDecaySymptoms: Set<String> = emptySet()
     private var lastSelectedGumDiseaseSymptoms: Set<String> = emptySet()
+        private var lastSelectedDentalEmergencySelections: Set<String> = emptySet()
     var onShowAlert: ((String) -> Unit)? = null
 
     private val toothDecayPresent = FormElement(
@@ -141,6 +142,7 @@ class OralHealthDataset(
         populateFromCache(cache)
         lastSelectedToothDecaySymptoms = toSelectionSet(toothDecaySymptoms.value)
         lastSelectedGumDiseaseSymptoms = toSelectionSet(gumDiseaseSymptoms.value)
+        lastSelectedDentalEmergencySelections = toSelectionSet(dentalEmergency.value)
 
         val list = mutableListOf<FormElement>()
         list.add(toothDecayPresent)
@@ -251,7 +253,11 @@ class OralHealthDataset(
     }
 
     private fun handleDentalEmergency(): Int {
-        onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
+        val currentSelections = toSelectionSet(dentalEmergency.value)
+        if (currentSelections.size > lastSelectedDentalEmergencySelections.size) {
+            onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
+        }
+        lastSelectedDentalEmergencySelections = currentSelections
         return -1
     }
 
