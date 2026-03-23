@@ -143,7 +143,7 @@ dependencies {
     implementation 'androidx.biometric:biometric:1.2.0-alpha05'
 
     //tensorflow and mediapipe.
-    implementation 'com.google.mediapipe:tasks-vision:latest.release'
+    implementation 'com.google.mediapipe:tasks-vision:0.10.21'
     implementation ("org.tensorflow:tensorflow-lite:2.11.0")
     implementation ("org.tensorflow:tensorflow-lite-gpu:2.11.0")
     implementation ("org.tensorflow:tensorflow-lite-gpu-api:2.11.0")
