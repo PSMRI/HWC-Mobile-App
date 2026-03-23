@@ -72,7 +72,7 @@ class ThroatDiagnosisFormFragment :
                 .setMultiChoiceItems(data.items, data.selectedItems) { _, which, isChecked ->
                     data.selectedItems[which] = isChecked
                 }
-                .setPositiveButton("OK") { _, _ ->
+                .setPositiveButton(getString(android.R.string.ok)) { _, _ ->
                     for (i in data.selectedItems.indices) {
                         if (data.selectedItems[i]) selectedItemsList.add(data.items[i])
                     }

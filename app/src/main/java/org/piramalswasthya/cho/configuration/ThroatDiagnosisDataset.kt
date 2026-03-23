@@ -2,12 +2,13 @@ package org.piramalswasthya.cho.configuration
 
 import android.content.Context
 import org.piramalswasthya.cho.helpers.Languages
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
 
 class ThroatDiagnosisDataset(
-    context: Context,
+    private val context: Context,
     currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
 
@@ -15,18 +16,21 @@ class ThroatDiagnosisDataset(
 
     var onShowAlert: ((String) -> Unit)? = null
 
+    private val optionYes = context.getString(R.string.yes)
+    private val optionNo = context.getString(R.string.no)
+
 
 
     private val symptoms = FormElement(
         id = 1,
         inputType = InputType.CHECKBOXES,
-        title = "Symptoms",
+        title = context.getString(R.string.throat_diagnosis_symptoms),
         entries = arrayOf(
-            "Pain",
-            "Soreness",
-            "Cold",
-            "Itching",
-            "Hoarseness"
+            context.getString(R.string.throat_symptom_pain),
+            context.getString(R.string.throat_symptom_soreness),
+            context.getString(R.string.throat_symptom_cold),
+            context.getString(R.string.throat_symptom_itching),
+            context.getString(R.string.throat_symptom_hoarseness)
         ),
         required = true
     )
@@ -34,8 +38,8 @@ class ThroatDiagnosisDataset(
     private val neckSwelling = FormElement(
         id = 2,
         inputType = InputType.RADIO,
-        title = "Swelling in the neck (Thyroid)",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.throat_diagnosis_neck_swelling),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -43,8 +47,8 @@ class ThroatDiagnosisDataset(
     private val difficultySwallowing = FormElement(
         id = 3,
         inputType = InputType.RADIO,
-        title = "Difficulty in Swallowing",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.throat_diagnosis_difficulty_swallowing),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -52,40 +56,40 @@ class ThroatDiagnosisDataset(
     private val tonsillitis = FormElement(
         id = 4,
         inputType = InputType.RADIO,
-        title = "Tonsillitis",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.throat_diagnosis_tonsillitis),
+        entries = arrayOf(optionYes, optionNo),
         required = false
     )
 
     private val pharyngitis = FormElement(
         id = 5,
         inputType = InputType.RADIO,
-        title = "Pharyngitis",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.throat_diagnosis_pharyngitis),
+        entries = arrayOf(optionYes, optionNo),
         required = false
     )
 
     private val laryngitis = FormElement(
         id = 6,
         inputType = InputType.RADIO,
-        title = "Laryngitis",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.throat_diagnosis_laryngitis),
+        entries = arrayOf(optionYes, optionNo),
         required = false
     )
 
     private val sinusitis = FormElement(
         id = 7,
         inputType = InputType.RADIO,
-        title = "Sinusitis",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.throat_diagnosis_sinusitis),
+        entries = arrayOf(optionYes, optionNo),
         required = false
     )
 
     private val cleftLip = FormElement(
         id = 8,
         inputType = InputType.RADIO,
-        title = "Cleft Lip",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.throat_diagnosis_cleft_lip),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -93,8 +97,8 @@ class ThroatDiagnosisDataset(
     private val cleftPalate = FormElement(
         id = 9,
         inputType = InputType.RADIO,
-        title = "Cleft Palate",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.throat_diagnosis_cleft_palate),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -125,48 +129,41 @@ class ThroatDiagnosisDataset(
     /* -------------------- VALUE CHANGE -------------------- */
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
-        when (formId) {
+        return when (formId) {
 
 
             neckSwelling.id -> {
                 if (index == 0) {
-                    onShowAlert?.invoke(
-                        "Neck swelling detected. Refer patient to specialist at secondary level."
-                    )
+                    onShowAlert?.invoke(context.getString(R.string.throat_alert_neck_swelling))
                 }
                 neckSwelling.id
             }
 
             difficultySwallowing.id -> {
                 if (index == 0) {
-                    onShowAlert?.invoke(
-                        "Difficulty in swallowing detected. Refer patient to specialist at secondary level."
-                    )
+                    onShowAlert?.invoke(context.getString(R.string.throat_alert_difficulty_swallowing))
                 }
                 difficultySwallowing.id
             }
 
             cleftLip.id -> {
                 if (index == 0) {
-                    onShowAlert?.invoke(
-                        "Cleft lip detected. Refer patient to specialist at secondary level."
-                    )
+                    onShowAlert?.invoke(context.getString(R.string.throat_alert_cleft_lip))
                 }
                 cleftLip.id
             }
 
             cleftPalate.id -> {
                 if (index == 0) {
-                    onShowAlert?.invoke(
-                        "Cleft palate detected. Refer patient to specialist at secondary level."
-                    )
+                    onShowAlert?.invoke(context.getString(R.string.throat_alert_cleft_palate))
                 }
                 cleftPalate.id
             }
 
             symptoms.id -> symptoms.id
+
+            else -> -1
         }
-        return -1
     }
 
     /* -------------------- MULTI-SELECT TRIGGER -------------------- */
@@ -214,43 +211,43 @@ class ThroatDiagnosisDataset(
     private fun populateFromCache(cache: ThroatDiagnosisAssessment) {
         symptoms.value = cache.symptoms?.joinToString(", ")
         neckSwelling.value = when (cache.neckSwelling) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         difficultySwallowing.value = when (cache.difficultySwallowing) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         tonsillitis.value = when (cache.tonsillitis) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         pharyngitis.value = when (cache.pharyngitis) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         laryngitis.value = when (cache.laryngitis) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         sinusitis.value = when (cache.sinusitis) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         cleftLip.value = when (cache.cleftLip) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         cleftPalate.value = when (cache.cleftPalate) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
     }
@@ -260,43 +257,43 @@ class ThroatDiagnosisDataset(
             symptoms =
                 this@ThroatDiagnosisDataset.symptoms.value?.split(", ")?.filter { it.isNotBlank() }
             neckSwelling = when (this@ThroatDiagnosisDataset.neckSwelling.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
             difficultySwallowing = when (this@ThroatDiagnosisDataset.difficultySwallowing.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
             tonsillitis = when (this@ThroatDiagnosisDataset.tonsillitis.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
             pharyngitis = when (this@ThroatDiagnosisDataset.pharyngitis.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
             laryngitis = when (this@ThroatDiagnosisDataset.laryngitis.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
             sinusitis = when (this@ThroatDiagnosisDataset.sinusitis.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
             cleftLip = when (this@ThroatDiagnosisDataset.cleftLip.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
             cleftPalate = when (this@ThroatDiagnosisDataset.cleftPalate.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
         }
