@@ -859,12 +859,7 @@ abstract class InAppDb : RoomDatabase() {
                 patient_id TEXT NOT NULL,
                 ben_visit_no INTEGER,
                 difficulty_breathing INTEGER,
-                open_mouth_breathing INTEGER,
-                nose_bleed INTEGER,
-                systolic_bp INTEGER,
-                diastolic_bp INTEGER,
-                foreign_body_nose TEXT,
-                sinusitis INTEGER
+                open_mouth_breathing INTEGER
             )
             """.trimIndent()
                 )
@@ -925,8 +920,7 @@ abstract class InAppDb : RoomDatabase() {
                         substance_tobacco_type TEXT,
                         substance_tobacco_frequency TEXT,
                         substance_tobacco_outcome TEXT,
-                        substance_system_action TEXT,
-                        suicide_immediate_assess INTEGER
+                        substance_system_action TEXT
                     )
                 """.trimIndent())
                 database.execSQL(
@@ -962,20 +956,33 @@ abstract class InAppDb : RoomDatabase() {
 
         val MIGRATION_135_136 = object : Migration(135, 136) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                val cursor = database.query("PRAGMA table_info(MENTAL_HEALTH_SCREENING)")
-                var columnExists = false
-                while (cursor.moveToNext()) {
-                    if (cursor.getString(cursor.getColumnIndexOrThrow("name")) == "suicide_immediate_assess") {
-                        columnExists = true
-                        break
-                    }
-                }
-                cursor.close()
-                if (!columnExists) {
-                    database.execSQL(
-                        "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN suicide_immediate_assess INTEGER"
-                    )
-                }
+                // Add missing columns to NOSE_DIAGNOSIS_ASSESSMENT
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "nose_bleed", "INTEGER")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "systolic_bp", "INTEGER")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "diastolic_bp", "INTEGER")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "foreign_body_nose", "TEXT")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "sinusitis", "INTEGER")
+
+                // Add missing column to MENTAL_HEALTH_SCREENING
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "suicide_immediate_assess", "INTEGER")
+            }
+        }
+
+        /**
+         * Safely adds a column to a table, ignoring the error if the column already exists.
+         * This handles cases where an older version of a CREATE TABLE migration already
+         * included the column.
+         */
+        private fun safeAddColumn(
+            database: SupportSQLiteDatabase,
+            table: String,
+            column: String,
+            type: String
+        ) {
+            try {
+                database.execSQL("ALTER TABLE $table ADD COLUMN $column $type")
+            } catch (_: Exception) {
+                // Column already exists — safe to ignore
             }
         }
 
