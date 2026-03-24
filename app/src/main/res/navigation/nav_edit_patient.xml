@@ -59,6 +59,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_throatDiagnosisFormFragment"
             app:destination="@id/throatDiagnosisFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_fragment_elderly_health_assessment_form"
+            app:destination="@id/fragment_elderly_health_assessment_form" />
 
     </fragment>
 
@@ -343,6 +346,17 @@
         android:id="@+id/throatDiagnosisFormFragment"
         android:name="org.piramalswasthya.cho.ui.ENT.ThroatDiagnosisFormFragment"
         android:label="Throat Diagnosis" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer"/>
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_elderly_health_assessment_form"
+        android:name="org.piramalswasthya.cho.ui.elder_health.ElderlyHealthAssessmentFormFragment"
+        android:label="Elderly Health Assessment" >
         <argument
             android:name="patientID"
             app:argType="string" />

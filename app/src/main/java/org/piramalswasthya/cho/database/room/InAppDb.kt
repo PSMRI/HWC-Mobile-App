@@ -165,6 +165,8 @@ import org.piramalswasthya.cho.database.room.dao.MentalHealthScreeningDao
 import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
+import org.piramalswasthya.cho.database.room.dao.ElderlyHealthAssessmentDao
+import org.piramalswasthya.cho.model.ElderlyHealthAssessment
 
 
 @Database(
@@ -262,10 +264,11 @@ import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
         PsychosocialCaregiverSupport::class,
         OralHealth::class,
         MentalHealthScreeningCache::class,
-        ThroatDiagnosisAssessment::class
+        ThroatDiagnosisAssessment::class,
+        ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 135, exportSchema = false
+    version = 136, exportSchema = false
 )
 
 
@@ -345,6 +348,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val noseDiagnosisAssessmentDao: NoseDiagnosisAssessmentDao
     abstract val mentalHealthScreeningDao: MentalHealthScreeningDao
     abstract val throatDiagnosisAssessmentDao: ThroatDiagnosisAssessmentDao
+    abstract val elderlyHealthAssessmentDao: ElderlyHealthAssessmentDao
 
 
     companion object {
@@ -959,6 +963,32 @@ abstract class InAppDb : RoomDatabase() {
                 )
             }
         }
+        val MIGRATION_135_136 = object : Migration(135, 136) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS ELDERLY_HEALTH_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                geriatric_complaints INTEGER,
+                multiple_chronic_conditions INTEGER,
+                recent_falls INTEGER,
+                difficulty_walking_balance INTEGER,
+                visual_hearing_difficulty INTEGER,
+                functional_decline INTEGER,
+                memory_loss INTEGER,
+                dementia_memory_loss INTEGER,
+                dementia_disorientation INTEGER,
+                dementia_behavioural_changes INTEGER,
+                dementia_self_care_decline INTEGER,
+                dementia_screening_outcome TEXT,
+                dementia_referral_required INTEGER
+            )
+            """.trimIndent()
+                )
+            }
+        }
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -1001,7 +1031,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_131_132,
                             MIGRATION_132_133,
                             MIGRATION_133_134,
-                            MIGRATION_134_135
+                            MIGRATION_134_135,
+                            MIGRATION_135_136
 
                         )
                         .fallbackToDestructiveMigration()

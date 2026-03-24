@@ -133,6 +133,7 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
 
     abstract fun mapValues(cacheModel: FormDataModel, pageNumber: Int = 0)
     protected fun getIndexOfElement(element: FormElement) = list.indexOf(element)
+    protected fun getFormList(): List<FormElement> = list
     suspend fun updateList(formId: Int, index: Int) {
         val formElement = list.find { it.id == formId }
         val previousErrorText = formElement?.errorText

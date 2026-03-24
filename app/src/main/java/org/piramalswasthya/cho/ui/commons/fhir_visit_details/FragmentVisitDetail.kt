@@ -566,7 +566,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.persistentPain, DropdownConst.psychosocialCaregiverSupport)
+                listOf(DropdownConst.elderlyHealthAssessment, DropdownConst.persistentPain, DropdownConst.psychosocialCaregiverSupport)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
@@ -1788,6 +1788,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                    binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToThroatDiagnosisFormFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitNo
+                        )
+                    )
+                }
+            }
+            else if(reasonForVisit == DropdownConst.elderlyHealthAssessment){
+                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
+                    isNavigationInProgress = true
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToFragmentElderlyHealthAssessmentForm(
                             patientID = benVisitInfo.patient.patientID,
                             benVisitNo = benVisitNo
                         )
