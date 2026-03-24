@@ -42,6 +42,10 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
     /* -------------------- BEN DETAILS -------------------- */
 
     val patientID: String? = savedStateHandle["patientID"]
+    val benVisitNo: Int? = savedStateHandle["benVisitNo"]
+
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> get() = _error
 
     private val _benName = MutableLiveData<String>()
     val benName: LiveData<String> get() = _benName
@@ -64,12 +68,14 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
                 val user = userRepo.getLoggedInUser()
                 if (user == null) {
                     Timber.e("No logged in user found")
+                    _error.postValue("No logged in user found")
                     return@launch
                 }
 
                 val patient = patientID?.let { patientRepo.getPatientDisplay(it) }
                 if (patient == null) {
                     Timber.e("Patient not found for ID: $patientID")
+                    _error.postValue("Patient not found")
                     return@launch
                 }
 
@@ -77,16 +83,25 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
                     "${patient.patient.firstName} ${patient.patient.lastName ?: ""}"
 
                 _benAgeGender.value =
-                    "${patient.patient.age} ${patient.ageUnit?.name} | ${patient.gender?.genderName}"
+                    "${patient.patient.age} ${patient.ageUnit?.name ?: ""} | ${patient.gender?.genderName ?: ""}"
 
-                val existingRecord = elderlyHealthRepo.getAssessmentByPatientId(patient.patient.patientID)
+                val existingRecord = benVisitNo?.let {
+                    elderlyHealthRepo.getAssessment(patient.patient.patientID, it)
+                }
 
                 if (existingRecord != null) {
                     assessmentCache = existingRecord
                 } else {
-                    assessmentCache = ElderlyHealthAssessment(
-                        patientID = patient.patient.patientID,
-                        benVisitNo = null, // Or get from visit context if available
+                    val latestRecord = elderlyHealthRepo.getAssessmentByPatientId(patient.patient.patientID)
+                    if (latestRecord != null) {
+                        assessmentCache = latestRecord.copy(
+                            assessmentId = 0L,
+                            benVisitNo = benVisitNo
+                        )
+                    } else {
+                        assessmentCache = ElderlyHealthAssessment(
+                            patientID = patient.patient.patientID,
+                            benVisitNo = benVisitNo,
                         geriatricComplaints = null,
                         multipleChronicConditions = null,
                         recentFalls = null,
@@ -96,11 +111,12 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
                         memoryLoss = null
                     )
                 }
+                }
 
                 setupDatasetCallbacks()
 
                 dataset.setUpPage(
-                    savedRecord = existingRecord,
+                    savedRecord = assessmentCache,
                     patientAge = patient.patient.age
                 )
 

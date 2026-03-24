@@ -987,6 +987,10 @@ abstract class InAppDb : RoomDatabase() {
             )
             """.trimIndent()
                 )
+                database.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_elderly_health_assessment_patient_visit " +
+                        "ON ELDERLY_HEALTH_ASSESSMENT(patient_id, ben_visit_no)"
+                )
             }
         }
 

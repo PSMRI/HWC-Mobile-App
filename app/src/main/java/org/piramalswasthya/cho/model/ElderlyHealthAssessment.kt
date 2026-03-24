@@ -2,11 +2,16 @@ package org.piramalswasthya.cho.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.configuration.FormDataModel
 
-@Entity(tableName = "ELDERLY_HEALTH_ASSESSMENT")
+@Entity(tableName = "ELDERLY_HEALTH_ASSESSMENT",
+    indices = [
+        Index(name = "index_elderly_health_assessment_patient_visit", value = ["patient_id", "ben_visit_no"], unique = true)
+    ]
+)
 @JsonClass(generateAdapter = true)
 data class ElderlyHealthAssessment(
 

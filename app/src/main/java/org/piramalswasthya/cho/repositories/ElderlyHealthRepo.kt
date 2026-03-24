@@ -18,4 +18,8 @@ class ElderlyHealthRepo @Inject constructor(
     suspend fun getAssessmentByPatientId(patientID: String): ElderlyHealthAssessment? {
         return elderlyHealthAssessmentDao.getAssessmentByPatientId(patientID)
     }
+
+    suspend fun getAssessment(patientID: String, benVisitNo: Int): ElderlyHealthAssessment? {
+        return elderlyHealthAssessmentDao.getAssessment(patientID, benVisitNo)
+    }
 }

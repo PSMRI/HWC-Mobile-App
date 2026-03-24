@@ -1795,8 +1795,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if(reasonForVisit == DropdownConst.elderlyHealthAssessment){
+                isNavigationInProgress = true
                 saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
-                    isNavigationInProgress = true
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToFragmentElderlyHealthAssessmentForm(
                             patientID = benVisitInfo.patient.patientID,

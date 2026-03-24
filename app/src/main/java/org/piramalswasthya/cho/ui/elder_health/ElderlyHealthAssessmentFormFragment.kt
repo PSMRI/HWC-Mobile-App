@@ -118,6 +118,13 @@ class ElderlyHealthAssessmentFormFragment : Fragment(), NavigationAdapter {
 
     private fun observeViewModel() {
 
+        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                findNavController().navigateUp()
+            }
+        }
+
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
                 ElderlyHealthAssessmentFormViewModel.State.IDLE -> Unit

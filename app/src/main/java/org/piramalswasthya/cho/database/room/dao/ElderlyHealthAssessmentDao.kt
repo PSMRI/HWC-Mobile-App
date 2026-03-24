@@ -20,4 +20,7 @@ interface ElderlyHealthAssessmentDao {
 
     @Query("SELECT * FROM ELDERLY_HEALTH_ASSESSMENT WHERE patient_id = :patientID ORDER BY assessment_id DESC LIMIT 1")
     suspend fun getAssessmentByPatientId(patientID: String): ElderlyHealthAssessment?
+
+    @Query("SELECT * FROM ELDERLY_HEALTH_ASSESSMENT WHERE patient_id = :patientID AND ben_visit_no = :benVisitNo")
+    suspend fun getAssessment(patientID: String, benVisitNo: Int): ElderlyHealthAssessment?
 }
