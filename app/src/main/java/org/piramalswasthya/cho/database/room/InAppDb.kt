@@ -962,9 +962,20 @@ abstract class InAppDb : RoomDatabase() {
 
         val MIGRATION_135_136 = object : Migration(135, 136) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL(
-                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN suicide_immediate_assess INTEGER"
-                )
+                val cursor = database.query("PRAGMA table_info(MENTAL_HEALTH_SCREENING)")
+                var columnExists = false
+                while (cursor.moveToNext()) {
+                    if (cursor.getString(cursor.getColumnIndexOrThrow("name")) == "suicide_immediate_assess") {
+                        columnExists = true
+                        break
+                    }
+                }
+                cursor.close()
+                if (!columnExists) {
+                    database.execSQL(
+                        "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN suicide_immediate_assess INTEGER"
+                    )
+                }
             }
         }
 
