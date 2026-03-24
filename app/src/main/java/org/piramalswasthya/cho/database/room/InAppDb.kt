@@ -265,7 +265,7 @@ import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
         ThroatDiagnosisAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 136, exportSchema = false
+    version = 137, exportSchema = false
 )
 
 
@@ -985,6 +985,65 @@ abstract class InAppDb : RoomDatabase() {
                 // Column already exists — safe to ignore
             }
         }
+        val MIGRATION_136_137 = object : Migration(136, 137) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_impact INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_withdrawal INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_problematic INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_classification TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_system_action TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_frequency TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_loss INTEGER"
+                )
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN edRecurrentEpisodeloss INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_recurrent_jerky_movements INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_progressive_memory_loss INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_confusion_disorientation INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_functional_decline INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_screening_outcome TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_referral_required TEXT"
+                )
+            }
+        }
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -1028,7 +1087,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_132_133,
                             MIGRATION_133_134,
                             MIGRATION_134_135,
-                            MIGRATION_135_136
+                            MIGRATION_135_136,
+                            MIGRATION_136_137
 
                         )
                         .fallbackToDestructiveMigration()

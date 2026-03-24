@@ -170,6 +170,46 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "epilepsy_loc_duration")
     var epilepsyLocDuration: String? = null,
 
+    @ColumnInfo(name = "substance_alcohol_loss")
+    var substance_alcohol_loss: Boolean? = null,
+
+    @ColumnInfo(name = "substance_alcohol_impact")
+    var substanceAlcoholImpact: Boolean? = null,
+
+    @ColumnInfo(name = "substance_alcohol_withdrawal")
+    var substanceAlcoholWithdrawal: Boolean? = null,
+
+    @ColumnInfo(name = "substance_alcohol_problematic")
+    var substanceAlcoholProblematic: Boolean? = null,
+
+    @ColumnInfo(name = "substance_alcohol_classification")
+    var substanceAlcoholClassification: String? = null,
+
+    @ColumnInfo(name = "substance_alcohol_system_action")
+    var substanceAlcoholSystemAction: String? = null,
+
+    @ColumnInfo(name = "substance_alcohol_frequency")
+    var substance_alcohol_frequency: String? = null,
+
+    @ColumnInfo(name = "edRecurrentEpisodeloss")
+    var edRecurrentEpisodeloss: Boolean? = null,
+    @ColumnInfo(name = "ed_recurrent_jerky_movements")
+    var edRecurrentJerkyMovements: Boolean? = null,
+
+    @ColumnInfo(name = "ed_progressive_memory_loss")
+    var edProgressiveMemoryLoss: Boolean? = null,
+
+    @ColumnInfo(name = "ed_confusion_disorientation")
+    var edConfusionDisorientation: Boolean? = null,
+
+    @ColumnInfo(name = "ed_functional_decline")
+    var edFunctionalDecline: Boolean? = null,
+
+    @ColumnInfo(name = "ed_screening_outcome")
+    var edScreeningOutcome: String? = null,
+
+    @ColumnInfo(name = "ed_referral_required")
+    var edReferralRequired: String? = null,
 
     @ColumnInfo(name = "referral_required")
     override var referralRequired: Boolean? = null,
