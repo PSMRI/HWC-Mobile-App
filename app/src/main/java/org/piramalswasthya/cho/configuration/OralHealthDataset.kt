@@ -15,11 +15,20 @@ class OralHealthDataset(
     companion object {
         private const val YES = "Yes"
         private const val NO = "No"
+        private const val DENTAL_EMERGENCY_PAIN = "Pain"
+        private const val DENTAL_EMERGENCY_ABSCESS = "Abscess"
+        private const val DENTAL_EMERGENCY_SWELLING = "Swelling"
+        private const val DENTAL_EMERGENCY_TOOTH_INJURY = "Tooth Injury"
+        private const val DENTAL_EMERGENCY_AVULSION = "Avulsion"
+        private const val DENTAL_EMERGENCY_NON_HEALING_ULCER = "Non-Healing Ulcer"
+        private const val DENTAL_EMERGENCY_UNCONTROLLED_BLEEDING = "Uncontrolled Bleeding"
+        private const val DENTAL_EMERGENCY_TRAUMA = "Trauma (Fractured jaw/mobile teeth)"
     }
 
     private lateinit var cache: OralHealth
     private var lastSelectedToothDecaySymptoms: Set<String> = emptySet()
     private var lastSelectedGumDiseaseSymptoms: Set<String> = emptySet()
+        private var lastSelectedDentalEmergencySelections: Set<String> = emptySet()
     var onShowAlert: ((String) -> Unit)? = null
 
     private val toothDecayPresent = FormElement(
@@ -110,11 +119,30 @@ class OralHealthDataset(
         hasAlertError = true
     )
 
+    private val dentalEmergency = FormElement(
+        id = 9,
+        inputType = InputType.CHECKBOXES,
+        title = "Dental Emergency",
+        entries = arrayOf(
+            DENTAL_EMERGENCY_PAIN,
+            DENTAL_EMERGENCY_ABSCESS,
+            DENTAL_EMERGENCY_SWELLING,
+            DENTAL_EMERGENCY_TOOTH_INJURY,
+            DENTAL_EMERGENCY_AVULSION,
+            DENTAL_EMERGENCY_NON_HEALING_ULCER,
+            DENTAL_EMERGENCY_UNCONTROLLED_BLEEDING,
+            DENTAL_EMERGENCY_TRAUMA
+        ),
+        required = false,
+        hasAlertError = true
+    )
+
     suspend fun setUpPage(savedRecord: OralHealth?) {
         cache = savedRecord ?: createDefaultCache()
         populateFromCache(cache)
         lastSelectedToothDecaySymptoms = toSelectionSet(toothDecaySymptoms.value)
         lastSelectedGumDiseaseSymptoms = toSelectionSet(gumDiseaseSymptoms.value)
+        lastSelectedDentalEmergencySelections = toSelectionSet(dentalEmergency.value)
 
         val list = mutableListOf<FormElement>()
         list.add(toothDecayPresent)
@@ -137,6 +165,7 @@ class OralHealthDataset(
         list.add(abnormalGrowthUlcer)
         list.add(cleftLipPalate)
         list.add(dentalFluorosis)
+        list.add(dentalEmergency)
 
         setUpPage(list)
     }
@@ -151,6 +180,7 @@ class OralHealthDataset(
             abnormalGrowthUlcer.id,
             cleftLipPalate.id,
             dentalFluorosis.id -> handleSimpleAlert(index)
+            dentalEmergency.id -> handleDentalEmergency()
             else -> -1
         }
     }
@@ -222,6 +252,15 @@ class OralHealthDataset(
         return -1
     }
 
+    private fun handleDentalEmergency(): Int {
+        val currentSelections = toSelectionSet(dentalEmergency.value)
+        if (currentSelections.size > lastSelectedDentalEmergencySelections.size) {
+            onShowAlert?.invoke(resources.getString(R.string.oral_health_referral_alert))
+        }
+        lastSelectedDentalEmergencySelections = currentSelections
+        return -1
+    }
+
     private fun createDefaultCache(): OralHealth {
         return OralHealth(
             patientID = "",
@@ -283,6 +322,7 @@ class OralHealthDataset(
             false -> NO
             else -> null
         }
+        dentalEmergency.value = cache.dentalEmergency
     }
 
 
@@ -298,6 +338,7 @@ class OralHealthDataset(
             it.abnormalGrowthUlcer = abnormalGrowthUlcer.value.toYesNoBool()
             it.cleftLipPalate      = cleftLipPalate.value.toYesNoBool()
             it.dentalFluorosis     = dentalFluorosis.value.toYesNoBool()
+            it.dentalEmergency     = dentalEmergency.value
         }
     }
 }
