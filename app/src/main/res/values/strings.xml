@@ -162,6 +162,89 @@
     <string name="benificiary_list">Benificiary List</string>
     <string name="title_activity_visit_details">VisitDetailsActivity</string>
     <string name="esanjeevni">eSanjeevani</string>
+    <string name="title_activity_web_view">WebViewActivity</string>
+    <string name="ophthalmic_screening_title">Ophthalmic Screening</string>
+    <string name="ophthalmic_symptomatic_title">Ophthalmology Symptomatic</string>
+    <string name="ophthalmic_screening_section_title">Screening for Blindness and Refractive Errors</string>
+    <string name="ophthalmic_is_diabetic">Is the patient diabetic? <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_screening_performed">Screening Performed for Diabetic Patient <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_right">Distance Visual Acuity \u2013 Right Eye <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_left">Distance Visual Acuity \u2013 Left Eye <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_visual_impairment_alert">Suspected visual impairment</string>
+    <string name="ophthalmic_reason_for_visit">Reason for Visit <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_near_va">Near Visual Acuity <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_chart_used">Visual Acuity Chart Used <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_case_identification_title">Case Identification</string>
+    <string name="ophthalmic_case_id_alert">Suspected visual impairment identified. Please complete the case identification below.</string>
+    <string name="ophthalmic_case_id_conditions">Case Identification and Condition(s)</string>
+    <string name="ophthalmic_case_id_conditions_mandatory">Case Identification and Condition(s) <font color="#FF0000">*</font></string>
+    <string name="select_conditions">Select Condition(s)</string>
+    <string name="referral_required_title">Referral required</string>
+    <string-array name="referral_required_options">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <string name="referral_level_title">Referral level</string>
+    <string-array name="referral_level_options">
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>District Hospital</item>
+        <item>Palliative Care Unit</item>
+    </string-array>
+    <string name="reason_for_referral_title">Reason for referral</string>
+    <string-array name="reason_for_referral_options">
+        <item>Severe pain</item>
+        <item>Functional dependence</item>
+        <item>Dementia suspected</item>
+        <item>End-of-life care</item>
+    </string-array>
+    <string name="follow_up_required_title">Follow-up required</string>
+    <string-array name="follow_up_required_options">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <string name="follow_up_date_title">Follow-up date</string>
+    <string name="difficulty_in_breathing">Difficulty in Breathing</string>
+    <string name="open_mouth_breathing">Open Mouth Breathing</string>
+    <string name="difficulty_in_breathing_alert">Difficulty in breathing detected. Diagnose URI / Rhinitis / Sinusitis. Refer if not manageable at HWC.</string>
+    <string name="open_mouth_breathing_alert">Open mouth breathing detected. Diagnose URI / Rhinitis / Sinusitis. Refer if not manageable at HWC.</string>
+    <string name="pain_severity">Pain severity</string>
+    <string name="pain_duration">Pain duration</string>
+    <string name="pain_duration_less_than_one_month">&lt; 1 month</string>
+    <string name="pain_duration_one_to_six_months">1–6 months</string>
+    <string name="pain_duration_more_than_six_months">&gt; 6 months</string>
+    <string name="other_symptoms_present">Other symptoms present</string>
+    <string name="other_symptoms_severity">Other symptoms severity</string>
+    <string name="immediate_relief_provided">Immediate relief provided</string>
+    <string name="mild">Mild</string>
+    <string name="moderate">Moderate</string>
+    <string name="severe">Severe</string>
+    <string name="severe_pain_referral_alert">Severe pain detected. Referral to higher facility is recommended.</string>
+    <string name="severe_symptoms_referral_alert">Severe symptoms detected. Referral to higher facility is recommended.</string>
+
+    <string name="ophthalmic_vitamin_a_deficiency">Vitamin A Deficiency / Xerophthalmia</string>
+
+    <!-- Condition sub-field labels -->
+    <string name="ophthalmic_cataract_symptoms">Cataract Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_glaucoma_symptoms">Glaucoma Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dr_symptoms">Diabetic Retinopathy Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_presbyopia_symptoms">Presbyopia Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_trachoma_status">Trachoma Status <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_corneal_disease_type">Corneal Disease Type <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_vitamin_a_deficiency_label">Vitamin A Deficiency Symptoms / Bitot\'s Spot Identified <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_select_trachoma_status">Select Trachoma Status</string>
+    <string name="ophthalmic_select_corneal_disease_type">Select Corneal Disease Type</string>
+
+    <!-- Condition sub-field alert texts -->
+    <string name="ophthalmic_alert_ophthalmologist_referral"> Refer to ophthalmologist at the secondary level.</string>
+    <string name="ophthalmic_alert_presbyopia_management"> Patient may qualify for presbyopia management (e.g., reading glasses) as per CHO service scope.</string>
+    <string name="ophthalmic_alert_vitamin_a"> Vitamin A prophylaxis to be given. Refer to ophthalmologist at the secondary level.</string>
+    <!-- Injury and Trauma module strings -->
+    <string name="ophthalmic_injury_trauma_title">Injury and Trauma Form</string>
+    <string name="ophthalmic_injury_type_label">Injury Type <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_select_injury_type">Select Injury Type(s)</string>
+    <string name="ophthalmic_foreign_body_removal_attempted">Foreign Body Removal Attempted</string>
+    <string name="ophthalmic_chemical_exposure_wash_performed">Chemical Exposure \u2013 Thorough Wash Performed</string>
 
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -559,6 +642,8 @@
     <string name="form_input_max_limit_error">%1s should be lesser than or equal to %2d</string>
     <string name="form_input_max_limit_error_decimal">%1s should be lesser than or equal to %2.1f</string>
     <string name="form_input_error_invalid_mobile">Invalid Mobile Number !</string>
+    <string name="form_fill_field_error">Please fill: %1$s</string>
+    <string name="form_alert_title">Alert</string>
     <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
     <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
     <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
@@ -1039,6 +1124,8 @@
     <string name="days_optional">Days</string>
     <string name="save_btn">Save</string>
     <string name="cancel_btn">Cancel</string>
+    <string name="title_mental_health_screening">Mental Health Screening</string>
+    <string name="mental_health_screening_saved">Mental Health Screening saved successfully</string>
     <string name="edit_btn">Edit</string>
     <string name="age_years_required">Age in years is required</string>
     <string name="beneficiary_updated_successfully">Beneficiary details updated successfully</string>
@@ -1092,7 +1179,64 @@
     <string name="no_error_cause_of_death_required">Please select cause of death</string>
     <string name="no_error_vaccines_required">Please select vaccines given</string>
     <string name="no_error_vitamin_k_required">Please select if Vitamin K was given</string>
+    <!-- Ear Diagnosis Form -->
+    <string name="title_ear_diagnosis">Ear Diagnosis Form</string>
+    <string name="pain_symptom_assessment_saved">Pain and Symptom Assessment Saved</string>
+    <string name="title_pain_symptom_assessment">Pain and Symptom Assessment</string>
+    <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
+    <string name="title_nose_diagnosis">Nose Diagnosis Form</string>
+    <string name="title_throat_diagnosis">Throat Diagnosis Form</string>
+    <string name="throat_diagnosis_saved">Throat Diagnosis Saved</string>
 
+    <!-- Throat Diagnosis Dataset -->
+    <string name="throat_diagnosis_symptoms">Symptoms</string>
+    <string name="throat_diagnosis_neck_swelling">Swelling in the neck (Thyroid)</string>
+    <string name="throat_diagnosis_difficulty_swallowing">Difficulty in Swallowing</string>
+    <string name="throat_diagnosis_tonsillitis">Tonsillitis</string>
+    <string name="throat_diagnosis_pharyngitis">Pharyngitis</string>
+    <string name="throat_diagnosis_laryngitis">Laryngitis</string>
+    <string name="throat_diagnosis_sinusitis">Sinusitis</string>
+    <string name="throat_diagnosis_cleft_lip">Cleft Lip</string>
+    <string name="throat_diagnosis_cleft_palate">Cleft Palate</string>
+
+    <string name="throat_symptom_pain">Pain</string>
+    <string name="throat_symptom_soreness">Soreness</string>
+    <string name="throat_symptom_cold">Cold</string>
+    <string name="throat_symptom_itching">Itching</string>
+    <string name="throat_symptom_hoarseness">Hoarseness</string>
+
+    <string name="throat_alert_neck_swelling">Neck swelling detected. Refer patient to specialist at secondary level.</string>
+    <string name="throat_alert_difficulty_swallowing">Difficulty in swallowing detected. Refer patient to specialist at secondary level.</string>
+    <string name="throat_alert_cleft_lip">Cleft lip detected. Refer patient to specialist at secondary level.</string>
+    <string name="throat_alert_cleft_palate">Cleft palate detected. Refer patient to specialist at secondary level.</string>
+    <!-- Nose Diagnosis Form Strings -->
+    <string name="nose_bleed_title">Nose Bleed (Epistaxis)</string>
+    <string name="systolic_bp_title">Systolic BP (mmHg)</string>
+    <string name="diastolic_bp_title">Diastolic BP (mmHg)</string>
+    <string name="foreign_body_nose_title">Foreign Body Nose</string>
+    <string name="foreign_body_anterior">Yes (anterior visible)</string>
+    <string name="foreign_body_posterior">Yes (posterior visible)</string>
+    <string name="sinusitis_title">Sinusitis</string>
+    <string name="sinusitis_with_pain">Yes (Facial pain / tenderness)</string>
+
+    <!-- Nose Diagnosis Alert Messages -->
+    <string name="nose_bleed_alert_systolic_bp">Systolic BP &gt; 120 mmHg. Refer patient to specialist at secondary level.</string>
+    <string name="nose_bleed_alert_diastolic_bp">Diastolic BP &gt; 80 mmHg. Refer patient to specialist at secondary level.</string>
+    <string name="foreign_body_posterior_alert">Posterior visible detected. Refer patient to specialist at secondary level.</string>
+    <string name="sinusitis_alert">Chronic sinusitis suspected. Refer patient to specialist at secondary level.</string>
+
+    <!-- Nose Diagnosis Dropdown/Radio Options -->
+    <string-array name="nose_foreign_body_options">
+        <item>Yes (anterior visible)</item>
+        <item>Yes (posterior visible)</item>
+        <item>No</item>
+    </string-array>
+
+    <string name="title_oral_health">Dental Form</string>
+    <string name="oral_health_saved">Oral Health details saved</string>
+    <string name="oral_health_referral_alert">Refer patient to Dentist at the secondary level.</string>
+    <string name="title_psychosocial_caregiver_support">Psychosocial and Caregiver Support</string>
+    <string name="psychosocial_caregiver_support_saved">Psychosocial and Caregiver Support Saved</string>
     <string-array name="no_outcome_at_birth_array">
         <item>Live Birth</item>
         <item>Still Birth (Macerated)</item>
@@ -1283,4 +1427,117 @@
     <string name="refer_date">Refer Date:</string>
     <string name="referred_from">Referred From:</string>
     <string name="referred_to">Referred To:</string>
+
+    <!-- Mental Health Screening Strings -->
+    <!-- Response Options -->
+    <string name="yes_option">Yes</string>
+    <string name="no_option">No</string>
+
+    <!-- Initial Screening Questions -->
+    <string name="emotional_behavioural_concerns">Emotional or behavioural concerns present</string>
+    <string name="substance_use_concerns">Substance use related concerns present</string>
+    <string name="self_harm_suicide_thoughts">Thoughts of self-harm or suicide present</string>
+    <string name="memory_loss_confusion">Memory loss or confusion present</string>
+    <string name="seizures_fits_loc">Seizures, fits, or loss of consciousness present</string>
+    <string name="postpartum_woman">Post-partum woman (≤12 months after delivery)</string>
+
+    <!-- PHQ-9 Depression Screening -->
+    <string name="phq9_section_title">PHQ-9 Depression Screening</string>
+    <string name="phq9_little_interest">Little interest or pleasure in doing things</string>
+    <string name="phq9_feeling_down">Feeling down, depressed, or hopeless</string>
+    <string name="phq9_sleep_trouble">Trouble falling/staying asleep, or sleeping too much</string>
+    <string name="phq9_feeling_tired">Feeling tired or having little energy</string>
+    <string name="phq9_appetite">Poor appetite or overeating</string>
+    <string name="phq9_feeling_bad">Feeling bad about yourself — or that you are a failure</string>
+    <string name="phq9_concentration">Trouble concentrating on things</string>
+    <string name="phq9_moving_slowly">Moving or speaking slowly, or being fidgety/restless</string>
+    <string name="phq9_self_harm_thoughts">Thoughts that you would be better off dead or of hurting yourself</string>
+    <string name="phq9_total_score">PHQ-9 Total Score</string>
+
+    <string-array name="phq9_options">
+        <item>0 - Not at all</item>
+        <item>1 - Several days</item>
+        <item>2 - More than half the days</item>
+        <item>3 - Nearly every day</item>
+    </string-array>
+
+    <!-- Substance Use Screening & Brief Intervention -->
+    <string name="substance_section_title">Substance Use Screening and Brief Intervention</string>
+    <string name="substance_tobacco_title">Tobacco Use Identification</string>
+    <string name="substance_alcohol_title">Alcohol Use Identification </string>
+    <string name="substance_alcohol_use">Alcohol use</string>
+    <string name="substance_tobacco_use">Tobacco use</string>
+    <string name="substance_other_use">Other substance use</string>
+    <string name="substance_other_specify">Specify other substance</string>
+    <string name="substance_frequency">Frequency of substance use</string>
+    <string name="brief_intervention_given">Brief intervention given</string>
+
+    <string-array name="substance_frequency_options">
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Occasionally</item>
+    </string-array>
+
+    <!-- Suicide Risk Screening -->
+    <string name="suicide_section_title">Suicide Risk Screening</string>
+    <string name="suicide_current_thoughts">Current thoughts of self-harm or ending life</string>
+    <string name="suicide_plan">Current intent or plan</string>
+    <string name="suicide_immediate_assess">CHO assesses immediate risk</string>
+    <string name="suicide_previous_attempt">Previous suicide attempt</string>
+    <string name="suicide_risk_alert_moderate">Moderate Suicide Risk: Immediate counselling required. Consider referral.</string>
+    <string name="suicide_risk_alert_high">High Suicide Risk: Emergency intervention required. Refer immediately.</string>
+    <string name="suicide_hopelessness">Expressed hopelessness or being a burden</string>
+    <string name="suicide_risk_level">Suicide risk level</string>
+
+    <string-array name="suicide_risk_options">
+        <item>Low</item>
+        <item>Moderate</item>
+        <item>High</item>
+    </string-array>
+
+    <!-- Dementia Screening Checklist -->
+    <string name="dementia_section_title">Dementia Screening Checklist</string>
+    <string name="dementia_progressive_memory_loss">Progressive memory loss</string>
+    <string name="dementia_forgetting_recent">Forgetting recent events</string>
+    <string name="dementia_disorientation">Disorientation to time/place</string>
+    <string name="dementia_daily_activities">Difficulty managing daily activities</string>
+    <string name="dementia_behavioural_changes">Behavioural changes</string>
+
+    <!-- Epilepsy Screening Checklist -->
+    <string name="epilepsy_section_title">Epilepsy Screening Checklist</string>
+    <string name="epilepsy_recurrent_seizures">Recurrent seizures/fits</string>
+    <string name="epilepsy_jerky_movements">Jerky movements during episode</string>
+    <string name="epilepsy_tongue_bite">Tongue bite or incontinence during episode</string>
+    <string name="epilepsy_confusion_after">Confusion after episode</string>
+    <string name="epilepsy_loc_duration">Duration of loss of consciousness</string>
+
+    <string-array name="epilepsy_duration_options">
+        <item>Less than 5 minutes</item>
+        <item>5–15 minutes</item>
+        <item>More than 15 minutes</item>
+    </string-array>
+
+    <!-- Mental Health Referral Reasons -->
+    <string name="mental_health_reason_for_referral">Reason for referral</string>
+    <string-array name="mental_health_referral_reasons">
+        <item>Depression (PHQ-9 score ≥10)</item>
+        <item>Suicide risk identified</item>
+        <item>Substance use disorder</item>
+        <item>Dementia suspected</item>
+        <item>Epilepsy suspected</item>
+        <item>Post-partum depression</item>
+        <item>Severe mental disorder suspected</item>
+        <item>Other</item>
+    </string-array>
+
+    <!-- Yes/No Options Array -->
+    <string-array name="yes_no_options">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <!-- PHQ-9 Alert Strings -->
+    <string name="phq9_alert_referral_mo_phc">Refer to MO/PHC (PHQ-9 score ≥ 10)</string>
+    <string name="phq9_alert_urgent">Urgent referral (PHQ-9 score ≥ 15)</string>
+    <string name="phq9_alert_emergency">Emergency referral (PHQ-9 score ≥ 20)</string>
 </resources>

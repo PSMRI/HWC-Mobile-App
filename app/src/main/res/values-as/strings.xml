@@ -1337,4 +1337,140 @@
     <string name="case_closure_success">কেছ সফলভাৱে বন্ধ কৰা হৈছে</string>
     <string name="case_closure_error">কেছ বন্ধ কৰাত ত্ৰুটি</string>
     <string name="antra_next_due_date">ANTRA পৰৱৰ্তী তাৰিখ</string>
+
+    <!-- Nose Diagnosis Form Strings -->
+    <string name="nose_bleed_title">নাকৰ ৰক্তপাত (Epistaxis)</string>
+    <string name="systolic_bp_title">সিষ্ট’লিক BP (mmHg)</string>
+    <string name="diastolic_bp_title">ডায়াষ্ট’লিক BP (mmHg)</string>
+    <string name="foreign_body_nose_title">নাকত বিদেশী বস্তু</string>
+    <string name="foreign_body_anterior">হয় (আগফালে দৃশ্যমান)</string>
+    <string name="foreign_body_posterior">হয় (পিছফালে দৃশ্যমান)</string>
+    <string name="sinusitis_title">ছাইনাছাইটিছ</string>
+    <string name="sinusitis_with_pain">হয় (মুখৰ বেদনা / কোমলতা)</string>
+
+    <!-- Nose Diagnosis Alert Messages -->
+    <string name="nose_bleed_alert_systolic_bp">সিষ্ট’লিক BP &gt; 120 mmHg। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="nose_bleed_alert_diastolic_bp">ডায়াষ্ট’লিক BP &gt; 80 mmHg। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="foreign_body_posterior_alert">পিছফালে দৃশ্যমান পোৱা গৈছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="sinusitis_alert">দীৰ্ঘকালীন ছাইনাছাইটিছ সন্দেহ কৰা হৈছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+
+    <!-- Nose Diagnosis Dropdown/Radio Options -->
+    <string-array name="nose_foreign_body_options">
+        <item>হয় (আগফালে দৃশ্যমান)</item>
+        <item>হয় (পিছফালে দৃশ্যমান)</item>
+        <item>নাই</item>
+    </string-array>
+
+    <!-- Mental Health Screening Strings - Assamese -->
+    <!-- Response Options -->
+    <string name="yes_option">হয়</string>
+    <string name="no_option">নহয়</string>
+
+    <!-- Initial Screening Questions -->
+    <string name="emotional_behavioural_concerns">মানসিক বা আচৰণগত উদ্বেগ আছে</string>
+    <string name="substance_use_concerns">মাদক দ্রব্য ব্যৱহাৰ সম্পর্কীয় উদ্বেগ আছে</string>
+    <string name="self_harm_suicide_thoughts">আত্মক্ষতি বা আত্মহত্যাৰ চিন্তা আছে</string>
+    <string name="memory_loss_confusion">স্মৃতিশক্তি হ্রাস বা বিভ্ৰান্তি আছে</string>
+    <string name="seizures_fits_loc">খিঁচুনি, মৃগ্দশা, বা চেতনা হ্রাস আছে</string>
+    <string name="postpartum_woman">প্রসবোত্তর মহিলা (≤12 মাস পরে)</string>
+
+    <!-- PHQ-9 Depression Screening -->
+    <string name="phq9_section_title">PHQ-9 বিষণ্নতা পৰীক্ষা</string>
+    <string name="phq9_little_interest">কাম-কাজত কৌতুক বা আনন্দৰ অভাৱ</string>
+    <string name="phq9_feeling_down">নিম্নমনোভাৱ, হতাশ বা অসহায় অনুভৱ কৰা</string>
+    <string name="phq9_sleep_trouble">টোপনিৰ ডিঙাবোৱা, থাকিযোৱা, বা অত্যধিক টোপনি</string>
+    <string name="phq9_feeling_tired">ক্লান্তি বা শক্তি অভাৱ অনুভৱ কৰা</string>
+    <string name="phq9_appetite">খাদ্য লোভ বা অত্যধিক খোৱা</string>
+    <string name="phq9_feeling_bad">নিজৰ প্রতি বেয়া অনুভৱ বা ব্যৰ্থ অনুভৱ কৰা</string>
+    <string name="phq9_concentration">কামত মনোযোগ দিতে কষ্ট হোৱা</string>
+    <string name="phq9_moving_slowly">লেহেমীয়াকৈ চলা বা কথা কওঁ অথবা অস্থিৰ থকা</string>
+    <string name="phq9_self_harm_thoughts">মৃত্যু বা আত্মক্ষতিৰ চিন্তা</string>
+    <string name="phq9_total_score">PHQ-9 মোট স্কোর</string>
+
+    <string-array name="phq9_options">
+        <item>0 - বিন্দুমাত্র নহয়</item>
+        <item>1 - কেইটামান দিন</item>
+        <item>2 - আধা দিনৰ বেছি</item>
+        <item>3 - প্রায় প্রতিদিন</item>
+    </string-array>
+
+    <!-- Substance Use Screening & Brief Intervention -->
+    <string name="substance_section_title">মাদক ব্যৱহাৰ পৰীক্ষা আৰু সংক্ষিপ্ত হস্তক্ষেপ</string>
+    <string name="substance_alcohol_use">মদ্যপানৰ ব্যৱহাৰ</string>
+    <string name="substance_tobacco_use">তম্বাকু ব্যৱহাৰ</string>
+    <string name="substance_other_use">অন্য মাদক ব্যৱহাৰ</string>
+    <string name="substance_other_specify">অন্য মাদক স্পষ্ট কৰক</string>
+    <string name="substance_frequency">মাদক ব্যৱহাৰৰ ফ্রিকোয়েন্সি</string>
+    <string name="brief_intervention_given">সংক্ষিপ্ত হস্তক্ষেপ দিয়া হৈছে</string>
+
+    <string-array name="substance_frequency_options">
+        <item>দৈনিক</item>
+        <item>সাপ্তাহিক</item>
+        <item>মাসিক</item>
+        <item>মাঝে মাঝে</item>
+    </string-array>
+
+    <!-- Suicide Risk Screening -->
+    <string name="suicide_section_title">আত্মহত্যা ঝুঁকি পৰীক্ষা</string>
+    <string name="suicide_current_thoughts">আত্মহত্যা বা আত্মক্ষতিৰ বর্তমান চিন্তা</string>
+    <string name="suicide_plan">নিজক ক্ষতি কৰাৰ নির্দিষ্ট পরিকল্পনা আছে</string>
+    <string name="suicide_previous_attempt">পূর্বে আত্মহত্যাৰ চেষ্টা</string>
+    <string name="suicide_hopelessness">নিরাশা বা বোঝা হোৱাৰ অনুভৱ প্রকাশ কৰা</string>
+    <string name="suicide_risk_level">আত্মহত্যা ঝুঁকি স্তর</string>
+
+    <string-array name="suicide_risk_options">
+        <item>কম</item>
+        <item>মধ্যম</item>
+        <item>উচ্চ</item>
+    </string-array>
+
+    <!-- Dementia Screening Checklist -->
+    <string name="dementia_section_title">তত্ত্বাবধায়ন প্রাক্ষণ পরীক্ষা সূচী</string>
+    <string name="dementia_progressive_memory_loss">ক্রমান্বয়ে স্মৃতিশক্তি হ্রাস</string>
+    <string name="dementia_forgetting_recent">সম্প্রতিৰ ঘটনা পাহৰি যোৱা</string>
+    <string name="dementia_disorientation">সময়ৰ বা স্থানৰ প্রতি বিভ্ৰান্তি</string>
+    <string name="dementia_daily_activities">দৈনন্দিন কাজ সামলাতে কষ্ট</string>
+    <string name="dementia_behavioural_changes">আচৰণগত পরিবর্তন</string>
+
+    <!-- Epilepsy Screening Checklist -->
+    <string name="epilepsy_section_title">মৃগীৰোগ পৰীক্ষা সূচী</string>
+    <string name="epilepsy_recurrent_seizures">বাৰবাৰ খিঁচুনি / মৃগ্দশা</string>
+    <string name="epilepsy_jerky_movements">আক্রমণৰ সময় ঝাকেৰে নড়াচড়া</string>
+    <string name="epilepsy_tongue_bite">আক্রমণৰ সময় জিভ কামৰ বা অসংযম</string>
+    <string name="epilepsy_confusion_after">আক্রমণৰ পরে বিভ্ৰান্তি</string>
+    <string name="epilepsy_loc_duration">চেতনা হ্রাসৰ সময়কাল</string>
+
+    <string-array name="epilepsy_duration_options">
+        <item>5 মিনিটৰ কম</item>
+        <item>5–15 মিনিট</item>
+        <item>15 মিনিটৰ বেছি</item>
+    </string-array>
+
+    <!-- Mental Health Referral Reasons -->
+    <string name="mental_health_reason_for_referral">রেফারেলৰ কাৰণ</string>
+    <string-array name="mental_health_referral_reasons">
+        <item>বিষণ্নতা (PHQ-9 স্কোর ≥10)</item>
+        <item>আত্মহত্যা ঝুঁকি চিহ্নিত হৈছে</item>
+        <item>মাদক ব্যৱহাৰৰ বিকার</item>
+        <item>তত্ত্বাবধায়ন প্রাক্ষণ সন্দেহজনক</item>
+        <item>মৃগীৰোগ সন্দেহজনক</item>
+        <item>প্রসবোত্তর বিষণ্নতা</item>
+        <item>গুরুতর মানসিক বিকার সন্দেহজনক</item>
+        <item>অন্য</item>
+    </string-array>
+
+    <!-- Yes/No Options Array -->
+    <string-array name="yes_no_options">
+        <item>হয়</item>
+        <item>নহয়</item>
+    </string-array>
+
+    <!-- PHQ-9 Alert Strings -->
+    <string name="phq9_alert_referral_mo_phc">MO/PHC লৈ প্ৰেৰণ কৰক (PHQ-9 স্ক’ৰ ≥ 10)</string>
+    <string name="phq9_alert_urgent">জৰুৰী প্ৰেৰণ (PHQ-9 স্ক’ৰ ≥ 15)</string>
+    <string name="phq9_alert_emergency">আপাতকালীন প্ৰেৰণ (PHQ-9 স্ক’ৰ ≥ 20)</string>
+
+    <!-- Mental Health Screening Form Titles and Messages -->
+    <string name="title_mental_health_screening">মানসিক স্বাস্থ্য পৰীক্ষা</string>
+    <string name="mental_health_screening_saved">মানসিক স্বাস্থ্য পৰীক্ষা সফলভাৱে সংৰক্ষণ কৰা হৈছে</string>
 </resources>

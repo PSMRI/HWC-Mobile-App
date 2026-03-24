@@ -128,11 +128,17 @@
     <color name="line_focused">#3F51B5</color>
     <color name="line_default">#C5CAE9</color>
     <color name="color_consent_text">#0000EE</color>
-    <!-- Gray shades for Beneficiary Card -->
     <color name="gray_dark">#666666</color>
     <color name="gray_light">#E0E0E0</color>
     <color name="colorPrimary">#006496</color>
     <color name="stock_green">#008000</color>
     <color name="stock_red">#FF0000</color>
+
+    <!-- Error state: used for visual impairment alert and Case ID alert in ophthalmic screening -->
+    <color name="color_error_text">#D32F2F</color>
+    <color name="color_error_bg">#FFEBEE</color>
+    <!-- Info state: used for presbyopia management alert in ophthalmic screening -->
+    <color name="color_info_text">#01579B</color>
+    <color name="color_info_bg">#E1F5FE</color>
 
 </resources>

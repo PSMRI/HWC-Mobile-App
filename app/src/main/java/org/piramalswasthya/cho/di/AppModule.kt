@@ -37,6 +37,7 @@ import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
+import org.piramalswasthya.cho.database.room.dao.OphthalmicDao
 import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
@@ -68,6 +69,13 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
+import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.NoseDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.OralHealthDao
+import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
+import org.piramalswasthya.cho.database.room.dao.MentalHealthScreeningDao
+import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -379,4 +387,39 @@ object AppModule {
     @Singleton
     @Provides
     fun provideStatusOfWomanDao(database: InAppDb): StatusOfWomanDao = database.statusOfWomanDao
+
+    @Singleton
+    @Provides
+    fun provideOphthalmicDao(database: InAppDb): OphthalmicDao = database.ophthalmicDao
+
+    @Singleton
+    @Provides
+    fun provideEarDiagnosisAssessmentDao(database: InAppDb): EarDiagnosisAssessmentDao = database.earDiagnosisAssessmentDao
+
+    @Singleton
+    @Provides
+    fun provideNoseDiagnosisAssessmentDao(database: InAppDb): NoseDiagnosisAssessmentDao = database.noseDiagnosisAssessmentDao
+
+    @Singleton
+    @Provides
+    fun providePainAndSymptomAssessmentDao(database: InAppDb): PainAndSymptomAssessmentDao = database.painAndSymptomAssessmentDao
+
+    @Singleton
+    @Provides
+    fun provideOralHealthDao(database: InAppDb): OralHealthDao =
+        database.oralHealthDao
+
+    @Singleton
+    @Provides
+    fun providePsychosocialCaregiverSupportDao(database: InAppDb): PsychosocialCaregiverSupportDao = database.psychosocialCaregiverSupportDao
+    @Singleton
+    @Provides
+    fun provideMentalHealthScreeningDao(database: InAppDb): MentalHealthScreeningDao = database.mentalHealthScreeningDao
+
+    @Singleton
+    @Provides
+    fun provideThroatDiagnosisAssessmentDao(database: InAppDb): ThroatDiagnosisAssessmentDao =
+        database.throatDiagnosisAssessmentDao
+
+
 }

@@ -466,4 +466,112 @@
     <string name="status_of_woman">ಮಹಿಳೆಯ ಸ್ಥಿತಿ <font color="#FF0000">*</font></string>
     <string name="select_status_of_woman">ಮಹಿಳೆಯ ಸ್ಥಿತಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
     <string name="antra_next_due_date">ANTRA ಮುಂದಿನ ನಿಗದಿತ ದಿನಾಂಕ</string>
+
+    <!-- Mental Health Screening Strings - Kannada -->
+    <!-- Form Title and Success Message -->
+    <string name="title_mental_health_screening">ಮಾನಸಿಕ ಆರೋಗ್ಯ ಪರೀಕ್ಷೆ</string>
+    <string name="mental_health_screening_saved">ಮಾನಸಿಕ ಆರೋಗ್ಯ ಪರೀಕ್ಷೆ ಯಶಸ್ವಿಯಾಗಿ ಸಂರಕ್ಷಿತವಾಗಿದೆ</string>
+
+    <!-- Response Options -->
+    <string name="yes_option">ಹೌದು</string>
+    <string name="no_option">ಇಲ್ಲ</string>
+
+    <!-- Initial Screening Questions -->
+    <string name="emotional_behavioural_concerns">ಮಾನಸಿಕ ಅಥವಾ ವರ್ತನೆಶೀಲ ಕಾಳಜಿ ಇದೆ</string>
+    <string name="substance_use_concerns">ಮಾದಕ ಪದಾರ್ಥ ಬಳಕೆ ಸಂಬಂಧಿತ ಕಾಳಜಿ ಇದೆ</string>
+    <string name="self_harm_suicide_thoughts">ಸ್ವ-ಅನಿಷ್ಟ ಅಥವಾ ಆತ್ಮಹತ್ಯೆಯ ಚಿಂತನೆ ಇದೆ</string>
+    <string name="memory_loss_confusion">ಸ್ಮೃತಿ ನಷ್ಟ ಅಥವಾ ಗೊಂಬೆತನೆ ಇದೆ</string>
+    <string name="seizures_fits_loc">ಆಲೋಪ, ಫಿಟ್ಸ್ ಅಥವಾ ಪ್ರಜ್ಞೆಯ ನಷ್ಟ ಇದೆ</string>
+    <string name="postpartum_woman">ಪ್ರಸವೋತ್ತರ ಮಹಿಳೆ (≤12 ತಿಂಗಳುಗಳ ನಂತರ)</string>
+
+    <!-- PHQ-9 Depression Screening -->
+    <string name="phq9_section_title">PHQ-9 ನಿರಾಳೆಯ ಪರೀಕ್ಷೆ</string>
+    <string name="phq9_little_interest">ವಸ್ತುಗಳಲ್ಲಿ ಸ್ವಾರ್ಥ ಅಥವಾ ಆನಂದದ ಕೊರತೆ</string>
+    <string name="phq9_feeling_down">ಕೆಳಮುಖ, ನಿರಾಶ, ಅಥವಾ ನಿರಾಶಾವಾದಿ ಅನುಭವ</string>
+    <string name="phq9_sleep_trouble">ನಿದ್ರಾ ಸಮಸ್ಯೆ ಅಥವಾ ಹೆಚ್ಚು ನಿದ್ರೆ</string>
+    <string name="phq9_feeling_tired">ಆಯಾಸ ಅಥವಾ ಶಕ್ತಿಯ ಕೊರತೆ ಅನುಭವ</string>
+    <string name="phq9_appetite">ಹಸಿವೆಯ ಕೊರತೆ ಅಥವಾ ಹೆಚ್ಚು ತಿನ್ನುವುದು</string>
+    <string name="phq9_feeling_bad">ನಿಜ ಬಗ್ಗೆ ಕೇಪನೆ ಅನುಭವ ಅಥವಾ ವಿಫಲತೆ</string>
+    <string name="phq9_concentration">ವಿಷಯಗಳಿಗೆ ಗಮನ ಹರಿಸುವುದರಲ್ಲಿ ತೊಂದರೆ</string>
+    <string name="phq9_moving_slowly">ನಿಧಾನವಾಗಿ ಚಲನೆ ಅಥವಾ ತಗ್ಗುಪ್ರಿತು</string>
+    <string name="phq9_self_harm_thoughts">ಸ್ವ-ಅನಿಷ್ಟ ಅಥವಾ ಆತ್ಮಹತ್ಯೆಯ ಚಿಂತನೆ</string>
+    <string name="phq9_total_score">PHQ-9 ಒಟ್ಟು ಸ್ಕೋರ್</string>
+
+    <string-array name="phq9_options">
+        <item>0 - ಬಿಲ್ಕುಲ್ ಅಲ್ಲ</item>
+        <item>1 - ಕೆಲವು ದಿನಗಳು</item>
+        <item>2 - ಅರ್ಧಕ್ಕಿಂತ ಹೆಚ್ಚುದಿನಗಳು</item>
+        <item>3 - ಬಹುತೇಕ ಪ್ರತಿದಿನ</item>
+    </string-array>
+
+    <!-- Substance Use Screening & Brief Intervention -->
+    <string name="substance_section_title">ಮಾದಕ ಪದಾರ್ಥ ಬಳಕೆ ಪರೀಕ್ಷೆ ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ಹಸ್ತಕ್ಷೇಪ</string>
+    <string name="substance_alcohol_use">ಆಲ್ಕೋಹಾಲ್ ಬಳಕೆ</string>
+    <string name="substance_tobacco_use">ತಂಬಾಕು ಬಳಕೆ</string>
+    <string name="substance_other_use">ಇತರ ಮಾದಕ ಬಳಕೆ</string>
+    <string name="substance_other_specify">ಇತರ ಮಾದಕ ನಿರ್ದಿಷ್ಟ</string>
+    <string name="substance_frequency">ಮಾದಕ ಬಳಕೆಯ ಆವರ್ತನೆ</string>
+    <string name="brief_intervention_given">ಸಂಕ್ಷಿಪ್ತ ಹಸ್ತಕ್ಷೇಪ ನೀಡಲಾಯಿತು</string>
+
+    <string-array name="substance_frequency_options">
+        <item>ಪ್ರತಿದಿನ</item>
+        <item>ಸಾಪ್ತಾಹಿಕ</item>
+        <item>ಮಾಸಿಕ</item>
+        <item>ಯಾವಾಗಲೂ</item>
+    </string-array>
+
+    <!-- Suicide Risk Screening -->
+    <string name="suicide_section_title">ಆತ್ಮಹತ್ಯೆ ಅಪಾಯ ಪರೀಕ್ಷೆ</string>
+    <string name="suicide_current_thoughts">ಆತ್ಮಹತ್ಯೆ ಅಥವಾ ಸ್ವ-ಅನಿಷ್ಟದ ಚಿರಂತನ ಚಿಂತನೆ</string>
+    <string name="suicide_plan">ಸ್ವ-ಅನಿಷ್ಟಕ್ಕೆ ನಿರ್ದಿಷ್ಟ ಯೋಜನೆ ಇದೆ</string>
+    <string name="suicide_previous_attempt">ಹಿಂದಿನ ಆತ್ಮಹತ್ಯೆ ಪ್ರಯತ್ನ</string>
+    <string name="suicide_hopelessness">ನಿರಾಶೆ ಅಥವಾ ಬೋಝ ಎಂದು ವ್ಯಕ್ತಪಡಿಸಿದ</string>
+    <string name="suicide_risk_level">ಆತ್ಮಹತ್ಯೆ ಅಪಾಯ ಮಟ್ಟ</string>
+
+    <string-array name="suicide_risk_options">
+        <item>ಕಡಿಮೆ</item>
+        <item>ಮಧ್ಯಮ</item>
+        <item>ಹೆಚ್ಚು</item>
+    </string-array>
+
+    <!-- Dementia Screening Checklist -->
+    <string name="dementia_section_title">ಡಿಮೆನ್ಶಿಯಾ ಪರೀಕ್ಷೆ ಪಟ್ಟಿ</string>
+    <string name="dementia_progressive_memory_loss">ಪ್ರಗತಿಶೀಲ ಸ್ಮೃತಿ ನಷ್ಟ</string>
+    <string name="dementia_forgetting_recent">ಇತ್ತೀಚಿನ ಘಟನೆಗಳನ್ನು ಮರೆತುಬಿಡುವುದು</string>
+    <string name="dementia_disorientation">ಸಮಯ/ಸ್ಥಾನಕ್ಕೆ ದಿಕ್ಕುಕಳೆತ</string>
+    <string name="dementia_daily_activities">ದೈನಂದಿನ ಚಟುವಟಿಕೆ ನಿರ್ವಹಿಸಲು ತೊಂದರೆ</string>
+    <string name="dementia_behavioural_changes">ವರ್ತನೆ ಪರಿವರ್ತನೆ</string>
+
+    <!-- Epilepsy Screening Checklist -->
+    <string name="epilepsy_section_title">ಮೃಗ್ಮಟಿ ಪರೀಕ್ಷೆ ಪಟ್ಟಿ</string>
+    <string name="epilepsy_recurrent_seizures">ಪುನರಾವರ್ತಿತ ಆಲೋಪ/ಫಿಟ್ಸ್</string>
+    <string name="epilepsy_jerky_movements">ಎಪಿಸೋಡ್ ಸಮಯದಲ್ಲಿ ಜೆರ್ಕಿ ಚಲನೆ</string>
+    <string name="epilepsy_tongue_bite">ಎಪಿಸೋಡ್ ಸಮಯದಲ್ಲಿ ನಾಲಿಗೆ ಕಚ್ಚುವುದು ಅಥವಾ ಅಸಂಬದ್ಧತೆ</string>
+    <string name="epilepsy_confusion_after">ಎಪಿಸೋಡ್ ನಂತರ ಗೊಂಬೆತನೆ</string>
+    <string name="epilepsy_loc_duration">ಚೇತನ್ಯ ನಷ್ಟದ ಅವಧಿ</string>
+
+    <string-array name="epilepsy_duration_options">
+        <item>5 ನಿಮಿಷಕ್ಕಿಂತ ಕಡಿಮೆ</item>
+        <item>5–15 ನಿಮಿಷಗಳು</item>
+        <item>15 ನಿಮಿಷಕ್ಕಿಂತ ಹೆಚ್ಚು</item>
+    </string-array>
+
+    <!-- Mental Health Referral Reasons -->
+    <string name="mental_health_reason_for_referral">ನಿರ್ದೇಶನದ ಕಾರಣ</string>
+    <string-array name="mental_health_referral_reasons">
+        <item>ನಿರಾಳೆ (PHQ-9 ಸ್ಕೋರ್ ≥10)</item>
+        <item>ಆತ್ಮಹತ್ಯೆ ಅಪಾಯವನ್ನು ಗುರುತಿಸಲಾಯಿತು</item>
+        <item>ಮಾದಕ ಬಳಕೆ ಅಸ್ವಾಭಾವಿಕತೆ</item>
+        <item>ಡಿಮೆನ್ಶಿಯಾ ಸಂದೇಹಿತ</item>
+        <item>ಮೃಗ್ಮಟಿ ಸಂದೇಹಿತ</item>
+        <item>ಪ್ರಸವೋತ್ತರ ನಿರಾಳೆ</item>
+        <item>ತೀವ್ರ ಮಾನಸಿಕ ಅವ್ಯವಸ್ಥೆ ಸಂದೇಹಿತ</item>
+        <item>ಇತರೆ</item>
+    </string-array>
+
+    <!-- Yes/No Options Array -->
+    <string-array name="yes_no_options">
+        <item>ಹೌದು</item>
+        <item>ಇಲ್ಲ</item>
+    </string-array>
 </resources>

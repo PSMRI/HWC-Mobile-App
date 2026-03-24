@@ -12,7 +12,7 @@ data class FormElement(
     var entries: Array<String>? = null,
     var doubleStar: Boolean = false,
     val hasDependants: Boolean = false,
-    val hasAlertError: Boolean = false,
+    var hasAlertError: Boolean = false,
     var value: String? = null,
     val regex: String? = null,
     val allCaps: Boolean = false,
@@ -34,4 +34,7 @@ data class FormElement(
     val showYearFirstInDatePicker : Boolean = false,
     /** Date format for DATE_PICKER (e.g. "dd/MM/yyyy"). Null = use default dd-MM-yyyy. */
     var dateFormat: String? = null,
+    var booleanValue: Boolean? = null,
+    var trueIndex: Int? = null,
+    var falseIndex: Int? = null,
 )
