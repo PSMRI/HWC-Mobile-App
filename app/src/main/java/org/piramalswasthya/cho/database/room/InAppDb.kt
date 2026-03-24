@@ -265,7 +265,7 @@ import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
         ThroatDiagnosisAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 135, exportSchema = false
+    version = 136, exportSchema = false
 )
 
 
@@ -959,6 +959,38 @@ abstract class InAppDb : RoomDatabase() {
                 )
             }
         }
+        val MIGRATION_135_136 = object : Migration(135, 136) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_impact INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_withdrawal INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_problematic INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_classification TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_system_action TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_frequency TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_loss INTEGER"
+                )
+            }
+        }
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -1001,7 +1033,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_131_132,
                             MIGRATION_132_133,
                             MIGRATION_133_134,
-                            MIGRATION_134_135
+                            MIGRATION_134_135,
+                            MIGRATION_135_136
 
                         )
                         .fallbackToDestructiveMigration()
