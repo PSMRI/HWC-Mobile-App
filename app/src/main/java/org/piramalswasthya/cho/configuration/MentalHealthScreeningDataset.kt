@@ -755,7 +755,7 @@ class MentalHealthScreeningDataset(
 
     private val substanceElements = listOf(
         substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
-        substanceTobaccoOutcome, substanceSystemAction, substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic, substanceAlcoholClassification, substanceAlcoholSystemAction
+        substanceTobaccoOutcome, substanceSystemAction, substanceAlcoholHeader, substanceAlcoholUse
     )
 
     private val suicideElements = listOf(
@@ -819,6 +819,13 @@ class MentalHealthScreeningDataset(
                 list.add(idx + 2, substance_alcohol_loss)
                 list.add(idx + 3, substanceAlcoholImpact)
                 list.add(idx + 4, substanceAlcoholWithdrawal)
+                list.add(idx + 5, substanceAlcoholProblematic)
+                list.add(idx + 6, substanceAlcoholClassification)
+                list.add(idx + 7, substanceAlcoholSystemAction)
+                list.add(idx + 8, briefInterventionGiven)
+            } else {
+                clearAlcoholSubFields()
+                briefInterventionGiven.value = null
             }
         }
 
@@ -999,7 +1006,7 @@ class MentalHealthScreeningDataset(
         if (substanceUseConcerns.value == "Yes") {
             val substanceElementsWithFreshCopies = listOf(
                 substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
-                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(), substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic, substanceAlcoholClassification.copy(), substanceAlcoholSystemAction.copy()
+                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(), substanceAlcoholHeader, substanceAlcoholUse
             )
             list.addAll(substanceElementsWithFreshCopies)
             if (substanceCurrentTobaccoUse.value == "Yes") {
@@ -1013,8 +1020,13 @@ class MentalHealthScreeningDataset(
                 list.add(idx + 2, substance_alcohol_loss)
                 list.add(idx + 3, substanceAlcoholImpact)
                 list.add(idx + 4, substanceAlcoholWithdrawal)
+                list.add(idx + 5, substanceAlcoholProblematic)
+                list.add(idx + 6, substanceAlcoholClassification.copy())
+                list.add(idx + 7, substanceAlcoholSystemAction.copy())
+                list.add(idx + 8, briefInterventionGiven)
             } else {
                 clearAlcoholSubFields()
+                briefInterventionGiven.value = null
             }
         }
 
@@ -1034,9 +1046,9 @@ class MentalHealthScreeningDataset(
         if (memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes") {
             list.addAll(
                 listOf(
-                    edChecklistHeader,edRecurrentEpisodeloss, edRecurrentJerkyMovements, edProgressiveMemoryLoss,
+                    edChecklistHeader, edRecurrentEpisodeloss, edRecurrentJerkyMovements, edProgressiveMemoryLoss,
                     edConfusionDisorientation, edFunctionalDecline, edScreeningOutcome.copy(),
-
+                    edReferralRequired.copy()
                 )
             )
         }
@@ -1045,11 +1057,13 @@ class MentalHealthScreeningDataset(
             list.add(edPsychosocialIntervention)
             if (edPsychosocialIntervention.value == "Yes") {
                 list.add(edInterventionType)
+                edSessionDate.max = System.currentTimeMillis()
+                list.add(edSessionDate)
+                list.add(edDurationMinutes)
+                list.add(edRemarks)
+            } else {
+                clearEdPsychosocialValues()
             }
-            edSessionDate.max = System.currentTimeMillis()
-            list.add(edSessionDate)
-            list.add(edDurationMinutes)
-            list.add(edRemarks)
         } else {
             clearEdPsychosocialValues()
         }
@@ -1181,7 +1195,7 @@ class MentalHealthScreeningDataset(
     private fun computeAlcoholSystemAction() {
         substanceAlcoholSystemAction.value = when (substanceAlcoholClassification.value) {
             "Problematic"     -> "Brief intervention"
-            "Non-problematic" -> "Referral"
+            "Non-problematic" -> "Close screening"
             else              -> null
         }
     }

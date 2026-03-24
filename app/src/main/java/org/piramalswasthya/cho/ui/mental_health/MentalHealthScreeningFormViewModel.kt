@@ -71,11 +71,11 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
                 )
 
                 val deliveryOutcome = deliveryOutcomeRepo.getDeliveryOutcome(patient.patient.patientID)
-                val isPostpartumFromRmncha = (deliveryOutcome?.dateOfDelivery?.let { deliveryDateMs ->
+                val isPostpartumFromRmncha = deliveryOutcome?.dateOfDelivery?.let { deliveryDateMs ->
                     val twelveMonthsInMs = TimeUnit.DAYS.toMillis(365)
                     val now = System.currentTimeMillis()
                     (now - deliveryDateMs) in 0..twelveMonthsInMs
-                } ?: false) || (patient.patient.statusOfWomanID == 3)
+                } ?: (patient.patient.statusOfWomanID == 3)
 
 
                 dataset.setUpPage(
