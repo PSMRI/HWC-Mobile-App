@@ -1487,12 +1487,12 @@
     <string name="suicide_section_title">Suicide Risk Screening</string>
     <string name="suicide_current_thoughts">Current thoughts of self-harm or ending life</string>
     <string name="suicide_plan">Current intent or plan</string>
-    <string name="suicide_immediate_assess">CHO assesses immediate risk</string>
     <string name="suicide_previous_attempt">Previous suicide attempt</string>
     <string name="suicide_risk_alert_moderate">Moderate Suicide Risk: Immediate counselling required. Consider referral.</string>
     <string name="suicide_risk_alert_high">High Suicide Risk: Emergency intervention required. Refer immediately.</string>
-    <string name="suicide_hopelessness">Expressed hopelessness or being a burden</string>
+    <string name="suicide_hopelessness">Access to means</string>
     <string name="suicide_risk_level">Suicide risk level</string>
+    <string name="suicide_immediate_assess">CHO assesses immediate risk</string>
 
     <string-array name="suicide_risk_options">
         <item>Low</item>
@@ -1544,7 +1544,6 @@
     <string name="phq9_alert_referral_mo_phc">Refer to MO/PHC (PHQ-9 score ≥ 10)</string>
     <string name="phq9_alert_urgent">Urgent referral (PHQ-9 score ≥ 15)</string>
     <string name="phq9_alert_emergency">Emergency referral (PHQ-9 score ≥ 20)</string>
-    <!-- Epilepsy & Dementia Screening Checklist (Combined) -->
     <string name="epilepsy_dementia_checklist_title">Epilepsy &amp; Dementia Screening Checklist</string>
     <string name="ed_edRecurrentEpisodeloss">Episodes of loss of consciousness</string>
     <string name="ed_recurrent_jerky_movements">Recurrent jerky movements / fits</string>

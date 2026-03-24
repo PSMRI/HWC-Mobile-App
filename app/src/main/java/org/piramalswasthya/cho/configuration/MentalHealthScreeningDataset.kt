@@ -428,7 +428,7 @@ class MentalHealthScreeningDataset(
         FormElement(
             id = 401,
             inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_current_thoughts),
+            title = context.getString(R.string.suicide_hopelessness),
             entries = yesNoOptions,
             required = true,
             hasDependants = true
@@ -709,7 +709,7 @@ class MentalHealthScreeningDataset(
 
     private val suicideElements = listOf(
         suicideHeader, suicidePreviousAttempt, suicidePlan,
-        suicideCurrentThoughts, suicideHopelessness, suicideImmediateAssess, suicideRiskLevel
+         suicideHopelessness, suicideImmediateAssess, suicideRiskLevel
     )
 
     private val dementiaElements = listOf(
@@ -958,7 +958,7 @@ class MentalHealthScreeningDataset(
         if (selfHarmSuicideThoughts.value == "Yes") {
             val suicideElementsWithFreshCopies = listOf(
                 suicideHeader, suicidePreviousAttempt, suicidePlan,
-                suicideCurrentThoughts, suicideHopelessness, suicideImmediateAssess,
+                 suicideHopelessness, suicideImmediateAssess,
                 suicideRiskLevel.copy()
             )
             list.addAll(suicideElementsWithFreshCopies)
