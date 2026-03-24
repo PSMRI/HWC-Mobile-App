@@ -6,19 +6,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOralHealthFormBinding
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import org.piramalswasthya.cho.ui.commons.DropdownConst
 
 @AndroidEntryPoint
 class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewModel>() {
 
     private var _binding: FragmentOralHealthFormBinding? = null
     private val binding get() = _binding!!
+
+    private val args: OralHealthFormFragmentArgs by navArgs()
 
     override val viewModel: OralHealthFormViewModel by viewModels()
 
@@ -50,6 +57,26 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity?.findViewById<TextView>(R.id.header_text_register_patient)?.text = getFormTitle()
+    }
+
+    /**
+     * BRD: "Next Button – Proceed to vital screen and prescription."
+     */
+    override fun onSaveSuccess() {
+        val benVisitInfo = args.benVisitInfo
+        val masterDb = MasterDb(
+            patientId = benVisitInfo.patient.patientID,
+            visitMasterDb = VisitMasterDb().apply {
+                reason = DropdownConst.dental
+            }
+        )
+        val bundle = Bundle().apply {
+            putSerializable("MasterDb", masterDb)
+        }
+        findNavController().navigate(
+            R.id.action_oralHealthFormFragment_to_customVitalsFragment,
+            bundle
+        )
     }
 
     override fun onDestroyView() {
