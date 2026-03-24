@@ -1198,13 +1198,13 @@
     <string name="throat_diagnosis_sinusitis">Sinusitis</string>
     <string name="throat_diagnosis_cleft_lip">Cleft Lip</string>
     <string name="throat_diagnosis_cleft_palate">Cleft Palate</string>
-    
+
     <string name="throat_symptom_pain">Pain</string>
     <string name="throat_symptom_soreness">Soreness</string>
     <string name="throat_symptom_cold">Cold</string>
     <string name="throat_symptom_itching">Itching</string>
     <string name="throat_symptom_hoarseness">Hoarseness</string>
-    
+
     <string name="throat_alert_neck_swelling">Neck swelling detected. Refer patient to specialist at secondary level.</string>
     <string name="throat_alert_difficulty_swallowing">Difficulty in swallowing detected. Refer patient to specialist at secondary level.</string>
     <string name="throat_alert_cleft_lip">Cleft lip detected. Refer patient to specialist at secondary level.</string>
@@ -1423,6 +1423,10 @@
     <string name="case_closure_success">Case closed successfully</string>
     <string name="case_closure_error">Error closing case</string>
     <string name="antra_next_due_date">ANTRA Next Due Date</string>
+
+    <string name="refer_date">Refer Date:</string>
+    <string name="referred_from">Referred From:</string>
+    <string name="referred_to">Referred To:</string>
 
     <string name="refer_date">Refer Date:</string>
     <string name="referred_from">Referred From:</string>
