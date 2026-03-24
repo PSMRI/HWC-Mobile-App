@@ -77,6 +77,7 @@ import javax.inject.Inject
 import android.text.InputType
 import android.view.inputmethod.InputMethodManager
 import android.text.InputFilter
+import android.util.Log
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -410,6 +411,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.isDataSaved.observe(viewLifecycleOwner) { state ->
             if (state == true) {
                 if (isEditModeAfterRegistration) {
+                    WorkerUtils.triggerAmritSyncWorker(requireContext())
                     Toast.makeText(
                         requireContext(),
                         getString(R.string.patient_edited_successfully_title),
@@ -1858,6 +1860,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         status?.let { s ->
                             isProgrammaticChange = true
                             viewModel.selectedStatusOfWoman = s
+                            patient.statusOfWomanID = s.statusID
                             binding.statusOfWomanDropdown.setText(s.statusName, false)
                             viewModel.setStatusOfWoman(true)
                             isProgrammaticChange = false
@@ -1876,6 +1879,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             val selectedItem = parent.getItemAtPosition(position) as? DropdownList
             selectedItem?.let { item ->
                 viewModel.selectedStatusOfWoman = viewModel.statusOfWomanList.find { it.statusID == item.id }
+                patient.statusOfWomanID = viewModel.selectedStatusOfWoman?.statusID
                 binding.statusOfWomanDropdown.setText(item.display, false)
                 viewModel.setStatusOfWoman(true)
             }
@@ -1927,8 +1931,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     private fun handleStatusOfWomanHidden() {
         binding.statusOfWomanText.visibility = View.GONE
-        viewModel.selectedStatusOfWoman = null
-        viewModel.setStatusOfWoman(true) // Not required for non-females
+        if (!isProgrammaticChange) {
+            viewModel.selectedStatusOfWoman = null
+            patient.statusOfWomanID = null
+        }
+        viewModel.setStatusOfWoman(true)
     }
 
     private fun setupStatusOfWomanDropdownContent() {
@@ -1958,6 +1965,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.filteredStatusOfWomanList.none { it.statusID == viewModel.selectedStatusOfWoman!!.statusID }
         ) {
             viewModel.selectedStatusOfWoman = null
+            patient.statusOfWomanID = null
             binding.statusOfWomanDropdown.setText("", false)
             viewModel.setStatusOfWoman(false)
         }
@@ -1977,6 +1985,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         // If only one option and none selected, auto-select it
         if (viewModel.selectedStatusOfWoman == null && viewModel.filteredStatusOfWomanList.size == 1) {
             viewModel.selectedStatusOfWoman = viewModel.filteredStatusOfWomanList[0]
+            patient.statusOfWomanID = viewModel.selectedStatusOfWoman?.statusID
             binding.statusOfWomanDropdown.setText(
                 viewModel.selectedStatusOfWoman!!.statusName,
                 false
@@ -1999,6 +2008,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             )
             binding.statusOfWomanDropdown.setAdapter(statusOfWomanAdapter)
             viewModel.selectedStatusOfWoman = null
+            patient.statusOfWomanID = null
             binding.statusOfWomanDropdown.setText("", false)
             viewModel.setStatusOfWoman(false)
         }

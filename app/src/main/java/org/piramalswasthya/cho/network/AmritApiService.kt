@@ -102,6 +102,8 @@ interface AmritApiService {
 
     @POST("hwc-api/sync/beneficiariesToServer")
     suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
+    @POST("hwc-api/sync/update/beneficiariesToServer")
+    suspend fun updateBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
 
     @POST("hwc-api/sync/beneficiariesToAppCount")
     suspend fun getBeneficiariesCount(@Body villageList: VillageIdList): Response<ResponseBody>

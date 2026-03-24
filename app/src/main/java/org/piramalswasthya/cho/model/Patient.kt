@@ -233,6 +233,11 @@ data class PatientDisplay(
         entityColumn = "religionID"
     )
     val religion: ReligionMaster?,
+    @Relation(
+        parentColumn = "statusOfWomanID",
+        entityColumn = "statusID"
+    )
+    val statusOfWoman: StatusOfWomanMaster?,
 )
 
 data class PatientDisplayWithVisitInfo(
@@ -317,6 +322,8 @@ data class PatientNetwork(
     val ageAtMarriage: Int?,
     val bankName: String?,
     val benImage: String?,
+    val beneficiaryID: String?,
+    val beneficiaryRegID: Long?,
     val benPhoneMaps: List<BenPhone>?,
     val beneficiaryConsent: Boolean?,
     val beneficiaryIdentities: List<String>?,
@@ -342,6 +349,8 @@ data class PatientNetwork(
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
     val providerServiceMapId: String?,
+    val reproductiveStatusId: Int?,
+    val reproductiveStatus: String?,
     val spouseName: String?,
     val titleId: String?,
     val vanID: Int?,
@@ -389,6 +398,8 @@ data class PatientNetwork(
         patientDisplay.patient.ageAtMarriage,
         null,
         patientDisplay.patient.benImage,
+        patientDisplay.patient.beneficiaryID?.toString(),
+        patientDisplay.patient.beneficiaryRegID,
         arrayListOf(BenPhone(patientDisplay.patient, user)),
         true,
         emptyList(),
@@ -414,6 +425,8 @@ data class PatientNetwork(
         user?.parkingPlaceId,
         user?.serviceMapId.toString(),
         user?.serviceMapId.toString(),
+        patientDisplay.patient.statusOfWomanID,
+        patientDisplay.statusOfWoman?.statusName,
         patientDisplay.patient.spouseName,
         null,
         user?.vanId,
@@ -481,7 +494,8 @@ data class Bendemographics(
     val religionName: String?,
     val servicePointID: String?,
     val servicePointName: String?,
-    val stateID: Int?
+    val stateID: Int?,
+    val stateName: String?
 ){
     constructor(patientDisplay: PatientDisplay, user: UserDomain?) : this(
         null,
@@ -517,6 +531,7 @@ data class Bendemographics(
         user?.servicePointId.toString(),
         user?.servicePointName,
         stateID = patientDisplay.state?.stateID,
+        stateName = patientDisplay.state?.stateName,
 //        patientDisplay.patient.stateID
     )
 //    addressLine1:null
