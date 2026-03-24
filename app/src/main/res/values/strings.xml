@@ -1428,10 +1428,6 @@
     <string name="referred_from">Referred From:</string>
     <string name="referred_to">Referred To:</string>
 
-    <string name="refer_date">Refer Date:</string>
-    <string name="referred_from">Referred From:</string>
-    <string name="referred_to">Referred To:</string>
-
     <!-- Mental Health Screening Strings -->
     <!-- Response Options -->
     <string name="yes_option">Yes</string>
