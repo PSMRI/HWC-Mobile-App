@@ -1552,4 +1552,9 @@
     <string name="ed_functional_decline">Functional decline (daily activities)</string>
     <string name="ed_screening_outcome">Screening Outcome</string>
     <string name="ed_referral_required">Referral Required</string>
+    <string name="ed_psychosocial_intervention_provided">Psychosocial intervention provided</string>
+    <string name="ed_intervention_type">Type of intervention</string>
+    <string name="ed_session_date">Session date</string>
+    <string name="ed_duration_minutes">Duration (minutes)</string>
+    <string name="ed_remarks">Remarks</string>
 </resources>

@@ -679,6 +679,57 @@ class MentalHealthScreeningDataset(
             required = false
         )
     }
+    private val edPsychosocialIntervention: FormElement by lazy {
+        FormElement(
+            id = 708,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.ed_psychosocial_intervention_provided),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    private val edInterventionType: FormElement by lazy {
+        FormElement(
+            id = 709,
+            inputType = InputType.CHECKBOXES,
+            title = context.getString(R.string.ed_intervention_type),
+            entries = arrayOf("Psychoeducation", "Counselling", "Stress management", "Family counselling"),
+            required = true
+        )
+    }
+
+    private val edSessionDate: FormElement by lazy {
+        FormElement(
+            id = 710,
+            inputType = InputType.DATE_PICKER,
+            title = context.getString(R.string.ed_session_date),
+            required = true
+        )
+    }
+
+    private val edDurationMinutes: FormElement by lazy {
+        FormElement(
+            id = 711,
+            inputType = InputType.EDIT_TEXT,
+            title = context.getString(R.string.ed_duration_minutes),
+            required = true,
+            etInputType = android.text.InputType.TYPE_CLASS_NUMBER,
+            min = 10,
+            max = 60
+        )
+    }
+
+    private val edRemarks: FormElement by lazy {
+        FormElement(
+            id = 712,
+            inputType = InputType.EDIT_TEXT,
+            title = context.getString(R.string.ed_remarks),
+            required = false,
+            etMaxLength = 250
+        )
+    }
 
     // ── Section F: Referral & Follow-up ──────────────────────────────
 
@@ -895,6 +946,18 @@ class MentalHealthScreeningDataset(
                 rebuildConditionalSections()
                 formId
             }
+            edPsychosocialIntervention.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
+            edDurationMinutes.id -> {
+                validateIntMinMax(edDurationMinutes)
+            }
+
+            edSessionDate.id, edRemarks.id -> {
+                formId
+            }
 
             // Handle referral & follow-up changes
             else -> {
@@ -973,9 +1036,22 @@ class MentalHealthScreeningDataset(
                 listOf(
                     edChecklistHeader,edRecurrentEpisodeloss, edRecurrentJerkyMovements, edProgressiveMemoryLoss,
                     edConfusionDisorientation, edFunctionalDecline, edScreeningOutcome.copy(),
-                    edReferralRequired.copy()
+
                 )
             )
+        }
+
+        if (edScreeningOutcome.value == "Suspected") {
+            list.add(edPsychosocialIntervention)
+            if (edPsychosocialIntervention.value == "Yes") {
+                list.add(edInterventionType)
+            }
+            edSessionDate.max = System.currentTimeMillis()
+            list.add(edSessionDate)
+            list.add(edDurationMinutes)
+            list.add(edRemarks)
+        } else {
+            clearEdPsychosocialValues()
         }
 
         // Section F
@@ -1208,6 +1284,13 @@ class MentalHealthScreeningDataset(
         clearAlcoholSubFields()
         briefInterventionGiven.value = null
     }
+    private fun clearEdPsychosocialValues() {
+        edPsychosocialIntervention.value = null
+        edInterventionType.value = null
+        edSessionDate.value = null
+        edDurationMinutes.value = null
+        edRemarks.value = null
+    }
 
     private fun clearAlcoholSubFields() {
         substance_alcohol_frequency.value = null
@@ -1359,6 +1442,12 @@ class MentalHealthScreeningDataset(
             cache.edFunctionalDecline?.let { if (it) yesNoOptions[0] else null }
         edScreeningOutcome.value = cache.edScreeningOutcome
         edReferralRequired.value = cache.edReferralRequired
+        edPsychosocialIntervention.value =
+            cache.edPsychosocialInterventionProvided?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        edInterventionType.value = cache.edInterventionType
+        edSessionDate.value = cache.edSessionDate
+        edDurationMinutes.value = cache.edDurationMinutes?.toString()
+        edRemarks.value = cache.edRemarks
 
         // Section F
         populateReferralFollowUpFromCache(cache)
@@ -1517,6 +1606,19 @@ class MentalHealthScreeningDataset(
             it.edFunctionalDecline = isYes(edFunctionalDecline.value)
             it.edScreeningOutcome = edScreeningOutcome.value
             it.edReferralRequired = edReferralRequired.value
+            if (edScreeningOutcome.value == "Suspected") {
+                it.edPsychosocialInterventionProvided = yesNoToBoolean(edPsychosocialIntervention.value)
+                it.edInterventionType = if (it.edPsychosocialInterventionProvided == true) edInterventionType.value else null
+                it.edSessionDate = if (it.edPsychosocialInterventionProvided == true) edSessionDate.value else null
+                it.edDurationMinutes = if (it.edPsychosocialInterventionProvided == true) edDurationMinutes.value?.toIntOrNull() else null
+                it.edRemarks = edRemarks.value
+            } else {
+                it.edPsychosocialInterventionProvided = null
+                it.edInterventionType = null
+                it.edSessionDate = null
+                it.edDurationMinutes = null
+                it.edRemarks = null
+            }
 
             mapReferralFollowUpValues(it)
         }

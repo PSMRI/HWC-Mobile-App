@@ -208,6 +208,21 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "ed_screening_outcome")
     var edScreeningOutcome: String? = null,
 
+    @ColumnInfo(name = "ed_psychosocial_intervention_provided")
+    var edPsychosocialInterventionProvided: Boolean? = null,
+
+    @ColumnInfo(name = "ed_intervention_type")
+    var edInterventionType: String? = null,
+
+    @ColumnInfo(name = "ed_session_date")
+    var edSessionDate: String? = null,
+
+    @ColumnInfo(name = "ed_duration_minutes")
+    var edDurationMinutes: Int? = null,
+
+    @ColumnInfo(name = "ed_remarks")
+    var edRemarks: String? = null,
+
     @ColumnInfo(name = "ed_referral_required")
     var edReferralRequired: String? = null,
 

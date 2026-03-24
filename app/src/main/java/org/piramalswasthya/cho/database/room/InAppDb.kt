@@ -1042,6 +1042,11 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL(
                     "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_referral_required TEXT"
                 )
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_psychosocial_intervention_provided INTEGER")
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_intervention_type TEXT")
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_session_date TEXT")
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_duration_minutes INTEGER")
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_remarks TEXT")
             }
         }
 
