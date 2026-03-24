@@ -309,9 +309,21 @@ class PatientRepo @Inject constructor(
         }
 
         return networkResultInterceptor {
-            val patNet = PatientNetwork(patient, user)
-//            Timber.d("patient register is ", patNet.toString())
-            val response = apiService.saveBenificiaryDetails(patNet)
+            val basePayload = PatientNetwork(patient, user)
+            val isUpdateRequest = p.beneficiaryID != null && p.beneficiaryRegID != null
+            val payload = if (isUpdateRequest) {
+                basePayload
+            } else {
+                basePayload.copy(
+                    beneficiaryID = null,
+                    beneficiaryRegID = null
+                )
+            }
+            val response = if (isUpdateRequest) {
+                apiService.updateBenificiaryDetails(payload)
+            } else {
+                apiService.saveBenificiaryDetails(payload)
+            }
             
             // Check if response is successful
             if (!response.isSuccessful) {

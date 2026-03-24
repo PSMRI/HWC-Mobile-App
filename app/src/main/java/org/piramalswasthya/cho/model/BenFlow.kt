@@ -129,6 +129,12 @@ data class BenFlow(
     @ColumnInfo(name = "beneficiaryID")
     val beneficiaryID: Long?,
 
+    @ColumnInfo(name = "reproductiveStatusId")
+    val reproductiveStatusId: Int?,
+
+    @ColumnInfo(name = "reproductiveStatus")
+    val reproductiveStatus: String?,
+
     @ColumnInfo(name = "parkingPlaceID")
     val parkingPlaceID: Int? = null,
 
