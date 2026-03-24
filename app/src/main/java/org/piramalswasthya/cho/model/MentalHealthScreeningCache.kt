@@ -133,6 +133,9 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "suicide_hopelessness")
     var suicideHopelessness: Boolean? = null,
 
+    @ColumnInfo(name = "suicide_immediate_assess")
+    var suicideImmediateAssess: Boolean? = null,
+
     @ColumnInfo(name = "suicide_risk_level")
     var suicideRiskLevel: String? = null,
 

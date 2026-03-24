@@ -1463,6 +1463,8 @@
 
     <!-- Substance Use Screening & Brief Intervention -->
     <string name="substance_section_title">Substance Use Screening and Brief Intervention</string>
+    <string name="substance_tobacco_title">Tobacco Use Identification</string>
+    <string name="substance_alcohol_title">Alcohol Use Identification </string>
     <string name="substance_alcohol_use">Alcohol use</string>
     <string name="substance_tobacco_use">Tobacco use</string>
     <string name="substance_other_use">Other substance use</string>
@@ -1480,8 +1482,11 @@
     <!-- Suicide Risk Screening -->
     <string name="suicide_section_title">Suicide Risk Screening</string>
     <string name="suicide_current_thoughts">Current thoughts of self-harm or ending life</string>
-    <string name="suicide_plan">Has a specific plan to harm self</string>
+    <string name="suicide_plan">Current intent or plan</string>
+    <string name="suicide_immediate_assess">CHO assesses immediate risk</string>
     <string name="suicide_previous_attempt">Previous suicide attempt</string>
+    <string name="suicide_risk_alert_moderate">Moderate Suicide Risk: Immediate counselling required. Consider referral.</string>
+    <string name="suicide_risk_alert_high">High Suicide Risk: Emergency intervention required. Refer immediately.</string>
     <string name="suicide_hopelessness">Expressed hopelessness or being a burden</string>
     <string name="suicide_risk_level">Suicide risk level</string>
 
