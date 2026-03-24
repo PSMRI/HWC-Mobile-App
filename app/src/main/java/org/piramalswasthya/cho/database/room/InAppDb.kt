@@ -979,7 +979,7 @@ abstract class InAppDb : RoomDatabase() {
             CREATE TABLE IF NOT EXISTS ELDERLY_HEALTH_ASSESSMENT (
                 assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 patient_id TEXT NOT NULL,
-                ben_visit_no INTEGER,
+                ben_visit_no INTEGER NOT NULL,
                 geriatric_complaints INTEGER,
                 multiple_chronic_conditions INTEGER,
                 recent_falls INTEGER,

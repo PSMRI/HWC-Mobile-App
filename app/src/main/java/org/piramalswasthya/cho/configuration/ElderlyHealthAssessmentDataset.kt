@@ -287,7 +287,7 @@ class ElderlyHealthAssessmentDataset(
     private fun createDefaultCache(): ElderlyHealthAssessment {
         return ElderlyHealthAssessment(
             patientID = "",
-            benVisitNo = null,
+            benVisitNo = 0,
             geriatricComplaints = null,
             multipleChronicConditions = null,
             recentFalls = null,

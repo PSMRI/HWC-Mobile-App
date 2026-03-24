@@ -23,7 +23,7 @@ data class ElderlyHealthAssessment(
     val patientID: String,
 
     @ColumnInfo(name = "ben_visit_no")
-    val benVisitNo: Int?,
+    val benVisitNo: Int = 0,
 
     @ColumnInfo(name = "geriatric_complaints")
     var geriatricComplaints: Boolean? = null,

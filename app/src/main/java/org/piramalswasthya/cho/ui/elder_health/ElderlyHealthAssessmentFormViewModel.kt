@@ -78,12 +78,12 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
                     if (latestRecord != null) {
                         assessmentCache = latestRecord.copy(
                             assessmentId = 0L,
-                            benVisitNo = benVisitNo
+                            benVisitNo = benVisitNo ?: 0
                         )
                     } else {
                         assessmentCache = ElderlyHealthAssessment(
                             patientID = patient.patient.patientID,
-                            benVisitNo = benVisitNo,
+                            benVisitNo = benVisitNo ?: 0,
                         geriatricComplaints = null,
                         multipleChronicConditions = null,
                         recentFalls = null,
