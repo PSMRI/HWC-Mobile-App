@@ -16,6 +16,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
 import org.piramalswasthya.cho.configuration.ElderlyHealthAssessmentDataset
 import timber.log.Timber
 import javax.inject.Inject
+import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
 
 @HiltViewModel
 class ElderlyHealthAssessmentFormViewModel @Inject constructor(
@@ -25,19 +26,7 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
     private val elderlyHealthRepo: ElderlyHealthRepo
-) : ViewModel() {
-
-    enum class State {
-        IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
-    }
-
-    /* -------------------- UI EVENTS -------------------- */
-
-    private val _showAlert = MutableLiveData<String?>()
-    val showAlert: LiveData<String?> get() = _showAlert
-
-    private val _state = MutableLiveData(State.IDLE)
-    val state: LiveData<State> get() = _state
+) : BaseFormViewModel() {
 
     /* -------------------- BEN DETAILS -------------------- */
 
@@ -46,13 +35,6 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
 
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
-
-    private val _benName = MutableLiveData<String>()
-    val benName: LiveData<String> get() = _benName
-
-    private val _benAgeGender = MutableLiveData<String>()
-    val benAgeGender: LiveData<String> get() = _benAgeGender
-
 
     private val dataset =
         ElderlyHealthAssessmentDataset(context, preferenceDao.getCurrentLanguage())
@@ -137,42 +119,21 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
 
     fun updateListOnValueChanged(formId: Int, index: Int) {
         Timber.d("updateListOnValueChanged: formId=$formId, index=$index")
-        viewModelScope.launch {
-            try {
-                dataset.updateList(formId, index)
-            } catch (e: Exception) {
-                Timber.e(e, "Error updating elderly assessment form")
-            }
-        }
+        launchUpdateList(dataset, formId, index, "Error updating elderly assessment form")
     }
 
 
     fun saveForm() {
-        viewModelScope.launch {
-            try {
-                _state.postValue(State.SAVING)
-
-                check(this@ElderlyHealthAssessmentFormViewModel::assessmentCache.isInitialized) {
-                    "Assessment cache not initialized"
-                }
-
-                dataset.mapValues(assessmentCache, 1)
-
-                elderlyHealthRepo.saveAssessment(assessmentCache)
-
-                Timber.d("Elderly Health Assessment saved")
-
-                _state.postValue(State.SAVE_SUCCESS)
-
-            } catch (e: Exception) {
-                Timber.e(e, "Saving Elderly Health Assessment failed")
-                _state.postValue(State.SAVE_FAILED)
+        launchSave("Saving Elderly Health Assessment failed") {
+            check(this@ElderlyHealthAssessmentFormViewModel::assessmentCache.isInitialized) {
+                "Assessment cache not initialized"
             }
+
+            dataset.mapValues(assessmentCache, 1)
+
+            elderlyHealthRepo.saveAssessment(assessmentCache)
+
+            Timber.d("Elderly Health Assessment saved")
         }
-    }
-
-
-    fun clearAlert() {
-        _showAlert.value = null
     }
 }

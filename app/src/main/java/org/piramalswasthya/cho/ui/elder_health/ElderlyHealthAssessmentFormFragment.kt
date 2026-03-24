@@ -17,21 +17,36 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentElderlyHealthAssessmentFormBinding
-import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
 
 
 @AndroidEntryPoint
-class ElderlyHealthAssessmentFormFragment : Fragment(), NavigationAdapter {
+class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHealthAssessmentFormViewModel>() {
 
     private var _binding: FragmentElderlyHealthAssessmentFormBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: ElderlyHealthAssessmentFormViewModel by viewModels()
+    override val viewModel: ElderlyHealthAssessmentFormViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+    override val inputFormRecyclerView: RecyclerView get() = binding.form.rvInputForm
+    override val contentLayout: View get() = binding.llContent
+    override val progressBar: View get() = binding.pbForm
+    override val benNameTextView: TextView get() = binding.tvBenName
+    override val ageGenderTextView: TextView get() = binding.tvAgeGender
+    override val submitButton: View get() = binding.btnSubmit
+    override val cancelButton: View get() = binding.btnCancel
+
+    override fun getFormTitle(): String = getString(R.string.title_elderly_health_assessment)
+    override fun getSaveSuccessMessage(): String = "Assessment Saved"
+    override fun getFormFlow(): Flow<List<FormElement>> = viewModel.formList
+    override fun onUpdateFormValue(formId: Int, index: Int) =
+        viewModel.updateListOnValueChanged(formId, index)
+    override fun onSaveForm() = viewModel.saveForm()
+    override fun getFragmentId(): Int = R.id.fragment_elderly_health_assessment_form
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,151 +57,17 @@ class ElderlyHealthAssessmentFormFragment : Fragment(), NavigationAdapter {
         return binding.root
     }
 
-    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                onCancelAction()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private val onBackPressedCallback by lazy {
-        object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                onCancelAction()
-            }
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            onBackPressedCallback
-        )
-
-        setupForm()
-        observeViewModel()
-
-        viewModel.benName.observe(viewLifecycleOwner) {
-            binding.tvBenName.text = it
-        }
-        viewModel.benAgeGender.observe(viewLifecycleOwner) {
-            binding.tvAgeGender.text = it
-        }
-
-//        binding.llCaseIdRow.visibility = View.GONE
-
-        binding.btnSubmit.setOnClickListener {
-            submitForm()
-        }
-
-        binding.btnCancel.setOnClickListener {
-            onCancelAction()
-        }
-
-    }
-
-    private fun setupForm() {
-
-        val adapter = FormInputAdapter(
-            formValueListener = FormInputAdapter.FormValueListener { formId, index ->
-                viewModel.updateListOnValueChanged(formId, index)
-            },
-            isEnabled = true
-        )
-
-        binding.form.rvInputForm.layoutManager = LinearLayoutManager(requireContext())
-        binding.form.rvInputForm.adapter = adapter
-
-        lifecycleScope.launch {
-            viewModel.formList.collect { list ->
-                if (list.isNotEmpty()) {
-                    adapter.submitList(list)
-                }
-            }
-        }
-
-        (activity as? AppCompatActivity)?.supportActionBar?.title =
-            getString(R.string.title_elderly_health_assessment)
-
-        activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
-    }
-
-    private fun observeViewModel() {
-
+        
+        // Preserve our explicit null-user error crash fix fallback 
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 findNavController().navigateUp()
             }
         }
-
-        viewModel.state.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                ElderlyHealthAssessmentFormViewModel.State.IDLE -> Unit
-
-                ElderlyHealthAssessmentFormViewModel.State.SAVING -> {
-                    binding.llContent.visibility = View.GONE
-                    binding.pbForm.visibility = View.VISIBLE
-                }
-
-                ElderlyHealthAssessmentFormViewModel.State.SAVE_SUCCESS -> {
-                    binding.llContent.visibility = View.VISIBLE
-                    binding.pbForm.visibility = View.GONE
-                    Toast.makeText(context, "Assessment Saved", Toast.LENGTH_LONG).show()
-                    findNavController().navigateUp()
-                }
-
-                ElderlyHealthAssessmentFormViewModel.State.SAVE_FAILED -> {
-                    binding.llContent.visibility = View.VISIBLE
-                    binding.pbForm.visibility = View.GONE
-                    Toast.makeText(context, "Save failed", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
-        viewModel.showAlert.observe(viewLifecycleOwner) { message ->
-            message?.let {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Alert")
-                    .setMessage(it)
-                    .setPositiveButton("OK") { dialog, _ ->
-                        dialog.dismiss()
-                        viewModel.clearAlert()
-                    }
-                    .setCancelable(false)
-                    .show()
-            }
-        }
     }
-
-    private fun submitForm() {
-        val adapter = binding.form.rvInputForm.adapter as? FormInputAdapter ?: return
-
-        val result = adapter.validateInput(resources)
-        if (result == -1) {
-            viewModel.saveForm()
-        } else {
-            binding.form.rvInputForm.scrollToPosition(result)
-        }
-    }
-
-    override fun onSubmitAction() {
-        submitForm()
-    }
-
-    override fun onCancelAction() {
-        if (!findNavController().navigateUp()) {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
-    }
-
-    override fun getFragmentId(): Int =
-        R.id.fragment_elderly_health_assessment_form
 
     override fun onDestroyView() {
         super.onDestroyView()
