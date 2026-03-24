@@ -1185,7 +1185,30 @@
     <string name="title_pain_symptom_assessment">Pain and Symptom Assessment</string>
     <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
     <string name="title_nose_diagnosis">Nose Diagnosis Form</string>
+    <string name="title_throat_diagnosis">Throat Diagnosis Form</string>
+    <string name="throat_diagnosis_saved">Throat Diagnosis Saved</string>
 
+    <!-- Throat Diagnosis Dataset -->
+    <string name="throat_diagnosis_symptoms">Symptoms</string>
+    <string name="throat_diagnosis_neck_swelling">Swelling in the neck (Thyroid)</string>
+    <string name="throat_diagnosis_difficulty_swallowing">Difficulty in Swallowing</string>
+    <string name="throat_diagnosis_tonsillitis">Tonsillitis</string>
+    <string name="throat_diagnosis_pharyngitis">Pharyngitis</string>
+    <string name="throat_diagnosis_laryngitis">Laryngitis</string>
+    <string name="throat_diagnosis_sinusitis">Sinusitis</string>
+    <string name="throat_diagnosis_cleft_lip">Cleft Lip</string>
+    <string name="throat_diagnosis_cleft_palate">Cleft Palate</string>
+    
+    <string name="throat_symptom_pain">Pain</string>
+    <string name="throat_symptom_soreness">Soreness</string>
+    <string name="throat_symptom_cold">Cold</string>
+    <string name="throat_symptom_itching">Itching</string>
+    <string name="throat_symptom_hoarseness">Hoarseness</string>
+    
+    <string name="throat_alert_neck_swelling">Neck swelling detected. Refer patient to specialist at secondary level.</string>
+    <string name="throat_alert_difficulty_swallowing">Difficulty in swallowing detected. Refer patient to specialist at secondary level.</string>
+    <string name="throat_alert_cleft_lip">Cleft lip detected. Refer patient to specialist at secondary level.</string>
+    <string name="throat_alert_cleft_palate">Cleft palate detected. Refer patient to specialist at secondary level.</string>
     <!-- Nose Diagnosis Form Strings -->
     <string name="nose_bleed_title">Nose Bleed (Epistaxis)</string>
     <string name="systolic_bp_title">Systolic BP (mmHg)</string>
