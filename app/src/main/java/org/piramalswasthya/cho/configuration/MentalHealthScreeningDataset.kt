@@ -674,7 +674,7 @@ class MentalHealthScreeningDataset(
         FormElement(
             id = 707,
             inputType = InputType.CHECKBOXES,
-            title = context.getString(R.string.ed_recurrent_jerky_movements),
+            title = context.getString(R.string.ed_edRecurrentEpisodeloss),
             entries = arrayOf(yesNoOptions[0]),
             required = false
         )
@@ -1085,11 +1085,12 @@ class MentalHealthScreeningDataset(
                 impact == "Yes" ||
                 withdrawal == "Yes" ||
                 problematic == "Yes" ||
+                frequency == "Regular" ||
                 frequency == "Daily"
 
-        // Non-problematic: no alcohol use, OR occasional/regular use with NONE of the three risk flags
+
         val noAlcoholUse = use == "No"
-        val occasionalWithNoRisks = (frequency == "Occasionally" || frequency == "Regular") &&
+        val occasionalWithNoRisks = (frequency == "Occasionally") &&
                 loss != "Yes" &&
                 impact != "Yes" &&
                 withdrawal != "Yes"
@@ -1110,7 +1111,6 @@ class MentalHealthScreeningDataset(
     }
 
     private fun computeEdScreeningOutcome() {
-        // Only set if user has pressed "Yes" to Q4 or Q5
         if (memoryLossConfusion.value != "Yes" && seizuresFitsLoc.value != "Yes") {
             edScreeningOutcome.value = null
             edReferralRequired.value = null

@@ -989,6 +989,33 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL(
                     "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_loss INTEGER"
                 )
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN edRecurrentEpisodeloss INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_recurrent_jerky_movements INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_progressive_memory_loss INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_confusion_disorientation INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_functional_decline INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_screening_outcome TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_referral_required TEXT"
+                )
             }
         }
 
