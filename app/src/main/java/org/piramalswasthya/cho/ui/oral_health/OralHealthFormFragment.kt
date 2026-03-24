@@ -67,6 +67,8 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
         val masterDb = MasterDb(
             patientId = benVisitInfo.patient.patientID,
             visitMasterDb = VisitMasterDb().apply {
+                category = "Other CPHC Services"
+                subCategory = DropdownConst.oral
                 reason = DropdownConst.dental
             }
         )
