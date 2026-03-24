@@ -265,7 +265,7 @@ import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
         ThroatDiagnosisAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 135, exportSchema = false
+    version = 136, exportSchema = false
 )
 
 
@@ -960,6 +960,25 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_135_136 = object : Migration(135, 136) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                val cursor = database.query("PRAGMA table_info(MENTAL_HEALTH_SCREENING)")
+                var columnExists = false
+                while (cursor.moveToNext()) {
+                    if (cursor.getString(cursor.getColumnIndexOrThrow("name")) == "suicide_immediate_assess") {
+                        columnExists = true
+                        break
+                    }
+                }
+                cursor.close()
+                if (!columnExists) {
+                    database.execSQL(
+                        "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN suicide_immediate_assess INTEGER"
+                    )
+                }
+            }
+        }
+
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -1001,7 +1020,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_131_132,
                             MIGRATION_132_133,
                             MIGRATION_133_134,
-                            MIGRATION_134_135
+                            MIGRATION_134_135,
+                            MIGRATION_135_136
 
                         )
                         .fallbackToDestructiveMigration()
