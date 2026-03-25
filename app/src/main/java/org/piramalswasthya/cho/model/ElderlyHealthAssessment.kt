@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.model
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -64,5 +65,7 @@ data class ElderlyHealthAssessment(
     @ColumnInfo(name = "dementia_referral_required")
     var dementiaReferralRequired: Boolean? = null,
 
+    @Embedded
+    val referralFollowUp: ReferralFollowUpFields = ReferralFollowUpFields()
 
-    ) : FormDataModel
+) : FormDataModel, ReferralFollowUpModel by referralFollowUp

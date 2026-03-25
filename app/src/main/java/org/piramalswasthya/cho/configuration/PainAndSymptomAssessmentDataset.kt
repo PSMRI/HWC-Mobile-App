@@ -145,6 +145,9 @@ class PainAndSymptomAssessmentDataset(
     override val followUpRequired = createFollowUpRequired(9)
 
     override val followUpDate = createFollowUpDate(10)
+    override val caseStatus = createCaseStatus(20)
+    override val dateOfDeath = createDateOfDeath(21)
+    override val remarks = createRemarks(22)
 
     // ---------------- Setup Page ----------------
     suspend fun setUpPage(savedRecord: PainAndSymptomAssessment?) {

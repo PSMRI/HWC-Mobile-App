@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 139, exportSchema = false
+    version = 140, exportSchema = false
 )
 
 
@@ -1075,6 +1075,29 @@ abstract class InAppDb : RoomDatabase() {
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_date", "TEXT")
             }
         }
+        val MIGRATION_139_140 = object : Migration(139, 140) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // ELDERLY_HEALTH_ASSESSMENT
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_required", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_level", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "reason_for_referral", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "follow_up_required", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "follow_up_date", "TEXT")
+                database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN case_status TEXT")
+                database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN date_of_death TEXT")
+                database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN remarks TEXT")
+
+                // PAIN_SYMPTOM_ASSESSMENT
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN case_status TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN date_of_death TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN remarks TEXT")
+
+                // PSYCHOSOCIAL_CAREGIVER_SUPPORT
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN case_status TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN date_of_death TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN remarks TEXT")
+            }
+        }
 
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
@@ -1139,7 +1162,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_135_136,
                             MIGRATION_136_137,
                             MIGRATION_137_138,
-                            MIGRATION_138_139
+                            MIGRATION_138_139,
+                            MIGRATION_139_140
 
                         )
                         .fallbackToDestructiveMigration()
