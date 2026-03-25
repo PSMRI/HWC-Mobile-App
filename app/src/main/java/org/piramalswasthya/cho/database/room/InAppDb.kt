@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 140, exportSchema = false
+    version = 141, exportSchema = false
 )
 
 
@@ -830,11 +830,11 @@ abstract class InAppDb : RoomDatabase() {
                 )
                 database.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_oral_health_patient_id " +
-                            "ON ORAL_HEALTH(patient_id)"
+                        "ON ORAL_HEALTH(patient_id)"
                 )
                 database.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_oral_health_patient_visit " +
-                            "ON ORAL_HEALTH(patient_id, ben_visit_no)"
+                        "ON ORAL_HEALTH(patient_id, ben_visit_no)"
                 )
             }
         }
@@ -1069,13 +1069,19 @@ abstract class InAppDb : RoomDatabase() {
         }
         val MIGRATION_138_139 = object : Migration(138, 139) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "BENFLOW", "reproductiveStatusId", "INTEGER")
+                safeAddColumn(database, "BENFLOW", "reproductiveStatus", "TEXT")
+            }
+        }
+        val MIGRATION_139_140 = object : Migration(139, 140) {
+            override fun migrate(database: SupportSQLiteDatabase) {
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "improvement_noted", "TEXT")
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_escalation_required", "INTEGER")
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "case_closure_reason", "TEXT")
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_date", "TEXT")
             }
         }
-        val MIGRATION_139_140 = object : Migration(139, 140) {
+        val MIGRATION_140_141 = object : Migration(140, 141) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // ELDERLY_HEALTH_ASSESSMENT
                 safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_required", "INTEGER")
@@ -1163,8 +1169,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_136_137,
                             MIGRATION_137_138,
                             MIGRATION_138_139,
-                            MIGRATION_139_140
-
+                            MIGRATION_139_140,
+                            MIGRATION_140_141
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
