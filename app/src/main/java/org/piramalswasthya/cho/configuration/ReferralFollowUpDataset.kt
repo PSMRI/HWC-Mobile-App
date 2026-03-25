@@ -14,7 +14,7 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     private val optionYes = context.getString(R.string.yes)
     private val optionNo = context.getString(R.string.no)
 
-    private val optionDeath = "Death"
+    private val optionDeath = context.getString(R.string.death)
 
     protected abstract val referralRequired: FormElement
     protected abstract val referralLevel: FormElement
@@ -96,7 +96,7 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     protected fun createCaseStatus(id: Int) = FormElement(
         id = id,
         inputType = InputType.DROPDOWN,
-        title = "Case status",
+        title = context.getString(R.string.case_status_title),
         entries = arrayOf("Under care", "Referred", "Stable", "Death"),
         required = true,
         hasDependants = true
@@ -105,7 +105,7 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     protected fun createDateOfDeath(id: Int) = FormElement(
         id = id,
         inputType = InputType.DATE_PICKER,
-        title = "Date of death",
+        title = context.getString(R.string.date_of_death_title),
         required = true,
         max = System.currentTimeMillis()
     )
@@ -113,7 +113,7 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     protected fun createRemarks(id: Int) = FormElement(
         id = id,
         inputType = InputType.EDIT_TEXT,
-        title = "Remarks",
+        title = context.getString(R.string.remarks),
         required = false,
         etMaxLength = 250
     )

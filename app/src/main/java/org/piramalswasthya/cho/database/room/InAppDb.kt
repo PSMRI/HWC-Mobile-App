@@ -1078,6 +1078,11 @@ abstract class InAppDb : RoomDatabase() {
         val MIGRATION_139_140 = object : Migration(139, 140) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // ELDERLY_HEALTH_ASSESSMENT
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_required", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_level", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "reason_for_referral", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "follow_up_required", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "follow_up_date", "TEXT")
                 database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN case_status TEXT")
                 database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN date_of_death TEXT")
                 database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN remarks TEXT")
