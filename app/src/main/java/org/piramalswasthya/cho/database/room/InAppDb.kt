@@ -830,11 +830,11 @@ abstract class InAppDb : RoomDatabase() {
                 )
                 database.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_oral_health_patient_id " +
-                        "ON ORAL_HEALTH(patient_id)"
+                            "ON ORAL_HEALTH(patient_id)"
                 )
                 database.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_oral_health_patient_visit " +
-                        "ON ORAL_HEALTH(patient_id, ben_visit_no)"
+                            "ON ORAL_HEALTH(patient_id, ben_visit_no)"
                 )
             }
         }
@@ -1067,16 +1067,12 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_remarks TEXT")
             }
         }
-
         val MIGRATION_138_139 = object : Migration(138, 139) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN persistent_pain_present INTEGER")
-                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN pain_assessment_enabled INTEGER")
-                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN distressing_symptoms_present TEXT")
-                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN bedridden_or_severely_dependent INTEGER")
-                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN life_limiting_illness_known INTEGER")
-                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN caregiver_support_required INTEGER")
-                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN palliative_care_eligible INTEGER")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "improvement_noted", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_escalation_required", "INTEGER")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "case_closure_reason", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_date", "TEXT")
             }
         }
 

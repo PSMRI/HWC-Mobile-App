@@ -6,10 +6,13 @@ import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 class MentalHealthScreeningDataset(
     private val context: Context,
     currentLanguage: Languages
-) : ReferralFollowUpDataset(context, currentLanguage) {
+) : Dataset(context, currentLanguage) {
 
     private lateinit var phq9Options: Array<String>
     private lateinit var substanceFrequencyOptions: Array<String>
@@ -96,6 +99,102 @@ class MentalHealthScreeningDataset(
             inputType = InputType.TEXT_VIEW,
             title = titleStr,
             required = false
+        )
+    }
+    private val mhReferralRequired: FormElement by lazy {
+        FormElement(
+            id = 107,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_referral_required_title),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    private val mhReferralLevel: FormElement by lazy {
+        FormElement(
+            id = 108,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.mh_referral_level_title),
+            entries = context.resources.getStringArray(R.array.mh_referral_level_options),
+            required = true
+        )
+    }
+
+    private val mhReasonForReferral: FormElement by lazy {
+        FormElement(
+            id = 109,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.mh_reason_for_referral_title),
+            entries = context.resources.getStringArray(R.array.mh_reason_for_referral_options),
+            required = true
+        )
+    }
+
+    private var mhReferralDate = FormElement(
+        id = 110,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.mh_referral_date_title),
+        required = false
+    )
+
+    // ── Follow-up & Closure fields ───────────────────────────────────
+    private val mhFollowUpRequired: FormElement by lazy {
+        FormElement(
+            id = 111,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_follow_up_required_title),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    private val mhFollowUpDate: FormElement by lazy {
+        FormElement(
+            id = 112,
+            inputType = InputType.DATE_PICKER,
+            title = context.getString(R.string.mh_follow_up_date_title),
+            required = true
+        )
+    }
+
+    private val mhImprovementNoted: FormElement by lazy {
+        FormElement(
+            id = 113,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_improvement_noted_title),
+            entries = context.resources.getStringArray(R.array.mh_improvement_noted_options),
+            required = true
+        )
+    }
+
+    private val mhRepeatPhq9Header: FormElement by lazy {
+        FormElement(
+            id = 114,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.mh_repeat_phq9_title),
+            required = false
+        )
+    }
+
+    private val mhReferralEscalation: FormElement by lazy {
+        FormElement(
+            id = 115,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_referral_escalation_title),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
+    private val mhCaseClosureReason: FormElement by lazy {
+        FormElement(
+            id = 116,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.mh_case_closure_reason_title),
+            entries = context.resources.getStringArray(R.array.mh_case_closure_reason_options),
+            required = true
         )
     }
 
@@ -452,19 +551,8 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    // ── Section F: Referral & Follow-up ──────────────────────────────
 
-    override val referralRequired = createReferralRequired(801)
-    override val referralLevel = createReferralLevel(802)
-    override val reasonForReferral = FormElement(
-        id = 803,
-        inputType = InputType.DROPDOWN,
-        title = context.getString(R.string.mental_health_reason_for_referral),
-        entries = context.resources.getStringArray(R.array.mental_health_referral_reasons),
-        required = true
-    )
-    override val followUpRequired = createFollowUpRequired(804)
-    override val followUpDate = createFollowUpDate(805)
+
 
     // ── Setup Page ───────────────────────────────────────────────────
 
@@ -488,6 +576,13 @@ class MentalHealthScreeningDataset(
         return emotionalBehaviouralConcerns.value == "Yes" ||
                 selfHarmSuicideThoughts.value == "Yes" ||
                 cache.isPostpartum == true
+    }
+    private fun todayDateString(): String =
+        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+
+    private fun shouldAutoSuggestReferral(): Boolean {
+        return dementiaDailyActivities.value == yesNoOptions[0] ||
+                substanceAlcoholUse.value == yesNoOptions[0]
     }
 
 
@@ -528,8 +623,23 @@ class MentalHealthScreeningDataset(
                 rebuildConditionalSections()
                 formId
             }
+            mhReferralRequired.id -> {
+                if (mhReferralRequired.value != yesNoOptions[0]) {
+                    mhReferralLevel.value = null
+                    mhReasonForReferral.value = null
+                    mhReferralDate.value = null
+                }
+                rebuildConditionalSections()
+                formId
+            }
 
-
+            mhFollowUpRequired.id -> {
+                if (mhFollowUpRequired.value != yesNoOptions[0]) {
+                    mhFollowUpDate.value = null
+                }
+                rebuildConditionalSections()
+                formId
+            }
 
             substanceTobaccoUse.id -> {
                 rebuildConditionalSections()
@@ -580,10 +690,8 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
-            // Handle referral & follow-up changes
             else -> {
-                val result = handleReferralFollowUpChange(formId, index)
-                if (result != -1) result else -1
+                -1
             }
         }
     }
@@ -599,6 +707,30 @@ class MentalHealthScreeningDataset(
         list.add(memoryLossConfusion)
         list.add(seizuresFitsLoc)
         list.add(isPostpartum)
+        list.add(mhReferralRequired)
+        if (mhReferralRequired.value == null && shouldAutoSuggestReferral()) {
+            mhReferralRequired.value = yesNoOptions[0]
+        }
+        if (mhReferralRequired.value == yesNoOptions[0]) {
+            list.add(mhReferralLevel)
+            list.add(mhReasonForReferral)
+            mhReferralDate.value = todayDateString()
+            list.add(mhReferralDate)
+        }
+
+        // Follow-up & Closure
+        list.add(mhFollowUpRequired)
+        if (mhFollowUpRequired.value == yesNoOptions[0]) {
+            mhFollowUpDate.min = System.currentTimeMillis()
+            mhFollowUpDate.max = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(365)
+            list.add(mhFollowUpDate)
+        }
+        list.add(mhImprovementNoted)
+        if (shouldShowPhq9()) {
+            list.add(mhRepeatPhq9Header)
+        }
+        list.add(mhReferralEscalation)
+        list.add(mhCaseClosureReason)
 
         // PHQ-9 section
         if (shouldShowPhq9()) {
@@ -667,14 +799,13 @@ class MentalHealthScreeningDataset(
             clearEdPsychosocialValues()
         }
 
-        // Section F: Referral & Follow-up
-        addReferralFollowUpElements(list)
 
         return list
     }
 
 
     private suspend fun rebuildConditionalSections() {
+
         updatePhq9Outcome()
         updateTobaccoOutcome()
         computeSuicideRiskLevel()
@@ -737,12 +868,7 @@ class MentalHealthScreeningDataset(
             score >= 10 -> context.getString(R.string.phq9_alert_referral_mo_phc)
             else -> null
         }
-        phq9SystemAction.hasAlertError = score >= 10
-        if (score >= 10) {
-            referralRequired.value = referralRequired.entries!!.first()
-        } else {
-            referralRequired.value = referralRequired.entries!!.last()
-        }
+
     }
 
     private fun updateTobaccoOutcome() {
@@ -978,6 +1104,26 @@ class MentalHealthScreeningDataset(
         memoryLossConfusion.value = boolToYesNo(cache.memoryLossConfusion)
         seizuresFitsLoc.value = boolToYesNo(cache.seizuresFitsLoc)
         isPostpartum.value = boolToYesNo(cache.isPostpartum)
+        // Referral
+        mhReferralRequired.value =
+            cache.referralRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        mhReferralLevel.value = cache.referralLevel
+        mhReasonForReferral.value = cache.reasonForReferral
+        
+        if (cache.referralRequired == true) {
+            mhReferralDate.value = cache.referralDate ?: todayDateString()
+        } else {
+            mhReferralDate.value = null
+        }
+
+        // Follow-up & Closure
+        mhFollowUpRequired.value =
+            cache.followUpRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        mhFollowUpDate.value = cache.followUpDate
+        mhImprovementNoted.value = cache.improvementNoted
+        mhReferralEscalation.value =
+            cache.referralEscalationRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        mhCaseClosureReason.value = cache.caseClosureReason
 
         // PHQ-9
         phq9LittleInterest.value = cache.phq9LittleInterest?.let { phq9Options.getOrNull(it) }
@@ -1046,8 +1192,7 @@ class MentalHealthScreeningDataset(
         edDurationMinutes.value = cache.edDurationMinutes?.toString()
         edRemarks.value = cache.edRemarks
 
-        // Section F
-        populateReferralFollowUpFromCache(cache)
+
     }
 
     // ── Map Values ───────────────────────────────────────────────────
@@ -1222,8 +1367,29 @@ class MentalHealthScreeningDataset(
                 it.edDurationMinutes = null
                 it.edRemarks = null
             }
+            it.referralRequired = yesNoToBoolean(mhReferralRequired.value)
+            if (it.referralRequired == true) {
+                it.referralLevel = mhReferralLevel.value
+                it.reasonForReferral = mhReasonForReferral.value
+                it.referralDate = mhReferralDate.value
+            } else {
+                it.referralLevel = null
+                it.reasonForReferral = null
+                it.referralDate = null
+            }
 
-            mapReferralFollowUpValues(it)
+            it.followUpRequired = yesNoToBoolean(mhFollowUpRequired.value)
+            if (it.followUpRequired == true) {
+                it.followUpDate = mhFollowUpDate.value
+            } else {
+                it.followUpDate = null
+            }
+            it.improvementNoted = mhImprovementNoted.value
+            it.referralEscalationRequired = yesNoToBoolean(mhReferralEscalation.value)
+            it.caseClosureReason = mhCaseClosureReason.value
         }
     }
 }
+
+
+
