@@ -37,63 +37,36 @@ class MentalHealthScreeningDataset(
 
 
 
-    private val emotionalBehaviouralConcerns: FormElement by lazy {
-        FormElement(
-            id = 101,
+    private fun createYesNoRadioWithDependantsElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
             inputType = InputType.RADIO,
-            title = context.getString(R.string.emotional_behavioural_concerns),
+            title = context.getString(titleResId),
             entries = yesNoOptions,
             required = true,
             hasDependants = true
         )
     }
 
+    private val emotionalBehaviouralConcerns: FormElement by lazy {
+        createYesNoRadioWithDependantsElement(101, R.string.emotional_behavioural_concerns)
+    }
 
     private val substanceUseConcerns: FormElement by lazy {
-        FormElement(
-            id = 102,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.substance_use_concerns),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(102, R.string.substance_use_concerns)
     }
 
-
     private val selfHarmSuicideThoughts: FormElement by lazy {
-        FormElement(
-            id = 103,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.self_harm_suicide_thoughts),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(103, R.string.self_harm_suicide_thoughts)
     }
 
     // Q4
     private val memoryLossConfusion: FormElement by lazy {
-        FormElement(
-            id = 104,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.memory_loss_confusion),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(104, R.string.memory_loss_confusion)
     }
 
-
     private val seizuresFitsLoc: FormElement by lazy {
-        FormElement(
-            id = 105,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.seizures_fits_loc),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(105, R.string.seizures_fits_loc)
     }
 
 
@@ -108,15 +81,26 @@ class MentalHealthScreeningDataset(
         )
     }
 
-
-
-    private val phq9Header: FormElement by lazy {
-        FormElement(
-            id = 200,
+    private fun createHeadlineElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
             inputType = InputType.HEADLINE,
-            title = context.getString(R.string.phq9_section_title),
+            title = context.getString(titleResId),
             required = false
         )
+    }
+
+    private fun createTextViewElement(elementId: Int, titleStr: String): FormElement {
+        return FormElement(
+            id = elementId,
+            inputType = InputType.TEXT_VIEW,
+            title = titleStr,
+            required = false
+        )
+    }
+
+    private val phq9Header: FormElement by lazy {
+        createHeadlineElement(200, R.string.phq9_section_title)
     }
 
     private fun createPhq9RadioElement(elementId: Int, titleResId: Int): FormElement {
@@ -166,51 +150,22 @@ class MentalHealthScreeningDataset(
         createPhq9RadioElement(209, R.string.phq9_self_harm_thoughts)
     }
 
-    private var phq9TotalScore = FormElement(
-        id = 210,
-        inputType = InputType.TEXT_VIEW,
-        title = context.getString(R.string.phq9_total_score),
-        required = false
-    )
-    private var phq9DepressionSeverity = FormElement(
-        id = 211,
-        inputType = InputType.TEXT_VIEW,
-        title = "Depression Severity",
-        required = false
-    )
+    private var phq9TotalScore = createTextViewElement(210, context.getString(R.string.phq9_total_score))
+    
+    private var phq9DepressionSeverity = createTextViewElement(211, "Depression Severity")
 
-    private var phq9SystemAction = FormElement(
-        id = 212,
-        inputType = InputType.TEXT_VIEW,
-        title = "System Action",
-        required = false
-    )
-
-
+    private var phq9SystemAction = createTextViewElement(212, "System Action")
 
     private val substanceHeader: FormElement by lazy {
-        FormElement(
-            id = 300,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.substance_section_title),
-            required = false
-        )
+        createHeadlineElement(300, R.string.substance_section_title)
     }
+
     private val substanceTobaccoHeader: FormElement by lazy {
-        FormElement(
-            id = 312,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.substance_tobacco_title),
-            required = false
-        )
+        createHeadlineElement(312, R.string.substance_tobacco_title)
     }
+    
     private val substanceAlcoholHeader: FormElement by lazy {
-        FormElement(
-            id = 313,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.substance_alcohol_title),
-            required = false
-        )
+        createHeadlineElement(313, R.string.substance_alcohol_title)
     }
     private val substanceCurrentTobaccoUse = FormElement(
         id = 307,
@@ -237,19 +192,9 @@ class MentalHealthScreeningDataset(
         required = true
     )
 
-    private var substanceTobaccoOutcome = FormElement(
-        id = 310,
-        inputType = InputType.TEXT_VIEW,
-        title = "Tobacco use outcome",
-        required = false
-    )
+    private var substanceTobaccoOutcome = createTextViewElement(310, "Tobacco use outcome")
 
-    private var substanceSystemAction = FormElement(
-        id = 311,
-        inputType = InputType.TEXT_VIEW,
-        title = "System action",
-        required = false
-    )
+    private var substanceSystemAction = createTextViewElement(311, "System action")
 
     private val substanceAlcoholUse: FormElement by lazy {
         FormElement(
@@ -272,31 +217,20 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private fun createAlcoholRadioElement(elementId: Int, titleResId: Int): FormElement {
-        return FormElement(
-            id = elementId,
-            inputType = InputType.RADIO,
-            title = context.getString(titleResId),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
-    }
-
     private val substance_alcohol_loss: FormElement by lazy {
-        createAlcoholRadioElement(303, R.string.substance_alcohol_loss)
+        createYesNoRadioWithDependantsElement(303, R.string.substance_alcohol_loss)
     }
 
     private val substanceAlcoholImpact: FormElement by lazy {
-        createAlcoholRadioElement(314, R.string.substance_alcohol_impact)
+        createYesNoRadioWithDependantsElement(314, R.string.substance_alcohol_impact)
     }
 
     private val substanceAlcoholWithdrawal: FormElement by lazy {
-        createAlcoholRadioElement(315, R.string.substance_alcohol_withdrawal)
+        createYesNoRadioWithDependantsElement(315, R.string.substance_alcohol_withdrawal)
     }
 
     private val substanceAlcoholProblematic: FormElement by lazy {
-        createAlcoholRadioElement(316, R.string.substance_alcohol_problematic)
+        createYesNoRadioWithDependantsElement(316, R.string.substance_alcohol_problematic)
     }
 
     private val substanceOtherSpecify: FormElement by lazy {
@@ -310,18 +244,9 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private fun createAlcoholTextView(elementId: Int, titleResId: Int): FormElement {
-        return FormElement(
-            id = elementId,
-            inputType = InputType.TEXT_VIEW,
-            title = context.getString(titleResId),
-            required = false
-        )
-    }
+    private val substanceAlcoholClassification = createTextViewElement(317, context.getString(R.string.substance_alcohol_classification))
 
-    private val substanceAlcoholClassification = createAlcoholTextView(317, R.string.substance_alcohol_classification)
-
-    private val substanceAlcoholSystemAction = createAlcoholTextView(318, R.string.substance_alcohol_system_action)
+    private val substanceAlcoholSystemAction = createTextViewElement(318, context.getString(R.string.substance_alcohol_system_action))
 
     private val substance_alcohol_frequency: FormElement by lazy {
         FormElement(
@@ -346,85 +271,35 @@ class MentalHealthScreeningDataset(
 
 
     private val suicideHeader: FormElement by lazy {
-        FormElement(
-            id = 400,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.suicide_section_title),
-            required = false
-        )
+        createHeadlineElement(400, R.string.suicide_section_title)
     }
 
     private val suicideCurrentThoughts: FormElement by lazy {
-        FormElement(
-            id = 401,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_hopelessness),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(401, R.string.suicide_current_thoughts)
     }
 
     private val suicidePlan: FormElement by lazy {
-        FormElement(
-            id = 402,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_plan),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(402, R.string.suicide_plan)
     }
 
     private val suicidePreviousAttempt: FormElement by lazy {
-        FormElement(
-            id = 403,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_previous_attempt),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(403, R.string.suicide_previous_attempt)
     }
 
     private val suicideHopelessness: FormElement by lazy {
-        FormElement(
-            id = 404,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_hopelessness),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(404, R.string.suicide_hopelessness)
     }
 
-    private var suicideRiskLevel = FormElement(
-        id = 405,
-        inputType = InputType.TEXT_VIEW,
-        title = context.getString(R.string.suicide_risk_level),
-        required = false
-    )
+    private var suicideRiskLevel = createTextViewElement(405, context.getString(R.string.suicide_risk_level))
 
     private val suicideImmediateAssess: FormElement by lazy {
-        FormElement(
-            id = 406,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_immediate_assess),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(406, R.string.suicide_immediate_assess)
     }
 
 
 
     private val dementiaHeader: FormElement by lazy {
-        FormElement(
-            id = 500,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.dementia_section_title),
-            required = false
-        )
+        createHeadlineElement(500, R.string.dementia_section_title)
     }
 
     private fun createEpilepsyDementiaRadioElement(elementId: Int, titleResId: Int): FormElement {
@@ -460,12 +335,7 @@ class MentalHealthScreeningDataset(
 
 
     private val epilepsyHeader: FormElement by lazy {
-        FormElement(
-            id = 600,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.epilepsy_section_title),
-            required = false
-        )
+        createHeadlineElement(600, R.string.epilepsy_section_title)
     }
 
     private val epilepsyRecurrentSeizures: FormElement by lazy {
@@ -494,12 +364,7 @@ class MentalHealthScreeningDataset(
         )
     }
     private val edChecklistHeader: FormElement by lazy {
-        FormElement(
-            id = 700,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.epilepsy_dementia_checklist_title),
-            required = false
-        )
+        createHeadlineElement(700, R.string.epilepsy_dementia_checklist_title)
     }
 
 
@@ -529,19 +394,9 @@ class MentalHealthScreeningDataset(
         createEdCheckboxElement(704, R.string.ed_functional_decline)
     }
 
-    private var edScreeningOutcome = FormElement(
-        id = 705,
-        inputType = InputType.TEXT_VIEW,
-        title = context.getString(R.string.ed_screening_outcome),
-        required = false
-    )
+    private var edScreeningOutcome = createTextViewElement(705, context.getString(R.string.ed_screening_outcome))
 
-    private var edReferralRequired = FormElement(
-        id = 706,
-        inputType = InputType.TEXT_VIEW,
-        title = context.getString(R.string.ed_referral_required),
-        required = false
-    )
+    private var edReferralRequired = createTextViewElement(706, context.getString(R.string.ed_referral_required))
     private val edRecurrentEpisodeloss: FormElement by lazy {
         createEdCheckboxElement(707, R.string.ed_edRecurrentEpisodeloss)
     }
