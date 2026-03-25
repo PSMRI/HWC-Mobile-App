@@ -160,8 +160,8 @@ class PainAndSymptomAssessmentDataset(
         list.add(lifeLimitingIllnessKnown)
         list.add(caregiverSupportRequired)
 
-        // Section D: Pain & Symptom Assessment – if any Section C radio = Yes
-        if (shouldShowPainAssessment()) {
+        // Section D: Pain & Symptom Assessment – if any Section C field is affirmative OR migrated record has saved pain data
+        if (shouldShowPainAssessment() || hasSavedPainAssessment()) {
             list.addAll(getPainAssessmentFields())
         }
         // Section F
@@ -177,6 +177,7 @@ class PainAndSymptomAssessmentDataset(
 
         return when (formId) {
             persistentPainPresent.id,
+            distressingSymptoms.id,
             bedriddenOrSeverelyDependent.id,
             lifeLimitingIllnessKnown.id,
             caregiverSupportRequired.id -> {
@@ -283,20 +284,56 @@ class PainAndSymptomAssessmentDataset(
             bedriddenOrSeverelyDependent,
             lifeLimitingIllnessKnown,
             caregiverSupportRequired
-        ).any { it.value == optionYes }
+        ).any { it.value == optionYes } || !distressingSymptoms.value.isNullOrBlank()
+    }
+
+    /** Returns true when a migrated record has saved Section D values but NULL Section C triggers. */
+    private fun hasSavedPainAssessment(): Boolean {
+        return listOf(
+            painSeverity.value,
+            painDuration.value,
+            otherSymptomsSeverity.value,
+            immediateReliefProvided.value
+        ).any { !it.isNullOrBlank() }
     }
 
     // ---------------- Map Values ----------------
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as PainAndSymptomAssessment).let {
-            // Section C
-            it.persistentPainPresent = persistentPainPresent.value == optionYes
+            // Section C – preserve null for unanswered radios (unanswered ≠ "No")
+            it.persistentPainPresent = when (persistentPainPresent.value) {
+                optionYes -> true
+                optionNo -> false
+                else -> null
+            }
 
             it.distressingSymptoms = distressingSymptoms.value
 
-            it.bedriddenOrSeverelyDependent = bedriddenOrSeverelyDependent.value == optionYes
-            it.lifeLimitingIllnessKnown = lifeLimitingIllnessKnown.value == optionYes
-            it.caregiverSupportRequired = caregiverSupportRequired.value == optionYes
+            it.bedriddenOrSeverelyDependent = when (bedriddenOrSeverelyDependent.value) {
+                optionYes -> true
+                optionNo -> false
+                else -> null
+            }
+            it.lifeLimitingIllnessKnown = when (lifeLimitingIllnessKnown.value) {
+                optionYes -> true
+                optionNo -> false
+                else -> null
+            }
+            it.caregiverSupportRequired = when (caregiverSupportRequired.value) {
+                optionYes -> true
+                optionNo -> false
+                else -> null
+            }
+
+            // Derived Section C flags
+            it.painAssessmentEnabled = shouldShowPainAssessment() || hasSavedPainAssessment()
+            it.palliativeCareEligible = listOf(
+                it.persistentPainPresent,
+                it.bedriddenOrSeverelyDependent,
+                it.lifeLimitingIllnessKnown,
+                it.caregiverSupportRequired
+            ).any { flag -> flag == true } || !distressingSymptoms.value.isNullOrBlank()
+
             it.painSeverity = painSeverity.value
             it.painDuration = painDuration.value
 
