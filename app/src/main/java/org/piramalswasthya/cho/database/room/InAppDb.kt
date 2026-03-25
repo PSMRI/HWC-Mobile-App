@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 138, exportSchema = false
+    version = 139, exportSchema = false
 )
 
 
@@ -1067,6 +1067,12 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_remarks TEXT")
             }
         }
+        val MIGRATION_138_139 = object : Migration(138, 139) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE BENFLOW ADD COLUMN reproductiveStatusId INTEGER")
+                database.execSQL("ALTER TABLE BENFLOW ADD COLUMN reproductiveStatus TEXT")
+            }
+        }
 
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
@@ -1130,7 +1136,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_134_135,
                             MIGRATION_135_136,
                             MIGRATION_136_137,
-                            MIGRATION_137_138
+                            MIGRATION_137_138,
+                            MIGRATION_138_139
 
                         )
                         .fallbackToDestructiveMigration()
