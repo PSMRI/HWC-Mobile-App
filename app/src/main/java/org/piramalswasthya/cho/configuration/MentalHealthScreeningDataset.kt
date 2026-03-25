@@ -841,6 +841,21 @@ class MentalHealthScreeningDataset(
             )
         }
 
+        if (edScreeningOutcome.value == "Suspected") {
+            list.add(edPsychosocialIntervention)
+            if (edPsychosocialIntervention.value == "Yes") {
+                list.add(edInterventionType)
+                edSessionDate.max = System.currentTimeMillis()
+                list.add(edSessionDate)
+                list.add(edDurationMinutes)
+                list.add(edRemarks)
+            } else {
+                clearEdPsychosocialDependants()
+            }
+        } else {
+            clearEdPsychosocialValues()
+        }
+
         // Section F
         addReferralFollowUpElements(list)
 
@@ -1050,7 +1065,7 @@ class MentalHealthScreeningDataset(
                 list.add(edDurationMinutes)
                 list.add(edRemarks)
             } else {
-                clearEdPsychosocialValues()
+                clearEdPsychosocialDependants()
             }
         } else {
             clearEdPsychosocialValues()
@@ -1288,6 +1303,10 @@ class MentalHealthScreeningDataset(
     }
     private fun clearEdPsychosocialValues() {
         edPsychosocialIntervention.value = null
+        clearEdPsychosocialDependants()
+    }
+
+    private fun clearEdPsychosocialDependants() {
         edInterventionType.value = null
         edSessionDate.value = null
         edDurationMinutes.value = null
