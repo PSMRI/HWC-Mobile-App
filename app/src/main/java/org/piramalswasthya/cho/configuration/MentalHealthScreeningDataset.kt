@@ -755,7 +755,7 @@ class MentalHealthScreeningDataset(
 
     private val substanceElements = listOf(
         substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
-        substanceTobaccoOutcome, substanceSystemAction, substanceAlcoholHeader, substanceAlcoholUse
+        substanceTobaccoOutcome, substanceSystemAction, substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic, substanceAlcoholClassification, substanceAlcoholSystemAction
     )
 
     private val suicideElements = listOf(
@@ -819,13 +819,6 @@ class MentalHealthScreeningDataset(
                 list.add(idx + 2, substance_alcohol_loss)
                 list.add(idx + 3, substanceAlcoholImpact)
                 list.add(idx + 4, substanceAlcoholWithdrawal)
-                list.add(idx + 5, substanceAlcoholProblematic)
-                list.add(idx + 6, substanceAlcoholClassification)
-                list.add(idx + 7, substanceAlcoholSystemAction)
-                list.add(idx + 8, briefInterventionGiven)
-            } else {
-                clearAlcoholSubFields()
-                briefInterventionGiven.value = null
             }
         }
 
@@ -1006,7 +999,7 @@ class MentalHealthScreeningDataset(
         if (substanceUseConcerns.value == "Yes") {
             val substanceElementsWithFreshCopies = listOf(
                 substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
-                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(), substanceAlcoholHeader, substanceAlcoholUse
+                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(), substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic, substanceAlcoholClassification.copy(), substanceAlcoholSystemAction.copy()
             )
             list.addAll(substanceElementsWithFreshCopies)
             if (substanceCurrentTobaccoUse.value == "Yes") {
@@ -1020,13 +1013,8 @@ class MentalHealthScreeningDataset(
                 list.add(idx + 2, substance_alcohol_loss)
                 list.add(idx + 3, substanceAlcoholImpact)
                 list.add(idx + 4, substanceAlcoholWithdrawal)
-                list.add(idx + 5, substanceAlcoholProblematic)
-                list.add(idx + 6, substanceAlcoholClassification.copy())
-                list.add(idx + 7, substanceAlcoholSystemAction.copy())
-                list.add(idx + 8, briefInterventionGiven)
             } else {
                 clearAlcoholSubFields()
-                briefInterventionGiven.value = null
             }
         }
 
@@ -1151,7 +1139,7 @@ class MentalHealthScreeningDataset(
 
         substanceSystemAction.value = when (substanceTobaccoOutcome.value) {
             "Use identified"    -> "Brief counselling"
-            "No use identified" -> "Close screening"
+            "No use identified" -> "Referral"
             else                -> null
         }
     }
@@ -1195,7 +1183,7 @@ class MentalHealthScreeningDataset(
     private fun computeAlcoholSystemAction() {
         substanceAlcoholSystemAction.value = when (substanceAlcoholClassification.value) {
             "Problematic"     -> "Brief intervention"
-            "Non-problematic" -> "Close screening"
+            "Non-problematic" -> "Referral"
             else              -> null
         }
     }
