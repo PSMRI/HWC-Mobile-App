@@ -562,11 +562,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
         else if(subCat == DropdownConst.elderlyAndPalliative){
+             val elderlyAndPalliativeReasons = mutableListOf<String>()
+            if (ageCheckForElderly(benVisitInfo.patient.dob)) {
+                elderlyAndPalliativeReasons.add(DropdownConst.elderlyHealthAssessment)
+            }
+            elderlyAndPalliativeReasons.add(DropdownConst.persistentPain)
+            elderlyAndPalliativeReasons.add(DropdownConst.psychosocialCaregiverSupport)
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.elderlyHealthAssessment, DropdownConst.persistentPain, DropdownConst.psychosocialCaregiverSupport)
+                elderlyAndPalliativeReasons
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
