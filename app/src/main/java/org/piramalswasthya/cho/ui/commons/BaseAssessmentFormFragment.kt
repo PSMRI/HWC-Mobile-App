@@ -132,7 +132,7 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
                     contentLayout.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
                     Toast.makeText(requireContext(), getSaveSuccessMessage(), Toast.LENGTH_LONG).show()
-                    findNavController().navigateUp()
+                    onSaveSuccess()
                 }
 
                 BaseFormViewModel.State.SAVE_FAILED -> {
@@ -142,6 +142,11 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
                 }
             }
         }
+    }
+
+    /** Override in subclasses to customise post-save navigation. Default: pop back. */
+    protected open fun onSaveSuccess() {
+        findNavController().navigateUp()
     }
 
     private fun observeAlert() {
