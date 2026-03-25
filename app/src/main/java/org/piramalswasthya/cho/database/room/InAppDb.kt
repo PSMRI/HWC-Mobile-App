@@ -1069,8 +1069,8 @@ abstract class InAppDb : RoomDatabase() {
         }
         val MIGRATION_138_139 = object : Migration(138, 139) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE BENFLOW ADD COLUMN reproductiveStatusId INTEGER")
-                database.execSQL("ALTER TABLE BENFLOW ADD COLUMN reproductiveStatus TEXT")
+                safeAddColumn(database, "BENFLOW", "reproductiveStatusId", "INTEGER")
+                safeAddColumn(database, "BENFLOW", "reproductiveStatus", "TEXT")
             }
         }
 
