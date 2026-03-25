@@ -151,7 +151,7 @@ class MentalHealthScreeningDataset(
     }
 
     private var phq9TotalScore = createTextViewElement(210, context.getString(R.string.phq9_total_score))
-    
+
     private var phq9DepressionSeverity = createTextViewElement(211, "Depression Severity")
 
     private var phq9SystemAction = createTextViewElement(212, "System Action")
@@ -163,7 +163,7 @@ class MentalHealthScreeningDataset(
     private val substanceTobaccoHeader: FormElement by lazy {
         createHeadlineElement(312, R.string.substance_tobacco_title)
     }
-    
+
     private val substanceAlcoholHeader: FormElement by lazy {
         createHeadlineElement(313, R.string.substance_alcohol_title)
     }
@@ -466,26 +466,6 @@ class MentalHealthScreeningDataset(
     override val followUpRequired = createFollowUpRequired(804)
     override val followUpDate = createFollowUpDate(805)
 
-    // ── All PHQ-9 form elements ──────────────────────────────────────
-
-    private val phq9Elements = listOf(
-        phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
-        phq9FeelingTired, phq9Appetite, phq9FeelingBad, phq9Concentration,
-        phq9MovingSlowly, phq9SelfHarmThoughts, phq9TotalScore, phq9DepressionSeverity, phq9SystemAction
-    )
-
-    private val substanceElements = listOf(
-        substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
-        substanceTobaccoOutcome, substanceSystemAction, substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic, substanceAlcoholClassification, substanceAlcoholSystemAction
-    )
-
-    private val suicideElements = listOf(
-        suicideHeader, suicidePreviousAttempt, suicidePlan,
-        suicideHopelessness, suicideImmediateAssess, suicideRiskLevel
-    )
-
-
-
     // ── Setup Page ───────────────────────────────────────────────────
 
     suspend fun setUpPage(
@@ -501,73 +481,7 @@ class MentalHealthScreeningDataset(
 
         populateFromCache(cache)
 
-        val list = mutableListOf<FormElement>()
-
-        list.add(emotionalBehaviouralConcerns)
-        list.add(substanceUseConcerns)
-        list.add(selfHarmSuicideThoughts)
-        list.add(memoryLossConfusion)
-        list.add(seizuresFitsLoc)
-        list.add(isPostpartum)
-
-        if (shouldShowPhq9()) {
-            list.addAll(phq9Elements)
-        }
-
-        if (substanceUseConcerns.value == "Yes") {
-            list.addAll(substanceElements)
-            if (substanceCurrentTobaccoUse.value == "Yes") {
-                val idx = list.indexOf(substanceCurrentTobaccoUse)
-                list.add(idx + 1, substanceTobaccoType)
-                list.add(idx + 2, substanceTobaccoFrequency)
-            }
-            if (substanceAlcoholUse.value == "Yes") {
-                val idx = list.indexOf(substanceAlcoholUse)
-                list.add(idx + 1, substance_alcohol_frequency)
-                list.add(idx + 2, substance_alcohol_loss)
-                list.add(idx + 3, substanceAlcoholImpact)
-                list.add(idx + 4, substanceAlcoholWithdrawal)
-            }
-        }
-
-        if (selfHarmSuicideThoughts.value == "Yes") {
-            list.addAll(suicideElements)
-        }
-
-
-
-
-
-        // Add the new Epilepsy & Dementia Checklist
-        if (memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes") {
-            list.addAll(
-                listOf(
-                    edChecklistHeader, edRecurrentEpisodeloss, edRecurrentJerkyMovements, edProgressiveMemoryLoss,
-                    edConfusionDisorientation, edFunctionalDecline, edScreeningOutcome.copy(),
-                    edReferralRequired.copy()
-                )
-            )
-        }
-
-        if (edScreeningOutcome.value == "Suspected") {
-            list.add(edPsychosocialIntervention)
-            if (edPsychosocialIntervention.value == "Yes") {
-                list.add(edInterventionType)
-                edSessionDate.max = System.currentTimeMillis()
-                list.add(edSessionDate)
-                list.add(edDurationMinutes)
-                list.add(edRemarks)
-            } else {
-                clearEdPsychosocialDependants()
-            }
-        } else {
-            clearEdPsychosocialValues()
-        }
-
-        // Section F
-        addReferralFollowUpElements(list)
-
-        setUpPage(list)
+        setUpPage(buildFormElementList())
     }
 
     private fun shouldShowPhq9(): Boolean {
@@ -577,12 +491,22 @@ class MentalHealthScreeningDataset(
     }
 
 
-
-
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
+            emotionalBehaviouralConcerns.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
             substanceUseConcerns.id -> {
-                if (substanceUseConcerns.value != "Yes") clearSubstanceValues()
+                if (substanceUseConcerns.value != "Yes") {
+                    clearSubstanceValues()
+                }
+                rebuildConditionalSections()
+                formId
+            }
+
+            selfHarmSuicideThoughts.id -> {
                 rebuildConditionalSections()
                 formId
             }
@@ -605,18 +529,45 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
-            emotionalBehaviouralConcerns.id, selfHarmSuicideThoughts.id,
-            substanceTobaccoUse.id, substanceCurrentTobaccoUse.id,
+
+
+            substanceTobaccoUse.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
+            substanceCurrentTobaccoUse.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
             substanceAlcoholUse.id, substance_alcohol_loss.id,
             substanceAlcoholImpact.id, substanceAlcoholWithdrawal.id,
-            substanceAlcoholProblematic.id, substance_alcohol_frequency.id,
+            substanceAlcoholProblematic.id, substance_alcohol_frequency.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
             phq9LittleInterest.id, phq9FeelingDown.id, phq9SleepTrouble.id,
             phq9FeelingTired.id, phq9Appetite.id, phq9FeelingBad.id,
-            phq9Concentration.id, phq9MovingSlowly.id, phq9SelfHarmThoughts.id,
+            phq9Concentration.id, phq9MovingSlowly.id, phq9SelfHarmThoughts.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
             suicidePreviousAttempt.id, suicidePlan.id,
-            suicideCurrentThoughts.id, suicideHopelessness.id, suicideImmediateAssess.id,
+            suicideCurrentThoughts.id, suicideHopelessness.id,
+            suicideImmediateAssess.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
             edRecurrentEpisodeloss.id, edRecurrentJerkyMovements.id, edProgressiveMemoryLoss.id,
-            edConfusionDisorientation.id, edFunctionalDecline.id, edPsychosocialIntervention.id -> {
+            edConfusionDisorientation.id, edFunctionalDecline.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+            edPsychosocialIntervention.id -> {
                 rebuildConditionalSections()
                 formId
             }
@@ -638,10 +589,10 @@ class MentalHealthScreeningDataset(
     }
 
 
-
-    private suspend fun rebuildConditionalSections() {
+    private fun buildFormElementList(): MutableList<FormElement> {
         val list = mutableListOf<FormElement>()
 
+        // Initial screening questions
         list.add(emotionalBehaviouralConcerns)
         list.add(substanceUseConcerns)
         list.add(selfHarmSuicideThoughts)
@@ -649,29 +600,24 @@ class MentalHealthScreeningDataset(
         list.add(seizuresFitsLoc)
         list.add(isPostpartum)
 
-        updatePhq9Outcome()
-        updateTobaccoOutcome()
-        computeSuicideRiskLevel()
-        computeAlcoholClassification()
-        computeAlcoholSystemAction()
-        computeEdScreeningOutcome()
-
+        // PHQ-9 section
         if (shouldShowPhq9()) {
-            val phq9ElementsWithFreshCopies = listOf(
+            list.addAll(listOf(
                 phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
                 phq9FeelingTired, phq9Appetite, phq9FeelingBad, phq9Concentration,
                 phq9MovingSlowly, phq9SelfHarmThoughts,
                 phq9TotalScore.copy(), phq9DepressionSeverity.copy(), phq9SystemAction.copy()
-            )
-            list.addAll(phq9ElementsWithFreshCopies)
+            ))
         }
 
+        // Substance use section
         if (substanceUseConcerns.value == "Yes") {
-            val substanceElementsWithFreshCopies = listOf(
+            list.addAll(listOf(
                 substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
-                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(), substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic, substanceAlcoholClassification.copy(), substanceAlcoholSystemAction.copy()
-            )
-            list.addAll(substanceElementsWithFreshCopies)
+                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(),
+                substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic,
+                substanceAlcoholClassification.copy(), substanceAlcoholSystemAction.copy()
+            ))
             if (substanceCurrentTobaccoUse.value == "Yes") {
                 val idx = list.indexOf(substanceCurrentTobaccoUse)
                 list.add(idx + 1, substanceTobaccoType)
@@ -688,29 +634,24 @@ class MentalHealthScreeningDataset(
             }
         }
 
+        // Suicide risk section
         if (selfHarmSuicideThoughts.value == "Yes") {
-            val suicideElementsWithFreshCopies = listOf(
+            list.addAll(listOf(
                 suicideHeader, suicidePreviousAttempt, suicidePlan,
-                suicideHopelessness, suicideImmediateAssess,
-                suicideRiskLevel.copy()
-            )
-            list.addAll(suicideElementsWithFreshCopies)
+                suicideHopelessness, suicideImmediateAssess, suicideRiskLevel.copy()
+            ))
         }
 
-
-
-
-
+        // Epilepsy & Dementia checklist
         if (memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes") {
-            list.addAll(
-                listOf(
-                    edChecklistHeader, edRecurrentEpisodeloss, edRecurrentJerkyMovements, edProgressiveMemoryLoss,
-                    edConfusionDisorientation, edFunctionalDecline, edScreeningOutcome.copy(),
-                    edReferralRequired.copy()
-                )
-            )
+            list.addAll(listOf(
+                edChecklistHeader, edRecurrentEpisodeloss, edRecurrentJerkyMovements,
+                edProgressiveMemoryLoss, edConfusionDisorientation, edFunctionalDecline,
+                edScreeningOutcome.copy(), edReferralRequired.copy()
+            ))
         }
 
+        // Psychosocial intervention (conditional on ED outcome)
         if (edScreeningOutcome.value == "Suspected") {
             list.add(edPsychosocialIntervention)
             if (edPsychosocialIntervention.value == "Yes") {
@@ -726,10 +667,22 @@ class MentalHealthScreeningDataset(
             clearEdPsychosocialValues()
         }
 
-        // Section F
+        // Section F: Referral & Follow-up
         addReferralFollowUpElements(list)
 
-        setUpPage(list)
+        return list
+    }
+
+
+    private suspend fun rebuildConditionalSections() {
+        updatePhq9Outcome()
+        updateTobaccoOutcome()
+        computeSuicideRiskLevel()
+        computeAlcoholClassification()
+        computeAlcoholSystemAction()
+        computeEdScreeningOutcome()
+
+        setUpPage(buildFormElementList())
     }
 
 
@@ -988,107 +941,106 @@ class MentalHealthScreeningDataset(
 
     }
 
-    private fun Boolean?.toYesNo(): String? = this?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-    private fun Boolean?.toYesNoString(): String? = this?.let { if (it) "Yes" else "No" }
-    private fun Boolean?.toYesNoOrNull(): String? = this?.let { if (it) yesNoOptions[0] else null }
-    private fun Int?.toPhq9Option(): String? = this?.let { phq9Options.getOrNull(it) }
-
     private fun clearDementiaValues() {
-        listOf(
-            dementiaProgressiveMemoryLoss, dementiaForgettingRecent,
-            dementiaDisorientation, dementiaDailyActivities, dementiaBehaviouralChanges
-        ).forEach { it.value = null }
+        dementiaProgressiveMemoryLoss.value = null
+        dementiaForgettingRecent.value = null
+        dementiaDisorientation.value = null
+        dementiaDailyActivities.value = null
+        dementiaBehaviouralChanges.value = null
     }
 
     private fun clearEpilepsyValues() {
-        listOf(
-            epilepsyRecurrentSeizures, epilepsyJerkyMovements,
-            epilepsyTongueBite, epilepsyConfusionAfter, epilepsyLocDuration
-        ).forEach { it.value = null }
+        epilepsyRecurrentSeizures.value = null
+        epilepsyJerkyMovements.value = null
+        epilepsyTongueBite.value = null
+        epilepsyConfusionAfter.value = null
+        epilepsyLocDuration.value = null
     }
 
     private fun clearEdChecklistValues() {
-        listOf(
-            edRecurrentEpisodeloss, edRecurrentJerkyMovements,
-            edProgressiveMemoryLoss, edConfusionDisorientation,
-            edFunctionalDecline, edScreeningOutcome, edReferralRequired
-        ).forEach { it.value = null }
+        edRecurrentEpisodeloss.value = null
+        edRecurrentJerkyMovements.value = null
+        edProgressiveMemoryLoss.value = null
+        edConfusionDisorientation.value = null
+        edFunctionalDecline.value = null
+        edScreeningOutcome.value = null
+        edReferralRequired.value = null
     }
+
 
     // ── Populate from Cache ──────────────────────────────────────────
 
     private fun populateFromCache(cache: MentalHealthScreeningCache) {
         // Initial screening questions
-        emotionalBehaviouralConcerns.value = cache.emotionalBehaviouralConcerns.toYesNo()
-        substanceUseConcerns.value = cache.substanceUseConcerns.toYesNo()
-        selfHarmSuicideThoughts.value = cache.selfHarmSuicideThoughts.toYesNo()
-        memoryLossConfusion.value = cache.memoryLossConfusion.toYesNo()
-        seizuresFitsLoc.value = cache.seizuresFitsLoc.toYesNo()
-        isPostpartum.value = cache.isPostpartum.toYesNo()
+        emotionalBehaviouralConcerns.value = boolToYesNo(cache.emotionalBehaviouralConcerns)
+        substanceUseConcerns.value = boolToYesNo(cache.substanceUseConcerns)
+        selfHarmSuicideThoughts.value = boolToYesNo(cache.selfHarmSuicideThoughts)
+        memoryLossConfusion.value = boolToYesNo(cache.memoryLossConfusion)
+        seizuresFitsLoc.value = boolToYesNo(cache.seizuresFitsLoc)
+        isPostpartum.value = boolToYesNo(cache.isPostpartum)
 
         // PHQ-9
-        phq9LittleInterest.value = cache.phq9LittleInterest.toPhq9Option()
-        phq9FeelingDown.value = cache.phq9FeelingDown.toPhq9Option()
-        phq9SleepTrouble.value = cache.phq9SleepTrouble.toPhq9Option()
-        phq9FeelingTired.value = cache.phq9FeelingTired.toPhq9Option()
-        phq9Appetite.value = cache.phq9Appetite.toPhq9Option()
-        phq9FeelingBad.value = cache.phq9FeelingBad.toPhq9Option()
-        phq9Concentration.value = cache.phq9Concentration.toPhq9Option()
-        phq9MovingSlowly.value = cache.phq9MovingSlowly.toPhq9Option()
-        phq9SelfHarmThoughts.value = cache.phq9SelfHarmThoughts.toPhq9Option()
+        phq9LittleInterest.value = cache.phq9LittleInterest?.let { phq9Options.getOrNull(it) }
+        phq9FeelingDown.value = cache.phq9FeelingDown?.let { phq9Options.getOrNull(it) }
+        phq9SleepTrouble.value = cache.phq9SleepTrouble?.let { phq9Options.getOrNull(it) }
+        phq9FeelingTired.value = cache.phq9FeelingTired?.let { phq9Options.getOrNull(it) }
+        phq9Appetite.value = cache.phq9Appetite?.let { phq9Options.getOrNull(it) }
+        phq9FeelingBad.value = cache.phq9FeelingBad?.let { phq9Options.getOrNull(it) }
+        phq9Concentration.value = cache.phq9Concentration?.let { phq9Options.getOrNull(it) }
+        phq9MovingSlowly.value = cache.phq9MovingSlowly?.let { phq9Options.getOrNull(it) }
+        phq9SelfHarmThoughts.value = cache.phq9SelfHarmThoughts?.let { phq9Options.getOrNull(it) }
         phq9TotalScore.value = cache.phq9TotalScore?.toString()
         phq9DepressionSeverity.value = cache.phq9DepressionSeverity
         phq9SystemAction.value = cache.phq9SystemAction
 
         // Substance Use
-        substanceCurrentTobaccoUse.value = cache.substanceCurrentTobaccoUse.toYesNoString()
+        substanceCurrentTobaccoUse.value = boolToYesNo(cache.substanceCurrentTobaccoUse)
         substanceTobaccoType.value = cache.substanceTobaccoType
         substanceTobaccoFrequency.value = cache.substanceTobaccoFrequency
         substanceTobaccoOutcome.value = cache.substanceTobaccoOutcome
         substanceSystemAction.value = cache.substanceSystemAction
-        substanceAlcoholUse.value = cache.substanceAlcoholUse.toYesNoString()
-        substanceTobaccoUse.value = cache.substanceTobaccoUse.toYesNoString()
-        substance_alcohol_loss.value = cache.substance_alcohol_loss.toYesNoString()
-        substanceAlcoholImpact.value = cache.substanceAlcoholImpact.toYesNoString()
-        substanceAlcoholWithdrawal.value = cache.substanceAlcoholWithdrawal.toYesNoString()
-        substanceAlcoholProblematic.value = cache.substanceAlcoholProblematic.toYesNoString()
+        substanceAlcoholUse.value = boolToYesNo(cache.substanceAlcoholUse)
+        substanceTobaccoUse.value = boolToYesNo(cache.substanceTobaccoUse)
+        substance_alcohol_loss.value = boolToYesNo(cache.substance_alcohol_loss)
+        substanceAlcoholImpact.value = boolToYesNo(cache.substanceAlcoholImpact)
+        substanceAlcoholWithdrawal.value = boolToYesNo(cache.substanceAlcoholWithdrawal)
+        substanceAlcoholProblematic.value = boolToYesNo(cache.substanceAlcoholProblematic)
         substanceAlcoholClassification.value = cache.substanceAlcoholClassification
         substanceAlcoholSystemAction.value = cache.substanceAlcoholSystemAction
         substanceOtherSpecify.value = cache.substanceOtherSpecify
         substance_alcohol_frequency.value = cache.substance_alcohol_frequency
 
         // Suicide Risk
-        suicideCurrentThoughts.value = cache.suicideCurrentThoughts.toYesNo()
-        suicidePlan.value = cache.suicidePlan.toYesNo()
-        suicidePreviousAttempt.value = cache.suicidePreviousAttempt.toYesNo()
-        suicideHopelessness.value = cache.suicideHopelessness.toYesNo()
-        suicideImmediateAssess.value = cache.suicideImmediateAssess.toYesNo()
+        suicideCurrentThoughts.value = boolToYesNo(cache.suicideCurrentThoughts)
+        suicidePlan.value = boolToYesNo(cache.suicidePlan)
+        suicidePreviousAttempt.value = boolToYesNo(cache.suicidePreviousAttempt)
+        suicideHopelessness.value = boolToYesNo(cache.suicideHopelessness)
+        suicideImmediateAssess.value = boolToYesNo(cache.suicideImmediateAssess)
         suicideRiskLevel.value = cache.suicideRiskLevel
 
         // Dementia
-        dementiaProgressiveMemoryLoss.value = cache.dementiaProgressiveMemoryLoss.toYesNo()
-        dementiaForgettingRecent.value = cache.dementiaForgettingRecent.toYesNo()
-        dementiaDisorientation.value = cache.dementiaDisorientation.toYesNo()
-        dementiaDailyActivities.value = cache.dementiaDailyActivities.toYesNo()
-        dementiaBehaviouralChanges.value = cache.dementiaBehaviouralChanges.toYesNo()
+        dementiaProgressiveMemoryLoss.value = boolToYesNo(cache.dementiaProgressiveMemoryLoss)
+        dementiaForgettingRecent.value = boolToYesNo(cache.dementiaForgettingRecent)
+        dementiaDisorientation.value = boolToYesNo(cache.dementiaDisorientation)
+        dementiaDailyActivities.value = boolToYesNo(cache.dementiaDailyActivities)
+        dementiaBehaviouralChanges.value = boolToYesNo(cache.dementiaBehaviouralChanges)
 
         // Epilepsy
-        epilepsyRecurrentSeizures.value = cache.epilepsyRecurrentSeizures.toYesNo()
-        epilepsyJerkyMovements.value = cache.epilepsyJerkyMovements.toYesNo()
-        epilepsyTongueBite.value = cache.epilepsyTongueBite.toYesNo()
-        epilepsyConfusionAfter.value = cache.epilepsyConfusionAfter.toYesNo()
+        epilepsyRecurrentSeizures.value = boolToYesNo(cache.epilepsyRecurrentSeizures)
+        epilepsyJerkyMovements.value = boolToYesNo(cache.epilepsyJerkyMovements)
+        epilepsyTongueBite.value = boolToYesNo(cache.epilepsyTongueBite)
+        epilepsyConfusionAfter.value = boolToYesNo(cache.epilepsyConfusionAfter)
         epilepsyLocDuration.value = cache.epilepsyLocDuration
 
         // Epilepsy & Dementia Checklist
-        edRecurrentEpisodeloss.value = cache.edRecurrentEpisodeloss.toYesNoOrNull()
-        edRecurrentJerkyMovements.value = cache.edRecurrentJerkyMovements.toYesNoOrNull()
-        edProgressiveMemoryLoss.value = cache.edProgressiveMemoryLoss.toYesNoOrNull()
-        edConfusionDisorientation.value = cache.edConfusionDisorientation.toYesNoOrNull()
-        edFunctionalDecline.value = cache.edFunctionalDecline.toYesNoOrNull()
+        edRecurrentEpisodeloss.value = boolToChecked(cache.edRecurrentEpisodeloss)
+        edRecurrentJerkyMovements.value = boolToChecked(cache.edRecurrentJerkyMovements)
+        edProgressiveMemoryLoss.value = boolToChecked(cache.edProgressiveMemoryLoss)
+        edConfusionDisorientation.value = boolToChecked(cache.edConfusionDisorientation)
+        edFunctionalDecline.value = boolToChecked(cache.edFunctionalDecline)
         edScreeningOutcome.value = cache.edScreeningOutcome
         edReferralRequired.value = cache.edReferralRequired
-        edPsychosocialIntervention.value =
-            cache.edPsychosocialInterventionProvided?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        edPsychosocialIntervention.value = boolToYesNo(cache.edPsychosocialInterventionProvided)
         edInterventionType.value = cache.edInterventionType
         edSessionDate.value = cache.edSessionDate
         edDurationMinutes.value = cache.edDurationMinutes?.toString()
@@ -1116,6 +1068,12 @@ class MentalHealthScreeningDataset(
             value == yesNoOptions.getOrNull(1) -> false
             else -> null
         }
+
+    private fun boolToYesNo(value: Boolean?): String? =
+        value?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+
+    private fun boolToChecked(value: Boolean?): String? =
+        value?.let { if (it) yesNoOptions[0] else null }
 
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
