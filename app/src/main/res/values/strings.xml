@@ -1182,8 +1182,7 @@
     <!-- Ear Diagnosis Form -->
     <string name="title_ear_diagnosis">Ear Diagnosis Form</string>
     <string name="pain_symptom_assessment_saved">Pain and Symptom Assessment Saved</string>
-    <string name="title_pain_symptom_assessment">Pain and Symptom Assessment</string>
-    <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
+    <string name="title_pain_symptom_assessment">Palliative Care Identification Form</string>    <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
     <string name="title_nose_diagnosis">Nose Diagnosis Form</string>
     <string name="title_throat_diagnosis">Throat Diagnosis Form</string>
     <string name="throat_diagnosis_saved">Throat Diagnosis Saved</string>
@@ -1544,6 +1543,19 @@
     <string name="phq9_alert_referral_mo_phc">Refer to MO/PHC (PHQ-9 score ≥ 10)</string>
     <string name="phq9_alert_urgent">Urgent referral (PHQ-9 score ≥ 15)</string>
     <string name="phq9_alert_emergency">Emergency referral (PHQ-9 score ≥ 20)</string>
+    <!-- Section C: Palliative Care Identification -->
+    <string name="palliative_care_identification_headline">Palliative Care Identification</string>
+    <string name="pain_symptom_assessment_palliative">Pain and Symptom Assessment (Palliative)</string>
+    <string name="persistent_pain_present">Persistent pain present</string>
+    <string name="distressing_symptoms_present">Distressing symptoms present</string>
+    <string name="bedridden_or_severely_dependent">Bedridden or severely dependent</string>
+    <string name="life_limiting_illness_known">Life-limiting or chronic illness known</string>
+    <string name="caregiver_support_required">Caregiver support required</string>
+    <string name="breathlessness">Breathlessness</string>
+    <string name="nausea">Nausea</string>
+    <string name="fatigue">Fatigue</string>
+    <string name="weakness">Weakness</string>
+    <string name="other">Other</string>
     <string name="title_elderly_health_assessment">Elderly Health Assessment</string>
     <string name="epilepsy_dementia_checklist_title">Epilepsy &amp; Dementia Screening Checklist</string>
     <string name="ed_edRecurrentEpisodeloss">Episodes of loss of consciousness</string>
