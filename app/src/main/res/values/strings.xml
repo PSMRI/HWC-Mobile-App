@@ -216,6 +216,18 @@
     <string name="other_symptoms_present">Other symptoms present</string>
     <string name="other_symptoms_severity">Other symptoms severity</string>
     <string name="immediate_relief_provided">Immediate relief provided</string>
+    <string name="palliative_care_identification_headline">Palliative Care Identification</string>
+    <string name="pain_symptom_assessment_palliative">Pain and Symptom Assessment (Palliative)</string>
+    <string name="persistent_pain_present">Persistent pain present</string>
+    <string name="distressing_symptoms_present">Distressing symptoms present</string>
+    <string name="bedridden_or_severely_dependent">Bedridden or severely dependent</string>
+    <string name="life_limiting_illness_known">Life-limiting illness known</string>
+    <string name="caregiver_support_required">Caregiver support required</string>
+    <string name="breathlessness">Breathlessness</string>
+    <string name="nausea">Nausea</string>
+    <string name="fatigue">Fatigue</string>
+    <string name="weakness">Weakness</string>
+    <string name="other">Other</string>
     <string name="mild">Mild</string>
     <string name="moderate">Moderate</string>
     <string name="severe">Severe</string>
@@ -1182,7 +1194,7 @@
     <!-- Ear Diagnosis Form -->
     <string name="title_ear_diagnosis">Ear Diagnosis Form</string>
     <string name="pain_symptom_assessment_saved">Pain and Symptom Assessment Saved</string>
-    <string name="title_pain_symptom_assessment">Pain and Symptom Assessment</string>
+    <string name="title_pain_symptom_assessment">Palliative Care Identification Form</string>
     <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
     <string name="title_nose_diagnosis">Nose Diagnosis Form</string>
     <string name="title_throat_diagnosis">Throat Diagnosis Form</string>

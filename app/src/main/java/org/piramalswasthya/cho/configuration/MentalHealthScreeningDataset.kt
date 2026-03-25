@@ -582,8 +582,7 @@ class MentalHealthScreeningDataset(
 
     private fun shouldAutoSuggestReferral(): Boolean {
         return dementiaDailyActivities.value == yesNoOptions[0] ||
-                substanceAlcoholUse.value == yesNoOptions[0] ||
-                briefInterventionGiven.value == yesNoOptions[0]
+                substanceAlcoholUse.value == yesNoOptions[0]
     }
 
 
@@ -709,7 +708,7 @@ class MentalHealthScreeningDataset(
         list.add(seizuresFitsLoc)
         list.add(isPostpartum)
         list.add(mhReferralRequired)
-        if (shouldAutoSuggestReferral()) {
+        if (mhReferralRequired.value == null && shouldAutoSuggestReferral()) {
             mhReferralRequired.value = yesNoOptions[0]
         }
         if (mhReferralRequired.value == yesNoOptions[0]) {
@@ -1110,8 +1109,11 @@ class MentalHealthScreeningDataset(
             cache.referralRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhReferralLevel.value = cache.referralLevel
         mhReasonForReferral.value = cache.reasonForReferral
+        
         if (cache.referralRequired == true) {
-            mhReferralDate.value = todayDateString()
+            mhReferralDate.value = cache.referralDate ?: todayDateString()
+        } else {
+            mhReferralDate.value = null
         }
 
         // Follow-up & Closure
@@ -1369,9 +1371,11 @@ class MentalHealthScreeningDataset(
             if (it.referralRequired == true) {
                 it.referralLevel = mhReferralLevel.value
                 it.reasonForReferral = mhReasonForReferral.value
+                it.referralDate = mhReferralDate.value
             } else {
                 it.referralLevel = null
                 it.reasonForReferral = null
+                it.referralDate = null
             }
 
             it.followUpRequired = yesNoToBoolean(mhFollowUpRequired.value)

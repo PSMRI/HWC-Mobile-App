@@ -1067,11 +1067,12 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_remarks TEXT")
             }
         }
-        val MIGRATION_138_139 = object : Migration(136, 137) {
+        val MIGRATION_138_139 = object : Migration(138, 139) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "improvement_noted", "TEXT")
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_escalation_required", "INTEGER")
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "case_closure_reason", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_date", "TEXT")
             }
         }
 
