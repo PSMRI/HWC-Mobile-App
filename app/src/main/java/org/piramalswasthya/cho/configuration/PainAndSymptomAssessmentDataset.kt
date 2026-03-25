@@ -73,6 +73,69 @@ class PainAndSymptomAssessmentDataset(
         entries = arrayOf(optionYes, optionNo),
         required = true
     )
+    private val sectionCHeadline = FormElement(
+        id = 11,
+        inputType = InputType.HEADLINE,
+        title = context.getString(R.string.palliative_care_identification_headline),
+        required = false
+    )
+    private val sectionDHeadline = FormElement(
+        id = 18,
+        inputType = InputType.HEADLINE,
+        title = context.getString(R.string.pain_symptom_assessment_palliative),
+        required = false
+    )
+
+    private val persistentPainPresent = FormElement(
+        id = 12,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.persistent_pain_present),
+        entries = arrayOf(optionYes, optionNo),
+        required = true,
+        hasDependants = true
+    )
+
+
+    private val distressingSymptoms = FormElement(
+        id = 14,
+        inputType = InputType.CHECKBOXES,
+        title = context.getString(R.string.distressing_symptoms_present),
+        entries = arrayOf(
+            context.getString(R.string.breathlessness),
+            context.getString(R.string.nausea),
+            context.getString(R.string.fatigue),
+            context.getString(R.string.weakness),
+            context.getString(R.string.other)
+        ),
+        required = false
+    )
+
+    private val bedriddenOrSeverelyDependent = FormElement(
+        id = 15,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.bedridden_or_severely_dependent),
+        entries = arrayOf(optionYes, optionNo),
+        required = true,
+        hasDependants = true
+    )
+
+    private val lifeLimitingIllnessKnown = FormElement(
+        id = 16,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.life_limiting_illness_known),
+        entries = arrayOf(optionYes, optionNo),
+        required = true,
+        hasDependants = true
+    )
+
+    private val caregiverSupportRequired = FormElement(
+        id = 17,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.caregiver_support_required),
+        entries = arrayOf(optionYes, optionNo),
+        required = true,
+        hasDependants = true
+    )
 
     // ---------------- Section F: Referral & Follow-up ----------------
 
@@ -92,19 +155,18 @@ class PainAndSymptomAssessmentDataset(
         populateFromCache(cache)
 
         val list = mutableListOf<FormElement>()
-        list.add(painSeverity)
-        list.add(painDuration)
-//        list.add(symptomsPresent)
-//
-//        if (symptomsPresent.value == "Yes") {
-//            otherSymptomsSeverity.required = true
-//            list.add(otherSymptomsSeverity)
-//        }
+        // Section C: Palliative Care Identification
+        list.add(sectionCHeadline)
+        list.add(persistentPainPresent)
+        list.add(distressingSymptoms)
+        list.add(bedriddenOrSeverelyDependent)
+        list.add(lifeLimitingIllnessKnown)
+        list.add(caregiverSupportRequired)
 
-        // Directly show otherSymptomsSeverity
-        list.add(otherSymptomsSeverity)
-
-        list.add(immediateReliefProvided)
+        // Section D: Pain & Symptom Assessment – if any Section C radio = Yes
+        if (shouldShowPainAssessment()) {
+            list.addAll(getPainAssessmentFields())
+        }
 
         // Section F
         addReferralFollowUpElements(list)
@@ -118,26 +180,32 @@ class PainAndSymptomAssessmentDataset(
         if (referralFollowUpResult != -1) return referralFollowUpResult
 
         return when (formId) {
+            persistentPainPresent.id,
+            bedriddenOrSeverelyDependent.id,
+            lifeLimitingIllnessKnown.id,
+            caregiverSupportRequired.id -> {
+                val isShown = getFormList().any { it.id == sectionDHeadline.id }
+                val shouldShow = shouldShowPainAssessment()
 
-//            symptomsPresent.id -> {
-//                if (index == 0) { // Yes
-//                    otherSymptomsSeverity.required = true
-//                    triggerDependants(
-//                        source = symptomsPresent,
-//                        addItems = listOf(otherSymptomsSeverity),
-//                        removeItems = emptyList()
-//                    )
-//                } else { // No
-//                    otherSymptomsSeverity.value = null
-//                    otherSymptomsSeverity.required = false
-//                    triggerDependants(
-//                        source = symptomsPresent,
-//                        addItems = emptyList(),
-//                        removeItems = listOf(otherSymptomsSeverity)
-//                    )
-//                }
-//                symptomsPresent.id
-//            }
+                if (shouldShow && !isShown) {
+                    triggerDependants(
+                        source = caregiverSupportRequired,
+                        addItems = getPainAssessmentFields(),
+                        removeItems = emptyList()
+                    )
+                } else if (!shouldShow && isShown) {
+                    painSeverity.value = null
+                    painDuration.value = null
+                    otherSymptomsSeverity.value = null
+                    immediateReliefProvided.value = null
+                    triggerDependants(
+                        source = caregiverSupportRequired,
+                        addItems = emptyList(),
+                        removeItems = getPainAssessmentFields()
+                    )
+                }
+                formId
+            }
 
             painSeverity.id -> {
                 if (painSeverity.value == optionSevere) {
@@ -170,13 +238,31 @@ class PainAndSymptomAssessmentDataset(
     }
 
     private fun populateFromCache(cache: PainAndSymptomAssessment) {
+        // Section C
+        persistentPainPresent.value = when (cache.persistentPainPresent) {
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
+        distressingSymptoms.value = cache.distressingSymptoms
+        bedriddenOrSeverelyDependent.value = when (cache.bedriddenOrSeverelyDependent) {
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
+        lifeLimitingIllnessKnown.value = when (cache.lifeLimitingIllnessKnown) {
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
+        caregiverSupportRequired.value = when (cache.caregiverSupportRequired) {
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
         painSeverity.value = cache.painSeverity
         painDuration.value = cache.painDuration
-//        symptomsPresent.value = when (cache.symptomsPresent) {
-//            true -> "Yes"
-//            false -> "No"
-//            else -> null
-//        }
+
         otherSymptomsSeverity.value = cache.otherSymptomsSeverity
         immediateReliefProvided.value = when (cache.immediateReliefProvided) {
             true -> optionYes
@@ -188,18 +274,35 @@ class PainAndSymptomAssessmentDataset(
         populateReferralFollowUpFromCache(cache)
     }
 
+    private fun getPainAssessmentFields(): List<FormElement> {
+        return listOf(sectionDHeadline, painSeverity, painDuration, otherSymptomsSeverity, immediateReliefProvided)
+    }
+
+    private fun shouldShowPainAssessment(): Boolean {
+        return listOf(
+            persistentPainPresent,
+            bedriddenOrSeverelyDependent,
+            lifeLimitingIllnessKnown,
+            caregiverSupportRequired
+        ).any { it.value == optionYes }
+    }
+
     // ---------------- Map Values ----------------
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as PainAndSymptomAssessment).let {
+            // Section C
+            it.persistentPainPresent = persistentPainPresent.value == optionYes
+
+            it.distressingSymptoms = distressingSymptoms.value
+
+            it.bedriddenOrSeverelyDependent = bedriddenOrSeverelyDependent.value == optionYes
+            it.lifeLimitingIllnessKnown = lifeLimitingIllnessKnown.value == optionYes
+            it.caregiverSupportRequired = caregiverSupportRequired.value == optionYes
 
             it.painSeverity = painSeverity.value
             it.painDuration = painDuration.value
 
-//            it.symptomsPresent = when (symptomsPresent.value) {
-//                "Yes" -> true
-//                "No" -> false
-//                else -> null
-//            }
+
 
             it.otherSymptomsSeverity = otherSymptomsSeverity.value
 

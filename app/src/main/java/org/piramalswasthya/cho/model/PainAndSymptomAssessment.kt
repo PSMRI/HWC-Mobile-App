@@ -39,6 +39,29 @@ data class PainAndSymptomAssessment(
     @ColumnInfo(name = "immediate_relief_provided")
     var immediateReliefProvided: Boolean? = null,
 
+    // ---- Section C: Palliative Care Identification ----
+
+    @ColumnInfo(name = "persistent_pain_present")
+    var persistentPainPresent: Boolean? = null,
+
+    @ColumnInfo(name = "pain_assessment_enabled")
+    var painAssessmentEnabled: Boolean? = null,
+
+    @ColumnInfo(name = "distressing_symptoms_present")
+    var distressingSymptoms: String? = null,
+
+    @ColumnInfo(name = "bedridden_or_severely_dependent")
+    var bedriddenOrSeverelyDependent: Boolean? = null,
+
+    @ColumnInfo(name = "life_limiting_illness_known")
+    var lifeLimitingIllnessKnown: Boolean? = null,
+
+    @ColumnInfo(name = "caregiver_support_required")
+    var caregiverSupportRequired: Boolean? = null,
+
+    @ColumnInfo(name = "palliative_care_eligible")
+    var palliativeCareEligible: Boolean? = null,
+
     // ---------------- Referral & Follow-up (Section F) ----------------
 
     @ColumnInfo(name = "referral_required")

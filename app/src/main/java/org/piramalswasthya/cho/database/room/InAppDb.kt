@@ -265,7 +265,7 @@ import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
         ThroatDiagnosisAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 136, exportSchema = false
+    version = 137, exportSchema = false
 )
 
 
@@ -985,6 +985,17 @@ abstract class InAppDb : RoomDatabase() {
                 // Column already exists — safe to ignore
             }
         }
+        val MIGRATION_136_137 = object : Migration(136, 137) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN persistent_pain_present INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN pain_assessment_enabled INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN distressing_symptoms_present TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN bedridden_or_severely_dependent INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN life_limiting_illness_known INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN caregiver_support_required INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN palliative_care_eligible INTEGER")
+            }
+        }
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -1028,7 +1039,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_132_133,
                             MIGRATION_133_134,
                             MIGRATION_134_135,
-                            MIGRATION_135_136
+                            MIGRATION_135_136,
+                            MIGRATION_136_137
 
                         )
                         .fallbackToDestructiveMigration()
