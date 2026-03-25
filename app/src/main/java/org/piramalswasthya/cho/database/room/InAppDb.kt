@@ -265,7 +265,7 @@ import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
         ThroatDiagnosisAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 136, exportSchema = false
+    version = 137, exportSchema = false
 )
 
 
@@ -968,6 +968,14 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_136_137 = object : Migration(136, 137) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "improvement_noted", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_escalation_required", "INTEGER")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "case_closure_reason", "TEXT")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1028,7 +1036,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_132_133,
                             MIGRATION_133_134,
                             MIGRATION_134_135,
-                            MIGRATION_135_136
+                            MIGRATION_135_136,
+                            MIGRATION_136_137
 
                         )
                         .fallbackToDestructiveMigration()

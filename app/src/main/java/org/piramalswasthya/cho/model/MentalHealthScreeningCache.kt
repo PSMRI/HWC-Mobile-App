@@ -184,6 +184,15 @@ data class MentalHealthScreeningCache(
     var followUpRequired: Boolean? = null,
 
     @ColumnInfo(name = "follow_up_date")
-    var followUpDate: String? = null
+    var followUpDate: String? = null,
+
+    @ColumnInfo(name = "improvement_noted")
+    var improvementNoted: String? = null,
+
+    @ColumnInfo(name = "referral_escalation_required")
+    var referralEscalationRequired: Boolean? = null,
+
+    @ColumnInfo(name = "case_closure_reason")
+    var caseClosureReason: String? = null
 
 ) : FormDataModel

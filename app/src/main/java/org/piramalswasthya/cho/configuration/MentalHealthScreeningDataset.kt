@@ -149,8 +149,65 @@ class MentalHealthScreeningDataset(
         required = false
     )
 
+    // ── Follow-up & Closure fields ───────────────────────────────────
+    private val mhFollowUpRequired: FormElement by lazy {
+        FormElement(
+            id = 111,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_follow_up_required_title),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
 
+    private val mhFollowUpDate: FormElement by lazy {
+        FormElement(
+            id = 112,
+            inputType = InputType.DATE_PICKER,
+            title = context.getString(R.string.mh_follow_up_date_title),
+            required = true
+        )
+    }
 
+    private val mhImprovementNoted: FormElement by lazy {
+        FormElement(
+            id = 113,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_improvement_noted_title),
+            entries = context.resources.getStringArray(R.array.mh_improvement_noted_options),
+            required = true
+        )
+    }
+
+    private val mhRepeatPhq9Header: FormElement by lazy {
+        FormElement(
+            id = 114,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.mh_repeat_phq9_title),
+            required = false
+        )
+    }
+
+    private val mhReferralEscalation: FormElement by lazy {
+        FormElement(
+            id = 115,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_referral_escalation_title),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
+
+    private val mhCaseClosureReason: FormElement by lazy {
+        FormElement(
+            id = 116,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.mh_case_closure_reason_title),
+            entries = context.resources.getStringArray(R.array.mh_case_closure_reason_options),
+            required = true
+        )
+    }
     private val phq9Header: FormElement by lazy {
         FormElement(
             id = 200,
@@ -663,6 +720,20 @@ class MentalHealthScreeningDataset(
             list.add(mhReferralDate)
         }
 
+        // Follow-up & Closure
+        list.add(mhFollowUpRequired)
+        if (mhFollowUpRequired.value == yesNoOptions[0]) {
+            mhFollowUpDate.min = System.currentTimeMillis()
+            mhFollowUpDate.max = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(365)
+            list.add(mhFollowUpDate)
+        }
+        list.add(mhImprovementNoted)
+        if (shouldShowPhq9()) {
+            list.add(mhRepeatPhq9Header)
+        }
+        list.add(mhReferralEscalation)
+        list.add(mhCaseClosureReason)
+
         if (shouldShowPhq9()) {
             list.addAll(phq9Elements)
         }
@@ -774,6 +845,14 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
+            mhFollowUpRequired.id -> {
+                if (mhFollowUpRequired.value != yesNoOptions[0]) {
+                    mhFollowUpDate.value = null
+                }
+                rebuildConditionalSections()
+                formId
+            }
+
             substanceOtherUse.id -> {
                 if (substanceOtherUse.value != "Yes") {
                     substanceOtherSpecify.value = null
@@ -831,6 +910,20 @@ class MentalHealthScreeningDataset(
             mhReferralDate.value = todayDateString()
             list.add(mhReferralDate.copy())
         }
+
+        // Follow-up & Closure
+        list.add(mhFollowUpRequired)
+        if (mhFollowUpRequired.value == yesNoOptions[0]) {
+            mhFollowUpDate.min = System.currentTimeMillis()
+            mhFollowUpDate.max = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(365)
+            list.add(mhFollowUpDate)
+        }
+        list.add(mhImprovementNoted)
+        if (shouldShowPhq9()) {
+            list.add(mhRepeatPhq9Header)
+        }
+        list.add(mhReferralEscalation)
+        list.add(mhCaseClosureReason)
 
         updatePhq9Outcome()
         updateTobaccoOutcome()
@@ -1098,6 +1191,15 @@ class MentalHealthScreeningDataset(
             mhReferralDate.value = todayDateString()
         }
 
+        // Follow-up & Closure
+        mhFollowUpRequired.value =
+            cache.followUpRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        mhFollowUpDate.value = cache.followUpDate
+        mhImprovementNoted.value = cache.improvementNoted
+        mhReferralEscalation.value =
+            cache.referralEscalationRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        mhCaseClosureReason.value = cache.caseClosureReason
+
         // PHQ-9
         phq9LittleInterest.value = cache.phq9LittleInterest?.let { phq9Options.getOrNull(it) }
         phq9FeelingDown.value = cache.phq9FeelingDown?.let { phq9Options.getOrNull(it) }
@@ -1317,6 +1419,17 @@ class MentalHealthScreeningDataset(
                 it.referralLevel = null
                 it.reasonForReferral = null
             }
+
+            // Follow-up & Closure
+            it.followUpRequired = yesNoToBoolean(mhFollowUpRequired.value)
+            if (it.followUpRequired == true) {
+                it.followUpDate = mhFollowUpDate.value
+            } else {
+                it.followUpDate = null
+            }
+            it.improvementNoted = mhImprovementNoted.value
+            it.referralEscalationRequired = yesNoToBoolean(mhReferralEscalation.value)
+            it.caseClosureReason = mhCaseClosureReason.value
         }
     }
 }
