@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 141, exportSchema = false
+    version = 142, exportSchema = false
 )
 
 
@@ -1104,6 +1104,18 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN remarks TEXT")
             }
         }
+        val MIGRATION_141_142 = object : Migration(141, 142) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add palliative care identification columns to PAIN_SYMPTOM_ASSESSMENT
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "persistent_pain_present", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "pain_assessment_enabled", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "distressing_symptoms_present", "TEXT")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "bedridden_or_severely_dependent", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "life_limiting_illness_known", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "caregiver_support_required", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "palliative_care_eligible", "INTEGER")
+            }
+        }
 
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
@@ -1170,7 +1182,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_137_138,
                             MIGRATION_138_139,
                             MIGRATION_139_140,
-                            MIGRATION_140_141
+                            MIGRATION_140_141,
+                            MIGRATION_141_142
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
