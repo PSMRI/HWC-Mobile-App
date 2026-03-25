@@ -97,7 +97,7 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
         id = id,
         inputType = InputType.DROPDOWN,
         title = context.getString(R.string.case_status_title),
-        entries = arrayOf("Under care", "Referred", "Stable", "Death"),
+        entries = context.resources.getStringArray(R.array.case_status_options),
         required = true,
         hasDependants = true
     )
@@ -228,6 +228,9 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
             cacheValue.reasonForReferral = null
             cacheValue.followUpRequired = null
             cacheValue.followUpDate = null
+            cacheValue.caseStatus = null
+            cacheValue.dateOfDeath = null
+            cacheValue.remarks = null
         }
     }
 }
