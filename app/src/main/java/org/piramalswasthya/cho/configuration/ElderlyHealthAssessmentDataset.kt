@@ -311,12 +311,7 @@ class ElderlyHealthAssessmentDataset(
             dementiaBehaviouralChanges = null,
             dementiaSelfCareDecline = null,
             dementiaScreeningOutcome = null,
-            dementiaReferralRequired = null,
-            referralRequired = null,
-            referralLevel = null,
-            reasonForReferral = null,
-            followUpRequired = null,
-            followUpDate = null
+            dementiaReferralRequired = null
         )
     }
 
