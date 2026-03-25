@@ -119,103 +119,51 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private val phq9LittleInterest: FormElement by lazy {
-        FormElement(
-            id = 201,
+    private fun createPhq9RadioElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
             inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_little_interest),
+            title = context.getString(titleResId),
             entries = phq9Options,
             required = true,
             hasDependants = true
         )
+    }
+
+    private val phq9LittleInterest: FormElement by lazy {
+        createPhq9RadioElement(201, R.string.phq9_little_interest)
     }
 
     private val phq9FeelingDown: FormElement by lazy {
-        FormElement(
-            id = 202,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_feeling_down),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(202, R.string.phq9_feeling_down)
     }
 
     private val phq9SleepTrouble: FormElement by lazy {
-        FormElement(
-            id = 203,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_sleep_trouble),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(203, R.string.phq9_sleep_trouble)
     }
 
     private val phq9FeelingTired: FormElement by lazy {
-        FormElement(
-            id = 204,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_feeling_tired),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(204, R.string.phq9_feeling_tired)
     }
 
     private val phq9Appetite: FormElement by lazy {
-        FormElement(
-            id = 205,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_appetite),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(205, R.string.phq9_appetite)
     }
 
     private val phq9FeelingBad: FormElement by lazy {
-        FormElement(
-            id = 206,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_feeling_bad),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(206, R.string.phq9_feeling_bad)
     }
 
     private val phq9Concentration: FormElement by lazy {
-        FormElement(
-            id = 207,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_concentration),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(207, R.string.phq9_concentration)
     }
 
     private val phq9MovingSlowly: FormElement by lazy {
-        FormElement(
-            id = 208,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_moving_slowly),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(208, R.string.phq9_moving_slowly)
     }
 
     private val phq9SelfHarmThoughts: FormElement by lazy {
-        FormElement(
-            id = 209,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_self_harm_thoughts),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(209, R.string.phq9_self_harm_thoughts)
     }
 
     private var phq9TotalScore = FormElement(
@@ -479,54 +427,34 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private val dementiaProgressiveMemoryLoss: FormElement by lazy {
-        FormElement(
-            id = 501,
+    private fun createEpilepsyDementiaRadioElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
             inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_progressive_memory_loss),
+            title = context.getString(titleResId),
             entries = yesNoOptions,
             required = true
         )
+    }
+
+    private val dementiaProgressiveMemoryLoss: FormElement by lazy {
+        createEpilepsyDementiaRadioElement(501, R.string.dementia_progressive_memory_loss)
     }
 
     private val dementiaForgettingRecent: FormElement by lazy {
-        FormElement(
-            id = 502,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_forgetting_recent),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(502, R.string.dementia_forgetting_recent)
     }
 
     private val dementiaDisorientation: FormElement by lazy {
-        FormElement(
-            id = 503,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_disorientation),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(503, R.string.dementia_disorientation)
     }
 
     private val dementiaDailyActivities: FormElement by lazy {
-        FormElement(
-            id = 504,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_daily_activities),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(504, R.string.dementia_daily_activities)
     }
 
     private val dementiaBehaviouralChanges: FormElement by lazy {
-        FormElement(
-            id = 505,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_behavioural_changes),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(505, R.string.dementia_behavioural_changes)
     }
 
 
@@ -541,43 +469,19 @@ class MentalHealthScreeningDataset(
     }
 
     private val epilepsyRecurrentSeizures: FormElement by lazy {
-        FormElement(
-            id = 601,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.epilepsy_recurrent_seizures),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(601, R.string.epilepsy_recurrent_seizures)
     }
 
     private val epilepsyJerkyMovements: FormElement by lazy {
-        FormElement(
-            id = 602,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.epilepsy_jerky_movements),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(602, R.string.epilepsy_jerky_movements)
     }
 
     private val epilepsyTongueBite: FormElement by lazy {
-        FormElement(
-            id = 603,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.epilepsy_tongue_bite),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(603, R.string.epilepsy_tongue_bite)
     }
 
     private val epilepsyConfusionAfter: FormElement by lazy {
-        FormElement(
-            id = 604,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.epilepsy_confusion_after),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(604, R.string.epilepsy_confusion_after)
     }
 
     private val epilepsyLocDuration: FormElement by lazy {
@@ -599,44 +503,30 @@ class MentalHealthScreeningDataset(
     }
 
 
-    private val edRecurrentJerkyMovements: FormElement by lazy {
-        FormElement(
-            id = 701,
+    private fun createEdCheckboxElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
             inputType = InputType.CHECKBOXES,
-            title = context.getString(R.string.ed_recurrent_jerky_movements),
+            title = context.getString(titleResId),
             entries = arrayOf(yesNoOptions[0]),
             required = false
         )
+    }
+
+    private val edRecurrentJerkyMovements: FormElement by lazy {
+        createEdCheckboxElement(701, R.string.ed_recurrent_jerky_movements)
     }
 
     private val edProgressiveMemoryLoss: FormElement by lazy {
-        FormElement(
-            id = 702,
-            inputType = InputType.CHECKBOXES,
-            title = context.getString(R.string.ed_progressive_memory_loss),
-            entries = arrayOf(yesNoOptions[0]),
-            required = false
-        )
+        createEdCheckboxElement(702, R.string.ed_progressive_memory_loss)
     }
 
     private val edConfusionDisorientation: FormElement by lazy {
-        FormElement(
-            id = 703,
-            inputType = InputType.CHECKBOXES,
-            title = context.getString(R.string.ed_confusion_disorientation),
-            entries = arrayOf(yesNoOptions[0]),
-            required = false
-        )
+        createEdCheckboxElement(703, R.string.ed_confusion_disorientation)
     }
 
     private val edFunctionalDecline: FormElement by lazy {
-        FormElement(
-            id = 704,
-            inputType = InputType.CHECKBOXES,
-            title = context.getString(R.string.ed_functional_decline),
-            entries = arrayOf(yesNoOptions[0]),
-            required = false
-        )
+        createEdCheckboxElement(704, R.string.ed_functional_decline)
     }
 
     private var edScreeningOutcome = FormElement(
@@ -653,13 +543,7 @@ class MentalHealthScreeningDataset(
         required = false
     )
     private val edRecurrentEpisodeloss: FormElement by lazy {
-        FormElement(
-            id = 707,
-            inputType = InputType.CHECKBOXES,
-            title = context.getString(R.string.ed_edRecurrentEpisodeloss),
-            entries = arrayOf(yesNoOptions[0]),
-            required = false
-        )
+        createEdCheckboxElement(707, R.string.ed_edRecurrentEpisodeloss)
     }
     private val edPsychosocialIntervention: FormElement by lazy {
         FormElement(
