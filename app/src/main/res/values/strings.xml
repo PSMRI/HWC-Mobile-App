@@ -1540,4 +1540,20 @@
     <string name="phq9_alert_referral_mo_phc">Refer to MO/PHC (PHQ-9 score ≥ 10)</string>
     <string name="phq9_alert_urgent">Urgent referral (PHQ-9 score ≥ 15)</string>
     <string name="phq9_alert_emergency">Emergency referral (PHQ-9 score ≥ 20)</string>
+
+    <!-- Mental Health Screening – Referral fields -->
+    <string name="mh_referral_required_title">Referral required</string>
+    <string name="mh_referral_level_title">Referral level</string>
+    <string-array name="mh_referral_level_options">
+        <item>PHC</item>
+        <item>DMHP</item>
+        <item>De-addiction centre</item>
+    </string-array>
+    <string name="mh_reason_for_referral_title">Reason for referral</string>
+    <string-array name="mh_reason_for_referral_options">
+        <item>Alcohol dependence suspected</item>
+        <item>Withdrawal symptoms</item>
+        <item>Medical complications</item>
+    </string-array>
+    <string name="mh_referral_date_title">Referral date</string>
 </resources>

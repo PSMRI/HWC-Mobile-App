@@ -6,10 +6,13 @@ import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 class MentalHealthScreeningDataset(
     private val context: Context,
     currentLanguage: Languages
-) : ReferralFollowUpDataset(context, currentLanguage) {
+) : Dataset(context, currentLanguage) {
 
     private lateinit var phq9Options: Array<String>
     private lateinit var substanceFrequencyOptions: Array<String>
@@ -107,6 +110,44 @@ class MentalHealthScreeningDataset(
             hasDependants = true
         )
     }
+
+    private val mhReferralRequired: FormElement by lazy {
+        FormElement(
+            id = 107,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_referral_required_title),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    private val mhReferralLevel: FormElement by lazy {
+        FormElement(
+            id = 108,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.mh_referral_level_title),
+            entries = context.resources.getStringArray(R.array.mh_referral_level_options),
+            required = true
+        )
+    }
+
+    private val mhReasonForReferral: FormElement by lazy {
+        FormElement(
+            id = 109,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.mh_reason_for_referral_title),
+            entries = context.resources.getStringArray(R.array.mh_reason_for_referral_options),
+            required = true
+        )
+    }
+
+    private var mhReferralDate = FormElement(
+        id = 110,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.mh_referral_date_title),
+        required = false
+    )
 
 
 
@@ -561,18 +602,6 @@ class MentalHealthScreeningDataset(
     }
 
 
-    override val referralRequired = createReferralRequired(701)
-    override val referralLevel = createReferralLevel(702)
-    override val reasonForReferral = FormElement(
-        id = 703,
-        inputType = InputType.DROPDOWN,
-        title = context.getString(R.string.mental_health_reason_for_referral),
-        entries = context.resources.getStringArray(R.array.mental_health_referral_reasons),
-        required = true
-    )
-    override val followUpRequired = createFollowUpRequired(704)
-    override val followUpDate = createFollowUpDate(705)
-
 
     private val phq9Elements = listOf(
         phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
@@ -623,6 +652,16 @@ class MentalHealthScreeningDataset(
         list.add(memoryLossConfusion)
         list.add(seizuresFitsLoc)
         list.add(isPostpartum)
+        list.add(mhReferralRequired)
+        if (shouldAutoSuggestReferral()) {
+            mhReferralRequired.value = yesNoOptions[0]
+        }
+        if (mhReferralRequired.value == yesNoOptions[0]) {
+            list.add(mhReferralLevel)
+            list.add(mhReasonForReferral)
+            mhReferralDate.value = todayDateString()
+            list.add(mhReferralDate)
+        }
 
         if (shouldShowPhq9()) {
             list.addAll(phq9Elements)
@@ -652,9 +691,18 @@ class MentalHealthScreeningDataset(
             list.addAll(epilepsyElements)
         }
 
-        addReferralFollowUpElements(list)
 
         setUpPage(list)
+    }
+
+    private fun todayDateString(): String =
+        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+
+    private fun shouldAutoSuggestReferral(): Boolean {
+        return dementiaDailyActivities.value == yesNoOptions[0] ||       // Functional impairment
+                substanceAlcoholUse.value == yesNoOptions[0] ||           // Withdrawal symptoms suspected
+                substanceOtherUse.value == yesNoOptions[0] ||             // Withdrawal symptoms suspected
+                briefInterventionGiven.value == yesNoOptions[0]           // Brief intervention given
     }
 
     private fun shouldShowPhq9(): Boolean {
@@ -716,6 +764,15 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
+            mhReferralRequired.id -> {
+                if (mhReferralRequired.value != yesNoOptions[0]) {
+                    mhReferralLevel.value = null
+                    mhReasonForReferral.value = null
+                    mhReferralDate.value = null
+                }
+                rebuildConditionalSections()
+                formId
+            }
 
             substanceOtherUse.id -> {
                 if (substanceOtherUse.value != "Yes") {
@@ -749,10 +806,8 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
-            // Handle referral & follow-up changes
             else -> {
-                val result = handleReferralFollowUpChange(formId, index)
-                if (result != -1) result else -1
+                -1
             }
         }
     }
@@ -766,6 +821,16 @@ class MentalHealthScreeningDataset(
         list.add(memoryLossConfusion)
         list.add(seizuresFitsLoc)
         list.add(isPostpartum)
+        list.add(mhReferralRequired)
+        if (shouldAutoSuggestReferral()) {
+            mhReferralRequired.value = yesNoOptions[0]
+        }
+        if (mhReferralRequired.value == yesNoOptions[0]) {
+            list.add(mhReferralLevel)
+            list.add(mhReasonForReferral)
+            mhReferralDate.value = todayDateString()
+            list.add(mhReferralDate.copy())
+        }
 
         updatePhq9Outcome()
         updateTobaccoOutcome()
@@ -816,7 +881,6 @@ class MentalHealthScreeningDataset(
             list.addAll(epilepsyElements)
         }
 
-        addReferralFollowUpElements(list)
 
         setUpPage(list)
     }
@@ -874,11 +938,7 @@ class MentalHealthScreeningDataset(
             else -> null
         }
         phq9SystemAction.hasAlertError = score >= 10
-        if (score >= 10) {
-            referralRequired.value = referralRequired.entries!!.first()
-        } else {
-            referralRequired.value = referralRequired.entries!!.last()
-        }
+
     }
 
     private fun updateTobaccoOutcome() {
@@ -1029,6 +1089,15 @@ class MentalHealthScreeningDataset(
         isPostpartum.value =
             cache.isPostpartum?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
 
+        // Referral
+        mhReferralRequired.value =
+            cache.referralRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        mhReferralLevel.value = cache.referralLevel
+        mhReasonForReferral.value = cache.reasonForReferral
+        if (cache.referralRequired == true) {
+            mhReferralDate.value = todayDateString()
+        }
+
         // PHQ-9
         phq9LittleInterest.value = cache.phq9LittleInterest?.let { phq9Options.getOrNull(it) }
         phq9FeelingDown.value = cache.phq9FeelingDown?.let { phq9Options.getOrNull(it) }
@@ -1096,8 +1165,7 @@ class MentalHealthScreeningDataset(
             cache.epilepsyConfusionAfter?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         epilepsyLocDuration.value = cache.epilepsyLocDuration
 
-        // Section F
-        populateReferralFollowUpFromCache(cache)
+
     }
 
     // ── Map Values ───────────────────────────────────────────────────
@@ -1240,8 +1308,15 @@ class MentalHealthScreeningDataset(
                 it.epilepsyLocDuration = null
             }
 
-            // Section F
-            mapReferralFollowUpValues(it)
+            // Referral
+            it.referralRequired = yesNoToBoolean(mhReferralRequired.value)
+            if (it.referralRequired == true) {
+                it.referralLevel = mhReferralLevel.value
+                it.reasonForReferral = mhReasonForReferral.value
+            } else {
+                it.referralLevel = null
+                it.reasonForReferral = null
+            }
         }
     }
 }
