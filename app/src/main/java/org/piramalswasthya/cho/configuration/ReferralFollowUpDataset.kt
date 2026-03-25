@@ -14,11 +14,18 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     private val optionYes = context.getString(R.string.yes)
     private val optionNo = context.getString(R.string.no)
 
+    private val optionDeath = "Death"
+
     protected abstract val referralRequired: FormElement
     protected abstract val referralLevel: FormElement
     protected abstract val reasonForReferral: FormElement
     protected abstract val followUpRequired: FormElement
     protected abstract val followUpDate: FormElement
+    protected abstract val caseStatus: FormElement
+    protected abstract val dateOfDeath: FormElement
+    protected abstract val remarks: FormElement
+
+
 
     protected fun createReferralRequired(id: Int) = FormElement(
         id = id,
@@ -71,47 +78,84 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
             referralLevel.required = true
             list.add(referralLevel)
             list.add(reasonForReferral)
-            list.add(followUpRequired)
-            if (followUpRequired.value == optionYes) {
-                followUpDate.required = true
-                followUpDate.min = System.currentTimeMillis()
-                followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
-                list.add(followUpDate)
-            }
         }
+        list.add(followUpRequired)
+        if (followUpRequired.value == optionYes) {
+            followUpDate.required = true
+            followUpDate.min = System.currentTimeMillis()
+            followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
+            list.add(followUpDate)
+        }
+        // Case closure fields are always visible below follow-up
+        list.add(caseStatus)
+        if (caseStatus.value == optionDeath) {
+            list.add(dateOfDeath)
+        }
+        list.add(remarks)
     }
+    protected fun createCaseStatus(id: Int) = FormElement(
+        id = id,
+        inputType = InputType.DROPDOWN,
+        title = "Case status",
+        entries = arrayOf("Under care", "Referred", "Stable", "Death"),
+        required = true,
+        hasDependants = true
+    )
+
+    protected fun createDateOfDeath(id: Int) = FormElement(
+        id = id,
+        inputType = InputType.DATE_PICKER,
+        title = "Date of death",
+        required = true,
+        max = System.currentTimeMillis()
+    )
+
+    protected fun createRemarks(id: Int) = FormElement(
+        id = id,
+        inputType = InputType.EDIT_TEXT,
+        title = "Remarks",
+        required = false,
+        etMaxLength = 250
+    )
 
     protected suspend fun handleReferralFollowUpChange(formId: Int, index: Int): Int {
         return when (formId) {
             referralRequired.id -> {
                 if (index == referralRequired.trueIndex) {
                     referralLevel.required = true
-                    val addItems = mutableListOf(referralLevel, reasonForReferral, followUpRequired)
-                    if (followUpRequired.value == optionYes) {
-                        followUpDate.required = true
-                        followUpDate.min = System.currentTimeMillis()
-                        followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
-                        addItems.add(followUpDate)
-                    }
                     triggerDependants(
                         source = referralRequired,
-                        addItems = addItems,
+                        addItems = listOf(referralLevel, reasonForReferral),
                         removeItems = emptyList()
                     )
                 } else {
                     referralLevel.value = null
                     referralLevel.required = false
                     reasonForReferral.value = null
-                    followUpRequired.value = null
-                    followUpDate.value = null
-                    followUpDate.required = false
                     triggerDependants(
                         source = referralRequired,
                         addItems = emptyList(),
-                        removeItems = listOf(referralLevel, reasonForReferral, followUpRequired, followUpDate)
+                        removeItems = listOf(referralLevel, reasonForReferral)
                     )
                 }
                 referralRequired.id
+            }
+            caseStatus.id -> {
+                if (caseStatus.value == optionDeath) {
+                    triggerDependants(
+                        source = caseStatus,
+                        addItems = listOf(dateOfDeath),
+                        removeItems = emptyList()
+                    )
+                } else {
+                    dateOfDeath.value = null
+                    triggerDependants(
+                        source = caseStatus,
+                        addItems = emptyList(),
+                        removeItems = listOf(dateOfDeath)
+                    )
+                }
+                caseStatus.id
             }
             followUpRequired.id -> {
                 if (index == followUpRequired.trueIndex) {
@@ -152,6 +196,9 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
             else -> null
         }
         followUpDate.value = cacheValue.followUpDate
+        caseStatus.value = cacheValue.caseStatus
+        dateOfDeath.value = cacheValue.dateOfDeath
+        remarks.value = cacheValue.remarks
     }
 
     protected fun mapReferralFollowUpValues(cacheValue: ReferralFollowUpModel) {
@@ -173,6 +220,9 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
             } else {
                 cacheValue.followUpDate = null
             }
+            cacheValue.caseStatus = caseStatus.value
+            cacheValue.dateOfDeath = if (caseStatus.value == optionDeath) dateOfDeath.value else null
+            cacheValue.remarks = remarks.value
         } else {
             cacheValue.referralLevel = null
             cacheValue.reasonForReferral = null

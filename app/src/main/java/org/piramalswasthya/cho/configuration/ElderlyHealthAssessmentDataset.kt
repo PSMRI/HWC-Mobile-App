@@ -9,7 +9,7 @@ import org.piramalswasthya.cho.model.InputType
 class ElderlyHealthAssessmentDataset(
     context: Context,
     currentLanguage: Languages
-) : Dataset(context, currentLanguage) {
+) : ReferralFollowUpDataset(context, currentLanguage) {
 
     private lateinit var cache: ElderlyHealthAssessment
 
@@ -161,6 +161,7 @@ class ElderlyHealthAssessmentDataset(
             list.addAll(getDementiaSectionFields())
             computeDementiaOutcome()
         }
+        addReferralFollowUpElements(list)
 
         setUpPage(list)
     }
@@ -194,6 +195,14 @@ class ElderlyHealthAssessmentDataset(
             dementiaReferralRequired
         )
     }
+    override val referralRequired = createReferralRequired(15)
+    override val referralLevel = createReferralLevel(16)
+    override val reasonForReferral = createReasonForReferral(17)
+    override val followUpRequired = createFollowUpRequired(18)
+    override val followUpDate = createFollowUpDate(19)
+    override val caseStatus = createCaseStatus(20)
+    override val dateOfDeath = createDateOfDeath(21)
+    override val remarks = createRemarks(22)
 
     private suspend fun computeDementiaOutcome() {
         val anySelected = listOf(
@@ -229,6 +238,8 @@ class ElderlyHealthAssessmentDataset(
 
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
+        val referralFollowUpResult = handleReferralFollowUpChange(formId, index)
+        if (referralFollowUpResult != -1) return referralFollowUpResult
         return when (formId) {
 
             functionalDecline.id -> {
@@ -300,7 +311,12 @@ class ElderlyHealthAssessmentDataset(
             dementiaBehaviouralChanges = null,
             dementiaSelfCareDecline = null,
             dementiaScreeningOutcome = null,
-            dementiaReferralRequired = null
+            dementiaReferralRequired = null,
+            referralRequired = null,
+            referralLevel = null,
+            reasonForReferral = null,
+            followUpRequired = null,
+            followUpDate = null
         )
     }
 
@@ -354,6 +370,7 @@ class ElderlyHealthAssessmentDataset(
             false -> "No"
             else -> null
         }
+        populateReferralFollowUpFromCache(cache)
     }
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
@@ -398,6 +415,7 @@ class ElderlyHealthAssessmentDataset(
 
             it.dementiaReferralRequired =
                 dementiaReferralRequired.value == "Yes"
+            mapReferralFollowUpValues(it)
         }
     }
 }

@@ -78,6 +78,15 @@ data class PainAndSymptomAssessment(
     override var followUpRequired: Boolean? = null,
 
     @ColumnInfo(name = "follow_up_date")
-    override var followUpDate: String? = null
+    override var followUpDate: String? = null,
+
+    @ColumnInfo(name = "case_status")
+    override var caseStatus: String? = null,
+
+    @ColumnInfo(name = "date_of_death")
+    override var dateOfDeath: String? = null,
+
+    @ColumnInfo(name = "remarks")
+    override var remarks: String? = null
 
 ) : FormDataModel, ReferralFollowUpModel
