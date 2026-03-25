@@ -425,11 +425,17 @@ class BenFlowRepo @Inject constructor(
                         }
 
                         try {
-                            val data = benflowArray.getString(i)
+                            val data = benflowArray.getJSONObject(i).toString()
                             val benFlow = Gson().fromJson(data, BenFlow::class.java)
                             val patient = patientRepo.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
                             benFlowDao.insertBenFlow(benFlow)
                             if(patient != null){
+                                if (benFlow.reproductiveStatusId != null &&
+                                    patient.statusOfWomanID != benFlow.reproductiveStatusId
+                                ) {
+                                    patient.statusOfWomanID = benFlow.reproductiveStatusId
+                                    patientRepo.updateRecord(patient)
+                                }
                                 checkAndAddNewVisitInfo(benFlow, patient)
                                 updateBenFlowId(benFlow, patient)
                                 checkAndDownsyncNurseData(benFlow, patient)
@@ -492,7 +498,7 @@ class BenFlowRepo @Inject constructor(
 
     private suspend fun getBenFlowCountToDownload(villageList: VillageIdList): NetworkResult<NetworkResponse>{
         return networkResultInterceptor {
-            val response = apiService.getBeneficiariesCount(villageList)
+            val response = apiService.getBenFlowRecordCount(villageList)
             val responseBody = response.body()?.string()
             refreshTokenInterceptor(
                 responseBody = responseBody,

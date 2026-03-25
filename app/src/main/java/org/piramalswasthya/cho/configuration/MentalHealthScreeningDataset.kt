@@ -309,7 +309,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.substance_alcohol_use),
             entries = yesNoOptions,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -323,11 +324,44 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private val substanceOtherUse: FormElement by lazy {
+    private val substance_alcohol_loss: FormElement by lazy {
         FormElement(
             id = 303,
             inputType = InputType.RADIO,
-            title = context.getString(R.string.substance_other_use),
+            title = context.getString(R.string.substance_alcohol_loss),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    private val substanceAlcoholImpact: FormElement by lazy {
+        FormElement(
+            id = 314,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.substance_alcohol_impact),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    private val substanceAlcoholWithdrawal: FormElement by lazy {
+        FormElement(
+            id = 315,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.substance_alcohol_withdrawal),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    private val substanceAlcoholProblematic: FormElement by lazy {
+        FormElement(
+            id = 316,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.substance_alcohol_problematic),
             entries = yesNoOptions,
             required = true,
             hasDependants = true
@@ -345,11 +379,25 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private val substanceFrequency: FormElement by lazy {
+    private val substanceAlcoholClassification = FormElement(
+        id = 317,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.substance_alcohol_classification),
+        required = false
+    )
+
+    private val substanceAlcoholSystemAction = FormElement(
+        id = 318,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.substance_alcohol_system_action),
+        required = false
+    )
+
+    private val substance_alcohol_frequency: FormElement by lazy {
         FormElement(
             id = 305,
             inputType = InputType.DROPDOWN,
-            title = context.getString(R.string.substance_frequency),
+            title = context.getString(R.string.substance_alcohol_frequency),
             entries = substanceFrequencyOptions,
             required = true
         )
@@ -380,7 +428,7 @@ class MentalHealthScreeningDataset(
         FormElement(
             id = 401,
             inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_current_thoughts),
+            title = context.getString(R.string.suicide_hopelessness),
             entries = yesNoOptions,
             required = true,
             hasDependants = true
@@ -559,20 +607,145 @@ class MentalHealthScreeningDataset(
             required = true
         )
     }
+    private val edChecklistHeader: FormElement by lazy {
+        FormElement(
+            id = 700,
+            inputType = InputType.HEADLINE,
+            title = context.getString(R.string.epilepsy_dementia_checklist_title),
+            required = false
+        )
+    }
 
 
-    override val referralRequired = createReferralRequired(701)
-    override val referralLevel = createReferralLevel(702)
+    private val edRecurrentJerkyMovements: FormElement by lazy {
+        FormElement(
+            id = 701,
+            inputType = InputType.CHECKBOXES,
+            title = context.getString(R.string.ed_recurrent_jerky_movements),
+            entries = arrayOf(yesNoOptions[0]),
+            required = false
+        )
+    }
+
+    private val edProgressiveMemoryLoss: FormElement by lazy {
+        FormElement(
+            id = 702,
+            inputType = InputType.CHECKBOXES,
+            title = context.getString(R.string.ed_progressive_memory_loss),
+            entries = arrayOf(yesNoOptions[0]),
+            required = false
+        )
+    }
+
+    private val edConfusionDisorientation: FormElement by lazy {
+        FormElement(
+            id = 703,
+            inputType = InputType.CHECKBOXES,
+            title = context.getString(R.string.ed_confusion_disorientation),
+            entries = arrayOf(yesNoOptions[0]),
+            required = false
+        )
+    }
+
+    private val edFunctionalDecline: FormElement by lazy {
+        FormElement(
+            id = 704,
+            inputType = InputType.CHECKBOXES,
+            title = context.getString(R.string.ed_functional_decline),
+            entries = arrayOf(yesNoOptions[0]),
+            required = false
+        )
+    }
+
+    private var edScreeningOutcome = FormElement(
+        id = 705,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.ed_screening_outcome),
+        required = false
+    )
+
+    private var edReferralRequired = FormElement(
+        id = 706,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.ed_referral_required),
+        required = false
+    )
+    private val edRecurrentEpisodeloss: FormElement by lazy {
+        FormElement(
+            id = 707,
+            inputType = InputType.CHECKBOXES,
+            title = context.getString(R.string.ed_edRecurrentEpisodeloss),
+            entries = arrayOf(yesNoOptions[0]),
+            required = false
+        )
+    }
+    private val edPsychosocialIntervention: FormElement by lazy {
+        FormElement(
+            id = 708,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.ed_psychosocial_intervention_provided),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    private val edInterventionType: FormElement by lazy {
+        FormElement(
+            id = 709,
+            inputType = InputType.CHECKBOXES,
+            title = context.getString(R.string.ed_intervention_type),
+            entries = arrayOf("Psychoeducation", "Counselling", "Stress management", "Family counselling"),
+            required = true
+        )
+    }
+
+    private val edSessionDate: FormElement by lazy {
+        FormElement(
+            id = 710,
+            inputType = InputType.DATE_PICKER,
+            title = context.getString(R.string.ed_session_date),
+            required = true
+        )
+    }
+
+    private val edDurationMinutes: FormElement by lazy {
+        FormElement(
+            id = 711,
+            inputType = InputType.EDIT_TEXT,
+            title = context.getString(R.string.ed_duration_minutes),
+            required = true,
+            etInputType = android.text.InputType.TYPE_CLASS_NUMBER,
+            min = 10,
+            max = 60
+        )
+    }
+
+    private val edRemarks: FormElement by lazy {
+        FormElement(
+            id = 712,
+            inputType = InputType.EDIT_TEXT,
+            title = context.getString(R.string.ed_remarks),
+            required = false,
+            etMaxLength = 250
+        )
+    }
+
+    // ── Section F: Referral & Follow-up ──────────────────────────────
+
+    override val referralRequired = createReferralRequired(801)
+    override val referralLevel = createReferralLevel(802)
     override val reasonForReferral = FormElement(
-        id = 703,
+        id = 803,
         inputType = InputType.DROPDOWN,
         title = context.getString(R.string.mental_health_reason_for_referral),
         entries = context.resources.getStringArray(R.array.mental_health_referral_reasons),
         required = true
     )
-    override val followUpRequired = createFollowUpRequired(704)
-    override val followUpDate = createFollowUpDate(705)
+    override val followUpRequired = createFollowUpRequired(804)
+    override val followUpDate = createFollowUpDate(805)
 
+    // ── All PHQ-9 form elements ──────────────────────────────────────
 
     private val phq9Elements = listOf(
         phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
@@ -581,14 +754,13 @@ class MentalHealthScreeningDataset(
     )
 
     private val substanceElements = listOf(
-        substanceHeader,substanceTobaccoHeader, substanceCurrentTobaccoUse,
-        substanceTobaccoOutcome, substanceSystemAction, substanceAlcoholHeader, substanceOtherUse,
-        substanceFrequency, briefInterventionGiven, substanceAlcoholUse, substanceTobaccoUse
+        substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
+        substanceTobaccoOutcome, substanceSystemAction, substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic, substanceAlcoholClassification, substanceAlcoholSystemAction
     )
 
     private val suicideElements = listOf(
         suicideHeader, suicidePreviousAttempt, suicidePlan,
-        suicideCurrentThoughts, suicideHopelessness, suicideImmediateAssess, suicideRiskLevel
+        suicideHopelessness, suicideImmediateAssess, suicideRiskLevel
     )
 
     private val dementiaElements = listOf(
@@ -601,6 +773,12 @@ class MentalHealthScreeningDataset(
         epilepsyTongueBite, epilepsyConfusionAfter, epilepsyLocDuration
     )
 
+    private val edChecklistElements = listOf(
+        edChecklistHeader,edRecurrentEpisodeloss, edRecurrentJerkyMovements, edProgressiveMemoryLoss,
+        edConfusionDisorientation, edFunctionalDecline, edScreeningOutcome, edReferralRequired
+    )
+
+    // ── Setup Page ───────────────────────────────────────────────────
 
     suspend fun setUpPage(
         savedRecord: MentalHealthScreeningCache?,
@@ -635,8 +813,12 @@ class MentalHealthScreeningDataset(
                 list.add(idx + 1, substanceTobaccoType)
                 list.add(idx + 2, substanceTobaccoFrequency)
             }
-            if (substanceOtherUse.value == "Yes") {
-                list.add(list.indexOf(substanceOtherUse) + 1, substanceOtherSpecify)
+            if (substanceAlcoholUse.value == "Yes") {
+                val idx = list.indexOf(substanceAlcoholUse)
+                list.add(idx + 1, substance_alcohol_frequency)
+                list.add(idx + 2, substance_alcohol_loss)
+                list.add(idx + 3, substanceAlcoholImpact)
+                list.add(idx + 4, substanceAlcoholWithdrawal)
             }
         }
 
@@ -644,14 +826,22 @@ class MentalHealthScreeningDataset(
             list.addAll(suicideElements)
         }
 
-        if (memoryLossConfusion.value == "Yes") {
-            list.addAll(dementiaElements)
+
+
+
+
+        // Add the new Epilepsy & Dementia Checklist
+        if (memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes") {
+            list.addAll(
+                listOf(
+                    edChecklistHeader, edRecurrentEpisodeloss, edRecurrentJerkyMovements, edProgressiveMemoryLoss,
+                    edConfusionDisorientation, edFunctionalDecline, edScreeningOutcome.copy(),
+                    edReferralRequired.copy()
+                )
+            )
         }
 
-        if (seizuresFitsLoc.value == "Yes") {
-            list.addAll(epilepsyElements)
-        }
-
+        // Section F
         addReferralFollowUpElements(list)
 
         setUpPage(list)
@@ -703,6 +893,7 @@ class MentalHealthScreeningDataset(
             memoryLossConfusion.id -> {
                 if (memoryLossConfusion.value != "Yes") {
                     clearDementiaValues()
+                    if (seizuresFitsLoc.value != "Yes") clearEdChecklistValues()
                 }
                 rebuildConditionalSections()
                 formId
@@ -711,19 +902,13 @@ class MentalHealthScreeningDataset(
             seizuresFitsLoc.id -> {
                 if (seizuresFitsLoc.value != "Yes") {
                     clearEpilepsyValues()
+                    if (memoryLossConfusion.value != "Yes") clearEdChecklistValues()
                 }
                 rebuildConditionalSections()
                 formId
             }
 
 
-            substanceOtherUse.id -> {
-                if (substanceOtherUse.value != "Yes") {
-                    substanceOtherSpecify.value = null
-                }
-                rebuildConditionalSections()
-                formId
-            }
 
             substanceTobaccoUse.id -> {
                 rebuildConditionalSections()
@@ -731,6 +916,13 @@ class MentalHealthScreeningDataset(
             }
 
             substanceCurrentTobaccoUse.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
+            substanceAlcoholUse.id, substance_alcohol_loss.id,
+            substanceAlcoholImpact.id, substanceAlcoholWithdrawal.id,
+            substanceAlcoholProblematic.id, substance_alcohol_frequency.id -> {
                 rebuildConditionalSections()
                 formId
             }
@@ -749,6 +941,24 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
+            edRecurrentEpisodeloss.id, edRecurrentJerkyMovements.id, edProgressiveMemoryLoss.id,
+            edConfusionDisorientation.id, edFunctionalDecline.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+            edPsychosocialIntervention.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
+            edDurationMinutes.id -> {
+                validateIntMinMax(edDurationMinutes)
+            }
+
+            edSessionDate.id, edRemarks.id -> {
+                formId
+            }
+
             // Handle referral & follow-up changes
             else -> {
                 val result = handleReferralFollowUpChange(formId, index)
@@ -756,6 +966,8 @@ class MentalHealthScreeningDataset(
             }
         }
     }
+
+
 
     private suspend fun rebuildConditionalSections() {
         val list = mutableListOf<FormElement>()
@@ -770,6 +982,9 @@ class MentalHealthScreeningDataset(
         updatePhq9Outcome()
         updateTobaccoOutcome()
         computeSuicideRiskLevel()
+        computeAlcoholClassification()
+        computeAlcoholSystemAction()
+        computeEdScreeningOutcome()
 
         if (shouldShowPhq9()) {
             val phq9ElementsWithFreshCopies = listOf(
@@ -783,10 +998,8 @@ class MentalHealthScreeningDataset(
 
         if (substanceUseConcerns.value == "Yes") {
             val substanceElementsWithFreshCopies = listOf(
-                substanceHeader,substanceTobaccoHeader, substanceCurrentTobaccoUse,
-                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(),substanceAlcoholHeader,
-                substanceOtherUse, substanceFrequency, briefInterventionGiven,
-                substanceAlcoholUse, substanceTobaccoUse
+                substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
+                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(), substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic, substanceAlcoholClassification.copy(), substanceAlcoholSystemAction.copy()
             )
             list.addAll(substanceElementsWithFreshCopies)
             if (substanceCurrentTobaccoUse.value == "Yes") {
@@ -794,28 +1007,56 @@ class MentalHealthScreeningDataset(
                 list.add(idx + 1, substanceTobaccoType)
                 list.add(idx + 2, substanceTobaccoFrequency)
             }
-            if (substanceOtherUse.value == "Yes") {
-                list.add(list.indexOf(substanceOtherUse) + 1, substanceOtherSpecify)
+            if (substanceAlcoholUse.value == "Yes") {
+                val idx = list.indexOf(substanceAlcoholUse)
+                list.add(idx + 1, substance_alcohol_frequency)
+                list.add(idx + 2, substance_alcohol_loss)
+                list.add(idx + 3, substanceAlcoholImpact)
+                list.add(idx + 4, substanceAlcoholWithdrawal)
+            } else {
+                clearAlcoholSubFields()
             }
         }
 
         if (selfHarmSuicideThoughts.value == "Yes") {
             val suicideElementsWithFreshCopies = listOf(
                 suicideHeader, suicidePreviousAttempt, suicidePlan,
-                suicideCurrentThoughts, suicideHopelessness, suicideImmediateAssess,
+                suicideHopelessness, suicideImmediateAssess,
                 suicideRiskLevel.copy()
             )
             list.addAll(suicideElementsWithFreshCopies)
         }
 
-        if (memoryLossConfusion.value == "Yes") {
-            list.addAll(dementiaElements)
+
+
+
+
+        if (memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes") {
+            list.addAll(
+                listOf(
+                    edChecklistHeader, edRecurrentEpisodeloss, edRecurrentJerkyMovements, edProgressiveMemoryLoss,
+                    edConfusionDisorientation, edFunctionalDecline, edScreeningOutcome.copy(),
+                    edReferralRequired.copy()
+                )
+            )
         }
 
-        if (seizuresFitsLoc.value == "Yes") {
-            list.addAll(epilepsyElements)
+        if (edScreeningOutcome.value == "Suspected") {
+            list.add(edPsychosocialIntervention)
+            if (edPsychosocialIntervention.value == "Yes") {
+                list.add(edInterventionType)
+                edSessionDate.max = System.currentTimeMillis()
+                list.add(edSessionDate)
+                list.add(edDurationMinutes)
+                list.add(edRemarks)
+            } else {
+                clearEdPsychosocialValues()
+            }
+        } else {
+            clearEdPsychosocialValues()
         }
 
+        // Section F
         addReferralFollowUpElements(list)
 
         setUpPage(list)
@@ -898,10 +1139,72 @@ class MentalHealthScreeningDataset(
 
         substanceSystemAction.value = when (substanceTobaccoOutcome.value) {
             "Use identified"    -> "Brief counselling"
-            "No use identified" -> "Close screening"
+            "No use identified" -> "Referral"
             else                -> null
         }
     }
+
+    private fun computeAlcoholClassification() {
+        val use = substanceAlcoholUse.value
+        val frequency = substance_alcohol_frequency.value
+        val loss = substance_alcohol_loss.value
+        val impact = substanceAlcoholImpact.value
+        val withdrawal = substanceAlcoholWithdrawal.value
+        val problematic = substanceAlcoholProblematic.value
+
+        // No answer yet — show nothing
+        if (use == null && frequency == null && loss == null && impact == null && withdrawal == null && problematic == null) {
+            substanceAlcoholClassification.value = null
+            return
+        }
+
+        // Any of these present → Problematic (takes priority over everything)
+        val hasRiskFactor = loss == "Yes" ||
+                impact == "Yes" ||
+                withdrawal == "Yes" ||
+                problematic == "Yes" ||
+                frequency == "Regular" ||
+                frequency == "Daily"
+
+
+        val noAlcoholUse = use == "No"
+        val occasionalWithNoRisks = (frequency == "Occasionally") &&
+                loss != "Yes" &&
+                impact != "Yes" &&
+                withdrawal != "Yes"
+
+        substanceAlcoholClassification.value = when {
+            hasRiskFactor -> "Problematic"
+            noAlcoholUse || occasionalWithNoRisks -> "Non-problematic"
+            else -> null
+        }
+    }
+
+    private fun computeAlcoholSystemAction() {
+        substanceAlcoholSystemAction.value = when (substanceAlcoholClassification.value) {
+            "Problematic"     -> "Brief intervention"
+            "Non-problematic" -> "Referral"
+            else              -> null
+        }
+    }
+
+    private fun computeEdScreeningOutcome() {
+        if (memoryLossConfusion.value != "Yes" && seizuresFitsLoc.value != "Yes") {
+            edScreeningOutcome.value = null
+            edReferralRequired.value = null
+            return
+        }
+
+        val hasRisk = isYes(edRecurrentEpisodeloss.value) || isYes(edRecurrentJerkyMovements.value) ||
+                isYes(edProgressiveMemoryLoss.value) ||
+                isYes(edConfusionDisorientation.value) ||
+                isYes(edFunctionalDecline.value)
+
+        edScreeningOutcome.value = if (hasRisk) "Suspected" else "Not suspected"
+        edReferralRequired.value = if (hasRisk) "Yes" else "No"
+    }
+
+
 
 
     private suspend fun computeSuicideRiskLevel() {
@@ -928,7 +1231,6 @@ class MentalHealthScreeningDataset(
             else             -> suicideRiskOptions.getOrElse(2) { "High" }
         }
 
-        // Alert when risk is Moderate or High
         val riskValue = suicideRiskLevel.value ?: ""
         val moderate  = suicideRiskOptions.getOrElse(1) { "Moderate" }
         val high      = suicideRiskOptions.getOrElse(2) { "High" }
@@ -981,10 +1283,25 @@ class MentalHealthScreeningDataset(
         substanceSystemAction.value = null
         substanceAlcoholUse.value = null
         substanceTobaccoUse.value = null
-        substanceOtherUse.value = null
-        substanceOtherSpecify.value = null
-        substanceFrequency.value = null
+        clearAlcoholSubFields()
         briefInterventionGiven.value = null
+    }
+    private fun clearEdPsychosocialValues() {
+        edPsychosocialIntervention.value = null
+        edInterventionType.value = null
+        edSessionDate.value = null
+        edDurationMinutes.value = null
+        edRemarks.value = null
+    }
+
+    private fun clearAlcoholSubFields() {
+        substance_alcohol_frequency.value = null
+        substance_alcohol_loss.value = null
+        substanceAlcoholImpact.value = null
+        substanceAlcoholWithdrawal.value = null
+        substanceAlcoholProblematic.value = null
+        substanceAlcoholClassification.value = null
+        substanceAlcoholSystemAction.value = null
     }
 
     private fun clearSuicideValues() {
@@ -1013,6 +1330,17 @@ class MentalHealthScreeningDataset(
         epilepsyLocDuration.value = null
     }
 
+    private fun clearEdChecklistValues() {
+        edRecurrentEpisodeloss.value = null
+        edRecurrentJerkyMovements.value = null
+        edProgressiveMemoryLoss.value = null
+        edConfusionDisorientation.value = null
+        edFunctionalDecline.value = null
+        edScreeningOutcome.value = null
+        edReferralRequired.value = null
+    }
+
+    // ── Populate from Cache ──────────────────────────────────────────
 
     private fun populateFromCache(cache: MentalHealthScreeningCache) {
         // Initial screening questions
@@ -1054,12 +1382,19 @@ class MentalHealthScreeningDataset(
             cache.substanceAlcoholUse?.let { if (it) "Yes" else "No" }
         substanceTobaccoUse.value =
             cache.substanceTobaccoUse?.let { if (it) "Yes" else "No" }
-        substanceOtherUse.value =
-            cache.substanceOtherUse?.let { if (it) "Yes" else "No" }
+        substance_alcohol_loss.value =
+            cache.substance_alcohol_loss?.let { if (it) "Yes" else "No" }
+        substanceAlcoholImpact.value =
+            cache.substanceAlcoholImpact?.let { if (it) "Yes" else "No" }
+        substanceAlcoholWithdrawal.value =
+            cache.substanceAlcoholWithdrawal?.let { if (it) "Yes" else "No" }
+        substanceAlcoholProblematic.value =
+            cache.substanceAlcoholProblematic?.let { if (it) "Yes" else "No" }
+        substanceAlcoholClassification.value = cache.substanceAlcoholClassification
+        substanceAlcoholSystemAction.value = cache.substanceAlcoholSystemAction
         substanceOtherSpecify.value = cache.substanceOtherSpecify
-        substanceFrequency.value = cache.substanceFrequency
-        briefInterventionGiven.value =
-            cache.briefInterventionGiven?.let { if (it) "Yes" else "No" }
+        substance_alcohol_frequency.value = cache.substance_alcohol_frequency
+
         // Suicide Risk
         suicideCurrentThoughts.value =
             cache.suicideCurrentThoughts?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
@@ -1095,6 +1430,26 @@ class MentalHealthScreeningDataset(
         epilepsyConfusionAfter.value =
             cache.epilepsyConfusionAfter?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         epilepsyLocDuration.value = cache.epilepsyLocDuration
+
+        // Epilepsy & Dementia Checklist
+        edRecurrentEpisodeloss.value =
+            cache.edRecurrentEpisodeloss?.let { if (it) yesNoOptions[0] else null }
+        edRecurrentJerkyMovements.value =
+            cache.edRecurrentJerkyMovements?.let { if (it) yesNoOptions[0] else null }
+        edProgressiveMemoryLoss.value =
+            cache.edProgressiveMemoryLoss?.let { if (it) yesNoOptions[0] else null }
+        edConfusionDisorientation.value =
+            cache.edConfusionDisorientation?.let { if (it) yesNoOptions[0] else null }
+        edFunctionalDecline.value =
+            cache.edFunctionalDecline?.let { if (it) yesNoOptions[0] else null }
+        edScreeningOutcome.value = cache.edScreeningOutcome
+        edReferralRequired.value = cache.edReferralRequired
+        edPsychosocialIntervention.value =
+            cache.edPsychosocialInterventionProvided?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        edInterventionType.value = cache.edInterventionType
+        edSessionDate.value = cache.edSessionDate
+        edDurationMinutes.value = cache.edDurationMinutes?.toString()
+        edRemarks.value = cache.edRemarks
 
         // Section F
         populateReferralFollowUpFromCache(cache)
@@ -1173,10 +1528,13 @@ class MentalHealthScreeningDataset(
                 it.substanceSystemAction = substanceSystemAction.value
                 it.substanceAlcoholUse = substanceAlcoholUse.value == "Yes"
                 it.substanceTobaccoUse = substanceTobaccoUse.value == "Yes"
-                it.substanceOtherUse = substanceOtherUse.value == "Yes"
-                it.substanceOtherSpecify =
-                    if (it.substanceOtherUse == true) substanceOtherSpecify.value else null
-                it.substanceFrequency = substanceFrequency.value
+                it.substance_alcohol_loss = substance_alcohol_loss.value == "Yes"
+                it.substanceAlcoholImpact = substanceAlcoholImpact.value == "Yes"
+                it.substanceAlcoholWithdrawal = substanceAlcoholWithdrawal.value == "Yes"
+                it.substanceAlcoholProblematic = substanceAlcoholProblematic.value == "Yes"
+                it.substanceAlcoholClassification = substanceAlcoholClassification.value
+                it.substanceAlcoholSystemAction = substanceAlcoholSystemAction.value
+                it.substance_alcohol_frequency = substance_alcohol_frequency.value
                 it.briefInterventionGiven = briefInterventionGiven.value == "Yes"
             } else {
                 it.substanceCurrentTobaccoUse = null
@@ -1186,9 +1544,14 @@ class MentalHealthScreeningDataset(
                 it.substanceSystemAction = null
                 it.substanceAlcoholUse = null
                 it.substanceTobaccoUse = null
-                it.substanceOtherUse = null
+                it.substance_alcohol_loss = null
+                it.substanceAlcoholImpact = null
+                it.substanceAlcoholWithdrawal = null
+                it.substanceAlcoholProblematic = null
+                it.substanceAlcoholClassification = null
+                it.substanceAlcoholSystemAction = null
                 it.substanceOtherSpecify = null
-                it.substanceFrequency = null
+                it.substance_alcohol_frequency = null
                 it.briefInterventionGiven = null
             }
 
@@ -1210,7 +1573,6 @@ class MentalHealthScreeningDataset(
                 it.suicideRiskLevel = null
             }
 
-            // Dementia
             if (isYes(memoryLossConfusion.value)) {
                 it.dementiaProgressiveMemoryLoss = isYes(dementiaProgressiveMemoryLoss.value)
                 it.dementiaForgettingRecent = isYes(dementiaForgettingRecent.value)
@@ -1225,7 +1587,6 @@ class MentalHealthScreeningDataset(
                 it.dementiaBehaviouralChanges = null
             }
 
-            // Epilepsy
             if (isYes(seizuresFitsLoc.value)) {
                 it.epilepsyRecurrentSeizures = isYes(epilepsyRecurrentSeizures.value)
                 it.epilepsyJerkyMovements = isYes(epilepsyJerkyMovements.value)
@@ -1240,7 +1601,27 @@ class MentalHealthScreeningDataset(
                 it.epilepsyLocDuration = null
             }
 
-            // Section F
+            it.edRecurrentEpisodeloss = isYes(edRecurrentEpisodeloss.value)
+            it.edRecurrentJerkyMovements = isYes(edRecurrentJerkyMovements.value)
+            it.edProgressiveMemoryLoss = isYes(edProgressiveMemoryLoss.value)
+            it.edConfusionDisorientation = isYes(edConfusionDisorientation.value)
+            it.edFunctionalDecline = isYes(edFunctionalDecline.value)
+            it.edScreeningOutcome = edScreeningOutcome.value
+            it.edReferralRequired = edReferralRequired.value
+            if (edScreeningOutcome.value == "Suspected") {
+                it.edPsychosocialInterventionProvided = yesNoToBoolean(edPsychosocialIntervention.value)
+                it.edInterventionType = if (it.edPsychosocialInterventionProvided == true) edInterventionType.value else null
+                it.edSessionDate = if (it.edPsychosocialInterventionProvided == true) edSessionDate.value else null
+                it.edDurationMinutes = if (it.edPsychosocialInterventionProvided == true) edDurationMinutes.value?.toIntOrNull() else null
+                it.edRemarks = edRemarks.value
+            } else {
+                it.edPsychosocialInterventionProvided = null
+                it.edInterventionType = null
+                it.edSessionDate = null
+                it.edDurationMinutes = null
+                it.edRemarks = null
+            }
+
             mapReferralFollowUpValues(it)
         }
     }
