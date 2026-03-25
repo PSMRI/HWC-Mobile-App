@@ -582,7 +582,7 @@ class MentalHealthScreeningDataset(
 
     private fun shouldAutoSuggestReferral(): Boolean {
         return dementiaDailyActivities.value == yesNoOptions[0] ||
-                substanceAlcoholUse.value == yesNoOptions[0]
+                substanceAlcoholClassification.value == "Problematic"
     }
 
 
@@ -636,6 +636,9 @@ class MentalHealthScreeningDataset(
             mhFollowUpRequired.id -> {
                 if (mhFollowUpRequired.value != yesNoOptions[0]) {
                     mhFollowUpDate.value = null
+                    mhImprovementNoted.value = null
+                    mhReferralEscalation.value = null
+                    mhCaseClosureReason.value = null
                 }
                 rebuildConditionalSections()
                 formId
@@ -714,7 +717,9 @@ class MentalHealthScreeningDataset(
         if (mhReferralRequired.value == yesNoOptions[0]) {
             list.add(mhReferralLevel)
             list.add(mhReasonForReferral)
-            mhReferralDate.value = todayDateString()
+            if (mhReferralDate.value.isNullOrEmpty()) {
+                mhReferralDate.value = todayDateString()
+            }
             list.add(mhReferralDate)
         }
 
@@ -1381,12 +1386,15 @@ class MentalHealthScreeningDataset(
             it.followUpRequired = yesNoToBoolean(mhFollowUpRequired.value)
             if (it.followUpRequired == true) {
                 it.followUpDate = mhFollowUpDate.value
+                it.improvementNoted = mhImprovementNoted.value
+                it.referralEscalationRequired = yesNoToBoolean(mhReferralEscalation.value)
+                it.caseClosureReason = mhCaseClosureReason.value
             } else {
                 it.followUpDate = null
+                it.improvementNoted = null
+                it.referralEscalationRequired = null
+                it.caseClosureReason = null
             }
-            it.improvementNoted = mhImprovementNoted.value
-            it.referralEscalationRequired = yesNoToBoolean(mhReferralEscalation.value)
-            it.caseClosureReason = mhCaseClosureReason.value
         }
     }
 }

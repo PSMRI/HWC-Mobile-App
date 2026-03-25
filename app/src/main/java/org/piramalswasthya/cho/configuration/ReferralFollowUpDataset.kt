@@ -14,7 +14,8 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     private val optionYes = context.getString(R.string.yes)
     private val optionNo = context.getString(R.string.no)
 
-    private val optionDeath = context.getString(R.string.death)
+    private val caseStatusEntries = context.resources.getStringArray(R.array.case_status_options)
+    private val optionDeath = caseStatusEntries.last()
 
     protected abstract val referralRequired: FormElement
     protected abstract val referralLevel: FormElement
@@ -210,27 +211,24 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
         if (cacheValue.referralRequired == true) {
             cacheValue.referralLevel = referralLevel.value
             cacheValue.reasonForReferral = reasonForReferral.value
-            cacheValue.followUpRequired = when (followUpRequired.value) {
-                optionYes -> true
-                optionNo -> false
-                else -> null
-            }
-            if (cacheValue.followUpRequired == true) {
-                cacheValue.followUpDate = followUpDate.value
-            } else {
-                cacheValue.followUpDate = null
-            }
-            cacheValue.caseStatus = caseStatus.value
-            cacheValue.dateOfDeath = if (caseStatus.value == optionDeath) dateOfDeath.value else null
-            cacheValue.remarks = remarks.value
         } else {
             cacheValue.referralLevel = null
             cacheValue.reasonForReferral = null
-            cacheValue.followUpRequired = null
-            cacheValue.followUpDate = null
-            cacheValue.caseStatus = null
-            cacheValue.dateOfDeath = null
-            cacheValue.remarks = null
         }
+
+        // Follow-up and closure fields are always visible, persist regardless of referral
+        cacheValue.followUpRequired = when (followUpRequired.value) {
+            optionYes -> true
+            optionNo -> false
+            else -> null
+        }
+        if (cacheValue.followUpRequired == true) {
+            cacheValue.followUpDate = followUpDate.value
+        } else {
+            cacheValue.followUpDate = null
+        }
+        cacheValue.caseStatus = caseStatus.value
+        cacheValue.dateOfDeath = if (caseStatus.value == optionDeath) dateOfDeath.value else null
+        cacheValue.remarks = remarks.value
     }
 }
