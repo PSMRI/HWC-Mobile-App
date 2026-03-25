@@ -1763,7 +1763,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToOralHealthFormFragment(
                             patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo
+                            benVisitNo = benVisitNo,
+                            benVisitInfo = benVisitInfo
                         )
                     )
                 }

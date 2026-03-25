@@ -319,6 +319,14 @@
         <argument
             android:name="benVisitNo"
             app:argType="integer" />
+        <argument
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+        <action
+            android:id="@+id/action_oralHealthFormFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment"
+            app:popUpTo="@id/fhirVisitDetailsFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/fragment_nose_diagnosis_form"

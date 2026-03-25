@@ -1465,18 +1465,22 @@
     <string name="substance_section_title">Substance Use Screening and Brief Intervention</string>
     <string name="substance_tobacco_title">Tobacco Use Identification</string>
     <string name="substance_alcohol_title">Alcohol Use Identification </string>
-    <string name="substance_alcohol_use">Alcohol use</string>
+    <string name="substance_alcohol_use">Current alcohol use</string>
     <string name="substance_tobacco_use">Tobacco use</string>
-    <string name="substance_other_use">Other substance use</string>
+    <string name="substance_alcohol_loss">Loss of control over drinking</string>
+    <string name="substance_alcohol_impact">Impact on daily functioning (health, family, work)</string>
+    <string name="substance_alcohol_withdrawal">Symptoms suggestive of withdrawal</string>
+    <string name="substance_alcohol_problematic">CHO assessment of problematic alcohol use</string>
+    <string name="substance_alcohol_classification">Alcohol use classification</string>
+    <string name="substance_alcohol_system_action">System action</string>
     <string name="substance_other_specify">Specify other substance</string>
-    <string name="substance_frequency">Frequency of substance use</string>
+    <string name="substance_alcohol_frequency">Frequency of Alcohol use</string>
     <string name="brief_intervention_given">Brief intervention given</string>
 
     <string-array name="substance_frequency_options">
-        <item>Daily</item>
-        <item>Weekly</item>
-        <item>Monthly</item>
         <item>Occasionally</item>
+        <item>Regular</item>
+        <item>Daily</item>
     </string-array>
 
     <!-- Suicide Risk Screening -->
@@ -1487,7 +1491,7 @@
     <string name="suicide_previous_attempt">Previous suicide attempt</string>
     <string name="suicide_risk_alert_moderate">Moderate Suicide Risk: Immediate counselling required. Consider referral.</string>
     <string name="suicide_risk_alert_high">High Suicide Risk: Emergency intervention required. Refer immediately.</string>
-    <string name="suicide_hopelessness">Expressed hopelessness or being a burden</string>
+    <string name="suicide_hopelessness">Access to means</string>
     <string name="suicide_risk_level">Suicide risk level</string>
 
     <string-array name="suicide_risk_options">
@@ -1541,4 +1545,17 @@
     <string name="phq9_alert_urgent">Urgent referral (PHQ-9 score ≥ 15)</string>
     <string name="phq9_alert_emergency">Emergency referral (PHQ-9 score ≥ 20)</string>
     <string name="title_elderly_health_assessment">Elderly Health Assessment</string>
+    <string name="epilepsy_dementia_checklist_title">Epilepsy &amp; Dementia Screening Checklist</string>
+    <string name="ed_edRecurrentEpisodeloss">Episodes of loss of consciousness</string>
+    <string name="ed_recurrent_jerky_movements">Recurrent jerky movements / fits</string>
+    <string name="ed_progressive_memory_loss">Progressive memory loss</string>
+    <string name="ed_confusion_disorientation">Confusion / disorientation</string>
+    <string name="ed_functional_decline">Functional decline (daily activities)</string>
+    <string name="ed_screening_outcome">Screening Outcome</string>
+    <string name="ed_referral_required">Referral Required</string>
+    <string name="ed_psychosocial_intervention_provided">Psychosocial intervention provided</string>
+    <string name="ed_intervention_type">Type of intervention</string>
+    <string name="ed_session_date">Session date</string>
+    <string name="ed_duration_minutes">Duration (minutes)</string>
+    <string name="ed_remarks">Remarks</string>
 </resources>

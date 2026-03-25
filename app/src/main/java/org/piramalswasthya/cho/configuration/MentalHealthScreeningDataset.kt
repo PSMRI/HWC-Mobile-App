@@ -37,63 +37,36 @@ class MentalHealthScreeningDataset(
 
 
 
-    private val emotionalBehaviouralConcerns: FormElement by lazy {
-        FormElement(
-            id = 101,
+    private fun createYesNoRadioWithDependantsElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
             inputType = InputType.RADIO,
-            title = context.getString(R.string.emotional_behavioural_concerns),
+            title = context.getString(titleResId),
             entries = yesNoOptions,
             required = true,
             hasDependants = true
         )
     }
 
+    private val emotionalBehaviouralConcerns: FormElement by lazy {
+        createYesNoRadioWithDependantsElement(101, R.string.emotional_behavioural_concerns)
+    }
 
     private val substanceUseConcerns: FormElement by lazy {
-        FormElement(
-            id = 102,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.substance_use_concerns),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(102, R.string.substance_use_concerns)
     }
 
-
     private val selfHarmSuicideThoughts: FormElement by lazy {
-        FormElement(
-            id = 103,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.self_harm_suicide_thoughts),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(103, R.string.self_harm_suicide_thoughts)
     }
 
     // Q4
     private val memoryLossConfusion: FormElement by lazy {
-        FormElement(
-            id = 104,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.memory_loss_confusion),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(104, R.string.memory_loss_confusion)
     }
 
-
     private val seizuresFitsLoc: FormElement by lazy {
-        FormElement(
-            id = 105,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.seizures_fits_loc),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(105, R.string.seizures_fits_loc)
     }
 
 
@@ -108,161 +81,91 @@ class MentalHealthScreeningDataset(
         )
     }
 
+    private fun createHeadlineElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
+            inputType = InputType.HEADLINE,
+            title = context.getString(titleResId),
+            required = false
+        )
+    }
 
+    private fun createTextViewElement(elementId: Int, titleStr: String): FormElement {
+        return FormElement(
+            id = elementId,
+            inputType = InputType.TEXT_VIEW,
+            title = titleStr,
+            required = false
+        )
+    }
 
     private val phq9Header: FormElement by lazy {
-        FormElement(
-            id = 200,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.phq9_section_title),
-            required = false
+        createHeadlineElement(200, R.string.phq9_section_title)
+    }
+
+    private fun createPhq9RadioElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
+            inputType = InputType.RADIO,
+            title = context.getString(titleResId),
+            entries = phq9Options,
+            required = true,
+            hasDependants = true
         )
     }
 
     private val phq9LittleInterest: FormElement by lazy {
-        FormElement(
-            id = 201,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_little_interest),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(201, R.string.phq9_little_interest)
     }
 
     private val phq9FeelingDown: FormElement by lazy {
-        FormElement(
-            id = 202,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_feeling_down),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(202, R.string.phq9_feeling_down)
     }
 
     private val phq9SleepTrouble: FormElement by lazy {
-        FormElement(
-            id = 203,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_sleep_trouble),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(203, R.string.phq9_sleep_trouble)
     }
 
     private val phq9FeelingTired: FormElement by lazy {
-        FormElement(
-            id = 204,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_feeling_tired),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(204, R.string.phq9_feeling_tired)
     }
 
     private val phq9Appetite: FormElement by lazy {
-        FormElement(
-            id = 205,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_appetite),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(205, R.string.phq9_appetite)
     }
 
     private val phq9FeelingBad: FormElement by lazy {
-        FormElement(
-            id = 206,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_feeling_bad),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(206, R.string.phq9_feeling_bad)
     }
 
     private val phq9Concentration: FormElement by lazy {
-        FormElement(
-            id = 207,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_concentration),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(207, R.string.phq9_concentration)
     }
 
     private val phq9MovingSlowly: FormElement by lazy {
-        FormElement(
-            id = 208,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_moving_slowly),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(208, R.string.phq9_moving_slowly)
     }
 
     private val phq9SelfHarmThoughts: FormElement by lazy {
-        FormElement(
-            id = 209,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.phq9_self_harm_thoughts),
-            entries = phq9Options,
-            required = true,
-            hasDependants = true
-        )
+        createPhq9RadioElement(209, R.string.phq9_self_harm_thoughts)
     }
 
-    private var phq9TotalScore = FormElement(
-        id = 210,
-        inputType = InputType.TEXT_VIEW,
-        title = context.getString(R.string.phq9_total_score),
-        required = false
-    )
-    private var phq9DepressionSeverity = FormElement(
-        id = 211,
-        inputType = InputType.TEXT_VIEW,
-        title = "Depression Severity",
-        required = false
-    )
+    private var phq9TotalScore = createTextViewElement(210, context.getString(R.string.phq9_total_score))
 
-    private var phq9SystemAction = FormElement(
-        id = 212,
-        inputType = InputType.TEXT_VIEW,
-        title = "System Action",
-        required = false
-    )
+    private var phq9DepressionSeverity = createTextViewElement(211, "Depression Severity")
 
-
+    private var phq9SystemAction = createTextViewElement(212, "System Action")
 
     private val substanceHeader: FormElement by lazy {
-        FormElement(
-            id = 300,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.substance_section_title),
-            required = false
-        )
+        createHeadlineElement(300, R.string.substance_section_title)
     }
+
     private val substanceTobaccoHeader: FormElement by lazy {
-        FormElement(
-            id = 312,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.substance_tobacco_title),
-            required = false
-        )
+        createHeadlineElement(312, R.string.substance_tobacco_title)
     }
+
     private val substanceAlcoholHeader: FormElement by lazy {
-        FormElement(
-            id = 313,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.substance_alcohol_title),
-            required = false
-        )
+        createHeadlineElement(313, R.string.substance_alcohol_title)
     }
     private val substanceCurrentTobaccoUse = FormElement(
         id = 307,
@@ -289,19 +192,9 @@ class MentalHealthScreeningDataset(
         required = true
     )
 
-    private var substanceTobaccoOutcome = FormElement(
-        id = 310,
-        inputType = InputType.TEXT_VIEW,
-        title = "Tobacco use outcome",
-        required = false
-    )
+    private var substanceTobaccoOutcome = createTextViewElement(310, "Tobacco use outcome")
 
-    private var substanceSystemAction = FormElement(
-        id = 311,
-        inputType = InputType.TEXT_VIEW,
-        title = "System action",
-        required = false
-    )
+    private var substanceSystemAction = createTextViewElement(311, "System action")
 
     private val substanceAlcoholUse: FormElement by lazy {
         FormElement(
@@ -309,7 +202,8 @@ class MentalHealthScreeningDataset(
             inputType = InputType.RADIO,
             title = context.getString(R.string.substance_alcohol_use),
             entries = yesNoOptions,
-            required = true
+            required = true,
+            hasDependants = true
         )
     }
 
@@ -323,15 +217,20 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private val substanceOtherUse: FormElement by lazy {
-        FormElement(
-            id = 303,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.substance_other_use),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+    private val substance_alcohol_loss: FormElement by lazy {
+        createYesNoRadioWithDependantsElement(303, R.string.substance_alcohol_loss)
+    }
+
+    private val substanceAlcoholImpact: FormElement by lazy {
+        createYesNoRadioWithDependantsElement(314, R.string.substance_alcohol_impact)
+    }
+
+    private val substanceAlcoholWithdrawal: FormElement by lazy {
+        createYesNoRadioWithDependantsElement(315, R.string.substance_alcohol_withdrawal)
+    }
+
+    private val substanceAlcoholProblematic: FormElement by lazy {
+        createYesNoRadioWithDependantsElement(316, R.string.substance_alcohol_problematic)
     }
 
     private val substanceOtherSpecify: FormElement by lazy {
@@ -345,11 +244,15 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private val substanceFrequency: FormElement by lazy {
+    private val substanceAlcoholClassification = createTextViewElement(317, context.getString(R.string.substance_alcohol_classification))
+
+    private val substanceAlcoholSystemAction = createTextViewElement(318, context.getString(R.string.substance_alcohol_system_action))
+
+    private val substance_alcohol_frequency: FormElement by lazy {
         FormElement(
             id = 305,
             inputType = InputType.DROPDOWN,
-            title = context.getString(R.string.substance_frequency),
+            title = context.getString(R.string.substance_alcohol_frequency),
             entries = substanceFrequencyOptions,
             required = true
         )
@@ -368,186 +271,87 @@ class MentalHealthScreeningDataset(
 
 
     private val suicideHeader: FormElement by lazy {
-        FormElement(
-            id = 400,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.suicide_section_title),
-            required = false
-        )
+        createHeadlineElement(400, R.string.suicide_section_title)
     }
 
     private val suicideCurrentThoughts: FormElement by lazy {
-        FormElement(
-            id = 401,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_current_thoughts),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(401, R.string.suicide_current_thoughts)
     }
 
     private val suicidePlan: FormElement by lazy {
-        FormElement(
-            id = 402,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_plan),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(402, R.string.suicide_plan)
     }
 
     private val suicidePreviousAttempt: FormElement by lazy {
-        FormElement(
-            id = 403,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_previous_attempt),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(403, R.string.suicide_previous_attempt)
     }
 
     private val suicideHopelessness: FormElement by lazy {
-        FormElement(
-            id = 404,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_hopelessness),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(404, R.string.suicide_hopelessness)
     }
 
-    private var suicideRiskLevel = FormElement(
-        id = 405,
-        inputType = InputType.TEXT_VIEW,
-        title = context.getString(R.string.suicide_risk_level),
-        required = false
-    )
+    private var suicideRiskLevel = createTextViewElement(405, context.getString(R.string.suicide_risk_level))
 
     private val suicideImmediateAssess: FormElement by lazy {
-        FormElement(
-            id = 406,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.suicide_immediate_assess),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createYesNoRadioWithDependantsElement(406, R.string.suicide_immediate_assess)
     }
 
 
 
     private val dementiaHeader: FormElement by lazy {
-        FormElement(
-            id = 500,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.dementia_section_title),
-            required = false
+        createHeadlineElement(500, R.string.dementia_section_title)
+    }
+
+    private fun createEpilepsyDementiaRadioElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
+            inputType = InputType.RADIO,
+            title = context.getString(titleResId),
+            entries = yesNoOptions,
+            required = true
         )
     }
 
     private val dementiaProgressiveMemoryLoss: FormElement by lazy {
-        FormElement(
-            id = 501,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_progressive_memory_loss),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(501, R.string.dementia_progressive_memory_loss)
     }
 
     private val dementiaForgettingRecent: FormElement by lazy {
-        FormElement(
-            id = 502,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_forgetting_recent),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(502, R.string.dementia_forgetting_recent)
     }
 
     private val dementiaDisorientation: FormElement by lazy {
-        FormElement(
-            id = 503,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_disorientation),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(503, R.string.dementia_disorientation)
     }
 
     private val dementiaDailyActivities: FormElement by lazy {
-        FormElement(
-            id = 504,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_daily_activities),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(504, R.string.dementia_daily_activities)
     }
 
     private val dementiaBehaviouralChanges: FormElement by lazy {
-        FormElement(
-            id = 505,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.dementia_behavioural_changes),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(505, R.string.dementia_behavioural_changes)
     }
 
 
 
     private val epilepsyHeader: FormElement by lazy {
-        FormElement(
-            id = 600,
-            inputType = InputType.HEADLINE,
-            title = context.getString(R.string.epilepsy_section_title),
-            required = false
-        )
+        createHeadlineElement(600, R.string.epilepsy_section_title)
     }
 
     private val epilepsyRecurrentSeizures: FormElement by lazy {
-        FormElement(
-            id = 601,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.epilepsy_recurrent_seizures),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(601, R.string.epilepsy_recurrent_seizures)
     }
 
     private val epilepsyJerkyMovements: FormElement by lazy {
-        FormElement(
-            id = 602,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.epilepsy_jerky_movements),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(602, R.string.epilepsy_jerky_movements)
     }
 
     private val epilepsyTongueBite: FormElement by lazy {
-        FormElement(
-            id = 603,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.epilepsy_tongue_bite),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(603, R.string.epilepsy_tongue_bite)
     }
 
     private val epilepsyConfusionAfter: FormElement by lazy {
-        FormElement(
-            id = 604,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.epilepsy_confusion_after),
-            entries = yesNoOptions,
-            required = true
-        )
+        createEpilepsyDementiaRadioElement(604, R.string.epilepsy_confusion_after)
     }
 
     private val epilepsyLocDuration: FormElement by lazy {
@@ -559,48 +363,110 @@ class MentalHealthScreeningDataset(
             required = true
         )
     }
+    private val edChecklistHeader: FormElement by lazy {
+        createHeadlineElement(700, R.string.epilepsy_dementia_checklist_title)
+    }
 
 
-    override val referralRequired = createReferralRequired(701)
-    override val referralLevel = createReferralLevel(702)
+    private fun createEdCheckboxElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
+            inputType = InputType.CHECKBOXES,
+            title = context.getString(titleResId),
+            entries = arrayOf(yesNoOptions[0]),
+            required = false
+        )
+    }
+
+    private val edRecurrentJerkyMovements: FormElement by lazy {
+        createEdCheckboxElement(701, R.string.ed_recurrent_jerky_movements)
+    }
+
+    private val edProgressiveMemoryLoss: FormElement by lazy {
+        createEdCheckboxElement(702, R.string.ed_progressive_memory_loss)
+    }
+
+    private val edConfusionDisorientation: FormElement by lazy {
+        createEdCheckboxElement(703, R.string.ed_confusion_disorientation)
+    }
+
+    private val edFunctionalDecline: FormElement by lazy {
+        createEdCheckboxElement(704, R.string.ed_functional_decline)
+    }
+
+    private var edScreeningOutcome = createTextViewElement(705, context.getString(R.string.ed_screening_outcome))
+
+    private var edReferralRequired = createTextViewElement(706, context.getString(R.string.ed_referral_required))
+    private val edRecurrentEpisodeloss: FormElement by lazy {
+        createEdCheckboxElement(707, R.string.ed_edRecurrentEpisodeloss)
+    }
+    private val edPsychosocialIntervention: FormElement by lazy {
+        FormElement(
+            id = 708,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.ed_psychosocial_intervention_provided),
+            entries = yesNoOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    private val edInterventionType: FormElement by lazy {
+        FormElement(
+            id = 709,
+            inputType = InputType.CHECKBOXES,
+            title = context.getString(R.string.ed_intervention_type),
+            entries = arrayOf("Psychoeducation", "Counselling", "Stress management", "Family counselling"),
+            required = true
+        )
+    }
+
+    private val edSessionDate: FormElement by lazy {
+        FormElement(
+            id = 710,
+            inputType = InputType.DATE_PICKER,
+            title = context.getString(R.string.ed_session_date),
+            required = true
+        )
+    }
+
+    private val edDurationMinutes: FormElement by lazy {
+        FormElement(
+            id = 711,
+            inputType = InputType.EDIT_TEXT,
+            title = context.getString(R.string.ed_duration_minutes),
+            required = true,
+            etInputType = android.text.InputType.TYPE_CLASS_NUMBER,
+            min = 10,
+            max = 60
+        )
+    }
+
+    private val edRemarks: FormElement by lazy {
+        FormElement(
+            id = 712,
+            inputType = InputType.EDIT_TEXT,
+            title = context.getString(R.string.ed_remarks),
+            required = false,
+            etMaxLength = 250
+        )
+    }
+
+    // ── Section F: Referral & Follow-up ──────────────────────────────
+
+    override val referralRequired = createReferralRequired(801)
+    override val referralLevel = createReferralLevel(802)
     override val reasonForReferral = FormElement(
-        id = 703,
+        id = 803,
         inputType = InputType.DROPDOWN,
         title = context.getString(R.string.mental_health_reason_for_referral),
         entries = context.resources.getStringArray(R.array.mental_health_referral_reasons),
         required = true
     )
-    override val followUpRequired = createFollowUpRequired(704)
-    override val followUpDate = createFollowUpDate(705)
+    override val followUpRequired = createFollowUpRequired(804)
+    override val followUpDate = createFollowUpDate(805)
 
-
-    private val phq9Elements = listOf(
-        phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
-        phq9FeelingTired, phq9Appetite, phq9FeelingBad, phq9Concentration,
-        phq9MovingSlowly, phq9SelfHarmThoughts, phq9TotalScore, phq9DepressionSeverity, phq9SystemAction
-    )
-
-    private val substanceElements = listOf(
-        substanceHeader,substanceTobaccoHeader, substanceCurrentTobaccoUse,
-        substanceTobaccoOutcome, substanceSystemAction, substanceAlcoholHeader, substanceOtherUse,
-        substanceFrequency, briefInterventionGiven, substanceAlcoholUse, substanceTobaccoUse
-    )
-
-    private val suicideElements = listOf(
-        suicideHeader, suicidePreviousAttempt, suicidePlan,
-        suicideCurrentThoughts, suicideHopelessness, suicideImmediateAssess, suicideRiskLevel
-    )
-
-    private val dementiaElements = listOf(
-        dementiaHeader, dementiaProgressiveMemoryLoss, dementiaForgettingRecent,
-        dementiaDisorientation, dementiaDailyActivities, dementiaBehaviouralChanges
-    )
-
-    private val epilepsyElements = listOf(
-        epilepsyHeader, epilepsyRecurrentSeizures, epilepsyJerkyMovements,
-        epilepsyTongueBite, epilepsyConfusionAfter, epilepsyLocDuration
-    )
-
+    // ── Setup Page ───────────────────────────────────────────────────
 
     suspend fun setUpPage(
         savedRecord: MentalHealthScreeningCache?,
@@ -615,68 +481,13 @@ class MentalHealthScreeningDataset(
 
         populateFromCache(cache)
 
-        val list = mutableListOf<FormElement>()
-
-        list.add(emotionalBehaviouralConcerns)
-        list.add(substanceUseConcerns)
-        list.add(selfHarmSuicideThoughts)
-        list.add(memoryLossConfusion)
-        list.add(seizuresFitsLoc)
-        list.add(isPostpartum)
-
-        if (shouldShowPhq9()) {
-            list.addAll(phq9Elements)
-        }
-
-        if (substanceUseConcerns.value == "Yes") {
-            list.addAll(substanceElements)
-            if (substanceCurrentTobaccoUse.value == "Yes") {
-                val idx = list.indexOf(substanceCurrentTobaccoUse)
-                list.add(idx + 1, substanceTobaccoType)
-                list.add(idx + 2, substanceTobaccoFrequency)
-            }
-            if (substanceOtherUse.value == "Yes") {
-                list.add(list.indexOf(substanceOtherUse) + 1, substanceOtherSpecify)
-            }
-        }
-
-        if (selfHarmSuicideThoughts.value == "Yes") {
-            list.addAll(suicideElements)
-        }
-
-        if (memoryLossConfusion.value == "Yes") {
-            list.addAll(dementiaElements)
-        }
-
-        if (seizuresFitsLoc.value == "Yes") {
-            list.addAll(epilepsyElements)
-        }
-
-        addReferralFollowUpElements(list)
-
-        setUpPage(list)
+        setUpPage(buildFormElementList())
     }
 
     private fun shouldShowPhq9(): Boolean {
         return emotionalBehaviouralConcerns.value == "Yes" ||
                 selfHarmSuicideThoughts.value == "Yes" ||
                 cache.isPostpartum == true
-    }
-
-
-    private fun computePhq9Total() {
-        val scores = listOfNotNull(
-            extractPhq9Score(phq9LittleInterest.value),
-            extractPhq9Score(phq9FeelingDown.value),
-            extractPhq9Score(phq9SleepTrouble.value),
-            extractPhq9Score(phq9FeelingTired.value),
-            extractPhq9Score(phq9Appetite.value),
-            extractPhq9Score(phq9FeelingBad.value),
-            extractPhq9Score(phq9Concentration.value),
-            extractPhq9Score(phq9MovingSlowly.value),
-            extractPhq9Score(phq9SelfHarmThoughts.value)
-        )
-        phq9TotalScore.value = if (scores.isNotEmpty()) scores.sum().toString() else null
     }
 
 
@@ -703,6 +514,7 @@ class MentalHealthScreeningDataset(
             memoryLossConfusion.id -> {
                 if (memoryLossConfusion.value != "Yes") {
                     clearDementiaValues()
+                    if (seizuresFitsLoc.value != "Yes") clearEdChecklistValues()
                 }
                 rebuildConditionalSections()
                 formId
@@ -711,19 +523,13 @@ class MentalHealthScreeningDataset(
             seizuresFitsLoc.id -> {
                 if (seizuresFitsLoc.value != "Yes") {
                     clearEpilepsyValues()
+                    if (memoryLossConfusion.value != "Yes") clearEdChecklistValues()
                 }
                 rebuildConditionalSections()
                 formId
             }
 
 
-            substanceOtherUse.id -> {
-                if (substanceOtherUse.value != "Yes") {
-                    substanceOtherSpecify.value = null
-                }
-                rebuildConditionalSections()
-                formId
-            }
 
             substanceTobaccoUse.id -> {
                 rebuildConditionalSections()
@@ -731,6 +537,13 @@ class MentalHealthScreeningDataset(
             }
 
             substanceCurrentTobaccoUse.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
+            substanceAlcoholUse.id, substance_alcohol_loss.id,
+            substanceAlcoholImpact.id, substanceAlcoholWithdrawal.id,
+            substanceAlcoholProblematic.id, substance_alcohol_frequency.id -> {
                 rebuildConditionalSections()
                 formId
             }
@@ -749,6 +562,24 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
+            edRecurrentEpisodeloss.id, edRecurrentJerkyMovements.id, edProgressiveMemoryLoss.id,
+            edConfusionDisorientation.id, edFunctionalDecline.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+            edPsychosocialIntervention.id -> {
+                rebuildConditionalSections()
+                formId
+            }
+
+            edDurationMinutes.id -> {
+                validateIntMinMax(edDurationMinutes)
+            }
+
+            edSessionDate.id, edRemarks.id -> {
+                formId
+            }
+
             // Handle referral & follow-up changes
             else -> {
                 val result = handleReferralFollowUpChange(formId, index)
@@ -757,9 +588,11 @@ class MentalHealthScreeningDataset(
         }
     }
 
-    private suspend fun rebuildConditionalSections() {
+
+    private fun buildFormElementList(): MutableList<FormElement> {
         val list = mutableListOf<FormElement>()
 
+        // Initial screening questions
         list.add(emotionalBehaviouralConcerns)
         list.add(substanceUseConcerns)
         list.add(selfHarmSuicideThoughts)
@@ -767,58 +600,89 @@ class MentalHealthScreeningDataset(
         list.add(seizuresFitsLoc)
         list.add(isPostpartum)
 
-        updatePhq9Outcome()
-        updateTobaccoOutcome()
-        computeSuicideRiskLevel()
-
+        // PHQ-9 section
         if (shouldShowPhq9()) {
-            val phq9ElementsWithFreshCopies = listOf(
+            list.addAll(listOf(
                 phq9Header, phq9LittleInterest, phq9FeelingDown, phq9SleepTrouble,
                 phq9FeelingTired, phq9Appetite, phq9FeelingBad, phq9Concentration,
                 phq9MovingSlowly, phq9SelfHarmThoughts,
                 phq9TotalScore.copy(), phq9DepressionSeverity.copy(), phq9SystemAction.copy()
-            )
-            list.addAll(phq9ElementsWithFreshCopies)
+            ))
         }
 
+        // Substance use section
         if (substanceUseConcerns.value == "Yes") {
-            val substanceElementsWithFreshCopies = listOf(
-                substanceHeader,substanceTobaccoHeader, substanceCurrentTobaccoUse,
-                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(),substanceAlcoholHeader,
-                substanceOtherUse, substanceFrequency, briefInterventionGiven,
-                substanceAlcoholUse, substanceTobaccoUse
-            )
-            list.addAll(substanceElementsWithFreshCopies)
+            list.addAll(listOf(
+                substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
+                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(),
+                substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic,
+                substanceAlcoholClassification.copy(), substanceAlcoholSystemAction.copy()
+            ))
             if (substanceCurrentTobaccoUse.value == "Yes") {
                 val idx = list.indexOf(substanceCurrentTobaccoUse)
                 list.add(idx + 1, substanceTobaccoType)
                 list.add(idx + 2, substanceTobaccoFrequency)
             }
-            if (substanceOtherUse.value == "Yes") {
-                list.add(list.indexOf(substanceOtherUse) + 1, substanceOtherSpecify)
+            if (substanceAlcoholUse.value == "Yes") {
+                val idx = list.indexOf(substanceAlcoholUse)
+                list.add(idx + 1, substance_alcohol_frequency)
+                list.add(idx + 2, substance_alcohol_loss)
+                list.add(idx + 3, substanceAlcoholImpact)
+                list.add(idx + 4, substanceAlcoholWithdrawal)
+            } else {
+                clearAlcoholSubFields()
             }
         }
 
+        // Suicide risk section
         if (selfHarmSuicideThoughts.value == "Yes") {
-            val suicideElementsWithFreshCopies = listOf(
+            list.addAll(listOf(
                 suicideHeader, suicidePreviousAttempt, suicidePlan,
-                suicideCurrentThoughts, suicideHopelessness, suicideImmediateAssess,
-                suicideRiskLevel.copy()
-            )
-            list.addAll(suicideElementsWithFreshCopies)
+                suicideHopelessness, suicideImmediateAssess, suicideRiskLevel.copy()
+            ))
         }
 
-        if (memoryLossConfusion.value == "Yes") {
-            list.addAll(dementiaElements)
+        // Epilepsy & Dementia checklist
+        if (memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes") {
+            list.addAll(listOf(
+                edChecklistHeader, edRecurrentEpisodeloss, edRecurrentJerkyMovements,
+                edProgressiveMemoryLoss, edConfusionDisorientation, edFunctionalDecline,
+                edScreeningOutcome.copy(), edReferralRequired.copy()
+            ))
         }
 
-        if (seizuresFitsLoc.value == "Yes") {
-            list.addAll(epilepsyElements)
+        // Psychosocial intervention (conditional on ED outcome)
+        if (edScreeningOutcome.value == "Suspected") {
+            list.add(edPsychosocialIntervention)
+            if (edPsychosocialIntervention.value == "Yes") {
+                list.add(edInterventionType)
+                edSessionDate.max = System.currentTimeMillis()
+                list.add(edSessionDate)
+                list.add(edDurationMinutes)
+                list.add(edRemarks)
+            } else {
+                clearEdPsychosocialDependants()
+            }
+        } else {
+            clearEdPsychosocialValues()
         }
 
+        // Section F: Referral & Follow-up
         addReferralFollowUpElements(list)
 
-        setUpPage(list)
+        return list
+    }
+
+
+    private suspend fun rebuildConditionalSections() {
+        updatePhq9Outcome()
+        updateTobaccoOutcome()
+        computeSuicideRiskLevel()
+        computeAlcoholClassification()
+        computeAlcoholSystemAction()
+        computeEdScreeningOutcome()
+
+        setUpPage(buildFormElementList())
     }
 
 
@@ -898,10 +762,72 @@ class MentalHealthScreeningDataset(
 
         substanceSystemAction.value = when (substanceTobaccoOutcome.value) {
             "Use identified"    -> "Brief counselling"
-            "No use identified" -> "Close screening"
+            "No use identified" -> "Referral"
             else                -> null
         }
     }
+
+    private fun computeAlcoholClassification() {
+        val use = substanceAlcoholUse.value
+        val frequency = substance_alcohol_frequency.value
+        val loss = substance_alcohol_loss.value
+        val impact = substanceAlcoholImpact.value
+        val withdrawal = substanceAlcoholWithdrawal.value
+        val problematic = substanceAlcoholProblematic.value
+
+        // No answer yet — show nothing
+        if (use == null && frequency == null && loss == null && impact == null && withdrawal == null && problematic == null) {
+            substanceAlcoholClassification.value = null
+            return
+        }
+
+        // Any of these present → Problematic (takes priority over everything)
+        val hasRiskFactor = loss == "Yes" ||
+                impact == "Yes" ||
+                withdrawal == "Yes" ||
+                problematic == "Yes" ||
+                frequency == "Regular" ||
+                frequency == "Daily"
+
+
+        val noAlcoholUse = use == "No"
+        val occasionalWithNoRisks = (frequency == "Occasionally") &&
+                loss != "Yes" &&
+                impact != "Yes" &&
+                withdrawal != "Yes"
+
+        substanceAlcoholClassification.value = when {
+            hasRiskFactor -> "Problematic"
+            noAlcoholUse || occasionalWithNoRisks -> "Non-problematic"
+            else -> null
+        }
+    }
+
+    private fun computeAlcoholSystemAction() {
+        substanceAlcoholSystemAction.value = when (substanceAlcoholClassification.value) {
+            "Problematic"     -> "Brief intervention"
+            "Non-problematic" -> "Referral"
+            else              -> null
+        }
+    }
+
+    private fun computeEdScreeningOutcome() {
+        if (memoryLossConfusion.value != "Yes" && seizuresFitsLoc.value != "Yes") {
+            edScreeningOutcome.value = null
+            edReferralRequired.value = null
+            return
+        }
+
+        val hasRisk = isYes(edRecurrentEpisodeloss.value) || isYes(edRecurrentJerkyMovements.value) ||
+                isYes(edProgressiveMemoryLoss.value) ||
+                isYes(edConfusionDisorientation.value) ||
+                isYes(edFunctionalDecline.value)
+
+        edScreeningOutcome.value = if (hasRisk) "Suspected" else "Not suspected"
+        edReferralRequired.value = if (hasRisk) "Yes" else "No"
+    }
+
+
 
 
     private suspend fun computeSuicideRiskLevel() {
@@ -928,7 +854,6 @@ class MentalHealthScreeningDataset(
             else             -> suicideRiskOptions.getOrElse(2) { "High" }
         }
 
-        // Alert when risk is Moderate or High
         val riskValue = suicideRiskLevel.value ?: ""
         val moderate  = suicideRiskOptions.getOrElse(1) { "Moderate" }
         val high      = suicideRiskOptions.getOrElse(2) { "High" }
@@ -981,10 +906,29 @@ class MentalHealthScreeningDataset(
         substanceSystemAction.value = null
         substanceAlcoholUse.value = null
         substanceTobaccoUse.value = null
-        substanceOtherUse.value = null
-        substanceOtherSpecify.value = null
-        substanceFrequency.value = null
+        clearAlcoholSubFields()
         briefInterventionGiven.value = null
+    }
+    private fun clearEdPsychosocialValues() {
+        edPsychosocialIntervention.value = null
+        clearEdPsychosocialDependants()
+    }
+
+    private fun clearEdPsychosocialDependants() {
+        edInterventionType.value = null
+        edSessionDate.value = null
+        edDurationMinutes.value = null
+        edRemarks.value = null
+    }
+
+    private fun clearAlcoholSubFields() {
+        substance_alcohol_frequency.value = null
+        substance_alcohol_loss.value = null
+        substanceAlcoholImpact.value = null
+        substanceAlcoholWithdrawal.value = null
+        substanceAlcoholProblematic.value = null
+        substanceAlcoholClassification.value = null
+        substanceAlcoholSystemAction.value = null
     }
 
     private fun clearSuicideValues() {
@@ -1013,21 +957,27 @@ class MentalHealthScreeningDataset(
         epilepsyLocDuration.value = null
     }
 
+    private fun clearEdChecklistValues() {
+        edRecurrentEpisodeloss.value = null
+        edRecurrentJerkyMovements.value = null
+        edProgressiveMemoryLoss.value = null
+        edConfusionDisorientation.value = null
+        edFunctionalDecline.value = null
+        edScreeningOutcome.value = null
+        edReferralRequired.value = null
+    }
+
+
+    // ── Populate from Cache ──────────────────────────────────────────
 
     private fun populateFromCache(cache: MentalHealthScreeningCache) {
         // Initial screening questions
-        emotionalBehaviouralConcerns.value =
-            cache.emotionalBehaviouralConcerns?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        substanceUseConcerns.value =
-            cache.substanceUseConcerns?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        selfHarmSuicideThoughts.value =
-            cache.selfHarmSuicideThoughts?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        memoryLossConfusion.value =
-            cache.memoryLossConfusion?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        seizuresFitsLoc.value =
-            cache.seizuresFitsLoc?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        isPostpartum.value =
-            cache.isPostpartum?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        emotionalBehaviouralConcerns.value = boolToYesNo(cache.emotionalBehaviouralConcerns)
+        substanceUseConcerns.value = boolToYesNo(cache.substanceUseConcerns)
+        selfHarmSuicideThoughts.value = boolToYesNo(cache.selfHarmSuicideThoughts)
+        memoryLossConfusion.value = boolToYesNo(cache.memoryLossConfusion)
+        seizuresFitsLoc.value = boolToYesNo(cache.seizuresFitsLoc)
+        isPostpartum.value = boolToYesNo(cache.isPostpartum)
 
         // PHQ-9
         phq9LittleInterest.value = cache.phq9LittleInterest?.let { phq9Options.getOrNull(it) }
@@ -1044,57 +994,57 @@ class MentalHealthScreeningDataset(
         phq9SystemAction.value = cache.phq9SystemAction
 
         // Substance Use
-        substanceCurrentTobaccoUse.value =
-            cache.substanceCurrentTobaccoUse?.let { if (it) "Yes" else "No" }
+        substanceCurrentTobaccoUse.value = boolToYesNo(cache.substanceCurrentTobaccoUse)
         substanceTobaccoType.value = cache.substanceTobaccoType
         substanceTobaccoFrequency.value = cache.substanceTobaccoFrequency
         substanceTobaccoOutcome.value = cache.substanceTobaccoOutcome
         substanceSystemAction.value = cache.substanceSystemAction
-        substanceAlcoholUse.value =
-            cache.substanceAlcoholUse?.let { if (it) "Yes" else "No" }
-        substanceTobaccoUse.value =
-            cache.substanceTobaccoUse?.let { if (it) "Yes" else "No" }
-        substanceOtherUse.value =
-            cache.substanceOtherUse?.let { if (it) "Yes" else "No" }
+        substanceAlcoholUse.value = boolToYesNo(cache.substanceAlcoholUse)
+        substanceTobaccoUse.value = boolToYesNo(cache.substanceTobaccoUse)
+        substance_alcohol_loss.value = boolToYesNo(cache.substance_alcohol_loss)
+        substanceAlcoholImpact.value = boolToYesNo(cache.substanceAlcoholImpact)
+        substanceAlcoholWithdrawal.value = boolToYesNo(cache.substanceAlcoholWithdrawal)
+        substanceAlcoholProblematic.value = boolToYesNo(cache.substanceAlcoholProblematic)
+        substanceAlcoholClassification.value = cache.substanceAlcoholClassification
+        substanceAlcoholSystemAction.value = cache.substanceAlcoholSystemAction
         substanceOtherSpecify.value = cache.substanceOtherSpecify
-        substanceFrequency.value = cache.substanceFrequency
-        briefInterventionGiven.value =
-            cache.briefInterventionGiven?.let { if (it) "Yes" else "No" }
+        substance_alcohol_frequency.value = cache.substance_alcohol_frequency
+
         // Suicide Risk
-        suicideCurrentThoughts.value =
-            cache.suicideCurrentThoughts?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        suicidePlan.value =
-            cache.suicidePlan?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        suicidePreviousAttempt.value =
-            cache.suicidePreviousAttempt?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        suicideHopelessness.value =
-            cache.suicideHopelessness?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        suicideImmediateAssess.value =
-            cache.suicideImmediateAssess?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        suicideCurrentThoughts.value = boolToYesNo(cache.suicideCurrentThoughts)
+        suicidePlan.value = boolToYesNo(cache.suicidePlan)
+        suicidePreviousAttempt.value = boolToYesNo(cache.suicidePreviousAttempt)
+        suicideHopelessness.value = boolToYesNo(cache.suicideHopelessness)
+        suicideImmediateAssess.value = boolToYesNo(cache.suicideImmediateAssess)
         suicideRiskLevel.value = cache.suicideRiskLevel
 
         // Dementia
-        dementiaProgressiveMemoryLoss.value =
-            cache.dementiaProgressiveMemoryLoss?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        dementiaForgettingRecent.value =
-            cache.dementiaForgettingRecent?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        dementiaDisorientation.value =
-            cache.dementiaDisorientation?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        dementiaDailyActivities.value =
-            cache.dementiaDailyActivities?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        dementiaBehaviouralChanges.value =
-            cache.dementiaBehaviouralChanges?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        dementiaProgressiveMemoryLoss.value = boolToYesNo(cache.dementiaProgressiveMemoryLoss)
+        dementiaForgettingRecent.value = boolToYesNo(cache.dementiaForgettingRecent)
+        dementiaDisorientation.value = boolToYesNo(cache.dementiaDisorientation)
+        dementiaDailyActivities.value = boolToYesNo(cache.dementiaDailyActivities)
+        dementiaBehaviouralChanges.value = boolToYesNo(cache.dementiaBehaviouralChanges)
 
         // Epilepsy
-        epilepsyRecurrentSeizures.value =
-            cache.epilepsyRecurrentSeizures?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        epilepsyJerkyMovements.value =
-            cache.epilepsyJerkyMovements?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        epilepsyTongueBite.value =
-            cache.epilepsyTongueBite?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        epilepsyConfusionAfter.value =
-            cache.epilepsyConfusionAfter?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+        epilepsyRecurrentSeizures.value = boolToYesNo(cache.epilepsyRecurrentSeizures)
+        epilepsyJerkyMovements.value = boolToYesNo(cache.epilepsyJerkyMovements)
+        epilepsyTongueBite.value = boolToYesNo(cache.epilepsyTongueBite)
+        epilepsyConfusionAfter.value = boolToYesNo(cache.epilepsyConfusionAfter)
         epilepsyLocDuration.value = cache.epilepsyLocDuration
+
+        // Epilepsy & Dementia Checklist
+        edRecurrentEpisodeloss.value = boolToChecked(cache.edRecurrentEpisodeloss)
+        edRecurrentJerkyMovements.value = boolToChecked(cache.edRecurrentJerkyMovements)
+        edProgressiveMemoryLoss.value = boolToChecked(cache.edProgressiveMemoryLoss)
+        edConfusionDisorientation.value = boolToChecked(cache.edConfusionDisorientation)
+        edFunctionalDecline.value = boolToChecked(cache.edFunctionalDecline)
+        edScreeningOutcome.value = cache.edScreeningOutcome
+        edReferralRequired.value = cache.edReferralRequired
+        edPsychosocialIntervention.value = boolToYesNo(cache.edPsychosocialInterventionProvided)
+        edInterventionType.value = cache.edInterventionType
+        edSessionDate.value = cache.edSessionDate
+        edDurationMinutes.value = cache.edDurationMinutes?.toString()
+        edRemarks.value = cache.edRemarks
 
         // Section F
         populateReferralFollowUpFromCache(cache)
@@ -1118,6 +1068,12 @@ class MentalHealthScreeningDataset(
             value == yesNoOptions.getOrNull(1) -> false
             else -> null
         }
+
+    private fun boolToYesNo(value: Boolean?): String? =
+        value?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
+
+    private fun boolToChecked(value: Boolean?): String? =
+        value?.let { if (it) yesNoOptions[0] else null }
 
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
@@ -1173,10 +1129,13 @@ class MentalHealthScreeningDataset(
                 it.substanceSystemAction = substanceSystemAction.value
                 it.substanceAlcoholUse = substanceAlcoholUse.value == "Yes"
                 it.substanceTobaccoUse = substanceTobaccoUse.value == "Yes"
-                it.substanceOtherUse = substanceOtherUse.value == "Yes"
-                it.substanceOtherSpecify =
-                    if (it.substanceOtherUse == true) substanceOtherSpecify.value else null
-                it.substanceFrequency = substanceFrequency.value
+                it.substance_alcohol_loss = substance_alcohol_loss.value == "Yes"
+                it.substanceAlcoholImpact = substanceAlcoholImpact.value == "Yes"
+                it.substanceAlcoholWithdrawal = substanceAlcoholWithdrawal.value == "Yes"
+                it.substanceAlcoholProblematic = substanceAlcoholProblematic.value == "Yes"
+                it.substanceAlcoholClassification = substanceAlcoholClassification.value
+                it.substanceAlcoholSystemAction = substanceAlcoholSystemAction.value
+                it.substance_alcohol_frequency = substance_alcohol_frequency.value
                 it.briefInterventionGiven = briefInterventionGiven.value == "Yes"
             } else {
                 it.substanceCurrentTobaccoUse = null
@@ -1186,9 +1145,14 @@ class MentalHealthScreeningDataset(
                 it.substanceSystemAction = null
                 it.substanceAlcoholUse = null
                 it.substanceTobaccoUse = null
-                it.substanceOtherUse = null
+                it.substance_alcohol_loss = null
+                it.substanceAlcoholImpact = null
+                it.substanceAlcoholWithdrawal = null
+                it.substanceAlcoholProblematic = null
+                it.substanceAlcoholClassification = null
+                it.substanceAlcoholSystemAction = null
                 it.substanceOtherSpecify = null
-                it.substanceFrequency = null
+                it.substance_alcohol_frequency = null
                 it.briefInterventionGiven = null
             }
 
@@ -1210,7 +1174,6 @@ class MentalHealthScreeningDataset(
                 it.suicideRiskLevel = null
             }
 
-            // Dementia
             if (isYes(memoryLossConfusion.value)) {
                 it.dementiaProgressiveMemoryLoss = isYes(dementiaProgressiveMemoryLoss.value)
                 it.dementiaForgettingRecent = isYes(dementiaForgettingRecent.value)
@@ -1225,7 +1188,6 @@ class MentalHealthScreeningDataset(
                 it.dementiaBehaviouralChanges = null
             }
 
-            // Epilepsy
             if (isYes(seizuresFitsLoc.value)) {
                 it.epilepsyRecurrentSeizures = isYes(epilepsyRecurrentSeizures.value)
                 it.epilepsyJerkyMovements = isYes(epilepsyJerkyMovements.value)
@@ -1240,7 +1202,27 @@ class MentalHealthScreeningDataset(
                 it.epilepsyLocDuration = null
             }
 
-            // Section F
+            it.edRecurrentEpisodeloss = isYes(edRecurrentEpisodeloss.value)
+            it.edRecurrentJerkyMovements = isYes(edRecurrentJerkyMovements.value)
+            it.edProgressiveMemoryLoss = isYes(edProgressiveMemoryLoss.value)
+            it.edConfusionDisorientation = isYes(edConfusionDisorientation.value)
+            it.edFunctionalDecline = isYes(edFunctionalDecline.value)
+            it.edScreeningOutcome = edScreeningOutcome.value
+            it.edReferralRequired = edReferralRequired.value
+            if (edScreeningOutcome.value == "Suspected") {
+                it.edPsychosocialInterventionProvided = yesNoToBoolean(edPsychosocialIntervention.value)
+                it.edInterventionType = if (it.edPsychosocialInterventionProvided == true) edInterventionType.value else null
+                it.edSessionDate = if (it.edPsychosocialInterventionProvided == true) edSessionDate.value else null
+                it.edDurationMinutes = if (it.edPsychosocialInterventionProvided == true) edDurationMinutes.value?.toIntOrNull() else null
+                it.edRemarks = edRemarks.value
+            } else {
+                it.edPsychosocialInterventionProvided = null
+                it.edInterventionType = null
+                it.edSessionDate = null
+                it.edDurationMinutes = null
+                it.edRemarks = null
+            }
+
             mapReferralFollowUpValues(it)
         }
     }
