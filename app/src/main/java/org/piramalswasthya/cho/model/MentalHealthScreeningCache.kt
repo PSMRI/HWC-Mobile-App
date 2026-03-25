@@ -227,18 +227,27 @@ data class MentalHealthScreeningCache(
     var edReferralRequired: String? = null,
 
     @ColumnInfo(name = "referral_required")
-    override var referralRequired: Boolean? = null,
+    var referralRequired: Boolean? = null,
 
     @ColumnInfo(name = "referral_level")
-    override var referralLevel: String? = null,
+    var referralLevel: String? = null,
 
     @ColumnInfo(name = "reason_for_referral")
-    override var reasonForReferral: String? = null,
+    var reasonForReferral: String? = null,
 
     @ColumnInfo(name = "follow_up_required")
-    override var followUpRequired: Boolean? = null,
+    var followUpRequired: Boolean? = null,
 
     @ColumnInfo(name = "follow_up_date")
-    override var followUpDate: String? = null
+    var followUpDate: String? = null,
 
-) : FormDataModel, ReferralFollowUpModel
+    @ColumnInfo(name = "improvement_noted")
+    var improvementNoted: String? = null,
+
+    @ColumnInfo(name = "referral_escalation_required")
+    var referralEscalationRequired: Boolean? = null,
+
+    @ColumnInfo(name = "case_closure_reason")
+    var caseClosureReason: String? = null
+
+) : FormDataModel
