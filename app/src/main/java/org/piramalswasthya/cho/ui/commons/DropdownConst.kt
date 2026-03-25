@@ -41,6 +41,7 @@ class DropdownConst {
         val psychosocialCaregiverSupport: String = "Psychosocial Caregiver Support"
         val mentalHealth: String = "Mental Health"
         val mentalHealthScreening: String = "Mental Health Screening"
+        val elderlyHealthAssessment: String = "General geriatric complaints"
 
 
 

@@ -165,6 +165,8 @@ import org.piramalswasthya.cho.database.room.dao.MentalHealthScreeningDao
 import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
+import org.piramalswasthya.cho.database.room.dao.ElderlyHealthAssessmentDao
+import org.piramalswasthya.cho.model.ElderlyHealthAssessment
 
 
 @Database(
@@ -262,10 +264,11 @@ import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
         PsychosocialCaregiverSupport::class,
         OralHealth::class,
         MentalHealthScreeningCache::class,
-        ThroatDiagnosisAssessment::class
+        ThroatDiagnosisAssessment::class,
+        ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 137, exportSchema = false
+    version = 138, exportSchema = false
 )
 
 
@@ -345,6 +348,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val noseDiagnosisAssessmentDao: NoseDiagnosisAssessmentDao
     abstract val mentalHealthScreeningDao: MentalHealthScreeningDao
     abstract val throatDiagnosisAssessmentDao: ThroatDiagnosisAssessmentDao
+    abstract val elderlyHealthAssessmentDao: ElderlyHealthAssessmentDao
 
 
     companion object {
@@ -968,24 +972,38 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        /**
-         * Safely adds a column to a table, ignoring the error if the column already exists.
-         * This handles cases where an older version of a CREATE TABLE migration already
-         * included the column.
-         */
-        private fun safeAddColumn(
-            database: SupportSQLiteDatabase,
-            table: String,
-            column: String,
-            type: String
-        ) {
-            try {
-                database.execSQL("ALTER TABLE $table ADD COLUMN $column $type")
-            } catch (_: Exception) {
-                // Column already exists — safe to ignore
+        val MIGRATION_136_137 = object : Migration(136, 137) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS ELDERLY_HEALTH_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER NOT NULL,
+                geriatric_complaints INTEGER,
+                multiple_chronic_conditions INTEGER,
+                recent_falls INTEGER,
+                difficulty_walking_balance INTEGER,
+                visual_hearing_difficulty INTEGER,
+                functional_decline INTEGER,
+                memory_loss INTEGER,
+                dementia_memory_loss INTEGER,
+                dementia_disorientation INTEGER,
+                dementia_behavioural_changes INTEGER,
+                dementia_self_care_decline INTEGER,
+                dementia_screening_outcome TEXT,
+                dementia_referral_required INTEGER
+            )
+            """.trimIndent()
+                )
+                database.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_elderly_health_assessment_patient_visit " +
+                            "ON ELDERLY_HEALTH_ASSESSMENT(patient_id, ben_visit_no)"
+                )
             }
         }
-        val MIGRATION_136_137 = object : Migration(136, 137) {
+
+        val MIGRATION_137_138 = object : Migration(137, 138) {
             override fun migrate(database: SupportSQLiteDatabase) {
 
                 database.execSQL(
@@ -1050,6 +1068,24 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        /**
+         * Safely adds a column to a table, ignoring the error if the column already exists.
+         * This handles cases where an older version of a CREATE TABLE migration already
+         * included the column.
+         */
+        private fun safeAddColumn(
+            database: SupportSQLiteDatabase,
+            table: String,
+            column: String,
+            type: String
+        ) {
+            try {
+                database.execSQL("ALTER TABLE $table ADD COLUMN $column $type")
+            } catch (_: Exception) {
+                // Column already exists — safe to ignore
+            }
+        }
+
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -1093,7 +1129,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_133_134,
                             MIGRATION_134_135,
                             MIGRATION_135_136,
-                            MIGRATION_136_137
+                            MIGRATION_136_137,
+                            MIGRATION_137_138
 
                         )
                         .fallbackToDestructiveMigration()

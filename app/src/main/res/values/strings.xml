@@ -1544,6 +1544,7 @@
     <string name="phq9_alert_referral_mo_phc">Refer to MO/PHC (PHQ-9 score ≥ 10)</string>
     <string name="phq9_alert_urgent">Urgent referral (PHQ-9 score ≥ 15)</string>
     <string name="phq9_alert_emergency">Emergency referral (PHQ-9 score ≥ 20)</string>
+    <string name="title_elderly_health_assessment">Elderly Health Assessment</string>
     <string name="epilepsy_dementia_checklist_title">Epilepsy &amp; Dementia Screening Checklist</string>
     <string name="ed_edRecurrentEpisodeloss">Episodes of loss of consciousness</string>
     <string name="ed_recurrent_jerky_movements">Recurrent jerky movements / fits</string>
