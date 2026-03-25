@@ -324,48 +324,31 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private val substance_alcohol_loss: FormElement by lazy {
-        FormElement(
-            id = 303,
+    private fun createAlcoholRadioElement(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
             inputType = InputType.RADIO,
-            title = context.getString(R.string.substance_alcohol_loss),
+            title = context.getString(titleResId),
             entries = yesNoOptions,
             required = true,
             hasDependants = true
         )
+    }
+
+    private val substance_alcohol_loss: FormElement by lazy {
+        createAlcoholRadioElement(303, R.string.substance_alcohol_loss)
     }
 
     private val substanceAlcoholImpact: FormElement by lazy {
-        FormElement(
-            id = 314,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.substance_alcohol_impact),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createAlcoholRadioElement(314, R.string.substance_alcohol_impact)
     }
 
     private val substanceAlcoholWithdrawal: FormElement by lazy {
-        FormElement(
-            id = 315,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.substance_alcohol_withdrawal),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createAlcoholRadioElement(315, R.string.substance_alcohol_withdrawal)
     }
 
     private val substanceAlcoholProblematic: FormElement by lazy {
-        FormElement(
-            id = 316,
-            inputType = InputType.RADIO,
-            title = context.getString(R.string.substance_alcohol_problematic),
-            entries = yesNoOptions,
-            required = true,
-            hasDependants = true
-        )
+        createAlcoholRadioElement(316, R.string.substance_alcohol_problematic)
     }
 
     private val substanceOtherSpecify: FormElement by lazy {
@@ -379,19 +362,18 @@ class MentalHealthScreeningDataset(
         )
     }
 
-    private val substanceAlcoholClassification = FormElement(
-        id = 317,
-        inputType = InputType.TEXT_VIEW,
-        title = context.getString(R.string.substance_alcohol_classification),
-        required = false
-    )
+    private fun createAlcoholTextView(elementId: Int, titleResId: Int): FormElement {
+        return FormElement(
+            id = elementId,
+            inputType = InputType.TEXT_VIEW,
+            title = context.getString(titleResId),
+            required = false
+        )
+    }
 
-    private val substanceAlcoholSystemAction = FormElement(
-        id = 318,
-        inputType = InputType.TEXT_VIEW,
-        title = context.getString(R.string.substance_alcohol_system_action),
-        required = false
-    )
+    private val substanceAlcoholClassification = createAlcoholTextView(317, R.string.substance_alcohol_classification)
+
+    private val substanceAlcoholSystemAction = createAlcoholTextView(318, R.string.substance_alcohol_system_action)
 
     private val substance_alcohol_frequency: FormElement by lazy {
         FormElement(
