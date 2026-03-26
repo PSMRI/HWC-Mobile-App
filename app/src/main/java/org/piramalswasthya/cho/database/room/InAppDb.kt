@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 139, exportSchema = false
+    version = 142, exportSchema = false
 )
 
 
@@ -1073,6 +1073,49 @@ abstract class InAppDb : RoomDatabase() {
                 safeAddColumn(database, "BENFLOW", "reproductiveStatus", "TEXT")
             }
         }
+        val MIGRATION_139_140 = object : Migration(139, 140) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "improvement_noted", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_escalation_required", "INTEGER")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "case_closure_reason", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_date", "TEXT")
+            }
+        }
+        val MIGRATION_140_141 = object : Migration(140, 141) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // ELDERLY_HEALTH_ASSESSMENT
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_required", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_level", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "reason_for_referral", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "follow_up_required", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "follow_up_date", "TEXT")
+                database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN case_status TEXT")
+                database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN date_of_death TEXT")
+                database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN remarks TEXT")
+
+                // PAIN_SYMPTOM_ASSESSMENT
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN case_status TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN date_of_death TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN remarks TEXT")
+
+                // PSYCHOSOCIAL_CAREGIVER_SUPPORT
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN case_status TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN date_of_death TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN remarks TEXT")
+            }
+        }
+        val MIGRATION_141_142 = object : Migration(141, 142) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add palliative care identification columns to PAIN_SYMPTOM_ASSESSMENT
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "persistent_pain_present", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "pain_assessment_enabled", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "distressing_symptoms_present", "TEXT")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "bedridden_or_severely_dependent", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "life_limiting_illness_known", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "caregiver_support_required", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "palliative_care_eligible", "INTEGER")
+            }
+        }
 
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
@@ -1137,8 +1180,10 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_135_136,
                             MIGRATION_136_137,
                             MIGRATION_137_138,
-                            MIGRATION_138_139
-
+                            MIGRATION_138_139,
+                            MIGRATION_139_140,
+                            MIGRATION_140_141,
+                            MIGRATION_141_142
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
