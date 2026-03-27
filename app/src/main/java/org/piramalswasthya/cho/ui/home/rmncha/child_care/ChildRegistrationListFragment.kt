@@ -49,12 +49,12 @@ class ChildRegistrationListFragment : Fragment() {
                         it.motherPatient.patientID == matchedPatient.patientID ||
                         it.childPatient?.patientID == matchedPatient.patientID
                     }
-                    adapter.submitList(filteredChildren)
-                    binding.tvCount.text = "${filteredChildren.size} ${getString(R.string.result)}"
-                    binding.tvCount.visibility = View.VISIBLE
-                    binding.rvChildRegList.visibility = View.VISIBLE
-                    binding.flEmpty.visibility = View.GONE
-                    Toast.makeText(requireContext(), "${filteredChildren.size} matching record(s) found", Toast.LENGTH_SHORT).show()
+                    updateUI()
+                    if (filteredChildren.isNotEmpty()) {
+                        Toast.makeText(requireContext(), "${filteredChildren.size} matching record(s) found", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Patient not found in this Child Registration list", Toast.LENGTH_LONG).show()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
                 }

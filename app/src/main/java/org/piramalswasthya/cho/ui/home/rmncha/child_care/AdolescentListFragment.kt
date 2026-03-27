@@ -51,12 +51,12 @@ class AdolescentListFragment : Fragment() {
             onFaceMatchResult = { matchedPatient ->
                 if (matchedPatient != null) {
                     filteredAdolescents = allAdolescents.filter { it.patient.patientID == matchedPatient.patientID }
-                    adapter.submitList(filteredAdolescents)
-                    binding.tvCount.text = "1 ${getString(R.string.result)}"
-                    binding.tvCount.visibility = View.VISIBLE
-                    binding.rvAdolescentList.visibility = View.VISIBLE
-                    binding.flEmpty.visibility = View.GONE
-                    Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
+                    updateUI()
+                    if (filteredAdolescents.isNotEmpty()) {
+                        Toast.makeText(requireContext(), "1 matching record found", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Patient not found in this Adolescent list", Toast.LENGTH_LONG).show()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
                 }

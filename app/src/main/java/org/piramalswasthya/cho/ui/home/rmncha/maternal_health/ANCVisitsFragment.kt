@@ -53,12 +53,12 @@ class ANCVisitsFragment : Fragment() {
             onFaceMatchResult = { matchedPatient ->
                 if (matchedPatient != null) {
                     filteredPatients = allPatients.filter { it.patient.patientID == matchedPatient.patientID }
-                    adapter.submitList(filteredPatients)
-                    binding.tvCount.text = "1 ${getString(R.string.result)}"
-                    binding.tvCount.visibility = View.VISIBLE
-                    binding.rvAncVisits.visibility = View.VISIBLE
-                    binding.flEmpty.visibility = View.GONE
-                    Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
+                    updateUI()
+                    if (filteredPatients.isNotEmpty()) {
+                        Toast.makeText(requireContext(), "1 matching record found", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Patient not found in this ANC Visits list", Toast.LENGTH_LONG).show()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
                 }

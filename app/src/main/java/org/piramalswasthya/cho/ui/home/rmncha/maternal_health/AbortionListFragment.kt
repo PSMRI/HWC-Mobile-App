@@ -52,9 +52,12 @@ class AbortionListFragment : Fragment() {
             onFaceMatchResult = { matchedPatient ->
                 if (matchedPatient != null) {
                     filteredAbortions = allAbortions.filter { it.patient.patientID == matchedPatient.patientID }
-                    adapter.submitList(filteredAbortions)
                     updateUI()
-                    Toast.makeText(requireContext(), "${filteredAbortions.size} matching record(s) found", Toast.LENGTH_SHORT).show()
+                    if (filteredAbortions.isNotEmpty()) {
+                        Toast.makeText(requireContext(), "${filteredAbortions.size} matching record(s) found", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Patient not found in this Abortion list", Toast.LENGTH_LONG).show()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
                 }
