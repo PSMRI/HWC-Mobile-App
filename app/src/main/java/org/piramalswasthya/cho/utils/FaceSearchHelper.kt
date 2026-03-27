@@ -139,7 +139,7 @@ class FaceSearchHelper(
     @RequiresApi(Build.VERSION_CODES.P)
     private fun checkAndRequestCameraPermission() {
         val ctx = fragment.requireContext()
-        if (checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+        if (checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
             checkSelfPermission(ctx, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         ) {
             takePicture()
