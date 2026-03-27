@@ -3,23 +3,23 @@ package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ANCVisitsAdapter
 import org.piramalswasthya.cho.databinding.FragmentAncVisitsBinding
+import org.piramalswasthya.cho.databinding.IncludeSearchBarWithCameraBinding
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientWithPwrDomain
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
-import org.piramalswasthya.cho.utils.filterPatientsByQuery
-import org.piramalswasthya.cho.utils.setupSearchTextWatcher
-import org.piramalswasthya.cho.utils.updateListUI
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -28,21 +28,16 @@ import javax.inject.Inject
  * Shows registered pregnant women with LMP >= 5 weeks (eligible for ANC visits).
  */
 @AndroidEntryPoint
-class ANCVisitsFragment : Fragment() {
+class ANCVisitsFragment : BaseMaternalHealthListFragment<FragmentAncVisitsBinding, PatientWithPwrDomain>() {
 
     @Inject
     lateinit var maternalHealthRepo: MaternalHealthRepo
 
-    private var _binding: FragmentAncVisitsBinding? = null
-    private val binding get() = _binding!!
-
     private lateinit var adapter: ANCVisitsAdapter
-    private var allPatients: List<PatientWithPwrDomain> = emptyList()
-    private var filteredPatients: List<PatientWithPwrDomain> = emptyList()
 
     companion object {
-        private const val MIN_ANC_WEEKS = 5 // Minimum weeks for ANC eligibility
-        private const val MIN_ANC_DAYS = MIN_ANC_WEEKS * 7 // 35 days
+        private const val MIN_ANC_WEEKS = 5
+        private const val MIN_ANC_DAYS = MIN_ANC_WEEKS * 7
 
         private const val ARG_PATIENT_ID = "patientID"
 
@@ -55,24 +50,27 @@ class ANCVisitsFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentAncVisitsBinding.inflate(inflater, container, false)
-        return binding.root
+    // ── Base class contract ──
+
+    override fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?) =
+        FragmentAncVisitsBinding.inflate(inflater, container, false)
+
+    override fun getSearchBarBinding(): IncludeSearchBarWithCameraBinding = binding.searchBarInclude
+    override fun getRecyclerView(): RecyclerView = binding.rvAncVisits
+    override fun getEmptyStateView(): FrameLayout = binding.flEmpty
+    override fun getCountTextView(): TextView = binding.tvCount
+
+    override val titleResId = R.string.anc_visits
+    override val listDisplayName = "ANC Visits list"
+    override val logMessage = "Displaying ANC-eligible pregnant women"
+
+    override fun extractPatient(item: PatientWithPwrDomain): Patient = item.patient
+
+    override fun submitListToAdapter(list: List<PatientWithPwrDomain>) {
+        adapter.submitList(list)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        setupRecyclerView()
-        setupSearch()
-        observePatients()
-    }
-
-    private fun setupRecyclerView() {
+    override fun setupRecyclerView() {
         adapter = ANCVisitsAdapter(
             ANCVisitsAdapter.ClickListener(
                 clickedAddANC = { patientWithPwr ->
@@ -127,13 +125,7 @@ class ANCVisitsFragment : Fragment() {
         binding.rvAncVisits.adapter = adapter
     }
 
-    private fun setupSearch() {
-        binding.searchView.setupSearchTextWatcher { query ->
-            filterPatients(query)
-        }
-    }
-
-    private fun observePatients() {
+    override fun observePatients() {
         viewLifecycleOwner.lifecycleScope.launch {
             maternalHealthRepo.getAllPatientsWithPWR().collectLatest { patientsList ->
                 allPatients = patientsList
@@ -154,38 +146,8 @@ class ANCVisitsFragment : Fragment() {
                     }
                     .sortedByDescending { it.pwr?.dateOfRegistration ?: 0L }
 
-                filteredPatients = allPatients
-                updateUI()
+                onPatientsLoaded()
             }
         }
-    }
-
-    private fun filterPatients(query: String) {
-        filteredPatients = allPatients.filterPatientsByQuery(query) { it.patient }
-        updateUI()
-    }
-
-    private fun updateUI() {
-        if (_binding == null) return
-        adapter.submitList(filteredPatients)
-        updateListUI(
-            filteredList = filteredPatients,
-            emptyStateView = binding.flEmpty,
-            recyclerView = binding.rvAncVisits,
-            countTextView = binding.tvCount,
-            resultString = getString(R.string.result),
-            logMessage = "Displaying ANC-eligible pregnant women"
-        )
-    }
-
-    override fun onResume() {
-        super.onResume()
-        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
-            getString(R.string.anc_visits)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

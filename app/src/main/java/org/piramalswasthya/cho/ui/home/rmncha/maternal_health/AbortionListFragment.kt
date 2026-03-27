@@ -1,8 +1,6 @@
 package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,9 +13,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.AbortionListAdapter
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.FragmentAbortionListBinding
 import org.piramalswasthya.cho.model.AbortionDomain
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
+import org.piramalswasthya.cho.utils.FaceSearchHelper
+import org.piramalswasthya.cho.utils.filterPatientsByQuery
+import org.piramalswasthya.cho.utils.setupSearchTextWatcher
+import org.piramalswasthya.cho.utils.updateListUI
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -31,6 +34,9 @@ class AbortionListFragment : Fragment() {
     @Inject
     lateinit var maternalHealthRepo: MaternalHealthRepo
 
+    @Inject
+    lateinit var patientDao: PatientDao
+
     private var _binding: FragmentAbortionListBinding? = null
     private val binding get() = _binding!!
 
@@ -38,12 +44,34 @@ class AbortionListFragment : Fragment() {
     private var allAbortions: List<AbortionDomain> = emptyList()
     private var filteredAbortions: List<AbortionDomain> = emptyList()
 
+    private val faceSearchHelper by lazy {
+        FaceSearchHelper(
+            fragment = this,
+            patientDao = patientDao,
+            onSpeechResult = { text -> binding.searchBarInclude.search.setText(text) },
+            onFaceMatchResult = { matchedPatient ->
+                if (matchedPatient != null) {
+                    filteredAbortions = allAbortions.filter { it.patient.patientID == matchedPatient.patientID }
+                    updateUI()
+                    if (filteredAbortions.isNotEmpty()) {
+                        Toast.makeText(requireContext(), "${filteredAbortions.size} matching record(s) found", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Patient not found in this Abortion list", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAbortionListBinding.inflate(inflater, container, false)
+        faceSearchHelper
         return binding.root
     }
 
@@ -80,19 +108,33 @@ class AbortionListFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        binding.searchView.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // No-op
-            }
+        binding.searchBarInclude.search.setupSearchTextWatcher { query ->
+            filterAbortions(query)
+        }
+        binding.searchBarInclude.searchTil.setEndIconOnClickListener {
+            faceSearchHelper.launchSpeechToText()
+        }
+        binding.searchBarInclude.cameraIcon.setOnClickListener {
+            faceSearchHelper.launchCameraSearch()
+        }
+    }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // No-op
-            }
+    private fun filterAbortions(query: String) {
+        filteredAbortions = allAbortions.filterPatientsByQuery(query) { it.patient }
+        updateUI()
+    }
 
-            override fun afterTextChanged(s: Editable?) {
-                filterAbortions(s?.toString() ?: "")
-            }
-        })
+    private fun updateUI() {
+        if (_binding == null) return
+        adapter.submitList(filteredAbortions)
+        updateListUI(
+            filteredList = filteredAbortions,
+            emptyStateView = binding.flEmpty,
+            recyclerView = binding.rvAbortionList,
+            countTextView = binding.tvCount,
+            resultString = getString(R.string.result),
+            logMessage = "Displaying abortion records"
+        )
     }
 
     private fun observeAbortions() {
@@ -107,50 +149,7 @@ class AbortionListFragment : Fragment() {
         }
     }
 
-    private fun filterAbortions(query: String) {
-        filteredAbortions = if (query.isBlank()) {
-            allAbortions
-        } else {
-            allAbortions.filter { abortion ->
-                val firstName = abortion.patient.firstName?.lowercase() ?: ""
-                val lastName = abortion.patient.lastName?.lowercase() ?: ""
-                val spouseName = abortion.patient.spouseName?.lowercase() ?: ""
-                val phoneNo = abortion.patient.phoneNo ?: ""
-                val beneficiaryID = abortion.patient.beneficiaryID?.toString() ?: ""
 
-                val searchQuery = query.lowercase()
-
-                firstName.contains(searchQuery) ||
-                    lastName.contains(searchQuery) ||
-                    spouseName.contains(searchQuery) ||
-                    phoneNo.contains(searchQuery) ||
-                    beneficiaryID.contains(searchQuery)
-            }
-        }
-        updateUI()
-    }
-
-    private fun updateUI() {
-        if (_binding == null) return
-        if (filteredAbortions.isEmpty()) {
-            binding.flEmpty.visibility = View.VISIBLE
-            binding.rvAbortionList.visibility = View.GONE
-            binding.tvCount.text = "0 ${getString(R.string.result)}"
-        } else {
-            binding.flEmpty.visibility = View.GONE
-            binding.rvAbortionList.visibility = View.VISIBLE
-            adapter.submitList(filteredAbortions)
-
-            val countText = if (filteredAbortions.size == 1) {
-                "1 ${getString(R.string.result)}"
-            } else {
-                "${filteredAbortions.size} ${getString(R.string.result)}s"
-            }
-            binding.tvCount.text = countText
-        }
-
-        Timber.d("Displaying ${filteredAbortions.size} abortion records")
-    }
 
     override fun onResume() {
         super.onResume()

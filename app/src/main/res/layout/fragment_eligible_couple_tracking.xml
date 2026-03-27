@@ -7,54 +7,27 @@
     android:fitsSystemWindows="true"
     tools:context=".ui.home.rmncha.eligible_couple.EligibleCoupleTrackingFragment">
 
-    <!-- Search Bar -->
-    <LinearLayout
-        android:id="@+id/searchLayout"
+    <!-- Reusable Search Bar with Voice + Camera -->
+    <include
+        android:id="@+id/searchBarInclude"
+        layout="@layout/include_search_bar_with_camera"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/default_button"
-        android:orientation="horizontal"
-        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <EditText
-            android:id="@+id/searchView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:drawable/edit_text"
-            android:hint="@string/search"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:minHeight="48dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/black"
-            android:textColorHint="@color/grey" />
-
-        <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:contentDescription="@string/search"
-            android:padding="12dp"
-            android:src="@drawable/ic_mic"
-            app:tint="@color/white" />
-
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Count Text -->
     <TextView
         android:id="@+id/tvCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginHorizontal="16dp"
         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
         android:textColor="@color/black"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchLayout"
+        app:layout_constraintTop_toBottomOf="@+id/searchBarInclude"
         tools:text="42 Results" />
 
     <!-- RecyclerView for Eligible Couples Tracking List -->
