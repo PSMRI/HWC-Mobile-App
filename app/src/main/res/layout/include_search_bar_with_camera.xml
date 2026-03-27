@@ -44,6 +44,7 @@
         android:layout_marginTop="2dp"
         android:layout_marginLeft="10dp"
         android:layout_height="30dp"
+        android:contentDescription="@string/cd_camera_search"
         android:background="@drawable/camera_icon_grey" />
 
 </LinearLayout>

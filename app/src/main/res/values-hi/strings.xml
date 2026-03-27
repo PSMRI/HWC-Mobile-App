@@ -1256,4 +1256,5 @@
         <item>हाँ</item>
         <item>नहीं</item>
     </string-array>
+    <string name="cd_camera_search">कैमरा खोलें</string>
 </resources>

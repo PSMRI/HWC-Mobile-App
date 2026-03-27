@@ -1607,6 +1607,7 @@
         <item>Lost to follow-up</item>
         <item>Death</item>
     </string-array>
+    <string name="cd_camera_search">Open camera</string>
 </resources>
 
 
