@@ -4,85 +4,64 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import android.widget.Toast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.DeliveryOutcomeAdapter
-import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.FragmentDeliveryOutcomeBinding
+import org.piramalswasthya.cho.databinding.IncludeSearchBarWithCameraBinding
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientWithPwrDomain
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
-import org.piramalswasthya.cho.utils.FaceSearchHelper
-import org.piramalswasthya.cho.utils.filterPatientsByQuery
-import org.piramalswasthya.cho.utils.setupSearchTextWatcher
-import org.piramalswasthya.cho.utils.updateListUI
 import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormFragment
 import javax.inject.Inject
 
 /**
- * Fragment to display list of Delivery Outcomes
- * Shows pregnant women who have delivered (pregnantWomanDelivered = true in ANC)
+ * Fragment to display list of Delivery Outcomes.
+ * Shows pregnant women who have delivered (pregnantWomanDelivered = true in ANC).
  */
 @AndroidEntryPoint
-class DeliveryOutcomeFragment : Fragment() {
+class DeliveryOutcomeFragment : BaseMaternalHealthListFragment<FragmentDeliveryOutcomeBinding, PatientWithPwrDomain>() {
 
     @Inject
     lateinit var maternalHealthRepo: MaternalHealthRepo
 
-    @Inject
-    lateinit var patientDao: PatientDao
-
-    private var _binding: FragmentDeliveryOutcomeBinding? = null
-    private val binding: FragmentDeliveryOutcomeBinding
-        get() = _binding!!
-
     private lateinit var adapter: DeliveryOutcomeAdapter
-    private var allPatients: List<PatientWithPwrDomain> = emptyList()
-    private var filteredPatients: List<PatientWithPwrDomain> = emptyList()
 
-    private val faceSearchHelper by lazy {
-        FaceSearchHelper(
-            fragment = this,
-            patientDao = patientDao,
-            onSpeechResult = { text -> binding.searchBarInclude.search.setText(text) },
-            onFaceMatchResult = { matchedPatient ->
-                if (matchedPatient != null) {
-                    filteredPatients = allPatients.filter { it.patient.patientID == matchedPatient.patientID }
-                    updateUI()
-                    if (filteredPatients.isNotEmpty()) {
-                        Toast.makeText(requireContext(), "1 matching record found", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), "Patient not found in this Delivery Outcome list", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
-                }
-            }
-        )
+    // ── Base class contract ──
+
+    override fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?) =
+        FragmentDeliveryOutcomeBinding.inflate(inflater, container, false)
+
+    override fun getSearchBarBinding(): IncludeSearchBarWithCameraBinding = binding.searchBarInclude
+    override fun getRecyclerView(): RecyclerView = binding.rvDeliveryOutcome
+    override fun getEmptyStateView(): FrameLayout = binding.flEmpty
+    override fun getCountTextView(): TextView = binding.tvCount
+
+    override val titleResId = R.string.delivery_outcome
+    override val listDisplayName = "Delivery Outcome list"
+    override val logMessage = "Displaying delivered women"
+
+    override fun extractPatient(item: PatientWithPwrDomain): Patient = item.patient
+
+    override fun submitListToAdapter(list: List<PatientWithPwrDomain>) {
+        adapter.submitList(list)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentDeliveryOutcomeBinding.inflate(inflater, container, false)
-        faceSearchHelper
-        return binding.root
-    }
+    // ── Fragment-specific: back button handling ──
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Handle back button press
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
@@ -91,16 +70,11 @@ class DeliveryOutcomeFragment : Fragment() {
                 }
             }
         )
-
-        setupRecyclerView()
-        setupSearch()
-        observePatients()
     }
 
-    private fun setupRecyclerView() {
+    override fun setupRecyclerView() {
         adapter = DeliveryOutcomeAdapter(
             DeliveryOutcomeAdapter.ClickListener { patientWithPwr ->
-                // Navigate to DeliveryOutcomeFormFragment using fragment transaction
                 val fragment = DeliveryOutcomeFormFragment().apply {
                     arguments = Bundle().apply {
                         putString("patientID", patientWithPwr.patient.patientID)
@@ -118,19 +92,7 @@ class DeliveryOutcomeFragment : Fragment() {
         binding.rvDeliveryOutcome.adapter = adapter
     }
 
-    private fun setupSearch() {
-        binding.searchBarInclude.search.setupSearchTextWatcher { query ->
-            filterPatients(query)
-        }
-        binding.searchBarInclude.searchTil.setEndIconOnClickListener {
-            faceSearchHelper.launchSpeechToText()
-        }
-        binding.searchBarInclude.cameraIcon.setOnClickListener {
-            faceSearchHelper.launchCameraSearch()
-        }
-    }
-
-    private fun observePatients() {
+    override fun observePatients() {
         viewLifecycleOwner.lifecycleScope.launch {
             combine(
                 maternalHealthRepo.getAllDeliveredWomen(),
@@ -144,37 +106,8 @@ class DeliveryOutcomeFragment : Fragment() {
                     }
                     .sortedByDescending { it.pwr?.dateOfRegistration ?: 0L }
 
-                filteredPatients = allPatients
-                updateUI()
+                onPatientsLoaded()
             }.collectLatest { }
         }
-    }
-
-    private fun filterPatients(query: String) {
-        filteredPatients = allPatients.filterPatientsByQuery(query) { it.patient }
-        updateUI()
-    }
-
-    private fun updateUI() {
-        adapter.submitList(filteredPatients)
-        updateListUI(
-            filteredList = filteredPatients,
-            emptyStateView = binding.flEmpty,
-            recyclerView = binding.rvDeliveryOutcome,
-            countTextView = binding.tvCount,
-            resultString = getString(R.string.result),
-            logMessage = "Displaying delivered women"
-        )
-    }
-
-    override fun onResume() {
-        super.onResume()
-        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
-            getString(R.string.delivery_outcome)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
