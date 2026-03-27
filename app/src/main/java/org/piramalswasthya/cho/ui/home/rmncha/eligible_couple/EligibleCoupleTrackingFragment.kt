@@ -4,32 +4,34 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ECRegistrationAdapter
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.FragmentEligibleCoupleTrackingBinding
 import org.piramalswasthya.cho.model.PatientWithEcrDomain
 import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.utils.FaceSearchHelper
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
 import javax.inject.Inject
 
 /**
- * Fragment to display list of Eligible Couples for Tracking
- * Shows eligible couples directly from Patient table filtered by statusOfWomanID = 1
- * Loads ECR and latest visit data for display
+ * Fragment to display list of Eligible Couples for Tracking.
+ * Uses reusable [FaceSearchHelper] for voice and camera search.
  */
 @AndroidEntryPoint
 class EligibleCoupleTrackingFragment : Fragment() {
@@ -39,6 +41,9 @@ class EligibleCoupleTrackingFragment : Fragment() {
 
     @Inject
     lateinit var ecrRepo: EcrRepo
+
+    @Inject
+    lateinit var patientDao: PatientDao
 
     private var _binding: FragmentEligibleCoupleTrackingBinding? = null
     private val binding: FragmentEligibleCoupleTrackingBinding
@@ -50,8 +55,36 @@ class EligibleCoupleTrackingFragment : Fragment() {
     private var currentPatientsList: List<org.piramalswasthya.cho.model.PatientDisplay>? = null
 
     companion object {
-        // Status of Woman ID for Eligible Couple (as per user requirement)
         const val STATUS_ELIGIBLE_COUPLE = 1
+    }
+
+    /**
+     * Reusable face-search helper — handles speech-to-text and camera face matching.
+     * Must be initialised before onViewCreated (activity-result launchers requirement).
+     */
+    private val faceSearchHelper by lazy {
+        FaceSearchHelper(
+            fragment = this,
+            patientDao = patientDao,
+            onSpeechResult = { recognisedText ->
+                binding.searchBarInclude.search.setText(recognisedText)
+            },
+            onFaceMatchResult = { matchedPatient ->
+                if (matchedPatient != null) {
+                    filteredPatients = allPatients.filter {
+                        it.patient.patientID == matchedPatient.patientID
+                    }
+                    adapter.submitList(filteredPatients)
+                    binding.tvCount.text = "1 ${getString(R.string.result)}"
+                    binding.tvCount.visibility = View.VISIBLE
+                    binding.rvEligibleCouples.visibility = View.VISIBLE
+                    binding.flEmpty.visibility = View.GONE
+                    Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
     }
 
     override fun onCreateView(
@@ -60,6 +93,8 @@ class EligibleCoupleTrackingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentEligibleCoupleTrackingBinding.inflate(inflater, container, false)
+        // Touch the lazy property so the activity-result launchers are registered now
+        faceSearchHelper
         return binding.root
     }
 
@@ -75,7 +110,6 @@ class EligibleCoupleTrackingFragment : Fragment() {
         adapter = ECRegistrationAdapter(
             ECRegistrationAdapter.ClickListener(
                 onAddVisit = { patientWithEcr ->
-                    // Check if visit already done this month
                     val lastVisit = patientWithEcr.lastVisitDate
                     if (lastVisit != null && lastVisit > 0) {
                         val calendar = java.util.Calendar.getInstance()
@@ -88,24 +122,20 @@ class EligibleCoupleTrackingFragment : Fragment() {
                         val currentYear = calendar.get(java.util.Calendar.YEAR)
 
                         if (lastMonth == currentMonth && lastYear == currentYear) {
-                            android.widget.Toast.makeText(
+                            Toast.makeText(
                                 requireContext(),
                                 "Eligible Couple tracking is done for this month",
-                                android.widget.Toast.LENGTH_SHORT
+                                Toast.LENGTH_SHORT
                             ).show()
                             return@ClickListener
                         }
                     }
 
-
-                    // Navigate to tracking form for new visit
                     val patientId = patientWithEcr.patient.patientID
-
-                    // Navigate to Eligible Couple Tracking Form Fragment
                     val fragment = org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form.EligibleCoupleTrackingFormFragment().apply {
                         arguments = Bundle().apply {
                             putString("patientID", patientId)
-                            putLong("createdDate", 0L) // 0L means new visit
+                            putLong("createdDate", 0L)
                         }
                     }
 
@@ -115,7 +145,6 @@ class EligibleCoupleTrackingFragment : Fragment() {
                     }
                 },
                 onViewVisit = { patientWithEcr ->
-                    // Show visit history bottom sheet
                     val bottomSheet = EligibleCoupleVisitHistoryBottomSheet.newInstance(
                         patientWithEcr.patient.patientID
                     )
@@ -129,10 +158,23 @@ class EligibleCoupleTrackingFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        binding.searchView.setupSearchTextWatcher { query ->
+        // Text search
+        binding.searchBarInclude.search.setupSearchTextWatcher { query ->
             filterPatients(query)
         }
+
+        // Voice search (mic end-icon)
+        binding.searchBarInclude.searchTil.setEndIconOnClickListener {
+            faceSearchHelper.launchSpeechToText()
+        }
+
+        // Camera face search
+        binding.searchBarInclude.cameraIcon.setOnClickListener {
+            faceSearchHelper.launchCameraSearch()
+        }
     }
+
+    // ── Data loading & filtering ──
 
     private fun observePatients() {
         lifecycleScope.launch {
@@ -144,13 +186,8 @@ class EligibleCoupleTrackingFragment : Fragment() {
     }
 
     private suspend fun processPatientsList(patientsList: List<org.piramalswasthya.cho.model.PatientDisplay>) {
-        // Show only patients with statusOfWomanID = 1 (Eligible Couple)
         val filteredPatientsList = patientsList
             .filter { patientDisplay ->
-                // Filter criteria:
-                // 1. Female gender (genderID = 2)
-                // 2. Age between 15-49 years (reproductive age)
-                // 3. statusOfWomanID = 1 (Eligible Couple)
                 val isFemale = patientDisplay.patient.genderID == 2
                 val age = patientDisplay.patient.age ?: 0
                 val isReproductiveAge = age in 15..49
@@ -160,21 +197,16 @@ class EligibleCoupleTrackingFragment : Fragment() {
                 isFemale && isReproductiveAge && isEligibleCouple
             }
 
-        // Load ECR data and latest visit date for each patient in parallel
         allPatients = withContext(Dispatchers.IO) {
             filteredPatientsList.map { patientDisplay ->
                 async {
-                    // Load ECR data if available
                     val ecr = ecrRepo.getSavedECR(patientDisplay.patient.patientID)
-                    // Load latest visit to check for positive pregnancy test
                     val latestVisit = ecrRepo.getLatestEctByBenId(patientDisplay.patient.patientID)
 
-                    // Check if latest visit has positive pregnancy test
                     val hasPositivePregnancyTest = latestVisit?.let { visit ->
                         visit.isPregnancyTestDone == "Yes" && visit.pregnancyTestResult == "Positive"
                     } ?: false
 
-                    // Return null if pregnancy test is positive (to filter out)
                     if (hasPositivePregnancyTest) {
                         null
                     } else {
@@ -186,7 +218,6 @@ class EligibleCoupleTrackingFragment : Fragment() {
                             methodOfContraception = latestVisit?.methodOfContraception
                             antraInjectionDate = latestVisit?.antraInjectionDate
                             lmpDateFromTracking = latestVisit?.lmpDate
-                            // Set ANTRA next due date if latest visit has ANTRA injection
                             antraNextDueDate = if (latestVisit?.methodOfContraception == "ANTRA Injection") {
                                 latestVisit.antraDueDate
                             } else {
@@ -196,11 +227,10 @@ class EligibleCoupleTrackingFragment : Fragment() {
                     }
                 }
             }.awaitAll()
-        }.filterNotNull() // Remove null entries (patients with positive pregnancy test)
+        }.filterNotNull()
             .sortedByDescending { it.patient.registrationDate?.time ?: 0L }
 
-        // Re-apply the current search query so any active filter survives a data reload
-        val currentQuery = if (_binding != null) binding.searchView.text.toString() else ""
+        val currentQuery = if (_binding != null) binding.searchBarInclude.search.text.toString() else ""
         filterPatients(currentQuery)
     }
 
@@ -227,7 +257,6 @@ class EligibleCoupleTrackingFragment : Fragment() {
         (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
             getString(R.string.ec_tracking_title)
 
-        // Re-process list on resume to catch any updates saved in tracking forms
         currentPatientsList?.let {
             lifecycleScope.launch {
                 processPatientsList(it)
