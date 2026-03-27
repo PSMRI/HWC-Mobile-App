@@ -59,8 +59,9 @@ import kotlin.math.pow
 class FaceSearchHelper(
     private val fragment: Fragment,
     private val patientDao: PatientDao,
+    private val isCameraSearchEnabled: Boolean = true,
     private val onSpeechResult: ((String) -> Unit)? = null,
-    private val onFaceMatchResult: (Patient?) -> Unit
+    private val onFaceMatchResult: ((Patient?) -> Unit)? = null
 ) {
 
     // FaceNet
@@ -110,6 +111,7 @@ class FaceSearchHelper(
 
     /** Show a loading dialog, initialise FaceNet, then open the camera. */
     fun launchCameraSearch() {
+        if (!isCameraSearchEnabled) return
         val ctx = fragment.requireContext()
         val dialogView = fragment.layoutInflater.inflate(R.layout.dialog_progress, null)
         dialogView.findViewById<ImageView>(R.id.loading_gif)?.let {
@@ -257,7 +259,7 @@ class FaceSearchHelper(
 
             fragment.lifecycleScope.launch {
                 val matchedPatient = compareFacesL2Norm(embeddings)
-                onFaceMatchResult(matchedPatient)
+                onFaceMatchResult?.invoke(matchedPatient)
             }
 
         } catch (e: Exception) {

@@ -12,9 +12,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.InfantRegistrationAdapter
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.FragmentInfantListBinding
 import org.piramalswasthya.cho.model.InfantRegDomain
 import org.piramalswasthya.cho.repositories.InfantRegRepo
+import org.piramalswasthya.cho.utils.FaceSearchHelper
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
 import javax.inject.Inject
@@ -29,6 +31,9 @@ class InfantListFragment : Fragment() {
     @Inject
     lateinit var infantRegRepo: InfantRegRepo
 
+    @Inject
+    lateinit var patientDao: PatientDao
+
     private var _binding: FragmentInfantListBinding? = null
     private val binding get() = _binding!!
     
@@ -36,12 +41,22 @@ class InfantListFragment : Fragment() {
     private var allInfants: List<InfantRegDomain> = emptyList()
     private var filteredInfants: List<InfantRegDomain> = emptyList()
 
+    private val faceSearchHelper by lazy {
+        FaceSearchHelper(
+            fragment = this,
+            patientDao = patientDao,
+            isCameraSearchEnabled = false,
+            onSpeechResult = { text -> binding.searchBarInclude.search.setText(text) }
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentInfantListBinding.inflate(inflater, container, false)
+        faceSearchHelper
         return binding.root
     }
 
@@ -76,9 +91,13 @@ class InfantListFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        binding.searchView.setupSearchTextWatcher { query ->
+        binding.searchBarInclude.search.setupSearchTextWatcher { query ->
             filterInfants(query)
         }
+        binding.searchBarInclude.searchTil.setEndIconOnClickListener {
+            faceSearchHelper.launchSpeechToText()
+        }
+        binding.searchBarInclude.cameraIcon.visibility = View.GONE
     }
 
     private fun observeInfants() {

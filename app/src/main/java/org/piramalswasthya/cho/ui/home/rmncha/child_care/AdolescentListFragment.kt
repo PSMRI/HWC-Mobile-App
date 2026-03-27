@@ -8,13 +8,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import android.widget.Toast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.AdolescentListAdapter
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.FragmentAdolescentListBinding
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.utils.FaceSearchHelper
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
@@ -30,6 +33,9 @@ class AdolescentListFragment : Fragment() {
     @Inject
     lateinit var patientRepo: PatientRepo
 
+    @Inject
+    lateinit var patientDao: PatientDao
+
     private var _binding: FragmentAdolescentListBinding? = null
     private val binding get() = _binding!!
     
@@ -37,12 +43,34 @@ class AdolescentListFragment : Fragment() {
     private var allAdolescents: List<PatientDisplay> = emptyList()
     private var filteredAdolescents: List<PatientDisplay> = emptyList()
 
+    private val faceSearchHelper by lazy {
+        FaceSearchHelper(
+            fragment = this,
+            patientDao = patientDao,
+            onSpeechResult = { text -> binding.searchBarInclude.search.setText(text) },
+            onFaceMatchResult = { matchedPatient ->
+                if (matchedPatient != null) {
+                    filteredAdolescents = allAdolescents.filter { it.patient.patientID == matchedPatient.patientID }
+                    adapter.submitList(filteredAdolescents)
+                    binding.tvCount.text = "1 ${getString(R.string.result)}"
+                    binding.tvCount.visibility = View.VISIBLE
+                    binding.rvAdolescentList.visibility = View.VISIBLE
+                    binding.flEmpty.visibility = View.GONE
+                    Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAdolescentListBinding.inflate(inflater, container, false)
+        faceSearchHelper
         return binding.root
     }
 
@@ -67,8 +95,14 @@ class AdolescentListFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        binding.searchView.setupSearchTextWatcher { query ->
+        binding.searchBarInclude.search.setupSearchTextWatcher { query ->
             filterAdolescents(query)
+        }
+        binding.searchBarInclude.searchTil.setEndIconOnClickListener {
+            faceSearchHelper.launchSpeechToText()
+        }
+        binding.searchBarInclude.cameraIcon.setOnClickListener {
+            faceSearchHelper.launchCameraSearch()
         }
     }
 

@@ -8,13 +8,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import android.widget.Toast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ChildRegistrationAdapter
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.FragmentChildRegListBinding
 import org.piramalswasthya.cho.model.ChildRegDomain
 import org.piramalswasthya.cho.repositories.InfantRegRepo
+import org.piramalswasthya.cho.utils.FaceSearchHelper
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
 import javax.inject.Inject
@@ -25,6 +28,9 @@ class ChildRegistrationListFragment : Fragment() {
     @Inject
     lateinit var infantRegRepo: InfantRegRepo
 
+    @Inject
+    lateinit var patientDao: PatientDao
+
     private var _binding: FragmentChildRegListBinding? = null
     private val binding get() = _binding!!
 
@@ -32,12 +38,37 @@ class ChildRegistrationListFragment : Fragment() {
     private var allChildren: List<ChildRegDomain> = emptyList()
     private var filteredChildren: List<ChildRegDomain> = emptyList()
 
+    private val faceSearchHelper by lazy {
+        FaceSearchHelper(
+            fragment = this,
+            patientDao = patientDao,
+            onSpeechResult = { text -> binding.searchBarInclude.search.setText(text) },
+            onFaceMatchResult = { matchedPatient ->
+                if (matchedPatient != null) {
+                    filteredChildren = allChildren.filter {
+                        it.motherPatient.patientID == matchedPatient.patientID ||
+                        it.childPatient?.patientID == matchedPatient.patientID
+                    }
+                    adapter.submitList(filteredChildren)
+                    binding.tvCount.text = "${filteredChildren.size} ${getString(R.string.result)}"
+                    binding.tvCount.visibility = View.VISIBLE
+                    binding.rvChildRegList.visibility = View.VISIBLE
+                    binding.flEmpty.visibility = View.GONE
+                    Toast.makeText(requireContext(), "${filteredChildren.size} matching record(s) found", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentChildRegListBinding.inflate(inflater, container, false)
+        faceSearchHelper
         return binding.root
     }
 
@@ -71,8 +102,14 @@ class ChildRegistrationListFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        binding.searchView.setupSearchTextWatcher { query ->
+        binding.searchBarInclude.search.setupSearchTextWatcher { query ->
             filterChildren(query)
+        }
+        binding.searchBarInclude.searchTil.setEndIconOnClickListener {
+            faceSearchHelper.launchSpeechToText()
+        }
+        binding.searchBarInclude.cameraIcon.setOnClickListener {
+            faceSearchHelper.launchCameraSearch()
         }
     }
 
