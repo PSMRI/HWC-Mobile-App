@@ -109,4 +109,4 @@ class ThroatDiagnosisFormFragment :
         val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
         findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
     }
-}
+}
