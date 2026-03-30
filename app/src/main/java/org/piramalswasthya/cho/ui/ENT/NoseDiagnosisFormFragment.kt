@@ -115,7 +115,15 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Nose Diagnosis Saved", Toast.LENGTH_LONG).show()
-                    findNavController().navigateUp()
+                    val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
+                        ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
+                    masterDb.visitMasterDb?.apply {
+                        category = "Other CPHC Services"
+                        subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.nose
+                        reason = org.piramalswasthya.cho.ui.commons.DropdownConst.nose
+                    }
+                    val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
+                    findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
                 }
 
                 BaseFormViewModel.State.SAVE_FAILED -> {

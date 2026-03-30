@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,6 @@ import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
-
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.utils.setBoxColor
@@ -715,9 +715,6 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     if (emptyFields.isEmpty()) {
                         extractFormValues()
                         setVitalsMasterData()
-//                addVisitRecordDataToCache(benVisitNo)
-//                addVitalsDataToCache(benVisitNo)
-//                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
 
                         val user = userRepo.getLoggedInUser()
 
@@ -729,12 +726,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                                     WorkerUtils.triggerAmritSyncWorker(requireContext())
                                     requireActivity().finish()
                                 }
-
-                                else -> {
-//                            requireActivity().runOnUiThread {
-//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-//                            }
-                                }
+                                else -> {}
                             }
                         }
 
