@@ -14,7 +14,11 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentThroatDiagnosisFormBinding
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import org.piramalswasthya.cho.ui.commons.DropdownConst
+import androidx.navigation.fragment.findNavController
 
 @AndroidEntryPoint
 class ThroatDiagnosisFormFragment :
@@ -44,6 +48,26 @@ class ThroatDiagnosisFormFragment :
         viewModel.updateListOnValueChanged(formId, index)
     override fun onSaveForm() = viewModel.saveForm()
     override fun getFragmentId(): Int = R.id.throatDiagnosisFormFragment
+    
+    override fun onSaveSuccess() {
+        val masterDb = MasterDb(
+            patientId = requireNotNull(viewModel.patientID) {
+                "patientID is required before navigating to vitals"
+            }.toString(),
+            visitMasterDb = VisitMasterDb().apply {
+                category = "Other CPHC Services"
+                subCategory = DropdownConst.ent
+                reason = DropdownConst.throat
+            }
+        )
+        val bundle = Bundle().apply {
+            putSerializable("MasterDb", masterDb)
+        }
+        findNavController().navigate(
+            R.id.action_throatDiagnosisFormFragment_to_customVitalsFragment,
+            bundle
+        )
+    }
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -96,4 +120,4 @@ class ThroatDiagnosisFormFragment :
         super.onDestroyView()
         _binding = null
     }
-}
+}
