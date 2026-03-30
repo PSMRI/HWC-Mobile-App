@@ -15,7 +15,11 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentThroatDiagnosisFormBinding
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import org.piramalswasthya.cho.ui.commons.DropdownConst
+import androidx.navigation.fragment.findNavController
 
 @AndroidEntryPoint
 class ThroatDiagnosisFormFragment :
