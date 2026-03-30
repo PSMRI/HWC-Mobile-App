@@ -51,7 +51,9 @@ class ThroatDiagnosisFormFragment :
     
     override fun onSaveSuccess() {
         val masterDb = MasterDb(
-            patientId = viewModel.patientID.toString(),
+            patientId = requireNotNull(viewModel.patientID) {
+                "patientID is required before navigating to vitals"
+            }.toString(),
             visitMasterDb = VisitMasterDb().apply {
                 category = "Other CPHC Services"
                 subCategory = DropdownConst.ent
@@ -118,4 +120,4 @@ class ThroatDiagnosisFormFragment :
         super.onDestroyView()
         _binding = null
     }
-}
+}
