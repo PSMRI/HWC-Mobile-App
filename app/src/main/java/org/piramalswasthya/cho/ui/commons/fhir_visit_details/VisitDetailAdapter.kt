@@ -48,6 +48,9 @@ class VisitDetailAdapter(
 
         val addButton : TextView = itemView.findViewById(R.id.addButton)
         val subtractButton : TextView = itemView.findViewById(R.id.subtractButton)
+
+        var isBinding = false
+
         init {
             // Set up click listener for the "Cancel" button
             cancelButton.setOnClickListener {
@@ -103,9 +106,8 @@ class VisitDetailAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        var durationCount = 0
+        holder.isBinding = true
         val itemData = itemList[position]
-        // Bind data and set listeners for user interactions
         holder.chiefComplaintOptions.setText(itemData.chiefComplaint)
         holder.durationInput.setText(itemData.duration)
         holder.durationUnitDropdown.setText(unitDropDown[1])
@@ -125,6 +127,8 @@ class VisitDetailAdapter(
         )
         holder.chiefComplaintOptions.setAdapter(chiefComplaintAdapter)
         holder.durationUnitDropdown.setAdapter(unitDropdownAdapter)
+        holder.isBinding = false
+        var durationCount = if (itemData.duration.isNullOrEmpty()) 0 else itemData.duration!!.toIntOrNull() ?: 0
         holder.subtractButton.isEnabled = !itemData.duration.isNullOrEmpty()
         holder.addButton.setOnClickListener {
             if(itemData.duration.isNullOrEmpty()){
@@ -166,6 +170,7 @@ class VisitDetailAdapter(
 
         // Set listeners to update data when user interacts
         holder.chiefComplaintOptions.addTextChangedListener {
+                if (holder.isBinding) return@addTextChangedListener
                 if(chiefComplaints.map{it.chiefComplaint}.contains(it.toString())){
                     itemData.chiefComplaint = it.toString()
                     holder.updateResetButtonState()
@@ -219,13 +224,17 @@ class VisitDetailAdapter(
             }
         })
         holder.durationUnitDropdown.addTextChangedListener {
-            itemData.durationUnit = it.toString()
-            itemChangeListener.onItemChanged()
+            if (!holder.isBinding) {
+                itemData.durationUnit = it.toString()
+                itemChangeListener.onItemChanged()
+            }
         }
         holder.descriptionInput.addTextChangedListener {
-            itemData.description = it.toString()
-            holder.updateResetButtonState()
-            itemChangeListener.onItemChanged()
+            if (!holder.isBinding) {
+                itemData.description = it.toString()
+                holder.updateResetButtonState()
+                itemChangeListener.onItemChanged()
+            }
         }
 
         // Update the visibility of the "Cancel" button for all items

@@ -63,22 +63,19 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
      * BRD: "Next Button – Proceed to vital screen and prescription."
      */
     override fun onSaveSuccess() {
-        val benVisitInfo = args.benVisitInfo
-        val masterDb = MasterDb(
-            patientId = benVisitInfo.patient.patientID,
-            visitMasterDb = VisitMasterDb().apply {
-                category = "Other CPHC Services"
-                subCategory = DropdownConst.oral
-                reason = DropdownConst.dental
-            }
-        )
+        val masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
+            ?: MasterDb(patientId = args.patientID, visitMasterDb = VisitMasterDb())
+        
+        masterDb.visitMasterDb?.apply {
+            category = "Other CPHC Services"
+            subCategory = DropdownConst.oral
+            reason = DropdownConst.dental
+        }
+        
         val bundle = Bundle().apply {
             putSerializable("MasterDb", masterDb)
         }
-        findNavController().navigate(
-            R.id.action_oralHealthFormFragment_to_customVitalsFragment,
-            bundle
-        )
+        findNavController().navigate(R.id.customVitalsFragment, bundle)
     }
 
     override fun onDestroyView() {
