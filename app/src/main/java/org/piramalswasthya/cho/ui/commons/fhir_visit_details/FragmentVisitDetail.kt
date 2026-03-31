@@ -1744,7 +1744,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
             else if(reasonForVisit == DropdownConst.ear ){
                 isNavigationInProgress = true
-                proceedToSpecializedForm { bundle ->
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.earDiagnosisFormFragment, bundle)
                 }
             }
@@ -2015,20 +2015,41 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         visitMasterDb.subCategory = subCategory
 
         val chiefComplaintList = mutableListOf<ChiefComplaintValues>()
-        for (i in 0 until itemList.size) {
-            val chiefComplaintData = itemList[i]
 
-            if (chiefComplaintData.chiefComplaint!!.isNotEmpty() &&
-                chiefComplaintData.duration!!.isNotEmpty()
-            ) {
-                var cc = ChiefComplaintValues(
-                    id = chiefComplaintData.id,
-                    chiefComplaint = chiefComplaintData.chiefComplaint,
-                    duration = chiefComplaintData.duration,
-                    durationUnit = chiefComplaintData.durationUnit,
-                    description = chiefComplaintData.description.nullIfEmpty()
-                )
-                chiefComplaintList.add(cc)
+        // Use chiefComplaintDB2 for follow-up, itemList otherwise
+        if (viewModel.getIsFollowUp()) {
+            for (i in 0 until chiefComplaintDB2.size) {
+                val chiefComplaintData = chiefComplaintDB2[i]
+
+                if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
+                    chiefComplaintData.duration.isNotEmpty()
+                ) {
+                    var cc = ChiefComplaintValues(
+                        id = chiefComplaintData.chiefComplaintId,
+                        chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
+                        duration = chiefComplaintData.duration.nullIfEmpty(),
+                        durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
+                        description = chiefComplaintData.description.nullIfEmpty()
+                    )
+                    chiefComplaintList.add(cc)
+                }
+            }
+        } else {
+            for (i in 0 until itemList.size) {
+                val chiefComplaintData = itemList[i]
+
+                if (chiefComplaintData.chiefComplaint!!.isNotEmpty() &&
+                    chiefComplaintData.duration!!.isNotEmpty()
+                ) {
+                    var cc = ChiefComplaintValues(
+                        id = chiefComplaintData.id,
+                        chiefComplaint = chiefComplaintData.chiefComplaint,
+                        duration = chiefComplaintData.duration,
+                        durationUnit = chiefComplaintData.durationUnit,
+                        description = chiefComplaintData.description.nullIfEmpty()
+                    )
+                    chiefComplaintList.add(cc)
+                }
             }
         }
 

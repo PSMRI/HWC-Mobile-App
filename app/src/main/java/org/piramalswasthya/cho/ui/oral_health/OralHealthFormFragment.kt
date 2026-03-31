@@ -63,15 +63,16 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
      * BRD: "Next Button – Proceed to vital screen and prescription."
      */
     override fun onSaveSuccess() {
-        val masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
-            ?: MasterDb(patientId = args.patientID, visitMasterDb = VisitMasterDb())
-        
+        val masterDb = requireNotNull(arguments?.getSerializable("MasterDb") as? MasterDb) {
+            "MasterDb is required for OralHealthFormFragment but was not provided"
+        }
+
         masterDb.visitMasterDb?.apply {
             category = "Other CPHC Services"
             subCategory = DropdownConst.oral
             reason = DropdownConst.dental
         }
-        
+
         val bundle = Bundle().apply {
             putSerializable("MasterDb", masterDb)
         }

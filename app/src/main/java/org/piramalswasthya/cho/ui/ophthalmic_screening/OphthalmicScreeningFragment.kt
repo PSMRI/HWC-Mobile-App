@@ -234,15 +234,16 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             Toast.makeText(requireContext(), "Saved successfully", Toast.LENGTH_SHORT).show()
             val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
                 ?: org.piramalswasthya.cho.model.MasterDb(patientId = args.patientID, visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
-            
+
             masterDb.visitMasterDb?.apply {
                 category = "Other CPHC Services"
                 subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ophthalmic
                 reason = args.reasonForVisit
+                benVisitNo = args.benVisitNo
             }
-            
-            val bundle = android.os.Bundle().apply { 
-                putSerializable("MasterDb", masterDb) 
+
+            val bundle = android.os.Bundle().apply {
+                putSerializable("MasterDb", masterDb)
             }
             findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
         }
