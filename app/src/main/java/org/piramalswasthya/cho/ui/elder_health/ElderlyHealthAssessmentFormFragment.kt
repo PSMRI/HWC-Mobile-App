@@ -74,6 +74,7 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
         _binding = null
     }
 
+    // Stamp Elderly Health Assessment metadata onto MasterDb from arguments and navigate to the vitals screen.
     override fun onSaveSuccess() {
         val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
             ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())

@@ -59,11 +59,9 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
         activity?.findViewById<TextView>(R.id.header_text_register_patient)?.text = getFormTitle()
     }
 
-    /**
-     * BRD: "Next Button – Proceed to vital screen and prescription."
-     */
+    // Stamp Oral Health visit metadata onto MasterDb from arguments and navigate to vitals.
     override fun onSaveSuccess() {
-        val masterDb = requireNotNull(arguments?.getSerializable("MasterDb") as? MasterDb) {
+        val masterDb = requireNotNull(arguments?.getSerializable("MasterDb") as? MasterDb) { // requireNotNull enforces that the caller (nav-graph) must supply a MasterDb bundle.
             "MasterDb is required for OralHealthFormFragment but was not provided"
         }
 
@@ -76,7 +74,7 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
         val bundle = Bundle().apply {
             putSerializable("MasterDb", masterDb)
         }
-        findNavController().navigate(R.id.customVitalsFragment, bundle)
+        findNavController().navigate(R.id.customVitalsFragment, bundle) // Use global action ID to remain consistent with all other specialized-form navigation.
     }
 
     override fun onDestroyView() {

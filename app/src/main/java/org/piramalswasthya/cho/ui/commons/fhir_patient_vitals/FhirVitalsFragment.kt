@@ -703,9 +703,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     var benVisitNo = 0;
                     var createNewBenflow = false;
 
-                    // If a specialized form already pre-computed benVisitNo and passed it
-                    // via the bundle, use it directly to keep specialist data and vitals/VisitDB
-                    // on the same visit number. Fall back to DB derivation for direct Vitals entry.
+                    // Use benVisitNo from bundle if a specialized form passed it; otherwise derive from DB to avoid a split-visit mismatch.
                     val passedBenVisitNo = arguments?.getInt("benVisitNo", -1) ?: -1
                     if (passedBenVisitNo > 0) {
                         benVisitNo = passedBenVisitNo

@@ -115,6 +115,7 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Nose Diagnosis Saved", Toast.LENGTH_LONG).show()
+                    // Stamp Nose visit metadata onto MasterDb and navigate to vitals; replaces the previous navigateUp() that bypassed visit registration.
                     val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
                         ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
                     masterDb.visitMasterDb?.apply {

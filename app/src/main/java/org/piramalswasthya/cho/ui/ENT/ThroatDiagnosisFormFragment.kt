@@ -102,6 +102,7 @@ class ThroatDiagnosisFormFragment :
         _binding = null
     }
 
+    // Stamp Throat visit metadata onto MasterDb from arguments and navigate to vitals; replaces fresh MasterDb construction that lost chief-complaint data.
     override fun onSaveSuccess() {
         val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
             ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())

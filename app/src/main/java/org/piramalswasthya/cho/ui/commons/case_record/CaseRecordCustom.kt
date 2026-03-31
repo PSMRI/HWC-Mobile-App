@@ -248,6 +248,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         isFollowupVisit = arguments?.getBoolean("isFollowupVisit")
         var isClosedViewOnly = (viewRecordFragment == true && isFlowComplete == true)
         isFreshCaseEntryFromVisitDetails =
+            // CHO-role and Register-role enter the fresh-case-entry flow.
             viewRecordFragment != true &&
                     (arguments?.getSerializable("MasterDb") as? MasterDb) != null
 
@@ -731,6 +732,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         if (!isDoctorExistingVisitFlow()) {
             val hasComplaints = chiefComplaintDB.isNotEmpty()
+            // Hide Chief Complaint section when no complaints exist (e.g., specialized-module visits without a CC).
             binding.chiefComplaintHeading.visibility = if (hasComplaints) View.VISIBLE else View.GONE
             binding.chiefComplaintExtra.visibility = if (hasComplaints) View.VISIBLE else View.GONE
         }

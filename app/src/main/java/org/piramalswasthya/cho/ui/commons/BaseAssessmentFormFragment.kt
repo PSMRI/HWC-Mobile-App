@@ -132,7 +132,7 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
                     contentLayout.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
                     Toast.makeText(requireContext(), getSaveSuccessMessage(), Toast.LENGTH_LONG).show()
-                    viewModel.resetState()
+                    viewModel.resetState() // Reset to IDLE so back-stack re-delivery does not retrigger onSaveSuccess().
                     onSaveSuccess()
                 }
 

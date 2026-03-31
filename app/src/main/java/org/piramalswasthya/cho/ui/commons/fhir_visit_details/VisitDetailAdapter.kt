@@ -128,7 +128,7 @@ class VisitDetailAdapter(
         holder.chiefComplaintOptions.setAdapter(chiefComplaintAdapter)
         holder.durationUnitDropdown.setAdapter(unitDropdownAdapter)
         holder.isBinding = false
-        var durationCount = if (itemData.duration.isNullOrEmpty()) 0 else itemData.duration!!.toIntOrNull() ?: 0
+        var durationCount = if (itemData.duration.isNullOrEmpty()) 0 else itemData.duration!!.toIntOrNull() ?: 0 // Initialise from existing data so +/- buttons reflect the stored value.
         holder.subtractButton.isEnabled = !itemData.duration.isNullOrEmpty()
         holder.addButton.setOnClickListener {
             if(itemData.duration.isNullOrEmpty()){
@@ -170,7 +170,7 @@ class VisitDetailAdapter(
 
         // Set listeners to update data when user interacts
         holder.chiefComplaintOptions.addTextChangedListener {
-                if (holder.isBinding) return@addTextChangedListener
+                if (holder.isBinding) return@addTextChangedListener // Skip callback during programmatic setText() to avoid overwriting model with empty value.
                 if(chiefComplaints.map{it.chiefComplaint}.contains(it.toString())){
                     itemData.chiefComplaint = it.toString()
                     holder.updateResetButtonState()
