@@ -130,4 +130,35 @@ data class ECTNetwork(
     val createdDate: String,
     val updatedBy: String,
     val updatedDate: String,
-)
+) {
+    /**
+     * Convert server response into a local [EligibleCoupleTrackingCache] entity.
+     * @param patientID local patient ID mapped from [benId].
+     */
+    fun toCache(patientID: String): EligibleCoupleTrackingCache {
+        return EligibleCoupleTrackingCache(
+            patientID = patientID,
+            visitDate = org.piramalswasthya.cho.network.getLongFromDate(visitDate),
+            financialYear = financialYear,
+            visitMonth = visitMonth,
+            lmpDate = lmpDate?.let { org.piramalswasthya.cho.network.getLongFromDate(it) },
+            isPregnancyTestDone = isPregnancyTestDone,
+            pregnancyTestResult = pregnancyTestResult,
+            isPregnant = isPregnant,
+            usingFamilyPlanning = usingFamilyPlanning,
+            methodOfContraception = methodOfContraception,
+            anyOtherMethod = anyOtherMethod,
+            antraDose = antraDose,
+            antraInjectionDate = antraInjectionDate?.let { org.piramalswasthya.cho.network.getLongFromDate(it) },
+            antraDueDate = antraDueDate?.let { org.piramalswasthya.cho.network.getLongFromDate(it) },
+            dateOfSterilization = dateOfSterilization?.let { org.piramalswasthya.cho.network.getLongFromDate(it) },
+            createdBy = createdBy,
+            createdDate = org.piramalswasthya.cho.network.getLongFromDate(createdDate),
+            updatedBy = updatedBy,
+            updatedDate = org.piramalswasthya.cho.network.getLongFromDate(updatedDate),
+            processed = "P",
+            isActive = isActive ?: true,
+            syncState = org.piramalswasthya.cho.database.room.SyncState.SYNCED
+        )
+    }
+}

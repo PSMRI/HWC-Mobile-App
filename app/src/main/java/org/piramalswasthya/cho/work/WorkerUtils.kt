@@ -41,6 +41,9 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullEligibleCouplesWorker = OneTimeWorkRequestBuilder<PullEligibleCouplesWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
 
 
         val workManager = WorkManager.getInstance(context)
@@ -48,6 +51,7 @@ object WorkerUtils {
             .beginUniqueWork(syncName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
             .then(pullBenFlowFromAmritWorker)
             .then(pullCbacFromAmritWorker)
+            .then(pullEligibleCouplesWorker)
             .enqueue()
     }
 
@@ -108,6 +112,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullEligibleCouplesWorker = OneTimeWorkRequestBuilder<PullEligibleCouplesWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
@@ -120,6 +128,8 @@ object WorkerUtils {
             .then(listOf(pushBenDoctorInfoPendingTestToAmrit, pushBenDoctorInfoWithoutTestToAmrit, pushBenDoctorInfoAfterTestToAmrit))
             // Specialty health pushes are also independent — run them in parallel.
             .then(listOf(pushPWRToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
+            // Pull eligible couple data from server after pushes complete.
+            .then(pullEligibleCouplesWorker)
 //           .then(pushLabDataToAmrit)
             .enqueue()
     }

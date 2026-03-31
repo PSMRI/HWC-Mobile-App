@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONException
@@ -8,6 +9,7 @@ import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.ECTNetwork
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.sakhi.database.room.SyncState
@@ -168,5 +170,86 @@ class EcrRepo @Inject constructor(
 
     suspend fun getLatestEctByBenId(benId: String): EligibleCoupleTrackingCache? {
         return database.ecrDao.getLatestEct(benId)
+    }
+
+    // ===== Pull Eligible Couples from Server =====
+
+    suspend fun pullEligibleCouplesFromServer(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val user = userRepo.getLoggedInUser()
+                ?: throw IllegalStateException("No user logged in!!")
+            try {
+                val response = amritApiService.getEligibleCouples()
+                val statusCode = response.code()
+                if (statusCode == 200) {
+                    val responseString = response.body()?.string()
+                    if (responseString != null) {
+                        val jsonObj = JSONObject(responseString)
+                        val errorMessage = jsonObj.getString("errorMessage")
+                        if (jsonObj.isNull("statusCode"))
+                            throw IllegalStateException("Amrit server not responding properly, Contact Service Administrator!!")
+                        val responseStatusCode = jsonObj.getInt("statusCode")
+                        when (responseStatusCode) {
+                            200 -> {
+                                try {
+                                    val dataArray = jsonObj.getJSONArray("data")
+                                    val gson = Gson()
+                                    for (i in 0 until dataArray.length()) {
+                                        val ectNetwork = gson.fromJson(
+                                            dataArray.getJSONObject(i).toString(),
+                                            ECTNetwork::class.java
+                                        )
+                                        // Map server benId to local patientID
+                                        val patient = database.patientDao.getBen(ectNetwork.benId)
+                                        if (patient != null) {
+                                            val existingEct = database.ecrDao.getEct(
+                                                patient.patientID,
+                                                org.piramalswasthya.cho.network.getLongFromDate(ectNetwork.visitDate)
+                                            )
+                                            if (existingEct == null) {
+                                                val cache = ectNetwork.toCache(patient.patientID)
+                                                database.ecrDao.upsert(cache)
+                                                Timber.d("Saved EC tracking record for patient ${patient.patientID}")
+                                            } else {
+                                                Timber.d("EC tracking record already exists for patient ${patient.patientID} on ${ectNetwork.visitDate}")
+                                            }
+                                        } else {
+                                            Timber.w("No local patient found for benId ${ectNetwork.benId}, skipping EC record")
+                                        }
+                                    }
+                                    Timber.d("EC downsync completed, processed ${dataArray.length()} records")
+                                } catch (e: Exception) {
+                                    Timber.e(e, "Error parsing EC downsync data")
+                                    return@withContext false
+                                }
+                                return@withContext true
+                            }
+                            5002 -> {
+                                if (userRepo.refreshTokenTmc(
+                                        user.userName, user.password
+                                    )
+                                ) throw SocketTimeoutException()
+                            }
+                            5000 -> {
+                                Timber.d("No EC records found on server")
+                                return@withContext true
+                            }
+                            else -> {
+                                Log.d("error ec pull", errorMessage)
+                                throw IOException("EC pull failed with code $responseStatusCode")
+                            }
+                        }
+                    }
+                }
+                Timber.w("Bad response from server for EC pull: $response")
+                return@withContext false
+            } catch (e: SocketTimeoutException) {
+                Timber.d("Caught timeout exception $e, retrying EC pull")
+                return@withContext pullEligibleCouplesFromServer()
+            } catch (e: JSONException) {
+                Timber.d("Caught JSON exception $e for EC pull")
+                return@withContext false
+            }
+        }
     }
 }
