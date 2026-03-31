@@ -2021,8 +2021,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             for (i in 0 until chiefComplaintDB2.size) {
                 val chiefComplaintData = chiefComplaintDB2[i]
 
-                if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
-                    chiefComplaintData.duration.isNotEmpty()
+                if (!chiefComplaintData.chiefComplaint.isNullOrEmpty() &&
+                    !chiefComplaintData.duration.isNullOrEmpty()
                 ) {
                     var cc = ChiefComplaintValues(
                         id = chiefComplaintData.chiefComplaintId,
@@ -2064,7 +2064,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             return
         }
 
-        setVisitMasterData()
+        if (viewModel.getIsFollowUp()) {
+            setVisitMasterDataForFollow()
+        } else {
+            setVisitMasterData()
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {

@@ -239,11 +239,11 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
                 category = "Other CPHC Services"
                 subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ophthalmic
                 reason = args.reasonForVisit
-                benVisitNo = args.benVisitNo
             }
 
             val bundle = android.os.Bundle().apply {
                 putSerializable("MasterDb", masterDb)
+                putInt("benVisitNo", args.benVisitNo)
             }
             findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
         }

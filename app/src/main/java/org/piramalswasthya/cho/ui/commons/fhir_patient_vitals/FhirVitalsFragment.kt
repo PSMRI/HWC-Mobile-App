@@ -702,14 +702,23 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
                     var benVisitNo = 0;
                     var createNewBenflow = false;
-                    viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
-                        if (it == null) {
-                            benVisitNo = 1;
-                        } else if (it.nurseFlag == 1) {
-                            benVisitNo = it.benVisitNo
-                        } else {
-                            benVisitNo = it.benVisitNo + 1
-                            createNewBenflow = true;
+
+                    // If a specialized form already pre-computed benVisitNo and passed it
+                    // via the bundle, use it directly to keep specialist data and vitals/VisitDB
+                    // on the same visit number. Fall back to DB derivation for direct Vitals entry.
+                    val passedBenVisitNo = arguments?.getInt("benVisitNo", -1) ?: -1
+                    if (passedBenVisitNo > 0) {
+                        benVisitNo = passedBenVisitNo
+                    } else {
+                        viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
+                            if (it == null) {
+                                benVisitNo = 1;
+                            } else if (it.nurseFlag == 1) {
+                                benVisitNo = it.benVisitNo
+                            } else {
+                                benVisitNo = it.benVisitNo + 1
+                                createNewBenflow = true;
+                            }
                         }
                     }
                     if (emptyFields.isEmpty()) {
