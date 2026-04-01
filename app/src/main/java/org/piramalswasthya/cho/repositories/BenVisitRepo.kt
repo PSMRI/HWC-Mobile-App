@@ -122,6 +122,7 @@ class BenVisitRepo @Inject constructor(
 
     }
 
+
     private suspend fun registerLabData(labResultDTO: LabResultDTO): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
@@ -441,7 +442,7 @@ class BenVisitRepo @Inject constructor(
                              visitCode = benFlow.visitCode,
                              providerServiceMapID = benFlow.providerServiceMapId,
                              specialist_flag = null,
-                             vanID = benFlow.vanID,
+                             facilityID = benFlow.facilityID,
                              parkingPlaceID = benFlow.parkingPlaceID
                         )
 
@@ -578,7 +579,6 @@ class BenVisitRepo @Inject constructor(
                             val pharmacistPatientIssueDataRequest = PharmacistPatientIssueDataRequest(
                                 issuedBy = "MMU",
                                 visitCode = benFlow.visitCode,
-                                facilityID = userDao.getLoggedInUserFacilityID(),
                                 age = it.patient.age,
                                 beneficiaryID = it.patient.beneficiaryID,
                                 benRegID = it.patient.beneficiaryRegID!!,
@@ -593,7 +593,7 @@ class BenVisitRepo @Inject constructor(
                                 visitID = benFlow.benVisitID,
                                 visitDate = benFlow.visitDate,
                                 parkingPlaceID = benFlow.parkingPlaceID,
-                                vanID = benFlow.vanID,
+                                facilityID = benFlow.facilityID,
                                 itemStockExit = itemStockExitList
                             )
                             if (pharmacistPatientIssueDataRequest.itemStockExit.isNotEmpty()) {
@@ -660,7 +660,6 @@ class BenVisitRepo @Inject constructor(
                     val pharmacistPatientIssueDataRequest = PharmacistPatientIssueDataRequest(
                         issuedBy = "MMU",
                         visitCode = benFlow.visitCode,
-                        facilityID = userDao.getLoggedInUserFacilityID(),
                         age = benVisitInfo.patient.age,
                         beneficiaryID = benVisitInfo.patient.beneficiaryID,
                         benRegID = benVisitInfo.patient.beneficiaryRegID!!,
@@ -675,7 +674,7 @@ class BenVisitRepo @Inject constructor(
                         visitID = benFlow.benVisitID,
                         visitDate = benFlow.visitDate,
                         parkingPlaceID = benFlow.parkingPlaceID,
-                        vanID = benFlow.vanID,
+                        facilityID = benFlow.facilityID,
                         itemStockExit = itemStockExitList
                     )
 

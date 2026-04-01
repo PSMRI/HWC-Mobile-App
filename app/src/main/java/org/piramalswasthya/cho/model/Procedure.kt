@@ -136,6 +136,6 @@ data class LabResultDTO(
     val visitCode: Long?,
     val providerServiceMapID: Int?,
     val specialist_flag: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
     val parkingPlaceID:Int?
 )

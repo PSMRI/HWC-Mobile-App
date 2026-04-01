@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 142, exportSchema = false
+    version = 143, exportSchema = false
 )
 
 
@@ -1117,6 +1117,13 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_142_143 = object : Migration(142, 143) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // HWC API now sends/uses facilityID for benflow-linked operations.
+                safeAddColumn(database, "BENFLOW", "facilityID", "INTEGER")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1183,7 +1190,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_138_139,
                             MIGRATION_139_140,
                             MIGRATION_140_141,
-                            MIGRATION_141_142
+                            MIGRATION_141_142,
+                            MIGRATION_142_143
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

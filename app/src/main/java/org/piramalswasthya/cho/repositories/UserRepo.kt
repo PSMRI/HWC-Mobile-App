@@ -220,7 +220,7 @@ class UserRepo @Inject constructor(
 
                 for (i in 0 until vanSpDetailsArray.length()) {
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
-                    val vanId = vanSp.getInt("vanID")
+                    val vanId = vanSp.optInt("vanID", -1)
                     user?.vanId = vanId
                     val servicePointId = vanSp.getInt("servicePointID")
                     user?.servicePointId = servicePointId

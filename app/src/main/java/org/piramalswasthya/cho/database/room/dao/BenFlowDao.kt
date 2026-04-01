@@ -59,4 +59,7 @@ interface BenFlowDao {
     @Query("UPDATE BENFLOW SET nurseFlag = 9, doctorFlag = 9 WHERE benFlowID = :benFlowID")
     suspend fun updateDoctorCompletedWithoutTest(benFlowID: Long)
 
+    @Query("UPDATE BENFLOW SET facilityID = :facilityID WHERE facilityID IS NULL")
+    suspend fun backfillNullFacilityID(facilityID: Int): Int
+
 }
