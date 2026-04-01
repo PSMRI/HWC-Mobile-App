@@ -151,8 +151,8 @@ interface AmritApiService {
     @POST("/flw-api/couple/tracking/saveAll")
     suspend fun postEctForm(@Body ectPostList: List<ECTNetwork>): Response<ResponseBody>
 
-    @GET("/hwc-api/couple/getAll")
-    suspend fun getEligibleCouples(): Response<ResponseBody>
+    @POST("hwc-api/sync/couple/getAll")
+    suspend fun getEligibleCouples(@Body villageList: VillageIdList): Response<ResponseBody>
 
     @GET("/flw-api/child-care/vaccine/getAll")
     suspend fun getAllChildVaccines(@Query("category") category: String): Response<ResponseBody>
