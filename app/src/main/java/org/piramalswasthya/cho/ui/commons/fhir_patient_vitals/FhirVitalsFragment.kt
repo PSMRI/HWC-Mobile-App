@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,6 @@ import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
-
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.utils.setBoxColor
@@ -702,22 +702,26 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
                     var benVisitNo = 0;
                     var createNewBenflow = false;
-                    viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
-                        if (it == null) {
-                            benVisitNo = 1;
-                        } else if (it.nurseFlag == 1) {
-                            benVisitNo = it.benVisitNo
-                        } else {
-                            benVisitNo = it.benVisitNo + 1
-                            createNewBenflow = true;
+
+                    // Use benVisitNo from bundle if a specialized form passed it; otherwise derive from DB to avoid a split-visit mismatch.
+                    val passedBenVisitNo = arguments?.getInt("benVisitNo", -1) ?: -1
+                    if (passedBenVisitNo > 0) {
+                        benVisitNo = passedBenVisitNo
+                    } else {
+                        viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
+                            if (it == null) {
+                                benVisitNo = 1;
+                            } else if (it.nurseFlag == 1) {
+                                benVisitNo = it.benVisitNo
+                            } else {
+                                benVisitNo = it.benVisitNo + 1
+                                createNewBenflow = true;
+                            }
                         }
                     }
                     if (emptyFields.isEmpty()) {
                         extractFormValues()
                         setVitalsMasterData()
-//                addVisitRecordDataToCache(benVisitNo)
-//                addVitalsDataToCache(benVisitNo)
-//                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
 
                         val user = userRepo.getLoggedInUser()
 
@@ -729,12 +733,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                                     WorkerUtils.triggerAmritSyncWorker(requireContext())
                                     requireActivity().finish()
                                 }
-
-                                else -> {
-//                            requireActivity().runOnUiThread {
-//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-//                            }
-                                }
+                                else -> {}
                             }
                         }
 

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -48,26 +49,6 @@ class ThroatDiagnosisFormFragment :
         viewModel.updateListOnValueChanged(formId, index)
     override fun onSaveForm() = viewModel.saveForm()
     override fun getFragmentId(): Int = R.id.throatDiagnosisFormFragment
-    
-    override fun onSaveSuccess() {
-        val masterDb = MasterDb(
-            patientId = requireNotNull(viewModel.patientID) {
-                "patientID is required before navigating to vitals"
-            }.toString(),
-            visitMasterDb = VisitMasterDb().apply {
-                category = "Other CPHC Services"
-                subCategory = DropdownConst.ent
-                reason = DropdownConst.throat
-            }
-        )
-        val bundle = Bundle().apply {
-            putSerializable("MasterDb", masterDb)
-        }
-        findNavController().navigate(
-            R.id.action_throatDiagnosisFormFragment_to_customVitalsFragment,
-            bundle
-        )
-    }
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -119,5 +100,18 @@ class ThroatDiagnosisFormFragment :
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    // Stamp Throat visit metadata onto MasterDb from arguments and navigate to vitals; replaces fresh MasterDb construction that lost chief-complaint data.
+    override fun onSaveSuccess() {
+        val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
+            ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
+        masterDb.visitMasterDb?.apply {
+            category = "Other CPHC Services"
+            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.throat
+            reason = org.piramalswasthya.cho.ui.commons.DropdownConst.throat
+        }
+        val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
+        findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
     }
 }
