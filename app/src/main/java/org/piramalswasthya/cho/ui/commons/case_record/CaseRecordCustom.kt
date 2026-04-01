@@ -248,7 +248,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         isFollowupVisit = arguments?.getBoolean("isFollowupVisit")
         var isClosedViewOnly = (viewRecordFragment == true && isFlowComplete == true)
         isFreshCaseEntryFromVisitDetails =
-            preferenceDao.isUserCHO() && viewRecordFragment != true &&
+            // CHO-role and Register-role enter the fresh-case-entry flow.
+            viewRecordFragment != true &&
                     (arguments?.getSerializable("MasterDb") as? MasterDb) != null
 
         // Use DB value for pharmacist_flag in edit path so completed (lab+pharmacist) cases show correct UI even if intent was stale
@@ -729,6 +730,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra.layoutManager = layoutManagerC
 
+        if (!isDoctorExistingVisitFlow()) {
+            val hasComplaints = chiefComplaintDB.isNotEmpty()
+            // Hide Chief Complaint section when no complaints exist (e.g., specialized-module visits without a CC).
+            binding.chiefComplaintHeading.visibility = if (hasComplaints) View.VISIBLE else View.GONE
+            binding.chiefComplaintExtra.visibility = if (hasComplaints) View.VISIBLE else View.GONE
+        }
 
         // Remove existing observer to prevent duplicates
         viewModel.formMedicineDosage.removeObservers(viewLifecycleOwner)

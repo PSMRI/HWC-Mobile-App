@@ -39,6 +39,11 @@ abstract class BaseFormViewModel : ViewModel() {
         _showAlert.value = null
     }
 
+    /** Resets [state] back to [State.IDLE]. Call after consuming [State.SAVE_SUCCESS]. */
+    fun resetState() {
+        _state.value = State.IDLE
+    }
+
     // ── Beneficiary header info ──────────────────────────────────────────────
 
     protected val _benName = MutableLiveData<String>()

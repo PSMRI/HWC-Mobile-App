@@ -232,23 +232,20 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         binding.btnNext.isEnabled = false
         viewModel.save {
             Toast.makeText(requireContext(), "Saved successfully", Toast.LENGTH_SHORT).show()
-            val isInjuryTrauma = args.reasonForVisit == DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA ||
-                    args.reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY
-            if (isInjuryTrauma) {
-                // PRD: "Next Button – Proceed to previous page."
-                findNavController().popBackStack()
-            } else {
-                val benVisitInfo = args.benVisitInfo
-                if (benVisitInfo != null) {
-                    findNavController().navigate(
-                        OphthalmicScreeningFragmentDirections
-                            .actionOphthalmicScreeningFragmentToFhirVisitDetailsFragment(benVisitInfo)
-                    )
-                } else {
-                    binding.btnNext.isEnabled = true
-                    Toast.makeText(requireContext(), "Error returning to details", Toast.LENGTH_SHORT).show()
-                }
+            val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
+                ?: org.piramalswasthya.cho.model.MasterDb(patientId = args.patientID, visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
+
+            masterDb.visitMasterDb?.apply {
+                category = "Other CPHC Services"
+                subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ophthalmic
+                reason = args.reasonForVisit
             }
+
+            val bundle = android.os.Bundle().apply {
+                putSerializable("MasterDb", masterDb)
+                putInt("benVisitNo", args.benVisitNo)
+            }
+            findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
         }
     }
 

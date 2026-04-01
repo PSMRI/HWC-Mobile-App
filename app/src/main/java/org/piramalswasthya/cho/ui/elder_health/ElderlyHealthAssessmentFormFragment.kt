@@ -73,4 +73,17 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
         super.onDestroyView()
         _binding = null
     }
+
+    // Stamp Elderly Health Assessment metadata onto MasterDb from arguments and navigate to the vitals screen.
+    override fun onSaveSuccess() {
+        val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
+            ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
+        masterDb.visitMasterDb?.apply {
+            category = "Other CPHC Services"
+            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.elderlyHealthAssessment
+            reason = org.piramalswasthya.cho.ui.commons.DropdownConst.elderlyHealthAssessment
+        }
+        val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
+        findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
+    }
 }

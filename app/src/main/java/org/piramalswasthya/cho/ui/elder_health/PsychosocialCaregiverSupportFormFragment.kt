@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -81,5 +82,18 @@ class PsychosocialCaregiverSupportFormFragment :
     override fun onDestroyView() {
         super.onDestroyView()   // restores bottom navigation
         _binding = null
+    }
+
+    // Stamp Psychosocial Caregiver Support metadata onto MasterDb from arguments and navigate to the vitals screen.
+    override fun onSaveSuccess() {
+        val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
+            ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
+        masterDb.visitMasterDb?.apply {
+            category = "Other CPHC Services"
+            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.psychosocialCaregiverSupport
+            reason = org.piramalswasthya.cho.ui.commons.DropdownConst.psychosocialCaregiverSupport
+        }
+        val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
+        findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
     }
 }
