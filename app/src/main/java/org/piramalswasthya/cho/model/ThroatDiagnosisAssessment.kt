@@ -47,6 +47,9 @@ data class ThroatDiagnosisAssessment(
     var cleftLip: Boolean? = null,
 
     @ColumnInfo(name = "cleft_palate")
-    var cleftPalate: Boolean? = null
+    var cleftPalate: Boolean? = null,
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0
 
 ) : FormDataModel

@@ -44,5 +44,9 @@ data class EarDiagnosisAssessment(
     var earConditionType: String? = null,
 
     @ColumnInfo(name = "congenital_ear_malformation")
-    var congenitalEarMalformation: Boolean? = null
+    var congenitalEarMalformation: Boolean? = null,
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0
+
 ) : FormDataModel

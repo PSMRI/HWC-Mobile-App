@@ -36,5 +36,8 @@ interface OralHealthDao {
         patientID: String,
         benVisitNo: Int
     ): OralHealth?
+
+    @Query("SELECT * FROM ORAL_HEALTH WHERE syncState = 0")
+    suspend fun getUnsyncedAssessments(): List<OralHealth>
 }
 

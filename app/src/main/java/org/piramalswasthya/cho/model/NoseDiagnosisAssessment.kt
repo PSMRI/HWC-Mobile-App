@@ -39,8 +39,9 @@ data class NoseDiagnosisAssessment(
     var foreignBodyNose: String? = null,
 
     @ColumnInfo(name = "sinusitis")
-    var sinusitis: Boolean? = null
+    var sinusitis: Boolean? = null,
 
-
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0
 
 ) : FormDataModel

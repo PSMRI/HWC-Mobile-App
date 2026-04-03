@@ -27,21 +27,21 @@ data class OralHealth(
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,
 
-    // Ticket 1
+
     @ColumnInfo(name = "tooth_decay_present")
     var toothDecayPresent: Boolean? = null,
 
     @ColumnInfo(name = "tooth_decay_symptoms")
     var toothDecaySymptoms: String? = null,
 
-    // Ticket 2
+
     @ColumnInfo(name = "gum_disease_present")
     var gumDiseasePresent: Boolean? = null,
 
     @ColumnInfo(name = "gum_disease_symptoms")
     var gumDiseaseSymptoms: String? = null,
 
-    // Ticket 3
+
     @ColumnInfo(name = "irregular_teeth_jaws")
     var irregularTeethJaws: Boolean? = null,
 
@@ -54,7 +54,6 @@ data class OralHealth(
     @ColumnInfo(name = "dental_fluorosis")
     var dentalFluorosis: Boolean? = null,
 
-    // Ticket 4
     @ColumnInfo(name = "dental_emergency")
     var dentalEmergency: String? = null,
 
@@ -62,7 +61,10 @@ data class OralHealth(
     var createdDate: Long? = null,
 
     @ColumnInfo(name = "created_by")
-    var createdBy: String? = null
+    var createdBy: String? = null,
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0
 
 ) : FormDataModel
 

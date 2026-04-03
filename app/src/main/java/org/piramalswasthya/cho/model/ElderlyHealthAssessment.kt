@@ -65,6 +65,9 @@ data class ElderlyHealthAssessment(
     @ColumnInfo(name = "dementia_referral_required")
     var dementiaReferralRequired: Boolean? = null,
 
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0,
+
     @Embedded
     val referralFollowUp: ReferralFollowUpFields = ReferralFollowUpFields()
 

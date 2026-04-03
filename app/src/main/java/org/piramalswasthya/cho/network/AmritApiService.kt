@@ -27,6 +27,13 @@ import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.StockItemRequest
 import org.piramalswasthya.cho.model.UserMasterVillage
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.model.EarDiagnosisNetwork
+import org.piramalswasthya.cho.model.NoseDiagnosisNetwork
+import org.piramalswasthya.cho.model.ThroatDiagnosisNetwork
+import org.piramalswasthya.cho.model.OphthalmicNetwork
+import org.piramalswasthya.cho.model.OralHealthNetwork
+import org.piramalswasthya.cho.model.ElderlyHealthNetwork
+import org.piramalswasthya.cho.model.MentalHealthNetwork
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -279,5 +286,46 @@ interface AmritApiService {
         @Body request: StockItemRequest
     ):Response<ResponseBody>
 
+    @POST("/hwc-api/otherCPHC/ear/saveAll")
+    suspend fun postEarForm(@Body earList: List<EarDiagnosisNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/nose/saveAll")
+    suspend fun postNoseForm(@Body noseList: List<NoseDiagnosisNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/throat/saveAll")
+    suspend fun postThroatForm(@Body throatList: List<ThroatDiagnosisNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/ophthalmic/saveAll")
+    suspend fun postOphthalmicForm(@Body ophthalmicList: List<OphthalmicNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/oral/saveAll")
+    suspend fun postOralForm(@Body oralList: List<OralHealthNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/elderly/saveAll")
+    suspend fun postElderlyForm(@Body elderlyList: List<ElderlyHealthNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/mental/saveAll")
+    suspend fun postMentalForm(@Body mentalList: List<MentalHealthNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/ear/getAll")
+    suspend fun getEarVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/nose/getAll")
+    suspend fun getNoseVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/throat/getAll")
+    suspend fun getThroatVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/ophthalmic/getAll")
+    suspend fun getOphthalmicVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/oral/getAll")
+    suspend fun getOralVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/elderly/getAll")
+    suspend fun getElderlyVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/otherCPHC/mental/getAll")
+    suspend fun getMentalVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
 
 }

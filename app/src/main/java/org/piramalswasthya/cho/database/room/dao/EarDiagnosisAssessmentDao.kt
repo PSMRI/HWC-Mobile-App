@@ -34,4 +34,7 @@ interface EarDiagnosisAssessmentDao {
                 "ORDER BY assessment_id DESC LIMIT 1"
     )
     suspend fun getAssessmentByPatientIdAndVisitNo(patientID: String, benVisitNo: Int): EarDiagnosisAssessment?
+
+    @Query("SELECT * FROM EAR_DIAGNOSIS_ASSESSMENT WHERE syncState = 0")
+    suspend fun getUnsyncedAssessments(): List<EarDiagnosisAssessment>
 }

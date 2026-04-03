@@ -39,4 +39,7 @@ interface MentalHealthScreeningDao {
         patientID: String,
         benVisitNo: Int
     ): MentalHealthScreeningCache?
+
+    @Query("SELECT * FROM MENTAL_HEALTH_SCREENING WHERE syncState = 0")
+    suspend fun getUnsyncedAssessments(): List<MentalHealthScreeningCache>
 }
