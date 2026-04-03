@@ -19,6 +19,7 @@ class MentalHealthScreeningDataset(
     private lateinit var suicideRiskOptions: Array<String>
     private lateinit var epilepsyDurationOptions: Array<String>
     private lateinit var yesNoOptions: Array<String>
+    private lateinit var alcoholSystemActionOptions: Array<String>
 
     private lateinit var cache: MentalHealthScreeningCache
     private var lastPhq9AlertLevel = 0
@@ -37,6 +38,7 @@ class MentalHealthScreeningDataset(
             suicideRiskOptions = getStringArray(R.array.suicide_risk_options)
             epilepsyDurationOptions = getStringArray(R.array.epilepsy_duration_options)
             yesNoOptions = getStringArray(R.array.yes_no_options)
+            alcoholSystemActionOptions = getStringArray(R.array.alcohol_system_action_options)
         }
     }
 
@@ -107,14 +109,14 @@ class MentalHealthScreeningDataset(
     private fun createDropDownElement(
         elementId: Int,
         titleStr: String,
-        options: List<String>,
+        options: Array<String>,
         hasDependants: Boolean = false
     ): FormElement {
         return FormElement(
             id = elementId,
             inputType = InputType.DROPDOWN,
             title = titleStr,
-            entries = options.toTypedArray(),
+            entries = options,
             required = false,
             hasDependants = hasDependants
         )
@@ -363,8 +365,9 @@ class MentalHealthScreeningDataset(
 
     private val substanceAlcoholClassification = createTextViewElement(317, context.getString(R.string.substance_alcohol_classification))
 
-    private val alcoholSystemActionOptions = listOf("Brief intervention", "Referral")
-    private val substanceAlcoholSystemAction = createDropDownElement(318, context.getString(R.string.substance_alcohol_system_action), alcoholSystemActionOptions, hasDependants = true)
+    private val substanceAlcoholSystemAction by lazy {
+        createDropDownElement(318, context.getString(R.string.substance_alcohol_system_action), alcoholSystemActionOptions, hasDependants = true)
+    }
 
     private val substance_alcohol_frequency: FormElement by lazy {
         FormElement(
@@ -792,7 +795,7 @@ class MentalHealthScreeningDataset(
         }
 
         // Psychosocial intervention
-        if (substanceAlcoholSystemAction.value == "Brief intervention") {
+        if (isBriefIntervention(substanceAlcoholSystemAction.value)) {
             list.add(edPsychosocialIntervention)
             if (isYes(edPsychosocialIntervention.value)) {
                 list.add(edInterventionType)
@@ -954,8 +957,9 @@ class MentalHealthScreeningDataset(
                 withdrawal != "Yes"
 
         substanceAlcoholClassification.value = when {
+            noAlcoholUse -> "Non-problematic"
             hasRiskFactor -> "Problematic"
-            noAlcoholUse || occasionalWithNoRisks -> "Non-problematic"
+            occasionalWithNoRisks -> "Non-problematic"
             else -> null
         }
     }
@@ -1228,8 +1232,12 @@ class MentalHealthScreeningDataset(
         return value?.firstOrNull()?.digitToIntOrNull()
     }
 
-    private fun isYes(value: String?): Boolean =
-        value == yesNoOptions.getOrNull(0)
+    private fun isYes(value: String?): Boolean {
+        return value == yesNoOptions[0]
+    }
+    private fun isBriefIntervention(value: String?): Boolean {
+        return value == alcoholSystemActionOptions.getOrNull(0)
+    }
 
     private fun isNo(value: String?): Boolean =
         value == yesNoOptions.getOrNull(1)

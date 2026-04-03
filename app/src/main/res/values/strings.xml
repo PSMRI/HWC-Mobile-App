@@ -1497,6 +1497,10 @@
         <item>Regular</item>
         <item>Daily</item>
     </string-array>
+    <string-array name="alcohol_system_action_options">
+        <item>Brief intervention</item>
+        <item>Referral</item>
+    </string-array>
 
     <!-- Suicide Risk Screening -->
     <string name="suicide_section_title">Suicide Risk Screening</string>
