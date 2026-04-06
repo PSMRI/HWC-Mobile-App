@@ -174,14 +174,35 @@ class BenFlowRepo @Inject constructor(
 
         val user = userRepo.getLoggedInUser()
         val loggedInFacilityID = user?.facilityID
+        val parsedVillageIds = convertStringToIntList(user?.assignVillageIds ?: "")
+        val prefVillageIds = preferenceDao.getUserLocationData()
+            ?.villageList
+            ?.mapNotNull { it.districtBranchID.toIntOrNull() }
+            ?.distinct()
+            ?: emptyList()
+        val effectiveVillageIds: List<Int> = when {
+            parsedVillageIds.isNotEmpty() -> parsedVillageIds
+            prefVillageIds.isNotEmpty() -> prefVillageIds
+            user?.masterVillageID != null -> listOf(user.masterVillageID!!)
+            else -> emptyList()
+        }
+        val lastSyncDate = preferenceDao.getLastBenflowSyncTime()
+
+//        if (effectiveVillageIds.isEmpty() || lastSyncDate.isBlank()) {
+//            Log.w(
+//                "BenFlowFacilityDebug",
+//                "downloadAndSyncFlowRecords: skipped due to incomplete payload villageIDs=$effectiveVillageIds lastSyncDate='$lastSyncDate' assignVillageIds='${user?.assignVillageIds}' masterVillageID=${user?.masterVillageID}"
+//            )
+//            return false
+//        }
 
         val villageList = VillageIdList(
-            convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastBenflowSyncTime()
+            effectiveVillageIds,
+            lastSyncDate
         )
         Log.i(
             "BenFlowFacilityDebug",
-            "downloadAndSyncFlowRecords: user icility=${user?.facilityID}, psmId van=${user?.vanId}, assignVillageIds='${user?.assignVillageIds}', parsedVillageCount=${villageList.villageID.size}, lastSyncDate='${villageList.lastSyncDate}'"
+            "downloadAndSyncFlowRecords: userFacility=${user?.facilityID}, userVan=${user?.vanId}, assignVillageIds='${user?.assignVillageIds}', prefVillageCount=${prefVillageIds.size}, finalVillageCount=${villageList.villageID.size}, lastSyncDate='${villageList.lastSyncDate}'"
         )
         if (loggedInFacilityID != null) {
             val updatedRows = benFlowDao.backfillNullFacilityID(loggedInFacilityID)

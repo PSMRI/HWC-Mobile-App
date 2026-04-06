@@ -59,7 +59,7 @@ interface AmritApiService {
     @POST("common-api/user/getLoginResponse")
     suspend fun getLoginResponse() : Response<ResponseBody>
 
-    @POST("hwc-api/user/getUserVanSpDetails?apiKey=undefined")
+    @POST("hwc-api/user/getUserFacilityDetails")
     suspend fun getUserVanSpDetails(
         @Body vanServiceType: TmcUserVanSpDetailsRequest
     ): Response<ResponseBody>
@@ -248,12 +248,11 @@ interface AmritApiService {
                                    @Path("gender") gender: String,
                                    @Query("apiKey") apiKey :String): Response<ResponseBody>
 
-    @GET("hwc-api/master/doctor/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}/{facilityID}/{vanID}")
+    @GET("hwc-api/master/doctor/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}/{facilityID}")
     suspend fun getDoctorMasterData(@Path("visitCategoryID") visitCategoryID: Int,
                                    @Path("providerServiceMapID") providerServiceMapID : Int,
                                    @Path("gender") gender: String,
                                    @Path("facilityID") facilityID: Int,
-                                   @Path("vanID") vanID: Int,
                                    @Query("apiKey") apiKey :String): Response<ResponseBody>
 
     @POST("hwc-api/generalOPD/getBenCaseRecordFromDoctorGeneralOPD")

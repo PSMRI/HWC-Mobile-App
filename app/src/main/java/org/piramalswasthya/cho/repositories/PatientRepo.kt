@@ -410,10 +410,25 @@ class PatientRepo @Inject constructor(
     suspend fun downloadAndSyncPatientRecords(): Boolean {
 
         val user = userRepo.getLoggedInUser()
+        val parsedVillageIds = convertStringToIntList(user?.assignVillageIds ?: "")
+        val effectiveVillageIds = if (parsedVillageIds.isNotEmpty()) {
+            parsedVillageIds
+        } else {
+            user?.masterVillageID?.let { listOf(it) } ?: emptyList()
+        }
+        val lastSyncDate = preferenceDao.getLastPatientSyncTime()
+        if (effectiveVillageIds.isEmpty() || lastSyncDate.isBlank()) {
+            Timber.w(
+                "downloadAndSyncPatientRecords skipped: incomplete payload villageIDs=%s lastSyncDate=%s",
+                effectiveVillageIds,
+                lastSyncDate
+            )
+            return false
+        }
 
         val villageList = VillageIdList(
-            convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastPatientSyncTime()
+            effectiveVillageIds,
+            lastSyncDate
         )
 
         when(val response = getPatientsCountToDownload(villageList)){
@@ -449,8 +464,8 @@ class PatientRepo @Inject constructor(
         if(villageIds.trim().nullIfEmpty() == null){
             return emptyList();
         }
-        return villageIds.split(",").map {
-            it.trim().toInt()
+        return villageIds.split(",").mapNotNull {
+            it.trim().toIntOrNull()
         }
     }
 
