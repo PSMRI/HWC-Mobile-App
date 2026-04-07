@@ -221,19 +221,19 @@ class UserRepo @Inject constructor(
 
                 for (i in 0 until vanSpDetailsArray.length()) {
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
-                    val vanId = vanSp.getInt("vanID")
-                    user?.vanId = vanId
-                    val servicePointId = vanSp.getInt("servicePointID")
-                    user?.servicePointId = servicePointId
-                    val servicePointName = vanSp.getString("servicePointName")
-                    user?.servicePointName = servicePointName
+//                    val vanId = vanSp.getInt("vanID")
+//                    user?.vanId = vanId
+//                    val servicePointId = vanSp.getInt("servicePointID")
+//                    user?.servicePointId = servicePointId
+//                    val servicePointName = vanSp.getString("servicePointName")
+//                    user?.servicePointName = servicePointName
                     if (!vanSp.has("facilityID")) {
                         Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
                         delay(3000)
                     }
                     val facilityId = vanSp.getInt("facilityID")
                     user?.facilityID = facilityId
-                    user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
+//                    user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
 
                 }
                 true
@@ -318,7 +318,21 @@ class UserRepo @Inject constructor(
                     val privilegesArray = data.getJSONArray("previlegeObj")
                     val privilegesObject = privilegesArray.getJSONObject(0)
                     val rolesObjectArray = privilegesObject.getJSONArray("roles")
-                    preferenceDao.setWorkingLocationID(rolesObjectArray.getJSONObject(0).getInt("workingLocationID"))
+                    val workingLocationId = if (rolesObjectArray.length() > 0) {
+                        val firstRole = rolesObjectArray.getJSONObject(0)
+                        when {
+                            firstRole.has("workingLocationID") -> firstRole.optInt("workingLocationID", -1)
+                            firstRole.has("workingLocationId") -> firstRole.optInt("workingLocationId", -1)
+                            else -> -1
+                        }
+                    } else {
+                        -1
+                    }
+                    if (workingLocationId != -1) {
+                        preferenceDao.setWorkingLocationID(workingLocationId)
+                    } else {
+                        Timber.w("getTokenTmc: workingLocationID missing in role payload")
+                    }
                     val rolesArray = extractRoles(privilegesObject);
                     val name = data.getString("fullName")
                     user = UserNetwork(userId, userName, password, name, rolesArray)
