@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.JsonClass
 
 
@@ -91,4 +92,17 @@ data class ComponentDetailMasterDTO(
 @JsonClass(generateAdapter = true)
 data class ComponentOptionsMasterDTO(
     val name: String?,
+)
+
+/** Response item for [org.piramalswasthya.cho.network.AmritApiService.getProcedureFields]. */
+data class ProcedureFieldApiItem(
+    @SerializedName("id") val id: Long,
+    @SerializedName("inputType") val inputType: String,
+    @SerializedName("range_min") val rangeMin: Double?,
+    @SerializedName("range_max") val rangeMax: Double?,
+    @SerializedName("measurement_nit") val measurementNit: String?,
+    @SerializedName("isRequired") val isRequired: Boolean,
+    @SerializedName("test_component_name") val testComponentName: String,
+    @SerializedName("test_component_desc") val testComponentDesc: String,
+    @SerializedName("procedureID") val procedureID: Long,
 )
