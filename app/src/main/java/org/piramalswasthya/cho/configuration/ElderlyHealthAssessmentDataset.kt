@@ -64,11 +64,94 @@ class ElderlyHealthAssessmentDataset(
         title = "Functional decline / difficulty in daily activities (ADL)",
         entries = arrayOf("Yes", "No"),
         required = true,
-        hasAlertError = true
+        hasAlertError = true,
+        hasDependants = true
+    )
+
+    // ADL Assessment Fields
+    private val functionalassesmentHeadline = FormElement(
+        id = 32,
+        inputType = InputType.HEADLINE,
+        title = "Functional Assessment section",
+        required = false
+    )
+    private var bathing = FormElement(
+        id = 7,
+        inputType = InputType.RADIO,
+        title = "Bathing",
+        entries = arrayOf("Independent (1)", "Dependent (0)"),
+        required = true,
+        hasDependants = true
+    )
+
+    private var dressing = FormElement(
+        id = 8,
+        inputType = InputType.RADIO,
+        title = "Dressing",
+        entries = arrayOf("Independent (1)", "Dependent (0)"),
+        required = true,
+        hasDependants = true
+    )
+
+    private var toileting = FormElement(
+        id = 9,
+        inputType = InputType.RADIO,
+        title = "Toileting",
+        entries = arrayOf("Independent (1)", "Dependent (0)"),
+        required = true,
+        hasDependants = true
+    )
+
+    private var transferring = FormElement(
+        id = 10,
+        inputType = InputType.RADIO,
+        title = "Transferring",
+        entries = arrayOf("Independent (1)", "Dependent (0)"),
+        required = true,
+        hasDependants = true
+    )
+
+    private var continence = FormElement(
+        id = 11,
+        inputType = InputType.RADIO,
+        title = "Continence",
+        entries = arrayOf("Independent (1)", "Dependent (0)"),
+        required = true,
+        hasDependants = true
+    )
+
+    private var feeding = FormElement(
+        id = 12,
+        inputType = InputType.RADIO,
+        title = "Feeding",
+        entries = arrayOf("Independent (1)", "Dependent (0)"),
+        required = true,
+        hasDependants = true
+    )
+
+    private var totalScore = FormElement(
+        id = 13,
+        inputType = InputType.TEXT_VIEW,
+        title = "Total Score",
+        required = false
+    )
+
+    private var functionalStatus = FormElement(
+        id = 14,
+        inputType = InputType.TEXT_VIEW,
+        title = "Functional Status",
+        required = false
+    )
+
+    private var functionalDeclineFlag = FormElement(
+        id = 15,
+        inputType = InputType.TEXT_VIEW,
+        title = "Functional Decline Flag",
+        required = false
     )
 
     private val memoryLoss = FormElement(
-        id = 7,
+        id = 16,
         inputType = InputType.RADIO,
         title = "Memory loss or confusion",
         entries = arrayOf("Yes", "No"),
@@ -80,14 +163,14 @@ class ElderlyHealthAssessmentDataset(
     // ---- Section B: Dementia Screening Checklist ----
 
     private val dementiaSectionHeadline = FormElement(
-        id = 8,
+        id = 17,
         inputType = InputType.HEADLINE,
         title = "Dementia Screening Checklist",
         required = false
     )
 
     private val dementiaMemoryLoss = FormElement(
-        id = 9,
+        id = 18,
         inputType = InputType.CHECKBOXES,
         title = "Progressive memory loss",
         entries = arrayOf("Yes"),
@@ -96,7 +179,7 @@ class ElderlyHealthAssessmentDataset(
     )
 
     private val dementiaDisorientation = FormElement(
-        id = 10,
+        id = 19,
         inputType = InputType.CHECKBOXES,
         title = "Disorientation (time/place/person)",
         entries = arrayOf("Yes"),
@@ -105,7 +188,7 @@ class ElderlyHealthAssessmentDataset(
     )
 
     private val dementiaBehaviouralChanges = FormElement(
-        id = 11,
+        id = 20,
         inputType = InputType.CHECKBOXES,
         title = "Behavioural changes",
         entries = arrayOf("Yes"),
@@ -114,7 +197,7 @@ class ElderlyHealthAssessmentDataset(
     )
 
     private val dementiaSelfCareDecline = FormElement(
-        id = 12,
+        id = 21,
         inputType = InputType.CHECKBOXES,
         title = "Decline in self-care / routine activities",
         entries = arrayOf("Yes"),
@@ -123,14 +206,14 @@ class ElderlyHealthAssessmentDataset(
     )
 
     private var dementiaScreeningOutcome = FormElement(
-        id = 13,
+        id = 22,
         inputType = InputType.TEXT_VIEW,
         title = "Screening Outcome",
         required = false
     )
 
     private var dementiaReferralRequired = FormElement(
-        id = 14,
+        id = 23,
         inputType = InputType.TEXT_VIEW,
         title = "Referral Required",
         required = false
@@ -154,6 +237,12 @@ class ElderlyHealthAssessmentDataset(
         list.add(difficultyWalkingBalance)
         list.add(visualHearingDifficulty)
         list.add(functionalDecline)
+
+        if (functionalDecline.value == "Yes") {
+            list.addAll(getADLFields())
+            computeADLScore()
+        }
+
         list.add(memoryLoss)
 
         // Section B: Dementia Screening – enabled only if Memory loss = Yes AND age >= 60
@@ -172,6 +261,21 @@ class ElderlyHealthAssessmentDataset(
             recentFalls,
             difficultyWalkingBalance,
             visualHearingDifficulty
+        )
+    }
+
+    private fun getADLFields(): List<FormElement> {
+        return listOf(
+            functionalassesmentHeadline,
+            bathing,
+            dressing,
+            toileting,
+            transferring,
+            continence,
+            feeding,
+            totalScore,
+            functionalStatus,
+            functionalDeclineFlag
         )
     }
 
@@ -195,14 +299,14 @@ class ElderlyHealthAssessmentDataset(
             dementiaReferralRequired
         )
     }
-    override val referralRequired = createReferralRequired(15)
-    override val referralLevel = createReferralLevel(16)
-    override val reasonForReferral = createReasonForReferral(17)
-    override val followUpRequired = createFollowUpRequired(18)
-    override val followUpDate = createFollowUpDate(19)
-    override val caseStatus = createCaseStatus(20)
-    override val dateOfDeath = createDateOfDeath(21)
-    override val remarks = createRemarks(22)
+    override val referralRequired = createReferralRequired(24)
+    override val referralLevel = createReferralLevel(25)
+    override val reasonForReferral = createReasonForReferral(26)
+    override val followUpRequired = createFollowUpRequired(27)
+    override val followUpDate = createFollowUpDate(28)
+    override val caseStatus = createCaseStatus(29)
+    override val dateOfDeath = createDateOfDeath(30)
+    override val remarks = createRemarks(31)
 
     private suspend fun computeDementiaOutcome() {
         val anySelected = listOf(
@@ -236,6 +340,51 @@ class ElderlyHealthAssessmentDataset(
         }
     }
 
+    private suspend fun computeADLScore() {
+        val adlFields = listOf(bathing, dressing, toileting, transferring, continence, feeding)
+        val scores = adlFields.map { field ->
+            when (field.value) {
+                "Independent (1)" -> 1
+                "Dependent (0)" -> 0
+                else -> 0
+            }
+        }
+        val total = scores.sum()
+
+        val status = when (total) {
+            6 -> "No decline"
+            in 4..5 -> "Partial Dependence"
+            in 2..3 -> "Functional Dependence"
+            in 0..1 -> "Highly Dependent"
+            else -> "Unknown"
+        }
+
+        val flag = if (total == 6) "No" else "Yes"
+
+        // Find existing indices in the actual list BEFORE updating the references
+        val oldTotalIndex = getIndexById(totalScore.id)
+        val oldStatusIndex = getIndexById(functionalStatus.id)
+        val oldFlagIndex = getIndexById(functionalDeclineFlag.id)
+
+        totalScore = totalScore.copy(value = total.toString())
+        functionalStatus = functionalStatus.copy(value = status)
+        functionalDeclineFlag = functionalDeclineFlag.copy(value = flag)
+
+        if (oldTotalIndex != -1) {
+            setUpPage(
+                mList = getFormList().toMutableList().apply {
+                    this[oldTotalIndex] = totalScore
+                    if (oldStatusIndex != -1) {
+                        this[oldStatusIndex] = functionalStatus
+                    }
+                    if (oldFlagIndex != -1) {
+                        this[oldFlagIndex] = functionalDeclineFlag
+                    }
+                }
+            )
+        }
+    }
+
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         val referralFollowUpResult = handleReferralFollowUpChange(formId, index)
@@ -246,7 +395,12 @@ class ElderlyHealthAssessmentDataset(
                 if (index == 0) {
                     onShowAlert?.invoke("Patient has functional decline. Please refer to higher facility if needed.")
                 }
-                -1
+                handleFunctionalDeclineChange(index)
+            }
+
+            bathing.id, dressing.id, toileting.id, transferring.id, continence.id, feeding.id -> {
+                computeADLScore()
+                getIndexById(totalScore.id)
             }
 
             memoryLoss.id -> handleMemoryLossChange(index)
@@ -295,6 +449,30 @@ class ElderlyHealthAssessmentDataset(
         }
     }
 
+    private suspend fun handleFunctionalDeclineChange(index: Int): Int {
+        return if (index == 0) {
+            // Functional decline = Yes → show ADL fields
+            triggerDependants(
+                source = functionalDecline,
+                addItems = getADLFields(),
+                removeItems = emptyList()
+            )
+            computeADLScore()
+            functionalDecline.id
+        } else {
+
+            getADLFields().forEach {
+                it.value = null
+            }
+            triggerDependants(
+                source = functionalDecline,
+                addItems = emptyList(),
+                removeItems = getADLFields()
+            )
+            functionalDecline.id
+        }
+    }
+
     private fun createDefaultCache(): ElderlyHealthAssessment {
         return ElderlyHealthAssessment(
             patientID = "",
@@ -305,6 +483,15 @@ class ElderlyHealthAssessmentDataset(
             difficultyWalkingBalance = null,
             visualHearingDifficulty = null,
             functionalDecline = null,
+            bathing = null,
+            dressing = null,
+            toileting = null,
+            transferring = null,
+            continence = null,
+            feeding = null,
+            totalScore = null,
+            functionalStatus = null,
+            functionalDeclineFlag = null,
             memoryLoss = null,
             dementiaMemoryLoss = null,
             dementiaDisorientation = null,
@@ -335,6 +522,50 @@ class ElderlyHealthAssessmentDataset(
             if (cache.visualHearingDifficulty == true) "Yes" else null
 
         functionalDecline.value = when(cache.functionalDecline) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+
+        bathing.value = when(cache.bathing) {
+            1 -> "Independent (1)"
+            0 -> "Dependent (0)"
+            else -> null
+        }
+
+        dressing.value = when(cache.dressing) {
+            1 -> "Independent (1)"
+            0 -> "Dependent (0)"
+            else -> null
+        }
+
+        toileting.value = when(cache.toileting) {
+            1 -> "Independent (1)"
+            0 -> "Dependent (0)"
+            else -> null
+        }
+
+        transferring.value = when(cache.transferring) {
+            1 -> "Independent (1)"
+            0 -> "Dependent (0)"
+            else -> null
+        }
+
+        continence.value = when(cache.continence) {
+            1 -> "Independent (1)"
+            0 -> "Dependent (0)"
+            else -> null
+        }
+
+        feeding.value = when(cache.feeding) {
+            1 -> "Independent (1)"
+            0 -> "Dependent (0)"
+            else -> null
+        }
+
+        totalScore.value = cache.totalScore?.toString()
+        functionalStatus.value = cache.functionalStatus
+        functionalDeclineFlag.value = when(cache.functionalDeclineFlag) {
             true -> "Yes"
             false -> "No"
             else -> null
@@ -388,6 +619,46 @@ class ElderlyHealthAssessmentDataset(
 
             it.functionalDecline =
                 functionalDecline.value == "Yes"
+
+            it.bathing = when(bathing.value) {
+                "Independent (1)" -> 1
+                "Dependent (0)" -> 0
+                else -> null
+            }
+
+            it.dressing = when(dressing.value) {
+                "Independent (1)" -> 1
+                "Dependent (0)" -> 0
+                else -> null
+            }
+
+            it.toileting = when(toileting.value) {
+                "Independent (1)" -> 1
+                "Dependent (0)" -> 0
+                else -> null
+            }
+
+            it.transferring = when(transferring.value) {
+                "Independent (1)" -> 1
+                "Dependent (0)" -> 0
+                else -> null
+            }
+
+            it.continence = when(continence.value) {
+                "Independent (1)" -> 1
+                "Dependent (0)" -> 0
+                else -> null
+            }
+
+            it.feeding = when(feeding.value) {
+                "Independent (1)" -> 1
+                "Dependent (0)" -> 0
+                else -> null
+            }
+
+            it.totalScore = totalScore.value?.toIntOrNull()
+            it.functionalStatus = functionalStatus.value
+            it.functionalDeclineFlag = functionalDeclineFlag.value == "Yes"
 
             it.memoryLoss =
                 memoryLoss.value == "Yes"

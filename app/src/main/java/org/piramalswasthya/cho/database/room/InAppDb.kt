@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 142, exportSchema = false
+    version = 143, exportSchema = false
 )
 
 
@@ -1117,6 +1117,21 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_142_143 = object : Migration(142, 143) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add ADL assessment columns to ELDERLY_HEALTH_ASSESSMENT
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "bathing", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "dressing", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "toileting", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "transferring", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "continence", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "feeding", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "total_score", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "functional_status", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "functional_decline_flag", "INTEGER")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1183,7 +1198,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_138_139,
                             MIGRATION_139_140,
                             MIGRATION_140_141,
-                            MIGRATION_141_142
+                            MIGRATION_141_142,
+                            MIGRATION_142_143
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
