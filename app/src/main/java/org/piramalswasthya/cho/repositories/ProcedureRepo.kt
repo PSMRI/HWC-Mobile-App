@@ -192,7 +192,7 @@ class ProcedureRepo @Inject constructor(
         )
     }
 
-    private suspend fun fetchProcedureFieldsData(attempt: Int = 0): List<ProcedureFieldApiItem>? {
+    suspend fun fetchProcedureFieldsData(attempt: Int = 0): List<ProcedureFieldApiItem>? {
         if (attempt > 2) return null
         return try {
             val response = apiService.getProcedureFields()
