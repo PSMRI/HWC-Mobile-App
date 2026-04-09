@@ -265,8 +265,6 @@ interface AmritApiService {
     @GET("/hwc-api/procedureFields/fields")
     suspend fun getProcedureFields(): Response<ResponseBody>
 
-    @GET("/hwc-api/procedureFields/fields?apiKey=undefined")
-    suspend fun getProcedureFieldsWithApiKey(): Response<ResponseBody>
     @POST("/inventory-api/allocateStockFromItemID/{facilityID}?apiKey=undefined")
     suspend fun getPharmacistAllocationItemList(@Body allocationItemDataRequest: List<AllocationItemDataRequest>, @Path("facilityID") facilityID: Int) : Response<ResponseBody>
 
