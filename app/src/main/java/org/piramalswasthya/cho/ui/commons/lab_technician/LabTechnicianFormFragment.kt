@@ -648,13 +648,13 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                 .fillMaxWidth()
         ) {
             val value = dto.testResultValue
-            val rangeMin = dto.range_min
-            val rangeMax = dto.range_max
+            val rangeMin = dto.range_normal_min
+            val rangeMax = dto.range_normal_max
             if (!value.isNullOrEmpty() && rangeMax != null && rangeMin != null) {
                 val valueDouble = value.toDouble()
                 if (valueDouble > rangeMax || valueDouble < rangeMin) {
                     Text(
-                        text = "Range " + dto.range_min + " to " + dto.range_max,
+                        text = "Range " + dto.range_normal_min + " to " + dto.range_normal_max,
                         color = Color.Red,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -662,7 +662,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                     )
                 } else {
                     Text(
-                        text = "Range " + dto.range_min + " to " + dto.range_max,
+                        text = "Range " + dto.range_normal_min + " to " + dto.range_normal_max,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .fillMaxWidth(0.6f),
@@ -670,7 +670,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                 }
             } else {
                 Text(
-                    text = "Range " + dto.range_min + " to " + dto.range_max,
+                    text = "Range " + dto.range_normal_min + " to " + dto.range_normal_max,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth(0.6f),
@@ -688,12 +688,12 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         dtos?.forEach { procedureDTO ->
             procedureDTO.compListDetails.forEach { componentDetailDTO ->
                 if (!componentDetailDTO.testResultValue.isNullOrEmpty() &&
-                    componentDetailDTO.range_max != null &&
-                    componentDetailDTO.range_min != null
+                    componentDetailDTO.range_normal_max != null &&
+                    componentDetailDTO.range_normal_min != null
                 ) {
                     isValidData =
-                        isValidData && (componentDetailDTO.testResultValue!!.toDouble() >= componentDetailDTO.range_min)
-                                && (componentDetailDTO.testResultValue!!.toDouble() <= componentDetailDTO.range_max)
+                        isValidData && (componentDetailDTO.testResultValue!!.toDouble() >= componentDetailDTO.range_normal_min)
+                                && (componentDetailDTO.testResultValue!!.toDouble() <= componentDetailDTO.range_normal_max)
                 }
             }
         }

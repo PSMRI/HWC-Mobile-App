@@ -102,25 +102,34 @@ class ProcedureRepo @Inject constructor(
             val labProcedures = historyDao.getProceduresMap()
                 .filter { it.procedureType.equals("Laboratory", ignoreCase = true) }
                 .sortedBy { it.procedureID }
-            if (labProcedures.isEmpty()) return@withContext
-
-            val anchorId = labProcedures.first().procedureID.toLong()
-            if (procedureMasterDao.getMasterProcedureById(anchorId) != null) return@withContext
-
             val fieldRows = fetchProcedureFieldsData() ?: return@withContext
+            if (fieldRows.isEmpty()) return@withContext
             val fieldsByProcedureId = fieldRows.groupBy { it.procedureID }
+            val labProceduresById = labProcedures.associateBy { it.procedureID.toLong() }
+            val allProcedureIds = (labProceduresById.keys + fieldsByProcedureId.keys).sorted()
 
-            for (proc in labProcedures) {
-                val procIdLong = proc.procedureID.toLong()
-                val procedureMaster = procedureMasterDao.getMasterProcedureById(procIdLong)
+            for (procIdLong in allProcedureIds) {
+                val proc = labProceduresById[procIdLong]
+                val fallbackField = fieldsByProcedureId[procIdLong]?.firstOrNull()
+                var procedureMaster = procedureMasterDao.getMasterProcedureById(procIdLong)
+                if (procedureMaster != null && procedureMaster.id != procIdLong) {
+                    // Legacy rows may have auto-generated id (1,2,3...). Replace with stable API id.
+                    procedureMasterDao.deleteMasterProcedureByRowId(procedureMaster.id)
+                    procedureMaster = null
+                }
                 val procedureRowId = if (procedureMaster == null) {
                     procedureMasterDao.insert(
                         ProcedureMaster(
+                            id = procIdLong,
                             procedureID = procIdLong,
-                            procedureDesc = proc.procedureDesc,
-                            procedureType = proc.procedureType,
+                            procedureDesc = proc?.procedureDesc
+                                ?: fallbackField?.testComponentDesc
+                                ?: "Laboratory Procedure $procIdLong",
+                            procedureType = proc?.procedureType ?: "Laboratory",
                             prescriptionID = LabProcedureMasterSeed.PRESCRIPTION_ID,
-                            procedureName = proc.procedureName,
+                            procedureName = proc?.procedureName
+                                ?: fallbackField?.testComponentName
+                                ?: "Laboratory Procedure $procIdLong",
                             isMandatory = false
                         )
                     )
@@ -230,6 +239,7 @@ class ProcedureRepo @Inject constructor(
 
                     procedureDTO.forEach { dto ->
                         val procedure = ProcedureMaster(
+                            id = dto.procedureID,
                             procedureID = dto.procedureID,
                             procedureDesc = dto.procedureDesc,
                             procedureType = dto.procedureType,
@@ -237,11 +247,11 @@ class ProcedureRepo @Inject constructor(
                             prescriptionID = dto.prescriptionID,
                             isMandatory = dto.isMandatory
                         )
-                        val procedureId = procedureMasterDao.insert(procedure)
+                        procedureMasterDao.insert(procedure)
                         dto.compListDetails.forEach { componentDetailDTO ->
                             val componentDetails = ComponentDetailsMaster(
                                 testComponentID = componentDetailDTO.testComponentID,
-                                procedureID = procedureId,
+                                procedureID = dto.procedureID,
                                 rangeNormalMin = componentDetailDTO.range_normal_min,
                                 rangeNormalMax = componentDetailDTO.range_normal_max,
                                 rangeMax = componentDetailDTO.range_max,
