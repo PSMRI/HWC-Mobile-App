@@ -311,6 +311,10 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientByBenRegId(beneficiaryRegID)
     }
 
+    suspend fun getPatientByAnyBeneficiaryId(id: Long): Patient? {
+        return patientDao.getPatientByAnyBeneficiaryId(id)
+    }
+
     suspend fun registerNewPatient(patient : PatientDisplay, user: UserDomain?): NetworkResult<NetworkResponse> {
 
         val p = patient.patient

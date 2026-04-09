@@ -168,6 +168,9 @@ interface PatientDao {
     @Query("SELECT * FROM PATIENT WHERE beneficiaryId =:benId LIMIT 1")
     suspend fun getBen(benId: Long): Patient?
 
+    @Query("SELECT * FROM PATIENT WHERE beneficiaryID = :id OR beneficiaryRegID = :id LIMIT 1")
+    suspend fun getPatientByAnyBeneficiaryId(id: Long): Patient?
+
 //    @Transaction
 //    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 1 WHERE beneficiaryRegID = :beneficiaryRegID")
 //    suspend fun updateNurseCompleted(beneficiaryRegID: Long)

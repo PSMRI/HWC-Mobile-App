@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
@@ -10,7 +11,9 @@ import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.ECTNetwork
+import org.piramalswasthya.cho.model.EligibleCoupleRegCache
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -68,6 +71,10 @@ class EcrRepo @Inject constructor(
 
     suspend fun getEct(patientID: String, createdDate: Long): EligibleCoupleTrackingCache? {
         return database.ecrDao.getEct(patientID, createdDate)
+    }
+
+    fun getPatientsForTrackingList(): Flow<List<Patient>> {
+        return database.ecrDao.getPatientsForTrackingList()
     }
 
     suspend fun saveEct(eligibleCoupleTrackingCache: EligibleCoupleTrackingCache) {
@@ -206,22 +213,31 @@ class EcrRepo @Inject constructor(
                     val responseString = response.body()?.string()
                     if (responseString != null) {
                         val jsonObj = JSONObject(responseString)
-                        val errorMessage = jsonObj.getString("errorMessage")
-                        if (jsonObj.isNull("statusCode"))
-                            throw IllegalStateException("Amrit server not responding properly, Contact Service Administrator!!")
-                        val responseStatusCode = jsonObj.getInt("statusCode")
+                        val errorMessage = jsonObj.optString("errorMessage")
+                        val responseStatusCode = jsonObj.optInt("statusCode", 200)
                         when (responseStatusCode) {
                             200 -> {
                                 try {
-                                    val dataArray = jsonObj.getJSONArray("data")
+                                    val dataArray = when (val dataNode = jsonObj.opt("data")) {
+                                        is org.json.JSONArray -> dataNode
+                                        is org.json.JSONObject -> dataNode.optJSONArray("data")
+                                        else -> null
+                                    } ?: org.json.JSONArray()
                                     val gson = Gson()
+                                    var savedCount = 0
                                     for (i in 0 until dataArray.length()) {
                                         val ectNetwork = gson.fromJson(
                                             dataArray.getJSONObject(i).toString(),
                                             ECTNetwork::class.java
                                         )
-                                        // Map server benId to local patientID
-                                        val patient = database.patientDao.getBen(ectNetwork.benId)
+                                        val benId = ectNetwork.benId
+                                        if (benId == null || benId == 0L) {
+                                            Timber.w("Skipping EC record: benId missing/invalid in payload index=$i")
+                                            continue
+                                        }
+                                        // Map server benId to local patientID.
+                                        // benId may come as beneficiaryID or beneficiaryRegID depending on backend source.
+                                        val patient = patientRepo.getPatientByAnyBeneficiaryId(benId)
                                         if (patient != null) {
                                             val existingEct = database.ecrDao.getEct(
                                                 patient.patientID,
@@ -230,15 +246,18 @@ class EcrRepo @Inject constructor(
                                             if (existingEct == null) {
                                                 val cache = ectNetwork.toCache(patient.patientID)
                                                 database.ecrDao.upsert(cache)
+                                                savedCount++
                                                 Timber.d("Saved EC tracking record for patient ${patient.patientID}")
                                             } else {
                                                 Timber.d("EC tracking record already exists for patient ${patient.patientID} on ${ectNetwork.visitDate}")
                                             }
+                                            val ecrSource = existingEct ?: ectNetwork.toCache(patient.patientID)
+                                            ensureEcrRowForTrackedPatient(patient.patientID, ecrSource, user.userName)
                                         } else {
-                                            Timber.w("No local patient found for benId ${ectNetwork.benId}, skipping EC record")
+                                            Timber.w("No local patient found for benId $benId, skipping EC record")
                                         }
                                     }
-                                    Timber.d("EC downsync completed, processed ${dataArray.length()} records")
+                                    Timber.d("EC downsync completed, received=${dataArray.length()} saved=$savedCount")
                                 } catch (e: Exception) {
                                     Timber.e(e, "Error parsing EC downsync data")
                                     return@withContext false
@@ -272,5 +291,39 @@ class EcrRepo @Inject constructor(
                 return@withContext false
             }
         }
+    }
+
+    private suspend fun ensureEcrRowForTrackedPatient(
+        patientId: String,
+        trackingCache: EligibleCoupleTrackingCache,
+        defaultUserName: String
+    ) {
+        val existingEcr = database.ecrDao.getSavedECR(patientId)
+        if (existingEcr != null) {
+            if ((existingEcr.lmpDate == null || existingEcr.lmpDate == 0L) && trackingCache.lmpDate != null) {
+                existingEcr.lmpDate = trackingCache.lmpDate
+                existingEcr.syncState = SyncState.SYNCED
+                existingEcr.processed = "P"
+                database.ecrDao.update(existingEcr)
+            }
+            return
+        }
+
+        val ecr = EligibleCoupleRegCache(
+            patientID = patientId,
+            dateOfReg = trackingCache.createdDate,
+            lmpDate = trackingCache.lmpDate,
+            noOfChildren = 0,
+            noOfLiveChildren = 0,
+            noOfMaleChildren = 0,
+            noOfFemaleChildren = 0,
+            isRegistered = true,
+            processed = "P",
+            createdBy = trackingCache.createdBy.ifBlank { defaultUserName },
+            createdDate = trackingCache.createdDate,
+            updatedBy = trackingCache.updatedBy.ifBlank { defaultUserName },
+            syncState = SyncState.SYNCED
+        )
+        database.ecrDao.upsert(ecr)
     }
 }

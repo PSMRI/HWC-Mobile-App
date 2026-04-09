@@ -20,9 +20,9 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ECRegistrationAdapter
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.FragmentEligibleCoupleTrackingBinding
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientWithEcrDomain
 import org.piramalswasthya.cho.repositories.EcrRepo
-import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.utils.FaceSearchHelper
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
@@ -37,9 +37,6 @@ import javax.inject.Inject
 class EligibleCoupleTrackingFragment : Fragment() {
 
     @Inject
-    lateinit var patientRepo: PatientRepo
-
-    @Inject
     lateinit var ecrRepo: EcrRepo
 
     @Inject
@@ -52,11 +49,7 @@ class EligibleCoupleTrackingFragment : Fragment() {
     private lateinit var adapter: ECRegistrationAdapter
     private var allPatients: List<PatientWithEcrDomain> = emptyList()
     private var filteredPatients: List<PatientWithEcrDomain> = emptyList()
-    private var currentPatientsList: List<org.piramalswasthya.cho.model.PatientDisplay>? = null
-
-    companion object {
-        const val STATUS_ELIGIBLE_COUPLE = 1
-    }
+    private var currentPatientsList: List<Patient>? = null
 
     /**
      * Reusable face-search helper — handles speech-to-text and camera face matching.
@@ -178,51 +171,33 @@ class EligibleCoupleTrackingFragment : Fragment() {
 
     private fun observePatients() {
         lifecycleScope.launch {
-            patientRepo.getPatientListFlow().collectLatest { patientsList ->
+            ecrRepo.getPatientsForTrackingList().collectLatest { patientsList ->
                 currentPatientsList = patientsList
                 processPatientsList(patientsList)
             }
         }
     }
 
-    private suspend fun processPatientsList(patientsList: List<org.piramalswasthya.cho.model.PatientDisplay>) {
+    private suspend fun processPatientsList(patientsList: List<Patient>) {
         val filteredPatientsList = patientsList
-            .filter { patientDisplay ->
-                val isFemale = patientDisplay.patient.genderID == 2
-                val age = patientDisplay.patient.age ?: 0
-                val isReproductiveAge = age in 15..49
-                val statusOfWomanID = patientDisplay.patient.statusOfWomanID
-                val isEligibleCouple = statusOfWomanID == STATUS_ELIGIBLE_COUPLE
-
-                isFemale && isReproductiveAge && isEligibleCouple
-            }
 
         allPatients = withContext(Dispatchers.IO) {
-            filteredPatientsList.map { patientDisplay ->
+            filteredPatientsList.map { patient ->
                 async {
-                    val ecr = ecrRepo.getSavedECR(patientDisplay.patient.patientID)
-                    val latestVisit = ecrRepo.getLatestEctByBenId(patientDisplay.patient.patientID)
-
-                    val hasPositivePregnancyTest = latestVisit?.let { visit ->
-                        visit.isPregnancyTestDone == "Yes" && visit.pregnancyTestResult == "Positive"
-                    } ?: false
-
-                    if (hasPositivePregnancyTest) {
-                        null
-                    } else {
-                        PatientWithEcrDomain(
-                            patient = patientDisplay.patient,
-                            ecr = ecr
-                        ).apply {
-                            lastVisitDate = latestVisit?.visitDate
-                            methodOfContraception = latestVisit?.methodOfContraception
-                            antraInjectionDate = latestVisit?.antraInjectionDate
-                            lmpDateFromTracking = latestVisit?.lmpDate
-                            antraNextDueDate = if (latestVisit?.methodOfContraception == "ANTRA Injection") {
-                                latestVisit.antraDueDate
-                            } else {
-                                null
-                            }
+                    val ecr = ecrRepo.getSavedECR(patient.patientID)
+                    val latestVisit = ecrRepo.getLatestEctByBenId(patient.patientID)
+                    PatientWithEcrDomain(
+                        patient = patient,
+                        ecr = ecr
+                    ).apply {
+                        lastVisitDate = latestVisit?.visitDate
+                        methodOfContraception = latestVisit?.methodOfContraception
+                        antraInjectionDate = latestVisit?.antraInjectionDate
+                        lmpDateFromTracking = latestVisit?.lmpDate
+                        antraNextDueDate = if (latestVisit?.methodOfContraception == "ANTRA Injection") {
+                            latestVisit.antraDueDate
+                        } else {
+                            null
                         }
                     }
                 }

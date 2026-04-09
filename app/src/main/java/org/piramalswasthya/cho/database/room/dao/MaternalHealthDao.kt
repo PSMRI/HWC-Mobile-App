@@ -103,12 +103,18 @@ interface MaternalHealthDao {
 
     @Transaction
     @Query("""
-        SELECT DISTINCT p.* FROM PATIENT p
-        INNER JOIN ELIGIBLE_COUPLE_TRACKING ect ON p.patientID = ect.patientID
-        WHERE ect.pregnancyTestResult = 'Positive'
+        SELECT p.* FROM PATIENT p
+        WHERE EXISTS (
+            SELECT 1 FROM ELIGIBLE_COUPLE_TRACKING ect
+            WHERE ect.patientID = p.patientID
+            AND (
+                LOWER(IFNULL(ect.pregnancyTestResult, '')) = 'positive'
+                OR LOWER(IFNULL(ect.isPregnant, '')) IN ('yes', 'true')
+            )
+        )
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
-        ORDER BY ect.createdDate DESC
+        ORDER BY p.registrationDate DESC
     """)
     fun getAllPatientsWithPWRFromEligibleCoupleTracking(): Flow<List<PatientWithPwrCache>>
 
