@@ -13,31 +13,32 @@ import timber.log.Timber
 import java.net.SocketTimeoutException
 
 @HiltWorker
-class PushPWRToAmritWorker @AssistedInject constructor(
+class PullPregnantWomenWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val maternalHealthRepo: MaternalHealthRepo,
     private val preferenceDao: PreferenceDao,
 ) : CoroutineWorker(appContext, params) {
+
     companion object {
-        const val name = "PushPWRToAmritWorker"
+        const val name = "PullPregnantWomenWorker"
     }
 
     override suspend fun doWork(): Result {
         init()
-        try {
-            Timber.d("PushPWRToAmritWorker started")
-            val workerResult1 = maternalHealthRepo.processNewPWRRecords()
-            return if (workerResult1) {
-                Timber.d("Worker completed")
+        return try {
+            Timber.d("PullPregnantWomenWorker started")
+            val workerResult = maternalHealthRepo.pullPregnantWomenFromServer()
+            if (workerResult) {
+                Timber.d("PullPregnantWomenWorker completed successfully")
                 Result.success()
             } else {
-                Timber.d("Worker Failed as usual!")
+                Timber.d("PullPregnantWomenWorker failed")
                 Result.failure()
             }
         } catch (e: SocketTimeoutException) {
-            Timber.e("Caught Exception for push amrit worker $e")
-            return Result.retry()
+            Timber.e("Caught exception for PullPregnantWomenWorker $e")
+            Result.retry()
         }
     }
 

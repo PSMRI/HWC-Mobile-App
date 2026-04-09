@@ -88,6 +88,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         setupClickListeners()
         observeViewModelState()
         observeAlerts()
+        observeBeneficiarySyncTrigger()
         
         // Handle Back Press
         val fromVisitDetails = arguments?.getBoolean("fromVisitDetails", false) ?: false
@@ -216,6 +217,15 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         }
     }
 
+    private fun observeBeneficiarySyncTrigger() {
+        viewModel.triggerBeneficiarySync.observe(viewLifecycleOwner) { shouldTrigger ->
+            if (shouldTrigger == true) {
+                WorkerUtils.triggerBeneficiarySync(requireContext())
+                viewModel.onBeneficiarySyncTriggered()
+            }
+        }
+    }
+
     private fun checkForAlerts() {
         if(viewModel.isPregnant) {
             Toast.makeText(
@@ -223,6 +233,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 resources.getString(R.string.tracking_form_filled_successfully),
                 Toast.LENGTH_SHORT
             ).show()
+            WorkerUtils.triggerBeneficiarySync(requireContext())
             saveNurseDataInBackground()
             viewModel.resetState()
             navigateBackToList()

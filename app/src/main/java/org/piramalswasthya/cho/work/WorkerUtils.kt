@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.*
 import org.piramalswasthya.sakhi.work.PullBenFlowFromAmritWorker
 import org.piramalswasthya.sakhi.work.PushBenToAmritWorker
+import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -45,6 +46,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullPregnantWomenWorker = OneTimeWorkRequestBuilder<PullPregnantWomenWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
 
         val workManager = WorkManager.getInstance(context)
         workManager
@@ -52,6 +57,7 @@ object WorkerUtils {
             .then(pullBenFlowFromAmritWorker)
             .then(pullCbacFromAmritWorker)
             .then(pullEligibleCouplesWorker)
+            .then(pullPregnantWomenWorker)
             .enqueue()
     }
 
@@ -116,6 +122,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullPregnantWomenWorker = OneTimeWorkRequestBuilder<PullPregnantWomenWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
@@ -130,6 +140,7 @@ object WorkerUtils {
             .then(listOf(pushPWRToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
             // Pull eligible couple data from server after pushes complete.
             .then(pullEligibleCouplesWorker)
+            .then(pullPregnantWomenWorker)
 //           .then(pushLabDataToAmrit)
             .enqueue()
     }
@@ -151,6 +162,42 @@ object WorkerUtils {
         workManager
             .beginUniqueWork("ec-tracking-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushECToAmritWorker)
             .then(pullEligibleCouplesWorker)
+            .enqueue()
+    }
+
+    /**
+     * Targeted PWR sync for pregnant woman registration form submission.
+     * Pushes local PWR updates immediately after successful save.
+     */
+    fun triggerPregnantWomanRegistrationSync(context: Context) {
+        val pushPWRToAmritWorker = OneTimeWorkRequestBuilder<PushPWRToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullPregnantWomenWorker = OneTimeWorkRequestBuilder<PullPregnantWomenWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        Timber.d("Enqueuing targeted PWR registration sync worker")
+        workManager
+            .beginUniqueWork("pwr-registration-sync", ExistingWorkPolicy.REPLACE, pushPWRToAmritWorker)
+            .then(pullPregnantWomenWorker)
+            .enqueue()
+    }
+
+    /**
+     * Targeted beneficiary sync to push patient reproductive status/id updates.
+     * Triggers beneficiariesToServer/update beneficiariesToServer via PushBenToAmritWorker.
+     */
+    fun triggerBeneficiarySync(context: Context) {
+        val pushBenToAmritWorker = OneTimeWorkRequestBuilder<PushBenToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        Timber.d("Enqueuing targeted beneficiary sync worker")
+        workManager
+            .beginUniqueWork("beneficiary-sync", ExistingWorkPolicy.REPLACE, pushBenToAmritWorker)
             .enqueue()
     }
 

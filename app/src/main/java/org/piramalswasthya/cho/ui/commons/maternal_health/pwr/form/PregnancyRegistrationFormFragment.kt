@@ -23,6 +23,7 @@ import org.piramalswasthya.cho.databinding.FragmentPregnancyRegistrationFormBind
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.model.InputType
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -320,6 +321,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                     }
 
                     is PregnancyRegistrationFormViewModel.NavigationEvent.NavigateUp -> {
+                        WorkerUtils.triggerPregnantWomanRegistrationSync(requireContext())
                         findNavController().navigateUp()
                         viewModel.clearNavigation()
                     }
@@ -330,6 +332,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                     }
 
                     is PregnancyRegistrationFormViewModel.NavigationEvent.ToVitalsActivity -> {
+                        WorkerUtils.triggerPregnantWomanRegistrationSync(requireContext())
                         // Force content to be hidden during navigation to prevent flickering
                         binding.llContent.visibility = View.GONE
                         binding.pbForm.visibility = View.VISIBLE

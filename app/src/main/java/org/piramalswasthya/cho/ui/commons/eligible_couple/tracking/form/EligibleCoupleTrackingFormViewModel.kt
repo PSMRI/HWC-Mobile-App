@@ -85,6 +85,10 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     val allEctRecords: LiveData<List<EligibleCoupleTrackingCache>?>
         get() = _allEctRecords
 
+    private val _triggerBeneficiarySync = MutableLiveData(false)
+    val triggerBeneficiarySync: LiveData<Boolean>
+        get() = _triggerBeneficiarySync
+
     private val dataset =
         EligibleCoupleTrackingDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
@@ -202,6 +206,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                 // Update patient status if pregnant
                 if (isPregnant) {
                     updatePatientStatusToPregnant()
+                    _triggerBeneficiarySync.value = true
                 }
 
                 // Update patient status if sterilization selected
@@ -229,8 +234,9 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
         try {
             val patient = patientDao.getPatient(patientID)
             patient.statusOfWomanID = STATUS_PREGNANT_WOMAN
+            patient.syncState = SyncState.UNSYNCED
             patientDao.updatePatient(patient)
-            Timber.d("Patient status updated to Pregnant Woman")
+            Timber.d("Patient status updated to Pregnant Woman and marked UNSYNCED")
         } catch (e: Exception) {
             Timber.e("Failed to update patient status to pregnant: $e")
         }
@@ -253,6 +259,10 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
     fun resetAlert() {
         _showAlert.value = AlertType.NONE
+    }
+
+    fun onBeneficiarySyncTriggered() {
+        _triggerBeneficiarySync.value = false
     }
 
 

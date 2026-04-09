@@ -21,6 +21,7 @@ import org.piramalswasthya.cho.model.PmsmaDomain
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
@@ -33,6 +34,7 @@ import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import org.piramalswasthya.cho.model.ANCPost
 import org.piramalswasthya.cho.model.AncCompletedListItem
 import org.piramalswasthya.cho.model.AncDueListItem
+import org.piramalswasthya.cho.model.PwrPost
 //import org.piramalswasthya.sakhi.helpers.getTodayMillis
 //import org.piramalswasthya.sakhi.model.*
 //import org.piramalswasthya.sakhi.network.GetDataPaginatedRequest
@@ -50,7 +52,7 @@ class MaternalHealthRepo @Inject constructor(
     private val database: InAppDb,
     private val userRepo: UserRepo,
     private val patientDao: PatientDao,
-//    private val preferenceDao: PreferenceDao,
+    private val preferenceDao: PreferenceDao,
 ) {
 
     suspend fun getSavedRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
@@ -260,6 +262,46 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
+    suspend fun processNewPWRRecords(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val pwrList = maternalHealthDao.getAllUnprocessedPWRs()
+            if (pwrList.isEmpty()) {
+                Timber.d("No unsynced PWR records found for upload")
+                return@withContext true
+            }
+
+            var hasFailures = false
+            val pwrPostList = mutableSetOf<PwrPost>()
+
+            pwrList.forEach { pwr ->
+                pwrPostList.clear()
+                val patient = patientDao.getPatient(pwr.patientID)
+                val benId = patient.beneficiaryID
+                if (benId == null) {
+                    Timber.w("Skipping PWR upload for patient ${pwr.patientID}: beneficiaryID is null")
+                    hasFailures = true
+                    return@forEach
+                }
+
+                pwr.syncState = SyncState.SYNCING
+                maternalHealthDao.updatePwr(pwr)
+
+                pwrPostList.add(pwr.asPwrPost().copy(benId = benId))
+                val uploadDone = postPwrDataToAmritServer(pwrPostList)
+                if (uploadDone) {
+                    pwr.processed = "P"
+                    pwr.syncState = SyncState.SYNCED
+                } else {
+                    pwr.syncState = SyncState.UNSYNCED
+                    hasFailures = true
+                }
+                maternalHealthDao.updatePwr(pwr)
+            }
+
+            return@withContext !hasFailures
+        }
+    }
+
     /**
      * Get all patients with their pregnancy registration data
      */
@@ -431,6 +473,151 @@ class MaternalHealthRepo @Inject constructor(
         } catch (e: JSONException) {
             Timber.d("Caught exception $e here")
             return false
+        }
+    }
+
+    private suspend fun postPwrDataToAmritServer(pwrPostList: MutableSet<PwrPost>): Boolean {
+        if (pwrPostList.isEmpty()) return false
+        val user = userRepo.getLoggedInUser()
+            ?: throw IllegalStateException("No user logged in!!")
+        try {
+            val response = amritApiService.postPregnantWomanForm(pwrPostList.toList())
+            val statusCode = response.code()
+            if (statusCode == 200) {
+                val responseString = response.body()?.string()
+                if (responseString != null) {
+                    val jsonObj = JSONObject(responseString)
+                    val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                    val errorMessage = jsonObj.optString("errorMessage")
+                    when (responseStatusCode) {
+                        200 -> {
+                            Timber.d("PWR saved successfully to server")
+                            return true
+                        }
+                        5002 -> {
+                            if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                                throw SocketTimeoutException()
+                            }
+                        }
+                        else -> {
+                            Timber.w("PWR saveAll failed: $errorMessage")
+                            throw IOException("PWR saveAll failed with statusCode=$responseStatusCode")
+                        }
+                    }
+                }
+            }
+            Timber.w("Bad response from server for PWR saveAll: $response")
+            return false
+        } catch (e: SocketTimeoutException) {
+            Timber.d("Caught timeout for PWR sync $e; retrying")
+            return postPwrDataToAmritServer(pwrPostList)
+        } catch (e: JSONException) {
+            Timber.d("Caught JSON exception for PWR sync $e")
+            return false
+        }
+    }
+
+    private fun convertStringToIntList(villageIds: String): List<Int> {
+        if (villageIds.trim().isEmpty()) return emptyList()
+        return villageIds.split(",")
+            .mapNotNull { it.trim().toIntOrNull() }
+    }
+
+    suspend fun pullPregnantWomenFromServer(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val user = userRepo.getLoggedInUser()
+                ?: throw IllegalStateException("No user logged in!!")
+            try {
+                val villageList = VillageIdList(
+                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    preferenceDao.getLastPatientSyncTime()
+                )
+                val response = amritApiService.getAllPregnantWomen(villageList)
+                if (response.code() != 200) {
+                    Timber.w("Bad response from server for PWR getAll: $response")
+                    return@withContext false
+                }
+
+                val responseString = response.body()?.string()
+                if (responseString.isNullOrBlank()) {
+                    Timber.w("Empty response body for PWR getAll")
+                    return@withContext false
+                }
+
+                val jsonObj = JSONObject(responseString)
+                val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                val errorMessage = jsonObj.optString("errorMessage")
+                when (responseStatusCode) {
+                    200 -> {
+                        val dataArray = when (val dataNode = jsonObj.opt("data")) {
+                            is org.json.JSONArray -> dataNode
+                            is org.json.JSONObject -> dataNode.optJSONArray("data")
+                            else -> null
+                        } ?: org.json.JSONArray()
+
+                        val gson = com.google.gson.Gson()
+                        var savedCount = 0
+                        for (i in 0 until dataArray.length()) {
+                            val pwrNetwork = gson.fromJson(
+                                dataArray.getJSONObject(i).toString(),
+                                PwrPost::class.java
+                            )
+                            val benId = pwrNetwork.benId
+                            if (benId == 0L) {
+                                Timber.w("Skipping PWR getAll item with invalid benId at index=$i")
+                                continue
+                            }
+                            val patient = patientDao.getPatientByAnyBeneficiaryId(benId)
+                            if (patient == null) {
+                                Timber.w("No local patient found for PWR benId=$benId, skipping")
+                                continue
+                            }
+
+                            val incoming = pwrNetwork.toPwrCache().copy(
+                                patientID = patient.patientID,
+                                processed = "P",
+                                syncState = SyncState.SYNCED,
+                                updatedDate = System.currentTimeMillis(),
+                                updatedBy = pwrNetwork.updatedBy.ifBlank { user.userName }
+                            )
+                            val existing = maternalHealthDao.getSavedRecord(patient.patientID)
+                            val merged = if (existing != null) {
+                                incoming.copy(
+                                    id = existing.id,
+                                    createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+                                    createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
+                                )
+                            } else {
+                                incoming
+                            }
+                            maternalHealthDao.saveRecord(merged)
+                            savedCount++
+                        }
+                        Timber.d("PWR getAll downsync completed, saved=$savedCount received=${dataArray.length()}")
+                        return@withContext true
+                    }
+                    5000 -> {
+                        Timber.d("No PWR records found on server")
+                        return@withContext true
+                    }
+                    5002 -> {
+                        if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            throw SocketTimeoutException()
+                        }
+                    }
+                    else -> {
+                        Timber.w("PWR getAll failed: $errorMessage")
+                        throw IOException("PWR getAll failed with statusCode=$responseStatusCode")
+                    }
+                }
+                return@withContext false
+            } catch (e: SocketTimeoutException) {
+                Timber.d("Caught timeout for PWR getAll $e; retrying")
+                return@withContext pullPregnantWomenFromServer()
+            } catch (e: JSONException) {
+                Timber.d("Caught JSON exception for PWR getAll $e")
+                return@withContext false
+            }
         }
     }
 
