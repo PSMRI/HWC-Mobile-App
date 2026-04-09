@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 143, exportSchema = false
+    version = 144, exportSchema = false
 )
 
 
@@ -1131,6 +1131,12 @@ abstract class InAppDb : RoomDatabase() {
                 safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "functional_decline_flag", "INTEGER")
             }
         }
+        val MIGRATION_143_144 = object : Migration(143, 144) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_reason", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_reason", "TEXT")
+            }
+        }
 
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
@@ -1199,7 +1205,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_139_140,
                             MIGRATION_140_141,
                             MIGRATION_141_142,
-                            MIGRATION_142_143
+                            MIGRATION_142_143,
+                            MIGRATION_143_144
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

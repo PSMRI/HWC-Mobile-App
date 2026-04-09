@@ -390,7 +390,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     requireContext(),
                     R.layout.dropdown_subcategory,
                     R.id.tv_dropdown_item_text,
-                    listOf(DropdownConst.oral)
+                    listOf(DropdownConst.oral, DropdownConst.mentalHealth)
                 )
             )
         }

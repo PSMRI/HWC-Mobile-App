@@ -1514,6 +1514,10 @@
         <item>Moderate</item>
         <item>High</item>
     </string-array>
+    <string-array name="alcohol_system_action_options">
+        <item>Brief intervention</item>
+        <item>Referral</item>
+    </string-array>
 
     <!-- Dementia Screening Checklist -->
     <string name="dementia_section_title">Dementia Screening Checklist</string>
@@ -1562,12 +1566,15 @@
     <string name="title_elderly_health_assessment">Elderly Health Assessment</string>
     <string name="epilepsy_dementia_checklist_title">Epilepsy &amp; Dementia Screening Checklist</string>
     <string name="ed_edRecurrentEpisodeloss">Episodes of loss of consciousness</string>
+    <string name="ed_edConfusionordrowsiness">Confusion or drowsiness after episode</string>
     <string name="ed_recurrent_jerky_movements">Recurrent jerky movements / fits</string>
     <string name="ed_progressive_memory_loss">Progressive memory loss</string>
-    <string name="ed_confusion_disorientation">Confusion / disorientation</string>
-    <string name="ed_functional_decline">Functional decline (daily activities)</string>
+    <string name="ed_confusion_disorientation">Disorientation or confusion </string>
+    <string name="ed_functional_decline">Decline in daily functioning (self-care, routine activities)</string>
+    <string name="ed_age_60_years">Age ≥ 60 years</string>
     <string name="ed_screening_outcome">Screening Outcome</string>
     <string name="ed_referral_required">Referral Required</string>
+    <string name="ed_reason">Reason</string>
     <string name="ed_psychosocial_intervention_provided">Psychosocial intervention provided</string>
     <string name="ed_intervention_type">Type of intervention</string>
     <string name="ed_session_date">Session date</string>
