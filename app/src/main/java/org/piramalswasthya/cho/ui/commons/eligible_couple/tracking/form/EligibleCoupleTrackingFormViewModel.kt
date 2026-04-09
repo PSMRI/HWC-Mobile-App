@@ -178,6 +178,9 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
                 withContext(dispatcherProvider.io) {
                     dataset.mapValues(eligibleCoupleTracking, 1)
+                    eligibleCoupleTracking.syncState = SyncState.UNSYNCED
+                    eligibleCoupleTracking.processed =
+                        if (eligibleCoupleTracking.processed == "N") "N" else "U"
                     ecrRepo.saveEct(eligibleCoupleTracking)
                     Timber.d("ECT data saved successfully for patient: $patientID")
 

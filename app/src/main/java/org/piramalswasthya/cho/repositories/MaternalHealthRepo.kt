@@ -4,6 +4,7 @@ import android.icu.util.Calendar
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
@@ -264,6 +265,13 @@ class MaternalHealthRepo @Inject constructor(
      */
     fun getAllPatientsWithPWR(): Flow<List<PatientWithPwrCache>> {
         return maternalHealthDao.getAllPatientsWithPWR()
+            .combine(maternalHealthDao.getAllPatientsWithPWRFromEligibleCoupleTracking()) { pwrList, ectPositiveList ->
+                (pwrList + ectPositiveList)
+                    .distinctBy { it.patient.patientID }
+                    .sortedByDescending {
+                        it.getActiveOrLatestPwr()?.createdDate ?: it.patient.registrationDate?.time ?: 0L
+                    }
+            }
     }
 
     /**

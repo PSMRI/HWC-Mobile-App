@@ -134,6 +134,26 @@ object WorkerUtils {
             .enqueue()
     }
 
+    /**
+     * Targeted EC sync for eligible-couple tracking form submission.
+     * Pushes local ECT updates first, then refreshes EC data from server.
+     */
+    fun triggerEligibleCoupleTrackingSync(context: Context) {
+        val pushECToAmritWorker = OneTimeWorkRequestBuilder<PushECToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullEligibleCouplesWorker = OneTimeWorkRequestBuilder<PullEligibleCouplesWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("ec-tracking-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushECToAmritWorker)
+            .then(pullEligibleCouplesWorker)
+            .enqueue()
+    }
+
     fun labPushWorker(context : Context){
 
         val pushLabDataToAmrit = OneTimeWorkRequestBuilder<PushLabDataToAmrit>()

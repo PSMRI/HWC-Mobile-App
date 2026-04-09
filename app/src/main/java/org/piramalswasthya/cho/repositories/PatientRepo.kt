@@ -92,6 +92,19 @@ class PatientRepo @Inject constructor(
     private val batchDao: BatchDao,
 ) {
 
+    private fun mapReproductiveStatusId(status: String?): Int? {
+        return when (status?.trim()?.lowercase()) {
+            "eligible couple" -> 1
+            "pregnant woman", "antenatal mother" -> 2
+            "postnatal", "postnatal mother-lactating mother", "postnatal mother" -> 3
+            "elderly" -> 4
+            "adolescent", "teenager" -> 5
+            "permanent sterilization", "permanently sterilised", "permanently sterilized" -> 6
+            "not applicable" -> 7
+            else -> null
+        }
+    }
+
     private var abdmFacilityId: String = ""
     private var abdmFacilityName: String = ""
 
@@ -592,6 +605,8 @@ class PatientRepo @Inject constructor(
                                     syncState = SyncState.SYNCED,
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
+                                    statusOfWomanID = beneficiary.reproductiveStatusId
+                                        ?: mapReproductiveStatusId(beneficiary.reproductiveStatus),
                                     healthIdDetails = benHealthIdDetails ,
                                     faceEmbedding = beneficiary.faceEmbedding,
                                     benImage = beneficiary.benImage

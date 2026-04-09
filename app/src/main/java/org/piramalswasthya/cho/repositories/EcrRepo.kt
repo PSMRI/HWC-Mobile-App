@@ -77,12 +77,14 @@ class EcrRepo @Inject constructor(
 
     suspend fun pushAndUpdateEctRecord(): Boolean {
         return withContext(Dispatchers.IO) {
-            val user = userRepo.getLoggedInUser()
-                ?: throw IllegalStateException("No user logged in!!")
-
             val ectList = database.ecrDao.getAllUnprocessedECT()
+            if (ectList.isEmpty()) {
+                Timber.d("No unsynced EC tracking records found for upload")
+                return@withContext true
+            }
 
             val ectPostList = mutableSetOf<EligibleCoupleTrackingCache>()
+            var hasFailures = false
 
             ectList.forEach {
                 ectPostList.clear()
@@ -95,13 +97,14 @@ class EcrRepo @Inject constructor(
                     it.syncState = SyncState.SYNCED
                 } else {
                     it.syncState = SyncState.UNSYNCED
+                    hasFailures = true
                 }
                 database.ecrDao.updateEligibleCoupleTracking(it)
 //                if(!uploadDone)
 //                    return@withContext false
             }
 
-            return@withContext true
+            return@withContext !hasFailures
         }
     }
 
@@ -111,15 +114,18 @@ class EcrRepo @Inject constructor(
         val user =
             userRepo.getLoggedInUser() ?: throw IllegalStateException("No user logged in!!")
         try {
+            val ectPayload = ectPostList.toList().map { cache ->
+                val benId = runCatching { patientRepo.getPatient(cache.patientID).beneficiaryID }
+                    .getOrNull() ?: 0L
+                if (benId == 0L) {
+                    Timber.w("ECT upload using fallback benId=0 for patient ${cache.patientID}")
+                }
+                cache.asNetworkModel(benId)
+            }
+
+            Timber.d("Uploading EC tracking payload count=${ectPayload.size}")
             val response =
-                amritApiService.postEctForm(
-                    ectPostList.toList()
-                    .filter{ ben -> patientRepo.getPatient(ben.patientID).beneficiaryID != null }
-                    .map {
-                        val pat = patientRepo.getPatient(it.patientID)
-                        it.asNetworkModel(pat.beneficiaryID!!)
-                    }
-                )
+                amritApiService.postEctForm(ectPayload)
             val statusCode = response.code()
 
             if (statusCode == 200) {

@@ -48,5 +48,9 @@ class PushECToAmritWorker @AssistedInject constructor(
             preferenceDao.getPrimaryApiToken()?.let {
                 TokenInsertTmcInterceptor.setToken(it)
             }
+        if (TokenInsertTmcInterceptor.getJwt() == "")
+            preferenceDao.getJWTAmritToken()?.let {
+                TokenInsertTmcInterceptor.setJwt(it)
+            }
     }
 }

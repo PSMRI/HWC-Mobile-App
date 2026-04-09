@@ -319,6 +319,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         val currentBenVisitInfo = benVisitInfo
         if (currentBenVisitInfo == null) {
             Timber.e("benVisitInfo is null, cannot save nurse data")
+            WorkerUtils.triggerEligibleCoupleTrackingSync(requireContext())
             return
         }
 
@@ -341,10 +342,10 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
 
                 val user = userRepo.getLoggedInUser()
                 saveNurseData(benVisitNo, createNewBenflow, user, currentBenVisitInfo)
-
-                WorkerUtils.triggerAmritSyncWorker(requireContext())
             } catch (e: Exception) {
                 Timber.e(e, "Failed to save nurse data in background")
+            } finally {
+                WorkerUtils.triggerEligibleCoupleTrackingSync(requireContext())
             }
         }
     }

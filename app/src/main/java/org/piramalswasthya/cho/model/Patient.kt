@@ -426,13 +426,26 @@ data class PatientNetwork(
         user?.serviceMapId.toString(),
         user?.serviceMapId.toString(),
         patientDisplay.patient.statusOfWomanID,
-        patientDisplay.statusOfWoman?.statusName,
+        mapReproductiveStatusName(patientDisplay.patient.statusOfWomanID) ?: patientDisplay.statusOfWoman?.statusName,
         patientDisplay.patient.spouseName,
         null,
         user?.vanId,
         patientDisplay.patient.faceEmbedding
     )
 
+}
+
+private fun mapReproductiveStatusName(statusOfWomanID: Int?): String? {
+    return when (statusOfWomanID) {
+        1 -> "Eligible Couple"
+        2 -> "Pregnant Woman"
+        3 -> "Postnatal"
+        4 -> "Elderly"
+        5 -> "Adolescent"
+        6 -> "Permanent Sterilization"
+        7 -> "Not Applicable"
+        else -> null
+    }
 }
 
 @JsonClass(generateAdapter = true)
@@ -685,7 +698,9 @@ data class BeneficiariesDTO(
     val sourceOfInformation: String?,
     val isHIVPos: String?,
     val faceEmbedding: List<Float>?,
-    val benImage: String?
+    val benImage: String?,
+    val reproductiveStatusId: Int?,
+    val reproductiveStatus: String?
 
 
 )
