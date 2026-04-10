@@ -50,6 +50,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullAncVisitsWorker = OneTimeWorkRequestBuilder<PullAncVisitsWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
 
         val workManager = WorkManager.getInstance(context)
         workManager
@@ -58,6 +62,7 @@ object WorkerUtils {
             .then(pullCbacFromAmritWorker)
             .then(pullEligibleCouplesWorker)
             .then(pullPregnantWomenWorker)
+            .then(pullAncVisitsWorker)
             .enqueue()
     }
 
@@ -96,6 +101,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pushAncToAmritWorker = OneTimeWorkRequestBuilder<PushAncToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val pushPNCWorkRequest = OneTimeWorkRequestBuilder<PushPNCToAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
@@ -126,6 +135,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullAncVisitsWorker = OneTimeWorkRequestBuilder<PullAncVisitsWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
@@ -137,10 +150,11 @@ object WorkerUtils {
             // The three doctor-info variants are independent — run them in parallel.
             .then(listOf(pushBenDoctorInfoPendingTestToAmrit, pushBenDoctorInfoWithoutTestToAmrit, pushBenDoctorInfoAfterTestToAmrit))
             // Specialty health pushes are also independent — run them in parallel.
-            .then(listOf(pushPWRToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
+            .then(listOf(pushPWRToAmritWorker, pushAncToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
             // Pull eligible couple data from server after pushes complete.
             .then(pullEligibleCouplesWorker)
             .then(pullPregnantWomenWorker)
+            .then(pullAncVisitsWorker)
 //           .then(pushLabDataToAmrit)
             .enqueue()
     }
@@ -173,7 +187,13 @@ object WorkerUtils {
         val pushPWRToAmritWorker = OneTimeWorkRequestBuilder<PushPWRToAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
+        val pushAncToAmritWorker = OneTimeWorkRequestBuilder<PushAncToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
         val pullPregnantWomenWorker = OneTimeWorkRequestBuilder<PullPregnantWomenWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullAncVisitsWorker = OneTimeWorkRequestBuilder<PullAncVisitsWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
 
@@ -181,7 +201,9 @@ object WorkerUtils {
         Timber.d("Enqueuing targeted PWR registration sync worker")
         workManager
             .beginUniqueWork("pwr-registration-sync", ExistingWorkPolicy.REPLACE, pushPWRToAmritWorker)
+            .then(pushAncToAmritWorker)
             .then(pullPregnantWomenWorker)
+            .then(pullAncVisitsWorker)
             .enqueue()
     }
 

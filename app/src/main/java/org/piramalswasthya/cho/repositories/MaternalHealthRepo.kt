@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.VillageIdList
+import org.piramalswasthya.cho.network.getLongFromDate
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
@@ -238,13 +239,25 @@ class MaternalHealthRepo @Inject constructor(
     suspend fun processNewAncVisit(): Boolean {
         return withContext(Dispatchers.IO) {
             val ancList = maternalHealthDao.getAllUnprocessedAncVisits()
+            if (ancList.isEmpty()) {
+                Timber.d("No unsynced ANC records found for upload")
+                return@withContext true
+            }
 
             val ancPostList = mutableSetOf<ANCPost>()
+            val user = userRepo.getLoggedInUser()
+            var hasFailures = false
             ancList.forEach {
                 ancPostList.clear()
                 val ben = patientDao.getPatient(it.patientID)
                 if(ben.beneficiaryID != null){
-                    ancPostList.add(it.asPostModel(ben.beneficiaryID!!))
+                    ancPostList.add(
+                        it.asPostModel(
+                            benId = ben.beneficiaryID!!,
+                            benRegId = ben.beneficiaryRegID,
+                            providerServiceMapID = user?.serviceMapId
+                        )
+                    )
                     it.syncState = SyncState.SYNCING
                     maternalHealthDao.updateANC(it)
                     val uploadDone = postDataToAmritServer(ancPostList)
@@ -253,12 +266,15 @@ class MaternalHealthRepo @Inject constructor(
                         it.syncState = SyncState.SYNCED
                     } else {
                         it.syncState = SyncState.UNSYNCED
+                        hasFailures = true
                     }
                     maternalHealthDao.updateANC(it)
+                } else {
+                    hasFailures = true
                 }
             }
 
-            return@withContext true
+            return@withContext !hasFailures
         }
     }
 
@@ -424,48 +440,43 @@ class MaternalHealthRepo @Inject constructor(
                 ?: throw IllegalStateException("No user logged in!!")
 
         try {
-
             val response = amritApiService.postAncForm(ancPostList.toList())
             val statusCode = response.code()
-
-            if (statusCode == 200) {
-                try {
-                    val responseString = response.body()?.string()
-                    if (responseString != null) {
-                        val jsonObj = JSONObject(responseString)
-
-                        val errormessage = jsonObj.getString("errorMessage")
-                        if (jsonObj.isNull("statusCode")) throw IllegalStateException("Amrit server not responding properly, Contact Service Administrator!!")
-                        val responsestatuscode = jsonObj.getInt("statusCode")
-
-                        when (responsestatuscode) {
-                            200 -> {
-                                Timber.d("Saved Successfully to server")
-                                return true
-                            }
-
-                            5002 -> {
-                                if (userRepo.refreshTokenTmc(
-                                        user.userName,
-                                        user.password
-                                    )
-                                ) throw SocketTimeoutException()
-                            }
-
-                            else -> {
-                                Log.d("anc error message", errormessage)
-                                throw IOException("Throwing away IO eXcEpTiOn")
-                            }
-                        }
-                    }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            } else {
+            if (statusCode != 200) {
+                Timber.w("Bad Response from server for ANC saveAll, code=$statusCode")
+                return false
             }
-            Timber.w("Bad Response from server, need to check $ancPostList $response ")
+
+            val responseString = response.body()?.string()
+            if (responseString.isNullOrBlank()) {
+                Timber.d("ANC saveAll succeeded with empty response body")
+                return true
+            }
+
+            val jsonObj = try {
+                JSONObject(responseString)
+            } catch (e: Exception) {
+                Timber.w("ANC saveAll returned non-JSON body, treating as success: $responseString")
+                return true
+            }
+            val responseStatusCode = jsonObj.optInt("statusCode", 200)
+            val errorMessage = jsonObj.optString("errorMessage")
+            when (responseStatusCode) {
+                200 -> {
+                    Timber.d("ANC saved successfully to server")
+                    return true
+                }
+                5002 -> {
+                    if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                        throw SocketTimeoutException()
+                    }
+                }
+                else -> {
+                    Log.d("anc error message", errorMessage)
+                    Timber.w("ANC saveAll failed: $errorMessage")
+                    return false
+                }
+            }
             return false
         } catch (e: SocketTimeoutException) {
             Timber.d("Caught exception $e here")
@@ -616,6 +627,108 @@ class MaternalHealthRepo @Inject constructor(
                 return@withContext pullPregnantWomenFromServer()
             } catch (e: JSONException) {
                 Timber.d("Caught JSON exception for PWR getAll $e")
+                return@withContext false
+            }
+        }
+    }
+
+    suspend fun pullAncVisitsFromServer(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val user = userRepo.getLoggedInUser()
+                ?: throw IllegalStateException("No user logged in!!")
+            try {
+                val villageList = VillageIdList(
+                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    preferenceDao.getLastPatientSyncTime()
+                )
+                val response = amritApiService.getAllAncVisits(villageList)
+                if (response.code() != 200) {
+                    Timber.w("Bad response from server for ANC getAll: $response")
+                    return@withContext false
+                }
+
+                val responseString = response.body()?.string()
+                if (responseString.isNullOrBlank()) {
+                    Timber.w("Empty response body for ANC getAll")
+                    return@withContext false
+                }
+
+                val jsonObj = JSONObject(responseString)
+                val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                val errorMessage = jsonObj.optString("errorMessage")
+                when (responseStatusCode) {
+                    200 -> {
+                        val dataArray = when (val dataNode = jsonObj.opt("data")) {
+                            is org.json.JSONArray -> dataNode
+                            is org.json.JSONObject -> dataNode.optJSONArray("data")
+                            else -> null
+                        } ?: org.json.JSONArray()
+
+                        val gson = com.google.gson.Gson()
+                        var savedCount = 0
+                        for (i in 0 until dataArray.length()) {
+                            val ancNetwork = gson.fromJson(
+                                dataArray.getJSONObject(i).toString(),
+                                ANCPost::class.java
+                            )
+                            val benId = ancNetwork.benId
+                            if (benId == 0L) {
+                                Timber.w("Skipping ANC getAll item with invalid benId at index=$i")
+                                continue
+                            }
+
+                            val patient = patientDao.getPatientByAnyBeneficiaryId(benId)
+                            if (patient == null) {
+                                Timber.w("No local patient found for ANC benId=$benId, skipping")
+                                continue
+                            }
+
+                            val incoming = ancNetwork.toAncCache().copy(
+                                patientID = patient.patientID,
+                                processed = "P",
+                                syncState = SyncState.SYNCED,
+                                updatedDate = if (ancNetwork.updatedDate.isNullOrBlank()) System.currentTimeMillis() else getLongFromDate(ancNetwork.updatedDate),
+                                updatedBy = ancNetwork.updatedBy.ifBlank { user.userName }
+                            )
+                            val existing = maternalHealthDao.getSavedRecord(patient.patientID, incoming.visitNumber)
+                            val merged = if (existing != null) {
+                                incoming.copy(
+                                    id = existing.id,
+                                    createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+                                    createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
+                                )
+                            } else {
+                                incoming
+                            }
+                            maternalHealthDao.saveRecord(merged)
+                            savedCount++
+                        }
+                        Timber.d("ANC getAll downsync completed, saved=$savedCount received=${dataArray.length()}")
+                        return@withContext true
+                    }
+
+                    5000 -> {
+                        Timber.d("No ANC records found on server")
+                        return@withContext true
+                    }
+
+                    5002 -> {
+                        if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            throw SocketTimeoutException()
+                        }
+                    }
+
+                    else -> {
+                        Timber.w("ANC getAll failed: $errorMessage")
+                        throw IOException("ANC getAll failed with statusCode=$responseStatusCode")
+                    }
+                }
+                return@withContext false
+            } catch (e: SocketTimeoutException) {
+                Timber.d("Caught timeout for ANC getAll $e; retrying")
+                return@withContext pullAncVisitsFromServer()
+            } catch (e: JSONException) {
+                Timber.d("Caught JSON exception for ANC getAll $e")
                 return@withContext false
             }
         }

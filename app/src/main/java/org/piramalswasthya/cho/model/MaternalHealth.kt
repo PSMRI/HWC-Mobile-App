@@ -689,10 +689,16 @@ data class PregnantWomanAncCache(
     var counsellingTopicsId: Int = 0,  // Counselling Topics ID
     var nextAncVisitDate: Long? = null  // Next ANC Visit Date
 ) : FormDataModel {
-    fun asPostModel(benId: Long): ANCPost {
+    fun asPostModel(
+        benId: Long,
+        benRegId: Long? = null,
+        providerServiceMapID: Int? = null
+    ): ANCPost {
         return ANCPost(
             benId = benId,
+            benRedId = benRegId,
             ancDate = getDateStringFromLong(ancDate),
+            visitDate = getDateStringFromLong(ancDate),
             isActive = true,
             ancVisit = visitNumber,
             isAborted = isAborted,
@@ -729,7 +735,15 @@ data class PregnantWomanAncCache(
             createdDate = getDateStringFromLong(createdDate),
             createdBy = createdBy,
             updatedDate = getDateStringFromLong(updatedDate),
-            updatedBy = updatedBy
+            updatedBy = updatedBy,
+            providerServiceMapID = providerServiceMapID,
+            filePath = frontFilePath,
+            methodOfTermination = abortionType,
+            methodOfTerminationId = abortionTypeId,
+            terminationDoneBy = abortionFacility,
+            terminationDoneById = abortionFacilityId,
+            abortionImg1 = frontFilePath,
+            abortionImg2 = backFilePath
 //            bloodSugarFasting = bloodSugarFasting,
 //            urineSugar = urineSugar,
 //            fetalHeartRate = fetalHeartRate,
@@ -745,7 +759,9 @@ data class PregnantWomanAncCache(
 data class ANCPost(
     val id: Long = 0,
     val benId: Long = 0,
+    val benRedId: Long? = null,
     val ancDate: String? = null,
+    val visitDate: String? = null,
     val isActive: Boolean,
     val ancVisit: Int,
     val pregnancyTestAtFacility: Boolean? = null,
@@ -780,6 +796,26 @@ data class ANCPost(
     val createdBy: String,
     val updatedDate: String? = null,
     val updatedBy: String,
+    val lmpDate: String? = null,
+    val providerServiceMapID: Int? = null,
+    val filePath: String? = null,
+    val serialNo: String? = null,
+    val methodOfTermination: String? = null,
+    val methodOfTerminationId: Int? = null,
+    val terminationDoneBy: String? = null,
+    val terminationDoneById: Int? = null,
+    val isPaiucdId: Int? = null,
+    val isPaiucd: String? = null,
+    val remarks: String? = null,
+    val abortionImg1: String? = null,
+    val abortionImg2: String? = null,
+    val placeOfDeath: String? = null,
+    val placeOfDeathId: Int? = null,
+    val otherPlaceOfDeath: String? = null,
+    val dateSterilisation: String? = null,
+    val isYesOrNo: Boolean? = null,
+    val placeOfAnc: String? = null,
+    val placeOfAncId: Int? = null,
     // New ANC fields
 //    val bloodSugarFasting: Int? = null,
 //    val urineSugar: String? = null,
@@ -795,7 +831,7 @@ data class ANCPost(
             id = id,
             patientID = "",
             visitNumber = ancVisit,
-            ancDate = getLongFromDate(ancDate),
+            ancDate = getLongFromDate(ancDate ?: visitDate),
             pregnancyTestAtFacility = pregnancyTestAtFacility,
             uptResult = uptResult,
             uptResultId = when(uptResult) {
@@ -804,23 +840,23 @@ data class ANCPost(
                 else -> -1
             },
             isAborted = isAborted,
-            abortionType = abortionType,
+            abortionType = abortionType ?: methodOfTermination,
             abortionTypeId = when(abortionType) {
                 "Induced" -> 0
                 "Spontaneous" -> 1
-                else -> -1
-            },
-            abortionFacility = abortionFacility,
+                else -> methodOfTerminationId ?: -1
+            }.let { if (it < 0) 0 else it },
+            abortionFacility = abortionFacility ?: terminationDoneBy,
             abortionFacilityId = when(abortionFacility) {
                 "Govt. Hospital" -> 0
                 "Pvt. Hospital" -> 1
-                else -> -1
-            },
+                else -> terminationDoneById ?: -1
+            }.let { if (it < 0) 0 else it },
             abortionDate = getLongFromDate(abortionDate),
             weight = weightOfPW,
             bpSystolic = bpSystolic,
             bpDiastolic = bpDiastolic,
-            pulseRate = pulseRate.toString(),
+            pulseRate = pulseRate?.toString(),
             hb = hb,
             fundalHeight = fundalHeight,
             urineAlbumin = when (urineAlbuminPresent) {
@@ -854,6 +890,8 @@ data class ANCPost(
             updatedBy = updatedBy,
             updatedDate = getLongFromDate(updatedDate),
             syncState = SyncState.SYNCED,
+            frontFilePath = abortionImg1 ?: filePath,
+            backFilePath = abortionImg2,
             // Map new ANC fields
 //            bloodSugarFasting = bloodSugarFasting,
 //            urineSugar = urineSugar,
