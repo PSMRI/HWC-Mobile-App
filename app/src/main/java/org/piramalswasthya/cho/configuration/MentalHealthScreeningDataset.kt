@@ -26,6 +26,7 @@ class MentalHealthScreeningDataset(
     private var lastSuicideRiskLevel = ""
     private var genderID: Int? = null
     private var age: Int? = null
+    private var wasAutoReferralForced = false
 
     init {
         loadResourceStrings()
@@ -628,6 +629,96 @@ class MentalHealthScreeningDataset(
                 substanceAlcoholClassification.value == "Problematic"
     }
 
+    private fun shouldShowReferralRequiredField(): Boolean {
+        return isYes(emotionalBehaviouralConcerns.value) ||
+                isYes(substanceUseConcerns.value) ||
+                isYes(selfHarmSuicideThoughts.value) ||
+                isYes(memoryLossConfusion.value) ||
+                isYes(seizuresFitsLoc.value) ||
+                shouldAutoReferFromPhq9() ||
+                shouldAutoReferFromHighSuicideRisk()
+    }
+
+    private fun isEdChecklistVisible(): Boolean {
+        return memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes"
+    }
+
+    private fun shouldAutoReferUnder11(): Boolean {
+        val isUnder11 = (age ?: Int.MAX_VALUE) < 11
+        if (!isUnder11) return false
+
+        return isYes(emotionalBehaviouralConcerns.value) ||
+                isYes(substanceUseConcerns.value) ||
+                isYes(selfHarmSuicideThoughts.value) ||
+                isYes(memoryLossConfusion.value) ||
+                isYes(seizuresFitsLoc.value)
+    }
+
+    private fun shouldAutoReferFromPhq9(): Boolean {
+        return (phq9TotalScore.value?.toIntOrNull() ?: 0) >= 15
+    }
+
+    private fun shouldAutoReferFromHighSuicideRisk(): Boolean {
+        val highRiskLabel = suicideRiskOptions.getOrElse(2) { "High" }
+        return isYes(selfHarmSuicideThoughts.value) &&
+                (suicideRiskLevel.value == highRiskLabel || suicideRiskLevel.value.equals("High", ignoreCase = true))
+    }
+
+    private fun shouldForceAutoReferralRequired(): Boolean {
+        return shouldAutoReferUnder11() ||
+                shouldAutoReferFromPhq9() ||
+                shouldAutoReferFromHighSuicideRisk()
+    }
+
+    private fun applyAutoReferralRules() {
+        val isAutoReferralForced = shouldForceAutoReferralRequired()
+        if (isAutoReferralForced) {
+            mhReferralRequired.value = yesNoOptions[0]
+            if (mhReferralDate.value.isNullOrEmpty()) {
+                mhReferralDate.value = todayDateString()
+            }
+        } else if (wasAutoReferralForced) {
+            // Auto-force removed (e.g. suicide risk High -> Medium): clear stale forced values
+            // so UI updates immediately without requiring manual scroll/rebind.
+            mhReferralRequired.value = null
+            mhReferralLevel.value = null
+            mhReasonForReferral.value = null
+            mhReferralDate.value = null
+        }
+        wasAutoReferralForced = isAutoReferralForced
+    }
+
+    private fun updateReferralRequiredOptions() {
+        mhReferralRequired.entries = if (shouldForceAutoReferralRequired()) {
+            arrayOf(yesNoOptions[0])
+        } else {
+            yesNoOptions
+        }
+    }
+
+    private fun getReferralLevelOptionsByAge(): Array<String> {
+        val currentAge = age
+        return when {
+            currentAge != null && currentAge < 6 -> arrayOf("RBSK DEIC")
+            currentAge != null && currentAge in 6..10 -> arrayOf("PHC", "CHC", "DH")
+            currentAge != null && currentAge >= 11 -> arrayOf("PHC", "CHC", "DH", "DMHP", "De-addiction")
+            else -> context.resources.getStringArray(R.array.mh_referral_level_options)
+        }
+    }
+
+    private fun updateReferralLevelOptions() {
+        val options = getReferralLevelOptionsByAge()
+        mhReferralLevel.entries = options
+
+        if (mhReferralLevel.value == "De-addiction centre" && options.contains("De-addiction")) {
+            mhReferralLevel.value = "De-addiction"
+        }
+
+        if (mhReferralLevel.value != null && !options.contains(mhReferralLevel.value)) {
+            mhReferralLevel.value = null
+        }
+    }
+
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
@@ -750,6 +841,9 @@ class MentalHealthScreeningDataset(
     private fun buildFormElementList(): MutableList<FormElement> {
         val list = mutableListOf<FormElement>()
         updateEdDerivedFields()
+        applyAutoReferralRules()
+        updateReferralRequiredOptions()
+        updateReferralLevelOptions()
 
         // Initial screening questions
         list.add(emotionalBehaviouralConcerns)
@@ -770,6 +864,8 @@ class MentalHealthScreeningDataset(
                 phq9MovingSlowly, phq9SelfHarmThoughts,
                 phq9TotalScore.copy(), phq9DepressionSeverity.copy(), phq9SystemAction.copy()
             ))
+        } else {
+            clearPhq9Values()
         }
 
         // Substance use section
@@ -805,11 +901,21 @@ class MentalHealthScreeningDataset(
 
         // Epilepsy & Dementia checklist
         if (memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes") {
-            list.addAll(listOf(
-                edChecklistHeader, edRecurrentEpisodeloss, edRecurrentJerkyMovements,edConfusionordrowsiness,
-                edProgressiveMemoryLoss, edConfusionDisorientation, edFunctionalDecline, edAge60Years,
-                edScreeningOutcome.copy(), edReferralRequired.copy(), edReason.copy()
-            ))
+            list.addAll(
+                listOf(
+                    edChecklistHeader,
+                    edRecurrentEpisodeloss,
+                    edRecurrentJerkyMovements,
+                    edConfusionordrowsiness,
+                    edProgressiveMemoryLoss,
+                    edConfusionDisorientation,
+                    edFunctionalDecline,
+                    edAge60Years,
+                    edScreeningOutcome.copy()
+                )
+            )
+            list.add(edReferralRequired.copy())
+            list.add(edReason.copy())
         }
 
         // Psychosocial intervention
@@ -828,18 +934,25 @@ class MentalHealthScreeningDataset(
             clearEdPsychosocialValues()
         }
 
-//        list.add(mhReferralRequired)
-//        if (mhReferralRequired.value == null && shouldAutoSuggestReferral()) {
-//            mhReferralRequired.value = yesNoOptions[0]
-//        }
-//        if (mhReferralRequired.value == yesNoOptions[0]) {
-//            list.add(mhReferralLevel)
-//            list.add(mhReasonForReferral)
-//            if (mhReferralDate.value.isNullOrEmpty()) {
-//                mhReferralDate.value = todayDateString()
-//            }
-//            list.add(mhReferralDate)
-//        }
+        if (shouldShowReferralRequiredField() && !isEdChecklistVisible()) {
+            if (mhReferralRequired.value == null && shouldAutoSuggestReferral()) {
+                mhReferralRequired.value = yesNoOptions[0]
+            }
+            list.add(mhReferralRequired.copy())
+            if (mhReferralRequired.value == yesNoOptions[0]) {
+                list.add(mhReferralLevel.copy())
+                list.add(mhReasonForReferral.copy())
+                if (mhReferralDate.value.isNullOrEmpty()) {
+                    mhReferralDate.value = todayDateString()
+                }
+                list.add(mhReferralDate.copy())
+            }
+        } else {
+            mhReferralRequired.value = null
+            mhReferralLevel.value = null
+            mhReasonForReferral.value = null
+            mhReferralDate.value = null
+        }
 //
 //        // Follow-up & Closure
 //        list.add(mhFollowUpRequired)
@@ -996,7 +1109,7 @@ class MentalHealthScreeningDataset(
                 isYes(edFunctionalDecline.value)
 
         edScreeningOutcome.value = if (hasRisk) "Suspected" else "Not suspected"
-        edReferralRequired.value = if (hasRisk) "Yes" else "No"
+        edReferralRequired.value = if (edScreeningOutcome.value == "Suspected") "Yes" else "No"
         edReason.value =
             if (edScreeningOutcome.value == "Suspected") "Neurological condition suspected" else null
     }
@@ -1428,11 +1541,15 @@ class MentalHealthScreeningDataset(
             it.edSessionDate = if (it.edPsychosocialInterventionProvided == true) edSessionDate.value else null
             it.edDurationMinutes = if (it.edPsychosocialInterventionProvided == true) edDurationMinutes.value?.toIntOrNull() else null
             it.edRemarks = edRemarks.value
-            it.referralRequired = yesNoToBoolean(mhReferralRequired.value)
+            it.referralRequired = if (shouldForceAutoReferralRequired()) {
+                true
+            } else {
+                yesNoToBoolean(mhReferralRequired.value)
+            }
             if (it.referralRequired == true) {
                 it.referralLevel = mhReferralLevel.value
                 it.reasonForReferral = mhReasonForReferral.value
-                it.referralDate = mhReferralDate.value
+                it.referralDate = mhReferralDate.value ?: todayDateString()
             } else {
                 it.referralLevel = null
                 it.reasonForReferral = null
