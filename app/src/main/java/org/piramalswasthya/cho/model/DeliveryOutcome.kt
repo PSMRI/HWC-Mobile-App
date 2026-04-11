@@ -162,32 +162,35 @@ data class DeliveryOutcomePost (
     val updatedDate: String? = null,
     val updatedBy: String
     ) {
-//    fun toDeliveryCache(): DeliveryOutcomeCache {
-//        return DeliveryOutcomeCache(
-//            id = id,
-//            benId = benId,
-//            isActive = isActive,
-//            dateOfDelivery = getLongFromDate(dateOfDelivery),
-//            timeOfDelivery = timeOfDelivery,
-//            placeOfDelivery = placeOfDelivery,
-//            typeOfDelivery = typeOfDelivery,
-//            hadComplications = hadComplications,
-//            complication = complication,
-//            causeOfDeath = causeOfDeath,
-//            otherCauseOfDeath  = otherCauseOfDeath,
-//            otherComplication = otherComplication,
-//            deliveryOutcome = deliveryOutcome,
-//            liveBirth = liveBirth,
-//            stillBirth = stillBirth,
-//            dateOfDischarge = getLongFromDate(dateOfDischarge),
-//            timeOfDischarge = timeOfDischarge,
-//            isJSYBenificiary = isJSYBenificiary,
-//            processed = "P",
-//            createdBy = createdBy,
-//            createdDate = getLongFromDate(createdDate),
-//            updatedBy = updatedBy,
-//            updatedDate = getLongFromDate(updatedDate),
-//            syncState = SyncState.SYNCED
-//        )
-//    }
+    fun toDeliveryCache(): DeliveryOutcomeCache {
+        return DeliveryOutcomeCache(
+            id = id,
+            patientID = "",
+            isActive = isActive,
+            dateOfDelivery = getLongFromDate(dateOfDelivery),
+            timeOfDelivery = timeOfDelivery,
+            placeOfDelivery = placeOfDelivery,
+            typeOfDelivery = typeOfDelivery,
+            hadComplications = hadComplications,
+            complication = complication,
+            causeOfDeath = causeOfDeath,
+            otherCauseOfDeath = otherCauseOfDeath,
+            otherComplication = otherComplication,
+            deliveryOutcome = deliveryOutcome,
+            liveBirth = liveBirth,
+            stillBirth = stillBirth,
+            dateOfDischarge = getLongFromDate(dateOfDischarge),
+            timeOfDischarge = timeOfDischarge,
+            isJSYBenificiary = isJSYBenificiary,
+            placeOfDeath = placeOfDeath,
+            placeOfDeathId = placeOfDeathId,
+            otherPlaceOfDeath = otherPlaceOfDeath,
+            processed = "P",
+            createdBy = createdBy,
+            createdDate = getLongFromDate(createdDate),
+            updatedBy = updatedBy,
+            updatedDate = getLongFromDate(updatedDate),
+            syncState = SyncState.SYNCED
+        )
+    }
 }

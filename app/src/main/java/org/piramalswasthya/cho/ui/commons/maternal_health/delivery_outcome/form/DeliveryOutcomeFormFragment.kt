@@ -21,6 +21,7 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity
 import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormViewModel.Alert
 import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormViewModel.State
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -118,6 +119,7 @@ class DeliveryOutcomeFormFragment : Fragment() {
                 State.SAVE_SUCCESS_NAVIGATE_VITALS -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
+                    WorkerUtils.triggerDeliveryOutcomeSync(requireContext())
                     viewModel.resetState()
                     requireActivity().onBackPressedDispatcher.onBackPressed()
                 }

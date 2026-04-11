@@ -54,6 +54,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullDeliveryOutcomeWorker = OneTimeWorkRequestBuilder<PullDeliveryOutcomeWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
 
         val workManager = WorkManager.getInstance(context)
         workManager
@@ -63,6 +67,7 @@ object WorkerUtils {
             .then(pullEligibleCouplesWorker)
             .then(pullPregnantWomenWorker)
             .then(pullAncVisitsWorker)
+            .then(pullDeliveryOutcomeWorker)
             .enqueue()
     }
 
@@ -105,6 +110,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pushDeliveryOutcomeToAmritWorker = OneTimeWorkRequestBuilder<PushDeliveryOutcomeToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val pushPNCWorkRequest = OneTimeWorkRequestBuilder<PushPNCToAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
@@ -139,6 +148,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullDeliveryOutcomeWorker = OneTimeWorkRequestBuilder<PullDeliveryOutcomeWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
@@ -150,11 +163,12 @@ object WorkerUtils {
             // The three doctor-info variants are independent — run them in parallel.
             .then(listOf(pushBenDoctorInfoPendingTestToAmrit, pushBenDoctorInfoWithoutTestToAmrit, pushBenDoctorInfoAfterTestToAmrit))
             // Specialty health pushes are also independent — run them in parallel.
-            .then(listOf(pushPWRToAmritWorker, pushAncToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
+            .then(listOf(pushPWRToAmritWorker, pushAncToAmritWorker, pushDeliveryOutcomeToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
             // Pull eligible couple data from server after pushes complete.
             .then(pullEligibleCouplesWorker)
             .then(pullPregnantWomenWorker)
             .then(pullAncVisitsWorker)
+            .then(pullDeliveryOutcomeWorker)
 //           .then(pushLabDataToAmrit)
             .enqueue()
     }
@@ -204,6 +218,26 @@ object WorkerUtils {
             .then(pushAncToAmritWorker)
             .then(pullPregnantWomenWorker)
             .then(pullAncVisitsWorker)
+            .enqueue()
+    }
+
+    /**
+     * Targeted Delivery Outcome sync after form submission.
+     * Pushes local Delivery Outcome record and refreshes server Delivery Outcome list.
+     */
+    fun triggerDeliveryOutcomeSync(context: Context) {
+        val pushDeliveryOutcomeToAmritWorker = OneTimeWorkRequestBuilder<PushDeliveryOutcomeToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullDeliveryOutcomeWorker = OneTimeWorkRequestBuilder<PullDeliveryOutcomeWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        Timber.d("Enqueuing targeted Delivery Outcome sync worker")
+        workManager
+            .beginUniqueWork("delivery-outcome-sync", ExistingWorkPolicy.REPLACE, pushDeliveryOutcomeToAmritWorker)
+            .then(pullDeliveryOutcomeWorker)
             .enqueue()
     }
 
