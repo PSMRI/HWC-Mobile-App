@@ -664,6 +664,11 @@ class MentalHealthScreeningDataset(
                 (suicideRiskLevel.value == highRiskLabel || suicideRiskLevel.value.equals("High", ignoreCase = true))
     }
 
+    private fun isAge11PlusSuicideContext(): Boolean {
+        val currentAge = age
+        return currentAge != null && currentAge > 11 && isYes(selfHarmSuicideThoughts.value)
+    }
+
     private fun shouldForceAutoReferralRequired(): Boolean {
         return shouldAutoReferUnder11() ||
                 shouldAutoReferFromPhq9() ||
@@ -701,6 +706,8 @@ class MentalHealthScreeningDataset(
         return when {
             currentAge != null && currentAge < 6 -> arrayOf("RBSK DEIC")
             currentAge != null && currentAge in 6..10 -> arrayOf("PHC", "CHC", "DH")
+            currentAge != null && currentAge >= 11 && isAge11PlusSuicideContext() ->
+                arrayOf("Primary Health Centre (PHC)", "CHC", "District Hospital", "District Mental Health Programme (DMHP)")
             currentAge != null && currentAge >= 11 -> arrayOf("PHC", "CHC", "DH", "DMHP", "De-addiction")
             else -> context.resources.getStringArray(R.array.mh_referral_level_options)
         }
@@ -716,6 +723,21 @@ class MentalHealthScreeningDataset(
 
         if (mhReferralLevel.value != null && !options.contains(mhReferralLevel.value)) {
             mhReferralLevel.value = null
+        }
+    }
+
+    private fun updateReferralReasonOptions() {
+        if (isAge11PlusSuicideContext()) {
+            val suicideReason = "Suicide risk identified"
+            mhReasonForReferral.entries = arrayOf(suicideReason)
+            mhReasonForReferral.value = suicideReason
+            return
+        }
+
+        val defaultOptions = context.resources.getStringArray(R.array.mh_reason_for_referral_options)
+        mhReasonForReferral.entries = defaultOptions
+        if (mhReasonForReferral.value != null && !defaultOptions.contains(mhReasonForReferral.value)) {
+            mhReasonForReferral.value = null
         }
     }
 
@@ -736,6 +758,9 @@ class MentalHealthScreeningDataset(
             }
 
             selfHarmSuicideThoughts.id -> {
+                if (selfHarmSuicideThoughts.value != "Yes") {
+                    clearSuicideValues()
+                }
                 rebuildConditionalSections()
                 formId
             }
@@ -844,6 +869,7 @@ class MentalHealthScreeningDataset(
         applyAutoReferralRules()
         updateReferralRequiredOptions()
         updateReferralLevelOptions()
+        updateReferralReasonOptions()
 
         // Initial screening questions
         list.add(emotionalBehaviouralConcerns)
@@ -1113,41 +1139,64 @@ class MentalHealthScreeningDataset(
         edReason.value =
             if (edScreeningOutcome.value == "Suspected") "Neurological condition suspected" else null
     }
-
-
-
-
     private suspend fun computeSuicideRiskLevel() {
+        val thoughtsSelfHarm = selfHarmSuicideThoughts.value
+        val previousAttempt = suicidePreviousAttempt.value
+        val currentIntentPlan = suicidePlan.value
+        val accessToMeans = suicideHopelessness.value
+        val choImmediateRisk = suicideImmediateAssess.value
+
         val fields = listOf(
-            suicidePreviousAttempt.value,
-            suicidePlan.value,
-            suicideHopelessness.value,
-            suicideImmediateAssess.value
+            thoughtsSelfHarm,
+            previousAttempt,
+            currentIntentPlan,
+            accessToMeans,
+            choImmediateRisk
         )
 
-        val answeredCount = fields.count { it != null }
-        if (answeredCount == 0) {
+        if (fields.all { it == null }) {
             suicideRiskLevel.value = null
             suicideRiskLevel.hasAlertError = false
             suicideRiskLevel.errorText = null
             return
         }
 
-        val yesCount = fields.count { isYes(it) }
+        val low = suicideRiskOptions.getOrElse(0) { "Low" }
+        val moderate = suicideRiskOptions.getOrElse(1) { "Moderate" }
+        val high = suicideRiskOptions.getOrElse(2) { "High" }
 
-        // If previous attempt AND current intent/plan are both Yes → High
-        val hasPreviousAttemptAndPlan = isYes(suicidePreviousAttempt.value) && isYes(suicidePlan.value)
+        val isThoughtsYes = isYes(thoughtsSelfHarm)
+        val isThoughtsNo = isNo(thoughtsSelfHarm)
+        val isPreviousYes = isYes(previousAttempt)
+        val isPreviousNo = isNo(previousAttempt)
+        val isIntentYes = isYes(currentIntentPlan)
+        val isIntentNo = isNo(currentIntentPlan)
+        val isMeansNo = isNo(accessToMeans)
+        val isImmediateYes = isYes(choImmediateRisk)
+        val isImmediateNo = isNo(choImmediateRisk)
 
         suicideRiskLevel.value = when {
-            hasPreviousAttemptAndPlan -> suicideRiskOptions.getOrElse(2) { "High" }
-            yesCount  ==0  -> suicideRiskOptions.getOrElse(0) { "Low" }
-            yesCount in 1..2 -> suicideRiskOptions.getOrElse(1) { "Moderate" }
-            else             -> suicideRiskOptions.getOrElse(2) { "High" }
+            
+            // Any Any Any Any Yes -> High
+            isImmediateYes -> high
+
+            // Yes Any Yes Any Any -> High
+            isThoughtsYes && isIntentYes -> high
+
+            // Yes Yes No No No -> Moderate
+            isThoughtsYes && isPreviousYes && isIntentNo && isMeansNo && isImmediateNo -> moderate
+
+            // Yes No No No No -> Low
+            isThoughtsYes && isPreviousNo && isIntentNo && isMeansNo && isImmediateNo -> low
+
+            // No No No No No -> Low
+            isThoughtsNo && isPreviousNo && isIntentNo && isMeansNo && isImmediateNo -> low
+
+            // Unlisted combinations
+            else -> low
         }
 
         val riskValue = suicideRiskLevel.value ?: ""
-        val moderate  = suicideRiskOptions.getOrElse(1) { "Moderate" }
-        val high      = suicideRiskOptions.getOrElse(2) { "High" }
 
         when (riskValue) {
             high -> {
@@ -1171,8 +1220,6 @@ class MentalHealthScreeningDataset(
         }
         lastSuicideRiskLevel = riskValue
     }
-
-
 
     private fun clearPhq9Values() {
         phq9LittleInterest.value = null
@@ -1571,5 +1618,6 @@ class MentalHealthScreeningDataset(
         }
     }
 }
+
 
 
