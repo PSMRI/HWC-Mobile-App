@@ -664,18 +664,52 @@ class MentalHealthScreeningDataset(
                 (suicideRiskLevel.value == highRiskLabel || suicideRiskLevel.value.equals("High", ignoreCase = true))
     }
 
+    private fun isLowSuicideRisk(): Boolean {
+        val lowRiskLabel = suicideRiskOptions.getOrElse(0) { "Low" }
+        return isYes(selfHarmSuicideThoughts.value) &&
+                (suicideRiskLevel.value == lowRiskLabel || suicideRiskLevel.value.equals("Low", ignoreCase = true))
+    }
+
+    private fun isAge11OrBelow(): Boolean {
+        val currentAge = age
+        return currentAge != null && currentAge <= 11
+    }
+
     private fun isAge11PlusSuicideContext(): Boolean {
         val currentAge = age
         return currentAge != null && currentAge > 11 && isYes(selfHarmSuicideThoughts.value)
     }
 
+    private fun isAge11OrBelowSuicideContext(): Boolean {
+        val currentAge = age
+        return currentAge != null && currentAge <= 11 && isYes(selfHarmSuicideThoughts.value)
+    }
+
     private fun shouldForceAutoReferralRequired(): Boolean {
+        // For low suicide risk:
+        // - age <= 11: keep referral locked to Yes
+        // - age > 11: keep referral manual-select
+        if (isLowSuicideRisk() && !isAge11OrBelow()) return false
+
         return shouldAutoReferUnder11() ||
                 shouldAutoReferFromPhq9() ||
                 shouldAutoReferFromHighSuicideRisk()
     }
 
     private fun applyAutoReferralRules() {
+        if (isLowSuicideRisk() && !isAge11OrBelow()) {
+            // Low suicide risk must remain manual. If the field was previously auto-forced,
+            // clear forced values so the user can re-select Yes/No.
+            if (wasAutoReferralForced || (mhReferralRequired.entries?.size ?: 0) == 1) {
+                mhReferralRequired.value = null
+                mhReferralLevel.value = null
+                mhReasonForReferral.value = null
+                mhReferralDate.value = null
+            }
+            wasAutoReferralForced = false
+            return
+        }
+
         val isAutoReferralForced = shouldForceAutoReferralRequired()
         if (isAutoReferralForced) {
             mhReferralRequired.value = yesNoOptions[0]
@@ -727,7 +761,7 @@ class MentalHealthScreeningDataset(
     }
 
     private fun updateReferralReasonOptions() {
-        if (isAge11PlusSuicideContext()) {
+        if (isAge11PlusSuicideContext() || isAge11OrBelowSuicideContext()) {
             val suicideReason = "Suicide risk identified"
             mhReasonForReferral.entries = arrayOf(suicideReason)
             mhReasonForReferral.value = suicideReason
@@ -964,14 +998,14 @@ class MentalHealthScreeningDataset(
             if (mhReferralRequired.value == null && shouldAutoSuggestReferral()) {
                 mhReferralRequired.value = yesNoOptions[0]
             }
-            list.add(mhReferralRequired.copy())
+            list.add(mhReferralRequired)
             if (mhReferralRequired.value == yesNoOptions[0]) {
-                list.add(mhReferralLevel.copy())
-                list.add(mhReasonForReferral.copy())
+                list.add(mhReferralLevel)
+                list.add(mhReasonForReferral)
                 if (mhReferralDate.value.isNullOrEmpty()) {
                     mhReferralDate.value = todayDateString()
                 }
-                list.add(mhReferralDate.copy())
+                list.add(mhReferralDate)
             }
         } else {
             mhReferralRequired.value = null
