@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 144, exportSchema = false
+    version = 145, exportSchema = false
 )
 
 
@@ -1138,6 +1138,16 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_144_145 = object : Migration(144, 145) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_symptoms_selected", "TEXT")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_symptom_relief_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_psychosocial_support_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_caregiver_counselling_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_management_remarks", "TEXT")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1206,7 +1216,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_140_141,
                             MIGRATION_141_142,
                             MIGRATION_142_143,
-                            MIGRATION_143_144
+                            MIGRATION_143_144,
+                            MIGRATION_144_145
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

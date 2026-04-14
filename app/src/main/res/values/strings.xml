@@ -219,6 +219,17 @@
     <string name="palliative_care_identification_headline">Palliative Care Identification</string>
     <string name="pain_symptom_assessment_palliative">Pain and Symptom Assessment (Palliative)</string>
     <string name="persistent_pain_present">Persistent pain present</string>
+    <string name="symptom_assessment_basic_title">Symptom Assessment</string>
+    <string name="symptom_assessment_basic_field_title">Symptoms</string>
+    <string name="symptom_nausea_vomiting">Nausea / vomiting</string>
+    <string name="symptom_constipation">Constipation</string>
+    <string name="symptom_anxiety_restlessness">Anxiety / restlessness</string>
+    <string name="symptom_sleep_disturbance">Sleep disturbance</string>
+    <string name="basic_management_cho_level_title">Basic Management</string>
+    <string name="basic_symptom_relief_provided">Basic symptom relief provided</string>
+    <string name="basic_psychosocial_support_provided">Psychosocial support provided</string>
+    <string name="basic_caregiver_counselling_provided">Caregiver counselling provided</string>
+    <string name="basic_management_remarks">Remarks</string>
     <string name="distressing_symptoms_present">Distressing symptoms present</string>
     <string name="bedridden_or_severely_dependent">Bedridden or severely dependent</string>
     <string name="life_limiting_illness_known">Life-limiting illness known</string>
@@ -1560,9 +1571,9 @@
         <item>No</item>
     </string-array>
     <!-- PHQ-9 Alert Strings -->
-    <string name="phq9_alert_referral_mo_phc">Refer to MO/PHC (PHQ-9 score ≥ 10)</string>
-    <string name="phq9_alert_urgent">Urgent referral (PHQ-9 score ≥ 15)</string>
-    <string name="phq9_alert_emergency">Emergency referral (PHQ-9 score ≥ 20)</string>
+    <string name="phq9_alert_referral_mo_phc"><font color="#FF0000">Refer to MO/PHC (PHQ-9 score ≥ 10)</font></string>
+    <string name="phq9_alert_urgent"><font color="#FF0000">Urgent referral (PHQ-9 score ≥ 15)</font></string>
+    <string name="phq9_alert_emergency"><font color="#FF0000">Emergency referral (PHQ-9 score ≥ 20)</font></string>
     <string name="title_elderly_health_assessment">Elderly Health Assessment</string>
     <string name="epilepsy_dementia_checklist_title">Epilepsy &amp; Dementia Screening Checklist</string>
     <string name="ed_edRecurrentEpisodeloss">Episodes of loss of consciousness</string>

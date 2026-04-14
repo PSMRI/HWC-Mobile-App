@@ -359,7 +359,7 @@ class ElderlyHealthAssessmentDataset(
             else -> "Unknown"
         }
 
-        val flag = if (total == 6) "No" else "Yes"
+        val flag = if (total  <= 5) "Yes" else "no"
 
         // Find existing indices in the actual list BEFORE updating the references
         val oldTotalIndex = getIndexById(totalScore.id)

@@ -6,6 +6,8 @@ import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.R
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -27,9 +29,15 @@ class MentalHealthScreeningDataset(
     private var genderID: Int? = null
     private var age: Int? = null
     private var wasAutoReferralForced = false
+    private val _phq9AlertMessageFlow = MutableStateFlow<CharSequence?>(null)
+    val phq9AlertMessageFlow = _phq9AlertMessageFlow.asStateFlow()
 
     init {
         loadResourceStrings()
+    }
+
+    fun resetPhq9AlertMessageFlow() {
+        _phq9AlertMessageFlow.value = null
     }
 
     private fun loadResourceStrings() {
@@ -1072,7 +1080,7 @@ class MentalHealthScreeningDataset(
                 2 -> R.string.phq9_alert_urgent
                 else -> R.string.phq9_alert_referral_mo_phc
             }
-            emitAlertErrorMessage(alertMsg)
+            _phq9AlertMessageFlow.value = resources.getText(alertMsg)
         }
         lastPhq9AlertLevel = currentLevel
 

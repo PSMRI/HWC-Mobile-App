@@ -37,6 +37,7 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
         MentalHealthScreeningDataset(context, preferenceDao.getCurrentLanguage())
 
     val formList = dataset.listFlow
+    val phq9AlertMessageFlow = dataset.phq9AlertMessageFlow
 
     private lateinit var screeningCache: MentalHealthScreeningCache
 
@@ -104,6 +105,10 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
             index,
             "Error updating Mental Health Screening form"
         )
+    }
+
+    fun clearPhq9AlertMessage() {
+        dataset.resetPhq9AlertMessageFlow()
     }
 
     // ── Save ──────────────────────────────────────────────────────────
