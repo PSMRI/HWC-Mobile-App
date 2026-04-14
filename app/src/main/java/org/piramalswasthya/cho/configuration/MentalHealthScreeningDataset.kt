@@ -745,18 +745,27 @@ class MentalHealthScreeningDataset(
 
     private fun getReferralLevelOptionsByAge(): Array<String> {
         val currentAge = age
-        return when {
-            currentAge != null && currentAge < 6 -> arrayOf("RBSK DEIC")
-            currentAge != null && currentAge in 6..10 -> arrayOf("PHC", "CHC", "DH")
+        return when { 
             currentAge != null && currentAge >= 11 && isAge11PlusSuicideContext() ->
                 arrayOf("Primary Health Centre (PHC)", "CHC", "District Hospital", "District Mental Health Programme (DMHP)")
+            isAlcoholReferralContext() -> arrayOf("PHC", "De-addiction")
+            currentAge != null && currentAge < 6 -> arrayOf("RBSK DEIC")
+            currentAge != null && currentAge in 6..10 -> arrayOf("PHC", "CHC", "DH")
             currentAge != null && currentAge >= 11 -> arrayOf("PHC", "CHC", "DH", "DMHP", "De-addiction")
             else -> context.resources.getStringArray(R.array.mh_referral_level_options)
         }
     }
 
+    private fun isAlcoholReferralContext(): Boolean {
+        return isYes(substanceUseConcerns.value)
+    }
+
     private fun updateReferralLevelOptions() {
-        val options = getReferralLevelOptionsByAge()
+        val options = if (isAlcoholReferralContext()) {
+            arrayOf("PHC", "De-addiction")
+        } else {
+            getReferralLevelOptionsByAge()
+        }
         mhReferralLevel.entries = options
 
         if (mhReferralLevel.value == "De-addiction centre" && options.contains("De-addiction")) {
@@ -769,13 +778,6 @@ class MentalHealthScreeningDataset(
     }
 
     private fun updateReferralReasonOptions() {
-        if (isAge11PlusSuicideContext() || isAge11OrBelowSuicideContext()) {
-            val suicideReason = "Suicide risk identified"
-            mhReasonForReferral.entries = arrayOf(suicideReason)
-            mhReasonForReferral.value = suicideReason
-            return
-        }
-
         val defaultOptions = context.resources.getStringArray(R.array.mh_reason_for_referral_options)
         mhReasonForReferral.entries = defaultOptions
         if (mhReasonForReferral.value != null && !defaultOptions.contains(mhReasonForReferral.value)) {
@@ -1171,15 +1173,31 @@ class MentalHealthScreeningDataset(
             return
         }
 
-        val hasRisk = isYes(edRecurrentEpisodeloss.value) || isYes(edRecurrentJerkyMovements.value) || isYes(edConfusionordrowsiness.value) ||
-                isYes(edProgressiveMemoryLoss.value) ||
-                isYes(edConfusionDisorientation.value) ||
-                isYes(edFunctionalDecline.value)
+        val suspectedEpilepsy =
+            isYes(edRecurrentJerkyMovements.value) || isYes(edRecurrentEpisodeloss.value)
 
-        edScreeningOutcome.value = if (hasRisk) "Suspected" else "Not suspected"
-        edReferralRequired.value = if (edScreeningOutcome.value == "Suspected") "Yes" else "No"
-        edReason.value =
-            if (edScreeningOutcome.value == "Suspected") "Neurological condition suspected" else null
+        val age60OrMore = (age ?: 0) >= 60
+        val memoryOrFunctionalSelected =
+            isYes(edProgressiveMemoryLoss.value) || isYes(edFunctionalDecline.value)
+        val suspectedDementia = age60OrMore && memoryOrFunctionalSelected
+        val anyChecklistSelected =
+            isYes(edRecurrentEpisodeloss.value) ||
+                    isYes(edRecurrentJerkyMovements.value) ||
+                    isYes(edConfusionordrowsiness.value) ||
+                    isYes(edProgressiveMemoryLoss.value) ||
+                    isYes(edConfusionDisorientation.value) ||
+                    isYes(edFunctionalDecline.value)
+
+        edScreeningOutcome.value = when {
+            suspectedEpilepsy -> "Suspected Epilepsy"
+            suspectedDementia -> "Suspected Dementia"
+            anyChecklistSelected -> "Suspected"
+            else -> "Not suspected"
+        }
+
+        val isSuspected = edScreeningOutcome.value?.startsWith("Suspected") == true
+        edReferralRequired.value = if (isSuspected) "Yes" else "No"
+        edReason.value = if (isSuspected) "Neurological condition suspected" else null
     }
     private suspend fun computeSuicideRiskLevel() {
         val thoughtsSelfHarm = selfHarmSuicideThoughts.value
@@ -1306,9 +1324,6 @@ class MentalHealthScreeningDataset(
         substance_alcohol_frequency.value = null
         substance_alcohol_loss.value = null
         substanceAlcoholImpact.value = null
-        substanceAlcoholWithdrawal.value = null
-        substanceAlcoholProblematic.value = null
-        substanceAlcoholClassification.value = null
     }
 
     private fun clearSuicideValues() {

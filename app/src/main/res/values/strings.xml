@@ -1601,9 +1601,16 @@
     </string-array>
     <string name="mh_reason_for_referral_title">Reason for referral</string>
     <string-array name="mh_reason_for_referral_options">
-        <item>Alcohol dependence suspected</item>
-        <item>Withdrawal symptoms</item>
-        <item>Medical complications</item>
+        <item>Suicide risk / self-harm</item>
+        <item>Moderate to severe depression</item>
+        <item>Severe mental disorder suspected</item>
+        <item>Substance dependence / withdrawal</item>
+        <item>Functional impairment</item>
+        <item>Neurological condition suspected</item>
+        <item>Child behavioural concern</item>
+        <item>Risk to self or others</item>
+        <item>No improvement / worsening</item>
+        <item>Requires specialist care</item>
     </string-array>
     <string name="mh_referral_date_title">Referral date</string>
 
