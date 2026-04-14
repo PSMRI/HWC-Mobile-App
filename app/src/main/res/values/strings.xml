@@ -1612,19 +1612,24 @@
         <item>No improvement / worsening</item>
         <item>Requires specialist care</item>
     </string-array>
+    <string-array name="mh_reason_for_referral_options_under_11">
+        <item>Mental health complaint</item>
+        <item>Medical complication</item>
+    </string-array>
     <string name="mh_referral_date_title">Referral date</string>
 
     <!-- Mental Health Screening – Follow-up & Closure fields -->
     <string name="mh_follow_up_required_title">Follow-up required</string>
     <string name="mh_follow_up_date_title">Follow-up date</string>
     <string name="mh_improvement_noted_title">Improvement noted</string>
+    <string name="mh_adherence_to_advice_title">Adherence to advice</string>
     <string-array name="mh_improvement_noted_options">
         <item>Improved</item>
         <item>Same</item>
         <item>Worse</item>
     </string-array>
     <string name="mh_repeat_phq9_title">Repeat PHQ-9</string>
-    <string name="mh_referral_escalation_title">Referral escalation required</string>
+    <string name="mh_referral_escalation_title">Escalation required</string>
     <string name="mh_case_closure_reason_title">Case closure reason</string>
     <string-array name="mh_case_closure_reason_options">
         <item>Recovered</item>

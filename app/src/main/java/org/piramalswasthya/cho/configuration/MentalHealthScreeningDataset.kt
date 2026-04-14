@@ -194,7 +194,17 @@ class MentalHealthScreeningDataset(
             id = 113,
             inputType = InputType.RADIO,
             title = context.getString(R.string.mh_improvement_noted_title),
-            entries = context.resources.getStringArray(R.array.mh_improvement_noted_options),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
+
+    private val mhAdherenceToAdvice: FormElement by lazy {
+        FormElement(
+            id = 117,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_adherence_to_advice_title),
+            entries = yesNoOptions,
             required = true
         )
     }
@@ -538,7 +548,15 @@ class MentalHealthScreeningDataset(
 
     private var edScreeningOutcome = createTextViewElement(705, context.getString(R.string.ed_screening_outcome))
 
-    private var edReferralRequired = createTextViewElement(706, context.getString(R.string.ed_referral_required))
+    private val edReferralRequired: FormElement by lazy {
+        FormElement(
+            id = 706,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.ed_referral_required),
+            entries = yesNoOptions,
+            required = false
+        )
+    }
     private var edReason = createTextViewElement(715, context.getString(R.string.ed_reason))
     private val edRecurrentEpisodeloss: FormElement by lazy {
         createEdCheckboxElement(707, R.string.ed_edRecurrentEpisodeloss)
@@ -643,12 +661,10 @@ class MentalHealthScreeningDataset(
                 isYes(selfHarmSuicideThoughts.value) ||
                 isYes(memoryLossConfusion.value) ||
                 isYes(seizuresFitsLoc.value) ||
+                isYes(isPostpartum.value) ||
+                cache.isPostpartum == true ||
                 shouldAutoReferFromPhq9() ||
                 shouldAutoReferFromHighSuicideRisk()
-    }
-
-    private fun isEdChecklistVisible(): Boolean {
-        return memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes"
     }
 
     private fun shouldAutoReferUnder11(): Boolean {
@@ -760,12 +776,27 @@ class MentalHealthScreeningDataset(
         return isYes(substanceUseConcerns.value)
     }
 
+    private fun mentalHealthReferralContext(): Boolean {
+        return isYes(emotionalBehaviouralConcerns.value) ||
+                isYes(selfHarmSuicideThoughts.value) ||
+                isYes(memoryLossConfusion.value) ||
+                isYes(seizuresFitsLoc.value) ||
+                isYes(isPostpartum.value)
+    }
+
     private fun updateReferralLevelOptions() {
-        val options = if (isAlcoholReferralContext()) {
+        val currentAge = age
+        val options = if (currentAge != null && currentAge < 6) {
+            arrayOf("RBSK DEIC")
+        } else if (currentAge != null && currentAge in 6..10) {
+            arrayOf("PHC", "CHC", "DH")
+        } else if (isAlcoholReferralContext()) {
             arrayOf("PHC", "De-addiction")
+        } else if (mentalHealthReferralContext()) {
+            arrayOf("PHC", "DMHP")
         } else {
             getReferralLevelOptionsByAge()
-        }
+        }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
         mhReferralLevel.entries = options
 
         if (mhReferralLevel.value == "De-addiction centre" && options.contains("De-addiction")) {
@@ -778,9 +809,13 @@ class MentalHealthScreeningDataset(
     }
 
     private fun updateReferralReasonOptions() {
-        val defaultOptions = context.resources.getStringArray(R.array.mh_reason_for_referral_options)
-        mhReasonForReferral.entries = defaultOptions
-        if (mhReasonForReferral.value != null && !defaultOptions.contains(mhReasonForReferral.value)) {
+        val options = if ((age ?: Int.MAX_VALUE) < 11) {
+            context.resources.getStringArray(R.array.mh_reason_for_referral_options_under_11)
+        } else {
+            context.resources.getStringArray(R.array.mh_reason_for_referral_options)
+        }
+        mhReasonForReferral.entries = options
+        if (mhReasonForReferral.value != null && !options.contains(mhReasonForReferral.value)) {
             mhReasonForReferral.value = null
         }
     }
@@ -984,8 +1019,6 @@ class MentalHealthScreeningDataset(
                     edScreeningOutcome.copy()
                 )
             )
-            list.add(edReferralRequired.copy())
-            list.add(edReason.copy())
         }
 
         // Psychosocial intervention
@@ -1004,7 +1037,7 @@ class MentalHealthScreeningDataset(
             clearEdPsychosocialValues()
         }
 
-        if (shouldShowReferralRequiredField() && !isEdChecklistVisible()) {
+        if (shouldShowReferralRequiredField()) {
             if (mhReferralRequired.value == null && shouldAutoSuggestReferral()) {
                 mhReferralRequired.value = yesNoOptions[0]
             }
@@ -1016,12 +1049,33 @@ class MentalHealthScreeningDataset(
                     mhReferralDate.value = todayDateString()
                 }
                 list.add(mhReferralDate)
+
+                mhFollowUpDate.min = System.currentTimeMillis()
+                mhFollowUpDate.max = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(365)
+                list.add(mhFollowUpDate)
+                list.add(mhImprovementNoted)
+                list.add(mhAdherenceToAdvice)
+                list.add(mhReferralEscalation)
+            } else {
+                mhFollowUpRequired.value = null
+                mhFollowUpDate.value = null
+                mhImprovementNoted.value = null
+                mhAdherenceToAdvice.value = null
+                mhReferralEscalation.value = null
+                mhCaseClosureReason.value = null
             }
         } else {
             mhReferralRequired.value = null
             mhReferralLevel.value = null
             mhReasonForReferral.value = null
             mhReferralDate.value = null
+
+            mhFollowUpRequired.value = null
+            mhFollowUpDate.value = null
+            mhImprovementNoted.value = null
+            mhAdherenceToAdvice.value = null
+            mhReferralEscalation.value = null
+            mhCaseClosureReason.value = null
         }
 //
 //        // Follow-up & Closure
@@ -1397,6 +1451,7 @@ class MentalHealthScreeningDataset(
             cache.followUpRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhFollowUpDate.value = cache.followUpDate
         mhImprovementNoted.value = cache.improvementNoted
+        mhAdherenceToAdvice.value = cache.caseClosureReason
         mhReferralEscalation.value =
             cache.referralEscalationRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhCaseClosureReason.value = cache.caseClosureReason
@@ -1660,12 +1715,12 @@ class MentalHealthScreeningDataset(
                 it.referralDate = null
             }
 
-            it.followUpRequired = yesNoToBoolean(mhFollowUpRequired.value)
-            if (it.followUpRequired == true) {
+            it.followUpRequired = if (it.referralRequired == true) true else null
+            if (it.referralRequired == true) {
                 it.followUpDate = mhFollowUpDate.value
                 it.improvementNoted = mhImprovementNoted.value
                 it.referralEscalationRequired = yesNoToBoolean(mhReferralEscalation.value)
-                it.caseClosureReason = mhCaseClosureReason.value
+                it.caseClosureReason = mhAdherenceToAdvice.value
             } else {
                 it.followUpDate = null
                 it.improvementNoted = null
