@@ -652,7 +652,7 @@ class MentalHealthScreeningDataset(
 
     private fun shouldAutoSuggestReferral(): Boolean {
         return dementiaDailyActivities.value == yesNoOptions[0] ||
-                substanceAlcoholClassification.value == "Problematic"
+                substanceAlcoholClassification.value == "Problematic alcohol use suspected"
     }
 
     private fun shouldShowReferralRequiredField(): Boolean {
@@ -688,6 +688,18 @@ class MentalHealthScreeningDataset(
                 (suicideRiskLevel.value == highRiskLabel || suicideRiskLevel.value.equals("High", ignoreCase = true))
     }
 
+    private fun shouldAutoReferFromEdSuspectedOutcome(): Boolean {
+        return edScreeningOutcome.value in setOf(
+            "Suspected",
+            "Suspected Dementia",
+            "Suspected Epilepsy"
+        )
+    }
+
+    private fun shouldAutoReferFromProblematicAlcohol(): Boolean {
+        return substanceAlcoholClassification.value == "Problematic alcohol use suspected"
+    }
+
     private fun isLowSuicideRisk(): Boolean {
         val lowRiskLabel = suicideRiskOptions.getOrElse(0) { "Low" }
         return isYes(selfHarmSuicideThoughts.value) &&
@@ -713,11 +725,15 @@ class MentalHealthScreeningDataset(
         // For low suicide risk:
         // - age <= 11: keep referral locked to Yes
         // - age > 11: keep referral manual-select
-        if (isLowSuicideRisk() && !isAge11OrBelow()) return false
+        if (isLowSuicideRisk() && !isAge11OrBelow() && !shouldAutoReferFromProblematicAlcohol()) {
+            return false
+        }
 
         return shouldAutoReferUnder11() ||
                 shouldAutoReferFromPhq9() ||
-                shouldAutoReferFromHighSuicideRisk()
+                shouldAutoReferFromHighSuicideRisk() ||
+                shouldAutoReferFromEdSuspectedOutcome() ||
+                shouldAutoReferFromProblematicAlcohol()
     }
 
     private fun applyAutoReferralRules() {
@@ -1212,9 +1228,9 @@ class MentalHealthScreeningDataset(
                 withdrawal != "Yes"
 
         substanceAlcoholClassification.value = when {
-            noAlcoholUse -> "Non-problematic"
-            hasRiskFactor -> "Problematic"
-            occasionalWithNoRisks -> "Non-problematic"
+            noAlcoholUse -> "No problematic alcohol use identified"
+            hasRiskFactor -> "Problematic alcohol use suspected"
+            occasionalWithNoRisks -> "No problematic alcohol use identified"
             else -> null
         }
     }
@@ -1691,10 +1707,15 @@ class MentalHealthScreeningDataset(
             it.edConfusionDisorientation = isYes(edConfusionDisorientation.value)
             it.edFunctionalDecline = isYes(edFunctionalDecline.value)
             it.edScreeningOutcome = edScreeningOutcome.value
+            val isEdSuspectedOutcome = it.edScreeningOutcome in setOf(
+                "Suspected",
+                "Suspected Dementia",
+                "Suspected Epilepsy"
+            )
             it.edReferralRequired =
-                if (it.edScreeningOutcome == "Suspected") "Yes" else edReferralRequired.value
+                if (isEdSuspectedOutcome) "Yes" else edReferralRequired.value
             it.edReason =
-                if (it.edScreeningOutcome == "Suspected") "Neurological condition suspected" else null
+                if (isEdSuspectedOutcome) "Neurological condition suspected" else null
             it.edPsychosocialInterventionProvided = yesNoToBoolean(edPsychosocialIntervention.value)
             it.edInterventionType = if (it.edPsychosocialInterventionProvided == true) edInterventionType.value else null
             it.edSessionDate = if (it.edPsychosocialInterventionProvided == true) edSessionDate.value else null
