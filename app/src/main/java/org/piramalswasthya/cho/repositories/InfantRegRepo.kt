@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -10,15 +11,17 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.ChildApiPost
 import org.piramalswasthya.cho.model.ChildRegDomain
 import org.piramalswasthya.cho.model.Gender
 import org.piramalswasthya.cho.model.InfantRegApiPost
 import org.piramalswasthya.cho.model.InfantRegCache
 import org.piramalswasthya.cho.model.InfantRegDomain
+import org.piramalswasthya.cho.model.getIsoDateTimeStringFromLong
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.VillageIdList
 import timber.log.Timber
 import java.net.SocketTimeoutException
-import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
@@ -96,18 +99,22 @@ class InfantRegRepo @Inject constructor(
             val infantRegList = infantRegDao.getAllUnprocessedInfantReg()
             if (infantRegList.isEmpty()) return@withContext true
 
+            var hasFailures = false
             infantRegList.forEach { infantReg ->
                 val motherPatient = getPatientOrNull(infantReg.motherPatientID)
                 val motherBenId = motherPatient?.beneficiaryID
 
                 if (motherBenId == null) {
                     Timber.w("Skipping infant registration ${infantReg.id}: mother beneficiary ID missing")
+                    hasFailures = true
                     return@forEach
                 }
 
                 val childBenId = infantReg.childPatientID
                     ?.let { getPatientOrNull(it)?.beneficiaryID }
                     ?: 0L
+                val childGenderID = infantReg.childPatientID
+                    ?.let { getPatientOrNull(it)?.genderID }
 
                 val payload = infantReg.toApiPost(
                     motherBenId = motherBenId,
@@ -117,19 +124,74 @@ class InfantRegRepo @Inject constructor(
                 infantReg.syncState = SyncState.SYNCING
                 infantRegDao.updateInfantReg(infantReg)
 
-                val uploadDone = postDataToAmritServer(listOf(payload))
+                val infantUploadDone = postDataToAmritServer(listOf(payload))
+                val childUploadDone = if (infantUploadDone && childBenId > 0L) {
+                    val childPayload = infantReg.toChildApiPost(
+                        childBenId = childBenId,
+                        childGenderID = childGenderID
+                    )
+                    postChildDataToAmritServer(listOf(childPayload))
+                } else {
+                    true
+                }
+                val uploadDone = infantUploadDone && childUploadDone
                 if (uploadDone) {
                     infantReg.processed = "P"
                     infantReg.syncState = SyncState.SYNCED
                 } else {
                     infantReg.syncState = SyncState.UNSYNCED
+                    hasFailures = true
                 }
                 infantRegDao.updateInfantReg(infantReg)
-
-                if (!uploadDone) return@withContext false
             }
 
-            return@withContext true
+            return@withContext !hasFailures
+        }
+    }
+
+    private suspend fun postChildDataToAmritServer(
+        childPostList: List<ChildApiPost>
+    ): Boolean {
+        if (childPostList.isEmpty()) return true
+        val user = preferenceDao.getLoggedInUser()
+            ?: throw IllegalStateException("No user logged in")
+
+        return try {
+            val response = amritApiService.postChildDetails(childPostList)
+            if (response.code() != 200) {
+                Timber.w("Child sync failed with HTTP ${response.code()}")
+                return false
+            }
+
+            val responseString = response.body()?.string()
+            if (responseString.isNullOrBlank()) {
+                Timber.d("Child saveAll succeeded with empty response body")
+                return true
+            }
+            val jsonObj = JSONObject(responseString)
+            val responseStatusCode = jsonObj.optInt("statusCode", -1)
+            when (responseStatusCode) {
+                200 -> true
+                401, 5002 -> {
+                    if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                        throw SocketTimeoutException("Token refreshed. Retrying child sync")
+                    }
+                    false
+                }
+                else -> {
+                    Timber.w("Child sync failed with response statusCode=$responseStatusCode")
+                    false
+                }
+            }
+        } catch (e: SocketTimeoutException) {
+            Timber.d("Retrying child sync after token refresh")
+            postChildDataToAmritServer(childPostList)
+        } catch (e: JSONException) {
+            Timber.e(e, "Child sync parse failed")
+            false
+        } catch (e: Exception) {
+            Timber.e(e, "Child sync failed")
+            false
         }
     }
 
@@ -148,7 +210,11 @@ class InfantRegRepo @Inject constructor(
                 return false
             }
 
-            val responseString = response.body()?.string() ?: return false
+            val responseString = response.body()?.string()
+            if (responseString.isNullOrBlank()) {
+                Timber.d("Infant saveAll succeeded with empty response body")
+                return true
+            }
             val jsonObj = JSONObject(responseString)
             val responseStatusCode = jsonObj.optInt("statusCode", -1)
 
@@ -180,6 +246,194 @@ class InfantRegRepo @Inject constructor(
     private suspend fun getPatientOrNull(patientID: String) =
         runCatching { patientDao.getPatient(patientID) }.getOrNull()
 
+    private fun convertStringToIntList(villageIds: String): List<Int> {
+        if (villageIds.trim().isEmpty()) return emptyList()
+        return villageIds.split(",")
+            .mapNotNull { it.trim().toIntOrNull() }
+    }
+
+    suspend fun pullInfantsFromServer(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val user = userRepo.getLoggedInUser()
+                ?: throw IllegalStateException("No user logged in!!")
+            try {
+                val villageList = VillageIdList(
+                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    preferenceDao.getLastPatientSyncTime()
+                )
+                val response = amritApiService.getAllInfants(villageList)
+                if (response.code() != 200) {
+                    Timber.w("Bad response from server for Infant getAll: $response")
+                    return@withContext false
+                }
+
+                val responseString = response.body()?.string()
+                if (responseString.isNullOrBlank()) {
+                    Timber.w("Empty response body for Infant getAll")
+                    return@withContext false
+                }
+
+                val jsonObj = JSONObject(responseString)
+                val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                val errorMessage = jsonObj.optString("errorMessage")
+                when (responseStatusCode) {
+                    200 -> {
+                        val dataArray = when (val dataNode = jsonObj.opt("data")) {
+                            is org.json.JSONArray -> dataNode
+                            is org.json.JSONObject -> dataNode.optJSONArray("data")
+                            else -> null
+                        } ?: org.json.JSONArray()
+
+                        val gson = Gson()
+                        var savedCount = 0
+                        for (i in 0 until dataArray.length()) {
+                            val networkModel = gson.fromJson(
+                                dataArray.getJSONObject(i).toString(),
+                                InfantRegApiPost::class.java
+                            )
+                            val mother = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
+                            if (mother == null) {
+                                Timber.w("No local mother patient found for infant benId=${networkModel.benId}, skipping")
+                                continue
+                            }
+                            val childPatientID = if (networkModel.childBenId > 0) {
+                                patientDao.getPatientByAnyBeneficiaryId(networkModel.childBenId)?.patientID
+                            } else null
+
+                            val incoming = networkModel.toCacheModel(
+                                motherPatientID = mother.patientID,
+                                childPatientID = childPatientID
+                            ).copy(
+                                processed = "P",
+                                syncState = SyncState.SYNCED,
+                                updatedDate = System.currentTimeMillis(),
+                                updatedBy = networkModel.updatedBy.ifBlank { user.userName }
+                            )
+                            val existing = infantRegDao.getInfantReg(mother.patientID, incoming.babyIndex)
+                            val merged = if (existing != null) {
+                                incoming.copy(
+                                    id = existing.id,
+                                    createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+                                    createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
+                                )
+                            } else incoming
+                            upsertInfantReg(merged)
+                            savedCount++
+                        }
+                        pullChildrenFromServerInternal(villageList)
+                        Timber.d("Infant getAll downsync completed, saved=$savedCount received=${dataArray.length()}")
+                        return@withContext true
+                    }
+                    5000 -> {
+                        Timber.d("No infant records found on server")
+                        return@withContext true
+                    }
+                    401, 5002 -> {
+                        if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            throw SocketTimeoutException("Token refreshed. Retrying infant getAll")
+                        }
+                    }
+                    else -> {
+                        Timber.w("Infant getAll failed: $errorMessage")
+                        return@withContext false
+                    }
+                }
+                return@withContext false
+            } catch (e: SocketTimeoutException) {
+                Timber.d("Retrying infant getAll after token refresh")
+                return@withContext pullInfantsFromServer()
+            } catch (e: JSONException) {
+                Timber.e(e, "Infant getAll parse failed")
+                return@withContext false
+            } catch (e: Exception) {
+                Timber.e(e, "Infant getAll failed")
+                return@withContext false
+            }
+        }
+    }
+
+    private suspend fun pullChildrenFromServerInternal(villageList: VillageIdList): Boolean {
+        val user = userRepo.getLoggedInUser()
+            ?: throw IllegalStateException("No user logged in!!")
+        val response = amritApiService.getAllChildren(villageList)
+        if (response.code() != 200) {
+            Timber.w("Bad response from server for Child getAll: $response")
+            return false
+        }
+        val responseString = response.body()?.string()
+        if (responseString.isNullOrBlank()) {
+            Timber.w("Empty response body for Child getAll")
+            return false
+        }
+        val jsonObj = JSONObject(responseString)
+        val responseStatusCode = jsonObj.optInt("statusCode", 200)
+        when (responseStatusCode) {
+            200 -> {
+                val dataArray = when (val dataNode = jsonObj.opt("data")) {
+                    is org.json.JSONArray -> dataNode
+                    is org.json.JSONObject -> dataNode.optJSONArray("data")
+                    else -> null
+                } ?: org.json.JSONArray()
+
+                val gson = Gson()
+                var savedCount = 0
+                for (i in 0 until dataArray.length()) {
+                    val childNetwork = gson.fromJson(
+                        dataArray.getJSONObject(i).toString(),
+                        ChildApiPost::class.java
+                    )
+                    if (childNetwork.benId == 0L) continue
+                    val childPatient = patientDao.getPatientByAnyBeneficiaryId(childNetwork.benId)
+                    if (childPatient == null) {
+                        Timber.w("No local child patient found for child benId=${childNetwork.benId}, skipping")
+                        continue
+                    }
+                    val existing = infantRegDao.getInfantRegFromChildPatientID(childPatient.patientID)
+                    if (existing == null) {
+                        Timber.w("No infant reg row found for child patientID=${childPatient.patientID}, skipping child downsync row")
+                        continue
+                    }
+                    val merged = existing.copy(
+                        babyName = childNetwork.babyName ?: existing.babyName,
+                        infantTerm = childNetwork.infantTerm ?: existing.infantTerm,
+                        corticosteroidGiven = childNetwork.corticosteroidGiven ?: existing.corticosteroidGiven,
+                        babyCriedAtBirth = childNetwork.babyCriedAtBirth ?: existing.babyCriedAtBirth,
+                        resuscitation = childNetwork.resuscitation ?: existing.resuscitation,
+                        referred = childNetwork.referred ?: existing.referred,
+                        hadBirthDefect = childNetwork.hadBirthDefect ?: existing.hadBirthDefect,
+                        birthDefect = childNetwork.birthDefect ?: existing.birthDefect,
+                        otherDefect = childNetwork.otherDefect ?: existing.otherDefect,
+                        weight = childNetwork.weight,
+                        breastFeedingStarted = childNetwork.breastFeedingStarted ?: existing.breastFeedingStarted,
+                        opv0Dose = org.piramalswasthya.cho.network.getLongFromDate(childNetwork.opv0Dose),
+                        bcgDose = org.piramalswasthya.cho.network.getLongFromDate(childNetwork.bcgDose),
+                        hepBDose = org.piramalswasthya.cho.network.getLongFromDate(childNetwork.hepBDose),
+                        vitkDose = org.piramalswasthya.cho.network.getLongFromDate(childNetwork.vitkDose),
+                        processed = "P",
+                        syncState = SyncState.SYNCED,
+                        updatedBy = childNetwork.updatedBy ?: user.userName,
+                        updatedDate = System.currentTimeMillis()
+                    )
+                    upsertInfantReg(merged)
+                    savedCount++
+                }
+                Timber.d("Child getAll downsync completed, saved=$savedCount received=${dataArray.length()}")
+                return true
+            }
+            5000 -> {
+                Timber.d("No child records found on server")
+                return true
+            }
+            401, 5002 -> {
+                if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                    throw SocketTimeoutException("Token refreshed. Retrying child getAll")
+                }
+            }
+            else -> return false
+        }
+        return false
+    }
+
     private fun InfantRegCache.toApiPost(motherBenId: Long, childBenId: Long): InfantRegApiPost {
         return InfantRegApiPost(
             id = id,
@@ -199,10 +453,10 @@ class InfantRegRepo @Inject constructor(
             otherDefect = otherDefect,
             weight = weight ?: 0.0,
             breastFeedingStarted = breastFeedingStarted,
-            opv0Dose = getDateStringFromLong(opv0Dose),
-            bcgDose = getDateStringFromLong(bcgDose),
-            hepBDose = getDateStringFromLong(hepBDose),
-            vitkDose = getDateStringFromLong(vitkDose),
+            opv0Dose = getIsoDateTimeStringFromLong(opv0Dose),
+            bcgDose = getIsoDateTimeStringFromLong(bcgDose),
+            hepBDose = getIsoDateTimeStringFromLong(hepBDose),
+            vitkDose = getIsoDateTimeStringFromLong(vitkDose),
             outcomeAtBirth = outcomeAtBirth,
             typeOfResuscitation = typeOfResuscitation,
             newbornComplications = newbornComplications,
@@ -214,17 +468,38 @@ class InfantRegRepo @Inject constructor(
             vitaminKInjectionGiven = vitaminKInjectionGiven,
             reasonForNoVitaminK = reasonForNoVitaminK,
             birthCertificateIssued = birthCertificateIssued,
-            createdDate = getDateStringFromLong(createdDate),
+            createdDate = getIsoDateTimeStringFromLong(createdDate),
             createdBy = createdBy,
-            updatedDate = getDateStringFromLong(updatedDate),
+            updatedDate = getIsoDateTimeStringFromLong(updatedDate),
             updatedBy = updatedBy
         )
     }
 
-    private fun getDateStringFromLong(dateLong: Long?): String? {
-        if (dateLong == null) return null
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-        return dateFormat.format(dateLong)
+    private fun InfantRegCache.toChildApiPost(childBenId: Long, childGenderID: Int?): ChildApiPost {
+        return ChildApiPost(
+            id = id,
+            benId = childBenId,
+            babyName = babyName,
+            infantTerm = infantTerm,
+            corticosteroidGiven = corticosteroidGiven,
+            gender = mapGender(childGenderID),
+            babyCriedAtBirth = babyCriedAtBirth,
+            resuscitation = resuscitation,
+            referred = referred,
+            hadBirthDefect = hadBirthDefect,
+            birthDefect = birthDefect,
+            otherDefect = otherDefect,
+            weight = weight ?: 0.0,
+            breastFeedingStarted = breastFeedingStarted,
+            opv0Dose = getIsoDateTimeStringFromLong(opv0Dose),
+            bcgDose = getIsoDateTimeStringFromLong(bcgDose),
+            hepBDose = getIsoDateTimeStringFromLong(hepBDose),
+            vitkDose = getIsoDateTimeStringFromLong(vitkDose),
+            createdDate = getIsoDateTimeStringFromLong(createdDate),
+            createdBy = createdBy,
+            updatedDate = getIsoDateTimeStringFromLong(updatedDate),
+            updatedBy = updatedBy
+        )
     }
 
     private fun mapGender(genderID: Int?): String? {
@@ -234,5 +509,57 @@ class InfantRegRepo @Inject constructor(
             3 -> Gender.TRANSGENDER.name
             else -> null
         }
+    }
+
+    private fun InfantRegApiPost.toCacheModel(
+        motherPatientID: String,
+        childPatientID: String?
+    ): InfantRegCache {
+        val genderID = when (gender?.trim()?.lowercase(Locale.ENGLISH)) {
+            "male" -> 1
+            "female" -> 2
+            "transgender" -> 3
+            else -> null
+        }
+        return InfantRegCache(
+            id = id,
+            motherPatientID = motherPatientID,
+            childPatientID = childPatientID,
+            isActive = isActive,
+            babyName = babyName,
+            babyIndex = babyIndex,
+            infantTerm = infantTerm,
+            corticosteroidGiven = corticosteroidGiven,
+            genderID = genderID,
+            babyCriedAtBirth = babyCriedAtBirth,
+            resuscitation = resuscitation,
+            referred = referred,
+            hadBirthDefect = hadBirthDefect,
+            birthDefect = birthDefect,
+            otherDefect = otherDefect,
+            weight = weight,
+            breastFeedingStarted = breastFeedingStarted,
+            opv0Dose = org.piramalswasthya.cho.network.getLongFromDate(opv0Dose),
+            bcgDose = org.piramalswasthya.cho.network.getLongFromDate(bcgDose),
+            hepBDose = org.piramalswasthya.cho.network.getLongFromDate(hepBDose),
+            vitkDose = org.piramalswasthya.cho.network.getLongFromDate(vitkDose),
+            outcomeAtBirth = outcomeAtBirth,
+            typeOfResuscitation = typeOfResuscitation,
+            newbornComplications = newbornComplications,
+            currentStatusOfBaby = currentStatusOfBaby,
+            causeOfDeath = causeOfDeath,
+            otherCauseOfDeath = otherCauseOfDeath,
+            birthDoseVaccinesGiven = birthDoseVaccinesGiven,
+            reasonForNoVaccines = reasonForNoVaccines,
+            vitaminKInjectionGiven = vitaminKInjectionGiven,
+            reasonForNoVitaminK = reasonForNoVitaminK,
+            birthCertificateIssued = birthCertificateIssued,
+            processed = "P",
+            createdBy = createdBy,
+            createdDate = org.piramalswasthya.cho.network.getLongFromDate(createdDate),
+            updatedBy = updatedBy,
+            updatedDate = org.piramalswasthya.cho.network.getLongFromDate(updatedDate),
+            syncState = SyncState.SYNCED
+        )
     }
 }

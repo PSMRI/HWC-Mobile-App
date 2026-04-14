@@ -12,6 +12,7 @@ import org.piramalswasthya.cho.network.getLongFromDate
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
 
 @Entity(
     tableName = "INFANT_REG",
@@ -319,6 +320,11 @@ data class InfantRegApiPost(
     val bcgDose: String? = null,
     val hepBDose: String? = null,
     val vitkDose: String? = null,
+    val deliveryDischargeSummary1: String? = null,
+    val deliveryDischargeSummary2: String? = null,
+    val deliveryDischargeSummary3: String? = null,
+    val deliveryDischargeSummary4: String? = null,
+    val isSNCU: String? = null,
     val outcomeAtBirth: String? = null,
     val typeOfResuscitation: String? = null,
     val newbornComplications: String? = null,
@@ -335,6 +341,41 @@ data class InfantRegApiPost(
     val updatedDate: String? = null,
     val updatedBy: String
 )
+
+/**
+ * HWC Child API payload (`/child/saveAll`, `/child/getAll`).
+ */
+data class ChildApiPost(
+    val id: Long = 0,
+    val benId: Long,
+    val babyName: String? = null,
+    val infantTerm: String? = null,
+    val corticosteroidGiven: String? = null,
+    val gender: String? = null,
+    val babyCriedAtBirth: Boolean? = null,
+    val resuscitation: Boolean? = null,
+    val referred: String? = null,
+    val hadBirthDefect: String? = null,
+    val birthDefect: String? = null,
+    val otherDefect: String? = null,
+    val weight: Double = 0.0,
+    val breastFeedingStarted: Boolean? = null,
+    val opv0Dose: String? = null,
+    val bcgDose: String? = null,
+    val hepBDose: String? = null,
+    val vitkDose: String? = null,
+    val createdDate: String? = null,
+    val createdBy: String? = null,
+    val updatedDate: String? = null,
+    val updatedBy: String? = null
+)
+
+fun getIsoDateTimeStringFromLong(dateLong: Long?): String? {
+    if (dateLong == null) return null
+    return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }.format(dateLong)
+}
 
 /**
  * Infant Registration with Patient (mother and child) relation

@@ -58,6 +58,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullInfantRegisterWorker = OneTimeWorkRequestBuilder<PullInfantRegisterWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
 
         val workManager = WorkManager.getInstance(context)
         workManager
@@ -68,6 +72,7 @@ object WorkerUtils {
             .then(pullPregnantWomenWorker)
             .then(pullAncVisitsWorker)
             .then(pullDeliveryOutcomeWorker)
+            .then(pullInfantRegisterWorker)
             .enqueue()
     }
 
@@ -152,6 +157,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullInfantRegisterWorker = OneTimeWorkRequestBuilder<PullInfantRegisterWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
@@ -169,6 +178,7 @@ object WorkerUtils {
             .then(pullPregnantWomenWorker)
             .then(pullAncVisitsWorker)
             .then(pullDeliveryOutcomeWorker)
+            .then(pullInfantRegisterWorker)
 //           .then(pushLabDataToAmrit)
             .enqueue()
     }
@@ -238,6 +248,26 @@ object WorkerUtils {
         workManager
             .beginUniqueWork("delivery-outcome-sync", ExistingWorkPolicy.REPLACE, pushDeliveryOutcomeToAmritWorker)
             .then(pullDeliveryOutcomeWorker)
+            .enqueue()
+    }
+
+    /**
+     * Targeted Infant registration sync after infant form submission.
+     * Pushes local infant registration and refreshes infant list from server.
+     */
+    fun triggerInfantRegistrationSync(context: Context) {
+        val pushInfantRegisterWorkRequest = OneTimeWorkRequestBuilder<PushInfantRegisterToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullInfantRegisterWorker = OneTimeWorkRequestBuilder<PullInfantRegisterWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        Timber.d("Enqueuing targeted Infant registration sync worker")
+        workManager
+            .beginUniqueWork("infant-registration-sync", ExistingWorkPolicy.REPLACE, pushInfantRegisterWorkRequest)
+            .then(pullInfantRegisterWorker)
             .enqueue()
     }
 

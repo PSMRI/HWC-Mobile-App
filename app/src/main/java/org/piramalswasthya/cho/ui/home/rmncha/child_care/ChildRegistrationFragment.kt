@@ -23,6 +23,7 @@ import org.piramalswasthya.cho.repositories.InfantRegRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -174,6 +175,7 @@ class ChildRegistrationFragment : Fragment() {
                 )
 
                 infantRegRepo.saveInfantReg(updated)
+                WorkerUtils.triggerInfantRegistrationSync(requireContext())
                 
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Infant registration saved successfully", Toast.LENGTH_SHORT).show()
