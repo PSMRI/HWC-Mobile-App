@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.LabProcedureMasterSeed
+import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.model.ComponentDetails
@@ -20,6 +21,7 @@ import org.piramalswasthya.cho.model.ProcedureDataDownsync
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProcedureMaster
 import org.piramalswasthya.cho.model.ComponentDataDownsync
+import org.piramalswasthya.cho.model.ProcedureFieldApiItem
 import org.piramalswasthya.cho.model.ProcedureMasterDTO
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
@@ -29,12 +31,14 @@ import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 import javax.inject.Inject
 
 
 class ProcedureRepo @Inject constructor(
     private val procedureDao: ProcedureDao,
     private val procedureMasterDao: ProcedureMasterDao,
+    private val historyDao: HistoryDao,
     private val apiService: AmritApiService,
     private val userRepo: UserRepo,
     private val database: InAppDb
@@ -95,56 +99,122 @@ class ProcedureRepo @Inject constructor(
 
     suspend fun ensureLabProcedureMasterSeed() {
         withContext(Dispatchers.IO) {
-            if (procedureMasterDao.getMasterProcedureById(101L) != null) return@withContext
-            for (i in LabProcedureMasterSeed.procedures.indices) {
-                val (procId, name, procType) = LabProcedureMasterSeed.procedures[i]
-                val procedureMaster = procedureMasterDao.getMasterProcedureById(procId)
-                val procedureId = if (procedureMaster == null) {
+            val labProcedures = historyDao.getProceduresMap()
+                .filter { it.procedureType.equals("Laboratory", ignoreCase = true) }
+                .sortedBy { it.procedureID }
+            val fieldRows = fetchProcedureFieldsData() ?: return@withContext
+            if (fieldRows.isEmpty()) return@withContext
+            val fieldsByProcedureId = fieldRows.groupBy { it.procedureID }
+            val labProceduresById = labProcedures.associateBy { it.procedureID.toLong() }
+            val allProcedureIds = (labProceduresById.keys + fieldsByProcedureId.keys).sorted()
+
+            for (procIdLong in allProcedureIds) {
+                val proc = labProceduresById[procIdLong]
+                val fallbackField = fieldsByProcedureId[procIdLong]?.firstOrNull()
+                var procedureMaster = procedureMasterDao.getMasterProcedureById(procIdLong)
+                if (procedureMaster != null && procedureMaster.id != procIdLong) {
+                    // Legacy rows may have auto-generated id (1,2,3...). Replace with stable API id.
+                    procedureMasterDao.deleteMasterProcedureByRowId(procedureMaster.id)
+                    procedureMaster = null
+                }
+                val procedureRowId = if (procedureMaster == null) {
                     procedureMasterDao.insert(
                         ProcedureMaster(
-                            procedureID = procId,
-                            procedureDesc = name,
-                            procedureType = procType,
+                            id = procIdLong,
+                            procedureID = procIdLong,
+                            procedureDesc = proc?.procedureDesc
+                                ?: fallbackField?.testComponentDesc
+                                ?: "Laboratory Procedure $procIdLong",
+                            procedureType = proc?.procedureType ?: "Laboratory",
                             prescriptionID = LabProcedureMasterSeed.PRESCRIPTION_ID,
-                            procedureName = name,
+                            procedureName = proc?.procedureName
+                                ?: fallbackField?.testComponentName
+                                ?: "Laboratory Procedure $procIdLong",
                             isMandatory = false
                         )
                     )
                 } else {
                     procedureMaster.id
                 }
-                val comp = LabProcedureMasterSeed.components[i]
-                val testComponentId = (comp[0] as Number).toLong()
-                val existingComponents = procedureMasterDao.getComponentDetails(procedureId)
-                val existingComp = existingComponents.find { it.testComponentID == testComponentId }
-                val componentDetailsId = if (existingComp == null) {
-                    procedureMasterDao.insert(
-                        ComponentDetailsMaster(
-                            testComponentID = testComponentId,
-                            procedureID = procedureId,
-                            rangeNormalMin = (comp[1] as? Number)?.toInt(),
-                            rangeNormalMax = (comp[2] as? Number)?.toInt(),
-                            rangeMin = (comp[3] as? Number)?.toInt(),
-                            rangeMax = (comp[4] as? Number)?.toInt(),
-                            isDecimal = (comp[5] as? Number)?.toInt() == 1,
-                            inputType = comp[6] as String,
-                            measurementUnit = comp[7] as? String,
-                            testComponentName = (comp[8] as? String) ?: "",
-                            testComponentDesc = (comp[9] as? String) ?: ""
-                        )
-                    )
-                } else {
-                    existingComp.id
-                }
-                val existingOptions = procedureMasterDao.getComponentOptions(componentDetailsId)?.map { it.name }.orEmpty()
-                for (optName in LabProcedureMasterSeed.componentOptions[i]) {
-                    if (optName !in existingOptions) {
+
+                val fieldsForProc = fieldsByProcedureId[procIdLong].orEmpty()
+                val existingComponents = procedureMasterDao.getComponentDetails(procedureRowId)
+
+                for (field in fieldsForProc) {
+                    val testComponentId = field.id
+                    val existingComp = existingComponents.find { it.testComponentID == testComponentId }
+                    val componentDetailsId = if (existingComp == null) {
                         procedureMasterDao.insert(
-                            ComponentOptionsMaster(componentDetailsId = componentDetailsId, name = optName)
+                            componentDetailsMasterFromField(field, procedureRowId)
                         )
+                    } else {
+                        existingComp.id
+                    }
+
+                    val optionNames = if (field.inputType.equals("RadioButton", ignoreCase = true)) {
+                        LabProcedureMasterSeed.radioButtonDefaultOptions
+                    } else {
+                        emptyList()
+                    }
+                    val existingOptions =
+                        procedureMasterDao.getComponentOptions(componentDetailsId)?.mapNotNull { it.name }
+                            .orEmpty()
+                    for (optName in optionNames) {
+                        if (optName !in existingOptions) {
+                            procedureMasterDao.insert(
+                                ComponentOptionsMaster(componentDetailsId = componentDetailsId, name = optName)
+                            )
+                        }
                     }
                 }
             }
+        }
+    }
+
+    private fun componentDetailsMasterFromField(
+        field: ProcedureFieldApiItem,
+        procedureMasterRowId: Long
+    ): ComponentDetailsMaster {
+        val nMin = field.rangeMin?.roundToInt()
+        val nMax = field.rangeMax?.roundToInt()
+        return ComponentDetailsMaster(
+            testComponentID = field.id,
+            procedureID = procedureMasterRowId,
+            rangeNormalMin = nMin,
+            rangeNormalMax = nMax,
+            rangeMin = null,
+            rangeMax = null,
+            isDecimal = field.inputType.equals("TextBox", ignoreCase = true),
+            inputType = field.inputType,
+            measurementUnit = field.measurementNit,
+            testComponentName = field.testComponentName,
+            testComponentDesc = field.testComponentDesc
+        )
+    }
+
+    suspend fun fetchProcedureFieldsData(attempt: Int = 0): List<ProcedureFieldApiItem>? {
+        if (attempt > 2) return null
+        return try {
+            val response = apiService.getProcedureFields()
+            val responseBody = response.body()?.string() ?: return null
+            val json = JSONObject(responseBody)
+            when (json.optInt("statusCode", -1)) {
+                200 -> {
+                    val dataArray = json.getJSONArray("data")
+                    Gson().fromJson(
+                        dataArray.toString(),
+                        Array<ProcedureFieldApiItem>::class.java
+                    ).toList()
+                }
+                5002 -> {
+                    val user = userRepo.getLoggedInUser() ?: return null
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    fetchProcedureFieldsData(attempt + 1)
+                }
+                else -> null
+            }
+        } catch (_: Exception) {
+            null
         }
     }
 
@@ -169,6 +239,7 @@ class ProcedureRepo @Inject constructor(
 
                     procedureDTO.forEach { dto ->
                         val procedure = ProcedureMaster(
+                            id = dto.procedureID,
                             procedureID = dto.procedureID,
                             procedureDesc = dto.procedureDesc,
                             procedureType = dto.procedureType,
@@ -176,11 +247,11 @@ class ProcedureRepo @Inject constructor(
                             prescriptionID = dto.prescriptionID,
                             isMandatory = dto.isMandatory
                         )
-                        val procedureId = procedureMasterDao.insert(procedure)
+                        procedureMasterDao.insert(procedure)
                         dto.compListDetails.forEach { componentDetailDTO ->
                             val componentDetails = ComponentDetailsMaster(
                                 testComponentID = componentDetailDTO.testComponentID,
-                                procedureID = procedureId,
+                                procedureID = dto.procedureID,
                                 rangeNormalMin = componentDetailDTO.range_normal_min,
                                 rangeNormalMax = componentDetailDTO.range_normal_max,
                                 rangeMax = componentDetailDTO.range_max,

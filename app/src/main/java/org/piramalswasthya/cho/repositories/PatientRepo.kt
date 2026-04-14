@@ -862,6 +862,10 @@ class PatientRepo @Inject constructor(
                 val procedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
                 procedures?.forEach { procedure ->
                     val compListDetails: MutableList<ComponentDetailDTO> = mutableListOf()
+                    val procedureMaster = procedureMasterDao.getMasterProcedureById(procedure.procedureID)
+                    val masterComponents = procedureMaster
+                        ?.let { procedureMasterDao.getComponentDetails(it.id) }
+                        .orEmpty()
                     val procedureDTO = ProcedureDTO(
                         benRegId = benVisitInfo.patient.beneficiaryRegID!!,
                         procedureDesc = procedure.procedureDesc,
@@ -873,27 +877,48 @@ class PatientRepo @Inject constructor(
                         isMandatory = procedure.isMandatory
                     )
 
-                    val components = procedureDao.getComponentDetails(procedure.id)
-                    components?.forEach { componentDetails ->
+                    val visitComponents = procedureDao.getComponentDetails(procedure.id).orEmpty()
+                    val visitComponentByTestId = visitComponents.associateBy { it.testComponentID }
+
+                    // Render fields from component_details_master matched by procedure.procedure_id.
+                    masterComponents.forEach { masterComponent ->
+                        val visitComponent = visitComponentByTestId[masterComponent.testComponentID]
+                        val componentId = visitComponent?.id ?: procedureDao.insert(
+                            ComponentDetails(
+                                testComponentID = masterComponent.testComponentID,
+                                procedureID = procedure.id,
+                                rangeNormalMin = masterComponent.rangeNormalMin,
+                                rangeNormalMax = masterComponent.rangeNormalMax,
+                                rangeMin = masterComponent.rangeMin,
+                                rangeMax = masterComponent.rangeMax,
+                                isDecimal = masterComponent.isDecimal,
+                                inputType = masterComponent.inputType,
+                                measurementUnit = masterComponent.measurementUnit,
+                                testComponentName = masterComponent.testComponentName,
+                                testComponentDesc = masterComponent.testComponentDesc,
+                                testResultValue = null,
+                                remarks = null
+                            )
+                        )
                         val componentOptionDTOs: MutableList<ComponentOptionDTO> = mutableListOf()
                         val componentDetailDTO = ComponentDetailDTO(
-                            id = componentDetails.id,
-                            range_normal_min = componentDetails.rangeNormalMin,
-                            range_normal_max = componentDetails.rangeNormalMax,
-                            range_min = componentDetails.rangeMin,
-                            range_max = componentDetails.rangeMax,
-                            isDecimal = componentDetails.isDecimal,
-                            inputType = componentDetails.inputType,
-                            testComponentID = componentDetails.testComponentID,
-                            measurementUnit = componentDetails.measurementUnit,
-                            testComponentName = componentDetails.testComponentName,
-                            testComponentDesc = componentDetails.testComponentDesc,
-                            testResultValue = componentDetails.testResultValue,
-                            remarks = componentDetails.remarks,
+                            id = componentId,
+                            range_normal_min = masterComponent.rangeNormalMin,
+                            range_normal_max = masterComponent.rangeNormalMax,
+                            range_min = masterComponent.rangeMin,
+                            range_max = masterComponent.rangeMax,
+                            isDecimal = masterComponent.isDecimal,
+                            inputType = masterComponent.inputType,
+                            testComponentID = masterComponent.testComponentID,
+                            measurementUnit = masterComponent.measurementUnit,
+                            testComponentName = masterComponent.testComponentName,
+                            testComponentDesc = masterComponent.testComponentDesc,
+                            testResultValue = visitComponent?.testResultValue,
+                            remarks = visitComponent?.remarks,
                             compOpt = componentOptionDTOs
                         )
 
-                        val componentOptions = procedureDao.getComponentOptions(componentDetails.id)
+                        val componentOptions = procedureDao.getComponentOptions(componentId)
                         componentOptions?.forEach { option ->
                             val componentOptionDTO = ComponentOptionDTO(
                                 name = option.name
@@ -901,15 +926,9 @@ class PatientRepo @Inject constructor(
                             componentOptionDTOs += componentOptionDTO
                         }
 
-                        if (componentOptionDTOs.isEmpty() && (componentDetails.inputType == "RadioButton" || componentDetails.inputType == "DropDown")) {
-                            val procedureMaster = procedureMasterDao.getMasterProcedureById(procedure.procedureID)
-                            val masterComponent = procedureMaster?.let { procMaster ->
-                                procedureMasterDao.getComponentDetails(procMaster.id).find { it.testComponentID == componentDetails.testComponentID }
-                            }
-                            masterComponent?.let { compMaster ->
-                                procedureMasterDao.getComponentOptions(compMaster.id)?.forEach { opt ->
+                        if (componentOptionDTOs.isEmpty() && (componentDetailDTO.inputType == "RadioButton" || componentDetailDTO.inputType == "DropDown")) {
+                            procedureMasterDao.getComponentOptions(masterComponent.id)?.forEach { opt ->
                                     componentOptionDTOs += ComponentOptionDTO(name = opt.name)
-                                }
                             }
                         }
                         componentDetailDTO.compOpt = componentOptionDTOs
