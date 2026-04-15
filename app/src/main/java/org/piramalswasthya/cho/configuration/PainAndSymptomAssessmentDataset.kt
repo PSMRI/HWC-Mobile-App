@@ -95,6 +95,55 @@ class PainAndSymptomAssessmentDataset(
         hasDependants = true
     )
 
+
+
+    private val basicSymptoms = FormElement(
+        id = 24,
+        inputType = InputType.CHECKBOXES,
+        title = context.getString(R.string.symptom_assessment_basic_field_title),
+        entries = arrayOf(
+            context.getString(R.string.symptom_nausea_vomiting),
+            context.getString(R.string.symptom_constipation),
+            context.getString(R.string.symptom_anxiety_restlessness),
+            context.getString(R.string.symptom_sleep_disturbance)
+        ),
+        required = false
+    )
+
+
+    private val basicSymptomReliefProvided = FormElement(
+        id = 26,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.basic_symptom_relief_provided),
+        entries = arrayOf(optionYes, optionNo),
+        required = false
+    )
+
+    private val basicPsychosocialSupportProvided = FormElement(
+        id = 27,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.basic_psychosocial_support_provided),
+        entries = arrayOf(optionYes, optionNo),
+        required = false
+    )
+
+    private val basicCaregiverCounsellingProvided = FormElement(
+        id = 28,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.basic_caregiver_counselling_provided),
+        entries = arrayOf(optionYes, optionNo),
+        required = false
+    )
+
+    private val basicManagementRemarks = FormElement(
+        id = 29,
+        inputType = InputType.EDIT_TEXT,
+        title = context.getString(R.string.basic_management_remarks),
+        required = false,
+        etMaxLength = 250,
+        multiLine = true
+    )
+
     private val distressingSymptoms = FormElement(
         id = 14,
         inputType = InputType.CHECKBOXES,
@@ -158,6 +207,11 @@ class PainAndSymptomAssessmentDataset(
         // Section C: Palliative Care Identification
         list.add(sectionCHeadline)
         list.add(persistentPainPresent)
+        list.add(basicSymptoms)
+        list.add(basicSymptomReliefProvided)
+        list.add(basicPsychosocialSupportProvided)
+        list.add(basicCaregiverCounsellingProvided)
+        list.add(basicManagementRemarks)
         list.add(distressingSymptoms)
         list.add(bedriddenOrSeverelyDependent)
         list.add(lifeLimitingIllnessKnown)
@@ -243,6 +297,23 @@ class PainAndSymptomAssessmentDataset(
             false -> optionNo
             else -> null
         }
+        basicSymptoms.value = cache.basicSymptomsSelected
+        basicSymptomReliefProvided.value = when (cache.basicSymptomReliefProvided) {
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
+        basicPsychosocialSupportProvided.value = when (cache.basicPsychosocialSupportProvided) {
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
+        basicCaregiverCounsellingProvided.value = when (cache.basicCaregiverCounsellingProvided) {
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
+        basicManagementRemarks.value = cache.basicManagementRemarks
         distressingSymptoms.value = cache.distressingSymptoms
         bedriddenOrSeverelyDependent.value = when (cache.bedriddenOrSeverelyDependent) {
             true -> optionYes
@@ -309,6 +380,25 @@ class PainAndSymptomAssessmentDataset(
                 optionNo -> false
                 else -> null
             }
+
+            it.basicSymptomsSelected = basicSymptoms.value
+
+            it.basicSymptomReliefProvided = when (basicSymptomReliefProvided.value) {
+                optionYes -> true
+                optionNo -> false
+                else -> null
+            }
+            it.basicPsychosocialSupportProvided = when (basicPsychosocialSupportProvided.value) {
+                optionYes -> true
+                optionNo -> false
+                else -> null
+            }
+            it.basicCaregiverCounsellingProvided = when (basicCaregiverCounsellingProvided.value) {
+                optionYes -> true
+                optionNo -> false
+                else -> null
+            }
+            it.basicManagementRemarks = basicManagementRemarks.value?.trim()?.takeIf { v -> v.isNotEmpty() }
 
             it.distressingSymptoms = distressingSymptoms.value
 

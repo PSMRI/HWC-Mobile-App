@@ -53,7 +53,7 @@ class DropdownConst {
 
         val male_elderly: List<String> = listOf(ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
         val female_elderly: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
-        val age_0_to_1: List<String> = listOf(neonatalAndInfant, ent, oral, elderlyAndPalliative)
+        val age_0_to_1: List<String> = listOf(neonatalAndInfant, ent, oral, elderlyAndPalliative, mentalHealth)
         val visualAcuityList = listOf("6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60", "<6/60")
         val visualImpairmentList = listOf("6/18", "6/24", "6/36", "6/60", "<6/60")
         val nearVisualAcuityList = listOf("N6", "N8", "N10", "N12")

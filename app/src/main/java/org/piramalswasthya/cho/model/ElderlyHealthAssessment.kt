@@ -44,6 +44,33 @@ data class ElderlyHealthAssessment(
     @ColumnInfo(name = "functional_decline")
     var functionalDecline: Boolean? = null,
 
+    @ColumnInfo(name = "bathing")
+    var bathing: Int? = null,
+
+    @ColumnInfo(name = "dressing")
+    var dressing: Int? = null,
+
+    @ColumnInfo(name = "toileting")
+    var toileting: Int? = null,
+
+    @ColumnInfo(name = "transferring")
+    var transferring: Int? = null,
+
+    @ColumnInfo(name = "continence")
+    var continence: Int? = null,
+
+    @ColumnInfo(name = "feeding")
+    var feeding: Int? = null,
+
+    @ColumnInfo(name = "total_score")
+    var totalScore: Int? = null,
+
+    @ColumnInfo(name = "functional_status")
+    var functionalStatus: String? = null,
+
+    @ColumnInfo(name = "functional_decline_flag")
+    var functionalDeclineFlag: Boolean? = null,
+
     @ColumnInfo(name = "memory_loss")
     var memoryLoss: Boolean? = null,
 

@@ -219,6 +219,17 @@
     <string name="palliative_care_identification_headline">Palliative Care Identification</string>
     <string name="pain_symptom_assessment_palliative">Pain and Symptom Assessment (Palliative)</string>
     <string name="persistent_pain_present">Persistent pain present</string>
+    <string name="symptom_assessment_basic_title">Symptom Assessment</string>
+    <string name="symptom_assessment_basic_field_title">Symptoms</string>
+    <string name="symptom_nausea_vomiting">Nausea / vomiting</string>
+    <string name="symptom_constipation">Constipation</string>
+    <string name="symptom_anxiety_restlessness">Anxiety / restlessness</string>
+    <string name="symptom_sleep_disturbance">Sleep disturbance</string>
+    <string name="basic_management_cho_level_title">Basic Management</string>
+    <string name="basic_symptom_relief_provided">Basic symptom relief provided</string>
+    <string name="basic_psychosocial_support_provided">Psychosocial support provided</string>
+    <string name="basic_caregiver_counselling_provided">Caregiver counselling provided</string>
+    <string name="basic_management_remarks">Remarks</string>
     <string name="distressing_symptoms_present">Distressing symptoms present</string>
     <string name="bedridden_or_severely_dependent">Bedridden or severely dependent</string>
     <string name="life_limiting_illness_known">Life-limiting illness known</string>
@@ -1515,6 +1526,10 @@
         <item>Moderate</item>
         <item>High</item>
     </string-array>
+    <string-array name="alcohol_system_action_options">
+        <item>Brief intervention</item>
+        <item>Referral</item>
+    </string-array>
 
     <!-- Dementia Screening Checklist -->
     <string name="dementia_section_title">Dementia Screening Checklist</string>
@@ -1557,18 +1572,21 @@
         <item>No</item>
     </string-array>
     <!-- PHQ-9 Alert Strings -->
-    <string name="phq9_alert_referral_mo_phc">Refer to MO/PHC (PHQ-9 score ≥ 10)</string>
-    <string name="phq9_alert_urgent">Urgent referral (PHQ-9 score ≥ 15)</string>
-    <string name="phq9_alert_emergency">Emergency referral (PHQ-9 score ≥ 20)</string>
+    <string name="phq9_alert_referral_mo_phc"><font color="#FF0000">Refer to MO/PHC (PHQ-9 score ≥ 10)</font></string>
+    <string name="phq9_alert_urgent"><font color="#FF0000">Urgent referral (PHQ-9 score ≥ 15)</font></string>
+    <string name="phq9_alert_emergency"><font color="#FF0000">Emergency referral (PHQ-9 score ≥ 20)</font></string>
     <string name="title_elderly_health_assessment">Elderly Health Assessment</string>
     <string name="epilepsy_dementia_checklist_title">Epilepsy &amp; Dementia Screening Checklist</string>
     <string name="ed_edRecurrentEpisodeloss">Episodes of loss of consciousness</string>
+    <string name="ed_edConfusionordrowsiness">Confusion or drowsiness after episode</string>
     <string name="ed_recurrent_jerky_movements">Recurrent jerky movements / fits</string>
     <string name="ed_progressive_memory_loss">Progressive memory loss</string>
-    <string name="ed_confusion_disorientation">Confusion / disorientation</string>
-    <string name="ed_functional_decline">Functional decline (daily activities)</string>
+    <string name="ed_confusion_disorientation">Disorientation or confusion </string>
+    <string name="ed_functional_decline">Decline in daily functioning (self-care, routine activities)</string>
+    <string name="ed_age_60_years">Age ≥ 60 years</string>
     <string name="ed_screening_outcome">Screening Outcome</string>
     <string name="ed_referral_required">Referral Required</string>
+    <string name="ed_reason">Reason</string>
     <string name="ed_psychosocial_intervention_provided">Psychosocial intervention provided</string>
     <string name="ed_intervention_type">Type of intervention</string>
     <string name="ed_session_date">Session date</string>
@@ -1584,9 +1602,20 @@
     </string-array>
     <string name="mh_reason_for_referral_title">Reason for referral</string>
     <string-array name="mh_reason_for_referral_options">
-        <item>Alcohol dependence suspected</item>
-        <item>Withdrawal symptoms</item>
-        <item>Medical complications</item>
+        <item>Suicide risk / self-harm</item>
+        <item>Moderate to severe depression</item>
+        <item>Severe mental disorder suspected</item>
+        <item>Substance dependence / withdrawal</item>
+        <item>Functional impairment</item>
+        <item>Neurological condition suspected</item>
+        <item>Child behavioural concern</item>
+        <item>Risk to self or others</item>
+        <item>No improvement / worsening</item>
+        <item>Requires specialist care</item>
+    </string-array>
+    <string-array name="mh_reason_for_referral_options_under_11">
+        <item>Mental health complaint</item>
+        <item>Medical complication</item>
     </string-array>
     <string name="mh_referral_date_title">Referral date</string>
 
@@ -1594,13 +1623,14 @@
     <string name="mh_follow_up_required_title">Follow-up required</string>
     <string name="mh_follow_up_date_title">Follow-up date</string>
     <string name="mh_improvement_noted_title">Improvement noted</string>
+    <string name="mh_adherence_to_advice_title">Adherence to advice</string>
     <string-array name="mh_improvement_noted_options">
         <item>Improved</item>
         <item>Same</item>
         <item>Worse</item>
     </string-array>
     <string name="mh_repeat_phq9_title">Repeat PHQ-9</string>
-    <string name="mh_referral_escalation_title">Referral escalation required</string>
+    <string name="mh_referral_escalation_title">Escalation required</string>
     <string name="mh_case_closure_reason_title">Case closure reason</string>
     <string-array name="mh_case_closure_reason_options">
         <item>Recovered</item>
@@ -1610,5 +1640,4 @@
     </string-array>
     <string name="cd_camera_search">Open camera</string>
 </resources>
-
 

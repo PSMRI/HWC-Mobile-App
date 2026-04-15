@@ -9,7 +9,10 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentMentalHealthScreeningFormBinding
 import org.piramalswasthya.cho.model.FormElement
@@ -79,6 +82,11 @@ class MentalHealthScreeningFormFragment :
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observePhq9Alert()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -95,5 +103,25 @@ class MentalHealthScreeningFormFragment :
         }
         val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
         findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
+    }
+
+    private fun observePhq9Alert() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.phq9AlertMessageFlow.collect { message ->
+                message?.let {
+                    if (isAdded) {
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(getString(R.string.form_alert_title))
+                            .setMessage(it)
+                            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                                dialog.dismiss()
+                                viewModel.clearPhq9AlertMessage()
+                            }
+                            .setCancelable(false)
+                            .show()
+                    }
+                }
+            }
+        }
     }
 }
