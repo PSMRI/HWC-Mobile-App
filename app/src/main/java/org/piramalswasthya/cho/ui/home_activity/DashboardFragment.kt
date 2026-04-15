@@ -130,4 +130,11 @@ class DashboardFragment : Fragment() {
 
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            fetchAndDisplayCount()
+        }
+    }
 }

@@ -37,6 +37,9 @@ object WorkerUtils {
         val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
             .setConstraints(networkOnlyConstraint)
             .build()
+        val pullFormAmritWorker = OneTimeWorkRequestBuilder<PullLabRecordFormWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
 
         val pullCbacFromAmritWorker = OneTimeWorkRequestBuilder<PullCbacFromAmritWorker>()
             .setConstraints(networkOnlyConstraint)
@@ -70,6 +73,7 @@ object WorkerUtils {
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+            .then(pullFormAmritWorker)
             .then(pullBenFlowFromAmritWorker)
             .then(pullCbacFromAmritWorker)
             .then(pullEligibleCouplesWorker)
@@ -102,6 +106,9 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
         val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullFormAmritWorker = OneTimeWorkRequestBuilder<PullLabRecordFormWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
         val createRevisitBenflowWorker = OneTimeWorkRequestBuilder<CreateRevisitBenflowWorker>()
@@ -173,6 +180,7 @@ object WorkerUtils {
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+            .then(pullFormAmritWorker)
             .then(pushBenToAmritWorker)
             .then(pushCbacWorkRequest)
             .then(createRevisitBenflowWorker)

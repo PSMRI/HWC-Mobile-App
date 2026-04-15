@@ -510,6 +510,7 @@
     <string name="something_went_wrong">Something went wrong !</string>
     <string name="beneficiary_abha_number">Beneficiary ABHA Number.</string>
     <string name="no_records_found">No Records Found!!</string>
+    <string name="no_record_found">No record found</string>
     <string name="patients_cnt_display">" Patients"</string>
     <string name="subtractSign">-</string>
     <string name="addSign">+</string>

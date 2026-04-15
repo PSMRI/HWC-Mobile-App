@@ -512,12 +512,17 @@ class PersonalDetailsFragment : Fragment() {
             listFlow.collectLatest { list ->
                 itemAdapter?.submitList(list)
                 patientCount = list.size
-                if (!hasReceivedInitialPatientList && list.isNotEmpty()) {
+                if (!hasReceivedInitialPatientList) {
                     hideCardSkeletonLoader()
                 }
                 if (!isShowingSearchResults) {
-                    binding.patientListContainer.patientCount.text =
-                        list.size.toString() + getResultStr(list.size)
+                    if (list.isEmpty()) {
+                        binding.patientListContainer.patientCount.visibility = View.VISIBLE
+                        binding.patientListContainer.patientCount.text = getString(R.string.no_record_found)
+                    } else {
+                        binding.patientListContainer.patientCount.text = ""
+                        binding.patientListContainer.patientCount.visibility = View.GONE
+                    }
                 }
             }
         }
