@@ -14,6 +14,7 @@ import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.setToStartOfTheDay
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.DeliveryOutcomePost
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.VillageIdList
 //import org.piramalswasthya.cho.network.GetDataPaginatedRequest
@@ -22,6 +23,7 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -196,6 +198,7 @@ class DeliveryOutcomeRepo @Inject constructor(
 
                         val gson = Gson()
                         var savedCount = 0
+                        var skippedNoPatientCount = 0
                         for (i in 0 until dataArray.length()) {
                             val networkModel = gson.fromJson(
                                 dataArray.getJSONObject(i).toString(),
@@ -207,8 +210,10 @@ class DeliveryOutcomeRepo @Inject constructor(
                             }
 
                             val patient = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
+                                ?: ensurePatientPlaceholderForDeliveryOutcome(networkModel.benId)
                             if (patient == null) {
                                 Timber.w("No local patient found for DeliveryOutcome benId=${networkModel.benId}, skipping")
+                                skippedNoPatientCount++
                                 continue
                             }
 
@@ -231,7 +236,7 @@ class DeliveryOutcomeRepo @Inject constructor(
                             saveDeliveryOutcome(merged)
                             savedCount++
                         }
-                        Timber.d("DeliveryOutcome getAll downsync completed, saved=$savedCount received=${dataArray.length()}")
+                        Timber.d("DeliveryOutcome getAll downsync completed, saved=$savedCount skippedNoPatient=$skippedNoPatientCount received=${dataArray.length()}")
                         return@withContext true
                     }
                     5000 -> {
@@ -257,6 +262,51 @@ class DeliveryOutcomeRepo @Inject constructor(
                 return@withContext false
             }
         }
+    }
+
+    private suspend fun ensurePatientPlaceholderForDeliveryOutcome(benId: Long): Patient? {
+        if (benId <= 0L) return null
+        val existing = patientDao.getPatientByAnyBeneficiaryId(benId)
+        if (existing != null) return existing
+
+        val placeholderId = "delivery-patient-$benId"
+        val now = Date()
+        val placeholder = Patient(
+            patientID = placeholderId,
+            firstName = "Patient",
+            lastName = benId.toString(),
+            dob = null,
+            age = null,
+            ageUnitID = null,
+            maritalStatusID = null,
+            spouseName = null,
+            ageAtMarriage = null,
+            phoneNo = null,
+            genderID = null,
+            registrationDate = now,
+            stateID = null,
+            districtID = null,
+            blockID = null,
+            districtBranchID = null,
+            communityID = null,
+            religionID = null,
+            parentName = null,
+            syncState = SyncState.SYNCED,
+            beneficiaryID = benId,
+            beneficiaryRegID = null,
+            benImage = null,
+            statusOfWomanID = null,
+            isNewAbha = false,
+            healthIdDetails = null,
+            labTechnicianFlag = 0,
+            faceEmbedding = null
+        )
+        return runCatching {
+            patientDao.insertPatient(placeholder)
+            patientDao.getPatient(placeholderId)
+        }.onFailure { err ->
+            Timber.w(err, "Unable to create delivery patient placeholder for benId=$benId")
+        }.getOrNull()
     }
 
 }

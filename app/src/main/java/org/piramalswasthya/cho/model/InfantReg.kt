@@ -153,16 +153,19 @@ data class PatientWithDeliveryOutcomeAndInfantRegCache(
         val activeDo = deliveryOutcome?.firstOrNull { it.isActive } ?: return emptyList()
         val activeIr = savedInfantRegRecords.filter { it.isActive }
         val list = mutableListOf<InfantRegDomain>()
-        val numLiveBirth = activeDo.liveBirth ?: 1
-        if (numLiveBirth == 0) return emptyList()
-        
-        for (i in 0 until numLiveBirth) {
+        val totalBirths = (activeDo.deliveryOutcome ?: ((activeDo.liveBirth ?: 0) + (activeDo.stillBirth ?: 0)))
+            .coerceAtLeast(0)
+        if (totalBirths == 0) return emptyList()
+        val numLiveBirth = (activeDo.liveBirth ?: 0).coerceAtLeast(0)
+
+        for (i in 0 until totalBirths) {
             list.add(
                 InfantRegDomain(
                     motherPatient = patient,
                     babyIndex = i,
                     deliveryOutcome = activeDo,
                     savedIr = activeIr.firstOrNull { it.babyIndex == i },
+                    isLiveBirth = i < numLiveBirth
                 )
             )
         }
@@ -179,6 +182,7 @@ data class InfantRegDomain(
     var babyName: String = "Baby ${babyIndex + 1} of ${motherPatient.firstName}",
     val deliveryOutcome: DeliveryOutcomeCache,
     val savedIr: InfantRegCache?,
+    val isLiveBirth: Boolean = true,
     val syncState: SyncState? = savedIr?.syncState
 ) {
     /**
@@ -210,6 +214,17 @@ data class InfantRegDomain(
      * Check if infant is registered
      */
     fun isRegistered(): Boolean = savedIr != null
+
+    /**
+     * Only live-birth rows should show Register when not yet saved.
+     * Non-live-birth rows are always View state in list.
+     */
+    fun shouldShowRegisterAction(): Boolean = isLiveBirth && !isRegistered()
+
+    /**
+     * Guard clicks for non-live-birth rows with no saved record.
+     */
+    fun isActionEnabled(): Boolean = isLiveBirth || isRegistered()
 }
 
 data class InfantRegPost(

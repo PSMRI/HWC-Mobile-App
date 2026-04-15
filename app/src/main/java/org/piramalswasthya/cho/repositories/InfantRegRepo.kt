@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.json.JSONException
+import org.json.JSONArray
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.InfantRegDao
@@ -19,11 +20,13 @@ import org.piramalswasthya.cho.model.InfantRegApiPost
 import org.piramalswasthya.cho.model.InfantRegCache
 import org.piramalswasthya.cho.model.InfantRegDomain
 import org.piramalswasthya.cho.model.InfantRegWithPatient
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.getIsoDateTimeStringFromLong
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.VillageIdList
 import timber.log.Timber
 import java.net.SocketTimeoutException
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -36,14 +39,17 @@ class InfantRegRepo @Inject constructor(
 ) {
     /**
      * Get list of infants eligible for registration
-     * Source of truth: INFANT_REG (downsynced from /infant/getAll), with patient relation.
+     * Source of truth: combined DELIVERY_OUTCOME + INFANT_REG.
+     * - Generates rows from total delivery outcome count.
+     * - Marks only live-birth rows as registerable.
+     * - Maps synced infant rows onto generated indices for View state.
      */
     fun getListForInfantReg(): Flow<List<InfantRegDomain>> {
-        return infantRegDao.getAllRegisteredInfants()
+        return infantRegDao.getListForInfantRegister()
             .map { list ->
                 list
-                    .map { it.toInfantRegDomain() }
-                    .sortedByDescending { it.savedIr?.updatedDate ?: it.savedIr?.createdDate ?: 0L }
+                    .flatMap { it.asDomainModel() }
+                    .sortedByDescending { it.deliveryOutcome.dateOfDelivery ?: 0L }
             }
     }
 
@@ -80,21 +86,58 @@ class InfantRegRepo @Inject constructor(
     }
 
     suspend fun upsertInfantReg(infantRegCache: InfantRegCache) {
-        val existing = if (infantRegCache.id != 0L) {
-            infantRegCache
-        } else {
-            infantRegDao.getInfantReg(infantRegCache.motherPatientID, infantRegCache.babyIndex)
-        }
+        // IMPORTANT:
+        // Downsync payload can contain non-zero server-side IDs that do not exist in local DB.
+        // So we must not assume `id != 0` means "already present locally".
+        // Local uniqueness for this module is motherPatientID + babyIndex.
+        val existing = infantRegDao.getInfantReg(
+            infantRegCache.motherPatientID,
+            infantRegCache.babyIndex
+        )
 
-        if (existing != null && existing.id != 0L) {
+        if (existing != null) {
             infantRegDao.updateInfantReg(infantRegCache.copy(id = existing.id))
         } else {
-            infantRegDao.saveInfantReg(infantRegCache)
+            infantRegDao.saveInfantReg(infantRegCache.copy(id = 0))
         }
     }
 
     suspend fun getNumBabiesRegistered(patientID: String): Int =
         infantRegDao.getNumBabiesRegistered(patientID)
+
+    /**
+     * Creates/ensures infant placeholder rows in INFANT_REG based on Delivery Outcome count.
+     * We keep placeholders as processed/synced so they are local list entries until user fills details.
+     */
+    suspend fun ensureInfantPlaceholdersForDeliveryOutcome(
+        motherPatientID: String,
+        motherName: String?,
+        infantCount: Int,
+        userName: String
+    ) {
+        if (infantCount <= 0) return
+        val safeMotherName = motherName?.trim().takeUnless { it.isNullOrBlank() } ?: "Mother"
+        val now = System.currentTimeMillis()
+
+        for (index in 0 until infantCount) {
+            val existing = infantRegDao.getInfantReg(motherPatientID, index)
+            if (existing != null) continue
+
+            val placeholder = InfantRegCache(
+                motherPatientID = motherPatientID,
+                babyIndex = index,
+                babyName = "baby ${index + 1} of $safeMotherName",
+                isActive = true,
+                processed = "N",
+                createdBy = userName,
+                createdDate = now,
+                updatedBy = userName,
+                updatedDate = now,
+                syncState = SyncState.UNSYNCED
+            )
+            upsertInfantReg(placeholder)
+        }
+    }
 
     suspend fun processNewInfantRegister(): Boolean {
         return withContext(Dispatchers.IO) {
@@ -284,49 +327,71 @@ class InfantRegRepo @Inject constructor(
                 val errorMessage = jsonObj.optString("errorMessage")
                 when (responseStatusCode) {
                     200 -> {
-                        val dataArray = when (val dataNode = jsonObj.opt("data")) {
-                            is org.json.JSONArray -> dataNode
-                            is org.json.JSONObject -> dataNode.optJSONArray("data")
-                            else -> null
-                        } ?: org.json.JSONArray()
+                        val dataArray = extractInfantDataArray(jsonObj)
 
                         val gson = Gson()
                         var savedCount = 0
+                        var skippedNoMotherCount = 0
+                        var skippedInvalidPayloadCount = 0
+                        var failedSaveCount = 0
                         for (i in 0 until dataArray.length()) {
-                            val networkModel = gson.fromJson(
-                                dataArray.getJSONObject(i).toString(),
-                                InfantRegApiPost::class.java
-                            )
-                            val mother = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
-                            if (mother == null) {
-                                Timber.w("No local mother patient found for infant benId=${networkModel.benId}, skipping")
-                                continue
-                            }
-                            val childPatientID = if (networkModel.childBenId > 0) {
-                                patientDao.getPatientByAnyBeneficiaryId(networkModel.childBenId)?.patientID
-                            } else null
-
-                            val incoming = networkModel.toCacheModel(
-                                motherPatientID = mother.patientID,
-                                childPatientID = childPatientID
-                            ).copy(
-                                processed = "P",
-                                syncState = SyncState.SYNCED,
-                                updatedDate = System.currentTimeMillis(),
-                                updatedBy = networkModel.updatedBy?.ifBlank { user.userName } ?: user.userName
-                            )
-                            val existing = infantRegDao.getInfantReg(mother.patientID, incoming.babyIndex)
-                            val merged = if (existing != null) {
-                                incoming.copy(
-                                    id = existing.id,
-                                    createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
-                                    createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
+                            try {
+                                val rawObj = extractInfantItemObject(dataArray, i)
+                                if (rawObj == null) {
+                                    skippedInvalidPayloadCount++
+                                    continue
+                                }
+                                val normalizedObj = normalizeInfantPayload(rawObj)
+                                val networkModel = gson.fromJson(
+                                    normalizedObj.toString(),
+                                    InfantRegApiPost::class.java
                                 )
-                            } else incoming
-                            upsertInfantReg(merged)
-                            savedCount++
+                                if (networkModel.benId <= 0L) {
+                                    Timber.w("Invalid infant payload at index=$i: benId=${networkModel.benId}, skipping")
+                                    skippedInvalidPayloadCount++
+                                    continue
+                                }
+                                val mother = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
+                                    ?: ensureMotherPlaceholderForInfant(benId = networkModel.benId)
+                                if (mother == null) {
+                                    Timber.w("No local mother patient found for infant benId=${networkModel.benId}, skipping")
+                                    skippedNoMotherCount++
+                                    continue
+                                }
+                                val childPatientID = if (networkModel.childBenId > 0) {
+                                    patientDao.getPatientByAnyBeneficiaryId(networkModel.childBenId)?.patientID
+                                } else null
+
+                                val incoming = networkModel.toCacheModel(
+                                    motherPatientID = mother.patientID,
+                                    childPatientID = childPatientID
+                                ).copy(
+                                    processed = "P",
+                                    syncState = SyncState.SYNCED,
+                                    updatedDate = System.currentTimeMillis(),
+                                    updatedBy = networkModel.updatedBy?.ifBlank { user.userName } ?: user.userName
+                                )
+                                val existing = infantRegDao.getInfantReg(mother.patientID, incoming.babyIndex)
+                                val merged = if (existing != null) {
+                                    incoming.copy(
+                                        id = existing.id,
+                                        createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+                                        createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
+                                    )
+                                } else incoming
+                                upsertInfantReg(merged)
+                                savedCount++
+                            } catch (e: Exception) {
+                                failedSaveCount++
+                                Timber.w(e, "Failed saving infant payload index=$i")
+                            }
                         }
-                        Timber.d("Infant getAll downsync completed, saved=$savedCount received=${dataArray.length()}")
+                        Timber.d(
+                            "Infant getAll downsync completed, saved=$savedCount " +
+                                "skippedNoMother=$skippedNoMotherCount " +
+                                "skippedInvalidPayload=$skippedInvalidPayloadCount failedSave=$failedSaveCount " +
+                                "received=${dataArray.length()}"
+                        )
                         return@withContext true
                     }
                     5000 -> {
@@ -501,5 +566,196 @@ class InfantRegRepo @Inject constructor(
             updatedDate = org.piramalswasthya.cho.network.getLongFromDate(updatedDate),
             syncState = SyncState.SYNCED
         )
+    }
+
+    private fun extractInfantDataArray(root: JSONObject): JSONArray {
+        // Try strict path first for current contracts.
+        val dataNode = root.opt("data")
+        if (dataNode is JSONArray) return dataNode
+        if (dataNode is String) {
+            parseJsonArrayFromString(dataNode)?.let { return it }
+            parseJsonObjectFromString(dataNode)?.let { obj ->
+                val nested = extractInfantDataArray(JSONObject().put("data", obj))
+                if (nested.length() > 0) return nested
+            }
+        }
+        if (dataNode is JSONObject) {
+            val keys = listOf("data", "response", "records", "content", "list", "items")
+            for (key in keys) {
+                val arr = dataNode.optJSONArray(key)
+                if (arr != null) return arr
+                val text = dataNode.optString(key, "")
+                parseJsonArrayFromString(text)?.let { return it }
+            }
+        }
+        // Fallback: recursively scan full response for first JSON array payload.
+        findFirstJsonArray(root)?.let { return it }
+        return JSONArray()
+    }
+
+    private fun extractInfantItemObject(dataArray: JSONArray, index: Int): JSONObject? {
+        val direct = dataArray.optJSONObject(index)
+        if (direct != null) return direct
+
+        val raw = dataArray.opt(index)
+        if (raw is String) {
+            parseJsonObjectFromString(raw)?.let { return it }
+        }
+        return null
+    }
+
+    private fun normalizeInfantPayload(source: JSONObject): JSONObject {
+        val target = JSONObject(source.toString())
+
+        if (!target.has("benId") || target.optLong("benId", 0L) <= 0L) {
+            firstPositiveLong(
+                source,
+                "beneficiaryID", "beneficiaryId", "beneficiaryid", "benID", "benid",
+                "motherBenId", "motherBeneficiaryID", "motherBeneficiaryId"
+            )?.let { target.put("benId", it) }
+        }
+
+        if (!target.has("childBenId") || target.optLong("childBenId", 0L) < 0L) {
+            firstPositiveLong(
+                source,
+                "childBeneficiaryID", "childBeneficiaryId", "childbeneficiaryid",
+                "childBenID", "childBenId", "childID", "childId"
+            )?.let { target.put("childBenId", it) }
+        }
+
+        if (!target.has("babyIndex")) {
+            firstNonNegativeInt(source, "babyNo", "babyNumber", "childIndex", "index")
+                ?.let { target.put("babyIndex", it) }
+        }
+
+        return target
+    }
+
+    private fun firstPositiveLong(source: JSONObject, vararg keys: String): Long? {
+        // Direct key lookup.
+        for (key in keys) {
+            val value = source.optLong(key, 0L)
+            if (value > 0L) return value
+            source.optString(key, "").trim().toLongOrNull()?.takeIf { it > 0L }?.let { return it }
+        }
+        // Case-insensitive fallback.
+        val lowerKeyMap = mutableMapOf<String, String>()
+        val iterator = source.keys()
+        while (iterator.hasNext()) {
+            val realKey = iterator.next()
+            lowerKeyMap[realKey.lowercase(Locale.ENGLISH)] = realKey
+        }
+        for (key in keys) {
+            val realKey = lowerKeyMap[key.lowercase(Locale.ENGLISH)] ?: continue
+            val value = source.optLong(realKey, 0L)
+            if (value > 0L) return value
+            source.optString(realKey, "").trim().toLongOrNull()?.takeIf { it > 0L }?.let { return it }
+        }
+        return null
+    }
+
+    private fun firstNonNegativeInt(source: JSONObject, vararg keys: String): Int? {
+        for (key in keys) {
+            if (!source.has(key)) continue
+            val value = source.optInt(key, Int.MIN_VALUE)
+            if (value != Int.MIN_VALUE && value >= 0) return value
+            source.optString(key, "").trim().toIntOrNull()?.takeIf { it >= 0 }?.let { return it }
+        }
+        return null
+    }
+
+    private fun parseJsonArrayFromString(value: String?): JSONArray? {
+        val trimmed = value?.trim().orEmpty()
+        if (trimmed.isEmpty() || !trimmed.startsWith("[")) return null
+        return runCatching { JSONArray(trimmed) }.getOrNull()
+    }
+
+    private fun parseJsonObjectFromString(value: String?): JSONObject? {
+        val trimmed = value?.trim().orEmpty()
+        if (trimmed.isEmpty() || !trimmed.startsWith("{")) return null
+        return runCatching { JSONObject(trimmed) }.getOrNull()
+    }
+
+    private fun findFirstJsonArray(node: Any?): JSONArray? {
+        when (node) {
+            is JSONArray -> {
+                if (node.length() > 0) return node
+            }
+            is JSONObject -> {
+                val iterator = node.keys()
+                while (iterator.hasNext()) {
+                    val key = iterator.next()
+                    val child = node.opt(key)
+                    if (child is JSONArray && child.length() > 0) return child
+                    if (child is JSONObject) {
+                        findFirstJsonArray(child)?.let { return it }
+                    } else if (child is String) {
+                        parseJsonArrayFromString(child)?.let { if (it.length() > 0) return it }
+                        parseJsonObjectFromString(child)?.let { obj ->
+                            findFirstJsonArray(obj)?.let { return it }
+                        }
+                    }
+                }
+            }
+            is String -> {
+                parseJsonArrayFromString(node)?.let { if (it.length() > 0) return it }
+                parseJsonObjectFromString(node)?.let { obj ->
+                    findFirstJsonArray(obj)?.let { return it }
+                }
+            }
+        }
+        return null
+    }
+
+    /**
+     * Ensures INFANT_REG downsync can be saved even when mother is not yet present in PATIENT.
+     * Creates a lightweight local placeholder mother record keyed by beneficiaryID.
+     */
+    private suspend fun ensureMotherPlaceholderForInfant(
+        benId: Long
+    ): Patient? {
+        if (benId <= 0L) return null
+        val existing = patientDao.getPatientByAnyBeneficiaryId(benId)
+        if (existing != null) return existing
+
+        val placeholderPatientId = "infant-mother-$benId"
+        val now = Date()
+        val placeholder = Patient(
+            patientID = placeholderPatientId,
+            firstName = "Mother",
+            lastName = benId.toString(),
+            dob = null,
+            age = null,
+            ageUnitID = null,
+            maritalStatusID = null,
+            spouseName = null,
+            ageAtMarriage = null,
+            phoneNo = null,
+            genderID = null,
+            registrationDate = now,
+            stateID = null,
+            districtID = null,
+            blockID = null,
+            districtBranchID = null,
+            communityID = null,
+            religionID = null,
+            parentName = null,
+            syncState = SyncState.SYNCED,
+            beneficiaryID = benId,
+            beneficiaryRegID = null,
+            benImage = null,
+            statusOfWomanID = null,
+            isNewAbha = false,
+            healthIdDetails = null,
+            labTechnicianFlag = 0,
+            faceEmbedding = null
+        )
+
+        return runCatching {
+            patientDao.insertPatient(placeholder)
+            patientDao.getPatient(placeholderPatientId)
+        }.onFailure { err ->
+            Timber.w(err, "Unable to create mother placeholder for infant benId=$benId")
+        }.getOrNull()
     }
 }

@@ -45,8 +45,6 @@ interface InfantRegDao {
         INNER JOIN DELIVERY_OUTCOME do ON p.patientID = do.patientID
         WHERE do.isActive = 1
         AND do.liveBirth > 0
-        AND p.genderID = 2
-        AND p.age BETWEEN 15 AND 49
         ORDER BY do.dateOfDelivery DESC
     """)
     fun getListForInfantRegister(): Flow<List<PatientWithDeliveryOutcomeAndInfantRegCache>>
@@ -60,8 +58,6 @@ interface InfantRegDao {
         INNER JOIN PATIENT p ON do.patientID = p.patientID
         WHERE do.isActive = 1
         AND do.liveBirth > 0
-        AND p.genderID = 2
-        AND p.age BETWEEN 15 AND 49
     """)
     fun getInfantRegisterCount(): Flow<Int>
 
@@ -74,17 +70,12 @@ interface InfantRegDao {
 
     /**
      * Get all registered infants for child registration list
-     * Returns infants that are active and have been registered
+     * Returns active infants from INFANT_REG (independent of mother PATIENT completeness).
      */
     @Transaction
     @Query("""
         SELECT ir.* FROM INFANT_REG ir
-        LEFT JOIN PATIENT p ON ir.motherPatientID = p.patientID
         WHERE ir.isActive = 1
-        AND (
-            p.patientID IS NULL
-            OR (p.genderID = 2 AND p.age BETWEEN 15 AND 49)
-        )
         ORDER BY ir.updatedDate DESC, ir.createdDate DESC
     """)
     fun getAllRegisteredInfants(): Flow<List<InfantRegWithPatient>>
@@ -94,12 +85,7 @@ interface InfantRegDao {
      */
     @Query("""
         SELECT COUNT(*) FROM INFANT_REG ir
-        LEFT JOIN PATIENT p ON ir.motherPatientID = p.patientID
         WHERE ir.isActive = 1
-        AND (
-            p.patientID IS NULL
-            OR (p.genderID = 2 AND p.age BETWEEN 15 AND 49)
-        )
     """)
     fun getAllRegisteredInfantsCount(): Flow<Int>
 }

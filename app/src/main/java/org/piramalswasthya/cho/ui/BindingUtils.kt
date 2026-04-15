@@ -101,7 +101,7 @@ fun Button.setAbortionActionText(item: AbortionDomain?) {
 fun Button.setInfantRegActionText(item: InfantRegDomain?) {
     item ?: return
     text = context.getString(
-        if (item.isRegistered()) Resource.string.view else Resource.string.register
+        if (item.shouldShowRegisterAction()) Resource.string.register else Resource.string.view
     )
 }
 
@@ -440,5 +440,4 @@ fun TextView.setAsteriskTextView(required: Boolean?, title: String?) {
         }
     }
 }
-
 
