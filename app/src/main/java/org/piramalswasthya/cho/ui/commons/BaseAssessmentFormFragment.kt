@@ -110,8 +110,7 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
             getFormFlow().collect { list ->
                 if (list.isNotEmpty()) {
                     adapter.submitList(list.toMutableList()) {
-                        // Force an immediate rebind so newly shown/updated dynamic fields
-                        // are reflected without requiring manual scroll.
+                        //This are required to reflected without requiring manual scroll.
                         inputFormRecyclerView.post { adapter.notifyDataSetChanged() }
                     }
                 }

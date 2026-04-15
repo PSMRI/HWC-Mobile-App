@@ -35,6 +35,23 @@ class DropdownConst {
             "Dental Fluorosis",
             "Dental Emergencies"
         )
+        val entChiefComplaints: Set<String> = setOf(
+            "Neck swelling",
+            "Dysphagia",
+            "Cleft lip",
+            "Cleft palate",
+            "Tonsillitis",
+            "Pharyngitis",
+            "Laryngitis",
+            "Sinusitis",
+            "Difficulty in hearing",
+            "Ear wax",
+            "Congenital Ear Malformation",
+            "Foreign body in ear",
+            "open mouth breathing",
+            "Nosebleed",
+            "Foreign body in nose"
+        )
 
         val elderlyAndPalliative: String = "Elderly & Palliative"
         val persistentPain: String = "Persistent pain"

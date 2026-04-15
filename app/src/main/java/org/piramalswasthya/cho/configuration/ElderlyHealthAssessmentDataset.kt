@@ -279,6 +279,17 @@ class ElderlyHealthAssessmentDataset(
         )
     }
 
+    private fun getADLAnswerFields(): List<FormElement> {
+        return listOf(
+            bathing,
+            dressing,
+            toileting,
+            transferring,
+            continence,
+            feeding
+        )
+    }
+
     private fun getDementiaCheckboxFields(): List<FormElement> {
         return listOf(
             dementiaMemoryLoss,
@@ -341,34 +352,42 @@ class ElderlyHealthAssessmentDataset(
     }
 
     private suspend fun computeADLScore() {
-        val adlFields = listOf(bathing, dressing, toileting, transferring, continence, feeding)
-        val scores = adlFields.map { field ->
-            when (field.value) {
-                "Independent (1)" -> 1
-                "Dependent (0)" -> 0
-                else -> 0
-            }
-        }
-        val total = scores.sum()
-
-        val status = when (total) {
-            6 -> "No decline"
-            in 4..5 -> "Partial Dependence"
-            in 2..3 -> "Functional Dependence"
-            in 0..1 -> "Highly Dependent"
-            else -> "Unknown"
-        }
-
-        val flag = if (total  <= 5) "Yes" else "no"
-
         // Find existing indices in the actual list BEFORE updating the references
         val oldTotalIndex = getIndexById(totalScore.id)
         val oldStatusIndex = getIndexById(functionalStatus.id)
         val oldFlagIndex = getIndexById(functionalDeclineFlag.id)
 
-        totalScore = totalScore.copy(value = total.toString())
-        functionalStatus = functionalStatus.copy(value = status)
-        functionalDeclineFlag = functionalDeclineFlag.copy(value = flag)
+        val adlFields = getADLAnswerFields()
+        val allAnswered = adlFields.all { !it.value.isNullOrBlank() }
+
+        if (!allAnswered) {
+            totalScore = totalScore.copy(value = null)
+            functionalStatus = functionalStatus.copy(value = null)
+            functionalDeclineFlag = functionalDeclineFlag.copy(value = null)
+        } else {
+            val scores = adlFields.map { field ->
+                when (field.value) {
+                    "Independent (1)" -> 1
+                    "Dependent (0)" -> 0
+                    else -> 0
+                }
+            }
+            val total = scores.sum()
+
+            val status = when (total) {
+                6 -> "No decline"
+                in 4..5 -> "Partial Dependence"
+                in 2..3 -> "Functional Dependence"
+                in 0..1 -> "Highly Dependent"
+                else -> "Unknown"
+            }
+
+            val flag = if (total <= 5) "Yes" else "no"
+
+            totalScore = totalScore.copy(value = total.toString())
+            functionalStatus = functionalStatus.copy(value = status)
+            functionalDeclineFlag = functionalDeclineFlag.copy(value = flag)
+        }
 
         if (oldTotalIndex != -1) {
             setUpPage(
@@ -658,7 +677,12 @@ class ElderlyHealthAssessmentDataset(
 
             it.totalScore = totalScore.value?.toIntOrNull()
             it.functionalStatus = functionalStatus.value
-            it.functionalDeclineFlag = functionalDeclineFlag.value == "Yes"
+            it.functionalDeclineFlag = when (functionalDeclineFlag.value) {
+                "Yes" -> true
+                "No" -> false
+                "no" -> false
+                else -> null
+            }
 
             it.memoryLoss =
                 memoryLoss.value == "Yes"

@@ -1307,22 +1307,16 @@ class MentalHealthScreeningDataset(
 
         suicideRiskLevel.value = when {
 
-            // Any Any Any Any Yes -> High
             isImmediateYes -> high
 
-            // Yes Any Yes Any Any -> High
             isThoughtsYes && isIntentYes -> high
 
-            // Yes Yes No No No -> Moderate
             isThoughtsYes && isPreviousYes && isIntentNo && isMeansNo && isImmediateNo -> moderate
 
-            // Yes No No No No -> Low
             isThoughtsYes && isPreviousNo && isIntentNo && isMeansNo && isImmediateNo -> low
 
-            // No No No No No -> Low
             isThoughtsNo && isPreviousNo && isIntentNo && isMeansNo && isImmediateNo -> low
 
-            // Unlisted combinations
             else -> low
         }
 
@@ -1467,7 +1461,7 @@ class MentalHealthScreeningDataset(
             cache.followUpRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhFollowUpDate.value = cache.followUpDate
         mhImprovementNoted.value = cache.improvementNoted
-        mhAdherenceToAdvice.value = cache.caseClosureReason
+        mhAdherenceToAdvice.value = cache.adherenceToAdvice
         mhReferralEscalation.value =
             cache.referralEscalationRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhCaseClosureReason.value = cache.caseClosureReason
@@ -1740,11 +1734,13 @@ class MentalHealthScreeningDataset(
             if (it.referralRequired == true) {
                 it.followUpDate = mhFollowUpDate.value
                 it.improvementNoted = mhImprovementNoted.value
+                it.adherenceToAdvice = mhAdherenceToAdvice.value
                 it.referralEscalationRequired = yesNoToBoolean(mhReferralEscalation.value)
-                it.caseClosureReason = mhAdherenceToAdvice.value
+                it.caseClosureReason = mhCaseClosureReason.value
             } else {
                 it.followUpDate = null
                 it.improvementNoted = null
+                it.adherenceToAdvice = null
                 it.referralEscalationRequired = null
                 it.caseClosureReason = null
             }

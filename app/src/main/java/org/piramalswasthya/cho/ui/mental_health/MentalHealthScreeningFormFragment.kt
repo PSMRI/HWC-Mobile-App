@@ -10,6 +10,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -107,18 +109,21 @@ class MentalHealthScreeningFormFragment :
 
     private fun observePhq9Alert() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.phq9AlertMessageFlow.collect { message ->
-                message?.let {
-                    if (isAdded) {
-                        MaterialAlertDialogBuilder(requireContext())
-                            .setTitle(getString(R.string.form_alert_title))
-                            .setMessage(it)
-                            .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                                dialog.dismiss()
-                                viewModel.clearPhq9AlertMessage()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.phq9AlertMessageFlow.collect { message ->
+                    message?.let {
+                        if (isAdded) {
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(getString(R.string.form_alert_title))
+                                .setMessage(it)
+                                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                                    dialog.dismiss()
+                                    viewModel.clearPhq9AlertMessage()
+                                }
+                                .setCancelable(false)
+                                .show()
                             }
-                            .setCancelable(false)
-                            .show()
+
                     }
                 }
             }

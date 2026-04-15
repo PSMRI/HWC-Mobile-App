@@ -1134,7 +1134,8 @@ abstract class InAppDb : RoomDatabase() {
         val MIGRATION_143_144 = object : Migration(143, 144) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_reason", "TEXT")
-                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_reason", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_confusion_ordrowsiness", "INTEGER")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "adherence_to_advice", "TEXT")
             }
         }
 
