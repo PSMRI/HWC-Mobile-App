@@ -439,7 +439,7 @@ private fun mapReproductiveStatusName(statusOfWomanID: Int?): String? {
     return when (statusOfWomanID) {
         1 -> "Eligible Couple"
         2 -> "Pregnant Woman"
-        3 -> "Postnatal"
+        3 -> "Post Natal Mother"
         4 -> "Elderly"
         5 -> "Adolescent"
         6 -> "Permanent Sterilization"

@@ -120,6 +120,7 @@ class DeliveryOutcomeFormFragment : Fragment() {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     WorkerUtils.triggerDeliveryOutcomeSync(requireContext())
+                    WorkerUtils.triggerBeneficiarySync(requireContext())
                     viewModel.resetState()
                     requireActivity().onBackPressedDispatcher.onBackPressed()
                 }

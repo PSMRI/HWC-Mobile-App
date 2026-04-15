@@ -79,11 +79,13 @@ interface InfantRegDao {
     @Transaction
     @Query("""
         SELECT ir.* FROM INFANT_REG ir
-        INNER JOIN PATIENT p ON ir.motherPatientID = p.patientID
+        LEFT JOIN PATIENT p ON ir.motherPatientID = p.patientID
         WHERE ir.isActive = 1
-        AND p.genderID = 2
-        AND p.age BETWEEN 15 AND 49
-        ORDER BY ir.createdDate DESC
+        AND (
+            p.patientID IS NULL
+            OR (p.genderID = 2 AND p.age BETWEEN 15 AND 49)
+        )
+        ORDER BY ir.updatedDate DESC, ir.createdDate DESC
     """)
     fun getAllRegisteredInfants(): Flow<List<InfantRegWithPatient>>
 
@@ -92,10 +94,12 @@ interface InfantRegDao {
      */
     @Query("""
         SELECT COUNT(*) FROM INFANT_REG ir
-        INNER JOIN PATIENT p ON ir.motherPatientID = p.patientID
+        LEFT JOIN PATIENT p ON ir.motherPatientID = p.patientID
         WHERE ir.isActive = 1
-        AND p.genderID = 2
-        AND p.age BETWEEN 15 AND 49
+        AND (
+            p.patientID IS NULL
+            OR (p.genderID = 2 AND p.age BETWEEN 15 AND 49)
+        )
     """)
     fun getAllRegisteredInfantsCount(): Flow<Int>
 }

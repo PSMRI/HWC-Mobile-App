@@ -166,7 +166,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, getString(R.string.save_successful_toast), Toast.LENGTH_LONG).show()
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    WorkerUtils.triggerPncSync(requireContext())
                     
                     // Finish activity to return to PNC list
                     requireActivity().finish()

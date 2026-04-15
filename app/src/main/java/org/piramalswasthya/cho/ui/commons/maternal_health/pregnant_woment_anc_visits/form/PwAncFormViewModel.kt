@@ -77,6 +77,7 @@ class PwAncFormViewModel @Inject constructor(
     private var ben: PatientDisplay? = null
     private var lastAncVisitNumber: Int = 0
     private var currentVisitNumber: Int = visitNumber
+    private var shouldTriggerBeneficiarySyncAfterSave: Boolean = false
 
     init {
         viewModelScope.launch {
@@ -244,8 +245,12 @@ class PwAncFormViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 try {
                     _state.postValue(State.SAVING)
+                    shouldTriggerBeneficiarySyncAfterSave = false
                     val wasCompletedBefore = ancCache.weight != null
                     dataset.mapValues(ancCache, 1)
+                    // Mark ANC as updated for re-sync so /maternal/ancVisit/saveAll is called on edits.
+                    if (ancCache.processed != "N") ancCache.processed = "U"
+                    ancCache.syncState = SyncState.UNSYNCED
                     ancCache.updatedDate = System.currentTimeMillis()
                     val isCompletedNow = ancCache.weight != null
                     
@@ -299,7 +304,12 @@ class PwAncFormViewModel @Inject constructor(
                         }
                     }
                     if (ancCache.pregnantWomanDelivered == true) {
-
+                        val patient = patientRepo.getPatient(patientID)
+                        patient.statusOfWomanID = 3 // Post Natal Mother
+                        patient.syncState = SyncState.UNSYNCED
+                        patientRepo.updateRecord(patient)
+                        shouldTriggerBeneficiarySyncAfterSave = true
+                        Timber.d("ANC delivered=true for patient $patientID, marked postnatal and queued beneficiary sync")
                     } else if (ancCache.isAborted) {
 
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
@@ -358,6 +368,12 @@ class PwAncFormViewModel @Inject constructor(
 
     fun resetAlertMessage() {
         viewModelScope.launch { dataset.resetErrorMessageFlow() }
+    }
+
+    fun shouldTriggerBeneficiarySyncAfterSave(): Boolean = shouldTriggerBeneficiarySyncAfterSave
+
+    fun consumeBeneficiarySyncTrigger() {
+        shouldTriggerBeneficiarySyncAfterSave = false
     }
 
 }

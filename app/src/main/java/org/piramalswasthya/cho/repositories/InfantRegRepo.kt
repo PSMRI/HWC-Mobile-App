@@ -13,10 +13,12 @@ import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.ChildApiPost
 import org.piramalswasthya.cho.model.ChildRegDomain
+import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.Gender
 import org.piramalswasthya.cho.model.InfantRegApiPost
 import org.piramalswasthya.cho.model.InfantRegCache
 import org.piramalswasthya.cho.model.InfantRegDomain
+import org.piramalswasthya.cho.model.InfantRegWithPatient
 import org.piramalswasthya.cho.model.getIsoDateTimeStringFromLong
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.VillageIdList
@@ -34,11 +36,15 @@ class InfantRegRepo @Inject constructor(
 ) {
     /**
      * Get list of infants eligible for registration
-     * Returns flattened list of InfantRegDomain (one per baby based on liveBirth count)
+     * Source of truth: INFANT_REG (downsynced from /infant/getAll), with patient relation.
      */
     fun getListForInfantReg(): Flow<List<InfantRegDomain>> {
-        return infantRegDao.getListForInfantRegister()
-            .map { list -> list.flatMap { it.asDomainModel() } }
+        return infantRegDao.getAllRegisteredInfants()
+            .map { list ->
+                list
+                    .map { it.toInfantRegDomain() }
+                    .sortedByDescending { it.savedIr?.updatedDate ?: it.savedIr?.createdDate ?: 0L }
+            }
     }
 
     /**
@@ -307,7 +313,7 @@ class InfantRegRepo @Inject constructor(
                                 processed = "P",
                                 syncState = SyncState.SYNCED,
                                 updatedDate = System.currentTimeMillis(),
-                                updatedBy = networkModel.updatedBy.ifBlank { user.userName }
+                                updatedBy = networkModel.updatedBy?.ifBlank { user.userName } ?: user.userName
                             )
                             val existing = infantRegDao.getInfantReg(mother.patientID, incoming.babyIndex)
                             val merged = if (existing != null) {
@@ -320,7 +326,6 @@ class InfantRegRepo @Inject constructor(
                             upsertInfantReg(merged)
                             savedCount++
                         }
-                        pullChildrenFromServerInternal(villageList)
                         Timber.d("Infant getAll downsync completed, saved=$savedCount received=${dataArray.length()}")
                         return@withContext true
                     }
@@ -350,88 +355,6 @@ class InfantRegRepo @Inject constructor(
                 return@withContext false
             }
         }
-    }
-
-    private suspend fun pullChildrenFromServerInternal(villageList: VillageIdList): Boolean {
-        val user = userRepo.getLoggedInUser()
-            ?: throw IllegalStateException("No user logged in!!")
-        val response = amritApiService.getAllChildren(villageList)
-        if (response.code() != 200) {
-            Timber.w("Bad response from server for Child getAll: $response")
-            return false
-        }
-        val responseString = response.body()?.string()
-        if (responseString.isNullOrBlank()) {
-            Timber.w("Empty response body for Child getAll")
-            return false
-        }
-        val jsonObj = JSONObject(responseString)
-        val responseStatusCode = jsonObj.optInt("statusCode", 200)
-        when (responseStatusCode) {
-            200 -> {
-                val dataArray = when (val dataNode = jsonObj.opt("data")) {
-                    is org.json.JSONArray -> dataNode
-                    is org.json.JSONObject -> dataNode.optJSONArray("data")
-                    else -> null
-                } ?: org.json.JSONArray()
-
-                val gson = Gson()
-                var savedCount = 0
-                for (i in 0 until dataArray.length()) {
-                    val childNetwork = gson.fromJson(
-                        dataArray.getJSONObject(i).toString(),
-                        ChildApiPost::class.java
-                    )
-                    if (childNetwork.benId == 0L) continue
-                    val childPatient = patientDao.getPatientByAnyBeneficiaryId(childNetwork.benId)
-                    if (childPatient == null) {
-                        Timber.w("No local child patient found for child benId=${childNetwork.benId}, skipping")
-                        continue
-                    }
-                    val existing = infantRegDao.getInfantRegFromChildPatientID(childPatient.patientID)
-                    if (existing == null) {
-                        Timber.w("No infant reg row found for child patientID=${childPatient.patientID}, skipping child downsync row")
-                        continue
-                    }
-                    val merged = existing.copy(
-                        babyName = childNetwork.babyName ?: existing.babyName,
-                        infantTerm = childNetwork.infantTerm ?: existing.infantTerm,
-                        corticosteroidGiven = childNetwork.corticosteroidGiven ?: existing.corticosteroidGiven,
-                        babyCriedAtBirth = childNetwork.babyCriedAtBirth ?: existing.babyCriedAtBirth,
-                        resuscitation = childNetwork.resuscitation ?: existing.resuscitation,
-                        referred = childNetwork.referred ?: existing.referred,
-                        hadBirthDefect = childNetwork.hadBirthDefect ?: existing.hadBirthDefect,
-                        birthDefect = childNetwork.birthDefect ?: existing.birthDefect,
-                        otherDefect = childNetwork.otherDefect ?: existing.otherDefect,
-                        weight = childNetwork.weight,
-                        breastFeedingStarted = childNetwork.breastFeedingStarted ?: existing.breastFeedingStarted,
-                        opv0Dose = org.piramalswasthya.cho.network.getLongFromDate(childNetwork.opv0Dose),
-                        bcgDose = org.piramalswasthya.cho.network.getLongFromDate(childNetwork.bcgDose),
-                        hepBDose = org.piramalswasthya.cho.network.getLongFromDate(childNetwork.hepBDose),
-                        vitkDose = org.piramalswasthya.cho.network.getLongFromDate(childNetwork.vitkDose),
-                        processed = "P",
-                        syncState = SyncState.SYNCED,
-                        updatedBy = childNetwork.updatedBy ?: user.userName,
-                        updatedDate = System.currentTimeMillis()
-                    )
-                    upsertInfantReg(merged)
-                    savedCount++
-                }
-                Timber.d("Child getAll downsync completed, saved=$savedCount received=${dataArray.length()}")
-                return true
-            }
-            5000 -> {
-                Timber.d("No child records found on server")
-                return true
-            }
-            401, 5002 -> {
-                if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                    throw SocketTimeoutException("Token refreshed. Retrying child getAll")
-                }
-            }
-            else -> return false
-        }
-        return false
     }
 
     private fun InfantRegCache.toApiPost(motherBenId: Long, childBenId: Long): InfantRegApiPost {
@@ -511,6 +434,23 @@ class InfantRegRepo @Inject constructor(
         }
     }
 
+    private fun InfantRegWithPatient.toInfantRegDomain(): InfantRegDomain {
+        val fallbackDelivery = DeliveryOutcomeCache(
+            patientID = motherPatient.patientID,
+            isActive = true,
+            dateOfDelivery = infant.createdDate,
+            createdBy = infant.createdBy,
+            updatedBy = infant.updatedBy,
+            syncState = infant.syncState
+        )
+        return InfantRegDomain(
+            motherPatient = motherPatient,
+            babyIndex = infant.babyIndex,
+            deliveryOutcome = fallbackDelivery,
+            savedIr = infant
+        )
+    }
+
     private fun InfantRegApiPost.toCacheModel(
         motherPatientID: String,
         childPatientID: String?
@@ -555,9 +495,9 @@ class InfantRegRepo @Inject constructor(
             reasonForNoVitaminK = reasonForNoVitaminK,
             birthCertificateIssued = birthCertificateIssued,
             processed = "P",
-            createdBy = createdBy,
+            createdBy = createdBy ?: "system",
             createdDate = org.piramalswasthya.cho.network.getLongFromDate(createdDate),
-            updatedBy = updatedBy,
+            updatedBy = updatedBy ?: (createdBy ?: "system"),
             updatedDate = org.piramalswasthya.cho.network.getLongFromDate(updatedDate),
             syncState = SyncState.SYNCED
         )

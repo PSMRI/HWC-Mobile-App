@@ -133,65 +133,63 @@ interface MaternalHealthDao {
     fun getPWRCount(): Flow<Int>
 
     /**
-     * Get patientIDs of women eligible for Delivery Outcome list.
-     * Includes:
-     * 1) ANC-delivered women (visit >= 3 with pregnantWomanDelivered = true)
-     * 2) Women already present in DELIVERY_OUTCOME (from downsync)
+     * Get patientIDs for Delivery Outcome list from ANC (isDelivered=true) + DELIVERY_OUTCOME.
      */
     @Query("""
-        SELECT x.patientID
+        SELECT src.patientID
         FROM (
-            SELECT anc.patientID AS patientID,
-                   COALESCE(anc.updatedDate, anc.createdDate, 0) AS sortDate
-            FROM PREGNANCY_ANC anc
-            INNER JOIN PATIENT p ON anc.patientID = p.patientID
-            WHERE anc.isActive = 1
-              AND anc.pregnantWomanDelivered = 1
-              AND anc.visitNumber >= 3
-              AND p.genderID = 2
-              AND p.age BETWEEN 15 AND 49
-
+            SELECT patientID, MAX(updatedDate) AS lastUpdated
+            FROM PREGNANCY_ANC
+            WHERE isActive = 1
+              AND pregnantWomanDelivered = 1
+            GROUP BY patientID
             UNION ALL
-
-            SELECT do.patientID AS patientID,
-                   COALESCE(do.updatedDate, do.createdDate, 0) AS sortDate
-            FROM DELIVERY_OUTCOME do
-            INNER JOIN PATIENT p ON do.patientID = p.patientID
-            WHERE do.isActive = 1
-              AND p.genderID = 2
-              AND p.age BETWEEN 15 AND 49
-        ) x
-        GROUP BY x.patientID
-        ORDER BY MAX(x.sortDate) DESC
+            SELECT patientID, MAX(updatedDate) AS lastUpdated
+            FROM DELIVERY_OUTCOME
+            WHERE isActive = 1
+            GROUP BY patientID
+        ) src
+        INNER JOIN PATIENT p ON src.patientID = p.patientID
+        WHERE p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+        GROUP BY src.patientID
+        ORDER BY MAX(src.lastUpdated) DESC
     """)
     fun getDeliveredWomenPatientIDs(): Flow<List<String>>
 
     /**
-     * Get count of delivered women eligible for Delivery Outcome list.
+     * Get count of delivered women from ANC (isDelivered=true) + DELIVERY_OUTCOME.
      */
     @Query("""
-        SELECT COUNT(DISTINCT x.patientID)
+        SELECT COUNT(DISTINCT src.patientID)
         FROM (
-            SELECT anc.patientID AS patientID
-            FROM PREGNANCY_ANC anc
-            INNER JOIN PATIENT p ON anc.patientID = p.patientID
-            WHERE anc.isActive = 1
-              AND anc.pregnantWomanDelivered = 1
-              AND anc.visitNumber >= 3
-              AND p.genderID = 2
-              AND p.age BETWEEN 15 AND 49
-
-            UNION ALL
-
-            SELECT do.patientID AS patientID
-            FROM DELIVERY_OUTCOME do
-            INNER JOIN PATIENT p ON do.patientID = p.patientID
-            WHERE do.isActive = 1
-              AND p.genderID = 2
-              AND p.age BETWEEN 15 AND 49
-        ) x
+            SELECT patientID
+            FROM PREGNANCY_ANC
+            WHERE isActive = 1
+              AND pregnantWomanDelivered = 1
+            UNION
+            SELECT patientID
+            FROM DELIVERY_OUTCOME
+            WHERE isActive = 1
+        ) src
+        INNER JOIN PATIENT p ON src.patientID = p.patientID
+        WHERE p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
     """)
     fun getDeliveredWomenCount(): Flow<Int>
+
+    /**
+     * Get count of women with saved delivery outcome only (for neonatal outcome module).
+     */
+    @Query("""
+        SELECT COUNT(DISTINCT do.patientID)
+        FROM DELIVERY_OUTCOME do
+        INNER JOIN PATIENT p ON do.patientID = p.patientID
+        WHERE do.isActive = 1
+          AND p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+    """)
+    fun getSavedDeliveryOutcomeWomenCount(): Flow<Int>
 
     /**
      * Get patient with PWR by patientID
@@ -211,7 +209,6 @@ interface MaternalHealthDao {
         WHERE p.patientID IN (:patientIDs)
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
-        AND (pwr.patientID IS NULL OR pwr.active = 1)
         ORDER BY p.registrationDate DESC
     """)
     suspend fun getDeliveredWomenByIDs(patientIDs: List<String>): List<PatientWithPwrCache>

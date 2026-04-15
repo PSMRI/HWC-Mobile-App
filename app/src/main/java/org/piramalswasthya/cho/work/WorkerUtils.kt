@@ -58,6 +58,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullPncWorker = OneTimeWorkRequestBuilder<PullPncFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val pullInfantRegisterWorker = OneTimeWorkRequestBuilder<PullInfantRegisterWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
@@ -72,6 +76,7 @@ object WorkerUtils {
             .then(pullPregnantWomenWorker)
             .then(pullAncVisitsWorker)
             .then(pullDeliveryOutcomeWorker)
+            .then(pullPncWorker)
             .then(pullInfantRegisterWorker)
             .enqueue()
     }
@@ -157,6 +162,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullPncWorker = OneTimeWorkRequestBuilder<PullPncFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val pullInfantRegisterWorker = OneTimeWorkRequestBuilder<PullInfantRegisterWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
@@ -178,6 +187,7 @@ object WorkerUtils {
             .then(pullPregnantWomenWorker)
             .then(pullAncVisitsWorker)
             .then(pullDeliveryOutcomeWorker)
+            .then(pullPncWorker)
             .then(pullInfantRegisterWorker)
 //           .then(pushLabDataToAmrit)
             .enqueue()
@@ -232,6 +242,26 @@ object WorkerUtils {
     }
 
     /**
+     * Targeted ANC sync after ANC form submission.
+     * Pushes local ANC updates (saveAll) and refreshes ANC list from server (getAll).
+     */
+    fun triggerAncVisitSync(context: Context) {
+        val pushAncToAmritWorker = OneTimeWorkRequestBuilder<PushAncToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullAncVisitsWorker = OneTimeWorkRequestBuilder<PullAncVisitsWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        Timber.d("Enqueuing targeted ANC sync worker")
+        workManager
+            .beginUniqueWork("anc-visit-sync", ExistingWorkPolicy.REPLACE, pushAncToAmritWorker)
+            .then(pullAncVisitsWorker)
+            .enqueue()
+    }
+
+    /**
      * Targeted Delivery Outcome sync after form submission.
      * Pushes local Delivery Outcome record and refreshes server Delivery Outcome list.
      */
@@ -268,6 +298,22 @@ object WorkerUtils {
         workManager
             .beginUniqueWork("infant-registration-sync", ExistingWorkPolicy.REPLACE, pushInfantRegisterWorkRequest)
             .then(pullInfantRegisterWorker)
+            .enqueue()
+    }
+
+    fun triggerPncSync(context: Context) {
+        val pushPncWorker = OneTimeWorkRequestBuilder<PushPNCToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullPncWorker = OneTimeWorkRequestBuilder<PullPncFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        Timber.d("Enqueuing targeted PNC sync worker")
+        workManager
+            .beginUniqueWork("pnc-sync", ExistingWorkPolicy.REPLACE, pushPncWorker)
+            .then(pullPncWorker)
             .enqueue()
     }
 

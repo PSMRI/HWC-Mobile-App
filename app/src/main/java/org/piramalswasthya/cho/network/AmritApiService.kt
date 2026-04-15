@@ -137,8 +137,11 @@ interface AmritApiService {
     @POST("/hwc-api/maternal/ancVisit/saveAll")
     suspend fun postAncForm(@Body ancPostList: List<ANCPost>): Response<ResponseBody>
 
-    @POST("/flw-api/maternalCare/pnc/saveAll")
+    @POST("/hwc-api/pnc/saveAll")
     suspend fun postPncForm(@Body ancPostList: List<PNCNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/pnc/getAll")
+    suspend fun getAllPncVisits(@Body request: Any): Response<ResponseBody>
 
     @POST("/hwc-api/maternal/pregnantWoman/saveAll")
     suspend fun postPregnantWomanForm(@Body pwrPostList: List<PwrPost>): Response<ResponseBody>

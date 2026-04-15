@@ -239,6 +239,7 @@ class MaternalHealthRepo @Inject constructor(
     suspend fun processNewAncVisit(): Boolean {
         return withContext(Dispatchers.IO) {
             val ancList = maternalHealthDao.getAllUnprocessedAncVisits()
+            Timber.d("ANC upload queue size: ${ancList.size}")
             if (ancList.isEmpty()) {
                 Timber.d("No unsynced ANC records found for upload")
                 return@withContext true
@@ -270,6 +271,7 @@ class MaternalHealthRepo @Inject constructor(
                     }
                     maternalHealthDao.updateANC(it)
                 } else {
+                    Timber.w("Skipping ANC upload for patient ${it.patientID}: beneficiaryID is null")
                     hasFailures = true
                 }
             }

@@ -15,6 +15,8 @@ import org.piramalswasthya.cho.configuration.DeliveryOutcomeDataset
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
+import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -91,17 +93,18 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                 val userName = user?.userName ?: ""
                 val saved = withContext(Dispatchers.IO) { deliveryOutcomeRepo.getDeliveryOutcome(patientID) }
                 val lastAnc = withContext(Dispatchers.IO) { maternalHealthRepo.getLastAnc(patientID) }
-
-                // Get PWR for LMP/EDD calculations
-                val pwr = withContext(Dispatchers.IO) {
-                    maternalHealthRepo.getSavedRegistrationRecord(patientID)
-                        ?: throw IllegalStateException("No pregnancy registration found for patient: $patientID")
-                }
-
                 patientRepo.getPatientDisplay(patientID)?.let { ben ->
                     val patientName = "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
                     val patientAge = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
                     val caseId = ben.patient.patientID
+                    val pwr = withContext(Dispatchers.IO) {
+                        maternalHealthRepo.getSavedRegistrationRecord(patientID)
+                    } ?: createFallbackPwr(
+                        patient = ben.patient,
+                        saved = saved,
+                        userName = userName,
+                        lmpFromAnc = lastAnc?.lmpDate
+                    )
 
                     _benName.value = patientName
                     _benAgeGender.value = patientAge
@@ -250,10 +253,34 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
         _state.value = State.IDLE
     }
 
+    private fun createFallbackPwr(
+        patient: Patient,
+        saved: DeliveryOutcomeCache?,
+        userName: String,
+        lmpFromAnc: Long?
+    ): PregnantWomanRegistrationCache {
+        val fallbackLmp = when {
+            (lmpFromAnc ?: 0L) > 0L -> lmpFromAnc!!
+            (saved?.dateOfDelivery ?: 0L) > 0L -> saved!!.dateOfDelivery!!
+            patient.registrationDate?.time != null -> patient.registrationDate!!.time
+            else -> System.currentTimeMillis()
+        }
+        return PregnantWomanRegistrationCache(
+            patientID = patient.patientID,
+            dateOfRegistration = patient.registrationDate?.time ?: fallbackLmp,
+            lmpDate = fallbackLmp,
+            active = true,
+            createdBy = if (userName.isBlank()) "system" else userName,
+            updatedBy = if (userName.isBlank()) "system" else userName,
+            syncState = SyncState.SYNCED
+        )
+    }
+
     private suspend fun updatePatientStatusToPostNatal() {
         try {
             val patient = patientDao.getPatient(patientID)
             patient.statusOfWomanID = STATUS_POST_NATAL_MOTHER
+            patient.syncState = SyncState.UNSYNCED
             patientDao.updatePatient(patient)
             Timber.d("Patient status updated to Post Natal Mother for patientID: $patientID")
         } catch (e: Exception) {

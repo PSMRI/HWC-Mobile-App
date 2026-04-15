@@ -337,9 +337,9 @@ data class InfantRegApiPost(
     val reasonForNoVitaminK: String? = null,
     val birthCertificateIssued: String? = null,
     val createdDate: String? = null,
-    val createdBy: String,
+    val createdBy: String? = null,
     val updatedDate: String? = null,
-    val updatedBy: String
+    val updatedBy: String? = null
 )
 
 /**
