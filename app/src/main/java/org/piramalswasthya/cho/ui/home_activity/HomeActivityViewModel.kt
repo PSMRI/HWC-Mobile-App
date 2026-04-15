@@ -137,32 +137,39 @@ class HomeActivityViewModel @Inject constructor (application: Application,
 
     fun logout(myLocation:Location?,logoutType: String) {
         viewModelScope.launch {
-            val user = userDao.getLoggedInUser()
-            val lat = myLocation?.latitude
-            val long = myLocation?.longitude
-            val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
-            val timeZone = TimeZone.getTimeZone("GMT+0530")
-            val formatter = SimpleDateFormat(pattern, Locale.getDefault())
-            formatter.timeZone = timeZone
+            withContext(Dispatchers.IO) {
+                val user = userDao.getLoggedInUser()
+                val lat = myLocation?.latitude
+                val long = myLocation?.longitude
+                val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
+                val timeZone = TimeZone.getTimeZone("GMT+0530")
+                val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+                formatter.timeZone = timeZone
 
-            val logoutTimestamp = formatter.format(Date())
+                val logoutTimestamp = formatter.format(Date())
 
-            val selectedOutreachProgram = SelectedOutreachProgram(0,
-                user?.userId,
-                user?.userName,
-                null,
-                null,
-                logoutTimestamp,
-                null,
-                lat,
-                long,
-                logoutType,
-            null)
-            userDao.insertOutreachProgram(selectedOutreachProgram)
-            userDao.resetAllUsersLoggedInState()
-            if (user != null) {
-                userDao.updateLogoutTime(user.userId,Date())
+                val selectedOutreachProgram = SelectedOutreachProgram(0,
+                    user?.userId,
+                    user?.userName,
+                    null,
+                    null,
+                    logoutTimestamp,
+                    null,
+                    lat,
+                    long,
+                    logoutType,
+                null)
+                userDao.insertOutreachProgram(selectedOutreachProgram)
+                userDao.resetAllUsersLoggedInState()
+                if (user != null) {
+                    userDao.updateLogoutTime(user.userId,Date())
+                }
+
+                // Reset all local persisted records so next login starts clean.
+                database.clearAllTables()
+                dataLoadFlagManager.setDataLoaded(false)
             }
+            pref.clearSyncTimestamps()
             pref.deleteEsanjeevaniCreds()
             _navigateToLoginPage.value = true
         }
