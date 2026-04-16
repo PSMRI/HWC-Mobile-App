@@ -827,6 +827,9 @@ data class ANCPost(
 //    val nextAncVisitDate: String? = null
 ) {
     fun toAncCache(): PregnantWomanAncCache {
+        val resolvedAbortionType = abortionType ?: methodOfTermination
+        val resolvedAbortionFacility = abortionFacility ?: terminationDoneBy
+
         return PregnantWomanAncCache(
             id = id,
             patientID = "",
@@ -840,14 +843,14 @@ data class ANCPost(
                 else -> -1
             },
             isAborted = isAborted,
-            abortionType = abortionType ?: methodOfTermination,
-            abortionTypeId = when(abortionType) {
+            abortionType = resolvedAbortionType,
+            abortionTypeId = when(resolvedAbortionType) {
                 "Induced" -> 0
                 "Spontaneous" -> 1
                 else -> methodOfTerminationId ?: -1
             }.let { if (it < 0) 0 else it },
-            abortionFacility = abortionFacility ?: terminationDoneBy,
-            abortionFacilityId = when(abortionFacility) {
+            abortionFacility = resolvedAbortionFacility,
+            abortionFacilityId = when(resolvedAbortionFacility) {
                 "Govt. Hospital" -> 0
                 "Pvt. Hospital" -> 1
                 else -> terminationDoneById ?: -1

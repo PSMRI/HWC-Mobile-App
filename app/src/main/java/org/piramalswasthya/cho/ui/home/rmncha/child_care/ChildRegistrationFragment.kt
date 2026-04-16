@@ -142,7 +142,7 @@ class ChildRegistrationFragment : Fragment() {
                     syncState = SyncState.UNSYNCED
                 )
 
-                isViewOnlyMode = existing?.hasRegistrationData() == true
+                isViewOnlyMode = existing?.processed == "C"
                 applyScreenMode(isViewOnlyMode)
                 
                 dataset.setUpPage(mother, deliveryOutcome, babyIndex, currentInfantReg)

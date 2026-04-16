@@ -67,7 +67,6 @@ class InfantRegRepo @Inject constructor(
         return infantRegDao.getAllRegisteredInfants()
             .map { list ->
                 list
-                    .filter { it.infant.hasRegistrationData() }
                     .map { it.asDomainModel() }
             }
     }
@@ -152,8 +151,18 @@ class InfantRegRepo @Inject constructor(
             val infantRegList = infantRegDao.getAllUnprocessedInfantReg()
             if (infantRegList.isEmpty()) return@withContext true
 
+            val deduplicatedInfantRegs = infantRegList
+                .groupBy { it.motherPatientID to it.babyIndex }
+                .map { (_, records) ->
+                    records.maxWithOrNull(
+                        compareBy<InfantRegCache> { it.updatedDate }
+                            .thenBy { it.createdDate }
+                            .thenBy { it.id }
+                    ) ?: records.first()
+                }
+
             var hasFailures = false
-            infantRegList.forEach { infantReg ->
+            deduplicatedInfantRegs.forEach { infantReg ->
                 val motherPatient = getPatientOrNull(infantReg.motherPatientID)
                 val motherBenId = motherPatient?.beneficiaryID
 
@@ -166,8 +175,6 @@ class InfantRegRepo @Inject constructor(
                 val childBenId = infantReg.childPatientID
                     ?.let { getPatientOrNull(it)?.beneficiaryID }
                     ?: 0L
-                val childGenderID = infantReg.childPatientID
-                    ?.let { getPatientOrNull(it)?.genderID }
 
                 val payload = infantReg.toApiPost(
                     motherBenId = motherBenId,
@@ -177,17 +184,7 @@ class InfantRegRepo @Inject constructor(
                 infantReg.syncState = SyncState.SYNCING
                 infantRegDao.updateInfantReg(infantReg)
 
-                val infantUploadDone = postDataToAmritServer(listOf(payload))
-                val childUploadDone = if (infantUploadDone && childBenId > 0L) {
-                    val childPayload = infantReg.toChildApiPost(
-                        childBenId = childBenId,
-                        childGenderID = childGenderID
-                    )
-                    postChildDataToAmritServer(listOf(childPayload))
-                } else {
-                    true
-                }
-                val uploadDone = infantUploadDone && childUploadDone
+                val uploadDone = postDataToAmritServer(listOf(payload))
                 if (uploadDone) {
                     infantReg.processed = "P"
                     infantReg.syncState = SyncState.SYNCED
@@ -199,6 +196,42 @@ class InfantRegRepo @Inject constructor(
             }
 
             return@withContext !hasFailures
+        }
+    }
+
+    suspend fun syncChildRegistration(infantReg: InfantRegCache): Boolean {
+        return withContext(Dispatchers.IO) {
+            val motherPatient = getPatientOrNull(infantReg.motherPatientID)
+            val motherBenId = motherPatient?.beneficiaryID
+            if (motherBenId == null || motherBenId <= 0L) {
+                Timber.w("Skipping child registration sync ${infantReg.id}: mother beneficiary ID missing")
+                return@withContext false
+            }
+
+            val childBenId = infantReg.childPatientID
+                ?.let { getPatientOrNull(it)?.beneficiaryID }
+                ?.takeIf { it > 0L }
+                ?: motherBenId
+
+            val childGenderID = infantReg.childPatientID
+                ?.let { getPatientOrNull(it)?.genderID }
+                ?: infantReg.genderID
+
+            val childPayload = infantReg.toChildApiPost(
+                childBenId = childBenId,
+                childGenderID = childGenderID
+            )
+            val syncDone = postChildDataToAmritServer(listOf(childPayload))
+            if (syncDone) {
+                val now = System.currentTimeMillis()
+                val updated = infantReg.copy(
+                    processed = "C",
+                    syncState = SyncState.SYNCED,
+                    updatedDate = now
+                )
+                upsertInfantReg(updated)
+            }
+            syncDone
         }
     }
 
@@ -426,6 +459,126 @@ class InfantRegRepo @Inject constructor(
         }
     }
 
+    suspend fun pullChildrenFromServer(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val user = userRepo.getLoggedInUser()
+                ?: throw IllegalStateException("No user logged in!!")
+            try {
+                val villageList = VillageIdList(
+                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    preferenceDao.getLastPatientSyncTime()
+                )
+                val response = amritApiService.getAllChildren(villageList)
+                if (response.code() != 200) {
+                    Timber.w("Bad response from server for Child getAll: $response")
+                    return@withContext false
+                }
+
+                val responseString = response.body()?.string()
+                if (responseString.isNullOrBlank()) {
+                    Timber.w("Empty response body for Child getAll")
+                    return@withContext false
+                }
+
+                val jsonObj = JSONObject(responseString)
+                val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                val errorMessage = jsonObj.optString("errorMessage")
+                when (responseStatusCode) {
+                    200 -> {
+                        val dataArray = extractInfantDataArray(jsonObj)
+                        val gson = Gson()
+                        var savedCount = 0
+                        var skippedNoMotherCount = 0
+                        var skippedInvalidPayloadCount = 0
+                        var failedSaveCount = 0
+
+                        for (i in 0 until dataArray.length()) {
+                            try {
+                                val rawObj = extractInfantItemObject(dataArray, i)
+                                if (rawObj == null) {
+                                    skippedInvalidPayloadCount++
+                                    continue
+                                }
+                                val normalizedObj = normalizeChildPayload(rawObj)
+                                val networkModel = gson.fromJson(
+                                    normalizedObj.toString(),
+                                    ChildApiPost::class.java
+                                )
+                                if (networkModel.benId <= 0L) {
+                                    skippedInvalidPayloadCount++
+                                    continue
+                                }
+
+                                val mother = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
+                                    ?: ensureMotherPlaceholderForInfant(networkModel.benId)
+                                if (mother == null) {
+                                    skippedNoMotherCount++
+                                    continue
+                                }
+
+                                val existingRegs = infantRegDao.getAllInfantRegs(setOf(mother.patientID))
+                                    .filter { it.isActive }
+                                    .sortedWith(
+                                        compareBy<InfantRegCache> { it.babyIndex }
+                                            .thenByDescending { it.updatedDate }
+                                    )
+                                val resolvedExisting = resolveChildRecord(existingRegs, networkModel)
+                                val resolvedBabyIndex = resolvedExisting?.babyIndex
+                                    ?: existingRegs.firstOrNull { !it.hasRegistrationData() }?.babyIndex
+                                    ?: existingRegs.size
+
+                                val merged = mergeChildDownsync(
+                                    existing = resolvedExisting,
+                                    motherPatientID = mother.patientID,
+                                    child = networkModel,
+                                    babyIndex = resolvedBabyIndex,
+                                    userName = user.userName
+                                )
+
+                                upsertInfantReg(merged)
+                                savedCount++
+                            } catch (e: Exception) {
+                                failedSaveCount++
+                                Timber.w(e, "Failed saving child payload index=$i")
+                            }
+                        }
+
+                        Timber.d(
+                            "Child getAll downsync completed, saved=$savedCount " +
+                                "skippedNoMother=$skippedNoMotherCount " +
+                                "skippedInvalidPayload=$skippedInvalidPayloadCount failedSave=$failedSaveCount " +
+                                "received=${dataArray.length()}"
+                        )
+                        return@withContext true
+                    }
+                    5000 -> {
+                        Timber.d("No child records found on server")
+                        return@withContext true
+                    }
+                    401, 5002 -> {
+                        if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            throw SocketTimeoutException("Token refreshed. Retrying child getAll")
+                        }
+                    }
+                    else -> {
+                        Timber.w("Child getAll failed: $errorMessage")
+                        return@withContext false
+                    }
+                }
+                return@withContext false
+            } catch (e: SocketTimeoutException) {
+                Timber.d("Retrying child getAll after token refresh")
+                return@withContext pullChildrenFromServer()
+            } catch (e: JSONException) {
+                Timber.e(e, "Child getAll parse failed")
+                return@withContext false
+            } catch (e: Exception) {
+                Timber.e(e, "Child getAll failed")
+                return@withContext false
+            }
+        }
+    }
+
     private fun InfantRegCache.toApiPost(motherBenId: Long, childBenId: Long): InfantRegApiPost {
         return InfantRegApiPost(
             id = id,
@@ -633,6 +786,84 @@ class InfantRegRepo @Inject constructor(
         }
 
         return target
+    }
+
+    private fun normalizeChildPayload(source: JSONObject): JSONObject {
+        val target = JSONObject(source.toString())
+        if (!target.has("benId") || target.optLong("benId", 0L) <= 0L) {
+            firstPositiveLong(
+                source,
+                "beneficiaryID", "beneficiaryId", "beneficiaryid", "benID", "benid",
+                "motherBenId", "motherBeneficiaryID", "motherBeneficiaryId"
+            )?.let { target.put("benId", it) }
+        }
+        return target
+    }
+
+    private fun resolveChildRecord(
+        existingRegs: List<InfantRegCache>,
+        child: ChildApiPost
+    ): InfantRegCache? {
+        existingRegs.firstOrNull { child.id > 0L && it.id == child.id }?.let { return it }
+        existingRegs.firstOrNull {
+            val localName = it.babyName?.trim().orEmpty()
+            val serverName = child.babyName?.trim().orEmpty()
+            localName.isNotBlank() && serverName.isNotBlank() && localName.equals(serverName, ignoreCase = true)
+        }?.let { return it }
+        return existingRegs.firstOrNull { !it.hasRegistrationData() }
+    }
+
+    private fun mergeChildDownsync(
+        existing: InfantRegCache?,
+        motherPatientID: String,
+        child: ChildApiPost,
+        babyIndex: Int,
+        userName: String
+    ): InfantRegCache {
+        val now = System.currentTimeMillis()
+        val incoming = InfantRegCache(
+            id = child.id,
+            childPatientID = existing?.childPatientID,
+            motherPatientID = motherPatientID,
+            isActive = true,
+            babyName = child.babyName ?: existing?.babyName,
+            babyIndex = babyIndex,
+            infantTerm = child.infantTerm ?: existing?.infantTerm,
+            corticosteroidGiven = child.corticosteroidGiven ?: existing?.corticosteroidGiven,
+            genderID = when (child.gender?.trim()?.lowercase(Locale.ENGLISH)) {
+                "male" -> 1
+                "female" -> 2
+                "transgender" -> 3
+                else -> existing?.genderID
+            },
+            babyCriedAtBirth = child.babyCriedAtBirth ?: existing?.babyCriedAtBirth,
+            resuscitation = child.resuscitation ?: existing?.resuscitation,
+            referred = child.referred ?: existing?.referred,
+            hadBirthDefect = child.hadBirthDefect ?: existing?.hadBirthDefect,
+            birthDefect = child.birthDefect ?: existing?.birthDefect,
+            otherDefect = child.otherDefect ?: existing?.otherDefect,
+            weight = child.weight.takeIf { it != 0.0 } ?: existing?.weight,
+            breastFeedingStarted = child.breastFeedingStarted ?: existing?.breastFeedingStarted,
+            opv0Dose = org.piramalswasthya.cho.network.getLongFromDate(child.opv0Dose) ?: existing?.opv0Dose,
+            bcgDose = org.piramalswasthya.cho.network.getLongFromDate(child.bcgDose) ?: existing?.bcgDose,
+            hepBDose = org.piramalswasthya.cho.network.getLongFromDate(child.hepBDose) ?: existing?.hepBDose,
+            vitkDose = org.piramalswasthya.cho.network.getLongFromDate(child.vitkDose) ?: existing?.vitkDose,
+            processed = "C",
+            createdBy = child.createdBy ?: existing?.createdBy ?: userName,
+            createdDate = org.piramalswasthya.cho.network.getLongFromDate(child.createdDate)
+                ?: existing?.createdDate
+                ?: now,
+            updatedBy = child.updatedBy ?: existing?.updatedBy ?: userName,
+            updatedDate = org.piramalswasthya.cho.network.getLongFromDate(child.updatedDate)
+                ?: now,
+            syncState = SyncState.SYNCED
+        )
+
+        return if (existing != null) {
+            incoming.copy(id = existing.id)
+        } else {
+            incoming.copy(id = 0)
+        }
     }
 
     private fun firstPositiveLong(source: JSONObject, vararg keys: String): Long? {

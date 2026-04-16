@@ -484,5 +484,5 @@ data class ChildRegDomain(
     /**
      * Check if child patient is registered
      */
-    fun isChildRegistered(): Boolean = childPatient != null
+    fun isChildRegistered(): Boolean = infant.processed == "C" || childPatient != null
 }

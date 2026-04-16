@@ -27,7 +27,9 @@ class PullInfantRegisterWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
         return try {
-            val workerResult = infantRegRepo.pullInfantsFromServer()
+            val infantResult = infantRegRepo.pullInfantsFromServer()
+            val childResult = infantRegRepo.pullChildrenFromServer()
+            val workerResult = infantResult && childResult
             if (workerResult) {
                 Timber.d("PullInfantRegisterWorker completed")
                 Result.success()

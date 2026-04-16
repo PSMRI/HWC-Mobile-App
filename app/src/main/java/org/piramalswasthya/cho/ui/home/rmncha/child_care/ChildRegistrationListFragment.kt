@@ -76,7 +76,14 @@ class ChildRegistrationListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupSearch()
+        syncChildListFromServer()
         observeChildren()
+    }
+
+    private fun syncChildListFromServer() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            runCatching { infantRegRepo.pullChildrenFromServer() }
+        }
     }
 
     private fun setupRecyclerView() {

@@ -25,10 +25,8 @@ import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.InfantRegRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
-import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
-import java.util.Date
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -118,7 +116,11 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
             try {
                 binding.progressBar.visibility = View.VISIBLE
 
-                val mother = patientRepo.getPatient(motherId)
+                val mother = getPatientOrNull(motherId)
+                if (mother == null) {
+                    showError("Mother record not found")
+                    return@launch
+                }
                 val delivery = deliveryOutcomeRepo.getDeliveryOutcome(motherId)
                 val infantReg = infantRegRepo.getInfantReg(motherId, babyIndex)
 
@@ -133,7 +135,7 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
 
                 val childPatientID = childPatientIDArg ?: infantReg.childPatientID
                 val existingChild = childPatientID?.let { getPatientOrNull(it) }
-                isViewOnlyMode = existingChild != null
+                isViewOnlyMode = (existingChild != null) || infantReg.processed == "C"
 
                 motherPatient = mother
                 deliveryOutcome = delivery
@@ -196,8 +198,8 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
             return
         }
 
-        val mother = motherPatient ?: return
-        val delivery = deliveryOutcome ?: return
+        motherPatient ?: return
+        deliveryOutcome ?: return
         val infantReg = currentInfantReg ?: return
 
         lifecycleScope.launch {
@@ -208,68 +210,24 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
 
                 val now = System.currentTimeMillis()
                 val userName = userRepo.getLoggedInUser()?.userName.orEmpty()
-
-                val childDob = dataset.getDobMillis()?.let { Date(it) }
-                    ?: delivery.dateOfDelivery?.let { Date(it) }
-                    ?: Date(now)
-                val childGenderId = dataset.getGenderID() ?: infantReg.genderID ?: existingChildPatient?.genderID
-                val childVillageId = mother.districtBranchID ?: existingChildPatient?.districtBranchID
-
-                if (childGenderId == null || childVillageId == null) {
-                    showError("Child details are incomplete (sex/village). Please complete and save again.")
-                    return@launch
-                }
-
-                val childRecord = (existingChildPatient ?: Patient(
-                    patientID = generateUuid(),
-                    registrationDate = Date(now),
-                    syncState = SyncState.UNSYNCED
-                )).copy(
-                    firstName = dataset.getChildFirstName(),
-                    lastName = dataset.getChildLastName(),
-                    dob = childDob,
-                    age = null,
-                    ageUnitID = null,
-                    maritalStatusID = existingChildPatient?.maritalStatusID,
-                    spouseName = null,
-                    ageAtMarriage = null,
-                    phoneNo = mother.phoneNo ?: existingChildPatient?.phoneNo,
-                    genderID = childGenderId,
-                    registrationDate = existingChildPatient?.registrationDate ?: Date(now),
-                    stateID = mother.stateID ?: existingChildPatient?.stateID,
-                    districtID = mother.districtID ?: existingChildPatient?.districtID,
-                    blockID = mother.blockID ?: existingChildPatient?.blockID,
-                    districtBranchID = childVillageId,
-                    communityID = mother.communityID ?: existingChildPatient?.communityID,
-                    religionID = mother.religionID ?: existingChildPatient?.religionID,
-                    parentName = dataset.getFatherName() ?: mother.spouseName ?: mother.parentName,
-                    syncState = SyncState.UNSYNCED,
-                    beneficiaryID = existingChildPatient?.beneficiaryID,
-                    beneficiaryRegID = existingChildPatient?.beneficiaryRegID,
-                    benImage = existingChildPatient?.benImage,
-                    statusOfWomanID = existingChildPatient?.statusOfWomanID,
-                    isNewAbha = existingChildPatient?.isNewAbha ?: false,
-                    healthIdDetails = existingChildPatient?.healthIdDetails,
-                    faceEmbedding = existingChildPatient?.faceEmbedding
-                )
-
-                if (existingChildPatient == null) {
-                    patientRepo.insertPatient(childRecord)
-                } else {
-                    patientRepo.updateRecord(childRecord)
-                }
+                val childGenderId = dataset.getGenderID() ?: infantReg.genderID
 
                 val updatedInfant = infantReg.copy(
-                    childPatientID = childRecord.patientID,
-                    babyName = dataset.getChildFullName(),
+                    childPatientID = infantReg.childPatientID,
+                    babyName = dataset.getChildFullName().ifBlank { infantReg.babyName },
+                    genderID = childGenderId,
                     updatedBy = userName,
                     updatedDate = now,
                     syncState = SyncState.UNSYNCED,
                     processed = if (infantReg.processed == "N") "N" else "U"
                 )
                 infantRegRepo.upsertInfantReg(updatedInfant)
+                val childSyncDone = infantRegRepo.syncChildRegistration(updatedInfant)
+                if (!childSyncDone) {
+                    Timber.w("Child saveAll failed for motherPatientID=${updatedInfant.motherPatientID}, babyIndex=${updatedInfant.babyIndex}")
+                }
                 if (isAdded) {
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    WorkerUtils.triggerInfantRegistrationSync(requireContext())
                 }
 
                 if (isAdded) {
