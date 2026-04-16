@@ -1,13 +1,14 @@
 package org.piramalswasthya.cho.configuration
 
 import android.content.Context
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.EarDiagnosisAssessment
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 
 class EarDiagnosisDataset(
-    context: Context,
+    private val context: Context,
     currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
 
@@ -15,12 +16,14 @@ class EarDiagnosisDataset(
 
     var onShowAlert: ((String) -> Unit)? = null
 
+    private val optionYes = context.getString(R.string.yes_option)
+    private val optionNo = context.getString(R.string.no_option)
 
     private val difficultyHearing = FormElement(
         id = 1,
         inputType = InputType.RADIO,
-        title = "Difficulty Hearing",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.ear_difficulty_hearing),
+        entries = arrayOf(optionYes, optionNo),
         required = true,
         hasDependants = true
     )
@@ -28,16 +31,25 @@ class EarDiagnosisDataset(
     private val whisperTestResponse = FormElement(
         id = 2,
         inputType = InputType.DROPDOWN,
-        title = "Whisper Test Response",
-        entries = arrayOf("Correct", "Incorrect"),
+        title = context.getString(R.string.ear_whisper_test_response),
+        entries = arrayOf(
+            context.getString(R.string.ear_whisper_correct),
+            context.getString(R.string.ear_whisper_incorrect)
+        ),
         required = true
     )
 
     private val hearingTestOutcome = FormElement(
         id = 3,
         inputType = InputType.DROPDOWN,
-        title = "Hearing Test Outcome",
-        entries = arrayOf("Normal", "Slight Loss", "Moderate", "Severe", "Deaf"),
+        title = context.getString(R.string.ear_hearing_test_outcome),
+        entries = arrayOf(
+            context.getString(R.string.ear_hearing_normal),
+            context.getString(R.string.ear_hearing_slight_loss),
+            context.getString(R.string.ear_hearing_moderate),
+            context.getString(R.string.ear_hearing_severe),
+            context.getString(R.string.ear_hearing_deaf)
+        ),
         required = true,
         hasAlertError = true
     )
@@ -45,24 +57,27 @@ class EarDiagnosisDataset(
     private val earPain = FormElement(
         id = 4,
         inputType = InputType.RADIO,
-        title = "Earache / Ear Pain",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.ear_pain),
+        entries = arrayOf(optionYes, optionNo),
         required = false
     )
 
     private val earDischarge = FormElement(
         id = 5,
         inputType = InputType.RADIO,
-        title = "Ear Discharge Present",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.ear_discharge_present),
+        entries = arrayOf(optionYes, optionNo),
         required = false
     )
+
+    private val optionForeignBodySuperficial = context.getString(R.string.ear_foreign_body_superficial)
+    private val optionForeignBodyDeep = context.getString(R.string.ear_foreign_body_deep)
 
     private val foreignBody = FormElement(
         id = 6,
         inputType = InputType.DROPDOWN,
-        title = "Foreign Body Present in Ear",
-        entries = arrayOf("Yes (Superficial)", "Yes (Deep)", "No"),
+        title = context.getString(R.string.ear_foreign_body),
+        entries = arrayOf(optionForeignBodySuperficial, optionForeignBodyDeep, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -70,13 +85,13 @@ class EarDiagnosisDataset(
     private val earConditionType = FormElement(
         id = 7,
         inputType = InputType.CHECKBOXES,
-        title = "Type of Ear Condition",
+        title = context.getString(R.string.ear_condition_type),
         entries = arrayOf(
-            "Otomycosis",
-            "Otitis Externa",
-            "Acute Ear Discharge",
-            "Chronic Ear Discharge",
-            "Ear Wax"
+            context.getString(R.string.ear_otomycosis),
+            context.getString(R.string.ear_otitis_externa),
+            context.getString(R.string.ear_acute_discharge),
+            context.getString(R.string.ear_chronic_discharge),
+            context.getString(R.string.ear_wax)
         ),
         required = false
     )
@@ -84,8 +99,8 @@ class EarDiagnosisDataset(
     private val congenitalMalformation = FormElement(
         id = 8,
         inputType = InputType.RADIO,
-        title = "Congenital Ear Malformation",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.ear_congenital_malformation),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -99,7 +114,7 @@ class EarDiagnosisDataset(
         val list = mutableListOf<FormElement>()
         list.add(difficultyHearing)
 
-        if (difficultyHearing.value == "Yes") {
+        if (difficultyHearing.value == optionYes) {
             list.add(whisperTestResponse)
             list.add(hearingTestOutcome)
         }
@@ -141,25 +156,26 @@ class EarDiagnosisDataset(
             }
 
             hearingTestOutcome.id -> {
-                if (hearingTestOutcome.value != "Normal") {
+                val normalOption = context.getString(R.string.ear_hearing_normal)
+                if (hearingTestOutcome.value != normalOption) {
                     onShowAlert?.invoke(
-                        "Abnormal hearing detected. Refer patient to specialist at secondary level."
+                        context.getString(R.string.ear_alert_abnormal_hearing)
                     )
                 }
                 -1
             }
             foreignBody.id -> {
-                if (foreignBody.value == "Yes (Deep)") {
+                if (foreignBody.value == optionForeignBodyDeep) {
                     onShowAlert?.invoke(
-                        "Deep foreign body detected. Refer patient to specialist at secondary level."
+                        context.getString(R.string.ear_alert_deep_foreign_body)
                     )
                 }
                 -1
             }
             congenitalMalformation.id -> {
-                if (congenitalMalformation.value == "Yes") {
+                if (congenitalMalformation.value == optionYes) {
                     onShowAlert?.invoke(
-                        "Congenital ear malformation detected. Refer patient to specialist at secondary level."
+                        context.getString(R.string.ear_alert_congenital_malformation)
                     )
                 }
                 -1
@@ -177,22 +193,22 @@ class EarDiagnosisDataset(
 
     private fun populateFromCache(cache: EarDiagnosisAssessment) {
         difficultyHearing.value = when (cache.difficultyHearing) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
 
         whisperTestResponse.value = cache.whisperTestResponse
         hearingTestOutcome.value = cache.hearingTestOutcome
         earPain.value = when (cache.earPain) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
 
         earDischarge.value = when (cache.earDischargePresent) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
 
@@ -200,8 +216,8 @@ class EarDiagnosisDataset(
         earConditionType.value = cache.earConditionType
 
         congenitalMalformation.value = when (cache.congenitalEarMalformation) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
 
@@ -214,21 +230,21 @@ class EarDiagnosisDataset(
         (cacheModel as EarDiagnosisAssessment).let {
 
             it.difficultyHearing = when (difficultyHearing.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
 
             it.whisperTestResponse = whisperTestResponse.value
             it.hearingTestOutcome = hearingTestOutcome.value
             it.earPain = when (earPain.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
             it.earDischargePresent = when (earDischarge.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
 
@@ -236,8 +252,8 @@ class EarDiagnosisDataset(
             it.earConditionType = earConditionType.value
 
             it.congenitalEarMalformation = when (congenitalMalformation.value) {
-                "Yes" -> true
-                "No" -> false
+                optionYes -> true
+                optionNo -> false
                 else -> null
             }
 

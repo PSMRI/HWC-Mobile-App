@@ -598,6 +598,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
+                    app:backgroundTint="@color/default_button"
                     android:contentDescription="Edit"
                     android:onClick="@{() -> clickListener.onClickEdit(benVisitInfo)}"
                     android:visibility="gone"
@@ -605,7 +606,8 @@
                     app:fabSize="mini"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/cl_ben_sync"
-                    app:srcCompat="@drawable/ic_edit" />
+                    app:tint="@color/white"
+                    app:srcCompat="@drawable/ic_edit_white" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>

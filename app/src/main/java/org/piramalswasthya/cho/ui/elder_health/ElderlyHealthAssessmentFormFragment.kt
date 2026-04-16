@@ -41,7 +41,7 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
     override val cancelButton: View get() = binding.btnCancel
 
     override fun getFormTitle(): String = getString(R.string.title_elderly_health_assessment)
-    override fun getSaveSuccessMessage(): String = "Assessment Saved"
+    override fun getSaveSuccessMessage(): String = getString(R.string.elderly_health_assessment_saved)
     override fun getFormFlow(): Flow<List<FormElement>> = viewModel.formList
     override fun onUpdateFormValue(formId: Int, index: Int) =
         viewModel.updateListOnValueChanged(formId, index)
