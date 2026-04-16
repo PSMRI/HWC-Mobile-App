@@ -383,6 +383,17 @@ class UserRepo @Inject constructor(
                     val itemType = object : TypeToken<List<VillageLocationData>>() {}.type
                     var villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType)
                     villageLocationDataList = villageLocationDataList.toSet().toList()
+
+                    val stateIdInt = stateId.toIntOrNull()
+                    val districtIdInt = districtId.toIntOrNull()
+                    val blockIdInt = blockId.toIntOrNull()
+                    if (stateIdInt == null || districtIdInt == null || blockIdInt == null) {
+                        Timber.w(
+                            "Skipping location details update: invalid numeric IDs. " +
+                                "stateId=$stateId districtId=$districtId blockId=$blockId"
+                        )
+                        return@withContext
+                    }
     
                     val stateMaster = data.getJSONArray("stateMaster")
                     var stateMasterName : String = ""
@@ -394,28 +405,33 @@ class UserRepo @Inject constructor(
                         val lgdStateId = jsonObject.getString("govtLGDStateID")
                         if (id == stateId) {
                              stateMasterName = stateName
-                            govtLGDStateID = lgdStateId.toInt()
+                            govtLGDStateID = lgdStateId.toIntOrNull()
                         }
                     }
-                    if(stateMasterDao.getStateById(stateId.toInt()) == null ){
-                        stateMasterDao.insertStates(StateMaster(stateId.toInt(), stateMasterName, govtLGDStateID))
+                    if(stateMasterDao.getStateById(stateIdInt) == null ){
+                        stateMasterDao.insertStates(StateMaster(stateIdInt, stateMasterName, govtLGDStateID))
                     }
-                    if(districtMasterDao.getDistrictById(districtId.toInt()) == null){
-                        districtMasterDao.insertDistrict(DistrictMaster(districtId.toInt(),stateId.toInt(),govtLGDStateID,null, districtName))
+                    if(districtMasterDao.getDistrictById(districtIdInt) == null){
+                        districtMasterDao.insertDistrict(DistrictMaster(districtIdInt,stateIdInt,govtLGDStateID,null, districtName))
                     }
-                    if(blockMasterDao.getBlockById(blockId.toInt()) == null){
-                        blockMasterDao.insertBlock(BlockMaster(blockId.toInt(),districtId.toInt(),null,null, blockName))
+                    if(blockMasterDao.getBlockById(blockIdInt) == null){
+                        blockMasterDao.insertBlock(BlockMaster(blockIdInt,districtIdInt,null,null, blockName))
                     }
                     var villageIds = ""
                     for(element in villageLocationDataList) {
                         var id = element.districtBranchID
+                        val villageIdInt = id.toIntOrNull()
+                        if (villageIdInt == null) {
+                            Timber.w("Skipping village with invalid districtBranchID=$id")
+                            continue
+                        }
                         villageIds += "$id,"
                         var name = element.villageName
-                        if (villageMasterDao.getVillageById(id.toInt()) == null) {
+                        if (villageMasterDao.getVillageById(villageIdInt) == null) {
                             villageMasterDao.insertVillage(
                                 VillageMaster(
-                                    id.toInt(),
-                                    blockId.toInt(),
+                                    villageIdInt,
+                                    blockIdInt,
                                     null,
                                     null,
                                     name?:""
@@ -424,16 +440,16 @@ class UserRepo @Inject constructor(
                         }
                     }
     
-                    user!!.stateId = stateId.toInt()
-                    user!!.districtID = districtId.toInt()
-                    user!!.blockID = blockId.toInt()
+                    user!!.stateId = stateIdInt
+                    user!!.districtID = districtIdInt
+                    user!!.blockID = blockIdInt
     
                     if(villageIds.isNotEmpty()){
                         user!!.assignVillageIds = villageIds.substring(0, villageIds.length-1)
                     }
     
                     preferenceDao.saveUserLocationData(LocationData(
-                        stateId.toInt(), stateMasterName, districtId.toInt(),districtName, blockId.toInt(),blockName, villageLocationDataList))
+                        stateIdInt, stateMasterName, districtIdInt,districtName, blockIdInt,blockName, villageLocationDataList))
                 } catch (e: JSONException) {
                     Timber.e(e, "Error parsing location details from BE. Some Location data like stateID may be missing.")
                 }

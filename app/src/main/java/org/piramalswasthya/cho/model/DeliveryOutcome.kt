@@ -162,10 +162,10 @@ data class DeliveryOutcomePost (
     val updatedDate: String? = null,
     val updatedBy: String
     ) {
-    fun toDeliveryCache(): DeliveryOutcomeCache {
+    fun toDeliveryCache(patientID: String): DeliveryOutcomeCache {
         return DeliveryOutcomeCache(
             id = id,
-            patientID = "",
+            patientID = patientID,
             isActive = isActive,
             dateOfDelivery = getLongFromDate(dateOfDelivery),
             timeOfDelivery = timeOfDelivery,

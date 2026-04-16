@@ -217,8 +217,7 @@ class DeliveryOutcomeRepo @Inject constructor(
                                 continue
                             }
 
-                            val incoming = networkModel.toDeliveryCache().copy(
-                                patientID = patient.patientID,
+                            val incoming = networkModel.toDeliveryCache(patient.patientID).copy(
                                 processed = "P",
                                 syncState = SyncState.SYNCED,
                                 updatedDate = System.currentTimeMillis(),

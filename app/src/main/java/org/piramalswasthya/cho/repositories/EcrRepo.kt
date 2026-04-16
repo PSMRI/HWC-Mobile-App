@@ -121,13 +121,20 @@ class EcrRepo @Inject constructor(
         val user =
             userRepo.getLoggedInUser() ?: throw IllegalStateException("No user logged in!!")
         try {
-            val ectPayload = ectPostList.toList().map { cache ->
+            val ectPayload = ectPostList.toList().mapNotNull { cache ->
                 val benId = runCatching { patientRepo.getPatient(cache.patientID).beneficiaryID }
-                    .getOrNull() ?: 0L
-                if (benId == 0L) {
-                    Timber.w("ECT upload using fallback benId=0 for patient ${cache.patientID}")
+                    .getOrNull()
+                if (benId == null || benId <= 0L) {
+                    Timber.w("Skipping ECT upload: unresolved beneficiaryID for patient ${cache.patientID}")
+                    null
+                } else {
+                    cache.asNetworkModel(benId)
                 }
-                cache.asNetworkModel(benId)
+            }
+
+            if (ectPayload.isEmpty()) {
+                Timber.w("Skipping ECT upload: no valid beneficiary IDs found in payload")
+                return false
             }
 
             Timber.d("Uploading EC tracking payload count=${ectPayload.size}")
@@ -240,6 +247,9 @@ class EcrRepo @Inject constructor(
                                         val patient = patientRepo.getPatientByAnyBeneficiaryId(benId)
                                         if (patient != null) {
                                             val existingEct = database.ecrDao.getEct(
+                                                patient.patientID,
+                                                org.piramalswasthya.cho.network.getLongFromDate(ectNetwork.visitDate)
+                                            ) ?: database.ecrDao.getEctByVisitDay(
                                                 patient.patientID,
                                                 org.piramalswasthya.cho.network.getLongFromDate(ectNetwork.visitDate)
                                             )

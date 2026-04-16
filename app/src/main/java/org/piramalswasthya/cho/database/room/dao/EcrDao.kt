@@ -49,6 +49,16 @@ interface EcrDao {
 //    @Query("select * from eligible_couple_tracking where benId = :benId and CAST((strftime('%s','now') - visitDate/1000)/60/60/24 AS INTEGER) < 30 order by visitDate limit 1")
     suspend fun getEct(patientID: String, visitDate : Long): EligibleCoupleTrackingCache?
 
+    @Query(
+        """
+        SELECT * FROM eligible_couple_tracking
+        WHERE patientID = :patientID
+        AND date(visitDate / 1000, 'unixepoch', 'localtime') = date(:visitDate / 1000, 'unixepoch', 'localtime')
+        LIMIT 1
+        """
+    )
+    suspend fun getEctByVisitDay(patientID: String, visitDate: Long): EligibleCoupleTrackingCache?
+
     @Query("select * from eligible_couple_tracking where patientID = :patientID order by visitDate desc limit 1")
     suspend fun getLatestEct(patientID: String) : EligibleCoupleTrackingCache?
 
