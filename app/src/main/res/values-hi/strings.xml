@@ -715,6 +715,20 @@
     <string name="update_btn">अद्यतन</string>
     <!-- EC Tracking Form -->
     <string name="ec_tracking_title">लक्ष्य दंपत्ति ट्रैकिंग</string>
+    <string name="status_of_woman_eligible_couple_name">योग्य दंपत्ति</string>
+    <string name="status_of_woman_eligible_couple_code">EC</string>
+    <string name="status_of_woman_pregnant_woman_name">गर्भवती महिला</string>
+    <string name="status_of_woman_pregnant_woman_code">PW</string>
+    <string name="status_of_woman_postnatal_name">प्रसवोत्तर</string>
+    <string name="status_of_woman_postnatal_code">PN</string>
+    <string name="status_of_woman_elderly_name">वृद्ध</string>
+    <string name="status_of_woman_elderly_code">EL</string>
+    <string name="status_of_woman_adolescent_name">किशोरी</string>
+    <string name="status_of_woman_adolescent_code">AD</string>
+    <string name="status_of_woman_permanent_sterilization_name">स्थायी नसबंदी</string>
+    <string name="status_of_woman_permanent_sterilization_code">ST</string>
+    <string name="status_of_woman_not_applicable_name">लागू नहीं</string>
+    <string name="status_of_woman_not_applicable_code">NA</string>
     <string name="is_pregnancy_test_done">क्या गर्भावस्था परीक्षण किया गया है?</string>
     <string name="pregnancy_test_result">गर्भावस्था परीक्षण का परिणाम</string>
     <string name="is_woman_pregnant">क्या महिला गर्भवती है?</string>
