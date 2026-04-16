@@ -16,6 +16,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
@@ -30,6 +31,7 @@ import org.piramalswasthya.cho.model.PatientVisitDataBundle
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.BenFlowRepo
@@ -78,9 +80,55 @@ class HomeActivityViewModel @Inject constructor (application: Application,
 
     fun init(context: Context){
         viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                seedStatusOfWomanMaster()
+            }
             extracted(context)
 //            getStockDetailsOfSubStore()
         }
+    }
+
+    private suspend fun seedStatusOfWomanMaster() {
+        val appContext = getApplication<Application>()
+        database.statusOfWomanDao.insertAll(
+            listOf(
+                StatusOfWomanMaster(
+                    1,
+                    appContext.getString(R.string.status_of_woman_eligible_couple_name),
+                    appContext.getString(R.string.status_of_woman_eligible_couple_code)
+                ),
+                StatusOfWomanMaster(
+                    2,
+                    appContext.getString(R.string.status_of_woman_pregnant_woman_name),
+                    appContext.getString(R.string.status_of_woman_pregnant_woman_code)
+                ),
+                StatusOfWomanMaster(
+                    3,
+                    appContext.getString(R.string.status_of_woman_postnatal_name),
+                    appContext.getString(R.string.status_of_woman_postnatal_code)
+                ),
+                StatusOfWomanMaster(
+                    4,
+                    appContext.getString(R.string.status_of_woman_elderly_name),
+                    appContext.getString(R.string.status_of_woman_elderly_code)
+                ),
+                StatusOfWomanMaster(
+                    5,
+                    appContext.getString(R.string.status_of_woman_adolescent_name),
+                    appContext.getString(R.string.status_of_woman_adolescent_code)
+                ),
+                StatusOfWomanMaster(
+                    6,
+                    appContext.getString(R.string.status_of_woman_permanent_sterilization_name),
+                    appContext.getString(R.string.status_of_woman_permanent_sterilization_code)
+                ),
+                StatusOfWomanMaster(
+                    7,
+                    appContext.getString(R.string.status_of_woman_not_applicable_name),
+                    appContext.getString(R.string.status_of_woman_not_applicable_code)
+                )
+            )
+        )
     }
 
     fun triggerDownSyncWorker(context: Context, syncName: String){
