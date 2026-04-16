@@ -1767,4 +1767,10 @@
     <string name="title_throat_diagnosis">गला निदान फॉर्म</string>
     <string name="oral_health_saved">मौखिक स्वास्थ्य विवरण सफलतापूर्वक सहेजे गए</string>
     <string name="title_oral_health">दंत स्वास्थ्य फॉर्म</string>
+    <string name="title_pain_symptom_assessment">उपशामक देखभाल पहचान प्रपत्र</string>
+    <string name="title_elderly_health_assessment">वृद्ध स्वास्थ्य मूल्यांकन</string>
+    <string name="title_psychosocial_caregiver_support">मनोसामाजिक एवं देखभालकर्ता सहायता</string>
+
+
+
 </resources>

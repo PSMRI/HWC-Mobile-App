@@ -1958,5 +1958,11 @@
     <string name="title_throat_diagnosis">গলাৰ নিৰ্ণয় ফৰ্ম</string>
     <string name="title_oral_health">দাঁতৰ স্বাস্থ্য ফৰ্ম</string>
     <string name="oral_health_saved">মুখৰ স্বাস্থ্যৰ বিৱৰণ সফলভাৱে সংৰক্ষণ কৰা হৈছে</string>
+    <string name="title_pain_symptom_assessment">প্যালিয়েটিভ কেয়াৰ চিনাক্তকৰণ ফৰ্ম</string>
+    <string name="title_elderly_health_assessment">বয়োজ্যেষ্ঠ স্বাস্থ্য মূল্যায়ন</string>
+    <string name="title_psychosocial_caregiver_support">মনোসামাজিক আৰু যত্নপ্ৰদানকাৰী সহায়তা</string>
+
+
+
 
 </resources>

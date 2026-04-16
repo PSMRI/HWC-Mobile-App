@@ -686,7 +686,9 @@ class MentalHealthScreeningDataset(
             benVisitNo = null
         )
 
-        cache.isPostpartum = if (genderID == 2 && age in 15..49) isPostpartumFromRmncha else null
+        if (cache.isPostpartum == null && isPostpartumFromRmncha != null && genderID == 2 && age in 15..49) {
+            cache.isPostpartum = isPostpartumFromRmncha
+        }
 
         populateFromCache(cache)
 
@@ -696,7 +698,7 @@ class MentalHealthScreeningDataset(
     private fun shouldShowPhq9(): Boolean {
         return isYes(emotionalBehaviouralConcerns.value) ||
                 isYes(selfHarmSuicideThoughts.value) ||
-                cache.isPostpartum == true || isYes(isPostpartum.value)
+                isYes(isPostpartum.value)
     }
     private fun todayDateString(): String =
         SimpleDateFormat(mhDateFormatPattern, Locale.ENGLISH).format(Date())
@@ -713,7 +715,6 @@ class MentalHealthScreeningDataset(
                 isYes(memoryLossConfusion.value) ||
                 isYes(seizuresFitsLoc.value) ||
                 isYes(isPostpartum.value) ||
-                cache.isPostpartum == true ||
                 shouldAutoReferFromPhq9() ||
                 shouldAutoReferFromHighSuicideRisk()
     }
@@ -1240,13 +1241,11 @@ class MentalHealthScreeningDataset(
             substanceTobaccoFrequency.value = null
         }
         val currentUse = substanceCurrentTobaccoUse.value
-        val previousUse = substanceTobaccoUse.value
 
         substanceTobaccoOutcome.value = when {
-            currentUse == yesNoOptions[0]                      -> tobaccoOutcomeOptions.getOrNull(0)
-            currentUse == yesNoOptions[1]                      -> tobaccoOutcomeOptions.getOrNull(1)
-            currentUse == null && previousUse == yesNoOptions[0] -> tobaccoOutcomeOptions.getOrNull(0)
-            else                                     -> null
+            currentUse == yesNoOptions[0] -> tobaccoOutcomeOptions.getOrNull(0)
+            currentUse == yesNoOptions[1] -> tobaccoOutcomeOptions.getOrNull(1)
+            else                          -> null
         }
 
         substanceSystemAction.value = when (substanceTobaccoOutcome.value) {
@@ -1676,7 +1675,8 @@ class MentalHealthScreeningDataset(
                 it.substanceTobaccoOutcome = substanceTobaccoOutcome.value
                 it.substanceSystemAction = substanceSystemAction.value
                 it.substanceAlcoholUse = isYes(substanceAlcoholUse.value)
-                it.substanceTobaccoUse = isYes(substanceTobaccoUse.value)
+                // substanceTobaccoUse is a legacy hidden field; derive from the visible replacement
+                it.substanceTobaccoUse = yesNoToBoolean(substanceCurrentTobaccoUse.value)
                 it.substance_alcohol_loss = isYes(substance_alcohol_loss.value)
                 it.substanceAlcoholImpact = isYes(substanceAlcoholImpact.value)
                 it.substanceAlcoholWithdrawal = isYes(substanceAlcoholWithdrawal.value)
@@ -1684,7 +1684,8 @@ class MentalHealthScreeningDataset(
                 it.substanceAlcoholClassification = substanceAlcoholClassification.value
                 it.substanceAlcoholSystemAction = substanceAlcoholSystemAction.value
                 it.substance_alcohol_frequency = substance_alcohol_frequency.value
-                it.briefInterventionGiven = isYes(briefInterventionGiven.value)
+                // briefInterventionGiven is a legacy hidden field with no visible replacement; omit
+                it.briefInterventionGiven = null
             } else {
                 it.substanceCurrentTobaccoUse = null
                 it.substanceTobaccoType = null

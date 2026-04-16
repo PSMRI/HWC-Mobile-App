@@ -1045,5 +1045,8 @@
     <string name="title_throat_diagnosis">ಗಂಟಲು ರೋಗನಿರ್ಣಯ ಫಾರ್ಮ್</string>
     <string name="oral_health_saved">ಬಾಯಿಯ ಆರೋಗ್ಯ ವಿವರಗಳು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ</string>
     <string name="title_oral_health">ದಂತ ಆರೋಗ್ಯ ಫಾರ್ಮ್</string>
+    <string name="title_pain_symptom_assessment">ಪ್ಯಾಲಿಯೇಟಿವ್ ಕೇರ್ ಗುರುತಿಸುವ ಫಾರ್ಮ್</string>
+    <string name="title_elderly_health_assessment">ವೃದ್ಧರ ಆರೋಗ್ಯ ಮೌಲ್ಯಮಾಪನ</string>
+    <string name="title_psychosocial_caregiver_support">ಮನೋಸಾಮಾಜಿಕ ಮತ್ತು ಆರೈಕೆದಾರರ ಸಹಾಯ</string>
 
 </resources>
