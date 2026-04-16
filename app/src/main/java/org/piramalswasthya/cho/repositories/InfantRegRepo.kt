@@ -65,7 +65,11 @@ class InfantRegRepo @Inject constructor(
      */
     fun getRegisteredInfants(): Flow<List<ChildRegDomain>> {
         return infantRegDao.getAllRegisteredInfants()
-            .map { list -> list.map { it.asDomainModel() } }
+            .map { list ->
+                list
+                    .filter { it.infant.hasRegistrationData() }
+                    .map { it.asDomainModel() }
+            }
     }
 
     /**

@@ -427,6 +427,7 @@ class DeliveryOutcomeDataset(
             }
             maternalComplications.value = saved.maternalComplications
             dateOfDischarge.value = saved.dateOfDischarge?.let { getDateFromLong(it) }
+            timeOfDischarge.value = saved.timeOfDischarge
 
             val conditionIndex = resources.getStringArray(R.array.do_mother_condition_array).indexOf(motherCondition.value)
             if (conditionIndex == 1 || conditionIndex == 2) {
@@ -434,6 +435,7 @@ class DeliveryOutcomeDataset(
             }
             if (motherCurrentlyAdmitted.value == resources.getStringArray(R.array.do_mother_admitted_array)[1]) {
                 list.add(list.indexOf(motherCurrentlyAdmitted) + 1, dateOfDischarge)
+                list.add(list.indexOf(dateOfDischarge) + 1, timeOfDischarge)
             }
         } else {
             dateOfDelivery.value = getDateFromLong(deliveryDateMillis)
@@ -441,6 +443,7 @@ class DeliveryOutcomeDataset(
             motherCurrentlyAdmitted.value = null
             maternalComplications.value = null
             dateOfDischarge.value = null
+            timeOfDischarge.value = null
         }
 
         setUpPage(list)
@@ -798,11 +801,13 @@ class DeliveryOutcomeDataset(
     private suspend fun handleMotherAdmittedChange(index: Int): Int {
         dateOfDischarge.value = null
         dateOfDischarge.errorText = null
+        timeOfDischarge.value = null
+        timeOfDischarge.errorText = null
         val result = triggerDependants(
             source = motherCurrentlyAdmitted,
             passedIndex = index,
             triggerIndex = 1, // Index 1 = "No (Discharged)"
-            target = dateOfDischarge
+            target = listOf(dateOfDischarge, timeOfDischarge)
         )
         return result
     }

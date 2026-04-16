@@ -225,11 +225,7 @@ class DeliveryOutcomeRepo @Inject constructor(
                             )
                             val existing = deliveryOutcomeDao.getDeliveryOutcome(patient.patientID)
                             val merged = if (existing != null) {
-                                incoming.copy(
-                                    id = existing.id,
-                                    createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
-                                    createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
-                                )
+                                mergeDeliveryOutcome(existing, incoming)
                             } else incoming
 
                             saveDeliveryOutcome(merged)
@@ -306,6 +302,53 @@ class DeliveryOutcomeRepo @Inject constructor(
         }.onFailure { err ->
             Timber.w(err, "Unable to create delivery patient placeholder for benId=$benId")
         }.getOrNull()
+    }
+
+    private fun mergeDeliveryOutcome(
+        existing: DeliveryOutcomeCache,
+        incoming: DeliveryOutcomeCache
+    ): DeliveryOutcomeCache {
+        return incoming.copy(
+            id = existing.id,
+            patientID = existing.patientID,
+            isActive = incoming.isActive,
+            dateOfDelivery = incoming.dateOfDelivery ?: existing.dateOfDelivery,
+            timeOfDelivery = incoming.timeOfDelivery ?: existing.timeOfDelivery,
+            placeOfDelivery = incoming.placeOfDelivery ?: existing.placeOfDelivery,
+            typeOfDelivery = incoming.typeOfDelivery ?: existing.typeOfDelivery,
+            hadComplications = incoming.hadComplications ?: existing.hadComplications,
+            complication = incoming.complication ?: existing.complication,
+            causeOfDeath = incoming.causeOfDeath ?: existing.causeOfDeath,
+            otherCauseOfDeath = incoming.otherCauseOfDeath ?: existing.otherCauseOfDeath,
+            otherComplication = incoming.otherComplication ?: existing.otherComplication,
+            deliveryOutcome = incoming.deliveryOutcome ?: existing.deliveryOutcome,
+            liveBirth = incoming.liveBirth ?: existing.liveBirth,
+            stillBirth = incoming.stillBirth ?: existing.stillBirth,
+            dateOfDischarge = incoming.dateOfDischarge ?: existing.dateOfDischarge,
+            timeOfDischarge = incoming.timeOfDischarge ?: existing.timeOfDischarge,
+            isJSYBenificiary = incoming.isJSYBenificiary ?: existing.isJSYBenificiary,
+            gestationalAgeAtDelivery = incoming.gestationalAgeAtDelivery ?: existing.gestationalAgeAtDelivery,
+            deliveryConductedBy = incoming.deliveryConductedBy ?: existing.deliveryConductedBy,
+            modeOfDelivery = incoming.modeOfDelivery ?: existing.modeOfDelivery,
+            indicationForLSCS = incoming.indicationForLSCS ?: existing.indicationForLSCS,
+            indicationForLSCSOther = incoming.indicationForLSCSOther ?: existing.indicationForLSCSOther,
+            privateHospitalName = incoming.privateHospitalName ?: existing.privateHospitalName,
+            motherCondition = incoming.motherCondition ?: existing.motherCondition,
+            maternalComplications = incoming.maternalComplications ?: existing.maternalComplications,
+            motherCurrentlyAdmitted = incoming.motherCurrentlyAdmitted ?: existing.motherCurrentlyAdmitted,
+            isDeath = incoming.isDeath ?: existing.isDeath,
+            isDeathValue = incoming.isDeathValue ?: existing.isDeathValue,
+            dateOfDeath = incoming.dateOfDeath ?: existing.dateOfDeath,
+            placeOfDeath = incoming.placeOfDeath ?: existing.placeOfDeath,
+            placeOfDeathId = incoming.placeOfDeathId ?: existing.placeOfDeathId,
+            otherPlaceOfDeath = incoming.otherPlaceOfDeath ?: existing.otherPlaceOfDeath,
+            processed = incoming.processed ?: existing.processed,
+            createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy,
+            createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+            updatedBy = incoming.updatedBy,
+            updatedDate = incoming.updatedDate,
+            syncState = incoming.syncState
+        )
     }
 
 }

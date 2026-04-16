@@ -80,6 +80,34 @@ data class InfantRegCache(
     var updatedDate: Long = System.currentTimeMillis(),
     var syncState: SyncState
 ) : FormDataModel {
+    fun hasRegistrationData(): Boolean {
+        return !infantTerm.isNullOrBlank() ||
+            !corticosteroidGiven.isNullOrBlank() ||
+            genderID != null ||
+            babyCriedAtBirth != null ||
+            resuscitation != null ||
+            !referred.isNullOrBlank() ||
+            !hadBirthDefect.isNullOrBlank() ||
+            !birthDefect.isNullOrBlank() ||
+            !otherDefect.isNullOrBlank() ||
+            weight != null ||
+            breastFeedingStarted != null ||
+            opv0Dose != null ||
+            bcgDose != null ||
+            hepBDose != null ||
+            vitkDose != null ||
+            !outcomeAtBirth.isNullOrBlank() ||
+            !typeOfResuscitation.isNullOrBlank() ||
+            !newbornComplications.isNullOrBlank() ||
+            !currentStatusOfBaby.isNullOrBlank() ||
+            !causeOfDeath.isNullOrBlank() ||
+            !otherCauseOfDeath.isNullOrBlank() ||
+            !birthDoseVaccinesGiven.isNullOrBlank() ||
+            !reasonForNoVaccines.isNullOrBlank() ||
+            vitaminKInjectionGiven != null ||
+            !reasonForNoVitaminK.isNullOrBlank() ||
+            !birthCertificateIssued.isNullOrBlank()
+    }
 
     private fun getDateStringFromLong(dateLong: Long?): String? {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
@@ -213,7 +241,7 @@ data class InfantRegDomain(
     /**
      * Check if infant is registered
      */
-    fun isRegistered(): Boolean = savedIr != null
+    fun isRegistered(): Boolean = savedIr?.hasRegistrationData() == true
 
     /**
      * Only live-birth rows should show Register when not yet saved.

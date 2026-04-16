@@ -18,7 +18,6 @@ import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
-import org.piramalswasthya.cho.repositories.InfantRegRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
@@ -33,7 +32,6 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     preferenceDao: PreferenceDao,
     @ApplicationContext private val context: Context,
     private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
-    private val infantRegRepo: InfantRegRepo,
     private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
@@ -239,7 +237,6 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                     val savedId = deliveryOutcomeRepo.saveDeliveryOutcome(deliveryOutcome)
                     if(savedId != null){
                         _deliveryOutcomeId.postValue(deliveryOutcome.id)
-                        ensureInfantPlaceholdersFromDeliveryOutcome()
                         // Update patient status to Post Natal Mother so PNC list picks her up
                         updatePatientStatusToPostNatal()
                         _state.postValue(State.SAVE_SUCCESS_NAVIGATE_VITALS)
@@ -288,30 +285,6 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
             Timber.d("Patient status updated to Post Natal Mother for patientID: $patientID")
         } catch (e: Exception) {
             Timber.e(e, "Failed to update patient status to Post Natal Mother")
-        }
-    }
-
-    private suspend fun ensureInfantPlaceholdersFromDeliveryOutcome() {
-        try {
-            val count = (deliveryOutcome.deliveryOutcome ?: 0).takeIf { it > 0 }
-                ?: (deliveryOutcome.liveBirth ?: 0).takeIf { it > 0 }
-                ?: 0
-            if (count <= 0) return
-
-            val patient = patientDao.getPatient(patientID)
-            val motherName = listOfNotNull(patient.firstName, patient.lastName)
-                .joinToString(" ")
-                .trim()
-            val userName = userRepo.getLoggedInUser()?.userName ?: deliveryOutcome.updatedBy
-
-            infantRegRepo.ensureInfantPlaceholdersForDeliveryOutcome(
-                motherPatientID = patientID,
-                motherName = motherName,
-                infantCount = count,
-                userName = userName
-            )
-        } catch (e: Exception) {
-            Timber.w(e, "Failed creating infant placeholders from delivery outcome for patient=$patientID")
         }
     }
 }
