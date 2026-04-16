@@ -816,6 +816,20 @@
 
     <!-- EC Tracking Form -->
     <string name="ec_tracking_title">যোগ্য দম্পতী অনুসৰণ</string>
+    <string name="status_of_woman_eligible_couple_name">যোগ্য দম্পতি</string>
+    <string name="status_of_woman_eligible_couple_code">EC</string>
+    <string name="status_of_woman_pregnant_woman_name">গৰ্ভৱতী মহিলা</string>
+    <string name="status_of_woman_pregnant_woman_code">PW</string>
+    <string name="status_of_woman_postnatal_name">প্ৰসবোত্তৰ</string>
+    <string name="status_of_woman_postnatal_code">PN</string>
+    <string name="status_of_woman_elderly_name">বৃদ্ধ</string>
+    <string name="status_of_woman_elderly_code">EL</string>
+    <string name="status_of_woman_adolescent_name">কৈশোৰীয়া</string>
+    <string name="status_of_woman_adolescent_code">AD</string>
+    <string name="status_of_woman_permanent_sterilization_name">স্থায়ী বন্ধ্যাকৰণ</string>
+    <string name="status_of_woman_permanent_sterilization_code">ST</string>
+    <string name="status_of_woman_not_applicable_name">প্ৰযোজ্য নহয়</string>
+    <string name="status_of_woman_not_applicable_code">NA</string>
     <string name="is_pregnancy_test_done">গৰ্ভাৱস্থাৰ পৰীক্ষা কৰা হয়নে?</string>
     <string name="pregnancy_test_result">গৰ্ভাৱস্থা পৰীক্ষাৰ ফলাফল</string>
     <string name="is_woman_pregnant">মহিলাগৰাকী গৰ্ভৱতী নেকি?</string>

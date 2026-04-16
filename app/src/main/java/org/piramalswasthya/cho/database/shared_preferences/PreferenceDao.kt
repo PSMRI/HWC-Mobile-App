@@ -224,6 +224,15 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
+    fun clearSyncTimestamps() {
+        val editor = pref.edit()
+        editor.remove(context.getString(R.string.last_benflow_sync_time))
+        editor.remove(context.getString(R.string.last_cbac_sync_time))
+        editor.remove(context.getString(R.string.last_patient_sync_time))
+        editor.remove(context.getString(R.string.last_sync_time))
+        editor.apply()
+    }
+
     fun getLastSyncTime(): String {
         val prefKey = context.getString(R.string.last_sync_time)
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
