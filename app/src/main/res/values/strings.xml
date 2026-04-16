@@ -937,6 +937,20 @@
 
     <!-- EC Tracking Form -->
     <string name="ec_tracking_title">Eligible Couple Tracking</string>
+    <string name="status_of_woman_eligible_couple_name">Eligible Couple</string>
+    <string name="status_of_woman_eligible_couple_code">EC</string>
+    <string name="status_of_woman_pregnant_woman_name">Pregnant Woman</string>
+    <string name="status_of_woman_pregnant_woman_code">PW</string>
+    <string name="status_of_woman_postnatal_name">Postnatal</string>
+    <string name="status_of_woman_postnatal_code">PN</string>
+    <string name="status_of_woman_elderly_name">Elderly</string>
+    <string name="status_of_woman_elderly_code">EL</string>
+    <string name="status_of_woman_adolescent_name">Adolescent</string>
+    <string name="status_of_woman_adolescent_code">AD</string>
+    <string name="status_of_woman_permanent_sterilization_name">Permanent Sterilization</string>
+    <string name="status_of_woman_permanent_sterilization_code">ST</string>
+    <string name="status_of_woman_not_applicable_name">Not Applicable</string>
+    <string name="status_of_woman_not_applicable_code">NA</string>
     <string name="is_pregnancy_test_done">Is Pregnancy Test Done?</string>
     <string name="pregnancy_test_result">Pregnancy Test Result</string>
     <string name="is_woman_pregnant">Is the Woman Pregnant?</string>
