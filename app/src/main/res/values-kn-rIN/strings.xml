@@ -445,16 +445,16 @@
 
     <string name="form_input_empty_error">Required field cannot be empty !</string>
     <string name="form_input_upper_case_error">Only Alphabets in upper case allowed!</string>
-    <string name="form_input_missing_entry_error">Field must contain %1d digits.</string>
+    <string name="form_input_missing_entry_error">Field must contain %1$d digits.</string>
     <string name="form_input_alphabet_space_only_error">Only Alphabets and whitespace allowed!</string>
     <string name="form_input_alphabet_special_only_error">Only Alphabets and special characters allowed!</string>
-    <string name="form_input_min_limit_error">%1s should be greater than or equal to %2d</string>
+    <string name="form_input_min_limit_error">%1$s should be greater than or equal to %2$d</string>
     <string name="form_input_alph_numeric_space_only_error">Only Alphabets and Numerics allowed!</string>
     <string name="form_input__no_alpha_space_error">No Alphabets or spaces allowed!</string>
     <string name="form_input_digit_only_error">Only Digits allowed!</string>
-    <string name="form_input_min_limit_error_decimal">%1s should be greater than or equal to %2.1f</string>
-    <string name="form_input_max_limit_error">%1s should be lesser than or equal to %2d</string>
-    <string name="form_input_max_limit_error_decimal">%1s should be lesser than or equal to %2.1f</string>
+    <string name="form_input_min_limit_error_decimal">%1$s should be greater than or equal to %2$.1f</string>
+    <string name="form_input_max_limit_error">%1$s should be lesser than or equal to %2$d</string>
+    <string name="form_input_max_limit_error_decimal">%1$s should be lesser than or equal to %2$.1f</string>
     <string name="form_input_error_invalid_mobile">Invalid Mobile Number !</string>
     <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
     <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
@@ -472,9 +472,7 @@
     <string name="title_mental_health_screening">ಮಾನಸಿಕ ಆರೋಗ್ಯ ಪರೀಕ್ಷೆ</string>
     <string name="mental_health_screening_saved">ಮಾನಸಿಕ ಆರೋಗ್ಯ ಪರೀಕ್ಷೆ ಯಶಸ್ವಿಯಾಗಿ ಸಂರಕ್ಷಿತವಾಗಿದೆ</string>
 
-    <!-- Response Options -->
-    <string name="yes_option">ಹೌದು</string>
-    <string name="no_option">ಇಲ್ಲ</string>
+
 
     <!-- Initial Screening Questions -->
     <string name="emotional_behavioural_concerns">ಮಾನಸಿಕ ಅಥವಾ ವರ್ತನೆಶೀಲ ಕಾಳಜಿ ಇದೆ</string>
@@ -574,4 +572,478 @@
         <item>ಹೌದು</item>
         <item>ಇಲ್ಲ</item>
     </string-array>
+    <!-- Nose Diagnosis Dataset -->
+    <string name="difficulty_in_breathing">ಉಸಿರಾಡಲು ತೊಂದರೆ</string>
+    <string name="open_mouth_breathing">ಬಾಯಿ ತೆರೆದು ಉಸಿರಾಡುವುದು</string>
+    <string name="nose_bleed_title">ಮೂಗಿನಲ್ಲಿ ರಕ್ತಸ್ರಾವ</string>
+    <string name="systolic_bp_title">ಸಿಸ್ಟೊಲಿಕ್ ಬಿಪಿ (mmHg)</string>
+    <string name="diastolic_bp_title">ಡಯಾಸ್ಟೊಲಿಕ್ ಬಿಪಿ (mmHg)</string>
+    <string name="foreign_body_nose_title">ಮೂಗಿನಲ್ಲಿ ಬಾಹ್ಯ ವಸ್ತು</string>
+    <string name="foreign_body_anterior">ಹೌದು (ಮುಂಭಾಗದಲ್ಲಿ ಕಾಣಿಸುವುದು)</string>
+    <string name="foreign_body_posterior">ಹೌದು (ಹಿಂಭಾಗದಲ್ಲಿ ಕಾಣಿಸುವುದು)</string>
+    <string name="sinusitis_title">ಸೈನಸೈಟಿಸ್</string>
+    <string name="sinusitis_with_pain">ಹೌದು (ಮುಖದ ನೋವು / ಸೂಕ್ಷ್ಮತೆ)</string>
+
+    <!-- Nose Diagnosis Alert Messages -->
+    <string name="difficulty_in_breathing_alert">ಉಸಿರಾಡಲು ತೊಂದರೆ. URI / Rhinitis / Sinusitis ಪತ್ತೆಮಾಡಿ. HWC ನಲ್ಲಿ ನಿರ್ವಹಿಸದಿದ್ದರೆ ತಜ್ಞರಿಗೆ ಕಳುಹಿಸಿ.</string>
+    <string name="open_mouth_breathing_alert">ಬಾಯಿ ತೆರೆದು ಉಸಿರಾಡುವುದು. URI / Rhinitis / Sinusitis ಪತ್ತೆಮಾಡಿ. HWC ನಲ್ಲಿ ನಿರ್ವಹಿಸದಿದ್ದರೆ ತಜ್ಞರಿಗೆ ಕಳುಹಿಸಿ.</string>
+    <string name="nose_bleed_alert_systolic_bp">ಸಿಸ್ಟೋಲಿಕ್ ಬಿಪಿ &gt; 120 mmHg. ರೋಗಿಯನ್ನು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಕಳುಹಿಸಿ.</string>
+    <string name="nose_bleed_alert_diastolic_bp">ಡಯಾಸ್ಟೋಲಿಕ್ ಬಿಪಿ &gt; 80 mmHg. ರೋಗಿಯನ್ನು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಕಳುಹಿಸಿ.</string>
+    <string name="foreign_body_posterior_alert">ಹಿಂಭಾಗದಲ್ಲಿ ಬಾಹ್ಯ ವಸ್ತು ಗೋಚರಿಸಿದೆ. ರೋಗಿಯನ್ನು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಕಳುಹಿಸಿ.</string>
+    <string name="sinusitis_alert">ದೀರ್ಘಕಾಲದ ಸೈನಸೈಟಿಸ್ ಶಂಕಿಸಲಾಗಿದೆ. ರೋಗಿಯನ್ನು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಕಳುಹಿಸಿ.</string>
+
+    <string-array name="nose_foreign_body_options">
+        <item>ಹೌದು (ಮುಂಭಾಗದಲ್ಲಿ ಕಾಣಿಸುವುದು)</item>
+        <item>ಹೌದು (ಹಿಂಭಾಗದಲ್ಲಿ ಕಾಣಿಸುವುದು)</item>
+        <item>ಇಲ್ಲ</item>
+    </string-array>
+    <!-- Throat Diagnosis Dataset -->
+    <string name="throat_diagnosis_symptoms">ರೋಗಲಕ್ಷಣಗಳು</string>
+    <string name="throat_symptom_pain">ನೋವು</string>
+    <string name="throat_symptom_soreness">ಗಂಟಲು ನೋವು / ಉರಿ</string>
+    <string name="throat_symptom_cold">ಸಂಬಂಧಿತ ಶೀತ</string>
+    <string name="throat_symptom_itching">ತುರಿಕೆ</string>
+    <string name="throat_symptom_hoarseness">ಸ್ವರ ಗಡಸಾಗುವಿಕೆ</string>
+    <string name="throat_diagnosis_neck_swelling">ಕುತ್ತಿಗೆ ಊತವಿದೆ</string>
+    <string name="throat_diagnosis_difficulty_swallowing">ನುಂಗಲು ತೊಂದರೆ</string>
+    <string name="throat_diagnosis_tonsillitis">ಟಾನ್ಸಿಲೈಟಿಸ್</string>
+    <string name="throat_diagnosis_pharyngitis">ಫಾರಂಜಿಟಿಸ್ (Pharyngitis)</string>
+    <string name="throat_diagnosis_laryngitis">ಲಾರಿಂಜೈಟಿಸ್ (Laryngitis)</string>
+    <string name="throat_diagnosis_sinusitis">ಸೈನಸೈಟಿಸ್</string>
+    <string name="throat_diagnosis_cleft_lip">ಬಿರುಕು ಬಿಟ್ಟ ತುಟಿ (Cleft Lip)</string>
+    <string name="throat_diagnosis_cleft_palate">ಬಿರುಕು ಬಿಟ್ಟ ಅಣ್ಣ (Cleft Palate)</string>
+
+    <string name="throat_alert_neck_swelling">ಕುತ್ತಿಗೆ ಊತ ಪತ್ತೆಯಾಗಿದೆ. ರೋಗಿಯನ್ನು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಕಳುಹಿಸಿ.</string>
+    <string name="throat_alert_difficulty_swallowing">ನುಂಗಲು ತೊಂದರೆ ಪತ್ತೆಯಾಗಿದೆ. ರೋಗಿಯನ್ನು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಕಳುಹಿಸಿ.</string>
+    <string name="throat_alert_cleft_lip">ತುಟಿ ಸೀಳು ಸೇರಿದೆ. ರೋಗಿಯನ್ನು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಕಳುಹಿಸಿ.</string>
+    <string name="throat_alert_cleft_palate">ಅಂಗುಳಿನ ಸೀಳು ಸೇರಿದೆ. ರೋಗಿಯನ್ನು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಕಳುಹಿಸಿ.</string>
+
+    <!-- Ophthalmic Screening -->
+    <string name="ophthalmic_screening_title">ನೇತ್ರ ತಪಾಸಣೆ</string>
+    <string name="ophthalmic_symptomatic_title">ನೇತ್ರ ರೋಗಲಕ್ಷಣ</string>
+    <string name="ophthalmic_screening_section_title">ಅಂಧತ್ವ ಮತ್ತು ವಕ್ರೀಭವನ ದೋಷಗಳಿಗೆ ತಪಾಸಣೆ</string>
+    <string name="ophthalmic_is_diabetic">ರೋಗಿಗೆ ಮಧುಮೇಹವಿದೆಯೇ? <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_screening_performed">ಮಧುಮೇಹ ರೋಗಿಗೆ ತಪಾಸಣೆ ಮಾಡಲಾಗಿದೆ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_right">ದೂರ ದೃಷ್ಟಿ ತೀಕ್ಷ್ಣತೆ \u2013 ಬಲ ಕಣ್ಣು <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_left">ದೂರ ದೃಷ್ಟಿ ತೀಕ್ಷ್ಣತೆ \u2013 ಎಡ ಕಣ್ಣು <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_visual_impairment_alert">ಶಂಕಿತ ದೃಷ್ಟಿ ದೋಷ</string>
+    <string name="ophthalmic_reason_for_visit">ಭೇಟಿಯ ಕಾರಣ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_near_va">ಹತ್ತಿರದ ದೃಷ್ಟಿ ತೀಕ್ಷ್ಣತೆ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_chart_used">ದೃಷ್ಟಿ ತೀಕ್ಷ್ಣತೆ ಚಾರ್ಟ್ ಬಳಸಲಾಗಿದೆ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_case_identification_title">ಪ್ರಕರಣ ಗುರುತಿಸುವಿಕೆ</string>
+    <string name="ophthalmic_case_id_alert">ಶಂಕಿತ ದೃಷ್ಟಿ ದೋಷ ಗುರುತಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ಕೆಳಗೆ ಪ್ರಕರಣ ಗುರುತಿಸುವಿಕೆ ಪೂರ್ಣಗೊಳಿಸಿ.</string>
+    <string name="ophthalmic_case_id_conditions">ಪ್ರಕರಣ ಗುರುತಿಸುವಿಕೆ ಮತ್ತು ಸ್ಥಿತಿ(ಗಳು)</string>
+    <string name="ophthalmic_case_id_conditions_mandatory">ಪ್ರಕರಣ ಗುರುತಿಸುವಿಕೆ ಮತ್ತು ಸ್ಥಿತಿ(ಗಳು) <font color="#FF0000">*</font></string>
+    <string name="select_conditions">ಸ್ಥಿತಿ(ಗಳನ್ನು) ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="ophthalmic_vitamin_a_deficiency">ವಿಟಮಿನ್ ಎ ಕೊರತೆ / ಜೆರೋಫ್ಥಾಲ್ಮಿಯಾ</string>
+    <string name="ophthalmic_cataract_symptoms">ಕಣ್ಣಿನ ಪೊರೆ ಲಕ್ಷಣಗಳು <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_glaucoma_symptoms">ಗ್ಲಾಕೋಮಾ ಲಕ್ಷಣಗಳು <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dr_symptoms">ಮಧುಮೇಹ ರೆಟಿನೋಪತಿ ಲಕ್ಷಣಗಳು <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_presbyopia_symptoms">ಪ್ರೆಸ್ಬಯೋಪಿಯಾ ಲಕ್ಷಣಗಳು <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_trachoma_status">ಟ್ರಕೋಮಾ ಸ್ಥಿತಿ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_corneal_disease_type">ಕಾರ್ನಿಯಲ್ ರೋಗದ ಪ್ರಕಾರ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_vitamin_a_deficiency_label">ವಿಟಮಿನ್ ಎ ಕೊರತೆ ಲಕ್ಷಣಗಳು / ಬಿಟಾಟ್\'ಸ್ ಸ್ಪಾಟ್ ಗುರುತಿಸಲಾಗಿದೆ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_select_trachoma_status">ಟ್ರಕೋಮಾ ಸ್ಥಿತಿ ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="ophthalmic_select_corneal_disease_type">ಕಾರ್ನಿಯಲ್ ರೋಗದ ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="ophthalmic_alert_ophthalmologist_referral">ರೋಗಿಯನ್ನು ದ್ವಿತೀಯ ಹಂತದ ನೇತ್ರ ವೈದ್ಯರ ಬಳಿ ಕಳುಹಿಸಿ.</string>
+    <string name="ophthalmic_alert_presbyopia_management">ರೋಗಿಯು ಪ್ರೆಸ್ಬಯೋಪಿಯಾ ನಿರ್ವಹಣೆಗೆ (ಓದುವ ಕನ್ನಡಕ) ಅರ್ಹರಾಗಿರಬಹುದು.</string>
+    <string name="ophthalmic_alert_vitamin_a">ವಿಟಮಿನ್ ಎ ಪ್ರೊಫಿಲ್ಯಾಕ್ಸಿಸ್ ನೀಡಬೇಕು. ರೋಗಿಯನ್ನು ದ್ವಿತೀಯ ಹಂತದ ನೇತ್ರ ವೈದ್ಯರ ಬಳಿ ಕಳುಹಿಸಿ.</string>
+    <string name="ophthalmic_injury_trauma_title">ಗಾಯ ಮತ್ತು ಆಘಾತ ಫಾರ್ಮ್</string>
+    <string name="ophthalmic_injury_type_label">ಗಾಯದ ಪ್ರಕಾರ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_select_injury_type">ಗಾಯದ ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="ophthalmic_foreign_body_removal_attempted">ವಿದೇಶಿ ವಸ್ತು ತೆಗೆಯುವ ಪ್ರಯತ್ನ ಮಾಡಲಾಗಿದೆ</string>
+    <string name="ophthalmic_chemical_exposure_wash_performed">ರಾಸಾಯನಿಕ ಸಂಪರ್ಕ \u2013 ಸಂಪೂರ್ಣ ತೊಳೆಯಲಾಗಿದೆ</string>
+
+    <string-array name="ophthalmic_reason_for_visit_options">
+        <item>ಸ್ಕ್ರೀನಿಂಗ್</item>
+        <item>ರೋಗ ಲಕ್ಷಣ</item>
+        <item>ಕಣ್ಣಿನ ಗಾಯ/ಆಘಾತದ ಪ್ರಥಮ ಚಿಕಿತ್ಸೆ</item>
+    </string-array>
+
+    <string-array name="ophthalmic_chart_options">
+        <item>ಸ್ನೆಲೆನ್ ದೂರದ ಚಾರ್ಟ್</item>
+        <item>ಹತ್ತಿರದ ದೃಷ್ಟಿ ಚಾರ್ಟ್</item>
+    </string-array>
+
+    <string-array name="ophthalmic_case_id_options">
+        <item>ಕಣ್ಣಿನ ಪೊರೆ</item>
+        <item>ಗ್ಲುಕೋಮಾ</item>
+        <item>ಡಯಾಬಿಟಿಕ್ ರೆಟಿನೋಪತಿ</item>
+        <item>ಪ್ರೆಸ್ಬಯೋಪಿಯಾ</item>
+        <item>ಟ್ರಕೋಮಾ</item>
+        <item>ಕಾರ್ನಿಯಲ್ ಕಾಯಿಲೆ</item>
+        <item>ಕಣ್ಣಿನ ಉರಿಯೂತ</item>
+        <item>ಒಣ ಕಣ್ಣು</item>
+        <item>ಕಣ್ಣಿನ ಅಲರ್ಜಿ</item>
+    </string-array>
+
+    <string-array name="ophthalmic_injury_type_options">
+        <item>ಯಾಂತ್ರಿಕ ಬಾಹ್ಯ ವಸ್ತು</item>
+        <item>ಮೃದುವಾದ ಆಘಾತ</item>
+        <item>ಚುಚ್ಚುವ ಗಾಯದ ಶಂಕೆ</item>
+        <item>ರಾಸಾಯನಿಕ (ಆಮ್ಲ/ಕ್ಷಾರ/ಇತರ)</item>
+    </string-array>
+
+    <string-array name="ophthalmic_foreign_body_options">
+        <item>ಪ್ರಯತ್ನಿಸಿಲ್ಲ</item>
+        <item>ಕಣ್ಣಿನ ಪೊರೆಯಿಂದ ಪ್ರಯತ್ನಿಸಲಾಗಿದೆ</item>
+        <item>ಕಾರ್ನಿಯಾದಲ್ಲಿ ಸಿಕ್ಕಿಕೊಂಡ ಬಾಹ್ಯ ವಸ್ತು</item>
+    </string-array>
+
+    <string-array name="ophthalmic_trachoma_options">
+        <item>ಶಂಕಿತ ಸಕ್ರಿಯ ಟ್ರಕೋಮಾ</item>
+        <item>ಶಂಕಿತ TT/TI</item>
+        <item>ಟ್ರಕೋಮಾ ಇಲ್ಲ</item>
+    </string-array>
+
+    <string-array name="ophthalmic_corneal_disease_options">
+        <item>ಕಾರ್ನಿಯಲ್ ಅಪಾರದರ್ಶಕತೆ</item>
+        <item>ಶಂಕಿತ ಕಾರ್ನಿಯಲ್ ಅಲ್ಸರ್</item>
+        <item>ಇತರ ಕಾರ್ನಿಯಲ್ ಕಾಯಿಲೆಗಳು</item>
+    </string-array>
+    <string name="saved_successfully">ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="save_failed_retry">ಉಳಿಸಲು ವಿಫಲವಾಗಿದೆ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <string name="please_complete_field">ದಯವಿಟ್ಟು ಪೂರ್ಣಗೊಳಿಸಿ: %s</string>
+
+    <!-- Oral Health Dataset -->
+    <string name="oral_tooth_decay_present">ಹಲ್ಲು ಕೊಳೆತ ಇದೆ</string>
+    <string name="oral_tooth_decay_symptoms">ಹಲ್ಲು ಕೊಳೆತದ ಲಕ್ಷಣಗಳು</string>
+    <string name="oral_symptom_black_spot">ಕಪ್ಪು ಚುಕ್ಕೆ</string>
+    <string name="oral_symptom_discoloration">ಹಲ್ಲಿನ ಕುಳಿಯಲ್ಲಿ ಬಣ್ಣ ಬದಲಾವಣೆ</string>
+    <string name="oral_symptom_hole">ಹಲ್ಲಿನಲ್ಲಿ ರಂಧ್ರ</string>
+    <string name="oral_symptom_sensitivity">ಬಿಸಿ ಮತ್ತು ತಂಪು, ಸಿಹಿ ಮತ್ತು ಹುಳಿಗೆ ಸಂವೇದನಾಶೀಲತೆ</string>
+    <string name="oral_symptom_food_lodgment">ಕುಳಿ/ಹಲ್ಲುಗಳ ನಡುವೆ ಆಹಾರ ಸಿಕ್ಕಿಕೊಳ್ಳುವುದು</string>
+    <string name="oral_symptom_pain">ನೋವು</string>
+    <string name="oral_symptom_swelling">ಊತ</string>
+    <string name="oral_symptom_pus_discharge">ಕೀವು ಸ್ರಾವ</string>
+    <string name="oral_gum_disease_present">ಒಸಡು ರೋಗಗಳು ಇವೆ</string>
+    <string name="oral_gum_disease_symptoms">ಒಸಡು ರೋಗಗಳ ಲಕ್ಷಣಗಳು</string>
+    <string name="oral_gum_foul_smell">ದುರ್ವಾಸನೆ</string>
+    <string name="oral_gum_bleeding">ಒಸಡುಗಳಿಂದ ರಕ್ತಸ್ರಾವ</string>
+    <string name="oral_gum_deposits">ಹಲ್ಲಿನ ಮೇಲೆ ಶೇಖರಣೆ ಮತ್ತು ಬಣ್ಣ ಬದಲಾವಣೆ</string>
+    <string name="oral_gum_loose_teeth">ಸಡಿಲ ಹಲ್ಲುಗಳು</string>
+    <string name="oral_gum_widening_gap">ಹಲ್ಲುಗಳ ನಡುವಿನ ಅಂತರ ಹೆಚ್ಚುತ್ತಿದೆ</string>
+    <string name="oral_gum_swollen">ಊದಿಕೊಂಡ ಒಸಡುಗಳು</string>
+    <string name="oral_irregular_teeth_jaws">ಅನಿಯಮಿತ ಹಲ್ಲುಗಳು/ದವಡೆ</string>
+    <string name="oral_abnormal_growth_ulcer">ಅಸಹಜ ಬೆಳವಣಿಗೆ/ಹುಣ್ಣು</string>
+    <string name="oral_cleft_lip_palate">ಸೀಳು ತುಟಿ/ಅಂಗುಳ</string>
+    <string name="oral_dental_fluorosis">ದಂತ ಫ್ಲೋರೋಸಿಸ್</string>
+    <string name="oral_dental_emergency">ದಂತ ತುರ್ತು ಪರಿಸ್ಥಿತಿ</string>
+    <string name="oral_emergency_pain">ನೋವು</string>
+    <string name="oral_emergency_abscess">ಕುರು (Abscess)</string>
+    <string name="oral_emergency_swelling">ಊತ</string>
+    <string name="oral_emergency_tooth_injury">ಹಲ್ಲಿನ ಗಾಯ</string>
+    <string name="oral_emergency_avulsion">ಹಲ್ಲು ಕಿತ್ತುಹೋಗುವಿಕೆ (Avulsion)</string>
+    <string name="oral_emergency_non_healing_ulcer">ವಾಸಿಯಾಗದ ಹುಣ್ಣು</string>
+    <string name="oral_emergency_uncontrolled_bleeding">ನಿಯಂತ್ರಿಸಲಾಗದ ರಕ್ತಸ್ರಾವ</string>
+    <string name="oral_emergency_trauma">ಆಘಾತ (ಮುರಿದ ದವಡೆ/ಅಲುಗಾಡುವ ಹಲ್ಲುಗಳು)</string>
+    <string name="oral_health_referral_alert">ರೋಗಿಯನ್ನು ದ್ವಿತೀಯ ಹಂತದ ದಂತ ವೈದ್ಯರ ಬಳಿ ಕಳುಹಿಸಿ.</string>
+
+    <!-- Palliative Care / Pain and Symptom Assessment -->
+    <string name="palliative_care_identification_headline">ಉಪಶಮನ ಆರೈಕೆ ಗುರುತಿಸುವಿಕೆ (Palliative Care)</string>
+    <string name="pain_symptom_assessment_palliative">ನೋವು ಮತ್ತು ರೋಗಲಕ್ಷಣಗಳ ಮೌಲ್ಯಮಾಪನ</string>
+    
+    <string name="persistent_pain_present">ನಿರಂತರ ನೋವು ಇದೆ</string>
+    <string name="pain_severity">ನೋವಿನ ತೀವ್ರತೆ</string>
+    <string name="pain_duration">ನೋವಿನ ಅವಧಿ</string>
+    <string name="pain_duration_less_than_one_month">&lt; 1 ತಿಂಗಳು</string>
+    <string name="pain_duration_one_to_six_months">1–6 ತಿಂಗಳು</string>
+    <string name="pain_duration_more_than_six_months">&gt; 6 ತಿಂಗಳು</string>
+    <string name="mild">ಸೌಮ್ಯ</string>
+    <string name="moderate">ಮಧ್ಯಮ</string>
+    <string name="severe">ತೀವ್ರ</string>
+
+    <string name="other_symptoms_present">ಇತರ ಲಕ್ಷಣಗಳು ಇವೆ</string>
+    <string name="other_symptoms_severity">ಇತರ ಲಕ್ಷಣಗಳ ತೀವ್ರತೆ</string>
+    <string name="immediate_relief_provided">ತಕ್ಷಣದ ಪರಿಹಾರ ಒದಗಿಸಲಾಗಿದೆ</string>
+    
+    <string name="symptom_assessment_basic_title">ಲಕ್ಷಣಗಳ ಮೌಲ್ಯಮಾಪನ</string>
+    <string name="symptom_assessment_basic_field_title">ರೋಗಲಕ್ಷಣಗಳು</string>
+    <string name="symptom_nausea_vomiting">ವಾಕರಿಕೆ / ವಾಂತಿ</string>
+    <string name="symptom_constipation">ಮಲಬದ್ಧತೆ</string>
+    <string name="symptom_anxiety_restlessness">ಆತಂಕ / ಚಡಪಡಿಕೆ</string>
+    <string name="symptom_sleep_disturbance">ನಿದ್ರಾಹೀನತೆ</string>
+    <string name="breathlessness">ಉಸಿರಾಟದ ತೊಂದರೆ</string>
+    <string name="nausea">ವಾಕರಿಕೆ</string>
+    <string name="fatigue">ಆಯಾಸ</string>
+    <string name="weakness">ದೌರ್ಬಲ್ಯ</string>
+    <string name="other">ಇತರ</string>
+    
+    <string name="basic_management_cho_level_title">ಮೂಲ ನಿರ್ವಹಣೆ</string>
+    <string name="basic_symptom_relief_provided">ಮೂಲ ರೋಗಲಕ್ಷಣ ಪರಿಹಾರ ನೀಡಲಾಗಿದೆ</string>
+    <string name="basic_psychosocial_support_provided">ಮನೋಸಾಮಾಜಿಕ ಬೆಂಬಲ ನೀಡಲಾಗಿದೆ</string>
+    <string name="basic_caregiver_counselling_provided">ಆರೈಕೆದಾರರಿಗೆ ಆಪ್ತಸಮಾಲೋಚನೆ ಒದಗಿಸಲಾಗಿದೆ</string>
+    <string name="basic_management_remarks">ಷರಾ</string>
+    
+    <string name="distressing_symptoms_present">ಯಾತನಾಮಯ ಲಕ್ಷಣಗಳಿವೆ</string>
+    <string name="bedridden_or_severely_dependent">ಹಾಸಿಗೆ ಹಿಡಿದಿರುವ ಅಥವಾ ಹೆಚ್ಚು ಅವಲಂಬಿತ</string>
+    <string name="life_limiting_illness_known">ಮಾರಣಾಂತಿಕ ಕಾಯಿಲೆ ಎಂದು ತಿಳಿದಿದೆ</string>
+    <string name="caregiver_support_required">ಆರೈಕೆದಾರರ ಬೆಂಬಲ ಅಗತ್ಯವಿದೆ</string>
+
+    <string name="severe_pain_referral_alert">ತೀವ್ರವಾದ ನೋವು. ದಯವಿಟ್ಟು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಉಲ್ಲೇಖಿಸಿ.</string>
+    <string name="severe_symptoms_referral_alert">ತೀವ್ರವಾದ ರೋಗಲಕ್ಷಣಗಳು. ದಯವಿಟ್ಟು ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಉಲ್ಲೇಖಿಸಿ.</string>
+
+    <!-- Generic Referral & Follow Up Fields -->
+    <string name="referral_required_title">ಉಲ್ಲೇಖ ಅಗತ್ಯವಿದೆಯೇ</string>
+    <string-array name="referral_required_options">
+        <item>ಹೌದು</item>
+        <item>ಇಲ್ಲ</item>
+    </string-array>
+    
+    <string name="referral_level_title">ಉಲ್ಲೇಖಿತ ಹಂತ</string>
+    <string-array name="referral_level_options">
+        <item>ಪ್ರಾಥಮಿಕ ಆರೋಗ್ಯ ಕೇಂದ್ರ</item>
+        <item>ಸಮುದಾಯ ಆರೋಗ್ಯ ಕೇಂದ್ರ</item>
+        <item>ಜಿಲ್ಲಾ ಆಸ್ಪತ್ರೆ</item>
+        <item>ಉಪಶಮನ ಆರೈಕೆ ಘಟಕ</item>
+    </string-array>
+    
+    <string name="reason_for_referral_title">ಉಲ್ಲೇಖಿಸಲು ಕಾರಣ</string>
+    <string-array name="reason_for_referral_options">
+        <item>ತೀವ್ರವಾದ ನೋವು</item>
+        <item>ಕಾರ್ಯಾತ್ಮಕ ಅವಲಂಬನೆ</item>
+        <item>ಡಿಮೆನ್ಶಿಯಾ ಶಂಕೆ</item>
+        <item>ಅಂತ್ಯ-ಜೀವನ ಆರೈಕೆ</item>
+    </string-array>
+    
+    <string name="follow_up_required_title">ಮುಂದಿನ ಭೇಟಿ ಅಗತ್ಯವಿದೆಯೇ</string>
+    <string-array name="follow_up_required_options">
+        <item>ಹೌದು</item>
+        <item>ಇಲ್ಲ</item>
+    </string-array>
+    
+    <string name="follow_up_date_title">ಮುಂದಿನ ಭೇಟಿ ದಿನಾಂಕ</string>
+    
+    <string name="case_status_title">ಪ್ರಕರಣದ ಸ್ಥಿತಿ</string>
+    <string-array name="case_status_options">
+        <item>ಚೇತರಿಸಿಕೊಂಡಿದ್ದಾರೆ</item>
+        <item>ಚಿಕಿತ್ಸೆಯಲ್ಲಿದ್ದಾರೆ</item>
+        <item>ಸಾವು</item>
+    </string-array>
+    
+    <string name="date_of_death_title">ಸಾವಿನ ದಿನಾಂಕ</string>
+    <!-- Elderly Health Assessment -->
+    <string name="elderly_geriatric_complaints">ಸಾಮಾನ್ಯ ವೃದ್ಧಾಪ್ಯದ ದೂರುಗಳಿವೆಯೇ?</string>
+    <string name="elderly_multiple_chronic">ಬಹು ದೀರ್ಘಕಾಲದ ಕಾಯಿಲೆಗಳು</string>
+    <string name="elderly_recent_falls">ಇತ್ತೀಚಿನ ಬಿದ್ದಿರುವ ಘಟನೆಗಳು</string>
+    <string name="elderly_difficulty_walking">ನಡೆಯಲು ಅಥವಾ ಸಮತೋಲನ ಕಾಯ್ದುಕೊಳ್ಳಲು ತೊಂದರೆ</string>
+    <string name="elderly_visual_hearing">ದೃಷ್ಟಿ ಅಥವಾ ಶ್ರವಣ ದೋಷ</string>
+    <string name="elderly_functional_decline">ದೈನಂದಿನ ಚಟುವಟಿಕೆಗಳಲ್ಲಿ ತೊಂದರೆ (ADL)</string>
+    <string name="elderly_functional_assessment_headline">ಕಾರ್ಯಾತ್ಮಕ ಮೌಲ್ಯಮಾಪನ ವಿಭಾಗ</string>
+    <string name="elderly_bathing">ಸ್ನಾನ ಮಾಡುವುದು</string>
+    <string name="elderly_dressing">ಉಡುಗೆ ಧರಿಸುವುದು</string>
+    <string name="elderly_toileting">ಶೌಚಾಲಯ ಬಳಕೆ</string>
+    <string name="elderly_transferring">ವರ್ಗಾವಣೆ (ಏಳುವುದು-ಕುಳಿತುಕೊಳ್ಳುವುದು)</string>
+    <string name="elderly_continence">ಮಲಮೂತ್ರ ವಿಸರ್ಜನೆ ನಿಯಂತ್ರಣ (Continence)</string>
+    <string name="elderly_feeding">ಆಹಾರ ಸೇವನೆ</string>
+    <string name="elderly_independent">ಸ್ವತಂತ್ರ (1)</string>
+    <string name="elderly_dependent">ಅವಲಂಬಿತ (0)</string>
+    <string name="elderly_total_score">ಒಟ್ಟು ಸ್ಕೋರ್</string>
+    <string name="elderly_functional_status">ಕಾರ್ಯಾತ್ಮಕ ಸ್ಥಿತಿ</string>
+    <string name="elderly_functional_decline_flag">ಕಾರ್ಯಾತ್ಮಕ ಅವನತಿಯ ಸ್ಥಿತಿ</string>
+    <string name="elderly_status_no_decline">ಯಾವುದೇ ಕುಸಿತವಿಲ್ಲ</string>
+    <string name="elderly_status_partial_dependence">ಭಾಗಶಃ ಅವಲಂಬನೆ</string>
+    <string name="elderly_status_functional_dependence">ಕಾರ್ಯಾತ್ಮಕ ಅವಲಂಬನೆ</string>
+    <string name="elderly_status_highly_dependent">ಹೆಚ್ಚು ಅವಲಂಬಿತರಾಗಿದ್ದಾರೆ</string>
+    <string name="elderly_status_unknown">ತಿಳಿದಿಲ್ಲ</string>
+    <string name="elderly_memory_loss">ನೆನಪಿನ ಶಕ್ತಿ ಕುಗ್ಗುವಿಕೆ ಅಥವಾ ಗೊಂದಲ</string>
+    <string name="elderly_dementia_headline">ಡಿಮೆನ್ಶಿಯಾ ತಪಾಸಣೆ ಪಟ್ಟಿ</string>
+    <string name="elderly_dementia_memory_loss">ಕ್ರಮೇಣ ಹೆಚ್ಚು ನೆನಪಿನ ಶಕ್ತಿ ಕಳೆದುಕೊಳ್ಳುವುದು</string>
+    <string name="elderly_dementia_disorientation">ದಿಗ್ಭ್ರಮೆ (ಸಮಯ/ಸ್ಥಳ/ವ್ಯಕ್ತಿ)</string>
+    <string name="elderly_dementia_behavioural">ವರ್ತನೆಯ ಬದಲಾವಣೆಗಳು</string>
+    <string name="elderly_dementia_self_care">ಸ್ವಯಂ-ಆರೈಕೆ / ದಿನಚರಿಯಲ್ಲಿ ಕುಸಿತ</string>
+    <string name="elderly_screening_outcome">ತಪಾಸಣೆಯ ಫಲಿತಾಂಶ</string>
+    <string name="elderly_referral_required">ಉಲ್ಲೇಖ ಅಗತ್ಯವಿದೆ</string>
+    <string name="elderly_outcome_suspected">ಶಂಕಿತ</string>
+    <string name="elderly_outcome_not_suspected">ಶಂಕಿತವಲ್ಲ</string>
+    <string name="elderly_alert_functional_decline">ರೋಗಿಯು ಕಾರ್ಯಾತ್ಮಕ ಅವನತಿಯನ್ನು ಹೊಂದಿದ್ದಾರೆ. ಅಗತ್ಯವಿದ್ದರೆ ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಉಲ್ಲೇಖಿಸಿ.</string>
+    <string name="elderly_alert_memory_loss">ರೋಗಿಯು ನೆನಪಿನ ಶಕ್ತಿಯನ್ನು ಕಳೆದುಕೊಂಡಿದ್ದಾರೆ. ಅಗತ್ಯವಿದ್ದರೆ ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಉಲ್ಲೇಖಿಸಿ.</string>
+    <string name="yes_option">ಹೌದು</string>
+    <string name="no_option">ಇಲ್ಲ</string>
+
+    <!-- Mental Health Screening -->
+    <string name="mh_depression_severity">ಖಿನ್ನತೆಯ ತೀವ್ರತೆ</string>
+    <string name="mh_system_action">ವ್ಯವಸ್ಥಿತ ಕ್ರಮ</string>
+    <string name="mh_current_tobacco_use">ಪ್ರಸ್ತುತ ತಂಬಾಕು ಬಳಕೆ</string>
+    <string name="mh_tobacco_type">ತಂಬಾಕು ಬಳಕೆಯ ವಿಧ</string>
+    <string name="mh_tobacco_smoking">ಧೂಮಪಾನ</string>
+    <string name="mh_tobacco_smokeless">ಧೂಮರಹಿತ</string>
+    <string name="mh_tobacco_both">ಎರಡೂ</string>
+    <string name="mh_tobacco_frequency">ತಂಬಾಕು ಬಳಕೆಯ ಆವರ್ತನ</string>
+    <string name="mh_tobacco_occasional">ಸಾಂದರ್ಭಿಕ</string>
+    <string name="mh_tobacco_daily">ಪ್ರತಿದಿನ</string>
+    <string name="mh_tobacco_outcome">ತಂಬಾಕು ಬಳಕೆಯ ಫಲಿತಾಂಶ</string>
+    <string name="mh_tobacco_system_action">ವ್ಯವಸ್ಥಿತ ಕ್ರಮ</string>
+    <string name="mh_intervention_psychoeducation">ಮನೋಶಿಕ್ಷಣ</string>
+    <string name="mh_intervention_counselling">ಆಪ್ತಸಮಾಲೋಚನೆ</string>
+    <string name="mh_intervention_stress_mgmt">ಒತ್ತಡ ನಿರ್ವಹಣೆ</string>
+    <string name="mh_intervention_family_counselling">ಕೌಟುಂಬಿಕ ಆಪ್ತಸಮಾಲೋಚನೆ</string>
+    <string name="mh_suicide_immediate_assess">ಸಿಎಚ್‌ಒ ತಕ್ಷಣದ ಅಪಾಯವನ್ನು ಅಂದಾಜಿಸುತ್ತಾರೆ</string>
+    <string name="mh_suicide_risk_alert_moderate">ಸಾಧಾರಣ ಆತ್ಮಹತ್ಯೆ ಅಪಾಯ: ತಕ್ಷಣದ ಆಪ್ತಸಮಾಲೋಚನೆ ಅಗತ್ಯವಿದೆ. ರೆಫರಲ್ ಅನ್ನು ಪರಿಗಣಿಸಿ.</string>
+    <string name="mh_suicide_risk_alert_high">ಹೆಚ್ಚಿನ ಆತ್ಮಹತ್ಯೆ ಅಪಾಯ: ತುರ್ತು ಮಧ್ಯಸ್ಥಿಕೆ ಅಗತ್ಯವಿದೆ. ತಕ್ಷಣ ರೆಫರ್ ಮಾಡಿ.</string>
+    <string name="mh_date_format_pattern">dd/MM/yyyy</string>
+    <string name="mh_suspected">ಶಂಕಿಸಲಾಗಿದೆ</string>
+    <string name="mh_de_addiction">ವ್ಯಸನಮುಕ್ತಿ</string>
+    <string name="mh_de_addiction_centre">ವ್ಯಸನಮುಕ್ತಿ ಕೇಂದ್ರ</string>
+
+    <string-array name="phq9_severity_options">
+        <item>ಕನಿಷ್ಠ</item>
+        <item>ಮೃದು</item>
+        <item>ಸಾಧಾರಣ</item>
+        <item>ಸಾಧಾರಣ ತೀವ್ರ</item>
+        <item>ಅತೀ ತೀವ್ರ</item>
+    </string-array>
+
+    <string-array name="phq9_system_action_options">
+        <item>ಮನೋಶಿಕ್ಷಣ</item>
+        <item>ಆಪ್ತಸಮಾಲೋಚನೆ - MO/PHC ಗೆ ರೆಫರ್ ಮಾಡಿ</item>
+        <item>ರೆಫರಲ್ - ತುರ್ತು ರೆಫರಲ್</item>
+        <item>ರೆಫರಲ್ - ತುರ್ತು ಚಿಕಿತ್ಸೆಗಾಗಿ ರೆಫರಲ್</item>
+    </string-array>
+
+    <string-array name="mh_tobacco_outcome_options">
+        <item>ಬಳಕೆ ಪತ್ತೆಯಾಗಿದೆ</item>
+        <item>ಬಳಕೆ ಪತ್ತೆಯಾಗಿಲ್ಲ</item>
+    </string-array>
+
+    <string-array name="mh_tobacco_system_action_options">
+        <item>ಸಂಕ್ಷಿಪ್ತ ಆಪ್ತಸಮಾಲೋಚನೆ</item>
+        <item>ರೆಫರಲ್</item>
+    </string-array>
+
+    <string-array name="mh_alcohol_classification_options">
+        <item>ಯಾವುದೇ ಸಮಸ್ಯಾತ್ಮಕ ಮದ್ಯಪಾನ ಬಳಕೆ ಪತ್ತೆಯಾಗಿಲ್ಲ</item>
+        <item>ಸಮಸ್ಯಾತ್ಮಕ ಮದ್ಯಪಾನ ಬಳಕೆ ಶಂಕಿಸಲಾಗಿದೆ</item>
+    </string-array>
+
+    <string-array name="mh_ed_outcome_options">
+        <item>ಶಂಕಿತ ಅಪಸ್ಮಾರ</item>
+        <item>ಶಂಕಿತ ಡಿಮೆನ್ಶಿಯಾ</item>
+        <item>ಶಂಕಿಸಲಾಗಿದೆ</item>
+        <item>ಶಂಕೆಯಿಲ್ಲ</item>
+    </string-array>
+
+    <string name="mh_ed_reason_neurological">ನರವೈಜ್ಞಾನಿಕ ಸ್ಥಿತಿಯ ಶಂಕೆ</string>
+
+    <string-array name="mh_referral_level_dmhp_options">
+        <item>ಪ್ರಾಥಮಿಕ ಆರೋಗ್ಯ ಕೇಂದ್ರ (PHC)</item>
+        <item>ಸಮುದಾಯ ಆರೋಗ್ಯ ಕೇಂದ್ರ (CHC)</item>
+        <item>ಜಿಲ್ಲಾ ಆಸ್ಪತ್ರೆ</item>
+        <item>ಜಿಲ್ಲಾ ಮಾನಸಿಕ ಆರೋಗ್ಯ ಕಾರ್ಯಕ್ರಮ (DMHP)</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_alcohol_options">
+        <item>ಪ್ರಾಥಮಿಕ ಆರೋಗ್ಯ ಕೇಂದ್ರ (PHC)</item>
+        <item>ವ್ಯಸನಮುಕ್ತಿ ಕೇಂದ್ರ</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_rbsk_options">
+        <item>RBSK DEIC</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_child_options">
+        <item>ಪ್ರಾಥಮಿಕ ಆರೋಗ್ಯ ಕೇಂದ್ರ (PHC)</item>
+        <item>ಸಮುದಾಯ ಆರೋಗ್ಯ ಕೇಂದ್ರ (CHC)</item>
+        <item>ಜಿಲ್ಲಾ ಆಸ್ಪತ್ರೆ (DH)</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_adult_options">
+        <item>ಪ್ರಾಥಮಿಕ ಆರೋಗ್ಯ ಕೇಂದ್ರ (PHC)</item>
+        <item>ಸಮುದಾಯ ಆರೋಗ್ಯ ಕೇಂದ್ರ (CHC)</item>
+        <item>ಜಿಲ್ಲಾ ಆಸ್ಪತ್ರೆ (DH)</item>
+        <item>ಡಿಎಂಎಚ್‌ಪಿ (DMHP)</item>
+        <item>ವ್ಯಸನಮುಕ್ತಿ ಕೇಂದ್ರ</item>
+    </string-array>
+    
+    <string-array name="mh_referral_level_standard_mh_options">
+        <item>ಪ್ರಾಥಮಿಕ ಆರೋಗ್ಯ ಕೇಂದ್ರ (PHC)</item>
+        <item>ಜಿಲ್ಲಾ ಮಾನಸಿಕ ಆರೋಗ್ಯ ಕಾರ್ಯಕ್ರಮ (DMHP)</item>
+    </string-array>
+
+    <!-- Missing Mental Health Strings -->
+    <string-array name="alcohol_system_action_options">
+        <item>ಸಂಕ್ಷಿಪ್ತ ಮಧ್ಯಸ್ಥಿಕೆ</item>
+        <item>ರೆಫರಲ್</item>
+    </string-array>
+    <string-array name="mh_case_closure_reason_options">
+        <item>ಚೇತರಿಸಿಕೊಂಡಿದ್ದಾರೆ</item>
+        <item>ರೆಫರ್ ಮಾಡಲಾಗಿದೆ</item>
+        <item>ಫಾಲೋ-ಅಪ್ ಕಳೆದುಹೋಗಿದೆ</item>
+        <item>ಸಾವು</item>
+    </string-array>
+    <string-array name="mh_reason_for_referral_options">
+        <item>ಆತ್ಮಹತ್ಯೆ ಅಪಾಯ / ಸ್ವಯಂ ಹಾನಿ</item>
+        <item>ಸಾಧಾರಣದಿಂದ ತೀವ್ರ ಖಿನ್ನತೆ</item>
+        <item>ತೀವ್ರ ಮಾನಸಿಕ ಅಸ್ವಸ್ಥತೆ ಶಂಕಿಸಲಾಗಿದೆ</item>
+        <item>ವಸ್ತುವಿನ ಅವಲಂಬನೆ / ವಾಪಸಾತಿ ಲಕ್ಷಣಗಳು</item>
+        <item>ಕ್ರಿಯಾತ್ಮಕ ದುರ್ಬಲತೆ</item>
+        <item>ನರವೈಜ್ಞಾನಿಕ ಸ್ಥಿತಿಯ ಶಂಕೆ</item>
+        <item>ಮಗುವಿನ ನಡವಳಿಕೆ ಕಾಳಜಿ</item>
+        <item>ತನಗೆ ಅಥವಾ ಇತರರಿಗೆ ಅಪಾಯ</item>
+        <item>ಯಾವುದೇ ಸುಧಾರಣೆ ಇಲ್ಲ / ಹದಗೆಡುತ್ತಿದೆ</item>
+        <item>ತಜ್ಞರ ಆರೈಕೆ ಅಗತ್ಯವಿದೆ</item>
+    </string-array>
+    <string-array name="mh_reason_for_referral_options_under_11">
+        <item>ಮಾನಸಿಕ ಆರೋಗ್ಯ ದೂರು</item>
+        <item>ವೈದ್ಯಕೀಯ ತೊಡಕು</item>
+    </string-array>
+    <string-array name="mh_referral_level_options">
+        <item>PHC</item>
+        <item>DMHP</item>
+        <item>ವ್ಯಸನಮುಕ್ತಿ ಕೇಂದ್ರ</item>
+    </string-array>
+
+    <string name="ed_age_60_years">ವಯಸ್ಸು ≥ 60 ವರ್ಷಗಳು</string>
+    <string name="ed_confusion_disorientation">ದಿಗ್ಭ್ರಮೆ ಅಥವಾ ಗೊಂದಲ</string>
+    <string name="ed_duration_minutes">ಅವಧಿ (ನಿಮಿಷಗಳಲ್ಲಿ)</string>
+    <string name="ed_edConfusionordrowsiness">ಎಪಿಸೋಡ್ ನಂತರ ಗೊಂದಲ ಅಥವಾ ತೂಕಡಿಕೆ</string>
+    <string name="ed_edRecurrentEpisodeloss">ಪ್ರಜ್ಞೆ ಕಳೆದುಕೊಳ್ಳುವ ಎಪಿಸೋಡ್‌ಗಳು</string>
+    <string name="ed_functional_decline">ದೈನಂದಿನ ಕಾರ್ಯನಿರ್ವಹಣೆಯಲ್ಲಿ ಕುಸಿತ (ಸ್ವಯಂ ಆರೈಕೆ, ದಿನಚರಿ ಚಟುವಟಿಕೆಗಳು)</string>
+    <string name="ed_intervention_type">ಮಧ್ಯಸ್ಥಿಕೆಯ ಪ್ರಕಾರ</string>
+    <string name="ed_progressive_memory_loss">ಪ್ರಗತಿಶೀಲ ಸ್ಮರಣೆ ನಷ್ಟ</string>
+    <string name="ed_psychosocial_intervention_provided">ಮಾನಸಿಕ-ಸಾಮಾಜಿಕ ಮಧ್ಯಸ್ಥಿಕೆಯನ್ನು ಒದಗಿಸಲಾಗಿದೆ</string>
+    <string name="ed_reason">ಕಾರಣ</string>
+    <string name="ed_recurrent_jerky_movements">ಪುನರಾವರ್ತಿತ ಸೆಳೆತದ ಚಲನೆಗಳು / ಫಿಟ್ಸ್</string>
+    <string name="ed_referral_required">ರೆಫರಲ್ ಅಗತ್ಯವಿದೆ</string>
+    <string name="ed_remarks">ಟೀಕೆಗಳು</string>
+    <string name="ed_screening_outcome">ಸ್ಕ್ರೀನಿಂಗ್ ಫಲಿತಾಂಶ</string>
+    <string name="ed_session_date">ಅಧಿವೇಶನದ ದಿನಾಂಕ</string>
+    <string name="epilepsy_dementia_checklist_title">ಅಪಸ್ಮಾರ ಮತ್ತು ಡಿಮೆನ್ಶಿಯಾ ಸ್ಕ್ರೀನಿಂಗ್ ಪರಿಶೀಲನಾಪಟ್ಟಿ</string>
+
+    <string name="mh_adherence_to_advice_title">ಸಲಹೆಯ ಪಾಲನೆ</string>
+    <string name="mh_case_closure_reason_title">ಪ್ರಕರಣವನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸಲು ಕಾರಣ</string>
+    <string name="mh_follow_up_date_title">ಫಾಲೋ-ಅಪ್ ದಿನಾಂಕ</string>
+    <string name="mh_follow_up_required_title">ಫಾಲೋ-ಅಪ್ ಅಗತ್ಯವಿದೆ</string>
+    <string name="mh_improvement_noted_title">ಸುಧಾರಣೆ ಕಂಡುಬಂದಿದೆ</string>
+    <string name="mh_reason_for_referral_title">ರೆಫರಲ್‌ಗೆ ಕಾರಣ</string>
+    <string name="mh_referral_date_title">ರೆಫರಲ್ ದಿನಾಂಕ</string>
+    <string name="mh_referral_escalation_title">ಹೆಚ್ಚಿನ ಹಂತಕ್ಕೆ ಕಳುಹಿಸುವುದು ಅಗತ್ಯವಿದೆ</string>
+    <string name="mh_referral_level_title">ರೆಫರಲ್ ಹಂತ</string>
+    <string name="mh_referral_required_title">ರೆಫರಲ್ ಅಗತ್ಯವಿದೆ</string>
+    <string name="mh_repeat_phq9_title">PHQ-9 ಅನ್ನು ಪುನರಾವರ್ತಿಸಿ</string>
+
+    <string name="phq9_alert_emergency"><font color="#FF0000">ತುರ್ತು ರೆಫರಲ್ (PHQ-9 ಸ್ಕೋರ್ ≥ 20)</font></string>
+    <string name="phq9_alert_referral_mo_phc"><font color="#FF0000">MO/PHC ಗೆ ರೆಫರ್ ಮಾಡಿ (PHQ-9 ಸ್ಕೋರ್ ≥ 10)</font></string>
+    <string name="phq9_alert_urgent"><font color="#FF0000">ತ್ವರಿತ ರೆಫರಲ್ (PHQ-9 ಸ್ಕೋರ್ ≥ 15)</font></string>
+
+    <string name="substance_alcohol_classification">ಆಲ್ಕೋಹಾಲ್ ಬಳಕೆಯ ವರ್ಗೀಕರಣ</string>
+    <string name="substance_alcohol_frequency">ಆಲ್ಕೋಹಾಲ್ ಬಳಕೆಯ ಆವರ್ತನ</string>
+    <string name="substance_alcohol_impact">ದೈನಂದಿನ ಕಾರ್ಯಚಟುವಟಿಕೆಗಳ ಮೇಲಿನ ಪ್ರಭಾವ (ಆರೋಗ್ಯ, ಕುಟುಂಬ, ಕೆಲಸ)</string>
+    <string name="substance_alcohol_loss">ಮದ್ಯಪಾನದ ಮೇಲಿನ ನಿಯಂತ್ರಣವನ್ನು ಕಳೆದುಕೊಳ್ಳುವುದು</string>
+    <string name="substance_alcohol_problematic">ಸಮಸ್ಯಾತ್ಮಕ ಆಲ್ಕೋಹಾಲ್ ಬಳಕೆಯ ಬಗ್ಗೆ CHO ಮೌಲ್ಯಮಾಪನ</string>
+    <string name="substance_alcohol_system_action">ವ್ಯವಸ್ಥೆಯ ಕ್ರಮ</string>
+    <string name="substance_alcohol_title">ಆಲ್ಕೋಹಾಲ್ ಬಳಕೆಯ ಗುರುತಿಸುವಿಕೆ</string>
+    <string name="substance_alcohol_withdrawal">ನಿರ್ಗಮನದ (withdrawal) ಲಕ್ಷಣಗಳನ್ನು ಸೂಚಿಸುವ ಗುಣಲಕ್ಷಣಗಳು</string>
+    <string name="substance_tobacco_title">ತಂಬಾಕು ಬಳಕೆಯ ಗುರುತಿಸುವಿಕೆ</string>
+    
+    <string name="elderly_health_assessment_saved">ವಯೋವೃದ್ಧರ ಆರೋಗ್ಯ ಮೌಲ್ಯಮಾಪನವನ್ನು ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="ear_diagnosis_saved">ಕಿವಿ ರೋಗನಿರ್ಣಯವನ್ನು ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="throat_diagnosis_saved">ಗಂಟಲು ರೋಗನಿರ್ಣಯವನ್ನು ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="nose_diagnosis_saved">ಮೂಗಿನ ರೋಗನಿರ್ಣಯವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="title_nose_diagnosis">ಮೂಗು ರೋಗನಿರ್ಣಯ ಫಾರ್ಮ್</string>
+    <string name="title_ear_diagnosis">ಕಿವಿ ರೋಗನಿರ್ಣಯ ಫಾರ್ಮ್</string>
+    <string name="title_throat_diagnosis">ಗಂಟಲು ರೋಗನಿರ್ಣಯ ಫಾರ್ಮ್</string>
+    <string name="oral_health_saved">ಬಾಯಿಯ ಆರೋಗ್ಯ ವಿವರಗಳು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ</string>
+    <string name="title_oral_health">ದಂತ ಆರೋಗ್ಯ ಫಾರ್ಮ್</string>
+
 </resources>

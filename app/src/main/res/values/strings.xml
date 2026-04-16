@@ -269,6 +269,57 @@
     <string name="ophthalmic_foreign_body_removal_attempted">Foreign Body Removal Attempted</string>
     <string name="ophthalmic_chemical_exposure_wash_performed">Chemical Exposure \u2013 Thorough Wash Performed</string>
 
+    <string-array name="ophthalmic_reason_for_visit_options">
+        <item>Screening</item>
+        <item>Symptomatic</item>
+        <item>First aid for eye injury/ trauma</item>
+    </string-array>
+
+    <string-array name="ophthalmic_chart_options">
+        <item>Snellen\'s distance chart</item>
+        <item>Near vision chart</item>
+    </string-array>
+
+    <string-array name="ophthalmic_case_id_options">
+        <item>Cataract</item>
+        <item>Glaucoma</item>
+        <item>Diabetic retinopathy</item>
+        <item>Presbyopia</item>
+        <item>Trachoma</item>
+        <item>Corneal disease</item>
+        <item>Conjunctivitis/Acute red eye</item>
+        <item>Dry eye / xerophthalmia</item>
+        <item>Eye allergy</item>
+    </string-array>
+
+    <string-array name="ophthalmic_injury_type_options">
+        <item>Mechanical foreign body</item>
+        <item>Blunt trauma</item>
+        <item>Penetrating injury suspected</item>
+        <item>Chemical (acid/alkali/other)</item>
+    </string-array>
+
+    <string-array name="ophthalmic_foreign_body_options">
+        <item>Not attempted</item>
+        <item>Attempted from conjunctival sac</item>
+        <item>Foreign body lodged in cornea</item>
+    </string-array>
+
+    <string-array name="ophthalmic_trachoma_options">
+        <item>Suspected active trachoma</item>
+        <item>Suspected TT/TI</item>
+        <item>No trachoma</item>
+    </string-array>
+
+    <string-array name="ophthalmic_corneal_disease_options">
+        <item>Corneal opacity</item>
+        <item>Corneal ulcer suspected</item>
+        <item>Other corneal pathology</item>
+    </string-array>
+    <string name="saved_successfully">Saved successfully</string>
+    <string name="save_failed_retry">Save failed. Please retry.</string>
+    <string name="please_complete_field">Please complete: %s</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -1212,6 +1263,7 @@
     <string name="title_pain_symptom_assessment">Palliative Care Identification Form</string>
     <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
     <string name="title_nose_diagnosis">Nose Diagnosis Form</string>
+    <string name="nose_diagnosis_saved">Nose Diagnosis Saved</string>
     <string name="title_throat_diagnosis">Throat Diagnosis Form</string>
     <string name="throat_diagnosis_saved">Throat Diagnosis Saved</string>
 
@@ -1639,5 +1691,216 @@
         <item>Death</item>
     </string-array>
     <string name="cd_camera_search">Open camera</string>
+
+    <!-- Ear Diagnosis Dataset -->
+    <string name="ear_difficulty_hearing">Difficulty Hearing</string>
+    <string name="ear_whisper_test_response">Whisper Test Response</string>
+    <string name="ear_whisper_correct">Correct</string>
+    <string name="ear_whisper_incorrect">Incorrect</string>
+    <string name="ear_hearing_test_outcome">Hearing Test Outcome</string>
+    <string name="ear_hearing_normal">Normal</string>
+    <string name="ear_hearing_slight_loss">Slight Loss</string>
+    <string name="ear_hearing_moderate">Moderate</string>
+    <string name="ear_hearing_severe">Severe</string>
+    <string name="ear_hearing_deaf">Deaf</string>
+    <string name="ear_pain">Earache / Ear Pain</string>
+    <string name="ear_discharge_present">Ear Discharge Present</string>
+    <string name="ear_foreign_body">Foreign Body Present in Ear</string>
+    <string name="ear_foreign_body_superficial">Yes (Superficial)</string>
+    <string name="ear_foreign_body_deep">Yes (Deep)</string>
+    <string name="ear_condition_type">Type of Ear Condition</string>
+    <string name="ear_otomycosis">Otomycosis</string>
+    <string name="ear_otitis_externa">Otitis Externa</string>
+    <string name="ear_acute_discharge">Acute Ear Discharge</string>
+    <string name="ear_chronic_discharge">Chronic Ear Discharge</string>
+    <string name="ear_wax">Ear Wax</string>
+    <string name="ear_congenital_malformation">Congenital Ear Malformation</string>
+    <string name="ear_alert_abnormal_hearing">Abnormal hearing detected. Refer patient to specialist at secondary level.</string>
+    <string name="ear_alert_deep_foreign_body">Deep foreign body detected. Refer patient to specialist at secondary level.</string>
+    <string name="ear_alert_congenital_malformation">Congenital ear malformation detected. Refer patient to specialist at secondary level.</string>
+
+    <!-- Oral Health Dataset -->
+    <string name="oral_tooth_decay_present">Tooth Decay Present</string>
+    <string name="oral_tooth_decay_symptoms">Symptoms of Tooth Decay</string>
+    <string name="oral_symptom_black_spot">Black spot</string>
+    <string name="oral_symptom_discoloration">Discoloration of tooth Cavity</string>
+    <string name="oral_symptom_hole">Hole in the tooth</string>
+    <string name="oral_symptom_sensitivity">Sensitivity to hot and cold, sweet and sour</string>
+    <string name="oral_symptom_food_lodgment">Food lodgment in the cavity/ between teeth</string>
+    <string name="oral_symptom_pain">Pain</string>
+    <string name="oral_symptom_swelling">Swelling</string>
+    <string name="oral_symptom_pus_discharge">Pus discharge</string>
+    <string name="oral_gum_disease_present">Gum Diseases Present</string>
+    <string name="oral_gum_disease_symptoms">Symptoms of Gum Diseases</string>
+    <string name="oral_gum_foul_smell">Foul smell</string>
+    <string name="oral_gum_bleeding">Bleeding gums</string>
+    <string name="oral_gum_deposits">Deposits and discoloration of tooth</string>
+    <string name="oral_gum_loose_teeth">Loose teeth</string>
+    <string name="oral_gum_widening_gap">Widening gap between teeth</string>
+    <string name="oral_gum_swollen">Swollen gums</string>
+    <string name="oral_irregular_teeth_jaws">Irregular Teeth/Jaws</string>
+    <string name="oral_abnormal_growth_ulcer">Abnormal Growth/Ulcer</string>
+    <string name="oral_cleft_lip_palate">Cleft Lip/Palate</string>
+    <string name="oral_dental_fluorosis">Dental Fluorosis</string>
+    <string name="oral_dental_emergency">Dental Emergency</string>
+    <string name="oral_emergency_pain">Pain</string>
+    <string name="oral_emergency_abscess">Abscess</string>
+    <string name="oral_emergency_swelling">Swelling</string>
+    <string name="oral_emergency_tooth_injury">Tooth Injury</string>
+    <string name="oral_emergency_avulsion">Avulsion</string>
+    <string name="oral_emergency_non_healing_ulcer">Non-Healing Ulcer</string>
+    <string name="oral_emergency_uncontrolled_bleeding">Uncontrolled Bleeding</string>
+    <string name="oral_emergency_trauma">Trauma (Fractured jaw/mobile teeth)</string>
+
+    <!-- Elderly Health Assessment Dataset -->
+    <string name="elderly_geriatric_complaints">General geriatric complaints present?</string>
+    <string name="elderly_multiple_chronic">Multiple chronic conditions</string>
+    <string name="elderly_recent_falls">Recent falls</string>
+    <string name="elderly_difficulty_walking">Difficulty in walking or balance</string>
+    <string name="elderly_visual_hearing">Visual or hearing difficulty</string>
+    <string name="elderly_functional_decline">Functional decline / difficulty in daily activities (ADL)</string>
+    <string name="elderly_functional_assessment_headline">Functional Assessment section</string>
+    <string name="elderly_bathing">Bathing</string>
+    <string name="elderly_dressing">Dressing</string>
+    <string name="elderly_toileting">Toileting</string>
+    <string name="elderly_transferring">Transferring</string>
+    <string name="elderly_continence">Continence</string>
+    <string name="elderly_feeding">Feeding</string>
+    <string name="elderly_independent">Independent (1)</string>
+    <string name="elderly_dependent">Dependent (0)</string>
+    <string name="elderly_total_score">Total Score</string>
+    <string name="elderly_functional_status">Functional Status</string>
+    <string name="elderly_functional_decline_flag">Functional Decline Flag</string>
+    <string name="elderly_status_no_decline">No decline</string>
+    <string name="elderly_status_partial_dependence">Partial Dependence</string>
+    <string name="elderly_status_functional_dependence">Functional Dependence</string>
+    <string name="elderly_status_highly_dependent">Highly Dependent</string>
+    <string name="elderly_status_unknown">Unknown</string>
+    <string name="elderly_memory_loss">Memory loss or confusion</string>
+    <string name="elderly_dementia_headline">Dementia Screening Checklist</string>
+    <string name="elderly_dementia_memory_loss">Progressive memory loss</string>
+    <string name="elderly_dementia_disorientation">Disorientation (time/place/person)</string>
+    <string name="elderly_dementia_behavioural">Behavioural changes</string>
+    <string name="elderly_dementia_self_care">Decline in self-care / routine activities</string>
+    <string name="elderly_screening_outcome">Screening Outcome</string>
+    <string name="elderly_referral_required">Referral Required</string>
+    <string name="elderly_outcome_suspected">Suspected</string>
+    <string name="elderly_outcome_not_suspected">Not suspected</string>
+    <string name="elderly_alert_functional_decline">Patient has functional decline. Please refer to higher facility if needed.</string>
+    <string name="elderly_alert_memory_loss">Patient has memory loss. Please refer to higher facility if needed.</string>
+
+    <!-- Psychosocial Caregiver Support Dataset -->
+    <string name="psychosocial_counselling_provided">Psychosocial counselling provided</string>
+    <string name="psychosocial_caregiver_counselling">Caregiver counselling provided</string>
+    <string name="psychosocial_caregiver_distress">Caregiver distress identified</string>
+    <string name="psychosocial_counselling_remarks">Counselling remarks</string>
+
+    <!-- Mental Health Screening – remaining hardcoded strings -->
+    <string name="mh_depression_severity">Depression Severity</string>
+    <string name="mh_system_action">System Action</string>
+    <string name="mh_current_tobacco_use">Current tobacco use</string>
+    <string name="mh_tobacco_type">Type of tobacco use</string>
+    <string name="mh_tobacco_smoking">Smoking</string>
+    <string name="mh_tobacco_smokeless">Smokeless</string>
+    <string name="mh_tobacco_both">Both</string>
+    <string name="mh_tobacco_frequency">Frequency of tobacco use</string>
+    <string name="mh_tobacco_occasional">Occasional</string>
+    <string name="mh_tobacco_daily">Daily</string>
+    <string name="mh_tobacco_outcome">Tobacco use outcome</string>
+    <string name="mh_tobacco_system_action">System action</string>
+    <string name="mh_intervention_psychoeducation">Psychoeducation</string>
+    <string name="mh_intervention_counselling">Counselling</string>
+    <string name="mh_intervention_stress_mgmt">Stress management</string>
+    <string name="mh_intervention_family_counselling">Family counselling</string>
+    <string name="mh_suicide_immediate_assess">CHO assesses immediate risk</string>
+    <string name="mh_suicide_risk_alert_moderate">Moderate Suicide Risk: Immediate counselling required. Consider referral.</string>
+    <string name="mh_suicide_risk_alert_high">High Suicide Risk: Emergency intervention required. Refer immediately.</string>
+    <string name="mh_date_format_pattern">dd/MM/yyyy</string>
+    <string name="mh_suspected">Suspected</string>
+    <string name="mh_de_addiction">De-addiction</string>
+    <string name="mh_de_addiction_centre">De-addiction centre</string>
+
+    <!-- PHQ-9 Severity -->
+    <string-array name="phq9_severity_options">
+        <item>Minimal</item>
+        <item>Mild</item>
+        <item>Moderate</item>
+        <item>Moderately Severe</item>
+        <item>Severe</item>
+    </string-array>
+
+    <!-- PHQ-9 System Actions -->
+    <string-array name="phq9_system_action_options">
+        <item>Psychoeducation</item>
+        <item>Counselling - Refer to MO/PHC</item>
+        <item>Referral - Urgent referral</item>
+        <item>Referral - Emergency referral</item>
+    </string-array>
+
+    <!-- Tobacco Outcomes -->
+    <string-array name="mh_tobacco_outcome_options">
+        <item>Use identified</item>
+        <item>No use identified</item>
+    </string-array>
+
+    <!-- Tobacco System Actions -->
+    <string-array name="mh_tobacco_system_action_options">
+        <item>Brief counselling</item>
+        <item>Referral</item>
+    </string-array>
+
+    <!-- Alcohol Classification -->
+    <string-array name="mh_alcohol_classification_options">
+        <item>No problematic alcohol use identified</item>
+        <item>Problematic alcohol use suspected</item>
+    </string-array>
+
+    <!-- ED Screening Outcomes -->
+    <string-array name="mh_ed_outcome_options">
+        <item>Suspected Epilepsy</item>
+        <item>Suspected Dementia</item>
+        <item>Suspected</item>
+        <item>Not suspected</item>
+    </string-array>
+
+    <string name="mh_ed_reason_neurological">Neurological condition suspected</string>
+
+    <!-- Contextual Referral Levels -->
+    <string-array name="mh_referral_level_dmhp_options">
+        <item>Primary Health Centre (PHC)</item>
+        <item>CHC</item>
+        <item>District Hospital</item>
+        <item>District Mental Health Programme (DMHP)</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_alcohol_options">
+        <item>PHC</item>
+        <item>De-addiction</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_rbsk_options">
+        <item>RBSK DEIC</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_child_options">
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>DH</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_adult_options">
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>DH</item>
+        <item>DMHP</item>
+        <item>De-addiction</item>
+    </string-array>
+    
+    <string-array name="mh_referral_level_standard_mh_options">
+        <item>PHC</item>
+        <item>DMHP</item>
+    </string-array>
+    
+    <string name="elderly_health_assessment_saved">Elderly Health Assessment Saved</string>
 </resources>
 
