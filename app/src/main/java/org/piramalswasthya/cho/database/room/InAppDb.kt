@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 142, exportSchema = false
+    version = 145, exportSchema = false
 )
 
 
@@ -828,11 +828,11 @@ abstract class InAppDb : RoomDatabase() {
                 )
                 database.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_oral_health_patient_id " +
-                        "ON ORAL_HEALTH(patient_id)"
+                            "ON ORAL_HEALTH(patient_id)"
                 )
                 database.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_oral_health_patient_visit " +
-                        "ON ORAL_HEALTH(patient_id, ben_visit_no)"
+                            "ON ORAL_HEALTH(patient_id, ben_visit_no)"
                 )
             }
         }
@@ -1115,6 +1115,38 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_142_143 = object : Migration(142, 143) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add ADL assessment columns to ELDERLY_HEALTH_ASSESSMENT
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "bathing", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "dressing", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "toileting", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "transferring", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "continence", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "feeding", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "total_score", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "functional_status", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "functional_decline_flag", "INTEGER")
+            }
+        }
+        val MIGRATION_143_144 = object : Migration(143, 144) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_reason", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_confusion_ordrowsiness", "INTEGER")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "adherence_to_advice", "TEXT")
+            }
+        }
+
+        val MIGRATION_144_145 = object : Migration(144, 145) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_symptoms_selected", "TEXT")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_symptom_relief_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_psychosocial_support_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_caregiver_counselling_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_management_remarks", "TEXT")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1181,7 +1213,10 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_138_139,
                             MIGRATION_139_140,
                             MIGRATION_140_141,
-                            MIGRATION_141_142
+                            MIGRATION_141_142,
+                            MIGRATION_142_143,
+                            MIGRATION_143_144,
+                            MIGRATION_144_145
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

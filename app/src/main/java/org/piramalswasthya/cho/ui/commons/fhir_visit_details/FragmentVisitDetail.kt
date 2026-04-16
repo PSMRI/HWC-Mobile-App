@@ -390,7 +390,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     requireContext(),
                     R.layout.dropdown_subcategory,
                     R.id.tv_dropdown_item_text,
-                    listOf(DropdownConst.oral)
+                    listOf(DropdownConst.oral,DropdownConst.mentalHealth)
                 )
             )
         }
@@ -487,7 +487,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 "Difficulty in hearing",
                 "Ear wax",
                 "Congenital Ear Malformation",
-                "Foreign body in ear."
+                "Foreign body in ear"
             )
             val validThroatChiefComplaints = listOf(
                 "Neck swelling",
@@ -1179,7 +1179,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             DropdownConst.male_ncd
         ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female" ->
             resolveFemaleSubCategoryOptions()
-        else -> listOf(DropdownConst.oral)
+        else -> listOf(DropdownConst.oral , DropdownConst.mentalHealth)
     }
 
     private fun rebuildSubCategoryAdapter() {

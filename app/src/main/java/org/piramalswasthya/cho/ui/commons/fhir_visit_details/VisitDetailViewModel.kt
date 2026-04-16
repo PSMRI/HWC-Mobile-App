@@ -395,6 +395,7 @@ class VisitDetailViewModel @Inject constructor(
                     DropdownConst.CONDITION_FOREIGN_BODY_EYE
                 )
                 val canonicalOralComplaints = DropdownConst.oralChiefComplaints.toList()
+                val canonicalEntComplaints = DropdownConst.entChiefComplaints.toList()
 
                 fun normalize(v: String) = v.lowercase().replace("[^a-z0-9]".toRegex(), "")
                 val existingNormalized = list.map { normalize(it.chiefComplaint) }.toSet()
@@ -407,7 +408,11 @@ class VisitDetailViewModel @Inject constructor(
                     .filter { normalize(it) !in existingNormalized }
                     .mapIndexed { index, complaint -> ChiefComplaintMaster(-(200 + index), complaint) }
 
-                list + missingEye + missingOral
+                val missingEnt = canonicalEntComplaints
+                    .filter { normalize(it) !in existingNormalized }
+                    .mapIndexed { index, complaint -> ChiefComplaintMaster(-(300 + index), complaint) }
+
+                list + missingEye + missingOral + missingEnt
             }
         } catch (e: Exception) {
             Timber.d("error in getChiefMasterComplaintList() $e")

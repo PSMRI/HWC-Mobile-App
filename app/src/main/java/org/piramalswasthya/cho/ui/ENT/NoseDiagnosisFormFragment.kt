@@ -114,7 +114,7 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
                 BaseFormViewModel.State.SAVE_SUCCESS -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
-                    Toast.makeText(context, "Nose Diagnosis Saved", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, getString(R.string.nose_diagnosis_saved), Toast.LENGTH_LONG).show()
                     // Stamp Nose visit metadata onto MasterDb and navigate to vitals; replaces the previous navigateUp() that bypassed visit registration.
                     val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
                         ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
@@ -130,7 +130,7 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
                 BaseFormViewModel.State.SAVE_FAILED -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
-                    Toast.makeText(context, "Save failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, getString(R.string.save_failed_retry), Toast.LENGTH_LONG).show()
                 }
                 else -> Unit
             }
@@ -139,9 +139,9 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
         viewModel.showAlert.observe(viewLifecycleOwner) { message ->
             message?.let {
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Alert")
+                    .setTitle(getString(R.string.alert))
                     .setMessage(it)
-                    .setPositiveButton("OK") { dialog, _ ->
+                    .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
                         dialog.dismiss()
                         viewModel.clearAlert()
                     }

@@ -108,7 +108,12 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
 
         viewLifecycleOwner.lifecycleScope.launch {
             getFormFlow().collect { list ->
-                if (list.isNotEmpty()) adapter.submitList(list)
+                if (list.isNotEmpty()) {
+                    adapter.submitList(list.toMutableList()) {
+                        //This are required to reflected without requiring manual scroll.
+                        inputFormRecyclerView.post { adapter.notifyDataSetChanged() }
+                    }
+                }
             }
         }
 

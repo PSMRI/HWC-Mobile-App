@@ -6,6 +6,8 @@ import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.R
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -19,13 +21,42 @@ class MentalHealthScreeningDataset(
     private lateinit var suicideRiskOptions: Array<String>
     private lateinit var epilepsyDurationOptions: Array<String>
     private lateinit var yesNoOptions: Array<String>
+    private lateinit var alcoholSystemActionOptions: Array<String>
+
+    private lateinit var phq9SeverityOptions: Array<String>
+    private lateinit var phq9SystemActionOptions: Array<String>
+    private lateinit var tobaccoOutcomeOptions: Array<String>
+    private lateinit var tobaccoSystemActionOptions: Array<String>
+    private lateinit var alcoholClassificationOptions: Array<String>
+    private lateinit var mhEdOutcomeOptions: Array<String>
+    private lateinit var mhEdReasonNeurological: String
+    private lateinit var mhSuspected: String
+    private lateinit var mhDeAddiction: String
+    private lateinit var mhDeAddictionCentre: String
+    private lateinit var mhDateFormatPattern: String
+
+    private lateinit var referralLevelDmhpOptions: Array<String>
+    private lateinit var referralLevelAlcoholOptions: Array<String>
+    private lateinit var referralLevelRbskOptions: Array<String>
+    private lateinit var referralLevelChildOptions: Array<String>
+    private lateinit var referralLevelAdultOptions: Array<String>
+    private lateinit var referralLevelStandardMhOptions: Array<String>
 
     private lateinit var cache: MentalHealthScreeningCache
     private var lastPhq9AlertLevel = 0
     private var lastSuicideRiskLevel = ""
+    private var genderID: Int? = null
+    private var age: Int? = null
+    private var wasAutoReferralForced = false
+    private val _phq9AlertMessageFlow = MutableStateFlow<CharSequence?>(null)
+    val phq9AlertMessageFlow = _phq9AlertMessageFlow.asStateFlow()
 
     init {
         loadResourceStrings()
+    }
+
+    fun resetPhq9AlertMessageFlow() {
+        _phq9AlertMessageFlow.value = null
     }
 
     private fun loadResourceStrings() {
@@ -35,6 +66,27 @@ class MentalHealthScreeningDataset(
             suicideRiskOptions = getStringArray(R.array.suicide_risk_options)
             epilepsyDurationOptions = getStringArray(R.array.epilepsy_duration_options)
             yesNoOptions = getStringArray(R.array.yes_no_options)
+            alcoholSystemActionOptions = getStringArray(R.array.alcohol_system_action_options)
+
+            phq9SeverityOptions = getStringArray(R.array.phq9_severity_options)
+            phq9SystemActionOptions = getStringArray(R.array.phq9_system_action_options)
+            tobaccoOutcomeOptions = getStringArray(R.array.mh_tobacco_outcome_options)
+            tobaccoSystemActionOptions = getStringArray(R.array.mh_tobacco_system_action_options)
+            alcoholClassificationOptions = getStringArray(R.array.mh_alcohol_classification_options)
+            mhEdOutcomeOptions = getStringArray(R.array.mh_ed_outcome_options)
+            mhEdReasonNeurological = getString(R.string.mh_ed_reason_neurological)
+
+            referralLevelDmhpOptions = getStringArray(R.array.mh_referral_level_dmhp_options)
+            referralLevelAlcoholOptions = getStringArray(R.array.mh_referral_level_alcohol_options)
+            referralLevelRbskOptions = getStringArray(R.array.mh_referral_level_rbsk_options)
+            referralLevelChildOptions = getStringArray(R.array.mh_referral_level_child_options)
+            referralLevelAdultOptions = getStringArray(R.array.mh_referral_level_adult_options)
+            referralLevelStandardMhOptions = getStringArray(R.array.mh_referral_level_standard_mh_options)
+
+            mhSuspected = getString(R.string.mh_suspected)
+            mhDeAddiction = getString(R.string.mh_de_addiction)
+            mhDeAddictionCentre = getString(R.string.mh_de_addiction_centre)
+            mhDateFormatPattern = getString(R.string.mh_date_format_pattern)
         }
     }
 
@@ -76,7 +128,7 @@ class MentalHealthScreeningDataset(
     private val isPostpartum: FormElement by lazy {
         FormElement(
             id = 106,
-            inputType = InputType.TEXT_VIEW,
+            inputType = InputType.RADIO,
             title = context.getString(R.string.postpartum_woman),
             entries = yesNoOptions,
             required = false,
@@ -99,6 +151,22 @@ class MentalHealthScreeningDataset(
             inputType = InputType.TEXT_VIEW,
             title = titleStr,
             required = false
+        )
+    }
+
+    private fun createDropDownElement(
+        elementId: Int,
+        titleStr: String,
+        options: Array<String>,
+        hasDependants: Boolean = false
+    ): FormElement {
+        return FormElement(
+            id = elementId,
+            inputType = InputType.DROPDOWN,
+            title = titleStr,
+            entries = options,
+            required = false,
+            hasDependants = hasDependants
         )
     }
     private val mhReferralRequired: FormElement by lazy {
@@ -165,7 +233,17 @@ class MentalHealthScreeningDataset(
             id = 113,
             inputType = InputType.RADIO,
             title = context.getString(R.string.mh_improvement_noted_title),
-            entries = context.resources.getStringArray(R.array.mh_improvement_noted_options),
+            entries = yesNoOptions,
+            required = true
+        )
+    }
+
+    private val mhAdherenceToAdvice: FormElement by lazy {
+        FormElement(
+            id = 117,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.mh_adherence_to_advice_title),
+            entries = yesNoOptions,
             required = true
         )
     }
@@ -251,9 +329,9 @@ class MentalHealthScreeningDataset(
 
     private var phq9TotalScore = createTextViewElement(210, context.getString(R.string.phq9_total_score))
 
-    private var phq9DepressionSeverity = createTextViewElement(211, "Depression Severity")
+    private var phq9DepressionSeverity = createTextViewElement(211, context.getString(R.string.mh_depression_severity))
 
-    private var phq9SystemAction = createTextViewElement(212, "System Action")
+    private var phq9SystemAction = createTextViewElement(212, context.getString(R.string.mh_system_action))
 
     private val substanceHeader: FormElement by lazy {
         createHeadlineElement(300, R.string.substance_section_title)
@@ -269,8 +347,8 @@ class MentalHealthScreeningDataset(
     private val substanceCurrentTobaccoUse = FormElement(
         id = 307,
         inputType = InputType.RADIO,
-        title = "Current tobacco use",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.mh_current_tobacco_use),
+        entries = yesNoOptions,
         required = true,
         hasDependants = true
     )
@@ -278,22 +356,29 @@ class MentalHealthScreeningDataset(
     private val substanceTobaccoType = FormElement(
         id = 308,
         inputType = InputType.DROPDOWN,
-        title = "Type of tobacco use",
-        entries = arrayOf("Smoking", "Smokeless", "Both"),
+        title = context.getString(R.string.mh_tobacco_type),
+        entries = arrayOf(
+            context.getString(R.string.mh_tobacco_smoking),
+            context.getString(R.string.mh_tobacco_smokeless),
+            context.getString(R.string.mh_tobacco_both)
+        ),
         required = true
     )
 
     private val substanceTobaccoFrequency = FormElement(
         id = 309,
         inputType = InputType.DROPDOWN,
-        title = "Frequency of tobacco use",
-        entries = arrayOf("Occasional", "Daily"),
+        title = context.getString(R.string.mh_tobacco_frequency),
+        entries = arrayOf(
+            context.getString(R.string.mh_tobacco_occasional),
+            context.getString(R.string.mh_tobacco_daily)
+        ),
         required = true
     )
 
-    private var substanceTobaccoOutcome = createTextViewElement(310, "Tobacco use outcome")
+    private var substanceTobaccoOutcome = createTextViewElement(310, context.getString(R.string.mh_tobacco_outcome))
 
-    private var substanceSystemAction = createTextViewElement(311, "System action")
+    private var substanceSystemAction = createTextViewElement(311, context.getString(R.string.mh_tobacco_system_action))
 
     private val substanceAlcoholUse: FormElement by lazy {
         FormElement(
@@ -345,7 +430,9 @@ class MentalHealthScreeningDataset(
 
     private val substanceAlcoholClassification = createTextViewElement(317, context.getString(R.string.substance_alcohol_classification))
 
-    private val substanceAlcoholSystemAction = createTextViewElement(318, context.getString(R.string.substance_alcohol_system_action))
+    private val substanceAlcoholSystemAction by lazy {
+        createDropDownElement(318, context.getString(R.string.substance_alcohol_system_action), alcoholSystemActionOptions, hasDependants = true)
+    }
 
     private val substance_alcohol_frequency: FormElement by lazy {
         FormElement(
@@ -493,12 +580,37 @@ class MentalHealthScreeningDataset(
         createEdCheckboxElement(704, R.string.ed_functional_decline)
     }
 
+    private val edAge60Years: FormElement by lazy {
+        FormElement(
+            id = 714,
+            inputType = InputType.TEXT_VIEW,
+            title = context.getString(R.string.ed_age_60_years),
+            entries = yesNoOptions,
+            required = false,
+            isEnabled = false
+
+        )
+    }
+
     private var edScreeningOutcome = createTextViewElement(705, context.getString(R.string.ed_screening_outcome))
 
-    private var edReferralRequired = createTextViewElement(706, context.getString(R.string.ed_referral_required))
+    private val edReferralRequired: FormElement by lazy {
+        FormElement(
+            id = 706,
+            inputType = InputType.RADIO,
+            title = context.getString(R.string.ed_referral_required),
+            entries = yesNoOptions,
+            required = false
+        )
+    }
+    private var edReason = createTextViewElement(715, context.getString(R.string.ed_reason))
     private val edRecurrentEpisodeloss: FormElement by lazy {
         createEdCheckboxElement(707, R.string.ed_edRecurrentEpisodeloss)
     }
+    private val edConfusionordrowsiness: FormElement by lazy {
+        createEdCheckboxElement(713, R.string.ed_edConfusionordrowsiness)
+    }
+
     private val edPsychosocialIntervention: FormElement by lazy {
         FormElement(
             id = 708,
@@ -515,7 +627,12 @@ class MentalHealthScreeningDataset(
             id = 709,
             inputType = InputType.CHECKBOXES,
             title = context.getString(R.string.ed_intervention_type),
-            entries = arrayOf("Psychoeducation", "Counselling", "Stress management", "Family counselling"),
+            entries = arrayOf(
+                context.getString(R.string.mh_intervention_psychoeducation),
+                context.getString(R.string.mh_intervention_counselling),
+                context.getString(R.string.mh_intervention_stress_mgmt),
+                context.getString(R.string.mh_intervention_family_counselling)
+            ),
             required = true
         )
     }
@@ -558,14 +675,20 @@ class MentalHealthScreeningDataset(
 
     suspend fun setUpPage(
         savedRecord: MentalHealthScreeningCache?,
-        isPostpartumFromRmncha: Boolean = false
+        isPostpartumFromRmncha: Boolean? = null,
+        genderID: Int? = null,
+        age: Int? = null
     ) {
+        this.genderID = genderID
+        this.age = age
         cache = savedRecord ?: MentalHealthScreeningCache(
             patientID = "",
             benVisitNo = null
         )
 
-        cache.isPostpartum = isPostpartumFromRmncha
+        if (cache.isPostpartum == null && isPostpartumFromRmncha != null && genderID == 2 && age in 15..49) {
+            cache.isPostpartum = isPostpartumFromRmncha
+        }
 
         populateFromCache(cache)
 
@@ -573,16 +696,200 @@ class MentalHealthScreeningDataset(
     }
 
     private fun shouldShowPhq9(): Boolean {
-        return emotionalBehaviouralConcerns.value == "Yes" ||
-                selfHarmSuicideThoughts.value == "Yes" ||
-                cache.isPostpartum == true
+        return isYes(emotionalBehaviouralConcerns.value) ||
+                isYes(selfHarmSuicideThoughts.value) ||
+                isYes(isPostpartum.value)
     }
     private fun todayDateString(): String =
-        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+        SimpleDateFormat(mhDateFormatPattern, Locale.ENGLISH).format(Date())
 
     private fun shouldAutoSuggestReferral(): Boolean {
         return dementiaDailyActivities.value == yesNoOptions[0] ||
-                substanceAlcoholClassification.value == "Problematic"
+                substanceAlcoholClassification.value == alcoholClassificationOptions.getOrNull(1)
+    }
+
+    private fun shouldShowReferralRequiredField(): Boolean {
+        return isYes(emotionalBehaviouralConcerns.value) ||
+                isYes(substanceUseConcerns.value) ||
+                isYes(selfHarmSuicideThoughts.value) ||
+                isYes(memoryLossConfusion.value) ||
+                isYes(seizuresFitsLoc.value) ||
+                isYes(isPostpartum.value) ||
+                shouldAutoReferFromPhq9() ||
+                shouldAutoReferFromHighSuicideRisk()
+    }
+
+    private fun shouldAutoReferUnder11(): Boolean {
+        val isUnder11 = (age ?: Int.MAX_VALUE) < 11
+        if (!isUnder11) return false
+
+        return isYes(emotionalBehaviouralConcerns.value) ||
+                isYes(substanceUseConcerns.value) ||
+                isYes(selfHarmSuicideThoughts.value) ||
+                isYes(memoryLossConfusion.value) ||
+                isYes(seizuresFitsLoc.value)
+    }
+
+    private fun shouldAutoReferFromPhq9(): Boolean {
+        return (phq9TotalScore.value?.toIntOrNull() ?: 0) >= 15
+    }
+
+    private fun shouldAutoReferFromHighSuicideRisk(): Boolean {
+        val highRiskLabel = suicideRiskOptions.getOrNull(2)
+        return isYes(selfHarmSuicideThoughts.value) &&
+                (suicideRiskLevel.value == highRiskLabel)
+    }
+
+    private fun shouldAutoReferFromEdSuspectedOutcome(): Boolean {
+        val suspectedEpilepsy = mhEdOutcomeOptions.getOrNull(0)
+        val suspectedDementia = mhEdOutcomeOptions.getOrNull(1)
+        val suspected = mhEdOutcomeOptions.getOrNull(2)
+        return edScreeningOutcome.value in setOf(
+            suspected,
+            suspectedDementia,
+            suspectedEpilepsy
+        )
+    }
+
+    private fun shouldAutoReferFromProblematicAlcohol(): Boolean {
+        return substanceAlcoholClassification.value == alcoholClassificationOptions.getOrNull(1)
+    }
+
+    private fun isLowSuicideRisk(): Boolean {
+        val lowRiskLabel = suicideRiskOptions.getOrNull(0)
+        return isYes(selfHarmSuicideThoughts.value) &&
+                (suicideRiskLevel.value == lowRiskLabel)
+    }
+
+    private fun isAge11OrBelow(): Boolean {
+        val currentAge = age
+        return currentAge != null && currentAge <= 11
+    }
+
+    private fun isAge11PlusSuicideContext(): Boolean {
+        val currentAge = age
+        return currentAge != null && currentAge > 11 && isYes(selfHarmSuicideThoughts.value)
+    }
+
+    private fun isAge11OrBelowSuicideContext(): Boolean {
+        val currentAge = age
+        return currentAge != null && currentAge <= 11 && isYes(selfHarmSuicideThoughts.value)
+    }
+
+    private fun shouldForceAutoReferralRequired(): Boolean {
+        // For low suicide risk:
+        // - age <= 11: keep referral locked to Yes
+        // - age > 11: keep referral manual-select
+        if (isLowSuicideRisk() && !isAge11OrBelow() && !shouldAutoReferFromProblematicAlcohol()) {
+            return false
+        }
+
+        return shouldAutoReferUnder11() ||
+                shouldAutoReferFromPhq9() ||
+                shouldAutoReferFromHighSuicideRisk() ||
+                shouldAutoReferFromEdSuspectedOutcome() ||
+                shouldAutoReferFromProblematicAlcohol()
+    }
+
+    private fun applyAutoReferralRules() {
+        if (isLowSuicideRisk() && !isAge11OrBelow()) {
+            // Low suicide risk must remain manual. If the field was previously auto-forced,
+            // clear forced values so the user can re-select Yes/No.
+            if (wasAutoReferralForced || (mhReferralRequired.entries?.size ?: 0) == 1) {
+                mhReferralRequired.value = null
+                mhReferralLevel.value = null
+                mhReasonForReferral.value = null
+                mhReferralDate.value = null
+            }
+            wasAutoReferralForced = false
+            return
+        }
+
+        val isAutoReferralForced = shouldForceAutoReferralRequired()
+        if (isAutoReferralForced) {
+            mhReferralRequired.value = yesNoOptions[0]
+            if (mhReferralDate.value.isNullOrEmpty()) {
+                mhReferralDate.value = todayDateString()
+            }
+        } else if (wasAutoReferralForced) {
+            // Auto-force removed (e.g. suicide risk High -> Medium): clear stale forced values
+            // so UI updates immediately without requiring manual scroll/rebind.
+            mhReferralRequired.value = null
+            mhReferralLevel.value = null
+            mhReasonForReferral.value = null
+            mhReferralDate.value = null
+        }
+        wasAutoReferralForced = isAutoReferralForced
+    }
+
+    private fun updateReferralRequiredOptions() {
+        mhReferralRequired.entries = if (shouldForceAutoReferralRequired()) {
+            arrayOf(yesNoOptions[0])
+        } else {
+            yesNoOptions
+        }
+    }
+
+    private fun getReferralLevelOptionsByAge(): Array<String> {
+        val currentAge = age
+        return when {
+            currentAge != null && currentAge >= 11 && isAge11PlusSuicideContext() ->
+                referralLevelDmhpOptions
+            isAlcoholReferralContext() -> referralLevelAlcoholOptions
+            currentAge != null && currentAge < 6 -> referralLevelRbskOptions
+            currentAge != null && currentAge in 6..10 -> referralLevelChildOptions
+            currentAge != null && currentAge >= 11 -> referralLevelAdultOptions
+            else -> context.resources.getStringArray(R.array.referral_level_options)
+        }
+    }
+
+    private fun isAlcoholReferralContext(): Boolean {
+        return isYes(substanceUseConcerns.value)
+    }
+
+    private fun mentalHealthReferralContext(): Boolean {
+        return isYes(emotionalBehaviouralConcerns.value) ||
+                isYes(selfHarmSuicideThoughts.value) ||
+                isYes(memoryLossConfusion.value) ||
+                isYes(seizuresFitsLoc.value) ||
+                isYes(isPostpartum.value)
+    }
+
+    private fun updateReferralLevelOptions() {
+        val currentAge = age
+        val options = if (currentAge != null && currentAge < 6) {
+            referralLevelRbskOptions
+        } else if (currentAge != null && currentAge in 6..10) {
+            referralLevelChildOptions
+        } else if (isAlcoholReferralContext()) {
+            referralLevelAlcoholOptions
+        } else if (mentalHealthReferralContext()) {
+            referralLevelStandardMhOptions
+        } else {
+            getReferralLevelOptionsByAge()
+        }
+        mhReferralLevel.entries = options
+
+        val deAddictionLabel = referralLevelAdultOptions.getOrNull(4)
+        if ((mhReferralLevel.value == mhDeAddictionCentre || mhReferralLevel.value == mhDeAddiction) && deAddictionLabel != null && options.contains(deAddictionLabel)) {
+            mhReferralLevel.value = deAddictionLabel
+        }
+
+        if (mhReferralLevel.value != null && !options.contains(mhReferralLevel.value)) {
+            mhReferralLevel.value = null
+        }
+    }
+
+    private fun updateReferralReasonOptions() {
+        val options = if ((age ?: Int.MAX_VALUE) < 11) {
+            context.resources.getStringArray(R.array.mh_reason_for_referral_options_under_11)
+        } else {
+            context.resources.getStringArray(R.array.mh_reason_for_referral_options)
+        }
+        mhReasonForReferral.entries = options
+        if (mhReasonForReferral.value != null && !options.contains(mhReasonForReferral.value)) {
+            mhReasonForReferral.value = null
+        }
     }
 
 
@@ -594,7 +901,7 @@ class MentalHealthScreeningDataset(
             }
 
             substanceUseConcerns.id -> {
-                if (substanceUseConcerns.value != "Yes") {
+                if (!isYes(substanceUseConcerns.value)) {
                     clearSubstanceValues()
                 }
                 rebuildConditionalSections()
@@ -602,24 +909,31 @@ class MentalHealthScreeningDataset(
             }
 
             selfHarmSuicideThoughts.id -> {
+                if (!isYes(selfHarmSuicideThoughts.value)) {
+                    clearSuicideValues()
+                }
                 rebuildConditionalSections()
                 formId
             }
 
             memoryLossConfusion.id -> {
-                if (memoryLossConfusion.value != "Yes") {
+                if (!isYes(memoryLossConfusion.value)) {
                     clearDementiaValues()
-                    if (seizuresFitsLoc.value != "Yes") clearEdChecklistValues()
+                    if (!isYes(seizuresFitsLoc.value)) clearEdChecklistValues()
                 }
                 rebuildConditionalSections()
                 formId
             }
 
             seizuresFitsLoc.id -> {
-                if (seizuresFitsLoc.value != "Yes") {
+                if (!isYes(seizuresFitsLoc.value)) {
                     clearEpilepsyValues()
-                    if (memoryLossConfusion.value != "Yes") clearEdChecklistValues()
+                    if (!isYes(memoryLossConfusion.value)) clearEdChecklistValues()
                 }
+                rebuildConditionalSections()
+                formId
+            }
+            isPostpartum.id -> {
                 rebuildConditionalSections()
                 formId
             }
@@ -675,8 +989,8 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
-            edRecurrentEpisodeloss.id, edRecurrentJerkyMovements.id, edProgressiveMemoryLoss.id,
-            edConfusionDisorientation.id, edFunctionalDecline.id -> {
+            edRecurrentEpisodeloss.id, edRecurrentJerkyMovements.id, edConfusionordrowsiness.id, edProgressiveMemoryLoss.id,
+            edConfusionDisorientation.id, edFunctionalDecline.id, substanceAlcoholSystemAction.id -> {
                 rebuildConditionalSections()
                 formId
             }
@@ -702,6 +1016,11 @@ class MentalHealthScreeningDataset(
 
     private fun buildFormElementList(): MutableList<FormElement> {
         val list = mutableListOf<FormElement>()
+        updateEdDerivedFields()
+        applyAutoReferralRules()
+        updateReferralRequiredOptions()
+        updateReferralLevelOptions()
+        updateReferralReasonOptions()
 
         // Initial screening questions
         list.add(emotionalBehaviouralConcerns)
@@ -709,33 +1028,10 @@ class MentalHealthScreeningDataset(
         list.add(selfHarmSuicideThoughts)
         list.add(memoryLossConfusion)
         list.add(seizuresFitsLoc)
-        list.add(isPostpartum)
-        list.add(mhReferralRequired)
-        if (mhReferralRequired.value == null && shouldAutoSuggestReferral()) {
-            mhReferralRequired.value = yesNoOptions[0]
-        }
-        if (mhReferralRequired.value == yesNoOptions[0]) {
-            list.add(mhReferralLevel)
-            list.add(mhReasonForReferral)
-            if (mhReferralDate.value.isNullOrEmpty()) {
-                mhReferralDate.value = todayDateString()
-            }
-            list.add(mhReferralDate)
+        if (genderID == 2 && age in 15..49) {
+            list.add(isPostpartum)
         }
 
-        // Follow-up & Closure
-        list.add(mhFollowUpRequired)
-        if (mhFollowUpRequired.value == yesNoOptions[0]) {
-            mhFollowUpDate.min = System.currentTimeMillis()
-            mhFollowUpDate.max = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(365)
-            list.add(mhFollowUpDate)
-        }
-        list.add(mhImprovementNoted)
-        if (shouldShowPhq9()) {
-            list.add(mhRepeatPhq9Header)
-        }
-        list.add(mhReferralEscalation)
-        list.add(mhCaseClosureReason)
 
         // PHQ-9 section
         if (shouldShowPhq9()) {
@@ -745,34 +1041,35 @@ class MentalHealthScreeningDataset(
                 phq9MovingSlowly, phq9SelfHarmThoughts,
                 phq9TotalScore.copy(), phq9DepressionSeverity.copy(), phq9SystemAction.copy()
             ))
+        } else {
+            clearPhq9Values()
         }
 
         // Substance use section
-        if (substanceUseConcerns.value == "Yes") {
+        if (isYes(substanceUseConcerns.value)) {
             list.addAll(listOf(
                 substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
-                substanceTobaccoOutcome.copy(), substanceSystemAction.copy(),
-                substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic,
-                substanceAlcoholClassification.copy(), substanceAlcoholSystemAction.copy()
+                substanceSystemAction.copy(),
+                substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholWithdrawal, substanceAlcoholProblematic,
+                substanceAlcoholClassification.copy(), substanceAlcoholSystemAction
             ))
-            if (substanceCurrentTobaccoUse.value == "Yes") {
+            if (isYes(substanceCurrentTobaccoUse.value)) {
                 val idx = list.indexOf(substanceCurrentTobaccoUse)
                 list.add(idx + 1, substanceTobaccoType)
                 list.add(idx + 2, substanceTobaccoFrequency)
             }
-            if (substanceAlcoholUse.value == "Yes") {
+            if (isYes(substanceAlcoholUse.value)) {
                 val idx = list.indexOf(substanceAlcoholUse)
                 list.add(idx + 1, substance_alcohol_frequency)
                 list.add(idx + 2, substance_alcohol_loss)
                 list.add(idx + 3, substanceAlcoholImpact)
-                list.add(idx + 4, substanceAlcoholWithdrawal)
             } else {
                 clearAlcoholSubFields()
             }
         }
 
         // Suicide risk section
-        if (selfHarmSuicideThoughts.value == "Yes") {
+        if (isYes(selfHarmSuicideThoughts.value)) {
             list.addAll(listOf(
                 suicideHeader, suicidePreviousAttempt, suicidePlan,
                 suicideHopelessness, suicideImmediateAssess, suicideRiskLevel.copy()
@@ -780,18 +1077,26 @@ class MentalHealthScreeningDataset(
         }
 
         // Epilepsy & Dementia checklist
-        if (memoryLossConfusion.value == "Yes" || seizuresFitsLoc.value == "Yes") {
-            list.addAll(listOf(
-                edChecklistHeader, edRecurrentEpisodeloss, edRecurrentJerkyMovements,
-                edProgressiveMemoryLoss, edConfusionDisorientation, edFunctionalDecline,
-                edScreeningOutcome.copy(), edReferralRequired.copy()
-            ))
+        if (isYes(memoryLossConfusion.value) || isYes(seizuresFitsLoc.value)) {
+            list.addAll(
+                listOf(
+                    edChecklistHeader,
+                    edRecurrentEpisodeloss,
+                    edRecurrentJerkyMovements,
+                    edConfusionordrowsiness,
+                    edProgressiveMemoryLoss,
+                    edConfusionDisorientation,
+                    edFunctionalDecline,
+                    edAge60Years,
+                    edScreeningOutcome.copy()
+                )
+            )
         }
 
-        // Psychosocial intervention (conditional on ED outcome)
-        if (edScreeningOutcome.value == "Suspected") {
+        // Psychosocial intervention
+        if (isBriefIntervention(substanceAlcoholSystemAction.value)) {
             list.add(edPsychosocialIntervention)
-            if (edPsychosocialIntervention.value == "Yes") {
+            if (isYes(edPsychosocialIntervention.value)) {
                 list.add(edInterventionType)
                 edSessionDate.max = System.currentTimeMillis()
                 list.add(edSessionDate)
@@ -804,6 +1109,61 @@ class MentalHealthScreeningDataset(
             clearEdPsychosocialValues()
         }
 
+        if (shouldShowReferralRequiredField()) {
+            if (mhReferralRequired.value == null && shouldAutoSuggestReferral()) {
+                mhReferralRequired.value = yesNoOptions[0]
+            }
+            list.add(mhReferralRequired)
+            if (mhReferralRequired.value == yesNoOptions[0]) {
+                list.add(mhReferralLevel)
+                list.add(mhReasonForReferral)
+                if (mhReferralDate.value.isNullOrEmpty()) {
+                    mhReferralDate.value = todayDateString()
+                }
+                list.add(mhReferralDate)
+
+                mhFollowUpDate.min = System.currentTimeMillis()
+                mhFollowUpDate.max = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(365)
+                list.add(mhFollowUpDate)
+                list.add(mhImprovementNoted)
+                list.add(mhAdherenceToAdvice)
+                list.add(mhReferralEscalation)
+            } else {
+                mhFollowUpRequired.value = null
+                mhFollowUpDate.value = null
+                mhImprovementNoted.value = null
+                mhAdherenceToAdvice.value = null
+                mhReferralEscalation.value = null
+                mhCaseClosureReason.value = null
+            }
+        } else {
+            mhReferralRequired.value = null
+            mhReferralLevel.value = null
+            mhReasonForReferral.value = null
+            mhReferralDate.value = null
+
+            mhFollowUpRequired.value = null
+            mhFollowUpDate.value = null
+            mhImprovementNoted.value = null
+            mhAdherenceToAdvice.value = null
+            mhReferralEscalation.value = null
+            mhCaseClosureReason.value = null
+        }
+//
+//        // Follow-up & Closure
+//        list.add(mhFollowUpRequired)
+//        if (mhFollowUpRequired.value == yesNoOptions[0]) {
+//            mhFollowUpDate.min = System.currentTimeMillis()
+//            mhFollowUpDate.max = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(365)
+//            list.add(mhFollowUpDate)
+//        }
+//        list.add(mhImprovementNoted)
+//        if (shouldShowPhq9()) {
+//            list.add(mhRepeatPhq9Header)
+//        }
+//        list.add(mhReferralEscalation)
+//        list.add(mhCaseClosureReason)
+
 
         return list
     }
@@ -815,7 +1175,6 @@ class MentalHealthScreeningDataset(
         updateTobaccoOutcome()
         computeSuicideRiskLevel()
         computeAlcoholClassification()
-        computeAlcoholSystemAction()
         computeEdScreeningOutcome()
 
         setUpPage(buildFormElementList())
@@ -849,23 +1208,23 @@ class MentalHealthScreeningDataset(
                 2 -> R.string.phq9_alert_urgent
                 else -> R.string.phq9_alert_referral_mo_phc
             }
-            emitAlertErrorMessage(alertMsg)
+            _phq9AlertMessageFlow.value = resources.getText(alertMsg)
         }
         lastPhq9AlertLevel = currentLevel
 
         phq9TotalScore.value = score.toString()
         phq9DepressionSeverity.value = when (score) {
-            in 0..4 -> "Minimal"
-            in 5..9 -> "Mild"
-            in 10..14 -> "Moderate"
-            in 15..19 -> "Moderately Severe"
-            else -> "Severe"
+            in 0..4 -> phq9SeverityOptions.getOrNull(0)
+            in 5..9 -> phq9SeverityOptions.getOrNull(1)
+            in 10..14 -> phq9SeverityOptions.getOrNull(2)
+            in 15..19 -> phq9SeverityOptions.getOrNull(3)
+            else -> phq9SeverityOptions.getOrNull(4)
         }
         phq9SystemAction.value = when (score) {
-            in 0..9 -> "Psychoeducation"
-            in 10..14 -> "Counselling - Refer to MO/PHC"
-            in 15..19 -> "Referral - Urgent referral"
-            else -> "Referral - Emergency referral"
+            in 0..9 -> phq9SystemActionOptions.getOrNull(0)
+            in 10..14 -> phq9SystemActionOptions.getOrNull(1)
+            in 15..19 -> phq9SystemActionOptions.getOrNull(2)
+            else -> phq9SystemActionOptions.getOrNull(3)
         }
         phq9SystemAction.errorText = when {
             score >= 20 -> context.getString(R.string.phq9_alert_emergency)
@@ -877,23 +1236,21 @@ class MentalHealthScreeningDataset(
     }
 
     private fun updateTobaccoOutcome() {
-        if (substanceCurrentTobaccoUse.value != "Yes") {
+        if (!isYes(substanceCurrentTobaccoUse.value)) {
             substanceTobaccoType.value = null
             substanceTobaccoFrequency.value = null
         }
         val currentUse = substanceCurrentTobaccoUse.value
-        val previousUse = substanceTobaccoUse.value
 
         substanceTobaccoOutcome.value = when {
-            currentUse == "Yes"                      -> "Use identified"
-            currentUse == "No"                       -> "No use identified"
-            currentUse == null && previousUse == "Yes" -> "Use identified"
-            else                                     -> null
+            currentUse == yesNoOptions[0] -> tobaccoOutcomeOptions.getOrNull(0)
+            currentUse == yesNoOptions[1] -> tobaccoOutcomeOptions.getOrNull(1)
+            else                          -> null
         }
 
         substanceSystemAction.value = when (substanceTobaccoOutcome.value) {
-            "Use identified"    -> "Brief counselling"
-            "No use identified" -> "Referral"
+            tobaccoOutcomeOptions.getOrNull(0)    -> tobaccoSystemActionOptions.getOrNull(0)
+            tobaccoOutcomeOptions.getOrNull(1) -> tobaccoSystemActionOptions.getOrNull(1)
             else                -> null
         }
     }
@@ -906,88 +1263,119 @@ class MentalHealthScreeningDataset(
         val withdrawal = substanceAlcoholWithdrawal.value
         val problematic = substanceAlcoholProblematic.value
 
-        // No answer yet — show nothing
         if (use == null && frequency == null && loss == null && impact == null && withdrawal == null && problematic == null) {
             substanceAlcoholClassification.value = null
             return
         }
 
-        // Any of these present → Problematic (takes priority over everything)
-        val hasRiskFactor = loss == "Yes" ||
-                impact == "Yes" ||
-                withdrawal == "Yes" ||
-                problematic == "Yes" ||
-                frequency == "Regular" ||
-                frequency == "Daily"
+        val hasRiskFactor = isYes(loss) ||
+                isYes(impact) ||
+                isYes(withdrawal) ||
+                isYes(problematic) ||
+                frequency == substanceFrequencyOptions.getOrNull(1) || // Regular
+                frequency == substanceFrequencyOptions.getOrNull(2)   // Daily
 
-
-        val noAlcoholUse = use == "No"
-        val occasionalWithNoRisks = (frequency == "Occasionally") &&
-                loss != "Yes" &&
-                impact != "Yes" &&
-                withdrawal != "Yes"
+        val noAlcoholUse = isNo(use)
+        val occasionalWithNoRisks = (frequency == substanceFrequencyOptions.getOrNull(0)) && // Occasionally
+                !isYes(loss) &&
+                !isYes(impact) &&
+                !isYes(withdrawal)
 
         substanceAlcoholClassification.value = when {
-            hasRiskFactor -> "Problematic"
-            noAlcoholUse || occasionalWithNoRisks -> "Non-problematic"
+            noAlcoholUse -> alcoholClassificationOptions.getOrNull(0)
+            hasRiskFactor -> alcoholClassificationOptions.getOrNull(1)
+            occasionalWithNoRisks -> alcoholClassificationOptions.getOrNull(0)
             else -> null
         }
     }
 
-    private fun computeAlcoholSystemAction() {
-        substanceAlcoholSystemAction.value = when (substanceAlcoholClassification.value) {
-            "Problematic"     -> "Brief intervention"
-            "Non-problematic" -> "Referral"
-            else              -> null
-        }
-    }
-
     private fun computeEdScreeningOutcome() {
-        if (memoryLossConfusion.value != "Yes" && seizuresFitsLoc.value != "Yes") {
+        if (!isYes(memoryLossConfusion.value) && !isYes(seizuresFitsLoc.value)) {
             edScreeningOutcome.value = null
             edReferralRequired.value = null
+            edReason.value = null
             return
         }
 
-        val hasRisk = isYes(edRecurrentEpisodeloss.value) || isYes(edRecurrentJerkyMovements.value) ||
-                isYes(edProgressiveMemoryLoss.value) ||
-                isYes(edConfusionDisorientation.value) ||
-                isYes(edFunctionalDecline.value)
+        val suspectedEpilepsy =
+            isYes(edRecurrentJerkyMovements.value) || isYes(edRecurrentEpisodeloss.value)
 
-        edScreeningOutcome.value = if (hasRisk) "Suspected" else "Not suspected"
-        edReferralRequired.value = if (hasRisk) "Yes" else "No"
+        val age60OrMore = (age ?: 0) >= 60
+        val memoryOrFunctionalSelected =
+            isYes(edProgressiveMemoryLoss.value) || isYes(edFunctionalDecline.value)
+        val suspectedDementia = age60OrMore && memoryOrFunctionalSelected
+        val anyChecklistSelected =
+            isYes(edRecurrentEpisodeloss.value) ||
+                    isYes(edRecurrentJerkyMovements.value) ||
+                    isYes(edConfusionordrowsiness.value) ||
+                    isYes(edProgressiveMemoryLoss.value) ||
+                    isYes(edConfusionDisorientation.value) ||
+                    isYes(edFunctionalDecline.value)
+
+        edScreeningOutcome.value = when {
+            suspectedEpilepsy -> mhEdOutcomeOptions.getOrNull(0)
+            suspectedDementia -> mhEdOutcomeOptions.getOrNull(1)
+            anyChecklistSelected -> mhEdOutcomeOptions.getOrNull(2)
+            else -> mhEdOutcomeOptions.getOrNull(3)
+        }
+
+        val suspectedLabelPrefix = mhSuspected
+        val isSuspected = edScreeningOutcome.value?.contains(suspectedLabelPrefix) == true
+        edReferralRequired.value = if (isSuspected) yesNoOptions[0] else yesNoOptions[1]
+        edReason.value = if (isSuspected) mhEdReasonNeurological else null
     }
-
-
-
-
     private suspend fun computeSuicideRiskLevel() {
+        val thoughtsSelfHarm = selfHarmSuicideThoughts.value
+        val previousAttempt = suicidePreviousAttempt.value
+        val currentIntentPlan = suicidePlan.value
+        val accessToMeans = suicideHopelessness.value
+        val choImmediateRisk = suicideImmediateAssess.value
+
         val fields = listOf(
-            suicidePreviousAttempt.value,
-            suicidePlan.value,
-            suicideHopelessness.value,
-            suicideImmediateAssess.value
+            thoughtsSelfHarm,
+            previousAttempt,
+            currentIntentPlan,
+            accessToMeans,
+            choImmediateRisk
         )
 
-        val answeredCount = fields.count { it != null }
-        if (answeredCount == 0) {
+        if (fields.all { it == null }) {
             suicideRiskLevel.value = null
             suicideRiskLevel.hasAlertError = false
             suicideRiskLevel.errorText = null
             return
         }
 
-        val yesCount = fields.count { isYes(it) }
+        val low = suicideRiskOptions.getOrNull(0)
+        val moderate = suicideRiskOptions.getOrNull(1)
+        val high = suicideRiskOptions.getOrNull(2)
+
+        val isThoughtsYes = isYes(thoughtsSelfHarm)
+        val isThoughtsNo = isNo(thoughtsSelfHarm)
+        val isPreviousYes = isYes(previousAttempt)
+        val isPreviousNo = isNo(previousAttempt)
+        val isIntentYes = isYes(currentIntentPlan)
+        val isIntentNo = isNo(currentIntentPlan)
+        val isMeansNo = isNo(accessToMeans)
+        val isImmediateYes = isYes(choImmediateRisk)
+        val isImmediateNo = isNo(choImmediateRisk)
 
         suicideRiskLevel.value = when {
-            yesCount  ==0  -> suicideRiskOptions.getOrElse(0) { "Low" }
-            yesCount in 1..2 -> suicideRiskOptions.getOrElse(1) { "Moderate" }
-            else             -> suicideRiskOptions.getOrElse(2) { "High" }
+
+            isImmediateYes -> high
+
+            isThoughtsYes && isIntentYes -> high
+
+            isThoughtsYes && isPreviousYes && isIntentNo && isMeansNo && isImmediateNo -> moderate
+
+            isThoughtsYes && isPreviousNo && isIntentNo && isMeansNo && isImmediateNo -> low
+
+            isThoughtsNo && isPreviousNo && isIntentNo && isMeansNo && isImmediateNo -> low
+
+            else -> low
         }
 
         val riskValue = suicideRiskLevel.value ?: ""
-        val moderate  = suicideRiskOptions.getOrElse(1) { "Moderate" }
-        val high      = suicideRiskOptions.getOrElse(2) { "High" }
 
         when (riskValue) {
             high -> {
@@ -1011,8 +1399,6 @@ class MentalHealthScreeningDataset(
         }
         lastSuicideRiskLevel = riskValue
     }
-
-
 
     private fun clearPhq9Values() {
         phq9LittleInterest.value = null
@@ -1038,6 +1424,7 @@ class MentalHealthScreeningDataset(
         substanceAlcoholUse.value = null
         substanceTobaccoUse.value = null
         clearAlcoholSubFields()
+        substanceAlcoholSystemAction.value = null
         briefInterventionGiven.value = null
     }
     private fun clearEdPsychosocialValues() {
@@ -1056,10 +1443,6 @@ class MentalHealthScreeningDataset(
         substance_alcohol_frequency.value = null
         substance_alcohol_loss.value = null
         substanceAlcoholImpact.value = null
-        substanceAlcoholWithdrawal.value = null
-        substanceAlcoholProblematic.value = null
-        substanceAlcoholClassification.value = null
-        substanceAlcoholSystemAction.value = null
     }
 
     private fun clearSuicideValues() {
@@ -1091,11 +1474,18 @@ class MentalHealthScreeningDataset(
     private fun clearEdChecklistValues() {
         edRecurrentEpisodeloss.value = null
         edRecurrentJerkyMovements.value = null
+        edConfusionordrowsiness.value = null
         edProgressiveMemoryLoss.value = null
         edConfusionDisorientation.value = null
         edFunctionalDecline.value = null
+        edAge60Years.value = null
         edScreeningOutcome.value = null
         edReferralRequired.value = null
+        edReason.value = null
+    }
+
+    private fun updateEdDerivedFields() {
+        edAge60Years.value = if ((age ?: 0) >= 60) yesNoOptions[0] else yesNoOptions[1]
     }
 
 
@@ -1114,7 +1504,7 @@ class MentalHealthScreeningDataset(
             cache.referralRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhReferralLevel.value = cache.referralLevel
         mhReasonForReferral.value = cache.reasonForReferral
-        
+
         if (cache.referralRequired == true) {
             mhReferralDate.value = cache.referralDate ?: todayDateString()
         } else {
@@ -1126,6 +1516,7 @@ class MentalHealthScreeningDataset(
             cache.followUpRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhFollowUpDate.value = cache.followUpDate
         mhImprovementNoted.value = cache.improvementNoted
+        mhAdherenceToAdvice.value = cache.adherenceToAdvice
         mhReferralEscalation.value =
             cache.referralEscalationRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhCaseClosureReason.value = cache.caseClosureReason
@@ -1186,11 +1577,13 @@ class MentalHealthScreeningDataset(
         // Epilepsy & Dementia Checklist
         edRecurrentEpisodeloss.value = boolToChecked(cache.edRecurrentEpisodeloss)
         edRecurrentJerkyMovements.value = boolToChecked(cache.edRecurrentJerkyMovements)
+        edConfusionordrowsiness.value = boolToChecked(cache.edConfusionordrowsiness)
         edProgressiveMemoryLoss.value = boolToChecked(cache.edProgressiveMemoryLoss)
         edConfusionDisorientation.value = boolToChecked(cache.edConfusionDisorientation)
         edFunctionalDecline.value = boolToChecked(cache.edFunctionalDecline)
         edScreeningOutcome.value = cache.edScreeningOutcome
         edReferralRequired.value = cache.edReferralRequired
+        edReason.value = cache.edReason
         edPsychosocialIntervention.value = boolToYesNo(cache.edPsychosocialInterventionProvided)
         edInterventionType.value = cache.edInterventionType
         edSessionDate.value = cache.edSessionDate
@@ -1206,8 +1599,12 @@ class MentalHealthScreeningDataset(
         return value?.firstOrNull()?.digitToIntOrNull()
     }
 
-    private fun isYes(value: String?): Boolean =
-        value == yesNoOptions.getOrNull(0)
+    private fun isYes(value: String?): Boolean {
+        return value == yesNoOptions[0]
+    }
+    private fun isBriefIntervention(value: String?): Boolean {
+        return value == alcoholSystemActionOptions.getOrNull(0)
+    }
 
     private fun isNo(value: String?): Boolean =
         value == yesNoOptions.getOrNull(1)
@@ -1271,22 +1668,24 @@ class MentalHealthScreeningDataset(
 
 
             // Substance Use
-            if (substanceUseConcerns.value == "Yes") {
-                it.substanceCurrentTobaccoUse = substanceCurrentTobaccoUse.value == "Yes"
+            if (isYes(substanceUseConcerns.value)) {
+                it.substanceCurrentTobaccoUse = isYes(substanceCurrentTobaccoUse.value)
                 it.substanceTobaccoType = if (it.substanceCurrentTobaccoUse == true) substanceTobaccoType.value else null
                 it.substanceTobaccoFrequency = if (it.substanceCurrentTobaccoUse == true) substanceTobaccoFrequency.value else null
                 it.substanceTobaccoOutcome = substanceTobaccoOutcome.value
                 it.substanceSystemAction = substanceSystemAction.value
-                it.substanceAlcoholUse = substanceAlcoholUse.value == "Yes"
-                it.substanceTobaccoUse = substanceTobaccoUse.value == "Yes"
-                it.substance_alcohol_loss = substance_alcohol_loss.value == "Yes"
-                it.substanceAlcoholImpact = substanceAlcoholImpact.value == "Yes"
-                it.substanceAlcoholWithdrawal = substanceAlcoholWithdrawal.value == "Yes"
-                it.substanceAlcoholProblematic = substanceAlcoholProblematic.value == "Yes"
+                it.substanceAlcoholUse = isYes(substanceAlcoholUse.value)
+                // substanceTobaccoUse is a legacy hidden field; derive from the visible replacement
+                it.substanceTobaccoUse = yesNoToBoolean(substanceCurrentTobaccoUse.value)
+                it.substance_alcohol_loss = isYes(substance_alcohol_loss.value)
+                it.substanceAlcoholImpact = isYes(substanceAlcoholImpact.value)
+                it.substanceAlcoholWithdrawal = isYes(substanceAlcoholWithdrawal.value)
+                it.substanceAlcoholProblematic = isYes(substanceAlcoholProblematic.value)
                 it.substanceAlcoholClassification = substanceAlcoholClassification.value
                 it.substanceAlcoholSystemAction = substanceAlcoholSystemAction.value
                 it.substance_alcohol_frequency = substance_alcohol_frequency.value
-                it.briefInterventionGiven = briefInterventionGiven.value == "Yes"
+                // briefInterventionGiven is a legacy hidden field with no visible replacement; omit
+                it.briefInterventionGiven = null
             } else {
                 it.substanceCurrentTobaccoUse = null
                 it.substanceTobaccoType = null
@@ -1354,50 +1753,59 @@ class MentalHealthScreeningDataset(
 
             it.edRecurrentEpisodeloss = isYes(edRecurrentEpisodeloss.value)
             it.edRecurrentJerkyMovements = isYes(edRecurrentJerkyMovements.value)
+            it.edConfusionordrowsiness = isYes(edConfusionordrowsiness.value)
             it.edProgressiveMemoryLoss = isYes(edProgressiveMemoryLoss.value)
             it.edConfusionDisorientation = isYes(edConfusionDisorientation.value)
             it.edFunctionalDecline = isYes(edFunctionalDecline.value)
             it.edScreeningOutcome = edScreeningOutcome.value
-            it.edReferralRequired = edReferralRequired.value
-            if (edScreeningOutcome.value == "Suspected") {
-                it.edPsychosocialInterventionProvided = yesNoToBoolean(edPsychosocialIntervention.value)
-                it.edInterventionType = if (it.edPsychosocialInterventionProvided == true) edInterventionType.value else null
-                it.edSessionDate = if (it.edPsychosocialInterventionProvided == true) edSessionDate.value else null
-                it.edDurationMinutes = if (it.edPsychosocialInterventionProvided == true) edDurationMinutes.value?.toIntOrNull() else null
-                it.edRemarks = edRemarks.value
+            val suspectedEpilepsy = mhEdOutcomeOptions.getOrNull(0)
+            val suspectedDementia = mhEdOutcomeOptions.getOrNull(1)
+            val suspected = mhEdOutcomeOptions.getOrNull(2)
+            val isEdSuspectedOutcome = it.edScreeningOutcome in setOf(
+                suspected,
+                suspectedDementia,
+                suspectedEpilepsy
+            )
+            it.edReferralRequired =
+                if (isEdSuspectedOutcome) yesNoOptions[0] else edReferralRequired.value
+            it.edReason =
+                if (isEdSuspectedOutcome) mhEdReasonNeurological else null
+            it.edPsychosocialInterventionProvided = yesNoToBoolean(edPsychosocialIntervention.value)
+            it.edInterventionType = if (it.edPsychosocialInterventionProvided == true) edInterventionType.value else null
+            it.edSessionDate = if (it.edPsychosocialInterventionProvided == true) edSessionDate.value else null
+            it.edDurationMinutes = if (it.edPsychosocialInterventionProvided == true) edDurationMinutes.value?.toIntOrNull() else null
+            it.edRemarks = edRemarks.value
+            it.referralRequired = if (shouldForceAutoReferralRequired()) {
+                true
             } else {
-                it.edPsychosocialInterventionProvided = null
-                it.edInterventionType = null
-                it.edSessionDate = null
-                it.edDurationMinutes = null
-                it.edRemarks = null
+                yesNoToBoolean(mhReferralRequired.value)
             }
-            it.referralRequired = yesNoToBoolean(mhReferralRequired.value)
             if (it.referralRequired == true) {
                 it.referralLevel = mhReferralLevel.value
                 it.reasonForReferral = mhReasonForReferral.value
-                it.referralDate = mhReferralDate.value
+                it.referralDate = mhReferralDate.value ?: todayDateString()
             } else {
                 it.referralLevel = null
                 it.reasonForReferral = null
                 it.referralDate = null
             }
 
-            it.followUpRequired = yesNoToBoolean(mhFollowUpRequired.value)
-            if (it.followUpRequired == true) {
+            it.followUpRequired = if (it.referralRequired == true) true else null
+            if (it.referralRequired == true) {
                 it.followUpDate = mhFollowUpDate.value
                 it.improvementNoted = mhImprovementNoted.value
+                it.adherenceToAdvice = mhAdherenceToAdvice.value
                 it.referralEscalationRequired = yesNoToBoolean(mhReferralEscalation.value)
                 it.caseClosureReason = mhCaseClosureReason.value
             } else {
                 it.followUpDate = null
                 it.improvementNoted = null
+                it.adherenceToAdvice = null
                 it.referralEscalationRequired = null
                 it.caseClosureReason = null
             }
         }
     }
 }
-
 
 

@@ -37,6 +37,7 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
         MentalHealthScreeningDataset(context, preferenceDao.getCurrentLanguage())
 
     val formList = dataset.listFlow
+    val phq9AlertMessageFlow = dataset.phq9AlertMessageFlow
 
     private lateinit var screeningCache: MentalHealthScreeningCache
 
@@ -71,16 +72,22 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
                 )
 
                 val deliveryOutcome = deliveryOutcomeRepo.getDeliveryOutcome(patient.patient.patientID)
+                // Logic to determine if the patient is in the postpartum period:
+                // 1. Check if a delivery was recorded within the last 12 months.
+                // 2. Alternatively, check if the patient's status is explicitly "Postnatal" (statusOfWomanID == 3).
+                // If neither condition is confirmed, default to null (unselected) instead of false (No).
                 val isPostpartumFromRmncha = deliveryOutcome?.dateOfDelivery?.let { deliveryDateMs ->
                     val twelveMonthsInMs = TimeUnit.DAYS.toMillis(365)
                     val now = System.currentTimeMillis()
-                    (now - deliveryDateMs) in 0..twelveMonthsInMs
-                } ?: (patient.patient.statusOfWomanID == 3)
+                    if ((now - deliveryDateMs) in 0..twelveMonthsInMs) true else null
+                } ?: if (patient.patient.statusOfWomanID == 3) true else null
 
 
                 dataset.setUpPage(
                     savedRecord = existingRecord,
-                    isPostpartumFromRmncha = isPostpartumFromRmncha
+                    isPostpartumFromRmncha = isPostpartumFromRmncha,
+                    genderID = patient.patient.genderID,
+                    age = patient.patient.age
                 )
 
             } catch (e: Exception) {
@@ -98,6 +105,10 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
             index,
             "Error updating Mental Health Screening form"
         )
+    }
+
+    fun clearPhq9AlertMessage() {
+        dataset.resetPhq9AlertMessageFlow()
     }
 
     // ── Save ──────────────────────────────────────────────────────────
