@@ -96,7 +96,12 @@ class PatientRepo @Inject constructor(
         return when (status?.trim()?.lowercase()) {
             "eligible couple" -> 1
             "pregnant woman", "antenatal mother" -> 2
-            "postnatal", "postnatal mother-lactating mother", "postnatal mother" -> 3
+            "postnatal",
+            "post natal",
+            "postnatal mother-lactating mother",
+            "post natal mother-lactating mother",
+            "postnatal mother",
+            "post natal mother" -> 3
             "elderly" -> 4
             "adolescent", "teenager" -> 5
             "permanent sterilization", "permanently sterilised", "permanently sterilized" -> 6

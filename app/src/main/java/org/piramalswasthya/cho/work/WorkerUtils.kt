@@ -216,7 +216,7 @@ object WorkerUtils {
 
         val workManager = WorkManager.getInstance(context)
         workManager
-            .beginUniqueWork("ec-tracking-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushECToAmritWorker)
+            .beginUniqueWork("ec-tracking-sync", ExistingWorkPolicy.REPLACE, pushECToAmritWorker)
             .then(pullEligibleCouplesWorker)
             .enqueue()
     }

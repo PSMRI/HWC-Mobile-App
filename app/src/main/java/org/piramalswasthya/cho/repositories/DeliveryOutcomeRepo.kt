@@ -136,7 +136,7 @@ class DeliveryOutcomeRepo @Inject constructor(
             val jsonObj = try {
                 JSONObject(responseString)
             } catch (e: Exception) {
-                Timber.w("DeliveryOutcome saveAll returned non-JSON body, treating as success: $responseString")
+                Timber.w(e, "DeliveryOutcome saveAll returned non-JSON body, treating as success: $responseString")
                 return true
             }
 

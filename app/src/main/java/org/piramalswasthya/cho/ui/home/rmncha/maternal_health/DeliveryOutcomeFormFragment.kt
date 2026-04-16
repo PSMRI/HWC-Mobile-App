@@ -206,9 +206,11 @@ class DeliveryOutcomeFormFragment : Fragment() {
                 DeliveryOutcomeFormViewModel.State.SAVE_SUCCESS -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
-                    WorkerUtils.triggerDeliveryOutcomeSync(requireContext())
-                    WorkerUtils.triggerInfantRegistrationSync(requireContext())
-                    WorkerUtils.triggerBeneficiarySync(requireContext())
+                    context?.let { ctx ->
+                        WorkerUtils.triggerDeliveryOutcomeSync(ctx)
+                        WorkerUtils.triggerInfantRegistrationSync(ctx)
+                        WorkerUtils.triggerBeneficiarySync(ctx)
+                    }
                     context?.let {
                         Toast.makeText(it, "Save Successful", Toast.LENGTH_LONG).show()
                     }

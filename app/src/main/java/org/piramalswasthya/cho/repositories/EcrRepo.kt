@@ -200,8 +200,8 @@ class EcrRepo @Inject constructor(
         if(villageIds.trim().nullIfEmpty() == null){
             return emptyList();
         }
-        return villageIds.split(",").map {
-            it.trim().toInt()
+        return villageIds.split(",").mapNotNull {
+            it.trim().toIntOrNull()
         }
     }
 
