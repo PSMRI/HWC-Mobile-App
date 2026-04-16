@@ -197,7 +197,8 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 val logoutTimestamp = formatter.format(Date())
 
                 val selectedOutreachProgram = SelectedOutreachProgram(0,
-                    user?.userId,
+                    // USER row is removed by clearAllTables(), so keep FK nullable for logout audit.
+                    null,
                     user?.userName,
                     null,
                     null,
@@ -207,14 +208,10 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                     long,
                     logoutType,
                 null)
-                userDao.insertOutreachProgram(selectedOutreachProgram)
-                userDao.resetAllUsersLoggedInState()
-                if (user != null) {
-                    userDao.updateLogoutTime(user.userId,Date())
-                }
-
                 // Reset all local persisted records so next login starts clean.
                 database.clearAllTables()
+                // Preserve logout audit trail for later sync after local reset.
+                userDao.insertOutreachProgram(selectedOutreachProgram)
                 dataLoadFlagManager.setDataLoaded(false)
             }
             pref.clearSyncTimestamps()
