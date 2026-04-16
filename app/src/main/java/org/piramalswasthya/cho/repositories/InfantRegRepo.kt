@@ -131,12 +131,12 @@ class InfantRegRepo @Inject constructor(
                 babyIndex = index,
                 babyName = "baby ${index + 1} of $safeMotherName",
                 isActive = true,
-                processed = "N",
+                processed = "Y",
                 createdBy = userName,
                 createdDate = now,
                 updatedBy = userName,
                 updatedDate = now,
-                syncState = SyncState.UNSYNCED
+                syncState = SyncState.SYNCED
             )
             upsertInfantReg(placeholder)
         }
@@ -241,43 +241,52 @@ class InfantRegRepo @Inject constructor(
         if (childPostList.isEmpty()) return true
         val user = preferenceDao.getLoggedInUser()
             ?: throw IllegalStateException("No user logged in")
+        var refreshed = false
+        while (true) {
+            try {
+                val response = amritApiService.postChildDetails(childPostList)
+                if (response.code() != 200) {
+                    Timber.w("Child sync failed with HTTP ${response.code()}")
+                    return false
+                }
 
-        return try {
-            val response = amritApiService.postChildDetails(childPostList)
-            if (response.code() != 200) {
-                Timber.w("Child sync failed with HTTP ${response.code()}")
+                val responseString = response.body()?.string()
+                if (responseString.isNullOrBlank()) {
+                    Timber.d("Child saveAll succeeded with empty response body")
+                    return true
+                }
+                val jsonObj = JSONObject(responseString)
+                val responseStatusCode = jsonObj.optInt("statusCode", -1)
+                when (responseStatusCode) {
+                    200 -> return true
+                    401, 5002 -> {
+                        if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            refreshed = true
+                            Timber.d("Retrying child sync after token refresh")
+                            continue
+                        }
+                        return false
+                    }
+                    else -> {
+                        Timber.w("Child sync failed with response statusCode=$responseStatusCode")
+                        return false
+                    }
+                }
+            } catch (e: SocketTimeoutException) {
+                if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
+                    refreshed = true
+                    Timber.d("Retrying child sync after token refresh")
+                    continue
+                }
+                Timber.e(e, "Child sync failed")
+                return false
+            } catch (e: JSONException) {
+                Timber.e(e, "Child sync parse failed")
+                return false
+            } catch (e: Exception) {
+                Timber.e(e, "Child sync failed")
                 return false
             }
-
-            val responseString = response.body()?.string()
-            if (responseString.isNullOrBlank()) {
-                Timber.d("Child saveAll succeeded with empty response body")
-                return true
-            }
-            val jsonObj = JSONObject(responseString)
-            val responseStatusCode = jsonObj.optInt("statusCode", -1)
-            when (responseStatusCode) {
-                200 -> true
-                401, 5002 -> {
-                    if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                        throw SocketTimeoutException("Token refreshed. Retrying child sync")
-                    }
-                    false
-                }
-                else -> {
-                    Timber.w("Child sync failed with response statusCode=$responseStatusCode")
-                    false
-                }
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.d("Retrying child sync after token refresh")
-            postChildDataToAmritServer(childPostList)
-        } catch (e: JSONException) {
-            Timber.e(e, "Child sync parse failed")
-            false
-        } catch (e: Exception) {
-            Timber.e(e, "Child sync failed")
-            false
         }
     }
 
@@ -288,44 +297,53 @@ class InfantRegRepo @Inject constructor(
 
         val user = preferenceDao.getLoggedInUser()
             ?: throw IllegalStateException("No user logged in")
+        var refreshed = false
+        while (true) {
+            try {
+                val response = amritApiService.postInfantRegForm(infantRegPostList)
+                if (response.code() != 200) {
+                    Timber.w("Infant sync failed with HTTP ${response.code()}")
+                    return false
+                }
 
-        return try {
-            val response = amritApiService.postInfantRegForm(infantRegPostList)
-            if (response.code() != 200) {
-                Timber.w("Infant sync failed with HTTP ${response.code()}")
+                val responseString = response.body()?.string()
+                if (responseString.isNullOrBlank()) {
+                    Timber.d("Infant saveAll succeeded with empty response body")
+                    return true
+                }
+                val jsonObj = JSONObject(responseString)
+                val responseStatusCode = jsonObj.optInt("statusCode", -1)
+
+                when (responseStatusCode) {
+                    200 -> return true
+                    401, 5002 -> {
+                        if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            refreshed = true
+                            Timber.d("Retrying infant sync after token refresh")
+                            continue
+                        }
+                        return false
+                    }
+                    else -> {
+                        Timber.w("Infant sync failed with response statusCode=$responseStatusCode")
+                        return false
+                    }
+                }
+            } catch (e: SocketTimeoutException) {
+                if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
+                    refreshed = true
+                    Timber.d("Retrying infant sync after token refresh")
+                    continue
+                }
+                Timber.e(e, "Infant sync failed")
+                return false
+            } catch (e: JSONException) {
+                Timber.e(e, "Infant sync failed while parsing response")
+                return false
+            } catch (e: Exception) {
+                Timber.e(e, "Infant sync failed")
                 return false
             }
-
-            val responseString = response.body()?.string()
-            if (responseString.isNullOrBlank()) {
-                Timber.d("Infant saveAll succeeded with empty response body")
-                return true
-            }
-            val jsonObj = JSONObject(responseString)
-            val responseStatusCode = jsonObj.optInt("statusCode", -1)
-
-            when (responseStatusCode) {
-                200 -> true
-                401, 5002 -> {
-                    if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                        throw SocketTimeoutException("Token refreshed. Retrying infant sync")
-                    }
-                    false
-                }
-                else -> {
-                    Timber.w("Infant sync failed with response statusCode=$responseStatusCode")
-                    false
-                }
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.d("Retrying infant sync after token refresh")
-            postDataToAmritServer(infantRegPostList)
-        } catch (e: JSONException) {
-            Timber.e(e, "Infant sync failed while parsing response")
-            false
-        } catch (e: Exception) {
-            Timber.e(e, "Infant sync failed")
-            false
         }
     }
 
@@ -342,7 +360,9 @@ class InfantRegRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
-            try {
+            var refreshed = false
+            while (true) {
+                try {
                 val villageList = VillageIdList(
                     convertStringToIntList(user.assignVillageIds ?: ""),
                     preferenceDao.getLastPatientSyncTime()
@@ -410,11 +430,18 @@ class InfantRegRepo @Inject constructor(
                                 )
                                 val existing = infantRegDao.getInfantReg(mother.patientID, incoming.babyIndex)
                                 val merged = if (existing != null) {
-                                    incoming.copy(
-                                        id = existing.id,
-                                        createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
-                                        createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
-                                    )
+                                    if (existing.syncState == SyncState.SYNCED) {
+                                        incoming.copy(
+                                            id = existing.id,
+                                            createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+                                            createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
+                                        )
+                                    } else {
+                                        existing.copy(
+                                            id = existing.id,
+                                            childPatientID = existing.childPatientID ?: incoming.childPatientID
+                                        )
+                                    }
                                 } else incoming
                                 upsertInfantReg(merged)
                                 savedCount++
@@ -429,16 +456,23 @@ class InfantRegRepo @Inject constructor(
                                 "skippedInvalidPayload=$skippedInvalidPayloadCount failedSave=$failedSaveCount " +
                                 "received=${dataArray.length()}"
                         )
-                        return@withContext true
+                        val downsyncSuccess =
+                            failedSaveCount == 0 &&
+                                skippedNoMotherCount == 0 &&
+                                skippedInvalidPayloadCount == 0
+                        return@withContext downsyncSuccess
                     }
                     5000 -> {
                         Timber.d("No infant records found on server")
                         return@withContext true
                     }
                     401, 5002 -> {
-                        if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                            throw SocketTimeoutException("Token refreshed. Retrying infant getAll")
+                        if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            refreshed = true
+                            Timber.d("Retrying infant getAll after token refresh")
+                            continue
                         }
+                        return@withContext false
                     }
                     else -> {
                         Timber.w("Infant getAll failed: $errorMessage")
@@ -446,16 +480,23 @@ class InfantRegRepo @Inject constructor(
                     }
                 }
                 return@withContext false
-            } catch (e: SocketTimeoutException) {
-                Timber.d("Retrying infant getAll after token refresh")
-                return@withContext pullInfantsFromServer()
-            } catch (e: JSONException) {
-                Timber.e(e, "Infant getAll parse failed")
-                return@withContext false
-            } catch (e: Exception) {
-                Timber.e(e, "Infant getAll failed")
-                return@withContext false
+                } catch (e: SocketTimeoutException) {
+                    if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
+                        refreshed = true
+                        Timber.d("Retrying infant getAll after token refresh")
+                        continue
+                    }
+                    Timber.e(e, "Infant getAll failed")
+                    return@withContext false
+                } catch (e: JSONException) {
+                    Timber.e(e, "Infant getAll parse failed")
+                    return@withContext false
+                } catch (e: Exception) {
+                    Timber.e(e, "Infant getAll failed")
+                    return@withContext false
+                }
             }
+            return@withContext false
         }
     }
 
@@ -463,7 +504,9 @@ class InfantRegRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
-            try {
+            var refreshed = false
+            while (true) {
+                try {
                 val villageList = VillageIdList(
                     convertStringToIntList(user.assignVillageIds ?: ""),
                     preferenceDao.getLastPatientSyncTime()
@@ -556,9 +599,12 @@ class InfantRegRepo @Inject constructor(
                         return@withContext true
                     }
                     401, 5002 -> {
-                        if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                            throw SocketTimeoutException("Token refreshed. Retrying child getAll")
+                        if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            refreshed = true
+                            Timber.d("Retrying child getAll after token refresh")
+                            continue
                         }
+                        return@withContext false
                     }
                     else -> {
                         Timber.w("Child getAll failed: $errorMessage")
@@ -566,16 +612,23 @@ class InfantRegRepo @Inject constructor(
                     }
                 }
                 return@withContext false
-            } catch (e: SocketTimeoutException) {
-                Timber.d("Retrying child getAll after token refresh")
-                return@withContext pullChildrenFromServer()
-            } catch (e: JSONException) {
-                Timber.e(e, "Child getAll parse failed")
-                return@withContext false
-            } catch (e: Exception) {
-                Timber.e(e, "Child getAll failed")
-                return@withContext false
+                } catch (e: SocketTimeoutException) {
+                    if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
+                        refreshed = true
+                        Timber.d("Retrying child getAll after token refresh")
+                        continue
+                    }
+                    Timber.e(e, "Child getAll failed")
+                    return@withContext false
+                } catch (e: JSONException) {
+                    Timber.e(e, "Child getAll parse failed")
+                    return@withContext false
+                } catch (e: Exception) {
+                    Timber.e(e, "Child getAll failed")
+                    return@withContext false
+                }
             }
+            return@withContext false
         }
     }
 

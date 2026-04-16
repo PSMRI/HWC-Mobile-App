@@ -23,7 +23,6 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -263,45 +262,8 @@ class DeliveryOutcomeRepo @Inject constructor(
         if (benId <= 0L) return null
         val existing = patientDao.getPatientByAnyBeneficiaryId(benId)
         if (existing != null) return existing
-
-        val placeholderId = "delivery-patient-$benId"
-        val now = Date()
-        val placeholder = Patient(
-            patientID = placeholderId,
-            firstName = "Patient",
-            lastName = benId.toString(),
-            dob = null,
-            age = null,
-            ageUnitID = null,
-            maritalStatusID = null,
-            spouseName = null,
-            ageAtMarriage = null,
-            phoneNo = null,
-            genderID = null,
-            registrationDate = now,
-            stateID = null,
-            districtID = null,
-            blockID = null,
-            districtBranchID = null,
-            communityID = null,
-            religionID = null,
-            parentName = null,
-            syncState = SyncState.SYNCED,
-            beneficiaryID = benId,
-            beneficiaryRegID = null,
-            benImage = null,
-            statusOfWomanID = null,
-            isNewAbha = false,
-            healthIdDetails = null,
-            labTechnicianFlag = 0,
-            faceEmbedding = null
-        )
-        return runCatching {
-            patientDao.insertPatient(placeholder)
-            patientDao.getPatient(placeholderId)
-        }.onFailure { err ->
-            Timber.w(err, "Unable to create delivery patient placeholder for benId=$benId")
-        }.getOrNull()
+        Timber.w("Skipping DeliveryOutcome downsync record: patient not found for benId=$benId")
+        return null
     }
 
     private fun mergeDeliveryOutcome(
