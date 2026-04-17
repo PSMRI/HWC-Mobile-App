@@ -7,10 +7,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.EcrRepo
-import timber.log.Timber
-import java.net.SocketTimeoutException
 
 @HiltWorker
 class PushECToAmritWorker @AssistedInject constructor(
@@ -24,45 +21,14 @@ class PushECToAmritWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        init()
-        return try {
-            Timber.d("EC Worker started!")
-//            val workerResult = ecrRepo.pushAndUpdateEcrRecord()
-
-            val workerResult1 = ecrRepo.pushAndUpdateEctRecord()
-            if (workerResult1) {
-                Timber.d("Worker completed")
-                Result.success()
-            } else {
-                Timber.d("Worker Failed as usual!")
-                Result.failure()
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.e("Caught Exception for push amrit worker $e")
-            Result.retry()
-        }
-    }
-
-    private fun init() {
-        setIfEmpty(
-            currentValue = TokenInsertTmcInterceptor.getToken(),
-            valueProvider = { preferenceDao.getPrimaryApiToken() },
-            valueSetter = { TokenInsertTmcInterceptor.setToken(it) }
-        )
-        setIfEmpty(
-            currentValue = TokenInsertTmcInterceptor.getJwt(),
-            valueProvider = { preferenceDao.getJWTAmritToken() },
-            valueSetter = { TokenInsertTmcInterceptor.setJwt(it) }
-        )
-    }
-
-    private fun setIfEmpty(
-        currentValue: String,
-        valueProvider: () -> String?,
-        valueSetter: (String) -> Unit
-    ) {
-        if (currentValue == "") {
-            valueProvider()?.let(valueSetter)
+        WorkerExecutionUtils.initAuthTokens(preferenceDao)
+        return WorkerExecutionUtils.runBooleanWorker(
+            startLog = "EC Worker started!",
+            successLog = "Worker completed",
+            failureLog = "Worker Failed as usual!",
+            retryLog = "Caught Exception for push amrit worker"
+        ) {
+            ecrRepo.pushAndUpdateEctRecord()
         }
     }
 }

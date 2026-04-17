@@ -7,10 +7,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.InfantRegRepo
-import timber.log.Timber
-import java.net.SocketTimeoutException
 
 @HiltWorker
 class PullInfantRegisterWorker @AssistedInject constructor(
@@ -25,34 +22,15 @@ class PullInfantRegisterWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        init()
-        return try {
+        WorkerExecutionUtils.initAuthTokens(preferenceDao)
+        return WorkerExecutionUtils.runBooleanWorker(
+            successLog = "PullInfantRegisterWorker completed",
+            failureLog = "PullInfantRegisterWorker failed",
+            retryLog = "PullInfantRegisterWorker retry"
+        ) {
             val infantResult = infantRegRepo.pullInfantsFromServer()
             val childResult = infantRegRepo.pullChildrenFromServer()
-            val workerResult = infantResult && childResult
-            if (workerResult) {
-                Timber.d("PullInfantRegisterWorker completed")
-                Result.success()
-            } else {
-                Timber.d("PullInfantRegisterWorker failed")
-                Result.failure()
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.e(e, "PullInfantRegisterWorker retry")
-            Result.retry()
-        }
-    }
-
-    private fun init() {
-        if (TokenInsertTmcInterceptor.getToken().isBlank()) {
-            preferenceDao.getPrimaryApiToken()?.let {
-                TokenInsertTmcInterceptor.setToken(it)
-            }
-        }
-        if (TokenInsertTmcInterceptor.getJwt().isBlank()) {
-            preferenceDao.getJWTAmritToken()?.let {
-                TokenInsertTmcInterceptor.setJwt(it)
-            }
+            infantResult && childResult
         }
     }
 }

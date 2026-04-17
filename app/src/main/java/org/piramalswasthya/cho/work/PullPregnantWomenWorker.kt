@@ -7,10 +7,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
-import timber.log.Timber
-import java.net.SocketTimeoutException
 
 @HiltWorker
 class PullPregnantWomenWorker @AssistedInject constructor(
@@ -25,31 +22,14 @@ class PullPregnantWomenWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        init()
-        return try {
-            Timber.d("PullPregnantWomenWorker started")
-            val workerResult = maternalHealthRepo.pullPregnantWomenFromServer()
-            if (workerResult) {
-                Timber.d("PullPregnantWomenWorker completed successfully")
-                Result.success()
-            } else {
-                Timber.d("PullPregnantWomenWorker failed")
-                Result.failure()
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.e("Caught exception for PullPregnantWomenWorker $e")
-            Result.retry()
+        WorkerExecutionUtils.initAuthTokens(preferenceDao)
+        return WorkerExecutionUtils.runBooleanWorker(
+            startLog = "PullPregnantWomenWorker started",
+            successLog = "PullPregnantWomenWorker completed successfully",
+            failureLog = "PullPregnantWomenWorker failed",
+            retryLog = "Caught exception for PullPregnantWomenWorker"
+        ) {
+            maternalHealthRepo.pullPregnantWomenFromServer()
         }
-    }
-
-    private fun init() {
-        if (TokenInsertTmcInterceptor.getToken() == "")
-            preferenceDao.getPrimaryApiToken()?.let {
-                TokenInsertTmcInterceptor.setToken(it)
-            }
-        if (TokenInsertTmcInterceptor.getJwt() == "")
-            preferenceDao.getJWTAmritToken()?.let {
-                TokenInsertTmcInterceptor.setJwt(it)
-            }
     }
 }
