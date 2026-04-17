@@ -123,7 +123,19 @@ class ChildRegistrationListFragment : Fragment() {
     private fun observeChildren() {
         viewLifecycleOwner.lifecycleScope.launch {
             infantRegRepo.getRegisteredInfants().collectLatest { childrenList ->
-                allChildren = childrenList.sortedByDescending { it.infant.updatedDate }
+                allChildren = childrenList
+                    .groupBy { it.motherPatient.patientID to it.infant.babyIndex }
+                    .map { (_, rows) ->
+                        rows.maxWithOrNull(
+                            compareBy<ChildRegDomain> { !it.isChildRegistered() }
+                                .thenByDescending { maxOf(it.infant.updatedDate, it.infant.createdDate) }
+                        ) ?: rows.first()
+                    }
+                    .sortedWith(
+                        compareBy<ChildRegDomain> { it.isChildRegistered() }
+                            .thenByDescending { maxOf(it.infant.updatedDate, it.infant.createdDate) }
+                            .thenByDescending { it.infant.updatedDate }
+                    )
                 filteredChildren = allChildren
                 updateUI()
             }

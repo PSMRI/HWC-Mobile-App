@@ -16,7 +16,6 @@ import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.VillageIdList
-import org.piramalswasthya.cho.utils.nullIfEmpty
 //import org.piramalswasthya.sakhi.database.room.SyncState
 //import org.piramalswasthya.sakhi.database.shared_preferences.PreferenceDao
 //import org.piramalswasthya.sakhi.helpers.Konstants
@@ -196,22 +195,13 @@ class EcrRepo @Inject constructor(
 
     // ===== Pull Eligible Couples from Server =====
 
-    private fun convertStringToIntList(villageIds : String) : List<Int>{
-        if(villageIds.trim().nullIfEmpty() == null){
-            return emptyList();
-        }
-        return villageIds.split(",").mapNotNull {
-            it.trim().toIntOrNull()
-        }
-    }
-
     suspend fun pullEligibleCouplesFromServer(): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
             try {
                 val villageList = VillageIdList(
-                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
                     preferenceDao.getLastPatientSyncTime()
                 )
                 val response = amritApiService.getEligibleCouples(villageList)

@@ -530,19 +530,13 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
-    private fun convertStringToIntList(villageIds: String): List<Int> {
-        if (villageIds.trim().isEmpty()) return emptyList()
-        return villageIds.split(",")
-            .mapNotNull { it.trim().toIntOrNull() }
-    }
-
     suspend fun pullPregnantWomenFromServer(): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
             try {
                 val villageList = VillageIdList(
-                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
                     preferenceDao.getLastPatientSyncTime()
                 )
                 val response = amritApiService.getAllPregnantWomen(villageList)
@@ -640,7 +634,7 @@ class MaternalHealthRepo @Inject constructor(
                 ?: throw IllegalStateException("No user logged in!!")
             try {
                 val villageList = VillageIdList(
-                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
                     preferenceDao.getLastPatientSyncTime()
                 )
                 val response = amritApiService.getAllAncVisits(villageList)

@@ -737,6 +737,30 @@ class PatientRepo @Inject constructor(
 
     }
 
+    suspend fun processPatientById(patientID: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val patient = runCatching { patientDao.getPatientById(patientID) }.getOrNull()
+                ?: return@withContext false
+            val user = userRepo.getLoggedInUser()
+            updatePatientSyncing(patient.patient)
+            when (val response = registerNewPatient(patient, user)) {
+                is NetworkResult.Success -> {
+                    val benificiarySaveResponse = response.data as BenificiarySaveResponse
+                    updatePatientSyncSuccess(patient.patient, benificiarySaveResponse)
+                    true
+                }
+                is NetworkResult.Error -> {
+                    updatePatientSyncingFailed(patient.patient)
+                    false
+                }
+                else -> {
+                    updatePatientSyncingFailed(patient.patient)
+                    false
+                }
+            }
+        }
+    }
+
     suspend fun getWorkLocationMappedAbdmFacility(visitCode: Long? = 0L, benId: Long? = 0L, benRegId: Long? = 0L): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {

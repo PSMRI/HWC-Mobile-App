@@ -28,6 +28,20 @@ object WorkerUtils {
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
+    private fun enqueueReplaceChain(
+        context: Context,
+        workName: String,
+        first: OneTimeWorkRequest,
+        vararg next: OneTimeWorkRequest
+    ) {
+        val workManager = WorkManager.getInstance(context)
+        var chain = workManager.beginUniqueWork(workName, ExistingWorkPolicy.REPLACE, first)
+        next.forEach { request ->
+            chain = chain.then(request)
+        }
+        chain.enqueue()
+    }
+
     fun triggerDownSyncWorker(context : Context, syncName: String){
 
         val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
@@ -214,11 +228,12 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
-        val workManager = WorkManager.getInstance(context)
-        workManager
-            .beginUniqueWork("ec-tracking-sync", ExistingWorkPolicy.REPLACE, pushECToAmritWorker)
-            .then(pullEligibleCouplesWorker)
-            .enqueue()
+        enqueueReplaceChain(
+            context = context,
+            workName = "ec-tracking-sync",
+            first = pushECToAmritWorker,
+            pullEligibleCouplesWorker
+        )
     }
 
     /**
@@ -239,14 +254,15 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
-        val workManager = WorkManager.getInstance(context)
         Timber.d("Enqueuing targeted PWR registration sync worker")
-        workManager
-            .beginUniqueWork("pwr-registration-sync", ExistingWorkPolicy.REPLACE, pushPWRToAmritWorker)
-            .then(pushAncToAmritWorker)
-            .then(pullPregnantWomenWorker)
-            .then(pullAncVisitsWorker)
-            .enqueue()
+        enqueueReplaceChain(
+            context = context,
+            workName = "pwr-registration-sync",
+            first = pushPWRToAmritWorker,
+            pushAncToAmritWorker,
+            pullPregnantWomenWorker,
+            pullAncVisitsWorker
+        )
     }
 
     /**
@@ -261,12 +277,13 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
-        val workManager = WorkManager.getInstance(context)
         Timber.d("Enqueuing targeted ANC sync worker")
-        workManager
-            .beginUniqueWork("anc-visit-sync", ExistingWorkPolicy.REPLACE, pushAncToAmritWorker)
-            .then(pullAncVisitsWorker)
-            .enqueue()
+        enqueueReplaceChain(
+            context = context,
+            workName = "anc-visit-sync",
+            first = pushAncToAmritWorker,
+            pullAncVisitsWorker
+        )
     }
 
     /**
@@ -281,12 +298,13 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
-        val workManager = WorkManager.getInstance(context)
         Timber.d("Enqueuing targeted Delivery Outcome sync worker")
-        workManager
-            .beginUniqueWork("delivery-outcome-sync", ExistingWorkPolicy.REPLACE, pushDeliveryOutcomeToAmritWorker)
-            .then(pullDeliveryOutcomeWorker)
-            .enqueue()
+        enqueueReplaceChain(
+            context = context,
+            workName = "delivery-outcome-sync",
+            first = pushDeliveryOutcomeToAmritWorker,
+            pullDeliveryOutcomeWorker
+        )
     }
 
     /**
@@ -301,12 +319,13 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
-        val workManager = WorkManager.getInstance(context)
         Timber.d("Enqueuing targeted Infant registration sync worker")
-        workManager
-            .beginUniqueWork("infant-registration-sync", ExistingWorkPolicy.REPLACE, pushInfantRegisterWorkRequest)
-            .then(pullInfantRegisterWorker)
-            .enqueue()
+        enqueueReplaceChain(
+            context = context,
+            workName = "infant-registration-sync",
+            first = pushInfantRegisterWorkRequest,
+            pullInfantRegisterWorker
+        )
     }
 
     fun triggerPncSync(context: Context) {
@@ -317,12 +336,13 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
-        val workManager = WorkManager.getInstance(context)
         Timber.d("Enqueuing targeted PNC sync worker")
-        workManager
-            .beginUniqueWork("pnc-sync", ExistingWorkPolicy.REPLACE, pushPncWorker)
-            .then(pullPncWorker)
-            .enqueue()
+        enqueueReplaceChain(
+            context = context,
+            workName = "pnc-sync",
+            first = pushPncWorker,
+            pullPncWorker
+        )
     }
 
     /**
@@ -334,11 +354,12 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
-        val workManager = WorkManager.getInstance(context)
         Timber.d("Enqueuing targeted beneficiary sync worker")
-        workManager
-            .beginUniqueWork("beneficiary-sync", ExistingWorkPolicy.REPLACE, pushBenToAmritWorker)
-            .enqueue()
+        enqueueReplaceChain(
+            context = context,
+            workName = "beneficiary-sync",
+            first = pushBenToAmritWorker
+        )
     }
 
     fun labPushWorker(context : Context){

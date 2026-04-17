@@ -350,12 +350,6 @@ class InfantRegRepo @Inject constructor(
     private suspend fun getPatientOrNull(patientID: String) =
         runCatching { patientDao.getPatient(patientID) }.getOrNull()
 
-    private fun convertStringToIntList(villageIds: String): List<Int> {
-        if (villageIds.trim().isEmpty()) return emptyList()
-        return villageIds.split(",")
-            .mapNotNull { it.trim().toIntOrNull() }
-    }
-
     suspend fun pullInfantsFromServer(): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
@@ -364,7 +358,7 @@ class InfantRegRepo @Inject constructor(
             while (true) {
                 try {
                 val villageList = VillageIdList(
-                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
                     preferenceDao.getLastPatientSyncTime()
                 )
                 val response = amritApiService.getAllInfants(villageList)
@@ -508,7 +502,7 @@ class InfantRegRepo @Inject constructor(
             while (true) {
                 try {
                 val villageList = VillageIdList(
-                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
                     preferenceDao.getLastPatientSyncTime()
                 )
                 val response = amritApiService.getAllChildren(villageList)

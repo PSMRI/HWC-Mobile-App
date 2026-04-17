@@ -68,12 +68,6 @@ class DeliveryOutcomeRepo @Inject constructor(
         }
     }
 
-    private fun convertStringToIntList(villageIds: String): List<Int> {
-        if (villageIds.trim().isEmpty()) return emptyList()
-        return villageIds.split(",")
-            .mapNotNull { it.trim().toIntOrNull() }
-    }
-
     suspend fun processNewDeliveryOutcomes(): Boolean {
         return withContext(Dispatchers.IO) {
             val deliveryList = deliveryOutcomeDao.getAllUnprocessedDeliveryOutcomes()
@@ -169,7 +163,7 @@ class DeliveryOutcomeRepo @Inject constructor(
                 ?: throw IllegalStateException("No user logged in!!")
             try {
                 val villageList = VillageIdList(
-                    convertStringToIntList(user.assignVillageIds ?: ""),
+                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
                     preferenceDao.getLastPatientSyncTime()
                 )
                 val response = amritApiService.getAllDeliveryOutcomes(villageList)

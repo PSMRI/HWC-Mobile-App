@@ -25,8 +25,9 @@ import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.InfantRegRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
-import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.utils.generateUuid
 import timber.log.Timber
+import java.util.Date
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -212,8 +213,17 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
                 val userName = userRepo.getLoggedInUser()?.userName.orEmpty()
                 val childGenderId = dataset.getGenderID() ?: infantReg.genderID
 
+                val childPatient = buildOrUpdateChildPatient(
+                    mother = motherPatient ?: return@launch,
+                    delivery = deliveryOutcome ?: return@launch,
+                    infantReg = infantReg,
+                    childName = dataset.getChildFullName(),
+                    childGenderId = childGenderId,
+                    userName = userName
+                )
+
                 val updatedInfant = infantReg.copy(
-                    childPatientID = infantReg.childPatientID,
+                    childPatientID = childPatient.patientID,
                     babyName = dataset.getChildFullName().ifBlank { infantReg.babyName },
                     genderID = childGenderId,
                     updatedBy = userName,
@@ -226,8 +236,9 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
                 if (!childSyncDone) {
                     Timber.w("Child saveAll failed for motherPatientID=${updatedInfant.motherPatientID}, babyIndex=${updatedInfant.babyIndex}")
                 }
-                if (isAdded) {
-                    WorkerUtils.triggerInfantRegistrationSync(requireContext())
+                val beneficiarySyncDone = patientRepo.processPatientById(childPatient.patientID)
+                if (!beneficiarySyncDone) {
+                    Timber.w("Beneficiary sync failed for child patientID=${childPatient.patientID}")
                 }
 
                 if (isAdded) {
@@ -251,6 +262,87 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private suspend fun buildOrUpdateChildPatient(
+        mother: Patient,
+        delivery: DeliveryOutcomeCache,
+        infantReg: InfantRegCache,
+        childName: String,
+        childGenderId: Int?,
+        userName: String
+    ): Patient {
+        val now = Date()
+        val childDob = delivery.dateOfDelivery?.let { Date(it) } ?: now
+        val finalChildName = childName.trim().ifBlank {
+            infantReg.babyName?.trim().orEmpty().ifBlank { "Baby" }
+        }
+        val firstName = finalChildName.substringBefore(" ").ifBlank { finalChildName }
+        val lastName = finalChildName.substringAfter(" ", "").trim().ifBlank { "" }
+        val fatherName = mother.spouseName?.takeIf { it.isNotBlank() } ?: mother.parentName
+        val childMaritalStatusId = if (childGenderId == 2) 7 else null
+        val childReproductiveStatusId = if (childGenderId == 2) 7 else null
+
+        val persistedChildPatientID = infantRegRepo
+            .getInfantReg(infantReg.motherPatientID, infantReg.babyIndex)
+            ?.childPatientID
+        val existingChild = (infantReg.childPatientID ?: persistedChildPatientID)
+            ?.let { getPatientOrNull(it) }
+        val childPatient = (existingChild ?: Patient(
+            patientID = generateUuid(),
+            firstName = firstName,
+            lastName = lastName,
+            dob = childDob,
+            age = null,
+            ageUnitID = null,
+            maritalStatusID = childMaritalStatusId,
+            spouseName = "",
+            ageAtMarriage = null,
+            phoneNo = mother.phoneNo,
+            genderID = childGenderId,
+            registrationDate = now,
+            stateID = mother.stateID,
+            districtID = mother.districtID,
+            blockID = mother.blockID,
+            districtBranchID = mother.districtBranchID,
+            communityID = mother.communityID,
+            religionID = mother.religionID,
+            parentName = fatherName,
+            syncState = SyncState.UNSYNCED,
+            beneficiaryID = null,
+            beneficiaryRegID = null,
+            benImage = null,
+            statusOfWomanID = childReproductiveStatusId,
+            isNewAbha = false,
+            healthIdDetails = null,
+            labTechnicianFlag = 0,
+            faceEmbedding = null
+        )).copy(
+            firstName = firstName,
+            lastName = lastName,
+            dob = childDob,
+            genderID = childGenderId,
+            phoneNo = mother.phoneNo,
+            parentName = fatherName,
+            stateID = mother.stateID,
+            districtID = mother.districtID,
+            blockID = mother.blockID,
+            districtBranchID = mother.districtBranchID,
+            communityID = mother.communityID,
+            religionID = mother.religionID,
+            maritalStatusID = childMaritalStatusId,
+            spouseName = "",
+            statusOfWomanID = childReproductiveStatusId,
+            syncState = SyncState.UNSYNCED,
+            registrationDate = existingChild?.registrationDate ?: now
+        )
+
+        if (existingChild == null) {
+            patientRepo.insertPatient(childPatient)
+        } else {
+            patientRepo.updateRecord(childPatient)
+        }
+        return childPatient
     }
 
     private suspend fun getPatientOrNull(patientID: String): Patient? {
