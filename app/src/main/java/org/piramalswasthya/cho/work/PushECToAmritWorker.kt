@@ -44,13 +44,25 @@ class PushECToAmritWorker @AssistedInject constructor(
     }
 
     private fun init() {
-        if (TokenInsertTmcInterceptor.getToken() == "")
-            preferenceDao.getPrimaryApiToken()?.let {
-                TokenInsertTmcInterceptor.setToken(it)
-            }
-        if (TokenInsertTmcInterceptor.getJwt() == "")
-            preferenceDao.getJWTAmritToken()?.let {
-                TokenInsertTmcInterceptor.setJwt(it)
-            }
+        setIfEmpty(
+            currentValue = TokenInsertTmcInterceptor.getToken(),
+            valueProvider = { preferenceDao.getPrimaryApiToken() },
+            valueSetter = { TokenInsertTmcInterceptor.setToken(it) }
+        )
+        setIfEmpty(
+            currentValue = TokenInsertTmcInterceptor.getJwt(),
+            valueProvider = { preferenceDao.getJWTAmritToken() },
+            valueSetter = { TokenInsertTmcInterceptor.setJwt(it) }
+        )
+    }
+
+    private fun setIfEmpty(
+        currentValue: String,
+        valueProvider: () -> String?,
+        valueSetter: (String) -> Unit
+    ) {
+        if (currentValue == "") {
+            valueProvider()?.let(valueSetter)
+        }
     }
 }
