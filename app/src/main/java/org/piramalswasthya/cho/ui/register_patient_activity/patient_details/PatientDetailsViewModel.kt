@@ -344,12 +344,21 @@ class PatientDetailsViewModel @Inject constructor(
         maritalStatusId: Int?,
         maritalStatusName: String?
     ): List<StatusOfWomanMaster> {
-        // For now, show all status-of-woman options for females and none for non-females.
-        // This avoids over-restricting the dropdown to a single value like "Elderly".
-        return if (genderId == 2) {
-            statusOfWomanList
-        } else {
-            emptyList()
+        if (genderId != 2 || ageInYears == null || ageInYears < 15) return emptyList()
+
+        // Age >= 50: always Elderly Woman regardless of marital status
+        if (ageInYears >= 50) return filterStatusOfWomanByCodes("EL")
+
+        val status = maritalStatusName?.trim()?.lowercase()
+
+        return when {
+            // Age 15-19, Unmarried -> Adolescent Girl
+            status == "unmarried" && ageInYears in 15..19 -> filterStatusOfWomanByCodes("AD")
+            // Age 20-49, Unmarried -> Not Applicable
+            status == "unmarried" -> filterStatusOfWomanByCodes("NA")
+            // Age 15-49, Married -> Eligible Couple, Pregnant Woman, Postnatal, Permanent Sterilization
+            status == "married" -> filterStatusOfWomanByCodes("EC", "PW", "PN", "ST")
+            else -> emptyList()
         }
     }
 
@@ -359,8 +368,12 @@ class PatientDetailsViewModel @Inject constructor(
     }
 
 
-    fun shouldShowStatusOfWoman(genderId: Int?, ageInYears: Int?): Boolean {
-        return genderId == 2
+    fun shouldShowStatusOfWoman(genderId: Int?, ageInYears: Int?, maritalStatusName: String?): Boolean {
+        if (genderId != 2 || ageInYears == null || ageInYears < 15) return false
+        // Age >= 50: show regardless of marital status
+        if (ageInYears >= 50) return true
+        val status = maritalStatusName?.trim()?.lowercase() ?: return false
+        return status == "married" || status == "unmarried"
     }
 
     
