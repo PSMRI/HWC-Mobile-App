@@ -1092,7 +1092,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.plusButton.setOnClickListener {
             val newItem = ChiefComplaintValues()
             itemList.add(newItem)
-            adapter.notifyItemInserted(itemList.size - 1)
+            adapter.notifyDataSetChanged()
             binding.plusButton.isEnabled = false
             validateAndEnableDropdowns()
         }

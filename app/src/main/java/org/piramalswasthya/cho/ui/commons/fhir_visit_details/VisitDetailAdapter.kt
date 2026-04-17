@@ -72,6 +72,8 @@ class VisitDetailAdapter(
                     durationInput.setText((durationCount + 1).toString())
                     subtractButton.isEnabled = true
                 }
+                notifyDataSetChanged()
+                itemChangeListener.onItemChanged()
             }
 
             subtractButton.setOnClickListener {
