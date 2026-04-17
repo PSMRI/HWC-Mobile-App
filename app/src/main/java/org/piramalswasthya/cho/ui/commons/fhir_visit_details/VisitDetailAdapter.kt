@@ -168,25 +168,13 @@ class VisitDetailAdapter(
             resetButton.isEnabled = isItemFilled
         }
 
-//        private fun deleteItem(position: Int) {
-//            if (position in 0 until itemList.size) {
-//                itemList.removeAt(position)
-//                notifyItemRemoved(position)
-//                itemChangeListener.onItemChanged()
-//            }
-//        }
-
         private fun deleteItem(position: Int) {
-            if (position in 0 until itemList.size) {
-                itemList.removeAt(position)
-                if (itemList.isEmpty()) {
-                    // Keep at least one complaint row visible after deletions.
-                    itemList.add(ChiefComplaintValues())
-                }
-                // Rebind list to avoid stale row state after mid-list deletions.
-                notifyDataSetChanged()
-                itemChangeListener.onItemChanged()
-            }
+            if (itemList.size <= 1) return
+            if (position !in 0 until itemList.size) return
+
+            itemList.removeAt(position)
+            notifyDataSetChanged()
+            itemChangeListener.onItemChanged()
         }
         private fun resetFields(position: Int) {
             if (position in 0 until itemList.size) {
