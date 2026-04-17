@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.Button
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
@@ -29,8 +28,6 @@ class VisitDetailAdapter(
     private val endIconClickListener: EndIconClickListener
 ) :
     RecyclerView.Adapter<VisitDetailAdapter.ViewHolder>() {
-
-    private val viewHolders = mutableListOf<ViewHolder>()
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val chiefComplaintOptions: AutoCompleteTextView =
@@ -52,20 +49,113 @@ class VisitDetailAdapter(
         var isBinding = false
 
         init {
-            // Set up click listener for the "Cancel" button
             cancelButton.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     if (itemCount > 1) deleteItem(position)
-                    updateDeleteButtonVisibility()
                 }
             }
 
-            // Set up click listener for the "Reset" button
             resetButton.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     resetFields(position)
+                }
+            }
+
+            addButton.setOnClickListener {
+                val position = adapterPosition
+                if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+                val itemData = itemList[position]
+                val durationCount = itemData.duration?.toIntOrNull() ?: 0
+                if (durationCount < 99) {
+                    durationInput.setText((durationCount + 1).toString())
+                    subtractButton.isEnabled = true
+                }
+            }
+
+            subtractButton.setOnClickListener {
+                val position = adapterPosition
+                if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+                val itemData = itemList[position]
+                val durationCount = itemData.duration?.toIntOrNull() ?: 0
+                if (durationCount > 1) {
+                    durationInput.setText((durationCount - 1).toString())
+                }
+            }
+
+            chiefComplaintOptions.setOnItemClickListener { parent, _, selectedPosition, _ ->
+                val position = adapterPosition
+                if (position == RecyclerView.NO_POSITION) return@setOnItemClickListener
+                val chiefComplaint = parent.getItemAtPosition(selectedPosition) as ChiefComplaintMaster
+                chiefComplaintOptions.setText(chiefComplaint.chiefComplaint, false)
+                itemList[position].id = chiefComplaint.chiefComplaintID
+            }
+
+            chiefComplaintOptions.addTextChangedListener {
+                if (isBinding) return@addTextChangedListener
+                val position = adapterPosition
+                if (position == RecyclerView.NO_POSITION) return@addTextChangedListener
+                val itemData = itemList[position]
+
+                if (chiefComplaints.map { master -> master.chiefComplaint }.contains(it.toString())) {
+                    itemData.chiefComplaint = it.toString()
+                    updateResetButtonState()
+                    itemChangeListener.onItemChanged()
+                    chiefComplaintOptionInput.apply {
+                        hintTextColor = defaultHintTextColor
+                    }
+                } else {
+                    itemData.chiefComplaint = ""
+                    chiefComplaintOptionInput.apply {
+                        requestFocus()
+                        boxStrokeColor = Color.RED
+                        hintTextColor = ColorStateList.valueOf(Color.RED)
+                    }
+                }
+            }
+
+            durationInput.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    if (isBinding) return
+                    val position = adapterPosition
+                    if (position == RecyclerView.NO_POSITION) return
+
+                    if (!s.isNullOrBlank() && s.length == 1 && s[0] == '0') s.clear()
+                    if (!s.isNullOrBlank() && s.length > 2) {
+                        s.replace(0, s.length, s.subSequence(0, 2))
+                    }
+
+                    itemList[position].duration = s.toString()
+                    subtractButton.isEnabled = !s.isNullOrBlank() && (s.toString().toIntOrNull() ?: 0) > 1
+                    updateResetButtonState()
+                    itemChangeListener.onItemChanged()
+                }
+            })
+
+            durationUnitDropdown.addTextChangedListener {
+                if (isBinding) return@addTextChangedListener
+                val position = adapterPosition
+                if (position == RecyclerView.NO_POSITION) return@addTextChangedListener
+                itemList[position].durationUnit = it.toString()
+                itemChangeListener.onItemChanged()
+            }
+
+            descriptionInput.addTextChangedListener {
+                if (isBinding) return@addTextChangedListener
+                val position = adapterPosition
+                if (position == RecyclerView.NO_POSITION) return@addTextChangedListener
+                itemList[position].description = it.toString()
+                updateResetButtonState()
+                itemChangeListener.onItemChanged()
+            }
+
+            descInputLayout.setEndIconOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    endIconClickListener.onEndIconDescClick(position)
                 }
             }
         }
@@ -78,20 +168,14 @@ class VisitDetailAdapter(
             resetButton.isEnabled = isItemFilled
         }
 
-        fun updateDeleteButtonVisibility() {
-            for (viewHolder in viewHolders) {
-                viewHolder.cancelButton.isEnabled = itemCount > 1
-            }
-        }
-
         private fun deleteItem(position: Int) {
-            if (position in 0 until itemList.size) {
-                itemList.removeAt(position)
-                notifyItemRemoved(position)
-                itemChangeListener.onItemChanged()
-            }
-        }
+            if (itemList.size <= 1) return
+            if (position !in 0 until itemList.size) return
 
+            itemList.removeAt(position)
+            notifyDataSetChanged()
+            itemChangeListener.onItemChanged()
+        }
         private fun resetFields(position: Int) {
             if (position in 0 until itemList.size) {
                 val itemData = itemList[position]
@@ -108,14 +192,17 @@ class VisitDetailAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.isBinding = true
         val itemData = itemList[position]
-        holder.chiefComplaintOptions.setText(itemData.chiefComplaint)
+        holder.chiefComplaintOptions.setText(itemData.chiefComplaint, false)
         holder.durationInput.setText(itemData.duration)
-        holder.durationUnitDropdown.setText(unitDropDown[1])
+        val selectedDurationUnit = itemData.durationUnit?.takeIf { it.isNotBlank() }
+            ?: unitDropDown.getOrNull(1)
+            ?: unitDropDown.firstOrNull()
+            ?: ""
+        holder.durationUnitDropdown.setText(selectedDurationUnit, false)
         holder.descriptionInput.setText(itemData.description)
         holder.cancelButton.isEnabled = itemCount > 1
-        holder.resetButton.isEnabled = false
+        holder.subtractButton.isEnabled = (itemData.duration?.toIntOrNull() ?: 0) > 1
 
-        // Set up dropdown adapter and populate dropdown values
         val unitDropdownAdapter =
             ArrayAdapter(holder.itemView.context, R.layout.drop_down, unitDropDown)
         val chiefComplaintAdapter = ChiefComplaintAdapter(
@@ -128,138 +215,14 @@ class VisitDetailAdapter(
         holder.chiefComplaintOptions.setAdapter(chiefComplaintAdapter)
         holder.durationUnitDropdown.setAdapter(unitDropdownAdapter)
         holder.isBinding = false
-        var durationCount = if (itemData.duration.isNullOrEmpty()) 0 else itemData.duration!!.toIntOrNull() ?: 0 // Initialise from existing data so +/- buttons reflect the stored value.
-        holder.subtractButton.isEnabled = !itemData.duration.isNullOrEmpty()
-        holder.addButton.setOnClickListener {
-            if(itemData.duration.isNullOrEmpty()){
-                durationCount = 0
-            }else if(itemData.duration!!.toInt() <= 99) {
-                durationCount = itemData.duration!!.toInt()
-            }
-            if(durationCount<99){
-                durationCount++
-                holder.durationInput.setText(durationCount.toString())
-                holder.updateResetButtonState()
-                itemChangeListener.onItemChanged()
-            }
-
-            // Enable the "Subtract" button
-            holder.subtractButton.isEnabled = true
-
-        }
-        holder.subtractButton.setOnClickListener {
-            durationCount = if(itemData.duration.isNullOrEmpty()){
-                0
-            }else {
-                itemData.duration!!.toInt()
-            }
-            if (durationCount > 1) {
-                durationCount--
-                holder.durationInput.setText(durationCount.toString())
-                holder.updateResetButtonState()
-                itemChangeListener.onItemChanged()
-            }
-        }
-
-
-        holder.chiefComplaintOptions.setOnItemClickListener { parent, _, position, _ ->
-            var chiefComplaint = parent.getItemAtPosition(position) as ChiefComplaintMaster
-            holder.chiefComplaintOptions.setText(chiefComplaint?.chiefComplaint, false)
-            itemData.id = chiefComplaint.chiefComplaintID
-        }
-
-        // Set listeners to update data when user interacts
-        holder.chiefComplaintOptions.addTextChangedListener {
-                if (holder.isBinding) return@addTextChangedListener // Skip callback during programmatic setText() to avoid overwriting model with empty value.
-                if(chiefComplaints.map{it.chiefComplaint}.contains(it.toString())){
-                    itemData.chiefComplaint = it.toString()
-                    holder.updateResetButtonState()
-                    itemChangeListener.onItemChanged()
-                    holder.chiefComplaintOptionInput.apply {
-                 //       boxStrokeColor = resources.getColor(R.color.purple)
-                        hintTextColor = defaultHintTextColor
-                    }
-                }else{
-                    itemData.chiefComplaint = ""
-                    holder.chiefComplaintOptionInput.apply {
-                        requestFocus()
-                        boxStrokeColor = Color.RED
-                        hintTextColor = ColorStateList.valueOf(Color.RED)
-                    }
-                }
-        }
-        holder.durationInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                if (!s.isNullOrBlank() && s.length == 1 && s[0] == '0') s.clear()
-
-                if (!s.isNullOrBlank()) {
-                    // Limit the input to 2 digits
-                    if (s.length > 2) {
-                        // If the input is longer than 2 digits, truncate it
-                        s.replace(0, s.length, s.subSequence(0, 2))
-                    }
-                }
-
-                itemData.duration = s.toString()
-
-               /* if (s.isNullOrEmpty()) {
-                    holder.subtractButton.isEnabled = false
-                    holder.durationInputLayout.apply {
-                        requestFocus()
-                        boxStrokeColor = Color.RED
-                        hintTextColor = ColorStateList.valueOf(Color.RED)
-                    }
-                } else {
-                    holder.subtractButton.isEnabled = true
-                    holder.durationInputLayout.apply {
-                        boxStrokeColor = resources.getColor(R.color.purple)
-                        hintTextColor = defaultHintTextColor
-                    }
-                }*/
-
-                holder.updateResetButtonState()
-                itemChangeListener.onItemChanged()
-            }
-        })
-        holder.durationUnitDropdown.addTextChangedListener {
-            if (!holder.isBinding) {
-                itemData.durationUnit = it.toString()
-                itemChangeListener.onItemChanged()
-            }
-        }
-        holder.descriptionInput.addTextChangedListener {
-            if (!holder.isBinding) {
-                itemData.description = it.toString()
-                holder.updateResetButtonState()
-                itemChangeListener.onItemChanged()
-            }
-        }
-
-        // Update the visibility of the "Cancel" button for all items
-        holder.updateDeleteButtonVisibility()
-
-        // Update the visibility of the "Reset" button for all items
         holder.updateResetButtonState()
-
-        // Voice to text converter click listeners
-
-        holder.descInputLayout.setEndIconOnClickListener {
-            endIconClickListener.onEndIconDescClick(position)
-        }
-//        holder.chiefComplaintOptionInput.setEndIconOnClickListener {
-//            endIconClickListener.onEndIconChiefClick(position)
-//        }
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.extra_chief_complaint_layout, parent, false)
-        val viewHolder = ViewHolder(view)
-        viewHolders.add(viewHolder)
-        return viewHolder
+        return ViewHolder(view)
     }
 
     override fun getItemCount(): Int = itemList.size
