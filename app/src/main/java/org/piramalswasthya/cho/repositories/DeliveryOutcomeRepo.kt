@@ -1,17 +1,15 @@
 package org.piramalswasthya.cho.repositories
 
-import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.helpers.Konstants
-import org.piramalswasthya.cho.helpers.setToStartOfTheDay
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.DeliveryOutcomePost
 import org.piramalswasthya.cho.model.Patient
@@ -19,12 +17,7 @@ import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.VillageIdList
 //import org.piramalswasthya.cho.network.GetDataPaginatedRequest
 import timber.log.Timber
-import java.io.IOException
 import java.net.SocketTimeoutException
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class DeliveryOutcomeRepo @Inject constructor(
@@ -34,6 +27,29 @@ class DeliveryOutcomeRepo @Inject constructor(
     private val deliveryOutcomeDao: DeliveryOutcomeDao,
     private val patientDao: PatientDao
 ) {
+
+    private fun buildVillageList(assignVillageIds: String?): VillageIdList {
+        return VillageIdList(
+            RepositorySyncUtils.parseVillageIds(assignVillageIds ?: ""),
+            preferenceDao.getLastPatientSyncTime()
+        )
+    }
+
+    private fun extractDataArray(jsonObj: JSONObject): JSONArray {
+        return when (val dataNode = jsonObj.opt("data")) {
+            is JSONArray -> dataNode
+            is JSONObject -> dataNode.optJSONArray("data")
+            else -> null
+        } ?: JSONArray()
+    }
+
+    private suspend fun refreshAndRetryIfNeeded(
+        responseStatusCode: Int,
+        userName: String,
+        password: String
+    ): Boolean {
+        return responseStatusCode == 5002 && userRepo.refreshTokenTmc(userName, password)
+    }
 
     suspend fun getDeliveryOutcome(patientID: String): DeliveryOutcomeCache? {
         return withContext(Dispatchers.IO) {
@@ -112,48 +128,47 @@ class DeliveryOutcomeRepo @Inject constructor(
         if (payload.isEmpty()) return false
         val user = userRepo.getLoggedInUser()
             ?: throw IllegalStateException("No user logged in!!")
-        try {
-            val response = amritApiService.postDeliveryOutcomeForm(payload.toList())
-            val statusCode = response.code()
-            if (statusCode != 200) {
-                Timber.w("Bad response from server for DeliveryOutcome saveAll, code=$statusCode")
-                return false
-            }
-
-            val responseString = response.body()?.string()
-            if (responseString.isNullOrBlank()) {
-                Timber.d("DeliveryOutcome saveAll succeeded with empty response body")
-                return true
-            }
-
-            val jsonObj = try {
-                JSONObject(responseString)
-            } catch (e: Exception) {
-                Timber.w(e, "DeliveryOutcome saveAll returned non-JSON body, treating as success: $responseString")
-                return true
-            }
-
-            val responseStatusCode = jsonObj.optInt("statusCode", 200)
-            val errorMessage = jsonObj.optString("errorMessage")
-            when (responseStatusCode) {
-                200 -> return true
-                5002 -> {
-                    if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                        throw SocketTimeoutException()
-                    }
-                }
-                else -> {
-                    Timber.w("DeliveryOutcome saveAll failed: $errorMessage")
+        while (true) {
+            try {
+                val response = amritApiService.postDeliveryOutcomeForm(payload.toList())
+                val statusCode = response.code()
+                if (statusCode != 200) {
+                    Timber.w("Bad response from server for DeliveryOutcome saveAll, code=$statusCode")
                     return false
                 }
+
+                val responseString = response.body()?.string()
+                if (responseString.isNullOrBlank()) {
+                    Timber.d("DeliveryOutcome saveAll succeeded with empty response body")
+                    return true
+                }
+
+                val jsonObj = try {
+                    JSONObject(responseString)
+                } catch (e: Exception) {
+                    Timber.w(e, "DeliveryOutcome saveAll returned non-JSON body, treating as success: $responseString")
+                    return true
+                }
+
+                val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                val errorMessage = jsonObj.optString("errorMessage")
+                when (responseStatusCode) {
+                    200 -> return true
+                    else -> {
+                        if (refreshAndRetryIfNeeded(responseStatusCode, user.userName, user.password)) {
+                            continue
+                        }
+                        Timber.w("DeliveryOutcome saveAll failed: $errorMessage")
+                        return false
+                    }
+                }
+            } catch (e: SocketTimeoutException) {
+                Timber.d("Caught timeout for DeliveryOutcome saveAll $e; retrying")
+                continue
+            } catch (e: JSONException) {
+                Timber.d("Caught JSON exception for DeliveryOutcome saveAll $e")
+                return false
             }
-            return false
-        } catch (e: SocketTimeoutException) {
-            Timber.d("Caught timeout for DeliveryOutcome saveAll $e; retrying")
-            return postDeliveryOutcomeToAmritServer(payload)
-        } catch (e: JSONException) {
-            Timber.d("Caught JSON exception for DeliveryOutcome saveAll $e")
-            return false
         }
     }
 
@@ -161,94 +176,86 @@ class DeliveryOutcomeRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
-            try {
-                val villageList = VillageIdList(
-                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
-                    preferenceDao.getLastPatientSyncTime()
-                )
-                val response = amritApiService.getAllDeliveryOutcomes(villageList)
-                if (response.code() != 200) {
-                    Timber.w("Bad response from server for DeliveryOutcome getAll: $response")
-                    return@withContext false
-                }
+            while (true) {
+                try {
+                    val villageList = buildVillageList(user.assignVillageIds)
+                    val response = amritApiService.getAllDeliveryOutcomes(villageList)
+                    if (response.code() != 200) {
+                        Timber.w("Bad response from server for DeliveryOutcome getAll: $response")
+                        return@withContext false
+                    }
 
-                val responseString = response.body()?.string()
-                if (responseString.isNullOrBlank()) {
-                    Timber.w("Empty response body for DeliveryOutcome getAll")
-                    return@withContext false
-                }
+                    val responseString = response.body()?.string()
+                    if (responseString.isNullOrBlank()) {
+                        Timber.w("Empty response body for DeliveryOutcome getAll")
+                        return@withContext false
+                    }
 
-                val jsonObj = JSONObject(responseString)
-                val responseStatusCode = jsonObj.optInt("statusCode", 200)
-                val errorMessage = jsonObj.optString("errorMessage")
-                when (responseStatusCode) {
-                    200 -> {
-                        val dataArray = when (val dataNode = jsonObj.opt("data")) {
-                            is org.json.JSONArray -> dataNode
-                            is org.json.JSONObject -> dataNode.optJSONArray("data")
-                            else -> null
-                        } ?: org.json.JSONArray()
+                    val jsonObj = JSONObject(responseString)
+                    val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                    val errorMessage = jsonObj.optString("errorMessage")
+                    when (responseStatusCode) {
+                        200 -> {
+                            val dataArray = extractDataArray(jsonObj)
+                            val gson = Gson()
+                            var savedCount = 0
+                            var skippedNoPatientCount = 0
+                            for (i in 0 until dataArray.length()) {
+                                val networkModel = gson.fromJson(
+                                    dataArray.getJSONObject(i).toString(),
+                                    DeliveryOutcomePost::class.java
+                                )
+                                if (networkModel.benId == 0L) {
+                                    Timber.w("Skipping DeliveryOutcome getAll item with invalid benId at index=$i")
+                                    continue
+                                }
 
-                        val gson = Gson()
-                        var savedCount = 0
-                        var skippedNoPatientCount = 0
-                        for (i in 0 until dataArray.length()) {
-                            val networkModel = gson.fromJson(
-                                dataArray.getJSONObject(i).toString(),
-                                DeliveryOutcomePost::class.java
-                            )
-                            if (networkModel.benId == 0L) {
-                                Timber.w("Skipping DeliveryOutcome getAll item with invalid benId at index=$i")
+                                val patient = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
+                                    ?: ensurePatientPlaceholderForDeliveryOutcome(networkModel.benId)
+                                if (patient == null) {
+                                    Timber.w("No local patient found for DeliveryOutcome benId=${networkModel.benId}, skipping")
+                                    skippedNoPatientCount++
+                                    continue
+                                }
+
+                                val incoming = networkModel.toDeliveryCache(patient.patientID).copy(
+                                    processed = "P",
+                                    syncState = SyncState.SYNCED,
+                                    updatedDate = System.currentTimeMillis(),
+                                    updatedBy = networkModel.updatedBy.ifBlank { user.userName }
+                                )
+                                val existing = deliveryOutcomeDao.getDeliveryOutcome(patient.patientID)
+                                val merged = if (existing != null) {
+                                    mergeDeliveryOutcome(existing, incoming)
+                                } else incoming
+
+                                saveDeliveryOutcome(merged)
+                                savedCount++
+                            }
+                            Timber.d("DeliveryOutcome getAll downsync completed, saved=$savedCount skippedNoPatient=$skippedNoPatientCount received=${dataArray.length()}")
+                            return@withContext true
+                        }
+                        5000 -> {
+                            Timber.d("No Delivery Outcome records found on server")
+                            return@withContext true
+                        }
+                        else -> {
+                            if (refreshAndRetryIfNeeded(responseStatusCode, user.userName, user.password)) {
                                 continue
                             }
-
-                            val patient = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
-                                ?: ensurePatientPlaceholderForDeliveryOutcome(networkModel.benId)
-                            if (patient == null) {
-                                Timber.w("No local patient found for DeliveryOutcome benId=${networkModel.benId}, skipping")
-                                skippedNoPatientCount++
-                                continue
-                            }
-
-                            val incoming = networkModel.toDeliveryCache(patient.patientID).copy(
-                                processed = "P",
-                                syncState = SyncState.SYNCED,
-                                updatedDate = System.currentTimeMillis(),
-                                updatedBy = networkModel.updatedBy.ifBlank { user.userName }
-                            )
-                            val existing = deliveryOutcomeDao.getDeliveryOutcome(patient.patientID)
-                            val merged = if (existing != null) {
-                                mergeDeliveryOutcome(existing, incoming)
-                            } else incoming
-
-                            saveDeliveryOutcome(merged)
-                            savedCount++
-                        }
-                        Timber.d("DeliveryOutcome getAll downsync completed, saved=$savedCount skippedNoPatient=$skippedNoPatientCount received=${dataArray.length()}")
-                        return@withContext true
-                    }
-                    5000 -> {
-                        Timber.d("No Delivery Outcome records found on server")
-                        return@withContext true
-                    }
-                    5002 -> {
-                        if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                            throw SocketTimeoutException()
+                            Timber.w("DeliveryOutcome getAll failed: $errorMessage")
+                            return@withContext false
                         }
                     }
-                    else -> {
-                        Timber.w("DeliveryOutcome getAll failed: $errorMessage")
-                        throw IOException("DeliveryOutcome getAll failed with statusCode=$responseStatusCode")
-                    }
+                } catch (e: SocketTimeoutException) {
+                    Timber.d("Caught timeout for DeliveryOutcome getAll $e; retrying")
+                    continue
+                } catch (e: JSONException) {
+                    Timber.d("Caught JSON exception for DeliveryOutcome getAll $e")
+                    return@withContext false
                 }
-                return@withContext false
-            } catch (e: SocketTimeoutException) {
-                Timber.d("Caught timeout for DeliveryOutcome getAll $e; retrying")
-                return@withContext pullDeliveryOutcomesFromServer()
-            } catch (e: JSONException) {
-                Timber.d("Caught JSON exception for DeliveryOutcome getAll $e")
-                return@withContext false
             }
+            return@withContext false
         }
     }
 

@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
 import org.json.JSONException
-import org.json.JSONArray
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -203,11 +202,7 @@ class PncRepo @Inject constructor(
 
                 when (responseStatusCode) {
                     200 -> {
-                        val dataArray = when (val dataNode = jsonObj.opt("data")) {
-                            is JSONArray -> dataNode
-                            is JSONObject -> dataNode.optJSONArray("data")
-                            else -> null
-                        } ?: JSONArray()
+                        val dataArray = RepositorySyncUtils.extractDataArray(jsonObj)
 
                         val gson = Gson()
                         var savedCount = 0

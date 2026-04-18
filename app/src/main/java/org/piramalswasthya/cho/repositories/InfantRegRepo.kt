@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import okhttp3.ResponseBody
 import org.json.JSONException
 import org.json.JSONArray
 import org.json.JSONObject
@@ -29,6 +30,7 @@ import java.net.SocketTimeoutException
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import retrofit2.Response
 
 class InfantRegRepo @Inject constructor(
     private val preferenceDao: PreferenceDao,
@@ -235,24 +237,24 @@ class InfantRegRepo @Inject constructor(
         }
     }
 
-    private suspend fun postChildDataToAmritServer(
-        childPostList: List<ChildApiPost>
+    private suspend fun postWithTokenRefreshRetry(
+        moduleName: String,
+        call: suspend () -> Response<ResponseBody>
     ): Boolean {
-        if (childPostList.isEmpty()) return true
         val user = preferenceDao.getLoggedInUser()
             ?: throw IllegalStateException("No user logged in")
         var refreshed = false
         while (true) {
             try {
-                val response = amritApiService.postChildDetails(childPostList)
+                val response = call()
                 if (response.code() != 200) {
-                    Timber.w("Child sync failed with HTTP ${response.code()}")
+                    Timber.w("$moduleName sync failed with HTTP ${response.code()}")
                     return false
                 }
 
                 val responseString = response.body()?.string()
                 if (responseString.isNullOrBlank()) {
-                    Timber.d("Child saveAll succeeded with empty response body")
+                    Timber.d("$moduleName saveAll succeeded with empty response body")
                     return true
                 }
                 val jsonObj = JSONObject(responseString)
@@ -262,231 +264,119 @@ class InfantRegRepo @Inject constructor(
                     401, 5002 -> {
                         if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
                             refreshed = true
-                            Timber.d("Retrying child sync after token refresh")
+                            Timber.d("Retrying $moduleName sync after token refresh")
                             continue
                         }
                         return false
                     }
                     else -> {
-                        Timber.w("Child sync failed with response statusCode=$responseStatusCode")
+                        Timber.w("$moduleName sync failed with response statusCode=$responseStatusCode")
                         return false
                     }
                 }
             } catch (e: SocketTimeoutException) {
                 if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
                     refreshed = true
-                    Timber.d("Retrying child sync after token refresh")
+                    Timber.d("Retrying $moduleName sync after token refresh")
                     continue
                 }
-                Timber.e(e, "Child sync failed")
+                Timber.e(e, "$moduleName sync failed")
                 return false
             } catch (e: JSONException) {
-                Timber.e(e, "Child sync parse failed")
+                Timber.e(e, "$moduleName sync parse failed")
                 return false
             } catch (e: Exception) {
-                Timber.e(e, "Child sync failed")
+                Timber.e(e, "$moduleName sync failed")
                 return false
             }
         }
+    }
+
+    private suspend fun postChildDataToAmritServer(
+        childPostList: List<ChildApiPost>
+    ): Boolean {
+        if (childPostList.isEmpty()) return true
+        return postWithTokenRefreshRetry(
+            moduleName = "Child",
+            call = { amritApiService.postChildDetails(childPostList) }
+        )
     }
 
     private suspend fun postDataToAmritServer(
         infantRegPostList: List<InfantRegApiPost>
     ): Boolean {
         if (infantRegPostList.isEmpty()) return true
-
-        val user = preferenceDao.getLoggedInUser()
-            ?: throw IllegalStateException("No user logged in")
-        var refreshed = false
-        while (true) {
-            try {
-                val response = amritApiService.postInfantRegForm(infantRegPostList)
-                if (response.code() != 200) {
-                    Timber.w("Infant sync failed with HTTP ${response.code()}")
-                    return false
-                }
-
-                val responseString = response.body()?.string()
-                if (responseString.isNullOrBlank()) {
-                    Timber.d("Infant saveAll succeeded with empty response body")
-                    return true
-                }
-                val jsonObj = JSONObject(responseString)
-                val responseStatusCode = jsonObj.optInt("statusCode", -1)
-
-                when (responseStatusCode) {
-                    200 -> return true
-                    401, 5002 -> {
-                        if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
-                            refreshed = true
-                            Timber.d("Retrying infant sync after token refresh")
-                            continue
-                        }
-                        return false
-                    }
-                    else -> {
-                        Timber.w("Infant sync failed with response statusCode=$responseStatusCode")
-                        return false
-                    }
-                }
-            } catch (e: SocketTimeoutException) {
-                if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
-                    refreshed = true
-                    Timber.d("Retrying infant sync after token refresh")
-                    continue
-                }
-                Timber.e(e, "Infant sync failed")
-                return false
-            } catch (e: JSONException) {
-                Timber.e(e, "Infant sync failed while parsing response")
-                return false
-            } catch (e: Exception) {
-                Timber.e(e, "Infant sync failed")
-                return false
-            }
-        }
+        return postWithTokenRefreshRetry(
+            moduleName = "Infant",
+            call = { amritApiService.postInfantRegForm(infantRegPostList) }
+        )
     }
 
     private suspend fun getPatientOrNull(patientID: String) =
         runCatching { patientDao.getPatient(patientID) }.getOrNull()
 
-    suspend fun pullInfantsFromServer(): Boolean {
+    private suspend fun pullWithTokenRefreshRetry(
+        moduleName: String,
+        fetch: suspend (VillageIdList) -> Response<ResponseBody>,
+        onSuccess200: suspend (jsonObj: JSONObject, userName: String) -> Boolean
+    ): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
             var refreshed = false
             while (true) {
                 try {
-                val villageList = VillageIdList(
-                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
-                    preferenceDao.getLastPatientSyncTime()
-                )
-                val response = amritApiService.getAllInfants(villageList)
-                if (response.code() != 200) {
-                    Timber.w("Bad response from server for Infant getAll: $response")
-                    return@withContext false
-                }
+                    val villageList = VillageIdList(
+                        RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
+                        preferenceDao.getLastPatientSyncTime()
+                    )
+                    val response = fetch(villageList)
+                    if (response.code() != 200) {
+                        Timber.w("Bad response from server for $moduleName getAll: $response")
+                        return@withContext false
+                    }
 
-                val responseString = response.body()?.string()
-                if (responseString.isNullOrBlank()) {
-                    Timber.w("Empty response body for Infant getAll")
-                    return@withContext false
-                }
+                    val responseString = response.body()?.string()
+                    if (responseString.isNullOrBlank()) {
+                        Timber.w("Empty response body for $moduleName getAll")
+                        return@withContext false
+                    }
 
-                val jsonObj = JSONObject(responseString)
-                val responseStatusCode = jsonObj.optInt("statusCode", 200)
-                val errorMessage = jsonObj.optString("errorMessage")
-                when (responseStatusCode) {
-                    200 -> {
-                        val dataArray = extractInfantDataArray(jsonObj)
-
-                        val gson = Gson()
-                        var savedCount = 0
-                        var skippedNoMotherCount = 0
-                        var skippedInvalidPayloadCount = 0
-                        var failedSaveCount = 0
-                        for (i in 0 until dataArray.length()) {
-                            try {
-                                val rawObj = extractInfantItemObject(dataArray, i)
-                                if (rawObj == null) {
-                                    skippedInvalidPayloadCount++
-                                    continue
-                                }
-                                val normalizedObj = normalizeInfantPayload(rawObj)
-                                val networkModel = gson.fromJson(
-                                    normalizedObj.toString(),
-                                    InfantRegApiPost::class.java
-                                )
-                                if (networkModel.benId <= 0L) {
-                                    Timber.w("Invalid infant payload at index=$i: benId=${networkModel.benId}, skipping")
-                                    skippedInvalidPayloadCount++
-                                    continue
-                                }
-                                val mother = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
-                                    ?: ensureMotherPlaceholderForInfant(benId = networkModel.benId)
-                                if (mother == null) {
-                                    Timber.w("No local mother patient found for infant benId=${networkModel.benId}, skipping")
-                                    skippedNoMotherCount++
-                                    continue
-                                }
-                                val childPatientID = if (networkModel.childBenId > 0) {
-                                    patientDao.getPatientByAnyBeneficiaryId(networkModel.childBenId)?.patientID
-                                } else null
-
-                                val incoming = networkModel.toCacheModel(
-                                    motherPatientID = mother.patientID,
-                                    childPatientID = childPatientID
-                                ).copy(
-                                    processed = "P",
-                                    syncState = SyncState.SYNCED,
-                                    updatedDate = System.currentTimeMillis(),
-                                    updatedBy = networkModel.updatedBy?.ifBlank { user.userName } ?: user.userName
-                                )
-                                val existing = infantRegDao.getInfantReg(mother.patientID, incoming.babyIndex)
-                                val merged = if (existing != null) {
-                                    if (existing.syncState == SyncState.SYNCED) {
-                                        incoming.copy(
-                                            id = existing.id,
-                                            createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
-                                            createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
-                                        )
-                                    } else {
-                                        existing.copy(
-                                            id = existing.id,
-                                            childPatientID = existing.childPatientID ?: incoming.childPatientID
-                                        )
-                                    }
-                                } else incoming
-                                upsertInfantReg(merged)
-                                savedCount++
-                            } catch (e: Exception) {
-                                failedSaveCount++
-                                Timber.w(e, "Failed saving infant payload index=$i")
+                    val jsonObj = JSONObject(responseString)
+                    val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                    val errorMessage = jsonObj.optString("errorMessage")
+                    when (responseStatusCode) {
+                        200 -> return@withContext onSuccess200(jsonObj, user.userName)
+                        5000 -> {
+                            Timber.d("No ${moduleName.lowercase(Locale.ENGLISH)} records found on server")
+                            return@withContext true
+                        }
+                        401, 5002 -> {
+                            if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
+                                refreshed = true
+                                Timber.d("Retrying ${moduleName.lowercase(Locale.ENGLISH)} getAll after token refresh")
+                                continue
                             }
+                            return@withContext false
                         }
-                        Timber.d(
-                            "Infant getAll downsync completed, saved=$savedCount " +
-                                "skippedNoMother=$skippedNoMotherCount " +
-                                "skippedInvalidPayload=$skippedInvalidPayloadCount failedSave=$failedSaveCount " +
-                                "received=${dataArray.length()}"
-                        )
-                        val downsyncSuccess =
-                            failedSaveCount == 0 &&
-                                skippedNoMotherCount == 0 &&
-                                skippedInvalidPayloadCount == 0
-                        return@withContext downsyncSuccess
-                    }
-                    5000 -> {
-                        Timber.d("No infant records found on server")
-                        return@withContext true
-                    }
-                    401, 5002 -> {
-                        if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
-                            refreshed = true
-                            Timber.d("Retrying infant getAll after token refresh")
-                            continue
+                        else -> {
+                            Timber.w("$moduleName getAll failed: $errorMessage")
+                            return@withContext false
                         }
-                        return@withContext false
                     }
-                    else -> {
-                        Timber.w("Infant getAll failed: $errorMessage")
-                        return@withContext false
-                    }
-                }
-                return@withContext false
                 } catch (e: SocketTimeoutException) {
                     if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
                         refreshed = true
-                        Timber.d("Retrying infant getAll after token refresh")
+                        Timber.d("Retrying ${moduleName.lowercase(Locale.ENGLISH)} getAll after token refresh")
                         continue
                     }
-                    Timber.e(e, "Infant getAll failed")
+                    Timber.e(e, "$moduleName getAll failed")
                     return@withContext false
                 } catch (e: JSONException) {
-                    Timber.e(e, "Infant getAll parse failed")
+                    Timber.e(e, "$moduleName getAll parse failed")
                     return@withContext false
                 } catch (e: Exception) {
-                    Timber.e(e, "Infant getAll failed")
+                    Timber.e(e, "$moduleName getAll failed")
                     return@withContext false
                 }
             }
@@ -494,135 +384,158 @@ class InfantRegRepo @Inject constructor(
         }
     }
 
-    suspend fun pullChildrenFromServer(): Boolean {
-        return withContext(Dispatchers.IO) {
-            val user = userRepo.getLoggedInUser()
-                ?: throw IllegalStateException("No user logged in!!")
-            var refreshed = false
-            while (true) {
+    suspend fun pullInfantsFromServer(): Boolean {
+        return pullWithTokenRefreshRetry(
+            moduleName = "Infant",
+            fetch = { villageList -> amritApiService.getAllInfants(villageList) }
+        ) { jsonObj, userName ->
+            val dataArray = extractInfantDataArray(jsonObj)
+            val gson = Gson()
+            var savedCount = 0
+            var skippedNoMotherCount = 0
+            var skippedInvalidPayloadCount = 0
+            var failedSaveCount = 0
+            for (i in 0 until dataArray.length()) {
                 try {
-                val villageList = VillageIdList(
-                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
-                    preferenceDao.getLastPatientSyncTime()
-                )
-                val response = amritApiService.getAllChildren(villageList)
-                if (response.code() != 200) {
-                    Timber.w("Bad response from server for Child getAll: $response")
-                    return@withContext false
-                }
-
-                val responseString = response.body()?.string()
-                if (responseString.isNullOrBlank()) {
-                    Timber.w("Empty response body for Child getAll")
-                    return@withContext false
-                }
-
-                val jsonObj = JSONObject(responseString)
-                val responseStatusCode = jsonObj.optInt("statusCode", 200)
-                val errorMessage = jsonObj.optString("errorMessage")
-                when (responseStatusCode) {
-                    200 -> {
-                        val dataArray = extractInfantDataArray(jsonObj)
-                        val gson = Gson()
-                        var savedCount = 0
-                        var skippedNoMotherCount = 0
-                        var skippedInvalidPayloadCount = 0
-                        var failedSaveCount = 0
-
-                        for (i in 0 until dataArray.length()) {
-                            try {
-                                val rawObj = extractInfantItemObject(dataArray, i)
-                                if (rawObj == null) {
-                                    skippedInvalidPayloadCount++
-                                    continue
-                                }
-                                val normalizedObj = normalizeChildPayload(rawObj)
-                                val networkModel = gson.fromJson(
-                                    normalizedObj.toString(),
-                                    ChildApiPost::class.java
-                                )
-                                if (networkModel.benId <= 0L) {
-                                    skippedInvalidPayloadCount++
-                                    continue
-                                }
-
-                                val mother = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
-                                    ?: ensureMotherPlaceholderForInfant(networkModel.benId)
-                                if (mother == null) {
-                                    skippedNoMotherCount++
-                                    continue
-                                }
-
-                                val existingRegs = infantRegDao.getAllInfantRegs(setOf(mother.patientID))
-                                    .filter { it.isActive }
-                                    .sortedWith(
-                                        compareBy<InfantRegCache> { it.babyIndex }
-                                            .thenByDescending { it.updatedDate }
-                                    )
-                                val resolvedExisting = resolveChildRecord(existingRegs, networkModel)
-                                val resolvedBabyIndex = resolvedExisting?.babyIndex
-                                    ?: existingRegs.firstOrNull { !it.hasRegistrationData() }?.babyIndex
-                                    ?: existingRegs.size
-
-                                val merged = mergeChildDownsync(
-                                    existing = resolvedExisting,
-                                    motherPatientID = mother.patientID,
-                                    child = networkModel,
-                                    babyIndex = resolvedBabyIndex,
-                                    userName = user.userName
-                                )
-
-                                upsertInfantReg(merged)
-                                savedCount++
-                            } catch (e: Exception) {
-                                failedSaveCount++
-                                Timber.w(e, "Failed saving child payload index=$i")
-                            }
-                        }
-
-                        Timber.d(
-                            "Child getAll downsync completed, saved=$savedCount " +
-                                "skippedNoMother=$skippedNoMotherCount " +
-                                "skippedInvalidPayload=$skippedInvalidPayloadCount failedSave=$failedSaveCount " +
-                                "received=${dataArray.length()}"
-                        )
-                        return@withContext true
-                    }
-                    5000 -> {
-                        Timber.d("No child records found on server")
-                        return@withContext true
-                    }
-                    401, 5002 -> {
-                        if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
-                            refreshed = true
-                            Timber.d("Retrying child getAll after token refresh")
-                            continue
-                        }
-                        return@withContext false
-                    }
-                    else -> {
-                        Timber.w("Child getAll failed: $errorMessage")
-                        return@withContext false
-                    }
-                }
-                return@withContext false
-                } catch (e: SocketTimeoutException) {
-                    if (!refreshed && userRepo.refreshTokenTmc(user.userName, user.password)) {
-                        refreshed = true
-                        Timber.d("Retrying child getAll after token refresh")
+                    val rawObj = extractInfantItemObject(dataArray, i)
+                    if (rawObj == null) {
+                        skippedInvalidPayloadCount++
                         continue
                     }
-                    Timber.e(e, "Child getAll failed")
-                    return@withContext false
-                } catch (e: JSONException) {
-                    Timber.e(e, "Child getAll parse failed")
-                    return@withContext false
+                    val normalizedObj = normalizeInfantPayload(rawObj)
+                    val networkModel = gson.fromJson(
+                        normalizedObj.toString(),
+                        InfantRegApiPost::class.java
+                    )
+                    if (networkModel.benId <= 0L) {
+                        Timber.w("Invalid infant payload at index=$i: benId=${networkModel.benId}, skipping")
+                        skippedInvalidPayloadCount++
+                        continue
+                    }
+                    val mother = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
+                        ?: ensureMotherPlaceholderForInfant(benId = networkModel.benId)
+                    if (mother == null) {
+                        Timber.w("No local mother patient found for infant benId=${networkModel.benId}, skipping")
+                        skippedNoMotherCount++
+                        continue
+                    }
+                    val childPatientID = if (networkModel.childBenId > 0) {
+                        patientDao.getPatientByAnyBeneficiaryId(networkModel.childBenId)?.patientID
+                    } else null
+
+                    val incoming = networkModel.toCacheModel(
+                        motherPatientID = mother.patientID,
+                        childPatientID = childPatientID
+                    ).copy(
+                        processed = "P",
+                        syncState = SyncState.SYNCED,
+                        updatedDate = System.currentTimeMillis(),
+                        updatedBy = networkModel.updatedBy?.ifBlank { userName } ?: userName
+                    )
+                    val existing = infantRegDao.getInfantReg(mother.patientID, incoming.babyIndex)
+                    val merged = if (existing != null) {
+                        if (existing.syncState == SyncState.SYNCED) {
+                            incoming.copy(
+                                id = existing.id,
+                                createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+                                createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
+                            )
+                        } else {
+                            existing.copy(
+                                id = existing.id,
+                                childPatientID = existing.childPatientID ?: incoming.childPatientID
+                            )
+                        }
+                    } else incoming
+                    upsertInfantReg(merged)
+                    savedCount++
                 } catch (e: Exception) {
-                    Timber.e(e, "Child getAll failed")
-                    return@withContext false
+                    failedSaveCount++
+                    Timber.w(e, "Failed saving infant payload index=$i")
                 }
             }
-            return@withContext false
+            Timber.d(
+                "Infant getAll downsync completed, saved=$savedCount " +
+                    "skippedNoMother=$skippedNoMotherCount " +
+                    "skippedInvalidPayload=$skippedInvalidPayloadCount failedSave=$failedSaveCount " +
+                    "received=${dataArray.length()}"
+            )
+            failedSaveCount == 0 &&
+                skippedNoMotherCount == 0 &&
+                skippedInvalidPayloadCount == 0
+        }
+    }
+
+    suspend fun pullChildrenFromServer(): Boolean {
+        return pullWithTokenRefreshRetry(
+            moduleName = "Child",
+            fetch = { villageList -> amritApiService.getAllChildren(villageList) }
+        ) { jsonObj, userName ->
+            val dataArray = extractInfantDataArray(jsonObj)
+            val gson = Gson()
+            var savedCount = 0
+            var skippedNoMotherCount = 0
+            var skippedInvalidPayloadCount = 0
+            var failedSaveCount = 0
+
+            for (i in 0 until dataArray.length()) {
+                try {
+                    val rawObj = extractInfantItemObject(dataArray, i)
+                    if (rawObj == null) {
+                        skippedInvalidPayloadCount++
+                        continue
+                    }
+                    val normalizedObj = normalizeChildPayload(rawObj)
+                    val networkModel = gson.fromJson(
+                        normalizedObj.toString(),
+                        ChildApiPost::class.java
+                    )
+                    if (networkModel.benId <= 0L) {
+                        skippedInvalidPayloadCount++
+                        continue
+                    }
+
+                    val mother = patientDao.getPatientByAnyBeneficiaryId(networkModel.benId)
+                        ?: ensureMotherPlaceholderForInfant(networkModel.benId)
+                    if (mother == null) {
+                        skippedNoMotherCount++
+                        continue
+                    }
+
+                    val existingRegs = infantRegDao.getAllInfantRegs(setOf(mother.patientID))
+                        .filter { it.isActive }
+                        .sortedWith(
+                            compareBy<InfantRegCache> { it.babyIndex }
+                                .thenByDescending { it.updatedDate }
+                        )
+                    val resolvedExisting = resolveChildRecord(existingRegs, networkModel)
+                    val resolvedBabyIndex = resolvedExisting?.babyIndex
+                        ?: existingRegs.firstOrNull { !it.hasRegistrationData() }?.babyIndex
+                        ?: existingRegs.size
+
+                    val merged = mergeChildDownsync(
+                        existing = resolvedExisting,
+                        motherPatientID = mother.patientID,
+                        child = networkModel,
+                        babyIndex = resolvedBabyIndex,
+                        userName = userName
+                    )
+
+                    upsertInfantReg(merged)
+                    savedCount++
+                } catch (e: Exception) {
+                    failedSaveCount++
+                    Timber.w(e, "Failed saving child payload index=$i")
+                }
+            }
+
+            Timber.d(
+                "Child getAll downsync completed, saved=$savedCount " +
+                    "skippedNoMother=$skippedNoMotherCount " +
+                    "skippedInvalidPayload=$skippedInvalidPayloadCount failedSave=$failedSaveCount " +
+                    "received=${dataArray.length()}"
+            )
+            true
         }
     }
 

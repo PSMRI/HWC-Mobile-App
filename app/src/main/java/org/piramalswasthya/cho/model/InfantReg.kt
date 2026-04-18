@@ -14,6 +14,19 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
+private fun formatMotherFullName(patient: Patient): String {
+    return "${patient.firstName} ${patient.lastName ?: ""}".trim()
+}
+
+private fun formatBabyOrdinalName(motherFirstName: String?, babyIndex: Int): String {
+    return when (babyIndex) {
+        0 -> "1st baby of $motherFirstName"
+        1 -> "2nd baby of $motherFirstName"
+        2 -> "3rd baby of $motherFirstName"
+        else -> "${babyIndex + 1}th baby of $motherFirstName"
+    }
+}
+
 @Entity(
     tableName = "INFANT_REG",
     foreignKeys = [ForeignKey(
@@ -217,18 +230,14 @@ data class InfantRegDomain(
      * Get formatted baby name (1st baby, 2nd baby, etc.)
      */
     val customName: String
-        get() = savedIr?.babyName?.takeIf { it.isNotBlank() } ?: when (babyIndex) {
-            0 -> "1st baby of ${motherPatient.firstName}"
-            1 -> "2nd baby of ${motherPatient.firstName}"
-            2 -> "3rd baby of ${motherPatient.firstName}"
-            else -> "${babyIndex + 1}th baby of ${motherPatient.firstName}"
-        }
+        get() = savedIr?.babyName?.takeIf { it.isNotBlank() }
+            ?: formatBabyOrdinalName(motherPatient.firstName, babyIndex)
 
     /**
      * Get mother's full name
      */
     fun getMotherFullName(): String {
-        return "${motherPatient.firstName} ${motherPatient.lastName ?: ""}".trim()
+        return formatMotherFullName(motherPatient)
     }
 
     /**
@@ -466,19 +475,14 @@ data class ChildRegDomain(
 
             return childFullName
                 ?: infant.babyName?.takeIf { it.isNotBlank() }
-                ?: when (infant.babyIndex) {
-                    0 -> "1st baby of ${motherPatient.firstName}"
-                    1 -> "2nd baby of ${motherPatient.firstName}"
-                    2 -> "3rd baby of ${motherPatient.firstName}"
-                    else -> "${infant.babyIndex + 1}th baby of ${motherPatient.firstName}"
-                }
+                ?: formatBabyOrdinalName(motherPatient.firstName, infant.babyIndex)
         }
 
     /**
      * Get mother's full name
      */
     fun getMotherFullName(): String {
-        return "${motherPatient.firstName} ${motherPatient.lastName ?: ""}".trim()
+        return formatMotherFullName(motherPatient)
     }
 
     /**
