@@ -23,14 +23,13 @@ class AuthTokenManagerTest {
 
     @Test
     fun storesValuesIndependentlyForEachInterceptor() {
-        AuthTokenManager.setTmcToken("tmc-token")
-        AuthTokenManager.setTmcJwt("tmc-jwt")
+        AuthTokenManager.setTmcCredentials("tmc-token", "tmc-jwt")
         AuthTokenManager.setAbhaToken("abha-token")
         AuthTokenManager.setAbhaXToken("abha-x-token")
         AuthTokenManager.setESanjeevaniToken("esanjeevani-token")
 
-        assertEquals("tmc-token", AuthTokenManager.getTmcToken())
-        assertEquals("tmc-jwt", AuthTokenManager.getTmcJwt())
+        assertEquals("tmc-token", AuthTokenManager.getTmcCredentials().token)
+        assertEquals("tmc-jwt", AuthTokenManager.getTmcCredentials().jwt)
         assertEquals("abha-token", AuthTokenManager.getAbhaToken())
         assertEquals("abha-x-token", AuthTokenManager.getAbhaXToken())
         assertEquals("esanjeevani-token", AuthTokenManager.getESanjeevaniToken())
@@ -39,25 +38,32 @@ class AuthTokenManagerTest {
     @Test
     fun concurrentWritesRemainReadable() {
         val executor = Executors.newFixedThreadPool(4)
-        val ready = CountDownLatch(1)
-        val tasks = (0 until 32).map { index ->
-            executor.submit {
-                ready.await(5, TimeUnit.SECONDS)
-                AuthTokenManager.setTmcToken("tmc-$index")
-                AuthTokenManager.setTmcJwt("jwt-$index")
-                AuthTokenManager.setAbhaToken("abha-$index")
-                AuthTokenManager.setAbhaXToken("x-$index")
-                AuthTokenManager.setESanjeevaniToken("es-$index")
+        try {
+            val ready = CountDownLatch(1)
+            val tasks = (0 until 32).map { index ->
+                executor.submit {
+                    check(ready.await(5, TimeUnit.SECONDS))
+                    AuthTokenManager.setTmcCredentials("tmc-$index", "jwt-$index")
+                    AuthTokenManager.setAbhaToken("abha-$index")
+                    AuthTokenManager.setAbhaXToken("x-$index")
+                    AuthTokenManager.setESanjeevaniToken("es-$index")
+                }
             }
+
+            ready.countDown()
+            tasks.forEach { it.get(5, TimeUnit.SECONDS) }
+        } finally {
+            executor.shutdownNow()
+            executor.awaitTermination(5, TimeUnit.SECONDS)
         }
 
-        ready.countDown()
-        tasks.forEach { it.get(5, TimeUnit.SECONDS) }
-        executor.shutdown()
-        executor.awaitTermination(5, TimeUnit.SECONDS)
-
-        assertTrue(AuthTokenManager.getTmcToken().startsWith("tmc-"))
-        assertTrue(AuthTokenManager.getTmcJwt().startsWith("jwt-"))
+        val tmcCredentials = AuthTokenManager.getTmcCredentials()
+        assertTrue(tmcCredentials.token.startsWith("tmc-"))
+        assertTrue(tmcCredentials.jwt.startsWith("jwt-"))
+        assertEquals(
+            tmcCredentials.token.substringAfter('-'),
+            tmcCredentials.jwt.substringAfter('-')
+        )
         assertTrue(AuthTokenManager.getAbhaToken().startsWith("abha-"))
         assertTrue(AuthTokenManager.getAbhaXToken().startsWith("x-"))
         assertTrue(AuthTokenManager.getESanjeevaniToken().startsWith("es-"))

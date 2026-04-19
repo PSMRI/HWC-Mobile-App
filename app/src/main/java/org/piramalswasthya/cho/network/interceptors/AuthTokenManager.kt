@@ -9,23 +9,22 @@ import java.util.concurrent.atomic.AtomicReference
  * storage needs to be safe for concurrent reads and writes.
  */
 object AuthTokenManager {
-    private val tmcToken = AtomicReference("")
-    private val tmcJwt = AtomicReference("")
+
+    data class TmcCredentials(
+        val token: String = "",
+        val jwt: String = ""
+    )
+
+    private val tmcCredentials = AtomicReference(TmcCredentials())
     private val abhaToken = AtomicReference("")
     private val abhaXToken = AtomicReference("")
     private val eSanjeevaniToken = AtomicReference("")
 
-    fun setTmcToken(token: String) {
-        tmcToken.set(token)
+    fun setTmcCredentials(token: String, jwt: String) {
+        tmcCredentials.set(TmcCredentials(token, jwt))
     }
 
-    fun getTmcToken(): String = tmcToken.get()
-
-    fun setTmcJwt(jwt: String) {
-        tmcJwt.set(jwt)
-    }
-
-    fun getTmcJwt(): String = tmcJwt.get()
+    fun getTmcCredentials(): TmcCredentials = tmcCredentials.get()
 
     fun setAbhaToken(token: String?) {
         abhaToken.set(token.orEmpty())
@@ -46,8 +45,7 @@ object AuthTokenManager {
     fun getESanjeevaniToken(): String = eSanjeevaniToken.get()
 
     fun clear() {
-        tmcToken.set("")
-        tmcJwt.set("")
+        tmcCredentials.set(TmcCredentials())
         abhaToken.set("")
         abhaXToken.set("")
         eSanjeevaniToken.set("")
