@@ -8,22 +8,20 @@ class TokenInsertTmcInterceptor : Interceptor{
 
     companion object {
 
-        private var TOKEN: String = ""
         fun setToken(iToken: String) {
-            TOKEN = iToken
+            AuthTokenManager.setTmcToken(iToken)
         }
 
         fun getToken(): String {
-            return TOKEN
+            return AuthTokenManager.getTmcToken()
         }
 
-        private var JWT: String = ""
         fun setJwt(iJWT: String) {
-            JWT = iJWT
+            AuthTokenManager.setTmcJwt(iJWT)
         }
 
         fun getJwt(): String {
-            return JWT
+            return AuthTokenManager.getTmcJwt()
         }
 
     }
@@ -33,8 +31,8 @@ class TokenInsertTmcInterceptor : Interceptor{
         if (request.header("No-Auth") == null) {
             request = request
                 .newBuilder()
-                .addHeader("Authorization", TOKEN)
-                .addHeader("Jwttoken" , JWT)
+                .addHeader("Authorization", AuthTokenManager.getTmcToken())
+                .addHeader("Jwttoken" , AuthTokenManager.getTmcJwt())
                 .build()
         }
         Timber.d("Request : $request")

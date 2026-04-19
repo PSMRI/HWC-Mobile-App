@@ -7,22 +7,20 @@ import timber.log.Timber
 
 class TokenInsertAbhaInterceptor : Interceptor {
     companion object {
-        private var TOKEN: String = ""
-        private var XToken: String = ""
         fun setToken(iToken: String?) {
-            TOKEN = iToken ?: ""
+            AuthTokenManager.setAbhaToken(iToken)
         }
 
         fun getToken(): String {
-            return TOKEN
+            return AuthTokenManager.getAbhaToken()
         }
 
         fun setXToken(xToken: String?) {
-            XToken = xToken ?: ""
+            AuthTokenManager.setAbhaXToken(xToken)
         }
 
         fun getXToken(): String {
-            return XToken
+            return AuthTokenManager.getAbhaXToken()
         }
     }
 
@@ -33,18 +31,19 @@ class TokenInsertAbhaInterceptor : Interceptor {
                 .newBuilder()
                 .addHeader(
                     "Authorization",
-                    "Bearer $TOKEN"
+                    "Bearer ${AuthTokenManager.getAbhaToken()}"
                 )
                 .build()
         }
         val url = request.url.toString()
         if (url.contains("getCard") || url.contains("getPngCard") || url.contains("abha-card")) {
-            if (XToken.isNotEmpty()) {
+            val xToken = AuthTokenManager.getAbhaXToken()
+            if (xToken.isNotEmpty()) {
                 request = request
                     .newBuilder()
                     .addHeader(
                         "x-token",
-                        "Bearer $XToken"
+                        "Bearer $xToken"
                     )
                     .build()
             } else {
