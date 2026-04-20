@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.*
 import org.piramalswasthya.sakhi.work.PullBenFlowFromAmritWorker
 import org.piramalswasthya.sakhi.work.PushBenToAmritWorker
+import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -27,24 +28,53 @@ object WorkerUtils {
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
+    private data class RmnchPullWorkers(
+        val eligibleCouples: OneTimeWorkRequest,
+        val pregnantWomen: OneTimeWorkRequest,
+        val ancVisits: OneTimeWorkRequest,
+        val deliveryOutcome: OneTimeWorkRequest,
+        val pnc: OneTimeWorkRequest,
+        val infantRegister: OneTimeWorkRequest
+    )
+
+    private inline fun <reified T : ListenableWorker> networkWorker(): OneTimeWorkRequest {
+        return OneTimeWorkRequestBuilder<T>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+    }
+
+    private fun createRmnchPullWorkers(): RmnchPullWorkers {
+        return RmnchPullWorkers(
+            eligibleCouples = networkWorker<PullEligibleCouplesWorker>(),
+            pregnantWomen = networkWorker<PullPregnantWomenWorker>(),
+            ancVisits = networkWorker<PullAncVisitsWorker>(),
+            deliveryOutcome = networkWorker<PullDeliveryOutcomeWorker>(),
+            pnc = networkWorker<PullPncFromAmritWorker>(),
+            infantRegister = networkWorker<PullInfantRegisterWorker>()
+        )
+    }
+
+    private fun enqueueReplaceChain(
+        context: Context,
+        workName: String,
+        first: OneTimeWorkRequest,
+        vararg next: OneTimeWorkRequest
+    ) {
+        val workManager = WorkManager.getInstance(context)
+        var chain = workManager.beginUniqueWork(workName, ExistingWorkPolicy.REPLACE, first)
+        next.forEach { request ->
+            chain = chain.then(request)
+        }
+        chain.enqueue()
+    }
+
     fun triggerDownSyncWorker(context : Context, syncName: String){
 
-        val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-        val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val pullFormAmritWorker = OneTimeWorkRequestBuilder<PullLabRecordFormWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-        val pullCbacFromAmritWorker = OneTimeWorkRequestBuilder<PullCbacFromAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-
+        val pullBenFlowFromAmritWorker = networkWorker<PullBenFlowFromAmritWorker>()
+        val pullPatientFromAmritWorker = networkWorker<PullPatientsFromServer>()
+        val pullFormAmritWorker = networkWorker<PullLabRecordFormWorker>()
+        val pullCbacFromAmritWorker = networkWorker<PullCbacFromAmritWorker>()
+        val rmnchPull = createRmnchPullWorkers()
 
         val workManager = WorkManager.getInstance(context)
         workManager
@@ -52,68 +82,36 @@ object WorkerUtils {
             .then(pullFormAmritWorker)
             .then(pullBenFlowFromAmritWorker)
             .then(pullCbacFromAmritWorker)
+            .then(rmnchPull.eligibleCouples)
+            .then(rmnchPull.pregnantWomen)
+            .then(rmnchPull.ancVisits)
+            .then(rmnchPull.deliveryOutcome)
+            .then(rmnchPull.pnc)
+            .then(rmnchPull.infantRegister)
             .enqueue()
     }
 
     fun triggerAmritSyncWorker(context : Context){
 
-        val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val pushBenToAmritWorker = OneTimeWorkRequestBuilder<PushBenToAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val pushBenVisitInfoRequest = OneTimeWorkRequestBuilder<PushBenVisitInfoToAmrit>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val pushBenDoctorInfoPendingTestToAmrit = OneTimeWorkRequestBuilder<PushBenDoctorInfoPendingTestToAmrit>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val pushBenDoctorInfoWithoutTestToAmrit = OneTimeWorkRequestBuilder<PushBenDoctorInfoWithoutTestToAmrit>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val pushBenDoctorInfoAfterTestToAmrit = OneTimeWorkRequestBuilder<PushBenDoctorInfoAfterTestToAmrit>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val pullFormAmritWorker = OneTimeWorkRequestBuilder<PullLabRecordFormWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val createRevisitBenflowWorker = OneTimeWorkRequestBuilder<CreateRevisitBenflowWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-        val pushLabDataToAmrit = OneTimeWorkRequestBuilder<PushLabDataToAmrit>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-        val pushPWRToAmritWorker = OneTimeWorkRequestBuilder<PushPWRToAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-        val pushPNCWorkRequest = OneTimeWorkRequestBuilder<PushPNCToAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-        val pushImmunizationWorkRequest = OneTimeWorkRequestBuilder<PushChildImmunizationToAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-        val pushInfantRegisterWorkRequest = OneTimeWorkRequestBuilder<PushInfantRegisterToAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-        val pushCbacWorkRequest = OneTimeWorkRequestBuilder<PushCbacToAmirtWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-
-
-        val pushECToAmritWorker = OneTimeWorkRequestBuilder<PushECToAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
+        val pullBenFlowFromAmritWorker = networkWorker<PullBenFlowFromAmritWorker>()
+        val pushBenToAmritWorker = networkWorker<PushBenToAmritWorker>()
+        val pushBenVisitInfoRequest = networkWorker<PushBenVisitInfoToAmrit>()
+        val pushBenDoctorInfoPendingTestToAmrit = networkWorker<PushBenDoctorInfoPendingTestToAmrit>()
+        val pushBenDoctorInfoWithoutTestToAmrit = networkWorker<PushBenDoctorInfoWithoutTestToAmrit>()
+        val pushBenDoctorInfoAfterTestToAmrit = networkWorker<PushBenDoctorInfoAfterTestToAmrit>()
+        val pullPatientFromAmritWorker = networkWorker<PullPatientsFromServer>()
+        val pullFormAmritWorker = networkWorker<PullLabRecordFormWorker>()
+        val createRevisitBenflowWorker = networkWorker<CreateRevisitBenflowWorker>()
+        val pushLabDataToAmrit = networkWorker<PushLabDataToAmrit>()
+        val pushPWRToAmritWorker = networkWorker<PushPWRToAmritWorker>()
+        val pushAncToAmritWorker = networkWorker<PushAncToAmritWorker>()
+        val pushDeliveryOutcomeToAmritWorker = networkWorker<PushDeliveryOutcomeToAmritWorker>()
+        val pushPNCWorkRequest = networkWorker<PushPNCToAmritWorker>()
+        val pushImmunizationWorkRequest = networkWorker<PushChildImmunizationToAmritWorker>()
+        val pushInfantRegisterWorkRequest = networkWorker<PushInfantRegisterToAmritWorker>()
+        val pushCbacWorkRequest = networkWorker<PushCbacToAmirtWorker>()
+        val pushECToAmritWorker = networkWorker<PushECToAmritWorker>()
+        val rmnchPull = createRmnchPullWorkers()
 
         val workManager = WorkManager.getInstance(context)
         workManager
@@ -127,9 +125,132 @@ object WorkerUtils {
             // The three doctor-info variants are independent — run them in parallel.
             .then(listOf(pushBenDoctorInfoPendingTestToAmrit, pushBenDoctorInfoWithoutTestToAmrit, pushBenDoctorInfoAfterTestToAmrit))
             // Specialty health pushes are also independent — run them in parallel.
-            .then(listOf(pushPWRToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
+            .then(listOf(pushPWRToAmritWorker, pushAncToAmritWorker, pushDeliveryOutcomeToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
+            // Pull eligible couple data from server after pushes complete.
+            .then(rmnchPull.eligibleCouples)
+            .then(rmnchPull.pregnantWomen)
+            .then(rmnchPull.ancVisits)
+            .then(rmnchPull.deliveryOutcome)
+            .then(rmnchPull.pnc)
+            .then(rmnchPull.infantRegister)
 //           .then(pushLabDataToAmrit)
             .enqueue()
+    }
+
+    /**
+     * Targeted EC sync for eligible-couple tracking form submission.
+     * Pushes local ECT updates first, then refreshes EC data from server.
+     */
+    fun triggerEligibleCoupleTrackingSync(context: Context) {
+        val pushECToAmritWorker = networkWorker<PushECToAmritWorker>()
+        val pullEligibleCouplesWorker = networkWorker<PullEligibleCouplesWorker>()
+
+        enqueueReplaceChain(
+            context = context,
+            workName = "ec-tracking-sync",
+            first = pushECToAmritWorker,
+            pullEligibleCouplesWorker
+        )
+    }
+
+    /**
+     * Targeted PWR sync for pregnant woman registration form submission.
+     * Pushes local PWR updates immediately after successful save.
+     */
+    fun triggerPregnantWomanRegistrationSync(context: Context) {
+        val pushPWRToAmritWorker = networkWorker<PushPWRToAmritWorker>()
+        val pushAncToAmritWorker = networkWorker<PushAncToAmritWorker>()
+        val pullPregnantWomenWorker = networkWorker<PullPregnantWomenWorker>()
+        val pullAncVisitsWorker = networkWorker<PullAncVisitsWorker>()
+
+        Timber.d("Enqueuing targeted PWR registration sync worker")
+        enqueueReplaceChain(
+            context = context,
+            workName = "pwr-registration-sync",
+            first = pushPWRToAmritWorker,
+            pushAncToAmritWorker,
+            pullPregnantWomenWorker,
+            pullAncVisitsWorker
+        )
+    }
+
+    /**
+     * Targeted ANC sync after ANC form submission.
+     * Pushes local ANC updates (saveAll) and refreshes ANC list from server (getAll).
+     */
+    fun triggerAncVisitSync(context: Context) {
+        val pushAncToAmritWorker = networkWorker<PushAncToAmritWorker>()
+        val pullAncVisitsWorker = networkWorker<PullAncVisitsWorker>()
+
+        Timber.d("Enqueuing targeted ANC sync worker")
+        enqueueReplaceChain(
+            context = context,
+            workName = "anc-visit-sync",
+            first = pushAncToAmritWorker,
+            pullAncVisitsWorker
+        )
+    }
+
+    /**
+     * Targeted Delivery Outcome sync after form submission.
+     * Pushes local Delivery Outcome record and refreshes server Delivery Outcome list.
+     */
+    fun triggerDeliveryOutcomeSync(context: Context) {
+        val pushDeliveryOutcomeToAmritWorker = networkWorker<PushDeliveryOutcomeToAmritWorker>()
+        val pullDeliveryOutcomeWorker = networkWorker<PullDeliveryOutcomeWorker>()
+
+        Timber.d("Enqueuing targeted Delivery Outcome sync worker")
+        enqueueReplaceChain(
+            context = context,
+            workName = "delivery-outcome-sync",
+            first = pushDeliveryOutcomeToAmritWorker,
+            pullDeliveryOutcomeWorker
+        )
+    }
+
+    /**
+     * Targeted Infant registration sync after infant form submission.
+     * Pushes local infant registration and refreshes infant list from server.
+     */
+    fun triggerInfantRegistrationSync(context: Context) {
+        val pushInfantRegisterWorkRequest = networkWorker<PushInfantRegisterToAmritWorker>()
+        val pullInfantRegisterWorker = networkWorker<PullInfantRegisterWorker>()
+
+        Timber.d("Enqueuing targeted Infant registration sync worker")
+        enqueueReplaceChain(
+            context = context,
+            workName = "infant-registration-sync",
+            first = pushInfantRegisterWorkRequest,
+            pullInfantRegisterWorker
+        )
+    }
+
+    fun triggerPncSync(context: Context) {
+        val pushPncWorker = networkWorker<PushPNCToAmritWorker>()
+        val pullPncWorker = networkWorker<PullPncFromAmritWorker>()
+
+        Timber.d("Enqueuing targeted PNC sync worker")
+        enqueueReplaceChain(
+            context = context,
+            workName = "pnc-sync",
+            first = pushPncWorker,
+            pullPncWorker
+        )
+    }
+
+    /**
+     * Targeted beneficiary sync to push patient reproductive status/id updates.
+     * Triggers beneficiariesToServer/update beneficiariesToServer via PushBenToAmritWorker.
+     */
+    fun triggerBeneficiarySync(context: Context) {
+        val pushBenToAmritWorker = networkWorker<PushBenToAmritWorker>()
+
+        Timber.d("Enqueuing targeted beneficiary sync worker")
+        enqueueReplaceChain(
+            context = context,
+            workName = "beneficiary-sync",
+            first = pushBenToAmritWorker
+        )
     }
 
     fun labPushWorker(context : Context){

@@ -11,6 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.configuration.PregnantWomanRegistrationDataset
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
@@ -29,6 +30,9 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
     private val maternalHealthRepo: MaternalHealthRepo,
     private val userRepo: UserRepo
 ) : ViewModel() {
+    companion object {
+        private const val STATUS_PREGNANT_WOMAN = 2
+    }
 
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
@@ -243,9 +247,13 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
 
                 // Map form values to cache
                 dataset.mapValues(registrationCache, 1) // Assuming pageNumber = 1
+                registrationCache.syncState = SyncState.UNSYNCED
+                registrationCache.processed =
+                    if (registrationCache.processed == "N") "N" else "U"
 
                 // Save to repository
                 maternalHealthRepo.persistRegisterRecord(registrationCache)
+                updatePatientStatusToPregnant(registrationCache.patientID)
 
                 Timber.d("Pregnancy registration saved successfully for patient: ${registrationCache.patientID}")
 
@@ -256,6 +264,20 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                 Timber.e(e, "Saving pregnancy registration data failed!!")
                 _state.postValue(State.SAVE_FAILED)
             }
+        }
+    }
+
+    private suspend fun updatePatientStatusToPregnant(patientID: String) {
+        try {
+            val patient = patientRepo.getPatient(patientID)
+            if (patient.statusOfWomanID != STATUS_PREGNANT_WOMAN) {
+                patient.statusOfWomanID = STATUS_PREGNANT_WOMAN
+                patient.syncState = SyncState.UNSYNCED
+                patientRepo.updateRecord(patient)
+                Timber.d("Patient status updated to Pregnant Woman for patientId=$patientID")
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to update patient status to Pregnant Woman for patientId=$patientID")
         }
     }
 

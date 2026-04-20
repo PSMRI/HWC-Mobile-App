@@ -92,6 +92,24 @@ class PatientRepo @Inject constructor(
     private val batchDao: BatchDao,
 ) {
 
+    private fun mapReproductiveStatusId(status: String?): Int? {
+        return when (status?.trim()?.lowercase()) {
+            "eligible couple" -> 1
+            "pregnant woman", "antenatal mother" -> 2
+            "postnatal",
+            "post natal",
+            "postnatal mother-lactating mother",
+            "post natal mother-lactating mother",
+            "postnatal mother",
+            "post natal mother" -> 3
+            "elderly" -> 4
+            "adolescent", "teenager" -> 5
+            "permanent sterilization", "permanently sterilised", "permanently sterilized" -> 6
+            "not applicable" -> 7
+            else -> null
+        }
+    }
+
     private var abdmFacilityId: String = ""
     private var abdmFacilityName: String = ""
 
@@ -296,6 +314,10 @@ class PatientRepo @Inject constructor(
 
     suspend fun getPatientByBenRegId(beneficiaryRegID : Long) : Patient?{
         return patientDao.getPatientByBenRegId(beneficiaryRegID)
+    }
+
+    suspend fun getPatientByAnyBeneficiaryId(id: Long): Patient? {
+        return patientDao.getPatientByAnyBeneficiaryId(id)
     }
 
     suspend fun registerNewPatient(patient : PatientDisplay, user: UserDomain?): NetworkResult<NetworkResponse> {
@@ -592,6 +614,8 @@ class PatientRepo @Inject constructor(
                                     syncState = SyncState.SYNCED,
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
+                                    statusOfWomanID = beneficiary.reproductiveStatusId
+                                        ?: mapReproductiveStatusId(beneficiary.reproductiveStatus),
                                     healthIdDetails = benHealthIdDetails ,
                                     faceEmbedding = beneficiary.faceEmbedding,
                                     benImage = beneficiary.benImage
@@ -711,6 +735,30 @@ class PatientRepo @Inject constructor(
 
         return true;
 
+    }
+
+    suspend fun processPatientById(patientID: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val patient = runCatching { patientDao.getPatientById(patientID) }.getOrNull()
+                ?: return@withContext false
+            val user = userRepo.getLoggedInUser()
+            updatePatientSyncing(patient.patient)
+            when (val response = registerNewPatient(patient, user)) {
+                is NetworkResult.Success -> {
+                    val benificiarySaveResponse = response.data as BenificiarySaveResponse
+                    updatePatientSyncSuccess(patient.patient, benificiarySaveResponse)
+                    true
+                }
+                is NetworkResult.Error -> {
+                    updatePatientSyncingFailed(patient.patient)
+                    false
+                }
+                else -> {
+                    updatePatientSyncingFailed(patient.patient)
+                    false
+                }
+            }
+        }
     }
 
     suspend fun getWorkLocationMappedAbdmFacility(visitCode: Long? = 0L, benId: Long? = 0L, benRegId: Long? = 0L): NetworkResult<NetworkResponse> {

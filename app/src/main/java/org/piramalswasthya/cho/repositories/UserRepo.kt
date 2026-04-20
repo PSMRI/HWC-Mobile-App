@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.crypt.CryptoUtil
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
@@ -367,71 +368,91 @@ class UserRepo @Inject constructor(
 
             val responseStatusCode = responseBody.getInt("statusCode")
             if (responseStatusCode == 200) {
-                val data = responseBody.getJSONObject("data")
-                val otherLoc = data.getJSONObject("otherLoc")
-                val stateId = otherLoc.getString("stateID")
-                val districtList = otherLoc.getJSONArray("districtList")
-                val districtObject = districtList.getJSONObject(0)
-                val districtId = districtObject.getString("districtID")
-                val districtName = districtObject.getString("districtName")
-                val blockId = districtObject.getString("blockId")
-                val blockName = districtObject.getString("blockName")
-                val villageList = districtObject.getJSONArray("villageList")
+                try {
+                    val data = responseBody.getJSONObject("data")
+                    val otherLoc = data.getJSONObject("otherLoc")
+                    val stateId = otherLoc.getString("stateID")
+                    val districtList = otherLoc.getJSONArray("districtList")
+                    val districtObject = districtList.getJSONObject(0)
+                    val districtId = districtObject.getString("districtID")
+                    val districtName = districtObject.getString("districtName")
+                    val blockId = districtObject.getString("blockId")
+                    val blockName = districtObject.getString("blockName")
+                    val villageList = districtObject.getJSONArray("villageList")
+    
+                    val itemType = object : TypeToken<List<VillageLocationData>>() {}.type
+                    var villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType)
+                    villageLocationDataList = villageLocationDataList.toSet().toList()
 
-                val itemType = object : TypeToken<List<VillageLocationData>>() {}.type
-                var villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType)
-                villageLocationDataList = villageLocationDataList.toSet().toList()
-
-                val stateMaster = data.getJSONArray("stateMaster")
-                var stateMasterName : String = ""
-                var govtLGDStateID : Int? = null
-                for (i in 0 until stateMaster.length()) {
-                    val jsonObject = stateMaster.getJSONObject(i)
-                    val id = jsonObject.getInt("stateID").toString()
-                    val stateName = jsonObject.getString("stateName")
-                    val lgdStateId = jsonObject.getString("govtLGDStateID")
-                    if (id == stateId) {
-                         stateMasterName = stateName
-                        govtLGDStateID = lgdStateId.toInt()
-                    }
-                }
-                if(stateMasterDao.getStateById(stateId.toInt()) == null ){
-                    stateMasterDao.insertStates(StateMaster(stateId.toInt(), stateMasterName, govtLGDStateID))
-                }
-                if(districtMasterDao.getDistrictById(districtId.toInt()) == null){
-                    districtMasterDao.insertDistrict(DistrictMaster(districtId.toInt(),stateId.toInt(),govtLGDStateID,null, districtName))
-                }
-                if(blockMasterDao.getBlockById(blockId.toInt()) == null){
-                    blockMasterDao.insertBlock(BlockMaster(blockId.toInt(),districtId.toInt(),null,null, blockName))
-                }
-                var villageIds = ""
-                for(element in villageLocationDataList) {
-                    var id = element.districtBranchID
-                    villageIds += "$id,"
-                    var name = element.villageName
-                    if (villageMasterDao.getVillageById(id.toInt()) == null) {
-                        villageMasterDao.insertVillage(
-                            VillageMaster(
-                                id.toInt(),
-                                blockId.toInt(),
-                                null,
-                                null,
-                                name?:""
-                            )
+                    val stateIdInt = stateId.toIntOrNull()
+                    val districtIdInt = districtId.toIntOrNull()
+                    val blockIdInt = blockId.toIntOrNull()
+                    if (stateIdInt == null || districtIdInt == null || blockIdInt == null) {
+                        Timber.w(
+                            "Skipping location details update: invalid numeric IDs. " +
+                                "stateId=$stateId districtId=$districtId blockId=$blockId"
                         )
+                        return@withContext
                     }
+    
+                    val stateMaster = data.getJSONArray("stateMaster")
+                    var stateMasterName : String = ""
+                    var govtLGDStateID : Int? = null
+                    for (i in 0 until stateMaster.length()) {
+                        val jsonObject = stateMaster.getJSONObject(i)
+                        val id = jsonObject.getInt("stateID").toString()
+                        val stateName = jsonObject.getString("stateName")
+                        val lgdStateId = jsonObject.getString("govtLGDStateID")
+                        if (id == stateId) {
+                             stateMasterName = stateName
+                            govtLGDStateID = lgdStateId.toIntOrNull()
+                        }
+                    }
+                    if(stateMasterDao.getStateById(stateIdInt) == null ){
+                        stateMasterDao.insertStates(StateMaster(stateIdInt, stateMasterName, govtLGDStateID))
+                    }
+                    if(districtMasterDao.getDistrictById(districtIdInt) == null){
+                        districtMasterDao.insertDistrict(DistrictMaster(districtIdInt,stateIdInt,govtLGDStateID,null, districtName))
+                    }
+                    if(blockMasterDao.getBlockById(blockIdInt) == null){
+                        blockMasterDao.insertBlock(BlockMaster(blockIdInt,districtIdInt,null,null, blockName))
+                    }
+                    var villageIds = ""
+                    for(element in villageLocationDataList) {
+                        var id = element.districtBranchID
+                        val villageIdInt = id.toIntOrNull()
+                        if (villageIdInt == null) {
+                            Timber.w("Skipping village with invalid districtBranchID=$id")
+                            continue
+                        }
+                        villageIds += "$id,"
+                        var name = element.villageName
+                        if (villageMasterDao.getVillageById(villageIdInt) == null) {
+                            villageMasterDao.insertVillage(
+                                VillageMaster(
+                                    villageIdInt,
+                                    blockIdInt,
+                                    null,
+                                    null,
+                                    name?:""
+                                )
+                            )
+                        }
+                    }
+    
+                    user!!.stateId = stateIdInt
+                    user!!.districtID = districtIdInt
+                    user!!.blockID = blockIdInt
+    
+                    if(villageIds.isNotEmpty()){
+                        user!!.assignVillageIds = villageIds.substring(0, villageIds.length-1)
+                    }
+    
+                    preferenceDao.saveUserLocationData(LocationData(
+                        stateIdInt, stateMasterName, districtIdInt,districtName, blockIdInt,blockName, villageLocationDataList))
+                } catch (e: JSONException) {
+                    Timber.e(e, "Error parsing location details from BE. Some Location data like stateID may be missing.")
                 }
-
-                user!!.stateId = stateId.toInt()
-                user!!.districtID = districtId.toInt()
-                user!!.blockID = blockId.toInt()
-
-                if(villageIds.isNotEmpty()){
-                    user!!.assignVillageIds = villageIds.substring(0, villageIds.length-1)
-                }
-
-                preferenceDao.saveUserLocationData(LocationData(
-                    stateId.toInt(), stateMasterName, districtId.toInt(),districtName, blockId.toInt(),blockName, villageLocationDataList))
             }
         }
     }

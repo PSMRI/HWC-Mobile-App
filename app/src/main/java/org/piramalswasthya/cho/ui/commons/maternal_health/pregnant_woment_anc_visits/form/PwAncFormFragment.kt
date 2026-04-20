@@ -205,7 +205,11 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         binding.llContent.visibility = View.VISIBLE
         binding.pbForm.visibility = View.GONE
         Toast.makeText(context, getString(R.string.save_successful_toast), Toast.LENGTH_LONG).show()
-        WorkerUtils.triggerAmritSyncWorker(requireContext())
+        WorkerUtils.triggerAncVisitSync(requireContext())
+        if (viewModel.shouldTriggerBeneficiarySyncAfterSave()) {
+            WorkerUtils.triggerBeneficiarySync(requireContext())
+            viewModel.consumeBeneficiarySyncTrigger()
+        }
 
         // When launched directly from ANC listing, there is no patient home to navigate back to.
         if (benVisitInfo == null) {

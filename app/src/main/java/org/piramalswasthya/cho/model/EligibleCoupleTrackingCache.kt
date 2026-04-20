@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
@@ -84,6 +85,7 @@ data class EligibleCoupleTrackingCache(
 
     fun asNetworkModel(benId: Long): ECTNetwork {
         return ECTNetwork(
+            id = 0,
             benId = benId,
             visitDate = getDateTimeStringFromLong(visitDate)!!,
             financialYear = financialYear,
@@ -96,38 +98,80 @@ data class EligibleCoupleTrackingCache(
             methodOfContraception = methodOfContraception,
             anyOtherMethod = anyOtherMethod,
             antraDose = antraDose,
-            antraInjectionDate = antraInjectionDate?.let { getDateTimeStringFromLong(it) },
-            antraDueDate = antraDueDate?.let { getDateTimeStringFromLong(it) },
+            dateOfAntraInjection = antraInjectionDate?.let { getDateTimeStringFromLong(it) },
+            dueDateOfAntraInjection = antraDueDate?.let { getDateTimeStringFromLong(it) },
             dateOfSterilization = dateOfSterilization?.let { getDateTimeStringFromLong(it) },
             isActive = isActive,
             createdBy = createdBy,
             createdDate = getDateTimeStringFromLong(createdDate)!!,
             updatedBy = updatedBy,
             updatedDate = getDateTimeStringFromLong(updatedDate)!!,
+            mpaFile = null,
+            dischargeSummary1 = null,
+            dischargeSummary2 = null,
         )
     }
 }
 
 @JsonClass(generateAdapter = true)
 data class ECTNetwork(
-    val benId: Long,
-    val visitDate: String,
-    val financialYear: String?,
-    val visitMonth: String?,
-    val lmpDate: String?,
-    val isPregnancyTestDone: String?,
-    val pregnancyTestResult: String?,
-    val isPregnant: String?,
-    val usingFamilyPlanning: Boolean?,
-    val methodOfContraception: String?,
-    val anyOtherMethod: String?,
-    val antraDose: String?,
-    val antraInjectionDate: String?,
-    val antraDueDate: String?,
-    val dateOfSterilization: String?,
-    var isActive: Boolean?,
-    val createdBy: String,
-    val createdDate: String,
-    val updatedBy: String,
-    val updatedDate: String,
-)
+    val id: Int? = null,
+    @SerializedName(value = "benId", alternate = ["beneficiaryID", "beneficiaryId", "beneficiaryRegID", "beneficiaryRegId", "benID"])
+    val benId: Long? = null,
+    @SerializedName(value = "visitDate", alternate = ["visitdate"])
+    val visitDate: String? = null,
+    val financialYear: String? = null,
+    val visitMonth: String? = null,
+    val lmpDate: String? = null,
+    val isPregnancyTestDone: String? = null,
+    val pregnancyTestResult: String? = null,
+    val isPregnant: String? = null,
+    val usingFamilyPlanning: Boolean? = null,
+    val methodOfContraception: String? = null,
+    val anyOtherMethod: String? = null,
+    val antraDose: String? = null,
+    @SerializedName(value = "dateOfAntraInjection", alternate = ["antraInjectionDate"])
+    val dateOfAntraInjection: String? = null,
+    @SerializedName(value = "dueDateOfAntraInjection", alternate = ["antraDueDate"])
+    val dueDateOfAntraInjection: String? = null,
+    val dateOfSterilization: String? = null,
+    var isActive: Boolean? = null,
+    val createdBy: String? = null,
+    val createdDate: String? = null,
+    val updatedBy: String? = null,
+    val updatedDate: String? = null,
+    val mpaFile: String? = null,
+    val dischargeSummary1: String? = null,
+    val dischargeSummary2: String? = null,
+) {
+    /**
+     * Convert server response into a local [EligibleCoupleTrackingCache] entity.
+     * @param patientID local patient ID mapped from [benId].
+     */
+    fun toCache(patientID: String): EligibleCoupleTrackingCache {
+        return EligibleCoupleTrackingCache(
+            patientID = patientID,
+            visitDate = org.piramalswasthya.cho.network.getLongFromDate(visitDate),
+            financialYear = financialYear,
+            visitMonth = visitMonth,
+            lmpDate = lmpDate?.let { org.piramalswasthya.cho.network.getLongFromDate(it) },
+            isPregnancyTestDone = isPregnancyTestDone,
+            pregnancyTestResult = pregnancyTestResult,
+            isPregnant = isPregnant,
+            usingFamilyPlanning = usingFamilyPlanning,
+            methodOfContraception = methodOfContraception,
+            anyOtherMethod = anyOtherMethod,
+            antraDose = antraDose,
+            antraInjectionDate = dateOfAntraInjection?.let { org.piramalswasthya.cho.network.getLongFromDate(it) },
+            antraDueDate = dueDateOfAntraInjection?.let { org.piramalswasthya.cho.network.getLongFromDate(it) },
+            dateOfSterilization = dateOfSterilization?.let { org.piramalswasthya.cho.network.getLongFromDate(it) },
+            createdBy = createdBy ?: "system",
+            createdDate = org.piramalswasthya.cho.network.getLongFromDate(createdDate),
+            updatedBy = updatedBy ?: (createdBy ?: "system"),
+            updatedDate = org.piramalswasthya.cho.network.getLongFromDate(updatedDate),
+            processed = "P",
+            isActive = isActive ?: true,
+            syncState = org.piramalswasthya.cho.database.room.SyncState.SYNCED
+        )
+    }
+}

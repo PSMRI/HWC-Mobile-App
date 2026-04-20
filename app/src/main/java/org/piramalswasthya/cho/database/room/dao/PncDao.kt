@@ -39,49 +39,47 @@ interface PncDao {
     suspend fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>
 
     /**
-     * Get patientIDs of women eligible for PNC
-     * Filters for:
-     * - Have delivered (dateOfDelivery IS NOT NULL)
-     * - Date of Discharge is entered (dateOfDischarge IS NOT NULL)
-     * - Marital Status = Married (maritalStatusID = 2)
-     * - Excludes patients who have completed the 42-day PNC visit
+     * Get patientIDs of women eligible for PNC mothers list.
+     * Source: DeliveryOutcome + Patient (postnatal), excluding completed 42-day PNC.
      */
     @Query("""
-        SELECT DISTINCT do.patientID FROM DELIVERY_OUTCOME do
+        SELECT DISTINCT do.patientID
+        FROM DELIVERY_OUTCOME do
         INNER JOIN PATIENT p ON do.patientID = p.patientID
         WHERE do.isActive = 1
-        AND do.dateOfDelivery IS NOT NULL
-        AND p.maritalStatusID = 2
-        AND NOT EXISTS (
-            SELECT 1 FROM pnc_visit pnc
-            WHERE pnc.patientID = do.patientID
-            AND pnc.isActive = 1
-            AND pnc.pncPeriod = 42
-        )
-        ORDER BY do.dateOfDelivery DESC
+          AND do.dateOfDelivery IS NOT NULL
+          AND p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+          AND p.maritalStatusID = 2
+          AND p.statusOfWomanID = 3
+          AND NOT EXISTS (
+              SELECT 1 FROM PNC_VISIT p42
+              WHERE p42.patientID = do.patientID
+                AND p42.isActive = 1
+                AND p42.pncPeriod = 42
+          )
     """)
     fun getPNCMothersPatientIDs(): Flow<List<String>>
 
     /**
-     * Get count of PNC mothers
-     * Filters for:
-     * - Have delivered (dateOfDelivery IS NOT NULL)
-     * - Date of Discharge is entered (dateOfDischarge IS NOT NULL)
-     * - Marital Status = Married (maritalStatusID = 2)
-     * - Excludes patients who have completed the 42-day PNC visit
+     * Get count of women eligible for PNC mothers list.
      */
     @Query("""
-        SELECT COUNT(DISTINCT do.patientID) FROM DELIVERY_OUTCOME do
+        SELECT COUNT(DISTINCT do.patientID)
+        FROM DELIVERY_OUTCOME do
         INNER JOIN PATIENT p ON do.patientID = p.patientID
         WHERE do.isActive = 1
-        AND do.dateOfDelivery IS NOT NULL
-        AND p.maritalStatusID = 2
-        AND NOT EXISTS (
-            SELECT 1 FROM pnc_visit p
-            WHERE p.patientID = do.patientID
-            AND p.isActive = 1
-            AND p.pncPeriod = 42
-        )
+          AND do.dateOfDelivery IS NOT NULL
+          AND p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+          AND p.maritalStatusID = 2
+          AND p.statusOfWomanID = 3
+          AND NOT EXISTS (
+              SELECT 1 FROM PNC_VISIT p42
+              WHERE p42.patientID = do.patientID
+                AND p42.isActive = 1
+                AND p42.pncPeriod = 42
+          )
     """)
     fun getPNCMothersCount(): Flow<Int>
 
@@ -93,26 +91,27 @@ interface PncDao {
     suspend fun getPatientWithDeliveryOutcomeAndPncByID(patientID: String): PatientWithDeliveryOutcomeAndPncCache?
 
     /**
-     * Get all PNC mothers with their delivery outcome and PNC data in a single query
-     * Filters for:
-     * - Females (genderID=2) aged 15-49
-     * - Marital Status = Married (maritalStatusID = 2)
-     * - Status of Woman = Post Natal Mother
-     * - Excludes patients who have completed the 42-day PNC visit
+     * Get all PNC mothers with their delivery outcome and PNC data.
+     * Source of truth: DeliveryOutcome + Patient status postnatal.
      */
     @Transaction
     @Query("""
-        SELECT * FROM PATIENT p
-        WHERE p.genderID = 2
-        AND p.age BETWEEN 15 AND 49
-        AND p.maritalStatusID = 2
-        AND p.statusOfWomanID = 3
-        AND NOT EXISTS (
-            SELECT 1 FROM pnc_visit pnc
-            WHERE pnc.patientID = p.patientID
-            AND pnc.isActive = 1
-            AND pnc.pncPeriod = 42
-        )
+        SELECT DISTINCT p.*
+        FROM PATIENT p
+        INNER JOIN DELIVERY_OUTCOME do ON p.patientID = do.patientID
+        WHERE do.isActive = 1
+          AND do.dateOfDelivery IS NOT NULL
+          AND p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+          AND p.maritalStatusID = 2
+          AND p.statusOfWomanID = 3
+          AND NOT EXISTS (
+              SELECT 1 FROM PNC_VISIT p42
+              WHERE p42.patientID = p.patientID
+                AND p42.isActive = 1
+                AND p42.pncPeriod = 42
+          )
+        ORDER BY p.registrationDate DESC
     """)
     fun getAllPNCMothersWithData(): Flow<List<PatientWithDeliveryOutcomeAndPncCache>>
 

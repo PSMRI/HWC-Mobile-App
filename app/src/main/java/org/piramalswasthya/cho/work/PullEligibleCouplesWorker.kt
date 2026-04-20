@@ -10,25 +10,26 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.repositories.EcrRepo
 
 @HiltWorker
-class PushECToAmritWorker @AssistedInject constructor(
+class PullEligibleCouplesWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val ecrRepo: EcrRepo,
     private val preferenceDao: PreferenceDao,
 ) : CoroutineWorker(appContext, params) {
+
     companion object {
-        const val name = "PushEcToAmritWorker"
+        const val name = "PullEligibleCouplesWorker"
     }
 
     override suspend fun doWork(): Result {
         WorkerExecutionUtils.initAuthTokens(preferenceDao)
         return WorkerExecutionUtils.runBooleanWorker(
-            startLog = "EC Worker started!",
-            successLog = "Worker completed",
-            failureLog = "Worker Failed as usual!",
-            retryLog = "Caught Exception for push amrit worker"
+            startLog = "PullEligibleCouplesWorker started!",
+            successLog = "PullEligibleCouplesWorker completed successfully",
+            failureLog = "PullEligibleCouplesWorker failed",
+            retryLog = "Caught Exception for pull EC worker"
         ) {
-            ecrRepo.pushAndUpdateEctRecord()
+            ecrRepo.pullEligibleCouplesFromServer()
         }
     }
 }

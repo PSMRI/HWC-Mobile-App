@@ -103,7 +103,16 @@ class InfantListFragment : Fragment() {
     private fun observeInfants() {
         viewLifecycleOwner.lifecycleScope.launch {
             infantRegRepo.getListForInfantReg().collectLatest { infantsList: List<InfantRegDomain> ->
-                allInfants = infantsList.sortedByDescending { it.deliveryOutcome.dateOfDelivery ?: 0L }
+                allInfants = infantsList.sortedWith(
+                    compareBy<InfantRegDomain> { it.isRegistered() }
+                        .thenByDescending {
+                            it.savedIr?.updatedDate
+                                ?: it.savedIr?.createdDate
+                                ?: it.deliveryOutcome.dateOfDelivery
+                                ?: 0L
+                        }
+                        .thenByDescending { it.deliveryOutcome.dateOfDelivery ?: 0L }
+                )
                 filteredInfants = allInfants
                 updateUI()
             }

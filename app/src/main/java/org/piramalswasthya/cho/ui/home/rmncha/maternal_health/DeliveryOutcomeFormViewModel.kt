@@ -201,6 +201,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
         try {
             val patient = patientDao.getPatient(patientID)
             patient.statusOfWomanID = STATUS_POST_NATAL_MOTHER
+            patient.syncState = SyncState.UNSYNCED
             patientDao.updatePatient(patient)
             Timber.d("Patient status updated to Post Natal Mother for patientID: $patientID")
         } catch (e: Exception) {

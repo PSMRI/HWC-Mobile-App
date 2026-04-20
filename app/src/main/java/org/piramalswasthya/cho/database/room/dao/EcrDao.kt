@@ -4,6 +4,7 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.model.EligibleCoupleRegCache
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientWithECRCache
 
 @Dao
@@ -48,8 +49,32 @@ interface EcrDao {
 //    @Query("select * from eligible_couple_tracking where benId = :benId and CAST((strftime('%s','now') - visitDate/1000)/60/60/24 AS INTEGER) < 30 order by visitDate limit 1")
     suspend fun getEct(patientID: String, visitDate : Long): EligibleCoupleTrackingCache?
 
+    @Query(
+        """
+        SELECT * FROM eligible_couple_tracking
+        WHERE patientID = :patientID
+        AND date(visitDate / 1000, 'unixepoch', 'localtime') = date(:visitDate / 1000, 'unixepoch', 'localtime')
+        LIMIT 1
+        """
+    )
+    suspend fun getEctByVisitDay(patientID: String, visitDate: Long): EligibleCoupleTrackingCache?
+
     @Query("select * from eligible_couple_tracking where patientID = :patientID order by visitDate desc limit 1")
     suspend fun getLatestEct(patientID: String) : EligibleCoupleTrackingCache?
+
+    @Query("""
+        SELECT p.* FROM PATIENT p
+        LEFT JOIN (
+            SELECT patientID, MAX(visitDate) AS lastVisitDate
+            FROM ELIGIBLE_COUPLE_TRACKING
+            GROUP BY patientID
+        ) ect ON ect.patientID = p.patientID
+        WHERE p.statusOfWomanID = 1
+        AND p.genderID = 2
+        AND p.age BETWEEN 15 AND 49
+        ORDER BY COALESCE(ect.lastVisitDate, 0) DESC, p.registrationDate DESC
+    """)
+    fun getPatientsForTrackingList(): Flow<List<Patient>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(vararg eligibleCoupleTrackingCache: EligibleCoupleTrackingCache)

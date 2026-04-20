@@ -23,6 +23,7 @@ import org.piramalswasthya.cho.repositories.InfantRegRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -54,6 +55,8 @@ class ChildRegistrationFragment : Fragment() {
     private lateinit var dataset: ChildRegistrationDataset
     private lateinit var formAdapter: FormInputAdapter
     private var currentInfantReg: InfantRegCache? = null
+    private var isViewOnlyMode: Boolean = false
+    private var isFormReadOnly: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,13 +74,7 @@ class ChildRegistrationFragment : Fragment() {
 
         dataset = ChildRegistrationDataset(requireContext(), preferenceDao.getCurrentLanguage())
 
-        formAdapter = FormInputAdapter(
-            formValueListener = FormInputAdapter.FormValueListener { id, index ->
-                lifecycleScope.launch {
-                    dataset.updateList(id, index)
-                }
-            }
-        )
+        formAdapter = createFormAdapter(readOnly = false)
 
         binding.rvForm.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
         binding.rvForm.adapter = formAdapter
@@ -89,6 +86,27 @@ class ChildRegistrationFragment : Fragment() {
         setupClickListeners()
         observeAlerts()
         loadData()
+    }
+
+    private fun createFormAdapter(readOnly: Boolean): FormInputAdapter {
+        return FormInputAdapter(
+            formValueListener = if (readOnly) null else FormInputAdapter.FormValueListener { id, index ->
+                lifecycleScope.launch {
+                    dataset.updateList(id, index)
+                }
+            },
+            isEnabled = !readOnly
+        )
+    }
+
+    private fun applyScreenMode(isViewOnly: Boolean) {
+        binding.btnSave.visibility = if (isViewOnly) View.GONE else View.VISIBLE
+        binding.btnCancel.text = if (isViewOnly) getString(R.string.back) else getString(R.string.cancel)
+        if (isFormReadOnly == isViewOnly) return
+        isFormReadOnly = isViewOnly
+        formAdapter = createFormAdapter(readOnly = isFormReadOnly)
+        binding.rvForm.adapter = formAdapter
+        formAdapter.submitList(dataset.listFlow.value)
     }
 
     private fun loadData() {
@@ -123,6 +141,9 @@ class ChildRegistrationFragment : Fragment() {
                     updatedBy = userName,
                     syncState = SyncState.UNSYNCED
                 )
+
+                isViewOnlyMode = existing?.processed == "C"
+                applyScreenMode(isViewOnlyMode)
                 
                 dataset.setUpPage(mother, deliveryOutcome, babyIndex, currentInfantReg)
                 binding.progressBar.visibility = View.GONE
@@ -145,6 +166,7 @@ class ChildRegistrationFragment : Fragment() {
     }
 
     private fun saveForm() {
+        if (isViewOnlyMode) return
         val reg = currentInfantReg ?: return
 
         val invalidIndex = formAdapter.validateInput(resources, binding.rvForm)
@@ -174,6 +196,7 @@ class ChildRegistrationFragment : Fragment() {
                 )
 
                 infantRegRepo.saveInfantReg(updated)
+                WorkerUtils.triggerInfantRegistrationSync(requireContext())
                 
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Infant registration saved successfully", Toast.LENGTH_SHORT).show()
