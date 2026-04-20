@@ -1891,8 +1891,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private fun updateStatusOfWomanVisibility() {
         val genderId = viewModel.selectedGenderMaster?.genderID
         val ageInYears = viewModel.enteredAgeYears
+        val maritalStatusName = viewModel.selectedMaritalStatus?.status
 
-        if (viewModel.shouldShowStatusOfWoman(genderId, ageInYears)) {
+        if (viewModel.shouldShowStatusOfWoman(genderId, ageInYears, maritalStatusName)) {
             handleStatusOfWomanVisible(genderId, ageInYears)
         } else {
             handleStatusOfWomanHidden()
