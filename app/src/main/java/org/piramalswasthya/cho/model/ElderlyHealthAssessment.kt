@@ -21,7 +21,7 @@ data class ElderlyHealthAssessment(
     val assessmentId: Long = 0L,
 
     @ColumnInfo(name = "patient_id")
-    val patientID: String,
+    val patientId: String,
 
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int = 0,

@@ -234,7 +234,7 @@ class NoseDiagnosisDataset(
 
     private fun createDefaultCache(): NoseDiagnosisAssessment {
         return NoseDiagnosisAssessment(
-            patientID = "",
+            patientId = "",
             benVisitNo = null
         )
     }

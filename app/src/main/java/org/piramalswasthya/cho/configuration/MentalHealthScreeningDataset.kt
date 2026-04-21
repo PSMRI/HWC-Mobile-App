@@ -682,7 +682,7 @@ class MentalHealthScreeningDataset(
         this.genderID = genderID
         this.age = age
         cache = savedRecord ?: MentalHealthScreeningCache(
-            patientID = "",
+            patientId = "",
             benVisitNo = null
         )
 

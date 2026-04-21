@@ -62,7 +62,7 @@ class NoseDiagnosisFormViewModel @Inject constructor(
                 )
 
                 assessmentCache = existingRecord ?: NoseDiagnosisAssessment(
-                    patientID = patient.patient.patientID,
+                    patientId = patient.patient.patientID,
                     benVisitNo = benVisitNo
                 )
 

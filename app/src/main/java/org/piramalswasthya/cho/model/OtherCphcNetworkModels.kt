@@ -331,7 +331,7 @@ fun PsychosocialCaregiverSupport.toNetworkModel(
         beneficiaryID = beneficiaryID,
         beneficiaryRegID = beneficiaryRegID,
         assessmentId = assessmentId,
-        patientID = patientID,
+        patientID = patientId,
         benVisitNo = benVisitNo,
         psychosocialCounsellingProvided = psychosocialCounsellingProvided,
         caregiverCounsellingProvided = caregiverCounsellingProvided,
@@ -345,7 +345,7 @@ fun PsychosocialCaregiverSupport.toNetworkModel(
 fun PsychosocialCaregiverSupportNetwork.toCacheModel(patientID: String): PsychosocialCaregiverSupport {
     return PsychosocialCaregiverSupport(
         assessmentId = 0L,
-        patientID = patientID,
+        patientId = patientID,
         benVisitNo = benVisitNo,
         psychosocialCounsellingProvided = psychosocialCounsellingProvided,
         caregiverCounsellingProvided = caregiverCounsellingProvided,
@@ -381,7 +381,7 @@ fun NoseDiagnosisAssessment.toNetworkModel(
         beneficiaryID = beneficiaryID,
         beneficiaryRegID = beneficiaryRegID,
         assessmentId = assessmentId,
-        patientID = patientID,
+        patientID = patientId,
         benVisitNo = benVisitNo,
         difficultyBreathing = difficultyBreathing,
         openMouthBreathing = openMouthBreathing,
@@ -397,7 +397,7 @@ fun NoseDiagnosisAssessment.toNetworkModel(
 fun NoseDiagnosisNetwork.toCacheModel(patientID: String): NoseDiagnosisAssessment {
     return NoseDiagnosisAssessment(
         assessmentId = 0L,
-        patientID = patientID,
+        patientId = patientID,
         benVisitNo = benVisitNo,
         difficultyBreathing = difficultyBreathing,
         openMouthBreathing = openMouthBreathing,
@@ -437,7 +437,7 @@ fun ThroatDiagnosisAssessment.toNetworkModel(
         beneficiaryID = beneficiaryID,
         beneficiaryRegID = beneficiaryRegID,
         assessmentId = assessmentId,
-        patientID = patientID,
+        patientID = patientId,
         benVisitNo = benVisitNo,
         symptoms = symptoms,
         neckSwelling = neckSwelling,
@@ -455,7 +455,7 @@ fun ThroatDiagnosisAssessment.toNetworkModel(
 fun ThroatDiagnosisNetwork.toCacheModel(patientID: String): ThroatDiagnosisAssessment {
     return ThroatDiagnosisAssessment(
         assessmentId = 0L,
-        patientID = patientID,
+        patientId = patientID,
         benVisitNo = benVisitNo,
         symptoms = symptoms,
         neckSwelling = neckSwelling,
@@ -511,7 +511,7 @@ fun ElderlyHealthAssessment.toNetworkModel(
         beneficiaryID = beneficiaryID,
         beneficiaryRegID = beneficiaryRegID,
         assessmentId = assessmentId,
-        patientID = patientID,
+        patientID = patientId,
         benVisitNo = benVisitNo,
         geriatricComplaints = geriatricComplaints,
         multipleChronicConditions = multipleChronicConditions,
@@ -543,7 +543,7 @@ fun ElderlyHealthAssessment.toNetworkModel(
 fun ElderlyHealthNetwork.toCacheModel(patientID: String): ElderlyHealthAssessment {
     return ElderlyHealthAssessment(
         assessmentId = 0L,
-        patientID = patientID,
+        patientId = patientID,
         benVisitNo = benVisitNo ?: 0,
         geriatricComplaints = geriatricComplaints,
         multipleChronicConditions = multipleChronicConditions,
@@ -666,7 +666,7 @@ fun MentalHealthScreeningCache.toNetworkModel(
         beneficiaryID = beneficiaryID,
         beneficiaryRegID = beneficiaryRegID,
         screeningId = screeningId,
-        patientID = patientID,
+        patientID = patientId,
         benVisitNo = benVisitNo,
         emotionalBehaviouralConcerns = emotionalBehaviouralConcerns,
         substanceUseConcerns = substanceUseConcerns,
@@ -751,7 +751,7 @@ fun MentalHealthScreeningCache.toNetworkModel(
 fun MentalHealthNetwork.toCacheModel(patientID: String): MentalHealthScreeningCache {
     return MentalHealthScreeningCache(
         screeningId = 0L,
-        patientID = patientID,
+        patientId = patientID,
         benVisitNo = benVisitNo,
         emotionalBehaviouralConcerns = emotionalBehaviouralConcerns,
         substanceUseConcerns = substanceUseConcerns,

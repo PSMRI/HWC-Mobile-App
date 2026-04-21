@@ -82,7 +82,7 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
                         )
                     } else {
                         assessmentCache = ElderlyHealthAssessment(
-                            patientID = patient.patient.patientID,
+                            patientId = patient.patient.patientID,
                             benVisitNo = benVisitNo ?: 0,
                         geriatricComplaints = null,
                         multipleChronicConditions = null,

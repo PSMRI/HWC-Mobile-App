@@ -23,7 +23,7 @@ data class MentalHealthScreeningCache(
     val screeningId: Long = 0L,
 
     @ColumnInfo(name = "patient_id")
-    val patientID: String,
+    val patientId: String,
 
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,

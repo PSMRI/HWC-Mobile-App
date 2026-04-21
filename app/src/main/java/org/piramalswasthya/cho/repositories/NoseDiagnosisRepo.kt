@@ -58,7 +58,7 @@ class NoseDiagnosisRepo @Inject constructor(
 
             val networkList = mutableListOf<NoseDiagnosisNetwork>()
             unsyncedList.forEach { assessment ->
-                val patient = patientDao.getPatient(assessment.patientID)
+                val patient = patientDao.getPatient(assessment.patientId)
                 if (patient?.beneficiaryID != null && patient.beneficiaryRegID != null) {
                     networkList.add(
                         assessment.toNetworkModel(

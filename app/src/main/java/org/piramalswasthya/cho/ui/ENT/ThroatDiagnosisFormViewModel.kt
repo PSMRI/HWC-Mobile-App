@@ -87,7 +87,7 @@ class ThroatDiagnosisFormViewModel @Inject constructor(
                 }
 
                 assessmentCache = existingRecord ?: ThroatDiagnosisAssessment(
-                    patientID = patient.patient.patientID,
+                    patientId = patient.patient.patientID,
                     benVisitNo = benVisitNo
                 )
 
@@ -143,4 +143,4 @@ class ThroatDiagnosisFormViewModel @Inject constructor(
             throatDiagnosisRepo.saveAssessment(assessmentCache)
         }
     }
-}
+}
