@@ -344,7 +344,7 @@ interface AmritApiService {
     @POST("/hwc-api/painSymptom/getAll")
     suspend fun getPainVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
 
-    @POST("/hwc-api/psychosocialCaregiver/SaveAll")
+    @POST("/hwc-api/psychosocialCaregiver/saveAll")
     suspend fun postPsychosocialCaregiverForm(@Body earList: List<PsychosocialCaregiverSupportNetwork>): Response<ResponseBody>
 
     @POST("/hwc-api/psychosocialCaregiver/getAll")
@@ -362,10 +362,10 @@ interface AmritApiService {
     @POST("/hwc-api/throatDiagnosis/getAll")
     suspend fun getThroatVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
 
-    @POST("/hwc-api/otherCPHC/elderly/saveAll")
+    @POST("/hwc-api/elderlyHealth/saveAll")
     suspend fun postElderlyForm(@Body elderlyList: List<ElderlyHealthNetwork>): Response<ResponseBody>
 
-    @POST("/hwc-api/otherCPHC/elderly/getAll")
+    @POST("/hwc-api/elderlyHealth/getAll")
 
     suspend fun getElderlyVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
     @POST("/hwc-api/otherCPHC/mental/saveAll")
