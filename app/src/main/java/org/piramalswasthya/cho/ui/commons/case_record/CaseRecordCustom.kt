@@ -88,6 +88,10 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), NavigationAdapter {
+    companion object {
+        private const val DEFAULT_DURATION_UNIT = "Day(s)"
+    }
+
     private var _binding: CaseRecordCustomLayoutBinding? = null
     private val binding: CaseRecordCustomLayoutBinding
         get() = _binding!!
@@ -1053,7 +1057,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     frequency = it.frequency ?: "",
                     duration = it.duration ?: "",
                     instructions = it.instructions ?: "",
-                    unit = it.unit ?: "Day(s)",
+                    unit = it.unit ?: DEFAULT_DURATION_UNIT,
                     isDispensed = isDispensed,
                     title = "Medicine - $index"
                 )
@@ -1129,7 +1133,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         frequency = templateDB.frequency ?: "",
                         duration = templateDB.duration ?: "",
                         instructions = templateDB.instructions ?: "",
-                        unit = templateDB.unit ?: "Day(s)",
+                        unit = templateDB.unit ?: DEFAULT_DURATION_UNIT,
                         title = "Medicine - ${itemListP.size + 1}"
                     )
                 }
@@ -1883,7 +1887,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     frequency = mappedFrequency,
                     duration = durVal,
                     instructions = instructions,
-                    unit = unitVal ?: "Day(s)",
+                    unit = unitVal ?: DEFAULT_DURATION_UNIT,
                     patientID = patId,
                     benVisitNo = benVisitNo
                 )
@@ -1959,7 +1963,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                     drugId = formVal,
                                     frequency = freqVal,
                                     duration = durVal,
-                                    unit = unitVal ?: "Day(s)",
+                                    unit = unitVal ?: DEFAULT_DURATION_UNIT,
                                     instructions = instructions,
                                     deleteStatus = 0
                                 )
