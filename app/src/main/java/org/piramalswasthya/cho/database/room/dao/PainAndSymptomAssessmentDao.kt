@@ -41,4 +41,7 @@ interface PainAndSymptomAssessmentDao {
         patientID: String,
         benVisitNo: Int
     ): PainAndSymptomAssessment?
+
+    @Query("SELECT * FROM PAIN_SYMPTOM_ASSESSMENT WHERE syncState = 0")
+    suspend fun getUnsyncedAssessments(): List<PainAndSymptomAssessment>
 }

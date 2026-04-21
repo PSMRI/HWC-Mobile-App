@@ -18,6 +18,7 @@ import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
 import org.piramalswasthya.cho.ui.commons.DropdownConst
+import org.piramalswasthya.cho.work.WorkerUtils
 
 @AndroidEntryPoint
 class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewModel>() {
@@ -61,6 +62,7 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
 
     // Stamp Oral Health visit metadata onto MasterDb from arguments and navigate to vitals.
     override fun onSaveSuccess() {
+        WorkerUtils.oralPushWorker(requireContext())
         val masterDb = requireNotNull(arguments?.getSerializable("MasterDb") as? MasterDb) { // requireNotNull enforces that the caller (nav-graph) must supply a MasterDb bundle.
             "MasterDb is required for OralHealthFormFragment but was not provided"
         }

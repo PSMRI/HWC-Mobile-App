@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
 import org.piramalswasthya.cho.ui.commons.DropdownConst
+import org.piramalswasthya.cho.work.WorkerUtils
 import androidx.navigation.fragment.findNavController
 
 @AndroidEntryPoint
@@ -104,6 +105,7 @@ class ThroatDiagnosisFormFragment :
 
     // Stamp Throat visit metadata onto MasterDb from arguments and navigate to vitals; replaces fresh MasterDb construction that lost chief-complaint data.
     override fun onSaveSuccess() {
+        WorkerUtils.throatPushWorker(requireContext())
         val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
             ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
         masterDb.visitMasterDb?.apply {

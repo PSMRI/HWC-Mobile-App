@@ -51,7 +51,7 @@ class EarDiagnosisFormViewModel @Inject constructor(
                 }
 
                 assessmentCache = existingRecord ?: EarDiagnosisAssessment(
-                    patientID = patient.patient.patientID,
+                    patientId = patient.patient.patientID,
                     benVisitNo = benVisitNo
                 )
 

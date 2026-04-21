@@ -260,6 +260,10 @@ data class MentalHealthScreeningCache(
     var referralEscalationRequired: Boolean? = null,
 
     @ColumnInfo(name = "case_closure_reason")
-    var caseClosureReason: String? = null
+    var caseClosureReason: String? = null,
+
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0,
 
 ) : FormDataModel

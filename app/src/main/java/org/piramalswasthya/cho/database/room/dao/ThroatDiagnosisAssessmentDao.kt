@@ -39,4 +39,7 @@ interface ThroatDiagnosisAssessmentDao {
         patientID: String,
         benVisitNo: Int
     ): ThroatDiagnosisAssessment?
+
+    @Query("SELECT * FROM THROAT_DIAGNOSIS_ASSESSMENT WHERE syncState = 0")
+    suspend fun getUnsyncedAssessments(): List<ThroatDiagnosisAssessment>
 }

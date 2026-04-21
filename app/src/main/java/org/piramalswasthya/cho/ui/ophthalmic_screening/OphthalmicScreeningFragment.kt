@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.databinding.FragmentOphthalmicScreeningBinding
 import org.piramalswasthya.cho.ui.commons.DropdownConst
 import android.app.AlertDialog
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.work.WorkerUtils
 
 @AndroidEntryPoint
 class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
@@ -239,6 +240,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         binding.btnNext.isEnabled = false
         viewModel.save {
             Toast.makeText(requireContext(), getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show()
+            WorkerUtils.ophthalmicPushWorker(requireContext())
             val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
                 ?: org.piramalswasthya.cho.model.MasterDb(patientId = args.patientID, visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
 

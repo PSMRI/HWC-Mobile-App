@@ -39,6 +39,9 @@ data class PsychosocialCaregiverSupport(
     @ColumnInfo(name = "counselling_remarks")
     var counsellingRemarks: String? = null,
 
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0,
+
     // ---------------- Referral & Follow-up (Section F) ----------------
 
     @Embedded

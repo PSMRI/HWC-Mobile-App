@@ -23,4 +23,7 @@ interface ElderlyHealthAssessmentDao {
 
     @Query("SELECT * FROM ELDERLY_HEALTH_ASSESSMENT WHERE patient_id = :patientID AND ben_visit_no = :benVisitNo")
     suspend fun getAssessment(patientID: String, benVisitNo: Int): ElderlyHealthAssessment?
+
+    @Query("SELECT * FROM ELDERLY_HEALTH_ASSESSMENT WHERE syncState = 0")
+    suspend fun getUnsyncedAssessments(): List<ElderlyHealthAssessment>
 }

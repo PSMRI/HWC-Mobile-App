@@ -14,6 +14,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentEarDiagnosisFormBinding
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import org.piramalswasthya.cho.work.WorkerUtils
 
 @AndroidEntryPoint
 class EarDiagnosisFormFragment :
@@ -62,6 +63,7 @@ class EarDiagnosisFormFragment :
 
     // Stamp Ear visit metadata onto MasterDb from arguments and navigate to the vitals screen.
     override fun onSaveSuccess() {
+        WorkerUtils.earPushWorker(requireContext())
         val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
             ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
         masterDb.visitMasterDb?.apply {
