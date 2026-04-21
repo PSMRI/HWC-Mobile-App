@@ -117,7 +117,7 @@ class PrescriptionAdapter(
                 itemData.frequency = ""
                 itemData.duration = ""
                 itemData.instructions = ""
-                itemData.unit = ""
+                itemData.unit = "Day(s)"
                 itemData.id = null
                 textStock.text = ""
                 notifyItemChanged(position)

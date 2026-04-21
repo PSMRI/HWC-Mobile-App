@@ -1053,7 +1053,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     frequency = it.frequency ?: "",
                     duration = it.duration ?: "",
                     instructions = it.instructions ?: "",
-                    unit = it.unit ?: "",
+                    unit = it.unit ?: "Day(s)",
                     isDispensed = isDispensed,
                     title = "Medicine - $index"
                 )
@@ -1129,7 +1129,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         frequency = templateDB.frequency ?: "",
                         duration = templateDB.duration ?: "",
                         instructions = templateDB.instructions ?: "",
-                        unit = templateDB.unit ?: "",
+                        unit = templateDB.unit ?: "Day(s)",
                         title = "Medicine - ${itemListP.size + 1}"
                     )
                 }
