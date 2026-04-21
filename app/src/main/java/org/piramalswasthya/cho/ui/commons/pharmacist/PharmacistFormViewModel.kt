@@ -292,13 +292,8 @@ class PharmacistFormViewModel @Inject constructor(
                 val shouldAutoClose = caseClosureManager.shouldAutoClose(latestVisitSnapshot)
                 if (shouldAutoClose) {
                     Timber.d("Auto-closing case after medicine dispensed: ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
-                    patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
-                        nurseFlag = 9,
-                        doctorFlag = 9,
-                        labtechFlag = latestVisitSnapshot.labtechFlag ?: 0,
-                        patientID = benVisitInfo.patient.patientID,
-                        benVisitNo = visitNo
-                    )
+                    // For pharmacist auto-close cases, doctor state has already been submitted.
+                    // Only pharmacist sync should remain pending here.
                 }
 
                 _isDataSaved.value = true
@@ -394,13 +389,8 @@ class PharmacistFormViewModel @Inject constructor(
                 val shouldAutoClose = caseClosureManager.shouldAutoClose(latestVisitSnapshot)
                 if (shouldAutoClose) {
                     Timber.d("Auto-closing case after medicine dispensed (manual): ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
-                    patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
-                        nurseFlag = 9,
-                        doctorFlag = 9,
-                        labtechFlag = latestVisitSnapshot.labtechFlag ?: 0,
-                        patientID = benVisitInfo.patient.patientID,
-                        benVisitNo = visitNo
-                    )
+                    // For pharmacist auto-close cases, doctor state has already been submitted.
+                    // Only pharmacist sync should remain pending here.
                 }
 
                 _isDataSaved.value = true

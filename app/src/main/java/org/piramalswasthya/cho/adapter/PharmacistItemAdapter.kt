@@ -56,7 +56,10 @@ class PharmacistItemAdapter(
             binding.prescription = item
             binding.clickListener = clickListener
 
-            binding.medicationName.text = (item.genericDrugName + " "+ item.drugStrength)
+            binding.medicationName.text = listOf(
+                item.genericDrugName.trim(),
+                item.drugStrength?.trim().orEmpty()
+            ).filter { it.isNotBlank() }.joinToString(" ")
             binding.formValue.text = (item.drugForm ?: "")
             if(item.duration!=null){
                 binding.durationValue.text = (item.duration ?:"") + " " + (item.durationUnit ?: "")
