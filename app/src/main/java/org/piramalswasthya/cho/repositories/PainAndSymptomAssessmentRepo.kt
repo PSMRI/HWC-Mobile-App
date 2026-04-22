@@ -7,6 +7,7 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.network.AmritApiService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import com.google.gson.Gson
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -60,6 +61,7 @@ class PainAndSymptomAssessmentRepo @Inject constructor(
             if (unsyncedList.isEmpty()) return@withContext true
 
             val networkList = mutableListOf<PainAssessmentNetwork>()
+            val sentAssessments = mutableListOf<PainAndSymptomAssessment>()
             unsyncedList.forEach { assessment ->
                 val patient = patientDao.getPatient(assessment.patientID)
                 if (patient?.beneficiaryID != null && patient.beneficiaryRegID != null) {
@@ -69,6 +71,7 @@ class PainAndSymptomAssessmentRepo @Inject constructor(
                             beneficiaryRegID = patient.beneficiaryRegID.toString()
                         )
                     )
+                    sentAssessments.add(assessment)
                 }
             }
 
@@ -81,7 +84,7 @@ class PainAndSymptomAssessmentRepo @Inject constructor(
                     if (responseString != null) {
                         val jsonObj = JSONObject(responseString)
                         if (jsonObj.optInt("statusCode") == 200) {
-                            unsyncedList.forEach {
+                            sentAssessments.forEach {
                                 it.syncState = SyncState.SYNCED.ordinal
                                 painAndSymptomAssessmentDao.update(it)
                             }
@@ -101,63 +104,84 @@ class PainAndSymptomAssessmentRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
-            try {
-                val villageList = VillageIdList(
-                    convertStringToIntList(user.assignVillageIds ?: ""),
-                    prefDao.getLastPatientSyncTime()
-                )
-                val response = amritApiService.getPainVisits(villageList)
-                if (response.isSuccessful) {
-                    val responseString = response.body()?.string()
-                    if (responseString != null) {
-                        val jsonObj = JSONObject(responseString)
-                        val errorMessage = jsonObj.optString("errorMessage")
-                        if (jsonObj.isNull("statusCode"))
-                            throw IllegalStateException("Amrit server not responding properly")
-                        val responseStatusCode = jsonObj.getInt("statusCode")
-                        if (responseStatusCode == 200) {
-                            val dataArray = jsonObj.optJSONArray("data")
-                            if (dataArray != null) {
-                                val gson = Gson()
-                                for (i in 0 until dataArray.length()) {
-                                    val networkObj = gson.fromJson(
-                                        dataArray.getJSONObject(i).toString(),
-                                        PainAssessmentNetwork::class.java
-                                    )
-                                    val patient = networkObj.beneficiaryRegID.toLongOrNull()?.let {
-                                        patientDao.getPatientByBenRegId(it)
-                                    }
-                                    if (patient != null) {
-                                        val existing = getAssessmentByPatientIdAndVisitNo(
-                                            patient.patientID,
-                                            networkObj.benVisitNo ?: 0
+            val maxAttempts = 3
+            var backoffMs = 500L
+
+            repeat(maxAttempts) { attempt ->
+                try {
+                    val villageList = VillageIdList(
+                        convertStringToIntList(user.assignVillageIds ?: ""),
+                        prefDao.getLastPatientSyncTime()
+                    )
+                    val response = amritApiService.getPainVisits(villageList)
+                    if (response.isSuccessful) {
+                        val responseString = response.body()?.string()
+                        if (responseString != null) {
+                            val jsonObj = JSONObject(responseString)
+                            if (jsonObj.isNull("statusCode"))
+                                throw IllegalStateException("Amrit server not responding properly")
+                            val responseStatusCode = jsonObj.getInt("statusCode")
+                            if (responseStatusCode == 200) {
+                                val dataArray = jsonObj.optJSONArray("data")
+                                if (dataArray != null) {
+                                    val gson = Gson()
+                                    for (i in 0 until dataArray.length()) {
+                                        val networkObj = gson.fromJson(
+                                            dataArray.getJSONObject(i).toString(),
+                                            PainAssessmentNetwork::class.java
                                         )
-                                        if (existing == null) {
-                                            val cache = networkObj.toCacheModel(
-                                                patientID = patient.patientID
-                                            ).copy(syncState = SyncState.SYNCED.ordinal)
-                                            saveAssessment(cache)
+                                        val patient = networkObj.beneficiaryRegID.toLongOrNull()?.let {
+                                            patientDao.getPatientByBenRegId(it)
+                                        }
+                                        if (patient != null) {
+                                            val existing = getAssessmentByPatientIdAndVisitNo(
+                                                patient.patientID,
+                                                networkObj.benVisitNo ?: 0
+                                            )
+                                            if (existing == null) {
+                                                val cache = networkObj.toCacheModel(
+                                                    patientID = patient.patientID
+                                                ).copy(syncState = SyncState.SYNCED.ordinal)
+                                                saveAssessment(cache)
+                                            }
                                         }
                                     }
+                                    return@withContext true
                                 }
+                            } else if (responseStatusCode == 5002) {
+                                val tokenRefreshed = userRepo.refreshTokenTmc(user.userName, user.password)
+                                if (!tokenRefreshed) {
+                                    Timber.w("Token refresh failed while pulling Pain Assessment records")
+                                    return@withContext false
+                                }
+                                if (attempt < maxAttempts - 1) {
+                                    delay(backoffMs)
+                                    backoffMs *= 2
+                                    return@repeat
+                                }
+                                Timber.w("Max retry attempts reached while pulling Pain Assessment records")
+                                return@withContext false
+                            } else if (responseStatusCode == 5000) {
                                 return@withContext true
                             }
-                        } else if (responseStatusCode == 5002) {
-                            if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                                throw SocketTimeoutException()
-                            }
-                        } else if (responseStatusCode == 5000) {
-                            return@withContext true
                         }
                     }
+                } catch (e: SocketTimeoutException) {
+                    if (attempt < maxAttempts - 1) {
+                        delay(backoffMs)
+                        backoffMs *= 2
+                        return@repeat
+                    }
+                    Timber.e(e, "Socket timeout while pulling Pain Assessment records after retries")
+                    return@withContext false
+                } catch (e: Exception) {
+                    Timber.e(e, "Error pulling Pain Assessment records")
+                    return@withContext false
                 }
                 return@withContext false
-            } catch (e: SocketTimeoutException) {
-                return@withContext pullPainVisitsFromServer()
-            } catch (e: Exception) {
-                Timber.e(e, "Error pulling Pain Assessment records")
-                return@withContext false
             }
+
+            return@withContext false
         }
     }
 

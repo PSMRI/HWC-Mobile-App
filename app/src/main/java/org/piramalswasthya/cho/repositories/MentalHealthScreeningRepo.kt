@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.model.toCacheModel
 import org.piramalswasthya.cho.model.toNetworkModel
 import org.piramalswasthya.cho.network.AmritApiService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import com.google.gson.Gson
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -64,6 +65,7 @@ class MentalHealthScreeningRepo @Inject constructor(
             if (unsyncedList.isEmpty()) return@withContext true
 
             val networkList = mutableListOf<MentalHealthNetwork>()
+            val sentAssessments = mutableListOf<MentalHealthScreeningCache>()
             unsyncedList.forEach { assessment ->
                 val patient = patientDao.getPatient(assessment.patientId)
                 if (patient?.beneficiaryID != null && patient.beneficiaryRegID != null) {
@@ -73,6 +75,7 @@ class MentalHealthScreeningRepo @Inject constructor(
                             beneficiaryRegID = patient.beneficiaryRegID.toString()
                         )
                     )
+                    sentAssessments.add(assessment)
                 }
             }
 
@@ -85,7 +88,7 @@ class MentalHealthScreeningRepo @Inject constructor(
                     if (responseString != null) {
                         val jsonObj = JSONObject(responseString)
                         if (jsonObj.optInt("statusCode") == 200) {
-                            unsyncedList.forEach {
+                            sentAssessments.forEach {
                                 it.syncState = SyncState.SYNCED.ordinal
                                 mentalHealthScreeningDao.update(it)
                             }
@@ -105,62 +108,84 @@ class MentalHealthScreeningRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
-            try {
-                val villageList = VillageIdList(
-                    convertStringToIntList(user.assignVillageIds ?: ""),
-                    prefDao.getLastPatientSyncTime()
-                )
-                val response = amritApiService.getMentalVisits(villageList)
-                if (response.isSuccessful) {
-                    val responseString = response.body()?.string()
-                    if (responseString != null) {
-                        val jsonObj = JSONObject(responseString)
-                        if (jsonObj.isNull("statusCode"))
-                            throw IllegalStateException("Amrit server not responding properly")
-                        val responseStatusCode = jsonObj.getInt("statusCode")
-                        if (responseStatusCode == 200) {
-                            val dataArray = jsonObj.optJSONArray("data")
-                            if (dataArray != null) {
-                                val gson = Gson()
-                                for (i in 0 until dataArray.length()) {
-                                    val networkObj = gson.fromJson(
-                                        dataArray.getJSONObject(i).toString(),
-                                        MentalHealthNetwork::class.java
-                                    )
-                                    val patient = networkObj.beneficiaryRegID.toLongOrNull()?.let {
-                                        patientDao.getPatientByBenRegId(it)
-                                    }
-                                    if (patient != null) {
-                                        val existing = getScreeningByPatientIdAndVisitNo(
-                                            patient.patientID,
-                                            networkObj.benVisitNo ?: 0
+            val maxAttempts = 3
+            var backoffMs = 500L
+
+            repeat(maxAttempts) { attempt ->
+                try {
+                    val villageList = VillageIdList(
+                        convertStringToIntList(user.assignVillageIds ?: ""),
+                        prefDao.getLastPatientSyncTime()
+                    )
+                    val response = amritApiService.getMentalVisits(villageList)
+                    if (response.isSuccessful) {
+                        val responseString = response.body()?.string()
+                        if (responseString != null) {
+                            val jsonObj = JSONObject(responseString)
+                            if (jsonObj.isNull("statusCode"))
+                                throw IllegalStateException("Amrit server not responding properly")
+                            val responseStatusCode = jsonObj.getInt("statusCode")
+                            if (responseStatusCode == 200) {
+                                val dataArray = jsonObj.optJSONArray("data")
+                                if (dataArray != null) {
+                                    val gson = Gson()
+                                    for (i in 0 until dataArray.length()) {
+                                        val networkObj = gson.fromJson(
+                                            dataArray.getJSONObject(i).toString(),
+                                            MentalHealthNetwork::class.java
                                         )
-                                        if (existing == null) {
-                                            val cache = networkObj.toCacheModel(patient.patientID).copy(
-                                                syncState = SyncState.SYNCED.ordinal
+                                        val patient = networkObj.beneficiaryRegID.toLongOrNull()?.let {
+                                            patientDao.getPatientByBenRegId(it)
+                                        }
+                                        if (patient != null) {
+                                            val existing = getScreeningByPatientIdAndVisitNo(
+                                                patient.patientID,
+                                                networkObj.benVisitNo ?: 0
                                             )
-                                            saveScreening(cache)
+                                            if (existing == null) {
+                                                val cache = networkObj.toCacheModel(patient.patientID).copy(
+                                                    syncState = SyncState.SYNCED.ordinal
+                                                )
+                                                saveScreening(cache)
+                                            }
                                         }
                                     }
+                                    return@withContext true
                                 }
+                            } else if (responseStatusCode == 5002) {
+                                val tokenRefreshed = userRepo.refreshTokenTmc(user.userName, user.password)
+                                if (!tokenRefreshed) {
+                                    Timber.w("Token refresh failed while pulling Mental Health records")
+                                    return@withContext false
+                                }
+                                if (attempt < maxAttempts - 1) {
+                                    delay(backoffMs)
+                                    backoffMs *= 2
+                                    return@repeat
+                                }
+                                Timber.w("Max retry attempts reached while pulling Mental Health records")
+                                return@withContext false
+                            } else if (responseStatusCode == 5000) {
                                 return@withContext true
                             }
-                        } else if (responseStatusCode == 5002) {
-                            if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                                throw SocketTimeoutException()
-                            }
-                        } else if (responseStatusCode == 5000) {
-                            return@withContext true
                         }
                     }
+                } catch (e: SocketTimeoutException) {
+                    if (attempt < maxAttempts - 1) {
+                        delay(backoffMs)
+                        backoffMs *= 2
+                        return@repeat
+                    }
+                    Timber.e(e, "Socket timeout while pulling Mental Health records after retries")
+                    return@withContext false
+                } catch (e: Exception) {
+                    Timber.e(e, "Error pulling Mental Health records")
+                    return@withContext false
                 }
                 return@withContext false
-            } catch (e: SocketTimeoutException) {
-                return@withContext pullMentalVisitsFromServer()
-            } catch (e: Exception) {
-                Timber.e(e, "Error pulling Mental Health records")
-                return@withContext false
             }
+
+            return@withContext false
         }
     }
 }
