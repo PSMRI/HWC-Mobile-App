@@ -566,11 +566,13 @@ class BenVisitRepo @Inject constructor(
                                     val pharmacistPatientIssueDataRequest = PharmacistItemStockExitDataRequest(
                                         itemID = prescriptionItemDTO.drugID,
                                         itemStockEntryID = item.itemStockEntryID,
-                                        quantity = prescriptionItemDTO.qtyPrescribed,
+                                        quantity = item.qty,
                                         createdBy = user?.userName!!
                                     )
 
-                                    itemStockExitList+=pharmacistPatientIssueDataRequest
+                                    if (item.qty > 0) {
+                                        itemStockExitList+=pharmacistPatientIssueDataRequest
+                                    }
                                 }
                             }
 
@@ -648,11 +650,13 @@ class BenVisitRepo @Inject constructor(
                             val pharmacistPatientIssueDataRequest = PharmacistItemStockExitDataRequest(
                                 itemID = prescriptionItemDTO.drugID,
                                 itemStockEntryID = item.itemStockEntryID,
-                                quantity = prescriptionItemDTO.qtyPrescribed,
+                                quantity = item.qty,
                                 createdBy = user?.userName!!
                             )
 
-                            itemStockExitList+=pharmacistPatientIssueDataRequest
+                            if (item.qty > 0) {
+                                itemStockExitList+=pharmacistPatientIssueDataRequest
+                            }
                         }
                     }
 
