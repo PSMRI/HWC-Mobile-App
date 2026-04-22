@@ -30,10 +30,10 @@ data class NoseDiagnosisAssessment(
     var noseBleed: Boolean? = null,
 
     @ColumnInfo(name = "systolic_bp")
-    var systolicBP: Int? = null,
+    var systolicBp: Int? = null,
 
     @ColumnInfo(name = "diastolic_bp")
-    var diastolicBP: Int? = null,
+    var diastolicBp: Int? = null,
 
     @ColumnInfo(name = "foreign_body_nose")
     var foreignBodyNose: String? = null,

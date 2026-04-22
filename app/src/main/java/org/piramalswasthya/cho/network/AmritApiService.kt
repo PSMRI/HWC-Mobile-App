@@ -368,10 +368,10 @@ interface AmritApiService {
     @POST("/hwc-api/elderlyHealth/getAll")
 
     suspend fun getElderlyVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
-    @POST("/hwc-api/otherCPHC/mental/saveAll")
+    @POST("/hwc-api/mentalHealth/saveAll")
 
     suspend fun postMentalForm(@Body mentalList: List<MentalHealthNetwork>): Response<ResponseBody>
-    @POST("/hwc-api/otherCPHC/mental/getAll")
+    @POST("/hwc-api/mentalHealth/getAll")
     suspend fun getMentalVisits(@Body villageList: org.piramalswasthya.cho.network.VillageIdList): Response<ResponseBody>
 
 

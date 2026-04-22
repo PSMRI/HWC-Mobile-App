@@ -259,8 +259,8 @@ class NoseDiagnosisDataset(
             else -> null
         }
 
-        systolicBP.value = cache.systolicBP?.toString()
-        diastolicBP.value = cache.diastolicBP?.toString()
+        systolicBP.value = cache.systolicBp?.toString()
+        diastolicBP.value = cache.diastolicBp?.toString()
 
 
         // Convert stored index to display string for UI
@@ -286,11 +286,11 @@ class NoseDiagnosisDataset(
 
             it.noseBleed = hasNoseBleed
 
-            it.systolicBP = if (hasNoseBleed == true) {
+            it.systolicBp = if (hasNoseBleed == true) {
                 systolicBP.value?.toIntOrNull()
             } else null
 
-            it.diastolicBP = if (hasNoseBleed == true) {
+            it.diastolicBp = if (hasNoseBleed == true) {
                 diastolicBP.value?.toIntOrNull()
             } else null
             // Store stable index as string instead of localized display text
