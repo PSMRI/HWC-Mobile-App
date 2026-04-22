@@ -29,9 +29,11 @@ interface BenFlowDao {
                 "AND vis.nurseFlag = 9 " +
                 "AND latestVisit.patientID IS NULL " +
                 "AND NOT (vis.doctorFlag = 9 AND IFNULL(vis.pharmacist_flag, 0) IN (0, 9)) " +
-                "AND vis.patientID IS NOT NULL "
+                "AND vis.patientID IS NOT NULL " +
+                "AND COALESCE(vis.visitDate, pat.registrationDate) IS NOT NULL " +
+                "AND strftime('%Y-%m-%d', COALESCE(vis.visitDate, pat.registrationDate) / 1000, 'unixepoch', 'localtime') LIKE '%' || :periodParam || '%'"
     )
-    suspend fun getDoctorModuleOpdCount(genderBucket: String) : Int?
+    suspend fun getDoctorModuleOpdCount(genderBucket: String, periodParam: String) : Int?
 
     @Query(
         "SELECT COUNT(*) " +

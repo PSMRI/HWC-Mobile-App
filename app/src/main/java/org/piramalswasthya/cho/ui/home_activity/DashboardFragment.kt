@@ -86,9 +86,9 @@ class DashboardFragment : Fragment() {
         if(user?.userName == null){
             return
         }
-        maleOpdCount = benFlowDao.getDoctorModuleOpdCount("male") ?: 0
-        femaleOpdCount = benFlowDao.getDoctorModuleOpdCount("female") ?: 0
-        othersOpdCount = benFlowDao.getDoctorModuleOpdCount("other") ?: 0
+        maleOpdCount = benFlowDao.getDoctorModuleOpdCount("male", periodParam!!) ?: 0
+        femaleOpdCount = benFlowDao.getDoctorModuleOpdCount("female", periodParam!!) ?: 0
+        othersOpdCount = benFlowDao.getDoctorModuleOpdCount("other", periodParam!!) ?: 0
         totalOpdCount = maleOpdCount!! + femaleOpdCount!! + othersOpdCount!!
 
         binding.opdMaleValue.text = maleOpdCount.toString()
