@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
@@ -84,9 +86,9 @@ class DashboardFragment : Fragment() {
         if(user?.userName == null){
             return
         }
-        maleOpdCount = benFlowDao.getOpdCount(1, periodParam!!, user.userName) ?: 0
-        femaleOpdCount = benFlowDao.getOpdCount(2, periodParam!!, user.userName) ?: 0
-        othersOpdCount = benFlowDao.getOpdCount(3, periodParam!!, user.userName) ?: 0
+        maleOpdCount = benFlowDao.getDoctorModuleOpdCount("male") ?: 0
+        femaleOpdCount = benFlowDao.getDoctorModuleOpdCount("female") ?: 0
+        othersOpdCount = benFlowDao.getDoctorModuleOpdCount("other") ?: 0
         totalOpdCount = maleOpdCount!! + femaleOpdCount!! + othersOpdCount!!
 
         binding.opdMaleValue.text = maleOpdCount.toString()
@@ -128,6 +130,14 @@ class DashboardFragment : Fragment() {
                 fetchAndDisplayCount()
             }
 
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                benFlowDao.observeDoctorModuleListCount().collect {
+                    fetchAndDisplayCount()
+                }
+            }
         }
     }
 

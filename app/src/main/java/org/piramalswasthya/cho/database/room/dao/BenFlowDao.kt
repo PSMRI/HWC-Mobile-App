@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.BlockMaster
 
@@ -14,8 +15,35 @@ interface BenFlowDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBenFlow(benFlow: BenFlow)
-    @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'General OPD') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
-    suspend fun getOpdCount(genderID: Int, periodParam: String, createdBy: String) : Int?
+    @Query(
+        "SELECT COUNT(*) " +
+                "FROM PATIENT pat " +
+                "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
+                "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
+                "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+                "WHERE ( " +
+                "(:genderBucket = 'male' AND LOWER(IFNULL(gen.gender_name, '')) = 'male') " +
+                "OR (:genderBucket = 'female' AND LOWER(IFNULL(gen.gender_name, '')) = 'female') " +
+                "OR (:genderBucket = 'other' AND TRIM(IFNULL(gen.gender_name, '')) <> '' AND LOWER(IFNULL(gen.gender_name, '')) NOT IN ('male', 'female')) " +
+                ") " +
+                "AND vis.nurseFlag = 9 " +
+                "AND latestVisit.patientID IS NULL " +
+                "AND NOT (vis.doctorFlag = 9 AND IFNULL(vis.pharmacist_flag, 0) IN (0, 9)) " +
+                "AND vis.patientID IS NOT NULL "
+    )
+    suspend fun getDoctorModuleOpdCount(genderBucket: String) : Int?
+
+    @Query(
+        "SELECT COUNT(*) " +
+                "FROM PATIENT pat " +
+                "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
+                "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
+                "WHERE vis.nurseFlag = 9 " +
+                "AND latestVisit.patientID IS NULL " +
+                "AND NOT (vis.doctorFlag = 9 AND IFNULL(vis.pharmacist_flag, 0) IN (0, 9)) " +
+                "AND vis.patientID IS NOT NULL"
+    )
+    fun observeDoctorModuleListCount(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'ANC') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getAncCount(periodParam: String, createdBy: String) : Int?
