@@ -74,6 +74,9 @@ interface PrescriptionDao {
     @Query("select * from prescribed_drugs_batch where drugID = :drugID")
     fun getPrescribedDrugsBatch(drugID: Long): List<PrescribedDrugsBatch>?
 
+    @Query("delete from prescribed_drugs_batch where drugID = :drugID")
+    suspend fun deletePrescribedDrugsBatchByDrugId(drugID: Long): Int
+
     @Delete
     fun deletePrescribedDrugsBatch(prescribedDrugsBatch: PrescribedDrugsBatch)
 

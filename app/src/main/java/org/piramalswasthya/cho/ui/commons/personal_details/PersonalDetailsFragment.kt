@@ -1109,10 +1109,10 @@ class PersonalDetailsFragment : Fragment() {
         val rightX = pageWidth - 300F
         var rightY = 180F
 
-        val rightLabels = listOf("Date:", "Beneficiary Reg ID:", "Consultation ID:")
+        val rightLabels = listOf("Date:", "Beneficiary ID:", "Consultation ID:")
         val rightValues = listOf(
             benVisitInfo.visitDate ?: "N/A",
-            "${benVisitInfo.patient.beneficiaryRegID}",
+            "${benVisitInfo.patient.beneficiaryID}",
             "${benVisitInfo.benVisitNo}"
         )
 
