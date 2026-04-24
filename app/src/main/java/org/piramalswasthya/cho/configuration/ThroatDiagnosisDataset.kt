@@ -34,6 +34,13 @@ class ThroatDiagnosisDataset(
         ),
         required = true
     )
+    private val symptomOptionIds = listOf(
+        R.string.throat_symptom_pain,
+        R.string.throat_symptom_soreness,
+        R.string.throat_symptom_cold,
+        R.string.throat_symptom_itching,
+        R.string.throat_symptom_hoarseness
+    )
 
     private val neckSwelling = FormElement(
         id = 2,
@@ -209,7 +216,7 @@ class ThroatDiagnosisDataset(
         ThroatDiagnosisAssessment(patientId = "", benVisitNo = null)
 
     private fun populateFromCache(cache: ThroatDiagnosisAssessment) {
-        symptoms.value = cache.symptoms?.joinToString(", ")
+        symptoms.value = getLocalizedSymptoms(cache.symptoms)?.joinToString(", ")
         neckSwelling.value = when (cache.neckSwelling) {
             true -> optionYes
             false -> optionNo
@@ -254,8 +261,12 @@ class ThroatDiagnosisDataset(
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as ThroatDiagnosisAssessment).apply {
-            symptoms =
-                this@ThroatDiagnosisDataset.symptoms.value?.split(", ")?.filter { it.isNotBlank() }
+            symptoms = getEnglishSymptoms(
+                this@ThroatDiagnosisDataset.symptoms.value
+                    ?.split(",")
+                    ?.map { it.trim() }
+                    ?.filter { it.isNotBlank() }
+            )
             neckSwelling = when (this@ThroatDiagnosisDataset.neckSwelling.value) {
                 optionYes -> true
                 optionNo -> false
@@ -297,5 +308,39 @@ class ThroatDiagnosisDataset(
                 else -> null
             }
         }
+    }
+
+    private fun getLocalizedSymptoms(values: List<String>?): List<String>? {
+        return values
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.map { entry ->
+                symptomOptionIds.firstNotNullOfOrNull { id ->
+                    val englishValue = englishResources.getString(id)
+                    val localizedValue = resources.getString(id)
+                    when (entry) {
+                        englishValue, localizedValue -> localizedValue
+                        else -> null
+                    }
+                } ?: entry
+            }
+            ?.takeIf { it.isNotEmpty() }
+    }
+
+    private fun getEnglishSymptoms(values: List<String>?): List<String>? {
+        return values
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.map { entry ->
+                symptomOptionIds.firstNotNullOfOrNull { id ->
+                    val englishValue = englishResources.getString(id)
+                    val localizedValue = resources.getString(id)
+                    when (entry) {
+                        localizedValue, englishValue -> englishValue
+                        else -> null
+                    }
+                } ?: entry
+            }
+            ?.takeIf { it.isNotEmpty() }
     }
 }

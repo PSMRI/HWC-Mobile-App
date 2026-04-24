@@ -163,9 +163,9 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
 
     private fun showAlertDialog(message: String) {
         AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.form_alert_title))
+            .setTitle(getString(R.string.alert_popup))
             .setMessage(message)
-            .setPositiveButton("OK") { dialog, _ ->
+            .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
                 dialog.dismiss()
                 viewModel.clearAlert()
             }

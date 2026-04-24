@@ -535,6 +535,26 @@ class ElderlyHealthAssessmentDataset(
         )
     }
 
+    private fun getLocalizedOptionValue(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val englishValue = englishResources.getString(id)
+            val localizedValue = resources.getString(id)
+            if (entry == englishValue || entry == localizedValue) return localizedValue
+        }
+        return entry
+    }
+
+    private fun getEnglishOptionValue(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val englishValue = englishResources.getString(id)
+            val localizedValue = resources.getString(id)
+            if (entry == localizedValue || entry == englishValue) return englishValue
+        }
+        return entry
+    }
+
     private fun populateFromCache(cache: ElderlyHealthAssessment) {
         geriatricComplaints.value = when(cache.geriatricComplaints) {
             true -> optionYes
@@ -597,7 +617,16 @@ class ElderlyHealthAssessmentDataset(
         }
 
         totalScore.value = cache.totalScore?.toString()
-        functionalStatus.value = cache.functionalStatus
+        functionalStatus.value = getLocalizedOptionValue(
+            cache.functionalStatus,
+            listOf(
+                R.string.elderly_status_no_decline,
+                R.string.elderly_status_partial_dependence,
+                R.string.elderly_status_functional_dependence,
+                R.string.elderly_status_highly_dependent,
+                R.string.elderly_status_unknown
+            )
+        )
         functionalDeclineFlag.value = when(cache.functionalDeclineFlag) {
             true -> optionYes
             false -> optionNo
@@ -623,7 +652,13 @@ class ElderlyHealthAssessmentDataset(
         dementiaSelfCareDecline.value =
             if (cache.dementiaSelfCareDecline == true) optionYes else null
 
-        dementiaScreeningOutcome.value = cache.dementiaScreeningOutcome
+        dementiaScreeningOutcome.value = getLocalizedOptionValue(
+            cache.dementiaScreeningOutcome,
+            listOf(
+                R.string.elderly_outcome_suspected,
+                R.string.elderly_outcome_not_suspected
+            )
+        )
         dementiaReferralRequired.value = when(cache.dementiaReferralRequired) {
             true -> optionYes
             false -> optionNo
@@ -690,7 +725,16 @@ class ElderlyHealthAssessmentDataset(
             }
 
             it.totalScore = totalScore.value?.toIntOrNull()
-            it.functionalStatus = functionalStatus.value
+            it.functionalStatus = getEnglishOptionValue(
+                functionalStatus.value,
+                listOf(
+                    R.string.elderly_status_no_decline,
+                    R.string.elderly_status_partial_dependence,
+                    R.string.elderly_status_functional_dependence,
+                    R.string.elderly_status_highly_dependent,
+                    R.string.elderly_status_unknown
+                )
+            )
             it.functionalDeclineFlag = when (functionalDeclineFlag.value) {
                 optionYes -> true
                 optionNo -> false
@@ -713,8 +757,13 @@ class ElderlyHealthAssessmentDataset(
             it.dementiaSelfCareDecline =
                 dementiaSelfCareDecline.value == optionYes
 
-            it.dementiaScreeningOutcome =
-                dementiaScreeningOutcome.value
+            it.dementiaScreeningOutcome = getEnglishOptionValue(
+                dementiaScreeningOutcome.value,
+                listOf(
+                    R.string.elderly_outcome_suspected,
+                    R.string.elderly_outcome_not_suspected
+                )
+            )
 
             it.dementiaReferralRequired =
                 dementiaReferralRequired.value == optionYes

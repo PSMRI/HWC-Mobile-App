@@ -21,6 +21,25 @@ class PainAndSymptomAssessmentDataset(
     private val optionSevere = context.getString(R.string.severe)
     private val optionYes = context.getString(R.string.yes)
     private val optionNo = context.getString(R.string.no)
+    private val severityOptionIds = listOf(R.string.mild, R.string.moderate, R.string.severe)
+    private val painDurationOptionIds = listOf(
+        R.string.pain_duration_less_than_one_month,
+        R.string.pain_duration_one_to_six_months,
+        R.string.pain_duration_more_than_six_months
+    )
+    private val basicSymptomOptionIds = listOf(
+        R.string.symptom_nausea_vomiting,
+        R.string.symptom_constipation,
+        R.string.symptom_anxiety_restlessness,
+        R.string.symptom_sleep_disturbance
+    )
+    private val distressingSymptomOptionIds = listOf(
+        R.string.breathlessness,
+        R.string.nausea,
+        R.string.fatigue,
+        R.string.weakness,
+        R.string.other
+    )
 
     // ---------------- Pain Severity ----------------
     private val painSeverity = FormElement(
@@ -290,6 +309,46 @@ class PainAndSymptomAssessmentDataset(
         )
     }
 
+    private fun getLocalizedOptionValue(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val englishValue = englishResources.getString(id)
+            val localizedValue = resources.getString(id)
+            if (entry == englishValue || entry == localizedValue) return localizedValue
+        }
+        return entry
+    }
+
+    private fun getEnglishOptionValue(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val englishValue = englishResources.getString(id)
+            val localizedValue = resources.getString(id)
+            if (entry == localizedValue || entry == englishValue) return englishValue
+        }
+        return entry
+    }
+
+    private fun getLocalizedCsvValues(entry: String?, optionIds: List<Int>): String? {
+        return entry
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.map { getLocalizedOptionValue(it, optionIds) ?: it }
+            ?.joinToString(",")
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    private fun getEnglishCsvValues(entry: String?, optionIds: List<Int>): String? {
+        return entry
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.map { getEnglishOptionValue(it, optionIds) ?: it }
+            ?.joinToString(",")
+            ?.takeIf { it.isNotBlank() }
+    }
+
     private fun populateFromCache(cache: PainAndSymptomAssessment) {
         // Section C
         persistentPainPresent.value = when (cache.persistentPainPresent) {
@@ -297,7 +356,7 @@ class PainAndSymptomAssessmentDataset(
             false -> optionNo
             else -> null
         }
-        basicSymptoms.value = cache.basicSymptomsSelected
+        basicSymptoms.value = getLocalizedCsvValues(cache.basicSymptomsSelected, basicSymptomOptionIds)
         basicSymptomReliefProvided.value = when (cache.basicSymptomReliefProvided) {
             true -> optionYes
             false -> optionNo
@@ -314,7 +373,7 @@ class PainAndSymptomAssessmentDataset(
             else -> null
         }
         basicManagementRemarks.value = cache.basicManagementRemarks
-        distressingSymptoms.value = cache.distressingSymptoms
+        distressingSymptoms.value = getLocalizedCsvValues(cache.distressingSymptoms, distressingSymptomOptionIds)
         bedriddenOrSeverelyDependent.value = when (cache.bedriddenOrSeverelyDependent) {
             true -> optionYes
             false -> optionNo
@@ -330,14 +389,14 @@ class PainAndSymptomAssessmentDataset(
             false -> optionNo
             else -> null
         }
-        painSeverity.value = cache.painSeverity
-        painDuration.value = cache.painDuration
+        painSeverity.value = getLocalizedOptionValue(cache.painSeverity, severityOptionIds)
+        painDuration.value = getLocalizedOptionValue(cache.painDuration, painDurationOptionIds)
 //        symptomsPresent.value = when (cache.symptomsPresent) {
 //            true -> "Yes"
 //            false -> "No"
 //            else -> null
 //        }
-        otherSymptomsSeverity.value = cache.otherSymptomsSeverity
+        otherSymptomsSeverity.value = getLocalizedOptionValue(cache.otherSymptomsSeverity, severityOptionIds)
         immediateReliefProvided.value = when (cache.immediateReliefProvided) {
             true -> optionYes
             false -> optionNo
@@ -381,7 +440,7 @@ class PainAndSymptomAssessmentDataset(
                 else -> null
             }
 
-            it.basicSymptomsSelected = basicSymptoms.value
+            it.basicSymptomsSelected = getEnglishCsvValues(basicSymptoms.value, basicSymptomOptionIds)
 
             it.basicSymptomReliefProvided = when (basicSymptomReliefProvided.value) {
                 optionYes -> true
@@ -400,7 +459,7 @@ class PainAndSymptomAssessmentDataset(
             }
             it.basicManagementRemarks = basicManagementRemarks.value?.trim()?.takeIf { v -> v.isNotEmpty() }
 
-            it.distressingSymptoms = distressingSymptoms.value
+            it.distressingSymptoms = getEnglishCsvValues(distressingSymptoms.value, distressingSymptomOptionIds)
 
             it.bedriddenOrSeverelyDependent = when (bedriddenOrSeverelyDependent.value) {
                 optionYes -> true
@@ -427,8 +486,8 @@ class PainAndSymptomAssessmentDataset(
                 it.caregiverSupportRequired
             ).any { flag -> flag == true } || !distressingSymptoms.value.isNullOrBlank()
 
-            it.painSeverity = painSeverity.value
-            it.painDuration = painDuration.value
+            it.painSeverity = getEnglishOptionValue(painSeverity.value, severityOptionIds)
+            it.painDuration = getEnglishOptionValue(painDuration.value, painDurationOptionIds)
 
 //            it.symptomsPresent = when (symptomsPresent.value) {
 //                "Yes" -> true
@@ -436,7 +495,7 @@ class PainAndSymptomAssessmentDataset(
 //                else -> null
 //            }
 
-            it.otherSymptomsSeverity = otherSymptomsSeverity.value
+            it.otherSymptomsSeverity = getEnglishOptionValue(otherSymptomsSeverity.value, severityOptionIds)
 
             it.immediateReliefProvided = when (immediateReliefProvided.value) {
                 optionYes -> true

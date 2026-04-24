@@ -105,6 +105,33 @@ class EarDiagnosisDataset(
         hasAlertError = true
     )
 
+    private val whisperResponseOptionIds = listOf(
+        R.string.ear_whisper_correct,
+        R.string.ear_whisper_incorrect
+    )
+
+    private val hearingOutcomeOptionIds = listOf(
+        R.string.ear_hearing_normal,
+        R.string.ear_hearing_slight_loss,
+        R.string.ear_hearing_moderate,
+        R.string.ear_hearing_severe,
+        R.string.ear_hearing_deaf
+    )
+
+    private val foreignBodyOptionIds = listOf(
+        R.string.ear_foreign_body_superficial,
+        R.string.ear_foreign_body_deep,
+        R.string.no_option
+    )
+
+    private val earConditionTypeOptionIds = listOf(
+        R.string.ear_otomycosis,
+        R.string.ear_otitis_externa,
+        R.string.ear_acute_discharge,
+        R.string.ear_chronic_discharge,
+        R.string.ear_wax
+    )
+
 
     suspend fun setUpPage(savedRecord: EarDiagnosisAssessment?) {
         cache = savedRecord ?: createDefaultCache()
@@ -198,8 +225,8 @@ class EarDiagnosisDataset(
             else -> null
         }
 
-        whisperTestResponse.value = cache.whisperTestResponse
-        hearingTestOutcome.value = cache.hearingTestOutcome
+        whisperTestResponse.value = getLocalizedOptionValue(cache.whisperTestResponse, whisperResponseOptionIds)
+        hearingTestOutcome.value = getLocalizedOptionValue(cache.hearingTestOutcome, hearingOutcomeOptionIds)
         earPain.value = when (cache.earPain) {
             true -> optionYes
             false -> optionNo
@@ -212,8 +239,8 @@ class EarDiagnosisDataset(
             else -> null
         }
 
-        foreignBody.value = cache.foreignBodyInEar
-        earConditionType.value = cache.earConditionType
+        foreignBody.value = getLocalizedOptionValue(cache.foreignBodyInEar, foreignBodyOptionIds)
+        earConditionType.value = getLocalizedCsvValues(cache.earConditionType, earConditionTypeOptionIds)
 
         congenitalMalformation.value = when (cache.congenitalEarMalformation) {
             true -> optionYes
@@ -235,8 +262,8 @@ class EarDiagnosisDataset(
                 else -> null
             }
 
-            it.whisperTestResponse = whisperTestResponse.value
-            it.hearingTestOutcome = hearingTestOutcome.value
+            it.whisperTestResponse = getEnglishOptionValue(whisperTestResponse.value, whisperResponseOptionIds)
+            it.hearingTestOutcome = getEnglishOptionValue(hearingTestOutcome.value, hearingOutcomeOptionIds)
             it.earPain = when (earPain.value) {
                 optionYes -> true
                 optionNo -> false
@@ -248,8 +275,8 @@ class EarDiagnosisDataset(
                 else -> null
             }
 
-            it.foreignBodyInEar = foreignBody.value
-            it.earConditionType = earConditionType.value
+            it.foreignBodyInEar = getEnglishOptionValue(foreignBody.value, foreignBodyOptionIds)
+            it.earConditionType = getEnglishCsvValues(earConditionType.value, earConditionTypeOptionIds)
 
             it.congenitalEarMalformation = when (congenitalMalformation.value) {
                 optionYes -> true
@@ -258,5 +285,49 @@ class EarDiagnosisDataset(
             }
 
         }
+    }
+
+    private fun getLocalizedOptionValue(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val englishValue = englishResources.getString(id)
+            val localizedValue = resources.getString(id)
+            if (entry == englishValue || entry == localizedValue) {
+                return localizedValue
+            }
+        }
+        return entry
+    }
+
+    private fun getEnglishOptionValue(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val englishValue = englishResources.getString(id)
+            val localizedValue = resources.getString(id)
+            if (entry == localizedValue || entry == englishValue) {
+                return englishValue
+            }
+        }
+        return entry
+    }
+
+    private fun getLocalizedCsvValues(entry: String?, optionIds: List<Int>): String? {
+        return entry
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.map { getLocalizedOptionValue(it, optionIds) ?: it }
+            ?.joinToString(",")
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    private fun getEnglishCsvValues(entry: String?, optionIds: List<Int>): String? {
+        return entry
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.map { getEnglishOptionValue(it, optionIds) ?: it }
+            ?.joinToString(",")
+            ?.takeIf { it.isNotBlank() }
     }
 }

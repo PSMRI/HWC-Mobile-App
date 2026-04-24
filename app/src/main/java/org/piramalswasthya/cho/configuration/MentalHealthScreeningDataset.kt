@@ -1380,16 +1380,16 @@ class MentalHealthScreeningDataset(
         when (riskValue) {
             high -> {
                 suicideRiskLevel.hasAlertError = true
-                suicideRiskLevel.errorText = context.getString(R.string.suicide_risk_alert_high)
+                suicideRiskLevel.errorText = context.getString(R.string.mh_suicide_risk_alert_high)
                 if (lastSuicideRiskLevel != high) {
-                    emitAlertErrorMessage(R.string.suicide_risk_alert_high)
+                    emitAlertErrorMessage(R.string.mh_suicide_risk_alert_high)
                 }
             }
             moderate -> {
                 suicideRiskLevel.hasAlertError = true
-                suicideRiskLevel.errorText = context.getString(R.string.suicide_risk_alert_moderate)
+                suicideRiskLevel.errorText = context.getString(R.string.mh_suicide_risk_alert_moderate)
                 if (lastSuicideRiskLevel != moderate) {
-                    emitAlertErrorMessage(R.string.suicide_risk_alert_moderate)
+                    emitAlertErrorMessage(R.string.mh_suicide_risk_alert_moderate)
                 }
             }
             else -> {
@@ -1502,8 +1502,21 @@ class MentalHealthScreeningDataset(
         // Referral
         mhReferralRequired.value =
             cache.referralRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
-        mhReferralLevel.value = cache.referralLevel
-        mhReasonForReferral.value = cache.reasonForReferral
+        mhReferralLevel.value = getLocalizedValueInArrays(
+            cache.referralLevel,
+            R.array.mh_referral_level_options,
+            R.array.mh_referral_level_dmhp_options,
+            R.array.mh_referral_level_alcohol_options,
+            R.array.mh_referral_level_rbsk_options,
+            R.array.mh_referral_level_child_options,
+            R.array.mh_referral_level_adult_options,
+            R.array.mh_referral_level_standard_mh_options
+        )
+        mhReasonForReferral.value = getLocalizedValueInArrays(
+            cache.reasonForReferral,
+            R.array.mh_reason_for_referral_options,
+            R.array.mh_reason_for_referral_options_under_11
+        )
 
         if (cache.referralRequired == true) {
             mhReferralDate.value = cache.referralDate ?: todayDateString()
@@ -1515,8 +1528,14 @@ class MentalHealthScreeningDataset(
         mhFollowUpRequired.value =
             cache.followUpRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhFollowUpDate.value = cache.followUpDate
-        mhImprovementNoted.value = cache.improvementNoted
-        mhAdherenceToAdvice.value = cache.adherenceToAdvice
+        mhImprovementNoted.value = getLocalizedValueInArrays(
+            cache.improvementNoted,
+            R.array.yes_no_options
+        )
+        mhAdherenceToAdvice.value = getLocalizedValueInArrays(
+            cache.adherenceToAdvice,
+            R.array.yes_no_options
+        )
         mhReferralEscalation.value =
             cache.referralEscalationRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhCaseClosureReason.value = cache.caseClosureReason
@@ -1532,25 +1551,59 @@ class MentalHealthScreeningDataset(
         phq9MovingSlowly.value = cache.phq9MovingSlowly?.let { phq9Options.getOrNull(it) }
         phq9SelfHarmThoughts.value = cache.phq9SelfHarmThoughts?.let { phq9Options.getOrNull(it) }
         phq9TotalScore.value = cache.phq9TotalScore?.toString()
-        phq9DepressionSeverity.value = cache.phq9DepressionSeverity
-        phq9SystemAction.value = cache.phq9SystemAction
+        phq9DepressionSeverity.value = getLocalizedValueInArrays(
+            cache.phq9DepressionSeverity,
+            R.array.phq9_severity_options
+        )
+        phq9SystemAction.value = getLocalizedValueInArrays(
+            cache.phq9SystemAction,
+            R.array.phq9_system_action_options
+        )
 
         // Substance Use
         substanceCurrentTobaccoUse.value = boolToYesNo(cache.substanceCurrentTobaccoUse)
-        substanceTobaccoType.value = cache.substanceTobaccoType
-        substanceTobaccoFrequency.value = cache.substanceTobaccoFrequency
-        substanceTobaccoOutcome.value = cache.substanceTobaccoOutcome
-        substanceSystemAction.value = cache.substanceSystemAction
+        substanceTobaccoType.value = getLocalizedValueByStringIds(
+            cache.substanceTobaccoType,
+            listOf(
+                R.string.mh_tobacco_smoking,
+                R.string.mh_tobacco_smokeless,
+                R.string.mh_tobacco_both
+            )
+        )
+        substanceTobaccoFrequency.value = getLocalizedValueByStringIds(
+            cache.substanceTobaccoFrequency,
+            listOf(
+                R.string.mh_tobacco_occasional,
+                R.string.mh_tobacco_daily
+            )
+        )
+        substanceTobaccoOutcome.value = getLocalizedValueInArrays(
+            cache.substanceTobaccoOutcome,
+            R.array.mh_tobacco_outcome_options
+        )
+        substanceSystemAction.value = getLocalizedValueInArrays(
+            cache.substanceSystemAction,
+            R.array.mh_tobacco_system_action_options
+        )
         substanceAlcoholUse.value = boolToYesNo(cache.substanceAlcoholUse)
         substanceTobaccoUse.value = boolToYesNo(cache.substanceTobaccoUse)
         substance_alcohol_loss.value = boolToYesNo(cache.substance_alcohol_loss)
         substanceAlcoholImpact.value = boolToYesNo(cache.substanceAlcoholImpact)
         substanceAlcoholWithdrawal.value = boolToYesNo(cache.substanceAlcoholWithdrawal)
         substanceAlcoholProblematic.value = boolToYesNo(cache.substanceAlcoholProblematic)
-        substanceAlcoholClassification.value = cache.substanceAlcoholClassification
-        substanceAlcoholSystemAction.value = cache.substanceAlcoholSystemAction
+        substanceAlcoholClassification.value = getLocalizedValueInArrays(
+            cache.substanceAlcoholClassification,
+            R.array.mh_alcohol_classification_options
+        )
+        substanceAlcoholSystemAction.value = getLocalizedValueInArrays(
+            cache.substanceAlcoholSystemAction,
+            R.array.alcohol_system_action_options
+        )
         substanceOtherSpecify.value = cache.substanceOtherSpecify
-        substance_alcohol_frequency.value = cache.substance_alcohol_frequency
+        substance_alcohol_frequency.value = getLocalizedValueInArrays(
+            cache.substance_alcohol_frequency,
+            R.array.substance_frequency_options
+        )
 
         // Suicide Risk
         suicideCurrentThoughts.value = boolToYesNo(cache.suicideCurrentThoughts)
@@ -1558,7 +1611,10 @@ class MentalHealthScreeningDataset(
         suicidePreviousAttempt.value = boolToYesNo(cache.suicidePreviousAttempt)
         suicideHopelessness.value = boolToYesNo(cache.suicideHopelessness)
         suicideImmediateAssess.value = boolToYesNo(cache.suicideImmediateAssess)
-        suicideRiskLevel.value = cache.suicideRiskLevel
+        suicideRiskLevel.value = getLocalizedValueInArrays(
+            cache.suicideRiskLevel,
+            R.array.suicide_risk_options
+        )
 
         // Dementia
         dementiaProgressiveMemoryLoss.value = boolToYesNo(cache.dementiaProgressiveMemoryLoss)
@@ -1572,7 +1628,10 @@ class MentalHealthScreeningDataset(
         epilepsyJerkyMovements.value = boolToYesNo(cache.epilepsyJerkyMovements)
         epilepsyTongueBite.value = boolToYesNo(cache.epilepsyTongueBite)
         epilepsyConfusionAfter.value = boolToYesNo(cache.epilepsyConfusionAfter)
-        epilepsyLocDuration.value = cache.epilepsyLocDuration
+        epilepsyLocDuration.value = getLocalizedValueInArrays(
+            cache.epilepsyLocDuration,
+            R.array.epilepsy_duration_options
+        )
 
         // Epilepsy & Dementia Checklist
         edRecurrentEpisodeloss.value = boolToChecked(cache.edRecurrentEpisodeloss)
@@ -1581,11 +1640,28 @@ class MentalHealthScreeningDataset(
         edProgressiveMemoryLoss.value = boolToChecked(cache.edProgressiveMemoryLoss)
         edConfusionDisorientation.value = boolToChecked(cache.edConfusionDisorientation)
         edFunctionalDecline.value = boolToChecked(cache.edFunctionalDecline)
-        edScreeningOutcome.value = cache.edScreeningOutcome
-        edReferralRequired.value = cache.edReferralRequired
-        edReason.value = cache.edReason
+        edScreeningOutcome.value = getLocalizedValueInArrays(
+            cache.edScreeningOutcome,
+            R.array.mh_ed_outcome_options
+        )
+        edReferralRequired.value = getLocalizedValueInArrays(
+            cache.edReferralRequired,
+            R.array.yes_no_options
+        )
+        edReason.value = getLocalizedValueByStringIds(
+            cache.edReason,
+            listOf(R.string.mh_ed_reason_neurological)
+        )
         edPsychosocialIntervention.value = boolToYesNo(cache.edPsychosocialInterventionProvided)
-        edInterventionType.value = cache.edInterventionType
+        edInterventionType.value = getLocalizedCsvByStringIds(
+            cache.edInterventionType,
+            listOf(
+                R.string.mh_intervention_psychoeducation,
+                R.string.mh_intervention_counselling,
+                R.string.mh_intervention_stress_mgmt,
+                R.string.mh_intervention_family_counselling
+            )
+        )
         edSessionDate.value = cache.edSessionDate
         edDurationMinutes.value = cache.edDurationMinutes?.toString()
         edRemarks.value = cache.edRemarks
@@ -1622,6 +1698,76 @@ class MentalHealthScreeningDataset(
     private fun boolToChecked(value: Boolean?): String? =
         value?.let { if (it) yesNoOptions[0] else null }
 
+    private fun getLocalizedValueInArrays(entry: String?, vararg arrayIds: Int): String? {
+        entry ?: return null
+        arrayIds.forEach { arrayId ->
+            val localArray = resources.getStringArray(arrayId)
+            val englishArray = englishResources.getStringArray(arrayId)
+            val localIndex = localArray.indexOf(entry)
+            if (localIndex != -1) return localArray[localIndex]
+            val englishIndex = englishArray.indexOf(entry)
+            if (englishIndex != -1) return localArray[englishIndex]
+        }
+        return entry
+    }
+
+    private fun getEnglishValueInArrays(entry: String?, vararg arrayIds: Int): String? {
+        entry ?: return null
+        arrayIds.forEach { arrayId ->
+            val localArray = resources.getStringArray(arrayId)
+            val englishArray = englishResources.getStringArray(arrayId)
+            val localIndex = localArray.indexOf(entry)
+            if (localIndex != -1) return englishArray[localIndex]
+            val englishIndex = englishArray.indexOf(entry)
+            if (englishIndex != -1) return englishArray[englishIndex]
+        }
+        return entry
+    }
+
+    private fun getLocalizedValueByStringIds(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val localValue = resources.getString(id)
+            val englishValue = englishResources.getString(id)
+            if (entry == localValue || entry == englishValue) {
+                return localValue
+            }
+        }
+        return entry
+    }
+
+    private fun getEnglishValueByStringIds(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val localValue = resources.getString(id)
+            val englishValue = englishResources.getString(id)
+            if (entry == localValue || entry == englishValue) {
+                return englishValue
+            }
+        }
+        return entry
+    }
+
+    private fun getLocalizedCsvByStringIds(entry: String?, optionIds: List<Int>): String? {
+        return entry
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.map { getLocalizedValueByStringIds(it, optionIds) ?: it }
+            ?.joinToString(",")
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    private fun getEnglishCsvByStringIds(entry: String?, optionIds: List<Int>): String? {
+        return entry
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.map { getEnglishValueByStringIds(it, optionIds) ?: it }
+            ?.joinToString(",")
+            ?.takeIf { it.isNotBlank() }
+    }
+
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as MentalHealthScreeningCache).let {
@@ -1651,8 +1797,14 @@ class MentalHealthScreeningDataset(
                     it.phq9FeelingTired, it.phq9Appetite, it.phq9FeelingBad,
                     it.phq9Concentration, it.phq9MovingSlowly, it.phq9SelfHarmThoughts
                 ).sum()
-                it.phq9DepressionSeverity = phq9DepressionSeverity.value
-                it.phq9SystemAction = phq9SystemAction.value
+                it.phq9DepressionSeverity = getEnglishValueInArrays(
+                    phq9DepressionSeverity.value,
+                    R.array.phq9_severity_options
+                )
+                it.phq9SystemAction = getEnglishValueInArrays(
+                    phq9SystemAction.value,
+                    R.array.phq9_system_action_options
+                )
             } else {
                 it.phq9LittleInterest = null
                 it.phq9FeelingDown = null
@@ -1670,10 +1822,33 @@ class MentalHealthScreeningDataset(
             // Substance Use
             if (isYes(substanceUseConcerns.value)) {
                 it.substanceCurrentTobaccoUse = isYes(substanceCurrentTobaccoUse.value)
-                it.substanceTobaccoType = if (it.substanceCurrentTobaccoUse == true) substanceTobaccoType.value else null
-                it.substanceTobaccoFrequency = if (it.substanceCurrentTobaccoUse == true) substanceTobaccoFrequency.value else null
-                it.substanceTobaccoOutcome = substanceTobaccoOutcome.value
-                it.substanceSystemAction = substanceSystemAction.value
+                it.substanceTobaccoType = if (it.substanceCurrentTobaccoUse == true) {
+                    getEnglishValueByStringIds(
+                        substanceTobaccoType.value,
+                        listOf(
+                            R.string.mh_tobacco_smoking,
+                            R.string.mh_tobacco_smokeless,
+                            R.string.mh_tobacco_both
+                        )
+                    )
+                } else null
+                it.substanceTobaccoFrequency = if (it.substanceCurrentTobaccoUse == true) {
+                    getEnglishValueByStringIds(
+                        substanceTobaccoFrequency.value,
+                        listOf(
+                            R.string.mh_tobacco_occasional,
+                            R.string.mh_tobacco_daily
+                        )
+                    )
+                } else null
+                it.substanceTobaccoOutcome = getEnglishValueInArrays(
+                    substanceTobaccoOutcome.value,
+                    R.array.mh_tobacco_outcome_options
+                )
+                it.substanceSystemAction = getEnglishValueInArrays(
+                    substanceSystemAction.value,
+                    R.array.mh_tobacco_system_action_options
+                )
                 it.substanceAlcoholUse = isYes(substanceAlcoholUse.value)
                 // substanceTobaccoUse is a legacy hidden field; derive from the visible replacement
                 it.substanceTobaccoUse = yesNoToBoolean(substanceCurrentTobaccoUse.value)
@@ -1681,9 +1856,18 @@ class MentalHealthScreeningDataset(
                 it.substanceAlcoholImpact = isYes(substanceAlcoholImpact.value)
                 it.substanceAlcoholWithdrawal = isYes(substanceAlcoholWithdrawal.value)
                 it.substanceAlcoholProblematic = isYes(substanceAlcoholProblematic.value)
-                it.substanceAlcoholClassification = substanceAlcoholClassification.value
-                it.substanceAlcoholSystemAction = substanceAlcoholSystemAction.value
-                it.substance_alcohol_frequency = substance_alcohol_frequency.value
+                it.substanceAlcoholClassification = getEnglishValueInArrays(
+                    substanceAlcoholClassification.value,
+                    R.array.mh_alcohol_classification_options
+                )
+                it.substanceAlcoholSystemAction = getEnglishValueInArrays(
+                    substanceAlcoholSystemAction.value,
+                    R.array.alcohol_system_action_options
+                )
+                it.substance_alcohol_frequency = getEnglishValueInArrays(
+                    substance_alcohol_frequency.value,
+                    R.array.substance_frequency_options
+                )
                 // briefInterventionGiven is a legacy hidden field with no visible replacement; omit
                 it.briefInterventionGiven = null
             } else {
@@ -1713,7 +1897,10 @@ class MentalHealthScreeningDataset(
                 it.suicidePreviousAttempt = isYes(suicidePreviousAttempt.value)
                 it.suicideHopelessness = isYes(suicideHopelessness.value)
                 it.suicideImmediateAssess = isYes(suicideImmediateAssess.value)
-                it.suicideRiskLevel = suicideRiskLevel.value
+                it.suicideRiskLevel = getEnglishValueInArrays(
+                    suicideRiskLevel.value,
+                    R.array.suicide_risk_options
+                )
             } else {
                 it.suicideCurrentThoughts = null
                 it.suicidePlan = null
@@ -1742,7 +1929,10 @@ class MentalHealthScreeningDataset(
                 it.epilepsyJerkyMovements = isYes(epilepsyJerkyMovements.value)
                 it.epilepsyTongueBite = isYes(epilepsyTongueBite.value)
                 it.epilepsyConfusionAfter = isYes(epilepsyConfusionAfter.value)
-                it.epilepsyLocDuration = epilepsyLocDuration.value
+                it.epilepsyLocDuration = getEnglishValueInArrays(
+                    epilepsyLocDuration.value,
+                    R.array.epilepsy_duration_options
+                )
             } else {
                 it.epilepsyRecurrentSeizures = null
                 it.epilepsyJerkyMovements = null
@@ -1757,7 +1947,10 @@ class MentalHealthScreeningDataset(
             it.edProgressiveMemoryLoss = isYes(edProgressiveMemoryLoss.value)
             it.edConfusionDisorientation = isYes(edConfusionDisorientation.value)
             it.edFunctionalDecline = isYes(edFunctionalDecline.value)
-            it.edScreeningOutcome = edScreeningOutcome.value
+            it.edScreeningOutcome = getEnglishValueInArrays(
+                edScreeningOutcome.value,
+                R.array.mh_ed_outcome_options
+            )
             val suspectedEpilepsy = mhEdOutcomeOptions.getOrNull(0)
             val suspectedDementia = mhEdOutcomeOptions.getOrNull(1)
             val suspected = mhEdOutcomeOptions.getOrNull(2)
@@ -1767,11 +1960,30 @@ class MentalHealthScreeningDataset(
                 suspectedEpilepsy
             )
             it.edReferralRequired =
-                if (isEdSuspectedOutcome) yesNoOptions[0] else edReferralRequired.value
+                if (isEdSuspectedOutcome) {
+                    getEnglishValueInArrays(yesNoOptions[0], R.array.yes_no_options)
+                } else {
+                    getEnglishValueInArrays(edReferralRequired.value, R.array.yes_no_options)
+                }
             it.edReason =
-                if (isEdSuspectedOutcome) mhEdReasonNeurological else null
+                if (isEdSuspectedOutcome) {
+                    getEnglishValueByStringIds(
+                        mhEdReasonNeurological,
+                        listOf(R.string.mh_ed_reason_neurological)
+                    )
+                } else null
             it.edPsychosocialInterventionProvided = yesNoToBoolean(edPsychosocialIntervention.value)
-            it.edInterventionType = if (it.edPsychosocialInterventionProvided == true) edInterventionType.value else null
+            it.edInterventionType = if (it.edPsychosocialInterventionProvided == true) {
+                getEnglishCsvByStringIds(
+                    edInterventionType.value,
+                    listOf(
+                        R.string.mh_intervention_psychoeducation,
+                        R.string.mh_intervention_counselling,
+                        R.string.mh_intervention_stress_mgmt,
+                        R.string.mh_intervention_family_counselling
+                    )
+                )
+            } else null
             it.edSessionDate = if (it.edPsychosocialInterventionProvided == true) edSessionDate.value else null
             it.edDurationMinutes = if (it.edPsychosocialInterventionProvided == true) edDurationMinutes.value?.toIntOrNull() else null
             it.edRemarks = edRemarks.value
@@ -1781,8 +1993,21 @@ class MentalHealthScreeningDataset(
                 yesNoToBoolean(mhReferralRequired.value)
             }
             if (it.referralRequired == true) {
-                it.referralLevel = mhReferralLevel.value
-                it.reasonForReferral = mhReasonForReferral.value
+                it.referralLevel = getEnglishValueInArrays(
+                    mhReferralLevel.value,
+                    R.array.mh_referral_level_options,
+                    R.array.mh_referral_level_dmhp_options,
+                    R.array.mh_referral_level_alcohol_options,
+                    R.array.mh_referral_level_rbsk_options,
+                    R.array.mh_referral_level_child_options,
+                    R.array.mh_referral_level_adult_options,
+                    R.array.mh_referral_level_standard_mh_options
+                )
+                it.reasonForReferral = getEnglishValueInArrays(
+                    mhReasonForReferral.value,
+                    R.array.mh_reason_for_referral_options,
+                    R.array.mh_reason_for_referral_options_under_11
+                )
                 it.referralDate = mhReferralDate.value ?: todayDateString()
             } else {
                 it.referralLevel = null
@@ -1793,8 +2018,14 @@ class MentalHealthScreeningDataset(
             it.followUpRequired = if (it.referralRequired == true) true else null
             if (it.referralRequired == true) {
                 it.followUpDate = mhFollowUpDate.value
-                it.improvementNoted = mhImprovementNoted.value
-                it.adherenceToAdvice = mhAdherenceToAdvice.value
+                it.improvementNoted = getEnglishValueInArrays(
+                    mhImprovementNoted.value,
+                    R.array.yes_no_options
+                )
+                it.adherenceToAdvice = getEnglishValueInArrays(
+                    mhAdherenceToAdvice.value,
+                    R.array.yes_no_options
+                )
                 it.referralEscalationRequired = yesNoToBoolean(mhReferralEscalation.value)
                 it.caseClosureReason = mhCaseClosureReason.value
             } else {

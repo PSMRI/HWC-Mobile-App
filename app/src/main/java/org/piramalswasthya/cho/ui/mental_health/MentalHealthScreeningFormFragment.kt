@@ -116,9 +116,9 @@ class MentalHealthScreeningFormFragment :
                     message?.let {
                         if (isAdded) {
                             MaterialAlertDialogBuilder(requireContext())
-                                .setTitle(getString(R.string.form_alert_title))
+                                .setTitle(getString(R.string.alert_popup))
                                 .setMessage(it)
-                                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                                .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
                                     dialog.dismiss()
                                     viewModel.clearPhq9AlertMessage()
                                 }

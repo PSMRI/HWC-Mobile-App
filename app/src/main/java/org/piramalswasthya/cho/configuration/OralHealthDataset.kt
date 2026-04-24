@@ -47,6 +47,16 @@ class OralHealthDataset(
         required = false,
         hasAlertError = true
     )
+    private val toothDecaySymptomOptionIds = listOf(
+        R.string.oral_symptom_black_spot,
+        R.string.oral_symptom_discoloration,
+        R.string.oral_symptom_hole,
+        R.string.oral_symptom_sensitivity,
+        R.string.oral_symptom_food_lodgment,
+        R.string.oral_symptom_pain,
+        R.string.oral_symptom_swelling,
+        R.string.oral_symptom_pus_discharge
+    )
 
     private val gumDiseasePresent = FormElement(
         id = 3,
@@ -71,6 +81,14 @@ class OralHealthDataset(
         ),
         required = false,
         hasAlertError = true
+    )
+    private val gumDiseaseSymptomOptionIds = listOf(
+        R.string.oral_gum_foul_smell,
+        R.string.oral_gum_bleeding,
+        R.string.oral_gum_deposits,
+        R.string.oral_gum_loose_teeth,
+        R.string.oral_gum_widening_gap,
+        R.string.oral_gum_swollen
     )
 
     private val irregularTeethJaws = FormElement(
@@ -125,6 +143,16 @@ class OralHealthDataset(
         ),
         required = false,
         hasAlertError = true
+    )
+    private val dentalEmergencyOptionIds = listOf(
+        R.string.oral_emergency_pain,
+        R.string.oral_emergency_abscess,
+        R.string.oral_emergency_swelling,
+        R.string.oral_emergency_tooth_injury,
+        R.string.oral_emergency_avulsion,
+        R.string.oral_emergency_non_healing_ulcer,
+        R.string.oral_emergency_uncontrolled_bleeding,
+        R.string.oral_emergency_trauma
     )
 
     suspend fun setUpPage(savedRecord: OralHealth?) {
@@ -280,7 +308,7 @@ class OralHealthDataset(
             else -> null
         }
         toothDecaySymptoms.value = if (cache.toothDecayPresent == true) {
-            cache.toothDecaySymptoms
+            getLocalizedCsvValues(cache.toothDecaySymptoms, toothDecaySymptomOptionIds)
         } else {
             null
         }
@@ -290,7 +318,11 @@ class OralHealthDataset(
             false -> optionNo
             else -> null
         }
-        gumDiseaseSymptoms.value = if (cache.gumDiseasePresent == true) cache.gumDiseaseSymptoms else null
+        gumDiseaseSymptoms.value = if (cache.gumDiseasePresent == true) {
+            getLocalizedCsvValues(cache.gumDiseaseSymptoms, gumDiseaseSymptomOptionIds)
+        } else {
+            null
+        }
 
         irregularTeethJaws.value = when (cache.irregularTeethJaws) {
             true -> optionYes
@@ -312,23 +344,109 @@ class OralHealthDataset(
             false -> optionNo
             else -> null
         }
-        dentalEmergency.value = cache.dentalEmergency
+        dentalEmergency.value = getLocalizedCsvValues(cache.dentalEmergency, dentalEmergencyOptionIds)
     }
 
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as OralHealth).let {
             it.toothDecayPresent  = toothDecayPresent.value.toYesNoBool()
-            it.toothDecaySymptoms = if (it.toothDecayPresent == true) toothDecaySymptoms.value else null
+            it.toothDecaySymptoms = if (it.toothDecayPresent == true) {
+                getEnglishCsvValues(toothDecaySymptoms.value, toothDecaySymptomOptionIds)
+            } else {
+                null
+            }
 
             it.gumDiseasePresent  = gumDiseasePresent.value.toYesNoBool()
-            it.gumDiseaseSymptoms = if (it.gumDiseasePresent == true) gumDiseaseSymptoms.value else null
+            it.gumDiseaseSymptoms = if (it.gumDiseasePresent == true) {
+                getEnglishCsvValues(gumDiseaseSymptoms.value, gumDiseaseSymptomOptionIds)
+            } else {
+                null
+            }
 
             it.irregularTeethJaws  = irregularTeethJaws.value.toYesNoBool()
             it.abnormalGrowthUlcer = abnormalGrowthUlcer.value.toYesNoBool()
             it.cleftLipPalate      = cleftLipPalate.value.toYesNoBool()
             it.dentalFluorosis     = dentalFluorosis.value.toYesNoBool()
-            it.dentalEmergency     = dentalEmergency.value
+            it.dentalEmergency     = getEnglishCsvValues(dentalEmergency.value, dentalEmergencyOptionIds)
         }
+    }
+
+    private fun getLocalizedOptionValue(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val englishValue = englishResources.getString(id)
+            val localizedValue = resources.getString(id)
+            if (entry == englishValue || entry == localizedValue) {
+                return localizedValue
+            }
+        }
+        return entry
+    }
+
+    private fun getEnglishOptionValue(entry: String?, optionIds: List<Int>): String? {
+        entry ?: return null
+        optionIds.forEach { id ->
+            val englishValue = englishResources.getString(id)
+            val localizedValue = resources.getString(id)
+            if (entry == localizedValue || entry == englishValue) {
+                return englishValue
+            }
+        }
+        return entry
+    }
+
+    private fun getLocalizedCsvValues(entry: String?, optionIds: List<Int>): String? {
+        return parseEntriesByKnownOptions(entry, optionIds)
+            ?.map { getLocalizedOptionValue(it, optionIds) ?: it }
+            ?.joinToString(",")
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    private fun getEnglishCsvValues(entry: String?, optionIds: List<Int>): String? {
+        return parseEntriesByKnownOptions(entry, optionIds)
+            ?.map { getEnglishOptionValue(it, optionIds) ?: it }
+            ?.joinToString(",")
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    private fun parseEntriesByKnownOptions(entry: String?, optionIds: List<Int>): List<String>? {
+        val raw = entry?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        val optionTexts = optionIds.flatMap { id ->
+            listOf(
+                englishResources.getString(id),
+                resources.getString(id)
+            )
+        }.distinct().sortedByDescending { it.length }
+
+        val parsed = mutableListOf<String>()
+        var cursor = raw
+
+        while (cursor.isNotEmpty()) {
+            val match = optionTexts.firstOrNull { option ->
+                cursor.startsWith(option)
+            }
+
+            if (match != null) {
+                parsed.add(match)
+                cursor = cursor.removePrefix(match).trimStart()
+                if (cursor.startsWith(",")) {
+                    cursor = cursor.removePrefix(",").trimStart()
+                }
+                continue
+            }
+
+            // Fallback for unexpected legacy values
+            val nextComma = cursor.indexOf(',')
+            if (nextComma == -1) {
+                parsed.add(cursor.trim())
+                cursor = ""
+            } else {
+                parsed.add(cursor.substring(0, nextComma).trim())
+                cursor = cursor.substring(nextComma + 1).trimStart()
+            }
+        }
+
+        return parsed.filter { it.isNotEmpty() }.takeIf { it.isNotEmpty() }
     }
 }
