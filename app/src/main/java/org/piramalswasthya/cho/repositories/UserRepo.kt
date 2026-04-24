@@ -227,7 +227,9 @@ class UserRepo @Inject constructor(
                     val servicePointName = vanSp.getString("servicePointName")
                     user?.servicePointName = servicePointName
                     if (!vanSp.has("facilityID")) {
-                        Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                        }
                         delay(3000)
                     }
                     val facilityId = vanSp.getInt("facilityID")
