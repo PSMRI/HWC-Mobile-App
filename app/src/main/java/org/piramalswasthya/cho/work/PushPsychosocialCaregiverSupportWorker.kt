@@ -20,6 +20,6 @@ class PushPsychosocialCaregiverSupportWorker @AssistedInject constructor(
     }
 
     override suspend fun runSync(): Boolean = repo.processPsychosocialCaregiverVisits()
-    override val successLog: String = "Worker completed"
-    override val failureLog: String = "Worker Failed to complete!"
+    override val successLog: String = "Psychosocial Caregiver Support worker completed"
+    override val failureLog: String = "Psychosocial Caregiver Support worker failed"
 }

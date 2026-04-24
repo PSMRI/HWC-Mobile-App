@@ -22,6 +22,6 @@ class PushOphthalmicToAmritWorker @AssistedInject constructor(
     }
 
     override suspend fun runSync(): Boolean = repo.processOphthalmicVisits()
-    override val successLog: String = "Worker completed"
-    override val failureLog: String = "Worker Failed as usual!"
+    override val successLog: String = "Push Ophthalmic Worker completed"
+    override val failureLog: String = "Push Ophthalmic Worker failed"
 }

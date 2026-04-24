@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.OphthalmicVisit
 
 @Dao
@@ -22,6 +23,8 @@ interface OphthalmicDao {
     @Query("SELECT * FROM OPHTHALMIC_VISIT WHERE visitId = :visitId")
     suspend fun getOphthalmicVisitById(visitId: String): OphthalmicVisit?
     
-    @Query("SELECT * FROM OPHTHALMIC_VISIT WHERE syncState = 0")
-    suspend fun getUnsyncedOphthalmicVisits(): List<OphthalmicVisit>
+    @Query("SELECT * FROM OPHTHALMIC_VISIT WHERE syncState = :unsyncedState")
+    suspend fun getUnsyncedOphthalmicVisits(
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): List<OphthalmicVisit>
 }

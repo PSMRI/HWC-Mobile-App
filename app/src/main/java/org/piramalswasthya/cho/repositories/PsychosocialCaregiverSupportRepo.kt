@@ -74,7 +74,10 @@ class PsychosocialCaregiverSupportRepo @Inject constructor(
     suspend fun pullPsychosocialCaregiverSupportVisitsFromServer(): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
-                ?: throw IllegalStateException("No user logged in!!")
+            if (user == null) {
+                Timber.w("No user logged in. Skipping pull for Psychosocial Caregiver Support records")
+                return@withContext false
+            }
             val gson = Gson()
             AmritSyncRepositoryHelper.pullWithRetry(
                 villageIds = user.assignVillageIds ?: "",

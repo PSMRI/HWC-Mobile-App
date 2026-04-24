@@ -1,5 +1,7 @@
 package org.piramalswasthya.cho.model
 
+import org.piramalswasthya.cho.database.room.SyncState
+
 internal fun MentalHealthScreeningCache.toMentalHealthNetworkModelInternal(
     beneficiaryID: String,
     beneficiaryRegID: String
@@ -96,7 +98,7 @@ internal fun MentalHealthNetwork.toMentalHealthCacheModelInternal(
     return MentalHealthScreeningCache(
         screeningId = 0L,
         patientId = patientID,
-        syncState = syncState ?: 0,
+        syncState = syncState ?: SyncState.SYNCED.ordinal,
         caseClosureReason = caseClosureReason,
         referralEscalationRequired = referralEscalationRequired,
         adherenceToAdvice = adherenceToAdvice,

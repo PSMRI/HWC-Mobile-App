@@ -1154,6 +1154,8 @@ abstract class InAppDb : RoomDatabase() {
                 safeAddColumn(database, "ORAL_HEALTH", "syncState", "INTEGER NOT NULL DEFAULT 0")
                 safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
                 safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "PSYCHOSOCIAL_CAREGIVER_SUPPORT", "syncState", "INTEGER NOT NULL DEFAULT 0")
             }
         }
 

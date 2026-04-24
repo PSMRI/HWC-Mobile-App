@@ -62,10 +62,10 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
 
     // Stamp Oral Health visit metadata onto MasterDb from arguments and navigate to vitals.
     override fun onSaveSuccess() {
-        WorkerUtils.oralPushWorker(requireContext())
         val masterDb = requireNotNull(arguments?.getSerializable("MasterDb") as? MasterDb) { // requireNotNull enforces that the caller (nav-graph) must supply a MasterDb bundle.
             "MasterDb is required for OralHealthFormFragment but was not provided"
         }
+        WorkerUtils.oralPushWorker(requireContext())
 
         masterDb.visitMasterDb?.apply {
             category = "Other CPHC Services"

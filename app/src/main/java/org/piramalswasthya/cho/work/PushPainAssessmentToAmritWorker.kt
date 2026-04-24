@@ -9,17 +9,17 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.repositories.PainAndSymptomAssessmentRepo
 
 @HiltWorker
-class PushPainAssessmentFromAmritWorker @AssistedInject constructor(
+class PushPainAssessmentToAmritWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val repo: PainAndSymptomAssessmentRepo,
     private val preferenceDao: PreferenceDao,
 ) : BasePushAmritSyncWorker(appContext, params, preferenceDao) {
     companion object {
-        const val name = "PushPainAssessmentFromAmritWorker"
+        const val name = "PushPainAssessmentToAmritWorker"
     }
 
     override suspend fun runSync(): Boolean = repo.processPainvisits()
     override val successLog: String = "Worker completed"
-    override val failureLog: String = "Worker Failed as usual!"
+    override val failureLog: String = "Worker Failed!"
 }

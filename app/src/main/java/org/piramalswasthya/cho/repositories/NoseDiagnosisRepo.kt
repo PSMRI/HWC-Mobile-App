@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.google.gson.Gson
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import timber.log.Timber
 
 class NoseDiagnosisRepo @Inject constructor(
     private val noseDiagnosisAssessmentDao: NoseDiagnosisAssessmentDao,
@@ -68,7 +69,10 @@ class NoseDiagnosisRepo @Inject constructor(
     suspend fun pullNoseVisitsFromServer(): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
-                ?: throw IllegalStateException("No user logged in!!")
+            if (user == null) {
+                Timber.w("No user logged in. Skipping pull for Nose Diagnosis records")
+                return@withContext false
+            }
             val gson = Gson()
             AmritSyncRepositoryHelper.pullWithRetry(
                 villageIds = user.assignVillageIds ?: "",
@@ -100,7 +104,7 @@ class NoseDiagnosisRepo @Inject constructor(
                         }
                     )
                 },
-                logLabel = "Nose records"
+                logLabel = "Nose Diagnosis records"
             )
         }
     }

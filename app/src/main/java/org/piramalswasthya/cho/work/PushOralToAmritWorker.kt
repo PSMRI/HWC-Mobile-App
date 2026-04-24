@@ -20,6 +20,6 @@ class PushOralToAmritWorker @AssistedInject constructor(
     }
 
     override suspend fun runSync(): Boolean = repo.processOralVisits()
-    override val successLog: String = "Worker completed"
-    override val failureLog: String = "Worker Failed as usual!"
+    override val successLog: String = "PushOralToAmritWorker: completed processing oral visits"
+    override val failureLog: String = "PushOralToAmritWorker: failed processing oral visits"
 }

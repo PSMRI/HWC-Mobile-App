@@ -88,12 +88,10 @@ object AppModule {
 
     private const val baseAmritUrl =
 //        "https://uatamrit.piramalswasthya.org/"
-//        "https://uatamrit.piramalswasthya.org/"
     // "https://assamuat.piramalswasthya.org/"
      "https://amritdemo.piramalswasthya.org/"
 
     private const val baseFlwUrl =
-//        "https://uatamrit.piramalswasthya.org/"
 //        "https://uatamrit.piramalswasthya.org/"
 //    "https://assamuat.piramalswasthya.org/"
      "https://amritdemo.piramalswasthya.org/"

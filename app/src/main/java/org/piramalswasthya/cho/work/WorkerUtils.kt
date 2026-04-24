@@ -173,7 +173,7 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
-        val pushPainAssessmentFromAmritWorker = OneTimeWorkRequestBuilder<PushPainAssessmentFromAmritWorker>()
+        val pushPainAssessmentToAmritWorker = OneTimeWorkRequestBuilder<PushPainAssessmentToAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
 
@@ -238,7 +238,7 @@ object WorkerUtils {
             .then(rmnchPull.pnc)
             .then(rmnchPull.infantRegister)
             .then(listOf(
-                pushEarToAmritWorker, pushOphthalmicToAmritWorker , pushOralToAmritWorker, pushPainAssessmentFromAmritWorker, pushPsychosocialCaregiverSupportWorker, pushNoseToAmritWorker, pushThroatToAmritWorker, pushElderlyToAmritWorker, pushMentalToAmritWorker
+                pushEarToAmritWorker, pushOphthalmicToAmritWorker , pushOralToAmritWorker, pushPainAssessmentToAmritWorker, pushPsychosocialCaregiverSupportWorker, pushNoseToAmritWorker, pushThroatToAmritWorker, pushElderlyToAmritWorker, pushMentalToAmritWorker
             ))
             .then(listOf(
                 pullEarFromAmritWorker, pullOphthalmicFromAmritWorker , pullOralFromAmritWorker, pullPainAssessmentFromAmritWorker, pullPsychosocialCaregiverSupport, pullNoseFromAmritWorker, pullThroatFromAmritWorker, pullElderlyFromAmritWorker,
@@ -521,7 +521,7 @@ object WorkerUtils {
             .enqueue()
     }
     fun painAssessmentPushWorker(context: Context) {
-        val pushPainAssessmentToAmrit = OneTimeWorkRequestBuilder<PushPainAssessmentFromAmritWorker>()
+        val pushPainAssessmentToAmrit = OneTimeWorkRequestBuilder<PushPainAssessmentToAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
 

@@ -91,19 +91,15 @@ class OphthalmicRepository @Inject constructor(
                             patientDao.getPatientByBenRegId(benRegId)?.patientID
                         },
                         isExisting = { patientId, networkObj ->
-                            networkObj.benVisitNo?.let { visitNo ->
-                                getOphthalmicVisit(patientId, visitNo) != null
-                            } ?: true
+                            val visitNo = networkObj.benVisitNo ?: 0
+                            getOphthalmicVisit(patientId, visitNo) != null
                         },
                         insertNew = { patientId, networkObj ->
-                            val visitId = if (networkObj.visitId.isNullOrBlank()) {
-                                generateUuid()
-                            } else {
-                                networkObj.visitId
-                            }
+                            val visitId: String = networkObj.visitId?.takeIf { it.isNotBlank() }
+                                ?: generateUuid()
                             saveOphthalmicVisit(
                                 networkObj.toCacheModel(patientId).copy(
-                                    visitId = visitId ?: generateUuid(),
+                                    visitId = visitId,
                                     patientID = patientId,
                                     syncState = SyncState.SYNCED.ordinal
                                 )

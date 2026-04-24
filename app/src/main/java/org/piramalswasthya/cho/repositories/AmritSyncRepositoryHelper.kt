@@ -42,11 +42,30 @@ object AmritSyncRepositoryHelper {
 
         return try {
             val response = post(payload)
-            val statusCode = response.body()?.string()?.let(::JSONObject)?.optInt("statusCode")
-            if (response.isSuccessful && statusCode == STATUS_OK) {
+            val rawResponseBody = response.body()?.string()
+            val statusCode = rawResponseBody?.let { body ->
+                runCatching { JSONObject(body).optInt("statusCode") }.getOrNull()
+            }
+            if (!response.isSuccessful) {
+                Timber.w(
+                    "Failed syncing %s: httpCode=%d, statusCode=%s, body=%s",
+                    logLabel,
+                    response.code(),
+                    statusCode,
+                    rawResponseBody
+                )
+                false
+            } else if (statusCode == STATUS_OK) {
                 sentItems.forEach { markSynced(it) }
                 true
             } else {
+                Timber.w(
+                    "Failed syncing %s: httpCode=%d, statusCode=%s, body=%s",
+                    logLabel,
+                    response.code(),
+                    statusCode,
+                    rawResponseBody
+                )
                 false
             }
         } catch (e: Exception) {
@@ -68,38 +87,92 @@ object AmritSyncRepositoryHelper {
         repeat(MAX_PULL_ATTEMPTS) { attempt ->
             try {
                 val villageList = VillageIdList(convertStringToIntList(villageIds), lastSyncDate)
-                val response = fetch(villageList)
-                if (!response.isSuccessful) return false
+                var response = fetch(villageList)
+                var attemptedTokenRefreshRetry = false
 
-                val responseBody = response.body()?.string() ?: return false
-                val jsonObj = JSONObject(responseBody)
-                if (jsonObj.isNull("statusCode")) {
-                    throw IllegalStateException("Amrit server not responding properly")
-                }
+                while (true) {
+                    if (!response.isSuccessful) {
+                        val httpCode = response.code()
+                        val rawResponseBody = response.errorBody()?.string()
+                        Timber.w(
+                            "HTTP failure while pulling %s: code=%d, body=%s, attempt=%d/%d",
+                            logLabel,
+                            httpCode,
+                            rawResponseBody,
+                            attempt + 1,
+                            MAX_PULL_ATTEMPTS
+                        )
 
-                when (jsonObj.getInt("statusCode")) {
-                    STATUS_OK -> {
-                        val dataArray = jsonObj.optJSONArray("data")
-                        if (dataArray != null) {
-                            onDataArray(dataArray)
-                            return true
-                        }
-                    }
-                    STATUS_TOKEN_EXPIRED -> {
-                        val tokenRefreshed = refreshToken()
-                        if (!tokenRefreshed) {
-                            Timber.w("Token refresh failed while pulling $logLabel")
-                            return false
-                        }
+                        if (httpCode in 400..499) return false
+
                         if (attempt < MAX_PULL_ATTEMPTS - 1) {
                             delay(backoffMs)
                             backoffMs *= 2
                             return@repeat
                         }
-                        Timber.w("Max retry attempts reached while pulling $logLabel")
+                        Timber.w("Max retry attempts reached for HTTP failure while pulling $logLabel")
                         return false
                     }
-                    STATUS_NO_RECORDS -> return true
+
+                    val responseBody = response.body()?.string()
+                    if (responseBody.isNullOrBlank()) {
+                        Timber.e("Empty response body while pulling $logLabel, code=${response.code()}")
+                        return false
+                    }
+
+                    val jsonObj = try {
+                        JSONObject(responseBody)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Invalid JSON while pulling $logLabel, body=$responseBody")
+                        return false
+                    }
+
+                    if (jsonObj.isNull("statusCode")) {
+                        Timber.e(
+                            "Missing statusCode while pulling %s, code=%d, body=%s",
+                            logLabel,
+                            response.code(),
+                            responseBody
+                        )
+                        return false
+                    }
+
+                    val statusCode = jsonObj.getInt("statusCode")
+                    when (statusCode) {
+                        STATUS_OK -> {
+                            val dataArray = jsonObj.optJSONArray("data")
+                            if (dataArray != null && dataArray.length() > 0) {
+                                onDataArray(dataArray)
+                            }
+                            return true
+                        }
+                        STATUS_TOKEN_EXPIRED -> {
+                            val tokenRefreshed = refreshToken()
+                            if (!tokenRefreshed) {
+                                Timber.w("Token refresh failed while pulling $logLabel")
+                                return false
+                            }
+
+                            if (attemptedTokenRefreshRetry) {
+                                Timber.w("Token expired again after refresh retry while pulling $logLabel")
+                                return false
+                            }
+
+                            attemptedTokenRefreshRetry = true
+                            response = fetch(villageList)
+                        }
+                        STATUS_NO_RECORDS -> return true
+                        else -> {
+                            Timber.w(
+                                "Unknown statusCode while pulling %s: statusCode=%d, code=%d, body=%s",
+                                logLabel,
+                                statusCode,
+                                response.code(),
+                                responseBody
+                            )
+                            return false
+                        }
+                    }
                 }
             } catch (e: SocketTimeoutException) {
                 if (attempt < MAX_PULL_ATTEMPTS - 1) {

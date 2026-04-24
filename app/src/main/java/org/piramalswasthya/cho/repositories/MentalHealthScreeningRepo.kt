@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.google.gson.Gson
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import timber.log.Timber
 
 class MentalHealthScreeningRepo @Inject constructor(
     private val mentalHealthScreeningDao: MentalHealthScreeningDao,
@@ -74,7 +75,10 @@ class MentalHealthScreeningRepo @Inject constructor(
     suspend fun pullMentalVisitsFromServer(): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
-                ?: throw IllegalStateException("No user logged in!!")
+            if (user == null) {
+                Timber.w("No user logged in. Skipping pull for Mental Health records")
+                return@withContext false
+            }
             val gson = Gson()
             AmritSyncRepositoryHelper.pullWithRetry(
                 villageIds = user.assignVillageIds ?: "",

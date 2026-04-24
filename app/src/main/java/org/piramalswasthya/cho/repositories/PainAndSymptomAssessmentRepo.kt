@@ -73,7 +73,10 @@ class PainAndSymptomAssessmentRepo @Inject constructor(
     suspend fun pullPainVisitsFromServer(): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
-                ?: throw IllegalStateException("No user logged in!!")
+            if (user == null) {
+                Timber.w("No user logged in. Skipping pull for Pain Assessment records")
+                return@withContext false
+            }
             val gson = Gson()
             AmritSyncRepositoryHelper.pullWithRetry(
                 villageIds = user.assignVillageIds ?: "",
