@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 145, exportSchema = false
+    version = 146, exportSchema = false
 )
 
 
@@ -1146,6 +1146,18 @@ abstract class InAppDb : RoomDatabase() {
                 safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_management_remarks", "TEXT")
             }
         }
+        val MIGRATION_145_146 = object : Migration(145, 146) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "EAR_DIAGNOSIS_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "THROAT_DIAGNOSIS_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "ORAL_HEALTH", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "PSYCHOSOCIAL_CAREGIVER_SUPPORT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+            }
+        }
 
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
@@ -1216,7 +1228,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_141_142,
                             MIGRATION_142_143,
                             MIGRATION_143_144,
-                            MIGRATION_144_145
+                            MIGRATION_144_145,
+                            MIGRATION_145_146
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

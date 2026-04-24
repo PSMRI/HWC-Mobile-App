@@ -67,7 +67,7 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
                 }
 
                 screeningCache = existingRecord ?: MentalHealthScreeningCache(
-                    patientID = patient.patient.patientID,
+                    patientId = patient.patient.patientID,
                     benVisitNo = benVisitNo
                 )
 

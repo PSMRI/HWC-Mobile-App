@@ -20,6 +20,8 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNoseDiagnosisFormBinding
 import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.work.WorkerUtils
+
 
 @AndroidEntryPoint
 class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
@@ -114,7 +116,10 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
                 BaseFormViewModel.State.SAVE_SUCCESS -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
+                    WorkerUtils.nosePushWorker(requireContext())
                     Toast.makeText(context, getString(R.string.nose_diagnosis_saved), Toast.LENGTH_LONG).show()
+                    // Prevent re-delivery of SAVE_SUCCESS when returning from Vitals via back/cancel.
+                    viewModel.resetState()
                     // Stamp Nose visit metadata onto MasterDb and navigate to vitals; replaces the previous navigateUp() that bypassed visit registration.
                     val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
                         ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())

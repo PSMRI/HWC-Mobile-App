@@ -21,7 +21,7 @@ data class ElderlyHealthAssessment(
     val assessmentId: Long = 0L,
 
     @ColumnInfo(name = "patient_id")
-    val patientID: String,
+    val patientId: String,
 
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int = 0,
@@ -91,6 +91,10 @@ data class ElderlyHealthAssessment(
 
     @ColumnInfo(name = "dementia_referral_required")
     var dementiaReferralRequired: Boolean? = null,
+
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0,
 
     @Embedded
     val referralFollowUp: ReferralFollowUpFields = ReferralFollowUpFields()

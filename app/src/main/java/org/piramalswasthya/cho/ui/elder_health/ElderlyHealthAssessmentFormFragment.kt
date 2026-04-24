@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import org.piramalswasthya.cho.work.WorkerUtils
 
 
 @AndroidEntryPoint
@@ -76,6 +77,7 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
 
     // Stamp Elderly Health Assessment metadata onto MasterDb from arguments and navigate to the vitals screen.
     override fun onSaveSuccess() {
+        WorkerUtils.elderlyPushWorker(requireContext())
         val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
             ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
         masterDb.visitMasterDb?.apply {

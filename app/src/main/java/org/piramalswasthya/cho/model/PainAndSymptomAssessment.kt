@@ -80,6 +80,9 @@ data class PainAndSymptomAssessment(
     @ColumnInfo(name = "basic_management_remarks")
     var basicManagementRemarks: String? = null,
 
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0,
+
 
     // ---------------- Referral & Follow-up (Section F) ----------------
 

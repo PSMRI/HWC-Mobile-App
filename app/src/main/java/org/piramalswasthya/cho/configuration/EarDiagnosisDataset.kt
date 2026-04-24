@@ -186,7 +186,7 @@ class EarDiagnosisDataset(
 
     private fun createDefaultCache(): EarDiagnosisAssessment {
         return EarDiagnosisAssessment(
-            patientID = "",
+            patientId = "",
             benVisitNo = null
         )
     }

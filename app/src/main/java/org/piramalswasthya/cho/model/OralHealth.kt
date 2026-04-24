@@ -62,7 +62,10 @@ data class OralHealth(
     var createdDate: Long? = null,
 
     @ColumnInfo(name = "created_by")
-    var createdBy: String? = null
+    var createdBy: String? = null,
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0,
 
 ) : FormDataModel
 

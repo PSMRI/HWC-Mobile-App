@@ -16,7 +16,7 @@ data class PsychosocialCaregiverSupport(
     val assessmentId: Long = 0L,
 
     @ColumnInfo(name = "patient_id")
-    val patientID: String,
+    val patientId: String,
 
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,
@@ -38,6 +38,9 @@ data class PsychosocialCaregiverSupport(
 
     @ColumnInfo(name = "counselling_remarks")
     var counsellingRemarks: String? = null,
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0,
 
     // ---------------- Referral & Follow-up (Section F) ----------------
 

@@ -54,7 +54,7 @@ class PsychosocialCaregiverSupportFormViewModel @Inject constructor(
                 }
 
                 assessmentCache = existingRecord ?: PsychosocialCaregiverSupport(
-                    patientID = patient.patient.patientID,
+                    patientId = patient.patient.patientID,
                     benVisitNo = benVisitNo
                 )
 

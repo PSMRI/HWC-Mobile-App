@@ -75,6 +75,39 @@ object WorkerUtils {
         val pullFormAmritWorker = networkWorker<PullLabRecordFormWorker>()
         val pullCbacFromAmritWorker = networkWorker<PullCbacFromAmritWorker>()
         val rmnchPull = createRmnchPullWorkers()
+        val pullEarFromAmritWorker = OneTimeWorkRequestBuilder<PullEarFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullOphthalmicFromAmritWorker = OneTimeWorkRequestBuilder<PullOphthalmicFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullOralFromAmritWorker = OneTimeWorkRequestBuilder<PullOralFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullPainAssessmentFromAmritWorker = OneTimeWorkRequestBuilder<PullPainAssessmentFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullPsychosocialCaregiverSupport = OneTimeWorkRequestBuilder<PullPsychosocialCaregiverSupportWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullNoseFromAmritWorker = OneTimeWorkRequestBuilder<PullNoseFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullThroatFromAmritWorker = OneTimeWorkRequestBuilder<PullThroatFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullElderlyFromAmritWorker = OneTimeWorkRequestBuilder<PullElderlyFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullMentalFromAmritWorker = OneTimeWorkRequestBuilder<PullMentalFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
 
         val workManager = WorkManager.getInstance(context)
         workManager
@@ -88,6 +121,10 @@ object WorkerUtils {
             .then(rmnchPull.deliveryOutcome)
             .then(rmnchPull.pnc)
             .then(rmnchPull.infantRegister)
+            .then(listOf(
+                pullEarFromAmritWorker,pullOphthalmicFromAmritWorker, pullOralFromAmritWorker, pullPainAssessmentFromAmritWorker, pullPsychosocialCaregiverSupport, pullNoseFromAmritWorker, pullThroatFromAmritWorker,  pullElderlyFromAmritWorker,
+                pullMentalFromAmritWorker
+            ))
             .enqueue()
     }
 
@@ -112,7 +149,74 @@ object WorkerUtils {
         val pushCbacWorkRequest = networkWorker<PushCbacToAmirtWorker>()
         val pushECToAmritWorker = networkWorker<PushECToAmritWorker>()
         val rmnchPull = createRmnchPullWorkers()
+        val pushEarToAmritWorker = OneTimeWorkRequestBuilder<PushEarToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
 
+        val pullEarFromAmritWorker = OneTimeWorkRequestBuilder<PullEarFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushOphthalmicToAmritWorker = OneTimeWorkRequestBuilder<PushOphthalmicToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullOphthalmicFromAmritWorker = OneTimeWorkRequestBuilder<PullOphthalmicFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushOralToAmritWorker = OneTimeWorkRequestBuilder<PushOralToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullOralFromAmritWorker = OneTimeWorkRequestBuilder<PullOralFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushPainAssessmentToAmritWorker = OneTimeWorkRequestBuilder<PushPainAssessmentToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullPainAssessmentFromAmritWorker = OneTimeWorkRequestBuilder<PullPainAssessmentFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushPsychosocialCaregiverSupportWorker = OneTimeWorkRequestBuilder<PushPsychosocialCaregiverSupportWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullPsychosocialCaregiverSupport = OneTimeWorkRequestBuilder<PullPsychosocialCaregiverSupportWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushNoseToAmritWorker = OneTimeWorkRequestBuilder<PushNoseToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullNoseFromAmritWorker = OneTimeWorkRequestBuilder<PullNoseFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushThroatToAmritWorker = OneTimeWorkRequestBuilder<PushThroatToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushElderlyToAmritWorker = OneTimeWorkRequestBuilder<PushElderlyToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushMentalToAmritWorker = OneTimeWorkRequestBuilder<PushMentalToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pullThroatFromAmritWorker = OneTimeWorkRequestBuilder<PullThroatFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullElderlyFromAmritWorker = OneTimeWorkRequestBuilder<PullElderlyFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullMentalFromAmritWorker = OneTimeWorkRequestBuilder<PullMentalFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
@@ -125,7 +229,7 @@ object WorkerUtils {
             // The three doctor-info variants are independent — run them in parallel.
             .then(listOf(pushBenDoctorInfoPendingTestToAmrit, pushBenDoctorInfoWithoutTestToAmrit, pushBenDoctorInfoAfterTestToAmrit))
             // Specialty health pushes are also independent — run them in parallel.
-            .then(listOf(pushPWRToAmritWorker, pushAncToAmritWorker, pushDeliveryOutcomeToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest))
+            .then(listOf(pushPWRToAmritWorker, pushAncToAmritWorker, pushDeliveryOutcomeToAmritWorker, pushInfantRegisterWorkRequest, pushPNCWorkRequest, pushECToAmritWorker, pushImmunizationWorkRequest, ))
             // Pull eligible couple data from server after pushes complete.
             .then(rmnchPull.eligibleCouples)
             .then(rmnchPull.pregnantWomen)
@@ -133,6 +237,13 @@ object WorkerUtils {
             .then(rmnchPull.deliveryOutcome)
             .then(rmnchPull.pnc)
             .then(rmnchPull.infantRegister)
+            .then(listOf(
+                pushEarToAmritWorker, pushOphthalmicToAmritWorker , pushOralToAmritWorker, pushPainAssessmentToAmritWorker, pushPsychosocialCaregiverSupportWorker, pushNoseToAmritWorker, pushThroatToAmritWorker, pushElderlyToAmritWorker, pushMentalToAmritWorker
+            ))
+            .then(listOf(
+                pullEarFromAmritWorker, pullOphthalmicFromAmritWorker , pullOralFromAmritWorker, pullPainAssessmentFromAmritWorker, pullPsychosocialCaregiverSupport, pullNoseFromAmritWorker, pullThroatFromAmritWorker, pullElderlyFromAmritWorker,
+                pullMentalFromAmritWorker
+            ))
 //           .then(pushLabDataToAmrit)
             .enqueue()
     }
@@ -380,6 +491,95 @@ object WorkerUtils {
         WorkManager.getInstance(context)
             .enqueueUniqueWork(PrescripTemplateWorker.name, ExistingWorkPolicy.KEEP, workRequest).state
     }
+    fun earPushWorker(context: Context) {
+        val pushEarToAmrit = OneTimeWorkRequestBuilder<PushEarToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork("ear-push-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushEarToAmrit)
+            .enqueue()
+    }
+
+    fun ophthalmicPushWorker(context: Context) {
+        val pushOphthalmicToAmrit = OneTimeWorkRequestBuilder<PushOphthalmicToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork("ophthalmic-push-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushOphthalmicToAmrit)
+            .enqueue()
+    }
+
+    fun oralPushWorker(context: Context) {
+        val pushOralToAmrit = OneTimeWorkRequestBuilder<PushOralToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork("oral-push-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushOralToAmrit)
+            .enqueue()
+    }
+    fun painAssessmentPushWorker(context: Context) {
+        val pushPainAssessmentToAmrit = OneTimeWorkRequestBuilder<PushPainAssessmentToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork("pain-assessment-push-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushPainAssessmentToAmrit)
+            .enqueue()
+    }
+
+    fun psychosocialCaregiverSupport(context: Context) {
+        val pushPsychosocialCaregiverSupportWorker = OneTimeWorkRequestBuilder<PushPsychosocialCaregiverSupportWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork("psychosocial-push-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushPsychosocialCaregiverSupportWorker)
+            .enqueue()
+    }
+
+    fun nosePushWorker(context: Context) {
+        val pushNoseToAmrit = OneTimeWorkRequestBuilder<PushNoseToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork("nose-push-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushNoseToAmrit)
+            .enqueue()
+    }
+
+    fun throatPushWorker(context: Context) {
+        val pushThroatToAmrit = OneTimeWorkRequestBuilder<PushThroatToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork("throat-push-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushThroatToAmrit)
+            .enqueue()
+    }
+
+    fun elderlyPushWorker(context: Context) {
+        val pushElderlyToAmrit = OneTimeWorkRequestBuilder<PushElderlyToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork("elderly-push-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushElderlyToAmrit)
+            .enqueue()
+    }
+
+    fun mentalPushWorker(context: Context) {
+        val pushMentalToAmrit = OneTimeWorkRequestBuilder<PushMentalToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork("mental-push-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushMentalToAmrit)
+            .enqueue()
+    }
+
 
     fun cancelAllWork(context: Context) {
         val workManager = WorkManager.getInstance(context)

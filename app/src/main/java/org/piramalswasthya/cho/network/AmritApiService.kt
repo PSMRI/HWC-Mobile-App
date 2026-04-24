@@ -37,6 +37,15 @@ import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import org.piramalswasthya.cho.model.EarDiagnosisNetwork
+import org.piramalswasthya.cho.model.OphthalmicNetwork
+import org.piramalswasthya.cho.model.OralHealthNetwork
+import org.piramalswasthya.cho.model.PainAssessmentNetwork
+import org.piramalswasthya.cho.model.PsychosocialCaregiverSupportNetwork
+import org.piramalswasthya.cho.model.NoseDiagnosisNetwork
+import org.piramalswasthya.cho.model.ThroatDiagnosisNetwork
+import org.piramalswasthya.cho.model.ElderlyHealthNetwork
+import org.piramalswasthya.cho.model.MentalHealthNetwork
 
 interface AmritApiService {
 
@@ -310,6 +319,58 @@ interface AmritApiService {
     suspend fun getPharmacistStockItemList(
         @Body request: StockItemRequest
     ):Response<ResponseBody>
+
+    @POST("/hwc-api/earDiagnosis/saveAll")
+    suspend fun postEarForm(@Body earList: List<EarDiagnosisNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/earDiagnosis/getAll")
+    suspend fun getEarVisits(@Body villageList: VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/opthalmicVisit/saveAll")
+    suspend fun postOphthalmicForm(@Body ophthalmicList: List<OphthalmicNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/opthalmicVisit/getAll")
+    suspend fun getOphthalmicVisits(@Body villageList: VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/oralHealth/saveAll")
+    suspend fun postOralForm(@Body oralList: List<OralHealthNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/oralHealth/getAll")
+    suspend fun getOralVisits(@Body villageList: VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/painSymptom/saveAll")
+    suspend fun postPainForm(@Body painList: List<PainAssessmentNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/painSymptom/getAll")
+    suspend fun getPainVisits(@Body villageList: VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/psychosocialCaregiver/saveAll")
+    suspend fun postPsychosocialCaregiverForm(@Body psychosocialCaregiverList: List<PsychosocialCaregiverSupportNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/psychosocialCaregiver/getAll")
+    suspend fun getPsychosocialCaregiverVisits(@Body villageList: VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/noseDiagnosis/saveAll")
+    suspend fun postNoseForm(@Body noseList: List<NoseDiagnosisNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/noseDiagnosis/getAll")
+    suspend fun getNoseVisits(@Body villageList: VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/throatDiagnosis/saveAll")
+    suspend fun postThroatForm(@Body throatList: List<ThroatDiagnosisNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/throatDiagnosis/getAll")
+    suspend fun getThroatVisits(@Body villageList: VillageIdList): Response<ResponseBody>
+
+    @POST("/hwc-api/elderlyHealth/saveAll")
+    suspend fun postElderlyForm(@Body elderlyList: List<ElderlyHealthNetwork>): Response<ResponseBody>
+
+    @POST("/hwc-api/elderlyHealth/getAll")
+    suspend fun getElderlyVisits(@Body villageList: VillageIdList): Response<ResponseBody>
+    @POST("/hwc-api/mentalHealth/saveAll")
+    suspend fun postMentalForm(@Body mentalList: List<MentalHealthNetwork>): Response<ResponseBody>
+    @POST("/hwc-api/mentalHealth/getAll")
+    suspend fun getMentalVisits(@Body villageList: VillageIdList): Response<ResponseBody>
 
 
 }
