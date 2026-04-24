@@ -19,7 +19,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
+import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PrescribedDrugsBatch
 import org.piramalswasthya.cho.model.PrescriptionBatchDTO
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.ProcedureDTO
@@ -51,6 +53,7 @@ class PharmacistFormViewModel @Inject constructor(
     private val benFlowRepo: BenFlowRepo,
     private val patientRepo: PatientRepo,
     private val batchDao: BatchDao,
+    private val prescriptionDao: PrescriptionDao,
     private val userRepo: UserRepo,
     private val caseClosureManager: org.piramalswasthya.cho.helpers.CaseClosureManager
 ) : ViewModel() {
@@ -217,6 +220,7 @@ class PharmacistFormViewModel @Inject constructor(
 
                 if(dtos!=null && dtos.itemList!=null){
                     dtos.itemList.forEach { item->
+                        val dispensedBatches = mutableListOf<PrescribedDrugsBatch>()
                         if(item.batchList!=null && item.batchList.isNotEmpty()){
                             val prescribedQty = item.qtyPrescribed ?: 0
                             var remainingQty = prescribedQty
@@ -227,6 +231,16 @@ class PharmacistFormViewModel @Inject constructor(
                                 Log.d("WU", "Batch2 ${availableBatch} ")
                                 if(availableBatch!=null) {
                                     val dispenseQty = minOf(availableBatch.quantityInHand, remainingQty)
+                                    if (dispenseQty > 0) {
+                                        dispensedBatches += PrescribedDrugsBatch(
+                                            drugID = item.id,
+                                            expiryDate = batch.expiryDate,
+                                            expiresIn = batch.expiresIn,
+                                            batchNo = batch.batchNo,
+                                            itemStockEntryID = batch.itemStockEntryID,
+                                            qty = dispenseQty
+                                        )
+                                    }
                                     val updatedBatch = availableBatch.copy(
                                         quantityInHand = availableBatch.quantityInHand - dispenseQty
                                     )
@@ -242,6 +256,7 @@ class PharmacistFormViewModel @Inject constructor(
                         }else{
                             Toast.makeText(context, "Medicine not available", Toast.LENGTH_SHORT).show()
                         }
+                        persistDispensedBatches(item.id, dispensedBatches)
                     }
                 }
                 patientVisitInfoSyncRepo.markPharmacistDispensedLocally(
@@ -292,13 +307,8 @@ class PharmacistFormViewModel @Inject constructor(
                 val shouldAutoClose = caseClosureManager.shouldAutoClose(latestVisitSnapshot)
                 if (shouldAutoClose) {
                     Timber.d("Auto-closing case after medicine dispensed: ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
-                    patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
-                        nurseFlag = 9,
-                        doctorFlag = 9,
-                        labtechFlag = latestVisitSnapshot.labtechFlag ?: 0,
-                        patientID = benVisitInfo.patient.patientID,
-                        benVisitNo = visitNo
-                    )
+                    // For pharmacist auto-close cases, doctor state has already been submitted.
+                    // Only pharmacist sync should remain pending here.
                 }
 
                 _isDataSaved.value = true
@@ -322,6 +332,7 @@ class PharmacistFormViewModel @Inject constructor(
                 dtos?.itemList?.forEach { item ->
                     val prescribedQty = item.qtyPrescribed ?: 0
                     var remainingQty = prescribedQty
+                    val dispensedBatches = mutableListOf<PrescribedDrugsBatch>()
 
                     val selectedBatches = item.batchList?.filter { it.isSelected && it.dispenseQuantity > 0 } ?: emptyList()
 
@@ -332,6 +343,16 @@ class PharmacistFormViewModel @Inject constructor(
                             val availableBatch = batchDao.getBatchByStockEntityId(batch.itemStockEntryID.toLong())
                             availableBatch?.let { dbBatch ->
                                 val dispenseQty = minOf(batch.dispenseQuantity, remainingQty, dbBatch.quantityInHand)
+                                if (dispenseQty > 0) {
+                                    dispensedBatches += PrescribedDrugsBatch(
+                                        drugID = item.id,
+                                        expiryDate = batch.expiryDate,
+                                        expiresIn = batch.expiresIn,
+                                        batchNo = batch.batchNo,
+                                        itemStockEntryID = batch.itemStockEntryID,
+                                        qty = dispenseQty
+                                    )
+                                }
                                 val updatedQty = dbBatch.quantityInHand - dispenseQty
 
                                 if (updatedQty <= 0) {
@@ -354,6 +375,8 @@ class PharmacistFormViewModel @Inject constructor(
                     } else {
                         Log.w("PharmacistVM", "No batches selected for ${item.genericDrugName}")
                     }
+
+                    persistDispensedBatches(item.id, dispensedBatches)
 
                 }
 
@@ -394,13 +417,8 @@ class PharmacistFormViewModel @Inject constructor(
                 val shouldAutoClose = caseClosureManager.shouldAutoClose(latestVisitSnapshot)
                 if (shouldAutoClose) {
                     Timber.d("Auto-closing case after medicine dispensed (manual): ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
-                    patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
-                        nurseFlag = 9,
-                        doctorFlag = 9,
-                        labtechFlag = latestVisitSnapshot.labtechFlag ?: 0,
-                        patientID = benVisitInfo.patient.patientID,
-                        benVisitNo = visitNo
-                    )
+                    // For pharmacist auto-close cases, doctor state has already been submitted.
+                    // Only pharmacist sync should remain pending here.
                 }
 
                 _isDataSaved.value = true
@@ -429,6 +447,14 @@ class PharmacistFormViewModel @Inject constructor(
         } else {
             benVisitInfo.copy(pharmacist_flag = 9)
         }
+    }
+
+    private suspend fun persistDispensedBatches(
+        prescribedDrugId: Long,
+        dispensedBatches: List<PrescribedDrugsBatch>
+    ) {
+        prescriptionDao.deletePrescribedDrugsBatchByDrugId(prescribedDrugId)
+        dispensedBatches.forEach { prescriptionDao.insert(it) }
     }
 
     private fun isHeaderMissing(dto: PrescriptionDTO): Boolean {

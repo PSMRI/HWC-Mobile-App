@@ -93,6 +93,12 @@ class BenFlowRepo @Inject constructor(
     private val caseRecordeDao: CaseRecordeDao,
 ) {
 
+    private fun buildDrugStrength(strength: String?, unitOfMeasurement: String?): String? {
+        val cleanStrength = strength?.trim().orEmpty()
+        val cleanUnit = unitOfMeasurement?.trim().orEmpty()
+        return (cleanStrength + cleanUnit).trim().ifBlank { null }
+    }
+
 
     suspend fun getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : BenFlow?{
         return benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
@@ -206,6 +212,7 @@ class BenFlowRepo @Inject constructor(
             else -> {}
         }
         return true
+
     }
 
     @Transaction
@@ -799,7 +806,7 @@ class BenFlowRepo @Inject constructor(
                     prescriptionID = prescriptionID,
                     dose = it.strength,
                     drugForm = it.itemFormName,
-                    drugStrength = it.strength,
+                    drugStrength = buildDrugStrength(it.strength, it.unitOfMeasurement),
                     duration = it.duration,
                     durationUnit = it.unit,
                     frequency = it.frequency,
