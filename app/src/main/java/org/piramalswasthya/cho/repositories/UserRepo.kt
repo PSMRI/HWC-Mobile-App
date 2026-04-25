@@ -217,16 +217,16 @@ class UserRepo @Inject constructor(
                 val responseJson = JSONObject(responseString)
                 val data = responseJson.getJSONObject("data")
                 val vanSpDetailsArray = data.getJSONArray("UserVanSpDetails")
+                var validEntryFound = false
+                var missingFacilityFound = false
 
                 for (i in 0 until vanSpDetailsArray.length()) {
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
                     if (!vanSp.has("facilityID")) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
-                        }
-                        delay(3000)
+                        missingFacilityFound = true
                         continue
                     }
+                    validEntryFound = true
                     val vanId = vanSp.getInt("vanID")
                     user?.vanId = vanId
                     val servicePointId = vanSp.getInt("servicePointID")
@@ -238,7 +238,13 @@ class UserRepo @Inject constructor(
                     user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
 
                 }
-                true
+                if (missingFacilityFound) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                    }
+                    delay(3000)
+                }
+                validEntryFound
             } else {
                 false
             }
@@ -331,10 +337,13 @@ class UserRepo @Inject constructor(
                     user?.serviceMapId = serviceMapId
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
-                    preferenceDao.registerUser(user!!)
-                    getUserVanSpDetails(context)
+                    if (!getUserVanSpDetails(context)) {
+                        user = null
+                        return@withContext
+                    }
                     getLocDetailsBasedOnSpIDAndPsmID()
                     getUserMasterVillage()
+                    preferenceDao.registerUser(user!!)
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
                     GlobalScope.launch(Dispatchers.Main) {
