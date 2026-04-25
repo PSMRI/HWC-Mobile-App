@@ -220,18 +220,19 @@ class UserRepo @Inject constructor(
 
                 for (i in 0 until vanSpDetailsArray.length()) {
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
+                    if (!vanSp.has("facilityID")) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                        }
+                        delay(3000)
+                        continue
+                    }
                     val vanId = vanSp.getInt("vanID")
                     user?.vanId = vanId
                     val servicePointId = vanSp.getInt("servicePointID")
                     user?.servicePointId = servicePointId
                     val servicePointName = vanSp.getString("servicePointName")
                     user?.servicePointName = servicePointName
-                    if (!vanSp.has("facilityID")) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
-                        }
-                        delay(3000)
-                    }
                     val facilityId = vanSp.getInt("facilityID")
                     user?.facilityID = facilityId
                     user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
