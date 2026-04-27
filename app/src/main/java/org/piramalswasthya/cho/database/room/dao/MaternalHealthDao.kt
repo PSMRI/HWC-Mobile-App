@@ -133,6 +133,12 @@ interface MaternalHealthDao {
     fun getPWRCount(): Flow<Int>
 
     /**
+     * Count of pregnant women eligible for ANC: active PWR with LMP at or before the given cutoff.
+     */
+    @Query("SELECT COUNT(DISTINCT patientID) FROM pregnancy_register WHERE active = 1 AND lmpDate > 0 AND lmpDate <= :lmpCutoffMillis")
+    fun getANCEligibleCount(lmpCutoffMillis: Long): Flow<Int>
+
+    /**
      * Get patientIDs for Delivery Outcome list from ANC (isDelivered=true) + DELIVERY_OUTCOME.
      */
     @Query("""
