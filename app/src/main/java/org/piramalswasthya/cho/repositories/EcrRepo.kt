@@ -76,6 +76,10 @@ class EcrRepo @Inject constructor(
         return database.ecrDao.getPatientsForTrackingList()
     }
 
+    fun getEligibleCoupleTrackingCount(): Flow<Int> {
+        return database.ecrDao.getEligibleCoupleTrackingCount()
+    }
+
     suspend fun saveEct(eligibleCoupleTrackingCache: EligibleCoupleTrackingCache) {
         database.ecrDao.upsert(eligibleCoupleTrackingCache)
     }

@@ -355,6 +355,14 @@ class MaternalHealthRepo @Inject constructor(
     }
 
     /**
+     * Get count of women eligible for ANC (active PWR with LMP >= 5 weeks).
+     */
+    fun getANCEligibleCount(): Flow<Int> {
+        val ancEligibilityWindowMillis = 35L * 24 * 60 * 60 * 1000
+        return maternalHealthDao.getANCEligibleCount(System.currentTimeMillis() - ancEligibilityWindowMillis)
+    }
+
+    /**
      * Get all patients who have delivered
      * Uses batch query to avoid N+1 queries
      */
