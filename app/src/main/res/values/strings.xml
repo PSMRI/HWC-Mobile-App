@@ -1297,6 +1297,9 @@
     <string name="throat_symptom_cold">Cold</string>
     <string name="throat_symptom_itching">Itching</string>
     <string name="throat_symptom_hoarseness">Hoarseness</string>
+    <string name="show_cphc_details">Show CPHC Details</string>
+    <string name="cphc_details_title">Previous CPHC Details</string>
+    <string name="no_previous_cphc_details">No previous CPHC data found.</string>
 
     <string name="throat_alert_neck_swelling">Neck swelling detected. Refer patient to specialist at secondary level.</string>
     <string name="throat_alert_difficulty_swallowing">Difficulty in swallowing detected. Refer patient to specialist at secondary level.</string>

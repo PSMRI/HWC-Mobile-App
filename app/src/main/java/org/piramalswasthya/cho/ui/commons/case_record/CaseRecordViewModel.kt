@@ -24,6 +24,7 @@ import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
+import org.piramalswasthya.cho.model.EarDiagnosisAssessment
 import org.piramalswasthya.cho.model.HigherHealthCenter
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
@@ -41,6 +42,7 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
+import org.piramalswasthya.cho.repositories.EarDiagnosisRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
@@ -60,6 +62,7 @@ class CaseRecordViewModel @Inject constructor(
     private val doctorMasterDataMaleRepo: DoctorMasterDataMaleRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
+    private val earDiagnosisRepo: EarDiagnosisRepo,
     preferenceDao: PreferenceDao,
     private val procedureRepo: ProcedureRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
@@ -264,6 +267,60 @@ class CaseRecordViewModel @Inject constructor(
             } catch (e: Exception) {
                 Timber.d("Error in Getting Chief Complaint DB $e")
             }
+        }
+    }
+
+    suspend fun getChiefComplaintByPatientAndVisit(patientID: String, benVisitNo: Int): List<ChiefComplaintDB> {
+        return try {
+            visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getChiefComplaintByPatientAndVisit $e")
+            emptyList()
+        }
+    }
+
+    suspend fun getVitalsByPatientAndVisit(patientID: String, benVisitNo: Int): PatientVitalsModel? {
+        return try {
+            vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getVitalsByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getEarDiagnosisByPatientAndVisit(patientID: String, benVisitNo: Int): EarDiagnosisAssessment? {
+        return try {
+            earDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getEarDiagnosisByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getLatestChiefComplaints(patientID: String): List<ChiefComplaintDB> {
+        return try {
+            visitReasonsAndCategoriesRepo.getChiefComplaintsByPatientAndBenForFollowUp(patientID)
+        } catch (e: Exception) {
+            Timber.d("Error in getLatestChiefComplaints $e")
+            emptyList()
+        }
+    }
+
+    suspend fun getLatestVitals(patientID: String): PatientVitalsModel? {
+        return try {
+            vitalsRepo.getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID)
+        } catch (e: Exception) {
+            Timber.d("Error in getLatestVitals $e")
+            null
+        }
+    }
+
+    suspend fun getLatestEarDiagnosis(patientID: String): EarDiagnosisAssessment? {
+        return try {
+            earDiagnosisRepo.getAssessmentByPatientId(patientID)
+        } catch (e: Exception) {
+            Timber.d("Error in getLatestEarDiagnosis $e")
+            null
         }
     }
 

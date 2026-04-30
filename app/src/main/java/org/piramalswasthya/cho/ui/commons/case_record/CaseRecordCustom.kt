@@ -149,6 +149,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     var isAddTemplateClicked = false
     private val benFlowMap = mutableMapOf<Int, BenFlow>()
     private var benFlowListCache: List<BenFlow> = emptyList()
+    private var patientVisitNosCache: List<Int> = emptyList()
     private var effectivePharmacistFlagForVisibility: Int? = null
     private var isAlreadyFilledReadOnlyForVisibility: Boolean = false
     private var dispensedLockedPrescriptionCount: Int = 0
@@ -226,6 +227,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         familyM = binding.testName
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
+        binding.btnShowCphcDetails.setOnClickListener { showPreviousCphcDetailsPopup() }
 
 
         binding.tvAddTemplateTitle.setOnClickListener {
@@ -659,8 +661,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             viewModel.getPatientDisplayListForDoctorByPatient(benVisitInfo.patient.patientID).collect {
                 if (it.isNotEmpty()) {
                     adapter.submitList(it)
+                    patientVisitNosCache = it.mapNotNull { visit -> visit.benVisitNo }.distinct().sortedDescending()
                 } else {
                     binding.patientList.visibility = View.GONE
+                    patientVisitNosCache = emptyList()
                 }
             }
         }
@@ -1037,6 +1041,127 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         if (::pAdapter.isInitialized) {
             pAdapter.setDispensedLockedItemCount(dispensedLockedPrescriptionCount)
+        }
+    }
+
+    private fun showPreviousCphcDetailsPopup() {
+        fun boolLabel(value: Boolean?): String = when (value) {
+            true -> "Yes"
+            false -> "No"
+            null -> "N/A"
+        }
+
+        val currentVisitNo = benVisitInfo.benVisitNo
+        val visitNosFromBenFlow = benFlowListCache
+            .mapNotNull { it.benVisitNo }
+        val sourceVisitNos = if (visitNosFromBenFlow.isNotEmpty()) visitNosFromBenFlow else patientVisitNosCache
+        val fallbackVisitNosFromCurrent = if (currentVisitNo != null && currentVisitNo > 0) {
+            (currentVisitNo downTo 1).toList()
+        } else {
+            emptyList()
+        }
+        val candidateVisitNos = (sourceVisitNos + fallbackVisitNosFromCurrent)
+            .distinct()
+            .sortedDescending()
+
+        lifecycleScope.launch {
+            val popupPatientId = if (patId.isNotBlank()) patId else benVisitInfo.patient.patientID
+            val details = buildString {
+                var hasAnyVisitWiseData = false
+                candidateVisitNos.forEach { visitNo ->
+                    val chiefComplaints = viewModel.getChiefComplaintByPatientAndVisit(popupPatientId, visitNo)
+                    val earDiagnosis = viewModel.getEarDiagnosisByPatientAndVisit(popupPatientId, visitNo)
+                    val hasData = chiefComplaints.isNotEmpty() || earDiagnosis != null
+                    if (!hasData) return@forEach
+                    hasAnyVisitWiseData = true
+
+                    append("Visit No: ").append(visitNo)
+                    if (currentVisitNo != null && visitNo == currentVisitNo) {
+                        append(" (Current)")
+                    }
+                    append("\n")
+
+                    if (chiefComplaints.isNotEmpty()) {
+                        append("Chief Complaints:\n")
+                        chiefComplaints.forEach { cc ->
+                            append("- ").append(cc.chiefComplaint ?: "")
+                            if (!cc.duration.isNullOrBlank()) {
+                                append(" (").append(cc.duration)
+                                if (!cc.durationUnit.isNullOrBlank()) {
+                                    append(" ").append(cc.durationUnit)
+                                }
+                                append(")")
+                            }
+                            append("\n")
+                        }
+                    } else {
+                        append("Chief Complaints: N/A\n")
+                    }
+
+                    if (earDiagnosis != null) {
+                        append("Ear Diagnosis:\n")
+                        append("- Difficulty Hearing: ").append(boolLabel(earDiagnosis.difficultyHearing)).append("\n")
+                        append("- Whisper Test Response: ").append(earDiagnosis.whisperTestResponse ?: "N/A").append("\n")
+                        append("- Hearing Test Outcome: ").append(earDiagnosis.hearingTestOutcome ?: "N/A").append("\n")
+                        append("- Ear Pain: ").append(boolLabel(earDiagnosis.earPain)).append("\n")
+                        append("- Ear Discharge Present: ").append(boolLabel(earDiagnosis.earDischargePresent)).append("\n")
+                        append("- Foreign Body In Ear: ").append(earDiagnosis.foreignBodyInEar ?: "N/A").append("\n")
+                        append("- Ear Condition Type: ").append(earDiagnosis.earConditionType ?: "N/A").append("\n")
+                        append("- Congenital Ear Malformation: ").append(boolLabel(earDiagnosis.congenitalEarMalformation)).append("\n")
+                    } else {
+                        append("Ear Diagnosis: N/A\n")
+                    }
+                    append("\n")
+                }
+
+                if (!hasAnyVisitWiseData) {
+                    val latestChiefComplaints = viewModel.getLatestChiefComplaints(popupPatientId)
+                    val latestEarDiagnosis = viewModel.getLatestEarDiagnosis(popupPatientId)
+                    val hasLatestData =
+                        latestChiefComplaints.isNotEmpty() || latestEarDiagnosis != null
+
+                    if (hasLatestData) {
+                        append("Latest Available CPHC Data:\n")
+
+                        if (latestChiefComplaints.isNotEmpty()) {
+                            append("Chief Complaints:\n")
+                            latestChiefComplaints.forEach { cc ->
+                                append("- ").append(cc.chiefComplaint ?: "")
+                                if (!cc.duration.isNullOrBlank()) {
+                                    append(" (").append(cc.duration)
+                                    if (!cc.durationUnit.isNullOrBlank()) {
+                                        append(" ").append(cc.durationUnit)
+                                    }
+                                    append(")")
+                                }
+                                append("\n")
+                            }
+                        } else {
+                            append("Chief Complaints: N/A\n")
+                        }
+
+                        if (latestEarDiagnosis != null) {
+                            append("Ear Diagnosis:\n")
+                            append("- Difficulty Hearing: ").append(boolLabel(latestEarDiagnosis.difficultyHearing)).append("\n")
+                            append("- Whisper Test Response: ").append(latestEarDiagnosis.whisperTestResponse ?: "N/A").append("\n")
+                            append("- Hearing Test Outcome: ").append(latestEarDiagnosis.hearingTestOutcome ?: "N/A").append("\n")
+                            append("- Ear Pain: ").append(boolLabel(latestEarDiagnosis.earPain)).append("\n")
+                            append("- Ear Discharge Present: ").append(boolLabel(latestEarDiagnosis.earDischargePresent)).append("\n")
+                            append("- Foreign Body In Ear: ").append(latestEarDiagnosis.foreignBodyInEar ?: "N/A").append("\n")
+                            append("- Ear Condition Type: ").append(latestEarDiagnosis.earConditionType ?: "N/A").append("\n")
+                            append("- Congenital Ear Malformation: ").append(boolLabel(latestEarDiagnosis.congenitalEarMalformation)).append("\n")
+                        } else {
+                            append("Ear Diagnosis: N/A\n")
+                        }
+                    }
+                }
+            }.trim()
+
+            AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.cphc_details_title))
+                .setMessage(details.ifBlank { getString(R.string.no_previous_cphc_details) })
+                .setPositiveButton(getString(R.string.ok), null)
+                .show()
         }
     }
 
