@@ -324,6 +324,17 @@ class CaseRecordViewModel @Inject constructor(
         }
     }
 
+    suspend fun getVisitCategoryByPatientAndVisit(patientID: String, benVisitNo: Int): String? {
+        return try {
+            visitReasonsAndCategoriesRepo
+                .getVisitDbByPatientIDAndBenVisitNo(patientID, benVisitNo)
+                ?.category
+        } catch (e: Exception) {
+            Timber.d("Error in getVisitCategoryByPatientAndVisit $e")
+            null
+        }
+    }
+
     private fun getHigherHealthCareDropdown(){
         try{
             _higherHealthCare  = doctorMasterDataMaleRepo.getHigherHealthCenter()

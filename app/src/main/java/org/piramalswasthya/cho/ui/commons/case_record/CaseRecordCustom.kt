@@ -90,6 +90,7 @@ import javax.inject.Inject
 class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), NavigationAdapter {
     companion object {
         private const val DEFAULT_DURATION_UNIT = "Day(s)"
+        private const val OTHER_CPHC_SERVICES = "Other CPHC Services"
     }
 
     private var _binding: CaseRecordCustomLayoutBinding? = null
@@ -213,6 +214,38 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         return (isDoctorWorkflowRole() && !isFreshCaseEntryFromVisitDetails) || viewRecordFragment == true
     }
 
+    private fun isOtherCphcCategory(category: String?): Boolean {
+        val c = category?.trim().orEmpty()
+        return c.equals(OTHER_CPHC_SERVICES, ignoreCase = true) ||
+                c.equals(getString(R.string.other_cphc_services), ignoreCase = true)
+    }
+
+    private fun updateShowCphcDetailsButtonVisibility(visitInfo: PatientDisplayWithVisitInfo?) {
+        val visitCategory = visitInfo?.visitCategory
+        val masterDbCategory =
+            (arguments?.getSerializable("MasterDb") as? MasterDb)?.visitMasterDb?.category
+
+        // Fast local check first
+        if (isOtherCphcCategory(visitCategory) || isOtherCphcCategory(masterDbCategory)) {
+            binding.btnShowCphcDetails.visibility = View.VISIBLE
+            return
+        }
+
+        // Doctor-tab fallback: fetch visit category from Visit_DB for this patient+visit.
+        val patientID = visitInfo?.patient?.patientID
+        val benVisitNo = visitInfo?.benVisitNo
+        if (patientID.isNullOrBlank() || benVisitNo == null || benVisitNo <= 0) {
+            binding.btnShowCphcDetails.visibility = View.GONE
+            return
+        }
+
+        lifecycleScope.launch {
+            val dbCategory = viewModel.getVisitCategoryByPatientAndVisit(patientID, benVisitNo)
+            binding.btnShowCphcDetails.visibility =
+                if (isOtherCphcCategory(dbCategory)) View.VISIBLE else View.GONE
+        }
+    }
+
     private val onBackPressedCallback by lazy {
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -263,6 +296,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         if (viewRecordFragment == true) {
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
+            updateShowCphcDetailsButtonVisibility(benVisitInfo)
             // Pending pharmacist cycle is not a closed case, even if stale extras say flowComplete=true.
             if ((benVisitInfo.pharmacist_flag ?: 0) == 1) {
                 isClosedViewOnly = false
@@ -403,6 +437,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.patientList.visibility = View.VISIBLE
             benVisitInfo =
                 requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+            updateShowCphcDetailsButtonVisibility(benVisitInfo)
 
             getVisitResObserver(benVisitInfo)
 
@@ -971,36 +1006,23 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
     private fun navigatetoCaseCustomRecordSelf(isVisible: Boolean, it: PatientDisplayWithVisitInfo) {
+        // Refresh ben flow data in background, but do not block click navigation on observer timing.
         getVisitResObserver(it)
-        // Remove existing observer to prevent duplicates
-        viewModel.benFlows.removeObservers(viewLifecycleOwner)
-        viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
-            if (benFlowList.isNullOrEmpty()) return@observe
 
-            val distinctList =
-                benFlowList.distinctBy { it.benVisitNo }
+        val visitNo = it.benVisitNo
+        val followupVisitFromCache = visitNo?.let { no ->
+            benFlowMap[no]?.VisitReason == "Follow Up"
+        } ?: false
+        val followupVisit = followupVisitFromCache || (it.visitCategory == "Follow Up")
 
-            benFlowMap.clear()
-            distinctList.forEach { benFlow ->
-                benFlow.benVisitNo?.let { visitNo ->
-                    benFlowMap[visitNo] = benFlow
-                }
+        findNavController().navigate(
+            R.id.action_caseRecordCustom_self, Bundle().apply {
+                putBoolean("viewRecord", isVisible)
+                putBoolean("isFlowComplete", false)
+                putBoolean("isFollowupVisit", followupVisit)
+                putSerializable("benVisitInfo", it)
             }
-
-            benFlowListCache = benFlowMap.values.toList()
-
-            val followupVisit =
-                benFlowListCache.lastOrNull()?.VisitReason == "Follow Up"
-
-            findNavController().navigate(
-                R.id.action_caseRecordCustom_self, Bundle().apply {
-                    putBoolean("viewRecord", isVisible)
-                    putBoolean("isFlowComplete", false)
-                    putBoolean("isFollowupVisit", followupVisit)
-                    putSerializable("benVisitInfo", it)
-                }
-            )
-        }
+        )
     }
 
     private suspend fun loadPrescriptionRowsForVisit(visitInfo: PatientDisplayWithVisitInfo) {
@@ -1052,34 +1074,19 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
 
         val currentVisitNo = benVisitInfo.benVisitNo
-        val visitNosFromBenFlow = benFlowListCache
-            .mapNotNull { it.benVisitNo }
-        val sourceVisitNos = if (visitNosFromBenFlow.isNotEmpty()) visitNosFromBenFlow else patientVisitNosCache
-        val fallbackVisitNosFromCurrent = if (currentVisitNo != null && currentVisitNo > 0) {
-            (currentVisitNo downTo 1).toList()
-        } else {
-            emptyList()
-        }
-        val candidateVisitNos = (sourceVisitNos + fallbackVisitNosFromCurrent)
-            .distinct()
-            .sortedDescending()
 
         lifecycleScope.launch {
             val popupPatientId = if (patId.isNotBlank()) patId else benVisitInfo.patient.patientID
-            val details = buildString {
-                var hasAnyVisitWiseData = false
-                candidateVisitNos.forEach { visitNo ->
-                    val chiefComplaints = viewModel.getChiefComplaintByPatientAndVisit(popupPatientId, visitNo)
-                    val earDiagnosis = viewModel.getEarDiagnosisByPatientAndVisit(popupPatientId, visitNo)
-                    val hasData = chiefComplaints.isNotEmpty() || earDiagnosis != null
-                    if (!hasData) return@forEach
-                    hasAnyVisitWiseData = true
+            val details = if (currentVisitNo == null || currentVisitNo <= 0) {
+                ""
+            } else {
+                buildString {
+                    val chiefComplaints =
+                        viewModel.getChiefComplaintByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val earDiagnosis =
+                        viewModel.getEarDiagnosisByPatientAndVisit(popupPatientId, currentVisitNo)
 
-                    append("Visit No: ").append(visitNo)
-                    if (currentVisitNo != null && visitNo == currentVisitNo) {
-                        append(" (Current)")
-                    }
-                    append("\n")
+                    append("Visit No: ").append(currentVisitNo).append(" (Current)\n")
 
                     if (chiefComplaints.isNotEmpty()) {
                         append("Chief Complaints:\n")
@@ -1111,51 +1118,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     } else {
                         append("Ear Diagnosis: N/A\n")
                     }
-                    append("\n")
-                }
-
-                if (!hasAnyVisitWiseData) {
-                    val latestChiefComplaints = viewModel.getLatestChiefComplaints(popupPatientId)
-                    val latestEarDiagnosis = viewModel.getLatestEarDiagnosis(popupPatientId)
-                    val hasLatestData =
-                        latestChiefComplaints.isNotEmpty() || latestEarDiagnosis != null
-
-                    if (hasLatestData) {
-                        append("Latest Available CPHC Data:\n")
-
-                        if (latestChiefComplaints.isNotEmpty()) {
-                            append("Chief Complaints:\n")
-                            latestChiefComplaints.forEach { cc ->
-                                append("- ").append(cc.chiefComplaint ?: "")
-                                if (!cc.duration.isNullOrBlank()) {
-                                    append(" (").append(cc.duration)
-                                    if (!cc.durationUnit.isNullOrBlank()) {
-                                        append(" ").append(cc.durationUnit)
-                                    }
-                                    append(")")
-                                }
-                                append("\n")
-                            }
-                        } else {
-                            append("Chief Complaints: N/A\n")
-                        }
-
-                        if (latestEarDiagnosis != null) {
-                            append("Ear Diagnosis:\n")
-                            append("- Difficulty Hearing: ").append(boolLabel(latestEarDiagnosis.difficultyHearing)).append("\n")
-                            append("- Whisper Test Response: ").append(latestEarDiagnosis.whisperTestResponse ?: "N/A").append("\n")
-                            append("- Hearing Test Outcome: ").append(latestEarDiagnosis.hearingTestOutcome ?: "N/A").append("\n")
-                            append("- Ear Pain: ").append(boolLabel(latestEarDiagnosis.earPain)).append("\n")
-                            append("- Ear Discharge Present: ").append(boolLabel(latestEarDiagnosis.earDischargePresent)).append("\n")
-                            append("- Foreign Body In Ear: ").append(latestEarDiagnosis.foreignBodyInEar ?: "N/A").append("\n")
-                            append("- Ear Condition Type: ").append(latestEarDiagnosis.earConditionType ?: "N/A").append("\n")
-                            append("- Congenital Ear Malformation: ").append(boolLabel(latestEarDiagnosis.congenitalEarMalformation)).append("\n")
-                        } else {
-                            append("Ear Diagnosis: N/A\n")
-                        }
-                    }
-                }
-            }.trim()
+                }.trim()
+            }
 
             AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.cphc_details_title))
