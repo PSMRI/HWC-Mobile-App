@@ -90,7 +90,6 @@ import javax.inject.Inject
 class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), NavigationAdapter {
     companion object {
         private const val DEFAULT_DURATION_UNIT = "Day(s)"
-        private const val OTHER_CPHC_SERVICES = "Other CPHC Services"
     }
 
     private var _binding: CaseRecordCustomLayoutBinding? = null
@@ -216,8 +215,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
     private fun isOtherCphcCategory(category: String?): Boolean {
         val c = category?.trim().orEmpty()
-        return c.equals(OTHER_CPHC_SERVICES, ignoreCase = true) ||
-                c.equals(getString(R.string.other_cphc_services), ignoreCase = true)
+        return c.equals(getString(R.string.other_cphc_services), ignoreCase = true)
     }
 
     private fun updateShowCphcDetailsButtonVisibility(visitInfo: PatientDisplayWithVisitInfo?) {
@@ -1068,10 +1066,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
     private fun showPreviousCphcDetailsPopup() {
         fun boolLabel(value: Boolean?): String = when (value) {
-            true -> "Yes"
-            false -> "No"
-            null -> "N/A"
+            true -> getString(R.string.yes)
+            false -> getString(R.string.no)
+            null -> getString(R.string.no_data)
         }
+        fun valueLabel(value: Any?): String = value?.toString()?.takeIf { it.isNotBlank() } ?: getString(R.string.no_data)
 
         val currentVisitNo = benVisitInfo.benVisitNo
 
@@ -1085,11 +1084,33 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         viewModel.getChiefComplaintByPatientAndVisit(popupPatientId, currentVisitNo)
                     val earDiagnosis =
                         viewModel.getEarDiagnosisByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val noseDiagnosis =
+                        viewModel.getNoseDiagnosisByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val throatDiagnosis =
+                        viewModel.getThroatDiagnosisByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val oralHealth =
+                        viewModel.getOralHealthByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val ophthalmicVisit =
+                        viewModel.getOphthalmicByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val elderlyAssessment =
+                        viewModel.getElderlyByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val mentalScreening =
+                        viewModel.getMentalByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val hasAnyCphcData =
+                        chiefComplaints.isNotEmpty() ||
+                                earDiagnosis != null ||
+                                noseDiagnosis != null ||
+                                throatDiagnosis != null ||
+                                oralHealth != null ||
+                                ophthalmicVisit != null ||
+                                elderlyAssessment != null ||
+                                mentalScreening != null
+                    if (!hasAnyCphcData) return@buildString
 
-                    append("Visit No: ").append(currentVisitNo).append(" (Current)\n")
+                    append(getString(R.string.cphc_visit_current_format, currentVisitNo)).append("\n")
 
                     if (chiefComplaints.isNotEmpty()) {
-                        append("Chief Complaints:\n")
+                        append(getString(R.string.select_chief_complaint_without_astrict)).append(":\n")
                         chiefComplaints.forEach { cc ->
                             append("- ").append(cc.chiefComplaint ?: "")
                             if (!cc.duration.isNullOrBlank()) {
@@ -1101,22 +1122,188 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                             }
                             append("\n")
                         }
-                    } else {
-                        append("Chief Complaints: N/A\n")
                     }
 
                     if (earDiagnosis != null) {
-                        append("Ear Diagnosis:\n")
-                        append("- Difficulty Hearing: ").append(boolLabel(earDiagnosis.difficultyHearing)).append("\n")
-                        append("- Whisper Test Response: ").append(earDiagnosis.whisperTestResponse ?: "N/A").append("\n")
-                        append("- Hearing Test Outcome: ").append(earDiagnosis.hearingTestOutcome ?: "N/A").append("\n")
-                        append("- Ear Pain: ").append(boolLabel(earDiagnosis.earPain)).append("\n")
-                        append("- Ear Discharge Present: ").append(boolLabel(earDiagnosis.earDischargePresent)).append("\n")
-                        append("- Foreign Body In Ear: ").append(earDiagnosis.foreignBodyInEar ?: "N/A").append("\n")
-                        append("- Ear Condition Type: ").append(earDiagnosis.earConditionType ?: "N/A").append("\n")
-                        append("- Congenital Ear Malformation: ").append(boolLabel(earDiagnosis.congenitalEarMalformation)).append("\n")
-                    } else {
-                        append("Ear Diagnosis: N/A\n")
+                        append(getString(R.string.cphc_ear_diagnosis)).append(":\n")
+                        append("- ").append(getString(R.string.ear_difficulty_hearing)).append(": ").append(boolLabel(earDiagnosis.difficultyHearing)).append("\n")
+                        append("- ").append(getString(R.string.ear_whisper_test_response)).append(": ").append(earDiagnosis.whisperTestResponse ?: getString(R.string.no_data)).append("\n")
+                        append("- ").append(getString(R.string.ear_hearing_test_outcome)).append(": ").append(earDiagnosis.hearingTestOutcome ?: getString(R.string.no_data)).append("\n")
+                        append("- ").append(getString(R.string.ear_pain)).append(": ").append(boolLabel(earDiagnosis.earPain)).append("\n")
+                        append("- ").append(getString(R.string.ear_discharge_present)).append(": ").append(boolLabel(earDiagnosis.earDischargePresent)).append("\n")
+                        append("- ").append(getString(R.string.cphc_ear_foreign_body)).append(": ").append(earDiagnosis.foreignBodyInEar ?: getString(R.string.no_data)).append("\n")
+                        append("- ").append(getString(R.string.cphc_ear_condition_type)).append(": ").append(earDiagnosis.earConditionType ?: getString(R.string.no_data)).append("\n")
+                        append("- ").append(getString(R.string.ear_congenital_malformation)).append(": ").append(boolLabel(earDiagnosis.congenitalEarMalformation)).append("\n")
+                    }
+
+                    if (noseDiagnosis != null) {
+                        append(getString(R.string.cphc_nose_diagnosis))
+                            .append(":\n")
+                        append("- ").append(getString(R.string.cphc_nose_difficulty_breathing)).append(": ").append(boolLabel(noseDiagnosis.difficultyBreathing)).append("\n")
+                        append("- ").append(getString(R.string.cphc_nose_open_mouth_breathing)).append(": ").append(boolLabel(noseDiagnosis.openMouthBreathing)).append("\n")
+                        append("- ").append(getString(R.string.cphc_nose_bleed)).append(": ").append(boolLabel(noseDiagnosis.noseBleed)).append("\n")
+                        append("- ").append(getString(R.string.cphc_nose_systolic_bp)).append(": ").append(valueLabel(noseDiagnosis.systolicBp)).append("\n")
+                        append("- ").append(getString(R.string.cphc_nose_diastolic_bp)).append(": ").append(valueLabel(noseDiagnosis.diastolicBp)).append("\n")
+                        append("- ").append(getString(R.string.cphc_nose_foreign_body)).append(": ").append(valueLabel(noseDiagnosis.foreignBodyNose)).append("\n")
+                        append("- ").append(getString(R.string.cphc_nose_sinusitis)).append(": ").append(boolLabel(noseDiagnosis.sinusitis)).append("\n")
+                    }
+
+                    if (throatDiagnosis != null) {
+                        append(getString(R.string.cphc_throat_diagnosis))
+                            .append(":\n")
+                        append("- ").append(getString(R.string.cphc_throat_symptoms)).append(": ").append(valueLabel(throatDiagnosis.symptoms?.joinToString(", "))).append("\n")
+                        append("- ").append(getString(R.string.cphc_throat_neck_swelling)).append(": ").append(boolLabel(throatDiagnosis.neckSwelling)).append("\n")
+                        append("- ").append(getString(R.string.cphc_throat_difficulty_swallowing)).append(": ").append(boolLabel(throatDiagnosis.difficultySwallowing)).append("\n")
+                        append("- ").append(getString(R.string.cphc_throat_tonsillitis)).append(": ").append(boolLabel(throatDiagnosis.tonsillitis)).append("\n")
+                        append("- ").append(getString(R.string.cphc_throat_pharyngitis)).append(": ").append(boolLabel(throatDiagnosis.pharyngitis)).append("\n")
+                        append("- ").append(getString(R.string.cphc_throat_laryngitis)).append(": ").append(boolLabel(throatDiagnosis.laryngitis)).append("\n")
+                        append("- ").append(getString(R.string.cphc_throat_sinusitis)).append(": ").append(boolLabel(throatDiagnosis.sinusitis)).append("\n")
+                        append("- ").append(getString(R.string.cphc_throat_cleft_lip)).append(": ").append(boolLabel(throatDiagnosis.cleftLip)).append("\n")
+                        append("- ").append(getString(R.string.cphc_throat_cleft_palate)).append(": ").append(boolLabel(throatDiagnosis.cleftPalate)).append("\n")
+                    }
+
+                    if (oralHealth != null) {
+                        append(getString(R.string.cphc_oral_health))
+                            .append(":\n")
+                        append("- ").append(getString(R.string.cphc_oral_tooth_decay_present)).append(": ").append(boolLabel(oralHealth.toothDecayPresent)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oral_tooth_decay_symptoms)).append(": ").append(valueLabel(oralHealth.toothDecaySymptoms)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oral_gum_disease_present)).append(": ").append(boolLabel(oralHealth.gumDiseasePresent)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oral_gum_disease_symptoms)).append(": ").append(valueLabel(oralHealth.gumDiseaseSymptoms)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oral_irregular_teeth_jaws)).append(": ").append(boolLabel(oralHealth.irregularTeethJaws)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oral_abnormal_growth_ulcer)).append(": ").append(boolLabel(oralHealth.abnormalGrowthUlcer)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oral_cleft_lip_palate)).append(": ").append(boolLabel(oralHealth.cleftLipPalate)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oral_dental_fluorosis)).append(": ").append(boolLabel(oralHealth.dentalFluorosis)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oral_dental_emergency)).append(": ").append(valueLabel(oralHealth.dentalEmergency)).append("\n")
+                    }
+
+                    if (ophthalmicVisit != null) {
+                        append(getString(R.string.cphc_ophthalmic))
+                            .append(":\n")
+                        append("- ").append(getString(R.string.cphc_oph_is_diabetic)).append(": ").append(boolLabel(ophthalmicVisit.isDiabetic)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_screening_performed)).append(": ").append(boolLabel(ophthalmicVisit.screeningPerformed)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_visual_acuity_chart_used)).append(": ").append(valueLabel(ophthalmicVisit.visualAcuityChartUsed)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_dist_va_right)).append(": ").append(valueLabel(ophthalmicVisit.distVARight)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_dist_va_left)).append(": ").append(valueLabel(ophthalmicVisit.distVALeft)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_near_va)).append(": ").append(valueLabel(ophthalmicVisit.nearVA)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_case_id_conditions)).append(": ").append(valueLabel(ophthalmicVisit.caseIdConditions)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_cataract_symptoms)).append(": ").append(boolLabel(ophthalmicVisit.cataractSymptoms)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_glaucoma_symptoms)).append(": ").append(boolLabel(ophthalmicVisit.glaucomaSymptoms)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_diabetic_retinopathy_symptoms)).append(": ").append(boolLabel(ophthalmicVisit.diabeticRetinopathySymptoms)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_presbyopia_symptoms)).append(": ").append(boolLabel(ophthalmicVisit.presbyopiaSymptoms)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_trachoma_status)).append(": ").append(valueLabel(ophthalmicVisit.trachomaStatus)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_corneal_disease_type)).append(": ").append(valueLabel(ophthalmicVisit.cornealDiseaseType)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_vitamin_a_deficiency)).append(": ").append(boolLabel(ophthalmicVisit.vitaminADeficiency)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_injury_type)).append(": ").append(valueLabel(ophthalmicVisit.injuryType)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_foreign_body_removal)).append(": ").append(valueLabel(ophthalmicVisit.foreignBodyRemoval)).append("\n")
+                        append("- ").append(getString(R.string.cphc_oph_chemical_exposure)).append(": ").append(boolLabel(ophthalmicVisit.chemicalExposure)).append("\n")
+                    }
+
+                    if (elderlyAssessment != null) {
+                        append(getString(R.string.cphc_elderly))
+                            .append(":\n")
+                        append("- ").append(getString(R.string.cphc_elderly_geriatric_complaints)).append(": ").append(boolLabel(elderlyAssessment.geriatricComplaints)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_multiple_chronic_conditions)).append(": ").append(boolLabel(elderlyAssessment.multipleChronicConditions)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_recent_falls)).append(": ").append(boolLabel(elderlyAssessment.recentFalls)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_difficulty_walking_balance)).append(": ").append(boolLabel(elderlyAssessment.difficultyWalkingBalance)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_visual_hearing_difficulty)).append(": ").append(boolLabel(elderlyAssessment.visualHearingDifficulty)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_functional_decline)).append(": ").append(boolLabel(elderlyAssessment.functionalDecline)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_bathing)).append(": ").append(valueLabel(elderlyAssessment.bathing)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_dressing)).append(": ").append(valueLabel(elderlyAssessment.dressing)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_toileting)).append(": ").append(valueLabel(elderlyAssessment.toileting)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_transferring)).append(": ").append(valueLabel(elderlyAssessment.transferring)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_continence)).append(": ").append(valueLabel(elderlyAssessment.continence)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_feeding)).append(": ").append(valueLabel(elderlyAssessment.feeding)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_total_score)).append(": ").append(valueLabel(elderlyAssessment.totalScore)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_functional_status)).append(": ").append(valueLabel(elderlyAssessment.functionalStatus)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_functional_decline_flag)).append(": ").append(boolLabel(elderlyAssessment.functionalDeclineFlag)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_memory_loss)).append(": ").append(boolLabel(elderlyAssessment.memoryLoss)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_dementia_memory_loss)).append(": ").append(boolLabel(elderlyAssessment.dementiaMemoryLoss)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_dementia_disorientation)).append(": ").append(boolLabel(elderlyAssessment.dementiaDisorientation)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_dementia_behavioural_changes)).append(": ").append(boolLabel(elderlyAssessment.dementiaBehaviouralChanges)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_dementia_self_care_decline)).append(": ").append(boolLabel(elderlyAssessment.dementiaSelfCareDecline)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_dementia_outcome)).append(": ").append(valueLabel(elderlyAssessment.dementiaScreeningOutcome)).append("\n")
+                        append("- ").append(getString(R.string.cphc_elderly_dementia_referral_required)).append(": ").append(boolLabel(elderlyAssessment.dementiaReferralRequired)).append("\n")
+                    }
+
+                    if (mentalScreening != null) {
+                        append(getString(R.string.cphc_mental))
+                            .append(":\n")
+                        append("- ").append(getString(R.string.cphc_mental_emotional_behavioural_concerns)).append(": ").append(boolLabel(mentalScreening.emotionalBehaviouralConcerns)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_use_concerns)).append(": ").append(boolLabel(mentalScreening.substanceUseConcerns)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_self_harm_suicide_thoughts)).append(": ").append(boolLabel(mentalScreening.selfHarmSuicideThoughts)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_memory_loss_confusion)).append(": ").append(boolLabel(mentalScreening.memoryLossConfusion)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_seizures_fits_loc)).append(": ").append(boolLabel(mentalScreening.seizuresFitsLoc)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_is_postpartum)).append(": ").append(boolLabel(mentalScreening.isPostpartum)).append("\n")
+                        append("- ").append(getString(R.string.phq9_little_interest)).append(": ").append(valueLabel(mentalScreening.phq9LittleInterest)).append("\n")
+                        append("- ").append(getString(R.string.phq9_feeling_down)).append(": ").append(valueLabel(mentalScreening.phq9FeelingDown)).append("\n")
+                        append("- ").append(getString(R.string.phq9_sleep_trouble)).append(": ").append(valueLabel(mentalScreening.phq9SleepTrouble)).append("\n")
+                        append("- ").append(getString(R.string.phq9_feeling_tired)).append(": ").append(valueLabel(mentalScreening.phq9FeelingTired)).append("\n")
+                        append("- ").append(getString(R.string.phq9_appetite)).append(": ").append(valueLabel(mentalScreening.phq9Appetite)).append("\n")
+                        append("- ").append(getString(R.string.phq9_feeling_bad)).append(": ").append(valueLabel(mentalScreening.phq9FeelingBad)).append("\n")
+                        append("- ").append(getString(R.string.phq9_concentration)).append(": ").append(valueLabel(mentalScreening.phq9Concentration)).append("\n")
+                        append("- ").append(getString(R.string.phq9_moving_slowly)).append(": ").append(valueLabel(mentalScreening.phq9MovingSlowly)).append("\n")
+                        append("- ").append(getString(R.string.phq9_self_harm_thoughts)).append(": ").append(valueLabel(mentalScreening.phq9SelfHarmThoughts)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_phq9_total_score)).append(": ").append(valueLabel(mentalScreening.phq9TotalScore)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_phq9_depression_severity)).append(": ").append(valueLabel(mentalScreening.phq9DepressionSeverity)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_phq9_system_action)).append(": ").append(valueLabel(mentalScreening.phq9SystemAction)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_current_tobacco_use)).append(": ").append(boolLabel(mentalScreening.substanceCurrentTobaccoUse)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_tobacco_type)).append(": ").append(valueLabel(mentalScreening.substanceTobaccoType)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_tobacco_frequency)).append(": ").append(valueLabel(mentalScreening.substanceTobaccoFrequency)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_tobacco_outcome)).append(": ").append(valueLabel(mentalScreening.substanceTobaccoOutcome)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_alcohol_use)).append(": ").append(boolLabel(mentalScreening.substanceAlcoholUse)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_tobacco_use)).append(": ").append(boolLabel(mentalScreening.substanceTobaccoUse)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_other_use)).append(": ").append(boolLabel(mentalScreening.substanceOtherUse)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_other_specify)).append(": ").append(valueLabel(mentalScreening.substanceOtherSpecify)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_frequency)).append(": ").append(valueLabel(mentalScreening.substanceFrequency)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_system_action)).append(": ").append(valueLabel(mentalScreening.substanceSystemAction)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_brief_intervention_given)).append(": ").append(boolLabel(mentalScreening.briefInterventionGiven)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_suicide_current_thoughts)).append(": ").append(boolLabel(mentalScreening.suicideCurrentThoughts)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_suicide_plan)).append(": ").append(boolLabel(mentalScreening.suicidePlan)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_suicide_previous_attempt)).append(": ").append(boolLabel(mentalScreening.suicidePreviousAttempt)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_suicide_hopelessness)).append(": ").append(boolLabel(mentalScreening.suicideHopelessness)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_suicide_immediate_assess)).append(": ").append(boolLabel(mentalScreening.suicideImmediateAssess)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_suicide_risk_level)).append(": ").append(valueLabel(mentalScreening.suicideRiskLevel)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_dementia_progressive_memory_loss)).append(": ").append(boolLabel(mentalScreening.dementiaProgressiveMemoryLoss)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_dementia_forgetting_recent)).append(": ").append(boolLabel(mentalScreening.dementiaForgettingRecent)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_dementia_disorientation)).append(": ").append(boolLabel(mentalScreening.dementiaDisorientation)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_dementia_daily_activities)).append(": ").append(boolLabel(mentalScreening.dementiaDailyActivities)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_dementia_behavioural_changes)).append(": ").append(boolLabel(mentalScreening.dementiaBehaviouralChanges)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_epilepsy_recurrent_seizures)).append(": ").append(boolLabel(mentalScreening.epilepsyRecurrentSeizures)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_epilepsy_jerky_movements)).append(": ").append(boolLabel(mentalScreening.epilepsyJerkyMovements)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_epilepsy_tongue_bite)).append(": ").append(boolLabel(mentalScreening.epilepsyTongueBite)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_epilepsy_confusion_after)).append(": ").append(boolLabel(mentalScreening.epilepsyConfusionAfter)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_epilepsy_loc_duration)).append(": ").append(valueLabel(mentalScreening.epilepsyLocDuration)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_alcohol_loss)).append(": ").append(boolLabel(mentalScreening.substance_alcohol_loss)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_alcohol_impact)).append(": ").append(boolLabel(mentalScreening.substanceAlcoholImpact)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_alcohol_withdrawal)).append(": ").append(boolLabel(mentalScreening.substanceAlcoholWithdrawal)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_alcohol_problematic)).append(": ").append(boolLabel(mentalScreening.substanceAlcoholProblematic)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_alcohol_classification)).append(": ").append(valueLabel(mentalScreening.substanceAlcoholClassification)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_alcohol_system_action)).append(": ").append(valueLabel(mentalScreening.substanceAlcoholSystemAction)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_substance_alcohol_frequency)).append(": ").append(valueLabel(mentalScreening.substance_alcohol_frequency)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_recurrent_episode_loss)).append(": ").append(boolLabel(mentalScreening.edRecurrentEpisodeloss)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_recurrent_jerky_movements)).append(": ").append(boolLabel(mentalScreening.edRecurrentJerkyMovements)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_confusion_drowsiness)).append(": ").append(boolLabel(mentalScreening.edConfusionordrowsiness)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_progressive_memory_loss)).append(": ").append(boolLabel(mentalScreening.edProgressiveMemoryLoss)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_confusion_disorientation)).append(": ").append(boolLabel(mentalScreening.edConfusionDisorientation)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_functional_decline)).append(": ").append(boolLabel(mentalScreening.edFunctionalDecline)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_screening_outcome)).append(": ").append(valueLabel(mentalScreening.edScreeningOutcome)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_psychosocial_intervention_provided)).append(": ").append(boolLabel(mentalScreening.edPsychosocialInterventionProvided)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_intervention_type)).append(": ").append(valueLabel(mentalScreening.edInterventionType)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_session_date)).append(": ").append(valueLabel(mentalScreening.edSessionDate)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_duration_minutes)).append(": ").append(valueLabel(mentalScreening.edDurationMinutes)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_remarks)).append(": ").append(valueLabel(mentalScreening.edRemarks)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_referral_required)).append(": ").append(valueLabel(mentalScreening.edReferralRequired)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_ed_reason)).append(": ").append(valueLabel(mentalScreening.edReason)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_referral_required)).append(": ").append(boolLabel(mentalScreening.referralRequired)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_referral_level)).append(": ").append(valueLabel(mentalScreening.referralLevel)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_reason_for_referral)).append(": ").append(valueLabel(mentalScreening.reasonForReferral)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_referral_date)).append(": ").append(valueLabel(mentalScreening.referralDate)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_follow_up_required)).append(": ").append(boolLabel(mentalScreening.followUpRequired)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_follow_up_date)).append(": ").append(valueLabel(mentalScreening.followUpDate)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_improvement_noted)).append(": ").append(valueLabel(mentalScreening.improvementNoted)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_adherence_to_advice)).append(": ").append(valueLabel(mentalScreening.adherenceToAdvice)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_referral_escalation_required)).append(": ").append(boolLabel(mentalScreening.referralEscalationRequired)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_case_closure_reason)).append(": ").append(valueLabel(mentalScreening.caseClosureReason)).append("\n")
                     }
                 }.trim()
             }

@@ -25,9 +25,14 @@ import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.EarDiagnosisAssessment
+import org.piramalswasthya.cho.model.ElderlyHealthAssessment
 import org.piramalswasthya.cho.model.HigherHealthCenter
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
+import org.piramalswasthya.cho.model.MentalHealthScreeningCache
+import org.piramalswasthya.cho.model.NoseDiagnosisAssessment
+import org.piramalswasthya.cho.model.OphthalmicVisit
+import org.piramalswasthya.cho.model.OralHealth
 import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
@@ -38,16 +43,23 @@ import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProceduresMasterData
+import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.EarDiagnosisRepo
+import org.piramalswasthya.cho.repositories.ElderlyHealthRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.MentalHealthScreeningRepo
+import org.piramalswasthya.cho.repositories.NoseDiagnosisRepo
+import org.piramalswasthya.cho.repositories.OphthalmicRepository
+import org.piramalswasthya.cho.repositories.OralHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
+import org.piramalswasthya.cho.repositories.ThroatDiagnosisRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
@@ -63,6 +75,12 @@ class CaseRecordViewModel @Inject constructor(
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
     private val earDiagnosisRepo: EarDiagnosisRepo,
+    private val noseDiagnosisRepo: NoseDiagnosisRepo,
+    private val throatDiagnosisRepo: ThroatDiagnosisRepo,
+    private val oralHealthRepo: OralHealthRepo,
+    private val ophthalmicRepository: OphthalmicRepository,
+    private val elderlyHealthRepo: ElderlyHealthRepo,
+    private val mentalHealthScreeningRepo: MentalHealthScreeningRepo,
     preferenceDao: PreferenceDao,
     private val procedureRepo: ProcedureRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
@@ -331,6 +349,60 @@ class CaseRecordViewModel @Inject constructor(
                 ?.category
         } catch (e: Exception) {
             Timber.d("Error in getVisitCategoryByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getNoseDiagnosisByPatientAndVisit(patientID: String, benVisitNo: Int): NoseDiagnosisAssessment? {
+        return try {
+            noseDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getNoseDiagnosisByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getThroatDiagnosisByPatientAndVisit(patientID: String, benVisitNo: Int): ThroatDiagnosisAssessment? {
+        return try {
+            throatDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getThroatDiagnosisByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getOralHealthByPatientAndVisit(patientID: String, benVisitNo: Int): OralHealth? {
+        return try {
+            oralHealthRepo.getByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getOralHealthByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getOphthalmicByPatientAndVisit(patientID: String, benVisitNo: Int): OphthalmicVisit? {
+        return try {
+            ophthalmicRepository.getOphthalmicVisit(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getOphthalmicByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getElderlyByPatientAndVisit(patientID: String, benVisitNo: Int): ElderlyHealthAssessment? {
+        return try {
+            elderlyHealthRepo.getAssessment(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getElderlyByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getMentalByPatientAndVisit(patientID: String, benVisitNo: Int): MentalHealthScreeningCache? {
+        return try {
+            mentalHealthScreeningRepo.getScreeningByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getMentalByPatientAndVisit $e")
             null
         }
     }

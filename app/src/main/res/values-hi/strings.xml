@@ -787,7 +787,7 @@
     <string name="no_eligible_couples_found">कोई पात्र दंपत्ति नहीं मिली</string>
     <string name="no_registered_couples_found">कोई पंजीकृत जोड़े नहीं मिले</string>
     <string name="call">बुलाना</string>
-    <string name="no_data">कोई डेटा नहीं</string>
+    <string name="no_data">N/A</string>
     <string name="search">खोज</string>
     <string name="status">स्थिति</string>
     <string name="age_ben">आयु</string>
