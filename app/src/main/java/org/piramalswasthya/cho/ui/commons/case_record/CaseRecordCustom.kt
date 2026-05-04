@@ -2,11 +2,18 @@ package org.piramalswasthya.cho.ui.commons.case_record
 
 
 import android.app.AlertDialog
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.Editable
 import android.text.InputType
 import android.text.TextUtils
 import android.text.TextWatcher
+import android.text.style.StyleSpan
+import android.text.TextPaint
+import android.text.style.ClickableSpan
+import android.util.TypedValue
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +22,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TableRow
 import android.widget.TextView
 import android.widget.Toast
@@ -27,6 +36,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import android.text.method.LinkMovementMethod
+import android.view.Gravity
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -1308,12 +1319,164 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 }.trim()
             }
 
+            val contentView = buildPreviousCphcDialogContent(details.ifBlank { getString(R.string.no_previous_cphc_details) })
+
             AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.cphc_details_title))
-                .setMessage(details.ifBlank { getString(R.string.no_previous_cphc_details) })
+                .setView(contentView)
                 .setPositiveButton(getString(R.string.ok), null)
                 .show()
         }
+    }
+
+    private fun buildPreviousCphcDialogContent(detailsText: String): View {
+        val context = requireContext()
+        var showUnavailable = false
+        val content = TextView(context).apply {
+            text = buildStyledCphcDetails(detailsText, includeUnavailable = showUnavailable)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+            setLineSpacing(dpToPx(4f).toFloat(), 1f)
+            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+            setPadding(dpToPx(20f), dpToPx(8f), dpToPx(20f), dpToPx(4f))
+        }
+
+        val scrollView = ScrollView(context).apply {
+            addView(content)
+        }
+
+        val unavailableCount = countUnavailableRows(detailsText)
+        if (unavailableCount <= 0) return scrollView
+
+        val toggleLink = TextView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.END
+            }
+
+            gravity = Gravity.END
+
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+            setTextColor(ContextCompat.getColor(context, android.R.color.holo_blue_dark))
+            setPadding(dpToPx(20f), 0, dpToPx(20f), dpToPx(10f))
+            movementMethod = LinkMovementMethod.getInstance()
+            highlightColor = ContextCompat.getColor(context, android.R.color.transparent)
+
+            fun renderToggleText() {
+                val label = if (showUnavailable) {
+                    getString(R.string.cphc_hide_unavailable_details)
+                } else {
+                    getString(R.string.cphc_show_unavailable_details, unavailableCount)
+                }
+                val clickable = object : ClickableSpan() {
+                    override fun onClick(widget: View) {
+                        showUnavailable = !showUnavailable
+                        content.text = buildStyledCphcDetails(detailsText, includeUnavailable = showUnavailable)
+                        renderToggleText()
+                    }
+
+                    override fun updateDrawState(ds: TextPaint) {
+                        super.updateDrawState(ds)
+                        ds.isUnderlineText = true
+                        ds.color = ContextCompat.getColor(context, android.R.color.holo_blue_dark)
+                    }
+                }
+                text = SpannableStringBuilder(label).apply {
+                    setSpan(clickable, 0, label.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+
+            renderToggleText()
+        }
+
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+
+            addView(toggleLink)
+            addView(scrollView)
+        }
+    }
+
+    private fun buildStyledCphcDetails(detailsText: String, includeUnavailable: Boolean = false): CharSequence {
+        val styled = SpannableStringBuilder()
+        val lines = detailsText.lines()
+        val chiefComplaintsHeader = "${getString(R.string.select_chief_complaint_without_astrict)}:"
+        val reportedConcernsHeader = getString(R.string.cphc_reported_concerns)
+        val visitLinePrefix = getString(R.string.cphc_visit_current_format, 0).substringBefore("0")
+        val noDataLabel = getString(R.string.no_data)
+
+        lines.forEachIndexed { index, rawLine ->
+            val line = rawLine.trimEnd()
+            val isVisitLine = line.startsWith(visitLinePrefix)
+            val isSectionHeader = line.isNotBlank() && !line.startsWith("- ") && line.endsWith(":")
+            val isItemLine = line.startsWith("- ")
+            val itemValue = if (isItemLine && line.contains(":")) line.substringAfter(":").trim() else ""
+            val shouldHideItem = isItemLine && (itemValue.equals("N/A", ignoreCase = true) || itemValue.equals(noDataLabel, ignoreCase = true))
+
+            if (shouldHideItem && !includeUnavailable) {
+                return@forEachIndexed
+            }
+
+            val displaySectionHeader = if (line == chiefComplaintsHeader) {
+                reportedConcernsHeader
+            } else {
+                line
+            }
+
+            val displayLine = when {
+                isVisitLine -> line
+                isSectionHeader -> "\u2022 $displaySectionHeader"
+                isItemLine -> "   \u25E6 ${line.removePrefix("- ").trimStart()}"
+                else -> line
+            }
+            val start = styled.length
+            styled.append(displayLine)
+
+            val isHeader = isVisitLine || isSectionHeader
+            if (isHeader) {
+                styled.setSpan(StyleSpan(Typeface.BOLD), start, styled.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            if (isItemLine) {
+                val colonIndex = displayLine.indexOf(':')
+                if (colonIndex >= 0 && colonIndex + 1 < displayLine.length) {
+                    val valueStartInLine = (colonIndex + 1).let { idx ->
+                        if (idx < displayLine.length && displayLine[idx] == ' ') idx + 1 else idx
+                    }
+                    if (valueStartInLine < displayLine.length) {
+                        styled.setSpan(
+                            StyleSpan(Typeface.BOLD),
+                            start + valueStartInLine,
+                            start + displayLine.length,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                }
+            }
+
+            if (index < lines.lastIndex) {
+                styled.append('\n')
+            }
+        }
+        while (styled.isNotEmpty() && styled.last() == '\n') {
+            styled.delete(styled.length - 1, styled.length)
+        }
+        return styled
+    }
+
+    private fun countUnavailableRows(detailsText: String): Int {
+        val noDataLabel = getString(R.string.no_data)
+        return detailsText.lines().count { line ->
+            val trimmed = line.trim()
+            if (!trimmed.startsWith("- ") || !trimmed.contains(":")) return@count false
+            val itemValue = trimmed.substringAfter(":").trim()
+            itemValue.equals("N/A", ignoreCase = true) || itemValue.equals(noDataLabel, ignoreCase = true)
+        }
+    }
+
+    private fun dpToPx(dp: Float): Int {
+        val density = resources.displayMetrics.density
+        return (dp * density).toInt()
     }
 
     fun convertToPrescriptionValuesFromPC(

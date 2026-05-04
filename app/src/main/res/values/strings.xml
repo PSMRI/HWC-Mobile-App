@@ -1299,9 +1299,12 @@
     <string name="throat_symptom_itching">Itching</string>
     <string name="throat_symptom_hoarseness">Hoarseness</string>
     <string name="show_cphc_details">Show CPHC Details</string>
-    <string name="cphc_details_title">Previous CPHC Details</string>
-    <string name="no_previous_cphc_details">No previous CPHC data found.</string>
-    <string name="cphc_visit_current_format">Visit No: %1$d (Current)</string>
+    <string name="cphc_details_title">CPHC Details</string>
+    <string name="no_previous_cphc_details">No CPHC data found.</string>
+    <string name="cphc_visit_current_format">Visit No: %1$d</string>
+    <string name="cphc_reported_concerns">Reported Concerns:</string>
+    <string name="cphc_show_unavailable_details">Show unavailable details (%1$d)</string>
+    <string name="cphc_hide_unavailable_details">Hide unavailable details</string>
     <string name="cphc_ear_diagnosis">Ear Diagnosis</string>
     <string name="cphc_ear_foreign_body">Foreign Body In Ear</string>
     <string name="cphc_ear_condition_type">Ear Condition Type</string>
@@ -2063,4 +2066,3 @@
     <string name="elderly_health_assessment_saved">Elderly Health Assessment Saved</string>
 
 </resources>
-
