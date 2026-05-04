@@ -72,6 +72,7 @@ import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.ReferralFollowUpFields
+import org.piramalswasthya.cho.model.ReferralFollowUpModel
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
@@ -1241,6 +1242,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         append("- ").append(getString(R.string.cphc_elderly_dementia_self_care_decline)).append(": ").append(boolLabel(elderlyAssessment.dementiaSelfCareDecline)).append("\n")
                         append("- ").append(getString(R.string.cphc_elderly_dementia_outcome)).append(": ").append(valueLabel(elderlyAssessment.dementiaScreeningOutcome)).append("\n")
                         append("- ").append(getString(R.string.cphc_elderly_dementia_referral_required)).append(": ").append(boolLabel(elderlyAssessment.dementiaReferralRequired)).append("\n")
+                        appendNestedObjectFields(
+                            target = this,
+                            header = getString(R.string.cphc_referral),
+                            referral = elderlyAssessment.referralFollowUp,
+                            fallbackModel = elderlyAssessment,
+                            boolFormatter = ::boolLabel,
+                            valueFormatter = ::valueLabel
+                        )
                     }
 
                     if (mentalScreening != null) {
@@ -1346,6 +1355,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                             target = this,
                             header = getString(R.string.cphc_referral),
                             referral = painAssessment.referralFollowUp,
+                            fallbackModel = painAssessment,
                             boolFormatter = ::boolLabel,
                             valueFormatter = ::valueLabel
                         )
@@ -1361,6 +1371,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                             target = this,
                             header = getString(R.string.cphc_referral),
                             referral = psychosocialSupport.referralFollowUp,
+                            fallbackModel = psychosocialSupport,
                             boolFormatter = ::boolLabel,
                             valueFormatter = ::valueLabel
                         )
@@ -1459,9 +1470,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             val line = rawLine.trimEnd()
             val isVisitLine = line.startsWith(visitLinePrefix)
             val isSectionHeader = line.isNotBlank() && !line.startsWith("- ") && line.endsWith(":")
+            val isNestedItemLine = line.startsWith("-- ")
             val isItemLine = line.startsWith("- ")
-            val itemValue = if (isItemLine && line.contains(":")) line.substringAfter(":").trim() else ""
-            val shouldHideItem = isItemLine && (itemValue.equals("N/A", ignoreCase = true) || itemValue.equals(noDataLabel, ignoreCase = true))
+            val itemValue = if ((isItemLine || isNestedItemLine) && line.contains(":")) line.substringAfter(":").trim() else ""
+            val shouldHideItem = (isItemLine || isNestedItemLine) && (itemValue.equals("N/A", ignoreCase = true) || itemValue.equals(noDataLabel, ignoreCase = true))
 
             if (shouldHideItem && !includeUnavailable) {
                 return@forEachIndexed
@@ -1476,6 +1488,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             val displayLine = when {
                 isVisitLine -> line
                 isSectionHeader -> "\u2022 $displaySectionHeader"
+                isNestedItemLine -> "      \u25AA ${line.removePrefix("-- ").trimStart()}"
                 isItemLine -> "   \u25E6 ${line.removePrefix("- ").trimStart()}"
                 else -> line
             }
@@ -1486,7 +1499,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             if (isHeader) {
                 styled.setSpan(StyleSpan(Typeface.BOLD), start, styled.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
-            if (isItemLine) {
+            if (isItemLine || isNestedItemLine) {
                 val colonIndex = displayLine.indexOf(':')
                 if (colonIndex >= 0 && colonIndex + 1 < displayLine.length) {
                     val valueStartInLine = (colonIndex + 1).let { idx ->
@@ -1532,23 +1545,25 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         target: StringBuilder,
         header: String,
         referral: ReferralFollowUpFields?,
+        fallbackModel: ReferralFollowUpModel?,
         boolFormatter: (Boolean?) -> String,
         valueFormatter: (Any?) -> String
     ) {
         target.append("- ").append(header).append(":\n")
-        if (referral == null) {
-            target.append("- ").append(getString(R.string.no_data)).append("\n")
+        val source = referral ?: fallbackModel
+        if (source == null) {
+            target.append("-- ").append(getString(R.string.no_data)).append("\n")
             return
         }
 
-        target.append("- ").append(getString(R.string.cphc_case_status)).append(": ").append(valueFormatter(referral.caseStatus)).append("\n")
-        target.append("- ").append(getString(R.string.cphc_date_of_death)).append(": ").append(valueFormatter(referral.dateOfDeath)).append("\n")
-        target.append("- ").append(getString(R.string.cphc_follow_up_required)).append(": ").append(boolFormatter(referral.followUpRequired)).append("\n")
-        target.append("- ").append(getString(R.string.follow_up_date_title)).append(": ").append(valueFormatter(referral.followUpDate)).append("\n")
-        target.append("- ").append(getString(R.string.cphc_referral_required)).append(": ").append(boolFormatter(referral.referralRequired)).append("\n")
-        target.append("- ").append(getString(R.string.cphc_referral_level)).append(": ").append(valueFormatter(referral.referralLevel)).append("\n")
-        target.append("- ").append(getString(R.string.cphc_reason_for_referral)).append(": ").append(valueFormatter(referral.reasonForReferral)).append("\n")
-        target.append("- ").append(getString(R.string.cphc_remarks)).append(": ").append(valueFormatter(referral.remarks)).append("\n")
+        target.append("-- ").append(getString(R.string.cphc_case_status)).append(": ").append(valueFormatter(source.caseStatus)).append("\n")
+        target.append("-- ").append(getString(R.string.cphc_date_of_death)).append(": ").append(valueFormatter(source.dateOfDeath)).append("\n")
+        target.append("-- ").append(getString(R.string.cphc_follow_up_required)).append(": ").append(boolFormatter(source.followUpRequired)).append("\n")
+        target.append("-- ").append(getString(R.string.follow_up_date_title)).append(": ").append(valueFormatter(source.followUpDate)).append("\n")
+        target.append("-- ").append(getString(R.string.cphc_referral_required)).append(": ").append(boolFormatter(source.referralRequired)).append("\n")
+        target.append("-- ").append(getString(R.string.cphc_referral_level)).append(": ").append(valueFormatter(source.referralLevel)).append("\n")
+        target.append("-- ").append(getString(R.string.cphc_reason_for_referral)).append(": ").append(valueFormatter(source.reasonForReferral)).append("\n")
+        target.append("-- ").append(getString(R.string.cphc_remarks)).append(": ").append(valueFormatter(source.remarks)).append("\n")
     }
 
     fun convertToPrescriptionValuesFromPC(
