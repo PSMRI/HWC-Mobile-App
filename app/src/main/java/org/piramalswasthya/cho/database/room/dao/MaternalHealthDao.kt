@@ -103,6 +103,19 @@ interface MaternalHealthDao {
 
     @Transaction
     @Query("""
+        SELECT DISTINCT p.* FROM PATIENT p
+        LEFT OUTER JOIN PREGNANCY_REGISTER pwr ON p.patientID = pwr.patientID
+        WHERE (pwr.patientID IS NULL OR pwr.active = 1)
+        AND p.genderID = 2
+        AND p.maritalStatusID = 2
+        AND p.statusOfWomanID IN (2)
+        AND p.age BETWEEN 15 AND 49
+        ORDER BY p.registrationDate DESC
+    """)
+    fun getAllPatientsWithANC(): Flow<List<PatientWithPwrCache>>
+
+    @Transaction
+    @Query("""
         SELECT p.* FROM PATIENT p
         WHERE EXISTS (
             SELECT 1 FROM ELIGIBLE_COUPLE_TRACKING ect
@@ -131,12 +144,6 @@ interface MaternalHealthDao {
      */
     @Query("SELECT COUNT(DISTINCT patientID) FROM pregnancy_register WHERE active = 1")
     fun getPWRCount(): Flow<Int>
-
-    /**
-     * Count of pregnant women eligible for ANC: active PWR with LMP at or before the given cutoff.
-     */
-    @Query("SELECT COUNT(DISTINCT patientID) FROM pregnancy_register WHERE active = 1 AND lmpDate > 0 AND lmpDate <= :lmpCutoffMillis")
-    fun getANCEligibleCount(lmpCutoffMillis: Long): Flow<Int>
 
     /**
      * Get patientIDs for Delivery Outcome list from ANC (isDelivered=true) + DELIVERY_OUTCOME.

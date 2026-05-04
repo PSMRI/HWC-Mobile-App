@@ -93,7 +93,7 @@ class ChildBeneficiaryRegistrationDataset(
         motherName.value = fullMotherName
         fatherName.value = motherPatient.spouseName ?: motherPatient.parentName ?: ""
         mobileNumber.value = motherPatient.phoneNo ?: ""
-        birthWeight.value = infantRegCache.weight?.toString()
+        birthWeight.value = infantRegCache.weight?.let { (it * 1000).toInt().toString() }
 
         val childDobMillis = existingChild?.dob?.time ?: deliveryOutcomeCache.dateOfDelivery
         dob.value = childDobMillis?.let { getDateFromLong(it) }

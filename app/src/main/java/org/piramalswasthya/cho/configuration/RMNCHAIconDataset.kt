@@ -182,7 +182,7 @@ class RMNCHAIconDataset @Inject constructor(
             Icon(
                 R.drawable.ic__anc_visit,
                 resources.getString(R.string.anc_visits),
-                maternalHealthRepo.getANCEligibleCount(),
+                maternalHealthRepo.getANCCount(),
                 showANCVisitsAction
             ),
             Icon(

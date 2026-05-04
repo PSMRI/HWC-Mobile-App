@@ -103,7 +103,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val asha = userRepo.getLoggedInUser()!!
+            val asha = userRepo.getLoggedInUser()
             val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${if (ben.patient.lastName == null) "" else ben.patient.lastName}"
@@ -111,8 +111,8 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                 eligibleCoupleTracking = EligibleCoupleTrackingCache(
                     patientID = patientID,
                     syncState = SyncState.UNSYNCED,
-                    createdBy = asha.userName,
-                    updatedBy = asha.userName,
+                    createdBy = asha?.userName ?: "",
+                    updatedBy = asha?.userName ?: "",
                 )
             }
 

@@ -83,6 +83,18 @@ class ChildRegistrationFragment : Fragment() {
             formAdapter.submitList(elements)
         }
 
+        // The dataset signals here when it has mutated a FormElement's value
+        // in place (e.g. "None" mutual exclusion on newbornComplications).
+        // DiffUtil cannot detect the change, so force a row rebind. Reference
+        // formAdapter at notify time so we follow any reassignment in
+        // applyScreenMode().
+        viewLifecycleOwner.lifecycleScope.launch {
+            dataset.forceRefreshIdFlow.collect { id ->
+                val pos = formAdapter.currentList.indexOfFirst { it.id == id }
+                if (pos != -1) formAdapter.notifyItemChanged(pos)
+            }
+        }
+
         setupClickListeners()
         observeAlerts()
         loadData()

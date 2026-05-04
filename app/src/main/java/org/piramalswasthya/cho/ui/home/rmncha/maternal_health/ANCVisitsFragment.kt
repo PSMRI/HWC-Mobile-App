@@ -127,7 +127,7 @@ class ANCVisitsFragment : BaseMaternalHealthListFragment<FragmentAncVisitsBindin
 
     override fun observePatients() {
         viewLifecycleOwner.lifecycleScope.launch {
-            maternalHealthRepo.getAllPatientsWithPWR().collectLatest { patientsList ->
+            maternalHealthRepo.getAllPatientsWithANC().collectLatest { patientsList ->
                 allPatients = patientsList
                     .map { it.asDomainModel() }
                     .filter { patient ->
