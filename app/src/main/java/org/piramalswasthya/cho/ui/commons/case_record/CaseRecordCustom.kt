@@ -71,6 +71,7 @@ import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.model.ProceduresMasterData
+import org.piramalswasthya.cho.model.ReferralFollowUpFields
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
@@ -1107,6 +1108,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         viewModel.getElderlyByPatientAndVisit(popupPatientId, currentVisitNo)
                     val mentalScreening =
                         viewModel.getMentalByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val painAssessment =
+                        viewModel.getPainAssessmentByPatientAndVisit(popupPatientId, currentVisitNo)
+                    val psychosocialSupport =
+                        viewModel.getPsychosocialByPatientAndVisit(popupPatientId, currentVisitNo)
                     val hasAnyCphcData =
                         chiefComplaints.isNotEmpty() ||
                                 earDiagnosis != null ||
@@ -1115,7 +1120,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                 oralHealth != null ||
                                 ophthalmicVisit != null ||
                                 elderlyAssessment != null ||
-                                mentalScreening != null
+                                mentalScreening != null ||
+                                painAssessment != null ||
+                                psychosocialSupport != null
                     if (!hasAnyCphcData) return@buildString
 
                     append(getString(R.string.cphc_visit_current_format, currentVisitNo)).append("\n")
@@ -1316,6 +1323,48 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         append("- ").append(getString(R.string.cphc_mental_referral_escalation_required)).append(": ").append(boolLabel(mentalScreening.referralEscalationRequired)).append("\n")
                         append("- ").append(getString(R.string.cphc_mental_case_closure_reason)).append(": ").append(valueLabel(mentalScreening.caseClosureReason)).append("\n")
                     }
+
+                    if (painAssessment != null) {
+                        append(getString(R.string.pain_symptom_assessment_palliative)).append(":\n")
+                        append("- ").append(getString(R.string.pain_severity)).append(": ").append(valueLabel(painAssessment.painSeverity)).append("\n")
+                        append("- ").append(getString(R.string.pain_duration)).append(": ").append(valueLabel(painAssessment.painDuration)).append("\n")
+                        append("- ").append(getString(R.string.other_symptoms_present)).append(": ").append(boolLabel(painAssessment.symptomsPresent)).append("\n")
+                        append("- ").append(getString(R.string.other_symptoms_severity)).append(": ").append(valueLabel(painAssessment.otherSymptomsSeverity)).append("\n")
+                        append("- ").append(getString(R.string.immediate_relief_provided)).append(": ").append(boolLabel(painAssessment.immediateReliefProvided)).append("\n")
+                        append("- ").append(getString(R.string.persistent_pain_present)).append(": ").append(boolLabel(painAssessment.persistentPainPresent)).append("\n")
+                        append("- ").append(getString(R.string.distressing_symptoms_present)).append(": ").append(valueLabel(painAssessment.distressingSymptoms)).append("\n")
+                        append("- ").append(getString(R.string.bedridden_or_severely_dependent)).append(": ").append(boolLabel(painAssessment.bedriddenOrSeverelyDependent)).append("\n")
+                        append("- ").append(getString(R.string.life_limiting_illness_known)).append(": ").append(boolLabel(painAssessment.lifeLimitingIllnessKnown)).append("\n")
+                        append("- ").append(getString(R.string.caregiver_support_required)).append(": ").append(boolLabel(painAssessment.caregiverSupportRequired)).append("\n")
+                        append("- ").append(getString(R.string.palliative_care_eligible)).append(": ").append(boolLabel(painAssessment.palliativeCareEligible)).append("\n")
+                        append("- ").append(getString(R.string.symptom_assessment_basic_field_title)).append(": ").append(valueLabel(painAssessment.basicSymptomsSelected)).append("\n")
+                        append("- ").append(getString(R.string.basic_symptom_relief_provided)).append(": ").append(boolLabel(painAssessment.basicSymptomReliefProvided)).append("\n")
+                        append("- ").append(getString(R.string.basic_psychosocial_support_provided)).append(": ").append(boolLabel(painAssessment.basicPsychosocialSupportProvided)).append("\n")
+                        append("- ").append(getString(R.string.basic_caregiver_counselling_provided)).append(": ").append(boolLabel(painAssessment.basicCaregiverCounsellingProvided)).append("\n")
+                        append("- ").append(getString(R.string.basic_management_remarks)).append(": ").append(valueLabel(painAssessment.basicManagementRemarks)).append("\n")
+                        appendNestedObjectFields(
+                            target = this,
+                            header = getString(R.string.cphc_referral),
+                            referral = painAssessment.referralFollowUp,
+                            boolFormatter = ::boolLabel,
+                            valueFormatter = ::valueLabel
+                        )
+                    }
+
+                    if (psychosocialSupport != null) {
+                        append(getString(R.string.title_psychosocial_caregiver_support)).append(":\n")
+                        append("- ").append(getString(R.string.psychosocial_counselling_provided)).append(": ").append(boolLabel(psychosocialSupport.psychosocialCounsellingProvided)).append("\n")
+                        append("- ").append(getString(R.string.psychosocial_caregiver_counselling)).append(": ").append(boolLabel(psychosocialSupport.caregiverCounsellingProvided)).append("\n")
+                        append("- ").append(getString(R.string.psychosocial_caregiver_distress)).append(": ").append(boolLabel(psychosocialSupport.caregiverDistressIdentified)).append("\n")
+                        append("- ").append(getString(R.string.psychosocial_counselling_remarks)).append(": ").append(valueLabel(psychosocialSupport.counsellingRemarks)).append("\n")
+                        appendNestedObjectFields(
+                            target = this,
+                            header = getString(R.string.cphc_referral),
+                            referral = psychosocialSupport.referralFollowUp,
+                            boolFormatter = ::boolLabel,
+                            valueFormatter = ::valueLabel
+                        )
+                    }
                 }.trim()
             }
 
@@ -1477,6 +1526,29 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private fun dpToPx(dp: Float): Int {
         val density = resources.displayMetrics.density
         return (dp * density).toInt()
+    }
+
+    private fun appendNestedObjectFields(
+        target: StringBuilder,
+        header: String,
+        referral: ReferralFollowUpFields?,
+        boolFormatter: (Boolean?) -> String,
+        valueFormatter: (Any?) -> String
+    ) {
+        target.append("- ").append(header).append(":\n")
+        if (referral == null) {
+            target.append("- ").append(getString(R.string.no_data)).append("\n")
+            return
+        }
+
+        target.append("- ").append(getString(R.string.cphc_case_status)).append(": ").append(valueFormatter(referral.caseStatus)).append("\n")
+        target.append("- ").append(getString(R.string.cphc_date_of_death)).append(": ").append(valueFormatter(referral.dateOfDeath)).append("\n")
+        target.append("- ").append(getString(R.string.cphc_follow_up_required)).append(": ").append(boolFormatter(referral.followUpRequired)).append("\n")
+        target.append("- ").append(getString(R.string.follow_up_date_title)).append(": ").append(valueFormatter(referral.followUpDate)).append("\n")
+        target.append("- ").append(getString(R.string.cphc_referral_required)).append(": ").append(boolFormatter(referral.referralRequired)).append("\n")
+        target.append("- ").append(getString(R.string.cphc_referral_level)).append(": ").append(valueFormatter(referral.referralLevel)).append("\n")
+        target.append("- ").append(getString(R.string.cphc_reason_for_referral)).append(": ").append(valueFormatter(referral.reasonForReferral)).append("\n")
+        target.append("- ").append(getString(R.string.cphc_remarks)).append(": ").append(valueFormatter(referral.remarks)).append("\n")
     }
 
     fun convertToPrescriptionValuesFromPC(

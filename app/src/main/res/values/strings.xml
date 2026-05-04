@@ -234,6 +234,7 @@
     <string name="bedridden_or_severely_dependent">Bedridden or severely dependent</string>
     <string name="life_limiting_illness_known">Life-limiting illness known</string>
     <string name="caregiver_support_required">Caregiver support required</string>
+    <string name="palliative_care_eligible">Palliative care eligible</string>
     <string name="breathlessness">Breathlessness</string>
     <string name="nausea">Nausea</string>
     <string name="fatigue">Fatigue</string>
@@ -1305,6 +1306,15 @@
     <string name="cphc_reported_concerns">Reported Concerns:</string>
     <string name="cphc_show_unavailable_details">Show unavailable details (%1$d)</string>
     <string name="cphc_hide_unavailable_details">Hide unavailable details</string>
+    <string name="cphc_referral_follow_up">Referral and Follow-up</string>
+    <string name="cphc_referral">Referral</string>
+    <string name="cphc_case_status">Case Status</string>
+    <string name="cphc_date_of_death">Date of Death</string>
+    <string name="cphc_follow_up_required">Follow-up Required</string>
+    <string name="cphc_referral_required">Referral Required</string>
+    <string name="cphc_referral_level">Referral Level</string>
+    <string name="cphc_reason_for_referral">Reason for Referral</string>
+    <string name="cphc_remarks">Remarks</string>
     <string name="cphc_ear_diagnosis">Ear Diagnosis</string>
     <string name="cphc_ear_foreign_body">Foreign Body In Ear</string>
     <string name="cphc_ear_condition_type">Ear Condition Type</string>

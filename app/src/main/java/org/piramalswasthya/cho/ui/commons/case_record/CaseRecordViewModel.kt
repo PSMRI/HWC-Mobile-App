@@ -37,12 +37,14 @@ import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.PainAndSymptomAssessment
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProceduresMasterData
+import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
 import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.BenFlowRepo
@@ -57,8 +59,10 @@ import org.piramalswasthya.cho.repositories.OphthalmicRepository
 import org.piramalswasthya.cho.repositories.OralHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
+import org.piramalswasthya.cho.repositories.PainAndSymptomAssessmentRepo
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
+import org.piramalswasthya.cho.repositories.PsychosocialCaregiverSupportRepo
 import org.piramalswasthya.cho.repositories.ThroatDiagnosisRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
@@ -81,6 +85,8 @@ class CaseRecordViewModel @Inject constructor(
     private val ophthalmicRepository: OphthalmicRepository,
     private val elderlyHealthRepo: ElderlyHealthRepo,
     private val mentalHealthScreeningRepo: MentalHealthScreeningRepo,
+    private val painAndSymptomAssessmentRepo: PainAndSymptomAssessmentRepo,
+    private val psychosocialCaregiverSupportRepo: PsychosocialCaregiverSupportRepo,
     preferenceDao: PreferenceDao,
     private val procedureRepo: ProcedureRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
@@ -403,6 +409,24 @@ class CaseRecordViewModel @Inject constructor(
             mentalHealthScreeningRepo.getScreeningByPatientIdAndVisitNo(patientID, benVisitNo)
         } catch (e: Exception) {
             Timber.d("Error in getMentalByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getPainAssessmentByPatientAndVisit(patientID: String, benVisitNo: Int): PainAndSymptomAssessment? {
+        return try {
+            painAndSymptomAssessmentRepo.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getPainAssessmentByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getPsychosocialByPatientAndVisit(patientID: String, benVisitNo: Int): PsychosocialCaregiverSupport? {
+        return try {
+            psychosocialCaregiverSupportRepo.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getPsychosocialByPatientAndVisit $e")
             null
         }
     }
