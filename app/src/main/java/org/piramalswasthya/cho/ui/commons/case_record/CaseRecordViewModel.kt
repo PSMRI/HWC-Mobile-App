@@ -25,6 +25,20 @@ import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.HigherHealthCenter
+import org.piramalswasthya.cho.model.EarDiagnosisAssessment
+import org.piramalswasthya.cho.repositories.EarDiagnosisRepo
+import org.piramalswasthya.cho.model.ElderlyHealthAssessment
+import org.piramalswasthya.cho.model.MentalHealthScreeningCache
+import org.piramalswasthya.cho.model.NoseDiagnosisAssessment
+import org.piramalswasthya.cho.model.OphthalmicVisit
+import org.piramalswasthya.cho.model.OralHealth
+import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
+import org.piramalswasthya.cho.repositories.ElderlyHealthRepo
+import org.piramalswasthya.cho.repositories.MentalHealthScreeningRepo
+import org.piramalswasthya.cho.repositories.NoseDiagnosisRepo
+import org.piramalswasthya.cho.repositories.OphthalmicRepository
+import org.piramalswasthya.cho.repositories.OralHealthRepo
+import org.piramalswasthya.cho.repositories.ThroatDiagnosisRepo
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.PastIllnessHistory
@@ -60,6 +74,13 @@ class CaseRecordViewModel @Inject constructor(
     private val doctorMasterDataMaleRepo: DoctorMasterDataMaleRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
+    private val earDiagnosisRepo: EarDiagnosisRepo,
+    private val noseDiagnosisRepo: NoseDiagnosisRepo,
+    private val throatDiagnosisRepo: ThroatDiagnosisRepo,
+    private val oralHealthRepo: OralHealthRepo,
+    private val ophthalmicRepository: OphthalmicRepository,
+    private val elderlyHealthRepo: ElderlyHealthRepo,
+    private val mentalHealthScreeningRepo: MentalHealthScreeningRepo,
     preferenceDao: PreferenceDao,
     private val procedureRepo: ProcedureRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
@@ -266,6 +287,124 @@ class CaseRecordViewModel @Inject constructor(
             }
         }
     }
+    suspend fun getChiefComplaintByPatientAndVisit(patientID: String, benVisitNo: Int): List<ChiefComplaintDB> {
+        return try {
+            visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getChiefComplaintByPatientAndVisit $e")
+            emptyList()
+        }
+    }
+
+    suspend fun getVitalsByPatientAndVisit(patientID: String, benVisitNo: Int): PatientVitalsModel? {
+        return try {
+            vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getVitalsByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getEarDiagnosisByPatientAndVisit(patientID: String, benVisitNo: Int): EarDiagnosisAssessment? {
+        return try {
+            earDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getEarDiagnosisByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getLatestChiefComplaints(patientID: String): List<ChiefComplaintDB> {
+        return try {
+            visitReasonsAndCategoriesRepo.getChiefComplaintsByPatientAndBenForFollowUp(patientID)
+        } catch (e: Exception) {
+            Timber.d("Error in getLatestChiefComplaints $e")
+            emptyList()
+        }
+    }
+
+    suspend fun getLatestVitals(patientID: String): PatientVitalsModel? {
+        return try {
+            vitalsRepo.getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID)
+        } catch (e: Exception) {
+            Timber.d("Error in getLatestVitals $e")
+            null
+        }
+    }
+
+    suspend fun getLatestEarDiagnosis(patientID: String): EarDiagnosisAssessment? {
+        return try {
+            earDiagnosisRepo.getAssessmentByPatientId(patientID)
+        } catch (e: Exception) {
+            Timber.d("Error in getLatestEarDiagnosis $e")
+            null
+        }
+    }
+    suspend fun getNoseDiagnosisByPatientAndVisit(patientID: String, benVisitNo: Int): NoseDiagnosisAssessment? {
+        return try {
+            noseDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getNoseDiagnosisByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getThroatDiagnosisByPatientAndVisit(patientID: String, benVisitNo: Int): ThroatDiagnosisAssessment? {
+        return try {
+            throatDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getThroatDiagnosisByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getOralHealthByPatientAndVisit(patientID: String, benVisitNo: Int): OralHealth? {
+        return try {
+            oralHealthRepo.getByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getOralHealthByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getOphthalmicByPatientAndVisit(patientID: String, benVisitNo: Int): OphthalmicVisit? {
+        return try {
+            ophthalmicRepository.getOphthalmicVisit(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getOphthalmicByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getElderlyByPatientAndVisit(patientID: String, benVisitNo: Int): ElderlyHealthAssessment? {
+        return try {
+            elderlyHealthRepo.getAssessment(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getElderlyByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getMentalByPatientAndVisit(patientID: String, benVisitNo: Int): MentalHealthScreeningCache? {
+        return try {
+            mentalHealthScreeningRepo.getScreeningByPatientIdAndVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getMentalByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun getVisitCategoryByPatientAndVisit(patientID: String, benVisitNo: Int): String? {
+        return try {
+            visitReasonsAndCategoriesRepo
+                .getVisitDbByPatientIDAndBenVisitNo(patientID, benVisitNo)
+                ?.category
+        } catch (e: Exception) {
+            Timber.d("Error in getVisitCategoryByPatientAndVisit $e")
+            null
+        }
+    }
+
 
     private fun getHigherHealthCareDropdown(){
         try{
