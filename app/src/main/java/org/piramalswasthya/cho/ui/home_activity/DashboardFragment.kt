@@ -39,6 +39,9 @@ class DashboardFragment : Fragment() {
 
     private var ancCount : Int? = 0
     private var pncCount : Int? = 0
+    private var maleNcdCount : Int? = 0
+    private var femaleNcdCount : Int? = 0
+    private var othersNcdCount : Int? = 0
     private var ncdCount : Int? = 0
     private var immunizationCount : Int? = 0
     private var ectCount : Int? = 0
@@ -100,10 +103,15 @@ class DashboardFragment : Fragment() {
 
         ancCount = benFlowDao.getAncCount(periodParam!!, user.userName) ?: 0
         pncCount = benFlowDao.getPncCount(periodParam!!, user.userName) ?: 0
-        ncdCount = benFlowDao.getNcdCount(periodParam!!, user.userName) ?: 0
-        if (ncdCount == 0) {
-            ncdCount = benFlowDao.getNcdCountAllTime(user.userName) ?: 0
+        maleNcdCount = benFlowDao.getNcdCountByGender("male", periodParam!!, user.userName) ?: 0
+        femaleNcdCount = benFlowDao.getNcdCountByGender("female", periodParam!!, user.userName) ?: 0
+        othersNcdCount = benFlowDao.getNcdCountByGender("other", periodParam!!, user.userName) ?: 0
+        if ((maleNcdCount!! + femaleNcdCount!! + othersNcdCount!!) == 0) {
+            maleNcdCount = benFlowDao.getNcdCountAllTimeByGender("male", user.userName) ?: 0
+            femaleNcdCount = benFlowDao.getNcdCountAllTimeByGender("female", user.userName) ?: 0
+            othersNcdCount = benFlowDao.getNcdCountAllTimeByGender("other", user.userName) ?: 0
         }
+        ncdCount = maleNcdCount!! + femaleNcdCount!! + othersNcdCount!!
 
         immunizationCount = benFlowDao.getImmunizationCount(periodParam!!, user.userName) ?: 0
         ectCount = benFlowDao.getEctCount(periodParam!!, user.userName) ?: 0
@@ -112,6 +120,9 @@ class DashboardFragment : Fragment() {
         binding.tvPncValue.text = pncCount.toString()
         binding.tvImmValue.text = immunizationCount.toString()
         binding.tvFamValue.text = ectCount.toString()
+        binding.ncdMaleValue.text = maleNcdCount.toString()
+        binding.ncdFemaleValue.text = femaleNcdCount.toString()
+        binding.ncdOtherValue.text = othersNcdCount.toString()
         binding.ncdTotalValue.text = ncdCount.toString()
 
     }
