@@ -351,7 +351,7 @@ class NeonatalOutcomeDataset(
                 )
             }
             newbornComplications.id -> {
-                val realIndex = if (index < 0) -index else index
+                val realIndex = (if (index < 0) -index else index) - 1
                 val localizedEntries = newbornComplications.entries
                 // Identify "None" by its position in the English array so the
                 // logic works in every locale (Hindi, Assamese, etc.).
@@ -381,7 +381,7 @@ class NeonatalOutcomeDataset(
                 -1
             }
             birthDoseVaccinesGiven.id -> {
-                val realIndex = if (index < 0) -index else index
+                val realIndex = (if (index < 0) -index else index) - 1
                 val localizedEntries = birthDoseVaccinesGiven.entries
                 // Locale-neutral "None" identification.
                 val noneIndex = englishResources

@@ -1090,7 +1090,7 @@ class PregnantWomanRegistrationDataset(
         alertMessage: String? = null
     ): Int {
         val entries = field.entries!!
-        val realIndex = if (index < 0) -index else index
+        val realIndex = (if (index < 0) -index else index) - 1
         val clickedOption = entries[realIndex]
         val currentValue = field.value ?: ""
         if (realIndex == 0) {
@@ -1120,7 +1120,7 @@ class PregnantWomanRegistrationDataset(
     }
 
     private fun handleComplicationsChange(index: Int): Int {
-        val realIndex = if (index < 0) -index else index
+        val realIndex = (if (index < 0) -index else index) - 1
         return handleCheckboxFieldChange(
             field = complicationsInPreviousPregnancy,
             index = index,
@@ -1188,7 +1188,7 @@ class PregnantWomanRegistrationDataset(
     }
 
     private fun handlePreExistingConditionsChange(index: Int): Int {
-        val realIndex = if (index < 0) -index else index
+        val realIndex = (if (index < 0) -index else index) - 1
         return handleCheckboxFieldChange(
             field = preExistingConditions,
             index = index,

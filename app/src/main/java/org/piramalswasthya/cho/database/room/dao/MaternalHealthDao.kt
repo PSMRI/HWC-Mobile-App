@@ -110,6 +110,12 @@ interface MaternalHealthDao {
         AND p.maritalStatusID = 2
         AND p.statusOfWomanID IN (2)
         AND p.age BETWEEN 15 AND 49
+        AND NOT EXISTS (
+            SELECT 1 FROM PREGNANCY_ANC anc
+            WHERE anc.patientID = p.patientID
+              AND anc.isActive = 1
+              AND anc.pregnantWomanDelivered = 1
+        )
         ORDER BY p.registrationDate DESC
     """)
     fun getAllPatientsWithANC(): Flow<List<PatientWithPwrCache>>

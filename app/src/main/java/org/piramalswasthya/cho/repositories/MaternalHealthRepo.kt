@@ -359,10 +359,22 @@ class MaternalHealthRepo @Inject constructor(
     }
 
     /**
-     * Get count of pregnant women registrations
+     * Get count of women on the Pregnant Women Registration list.
+     * Derives from the same combined Flow as PregnantWomenRegistrationFragment
+     * (PWR-side + ECT-positive catch-all) and applies the same Kotlin predicate,
+     * so the grid count and the list row count cannot drift.
      */
     fun getPWRCount(): Flow<Int> {
-        return maternalHealthDao.getPWRCount()
+        return getAllPatientsWithPWR().map { list ->
+            list.map { it.asDomainModel() }
+                .count { domain ->
+                    val isFemale = domain.patient.genderID == 2
+                    val age = domain.patient.age ?: 0
+                    val isReproductiveAge = age in 15..49
+                    val isPostnatal = domain.patient.statusOfWomanID == 3
+                    isFemale && isReproductiveAge && !isPostnatal
+                }
+        }
     }
 
     /**

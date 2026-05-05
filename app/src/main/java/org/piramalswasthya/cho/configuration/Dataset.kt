@@ -167,14 +167,15 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
         // that could reset EditText fields while user is typing
         if (updateIndex != -1 || errorStateChanged) {
             val newList = list.toMutableList()
-//            if (updateUIForCurrentElement) {
-//                Timber.d("Updating UI element ...")
-//                newList[updateIndex] = list[updateIndex].cloneForm()
-//                updateUIForCurrentElement = false
-//            }
             Timber.d("Emitting list (updateIndex=$updateIndex, errorChanged=$errorStateChanged)")
-//            _listFlow.emit(emptyList())
             _listFlow.emit(newList)
+            // The list emission alone is not enough when only errorText was
+            // mutated in place: DiffUtil's areContentsTheSame compares the same
+            // FormElement reference on both sides, so the change is invisible
+            // and the row stays visually stale. Force a rebind on this row.
+            if (errorStateChanged && updateIndex == -1) {
+                forceRefreshId(formId)
+            }
         } else {
             Timber.d("Skipping list emission (only value changed, no structural or error changes)")
         }
