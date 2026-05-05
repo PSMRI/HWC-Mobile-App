@@ -350,10 +350,69 @@ class NeonatalOutcomeDataset(
                     showItems = listOf(otherCauseOfDeath)
                 )
             }
+            newbornComplications.id -> {
+                val realIndex = (if (index < 0) -index else index) - 1
+                val localizedEntries = newbornComplications.entries
+                // Identify "None" by its position in the English array so the
+                // logic works in every locale (Hindi, Assamese, etc.).
+                val noneIndex = englishResources
+                    .getStringArray(newbornComplications.arrayId)
+                    .indexOf("None")
+                val noneLocalized = localizedEntries?.getOrNull(noneIndex)
+                val clickedOption = localizedEntries?.getOrNull(realIndex) ?: return -1
+                val isNoneOption = noneIndex >= 0 && realIndex == noneIndex
+                val isChecked = index > 0
+
+                if (isChecked) {
+                    if (isNoneOption) {
+                        // "None" just checked — clear every other selection.
+                        newbornComplications.value = clickedOption
+                    } else {
+                        // A real complication was checked — drop "None" if it was set.
+                        val parts = (newbornComplications.value ?: "")
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != noneLocalized }
+                        newbornComplications.value =
+                            if (parts.isEmpty()) null else parts.joinToString(",")
+                    }
+                    forceRefreshId(newbornComplications.id)
+                }
+                -1
+            }
             birthDoseVaccinesGiven.id -> {
+                val realIndex = (if (index < 0) -index else index) - 1
+                val localizedEntries = birthDoseVaccinesGiven.entries
+                // Locale-neutral "None" identification.
+                val noneIndex = englishResources
+                    .getStringArray(birthDoseVaccinesGiven.arrayId)
+                    .indexOf("None")
+                val noneLocalized = localizedEntries?.getOrNull(noneIndex)
+                val clickedOption = localizedEntries?.getOrNull(realIndex)
+                val isNoneOption = noneIndex >= 0 && realIndex == noneIndex
+                val isChecked = index > 0
+
+                if (clickedOption != null && isChecked) {
+                    if (isNoneOption) {
+                        birthDoseVaccinesGiven.value = clickedOption
+                    } else {
+                        val parts = (birthDoseVaccinesGiven.value ?: "")
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != noneLocalized }
+                        birthDoseVaccinesGiven.value =
+                            if (parts.isEmpty()) null else parts.joinToString(",")
+                    }
+                    forceRefreshId(birthDoseVaccinesGiven.id)
+                }
+
+                val noneIsSelected = noneLocalized != null && (birthDoseVaccinesGiven.value ?: "")
+                    .split(",")
+                    .map { it.trim() }
+                    .any { it == noneLocalized }
                 toggleDependant(
                     source = birthDoseVaccinesGiven,
-                    condition = birthDoseVaccinesGiven.value?.contains("None") == true,
+                    condition = noneIsSelected,
                     showItems = listOf(reasonForNoVaccines)
                 )
             }

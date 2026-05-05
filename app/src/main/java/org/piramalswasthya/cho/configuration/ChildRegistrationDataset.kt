@@ -808,12 +808,34 @@ class ChildRegistrationDataset(
             }
 
             birthDoseVaccinesGiven.id -> {
+                val realIndex = (if (index < 0) -index else index) - 1
+                val localizedEntries = birthDoseVaccinesGiven.entries
+                // Locale-neutral "None" identification.
+                val noneIndex = englishResources
+                    .getStringArray(birthDoseVaccinesGiven.arrayId)
+                    .indexOf("None")
+                val noneLocalized = localizedEntries?.getOrNull(noneIndex)
+                val clickedOption = localizedEntries?.getOrNull(realIndex)
+                val isNoneOption = noneIndex >= 0 && realIndex == noneIndex
+                val isChecked = index > 0
+
+                if (clickedOption != null && isChecked) {
+                    if (isNoneOption) {
+                        birthDoseVaccinesGiven.value = clickedOption
+                    } else {
+                        val parts = (birthDoseVaccinesGiven.value ?: "")
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != noneLocalized }
+                        birthDoseVaccinesGiven.value =
+                            if (parts.isEmpty()) null else parts.joinToString(",")
+                    }
+                    forceRefreshId(birthDoseVaccinesGiven.id)
+                }
+
                 val updateIndex = toggleDependant(
                     source = birthDoseVaccinesGiven,
-                    condition = hasSelectedOption(
-                        birthDoseVaccinesGiven.value,
-                        resources.getStringArray(R.array.no_birth_dose_vaccines_array).getOrNull(3)
-                    ),
+                    condition = hasSelectedOption(birthDoseVaccinesGiven.value, noneLocalized),
                     showItems = listOf(reasonForNoVaccines)
                 )
                 refreshConditionalRequirements()
@@ -857,8 +879,38 @@ class ChildRegistrationDataset(
             }
 
             newbornComplications.id -> {
-                val noneOption = resources.getStringArray(R.array.no_newborn_complications_array).lastOrNull()
-                if (!hasSelectedOption(newbornComplications.value, noneOption) &&
+                val realIndex = (if (index < 0) -index else index) - 1
+                val localizedEntries = newbornComplications.entries
+                // Identify "None" by its position in the English array so the
+                // logic works in every locale (Hindi, Assamese, etc.).
+                val noneIndex = englishResources
+                    .getStringArray(newbornComplications.arrayId)
+                    .indexOf("None")
+                val noneLocalized = localizedEntries?.getOrNull(noneIndex)
+                val clickedOption = localizedEntries?.getOrNull(realIndex)
+                val isNoneOption = noneIndex >= 0 && realIndex == noneIndex
+                val isChecked = index > 0
+
+                if (clickedOption != null && isChecked) {
+                    if (isNoneOption) {
+                        // "None" just checked → clear every other selection.
+                        newbornComplications.value = clickedOption
+                    } else {
+                        // A real complication was checked → drop "None" if it was set.
+                        val parts = (newbornComplications.value ?: "")
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != noneLocalized }
+                        newbornComplications.value =
+                            if (parts.isEmpty()) null else parts.joinToString(",")
+                    }
+                    // DiffUtil cannot detect the in-place mutation (same FormElement
+                    // reference in old & new lists), so signal the fragment to call
+                    // notifyItemChanged on this row.
+                    forceRefreshId(newbornComplications.id)
+                }
+
+                if (!hasSelectedOption(newbornComplications.value, noneLocalized) &&
                     !newbornComplications.value.isNullOrBlank()
                 ) {
                     emitAlertErrorMessage(R.string.no_alert_complications)

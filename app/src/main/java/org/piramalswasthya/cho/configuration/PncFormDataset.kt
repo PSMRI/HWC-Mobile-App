@@ -753,7 +753,7 @@ class PncFormDataset(
             anyDangerSign.id -> handleDangerSignChange(index)
 
             maternalSymptoms.id -> {
-                val realIndex = if (index < 0) -index else index
+                val realIndex = (if (index < 0) -index else index) - 1
                 val clickedOption = maternalSymptoms.entries?.getOrNull(realIndex) ?: return -1
                 val currentValue = maternalSymptoms.value ?: ""
 

@@ -338,6 +338,17 @@ class MaternalHealthRepo @Inject constructor(
             }
     }
 
+    fun getAllPatientsWithANC(): Flow<List<PatientWithPwrCache>> {
+        return maternalHealthDao.getAllPatientsWithANC()
+            .combine(maternalHealthDao.getAllPatientsWithPWRFromEligibleCoupleTracking()) { pwrList, ectPositiveList ->
+                (pwrList + ectPositiveList)
+                    .distinctBy { it.patient.patientID }
+                    .sortedByDescending {
+                        it.getActiveOrLatestPwr()?.createdDate ?: it.patient.registrationDate?.time ?: 0L
+                    }
+            }
+    }
+
     /**
      * Get specific patient with pregnancy registration
      */
@@ -348,18 +359,46 @@ class MaternalHealthRepo @Inject constructor(
     }
 
     /**
-     * Get count of pregnant women registrations
+     * Get count of women on the Pregnant Women Registration list.
+     * Derives from the same combined Flow as PregnantWomenRegistrationFragment
+     * (PWR-side + ECT-positive catch-all) and applies the same Kotlin predicate,
+     * so the grid count and the list row count cannot drift.
      */
     fun getPWRCount(): Flow<Int> {
-        return maternalHealthDao.getPWRCount()
+        return getAllPatientsWithPWR().map { list ->
+            list.map { it.asDomainModel() }
+                .count { domain ->
+                    val isFemale = domain.patient.genderID == 2
+                    val age = domain.patient.age ?: 0
+                    val isReproductiveAge = age in 15..49
+                    val isPostnatal = domain.patient.statusOfWomanID == 3
+                    isFemale && isReproductiveAge && !isPostnatal
+                }
+        }
     }
 
     /**
-     * Get count of women eligible for ANC (active PWR with LMP >= 5 weeks).
+     * Get count of women eligible for ANC.
+     * Derives from the same combined Flow as ANCVisitsFragment (PWR-side + ECT-positive catch-all)
+     * and applies the same Kotlin predicate, so the grid count and the list row count cannot drift.
      */
-    fun getANCEligibleCount(): Flow<Int> {
+    fun getANCCount(): Flow<Int> {
         val ancEligibilityWindowMillis = 35L * 24 * 60 * 60 * 1000
-        return maternalHealthDao.getANCEligibleCount(System.currentTimeMillis() - ancEligibilityWindowMillis)
+        return getAllPatientsWithANC().map { list ->
+            val now = System.currentTimeMillis()
+            val cutoff = now - ancEligibilityWindowMillis
+            list.map { it.asDomainModel() }
+                .count { domain ->
+                    val hasActivePWR = domain.pwr != null && domain.isActive()
+                    val isFemale = domain.patient.genderID == 2
+                    val age = domain.patient.age ?: 0
+                    val isReproductiveAge = age in 15..49
+                    val isEligibleForANC = domain.pwr?.lmpDate?.let { lmp ->
+                        lmp <= cutoff
+                    } ?: false
+                    hasActivePWR && isFemale && isReproductiveAge && isEligibleForANC
+                }
+        }
     }
 
     /**

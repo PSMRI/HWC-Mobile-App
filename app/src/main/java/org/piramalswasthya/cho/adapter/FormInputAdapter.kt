@@ -536,7 +536,7 @@ class FormInputAdapter(
                                 }
                             }
                             formValueListener?.onValueChanged(
-                                item, index * (if (b) 1 else -1)
+                                item, (index + 1) * (if (b) 1 else -1)
                             )
                             if (item.value.isNullOrBlank()) {
                                 item.value = null
