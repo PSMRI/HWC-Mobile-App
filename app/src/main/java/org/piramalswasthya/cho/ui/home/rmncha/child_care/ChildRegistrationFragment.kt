@@ -281,9 +281,22 @@ class ChildRegistrationFragment : Fragment() {
     ): NeonatalOutcomeCache? {
         if (isEmpty()) return null
 
-        return firstOrNull { it.neonateIndex == babyIndex }
-            ?: firstOrNull { it.neonateIndex == babyIndex + 1 }
-            ?: firstOrNull { it.neonateIndex == babyIndex - 1 }
-            ?: singleOrNull()
+        firstOrNull { it.neonateIndex == babyIndex }?.let { return it }
+
+        if (size == 1) return singleOrNull()
+
+        return normalizeLegacyOneBasedIndices()
+            ?.firstOrNull { it.neonateIndex == babyIndex }
+    }
+
+    private fun List<NeonatalOutcomeCache>.normalizeLegacyOneBasedIndices(): List<NeonatalOutcomeCache>? {
+        val sorted = sortedBy { it.neonateIndex }
+        if (sorted.firstOrNull()?.neonateIndex != 1) return null
+
+        if (sorted.withIndex().any { (index, outcome) -> outcome.neonateIndex != index + 1 }) {
+            return null
+        }
+
+        return sorted.map { it.copy(neonateIndex = it.neonateIndex - 1) }
     }
 }
