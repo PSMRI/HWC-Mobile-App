@@ -53,6 +53,27 @@ interface BenFlowDao {
     @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'PNC') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getPncCount(periodParam: String, createdBy: String) : Int?
 
+    @Query(
+        "SELECT COUNT(*) FROM Visit_DB " +
+                "WHERE LOWER(TRIM(IFNULL(Visit_DB.category, ''))) LIKE '%ncd screening%' " +
+                "AND LOWER(TRIM(IFNULL(createdBy, ''))) = LOWER(TRIM(:createdBy)) " +
+                "AND IFNULL(Visit_DB.benVisitDate, '') LIKE '%' || :periodParam || '%'"
+    )
+    suspend fun getNcdCount(periodParam: String, createdBy: String) : Int?
+
+    @Query(
+        "SELECT COUNT(*) FROM Visit_DB " +
+                "WHERE LOWER(TRIM(IFNULL(Visit_DB.category, ''))) LIKE '%ncd%' " +
+                "AND LOWER(TRIM(IFNULL(createdBy, ''))) = LOWER(TRIM(:createdBy))"
+    )
+    suspend fun getNcdCountAllTime(createdBy: String) : Int?
+
+    @Query(
+        "SELECT COUNT(*) FROM Visit_DB " +
+                "WHERE LOWER(TRIM(IFNULL(Visit_DB.category, ''))) LIKE '%ncd%'"
+    )
+    suspend fun getNcdCountAllUsers() : Int?
+
     @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'Neonatal and Infant Health Care Services') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getImmunizationCount(periodParam: String, createdBy: String) : Int?
 

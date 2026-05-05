@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.home_activity
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +39,7 @@ class DashboardFragment : Fragment() {
 
     private var ancCount : Int? = 0
     private var pncCount : Int? = 0
+    private var ncdCount : Int? = 0
     private var immunizationCount : Int? = 0
     private var ectCount : Int? = 0
 
@@ -98,6 +100,11 @@ class DashboardFragment : Fragment() {
 
         ancCount = benFlowDao.getAncCount(periodParam!!, user.userName) ?: 0
         pncCount = benFlowDao.getPncCount(periodParam!!, user.userName) ?: 0
+        ncdCount = benFlowDao.getNcdCount(periodParam!!, user.userName) ?: 0
+        if (ncdCount == 0) {
+            ncdCount = benFlowDao.getNcdCountAllTime(user.userName) ?: 0
+        }
+
         immunizationCount = benFlowDao.getImmunizationCount(periodParam!!, user.userName) ?: 0
         ectCount = benFlowDao.getEctCount(periodParam!!, user.userName) ?: 0
 
@@ -105,7 +112,7 @@ class DashboardFragment : Fragment() {
         binding.tvPncValue.text = pncCount.toString()
         binding.tvImmValue.text = immunizationCount.toString()
         binding.tvFamValue.text = ectCount.toString()
-
+        binding.ncdTotalValue.text = ncdCount.toString()
 
     }
     @RequiresApi(Build.VERSION_CODES.O)
