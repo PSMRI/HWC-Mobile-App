@@ -14,7 +14,14 @@ import org.piramalswasthya.cho.model.PatientWithDeliveryOutcomeAndInfantRegCache
 @Dao
 interface InfantRegDao {
 
-    @Query("SELECT * FROM INFANT_REG WHERE motherPatientID = :patientID and babyIndex = :babyIndex and isActive = 1 limit 1")
+    @Query("""
+        SELECT * FROM INFANT_REG
+        WHERE motherPatientID = :patientID
+        AND babyIndex = :babyIndex
+        AND isActive = 1
+        ORDER BY updatedDate DESC, createdDate DESC, id DESC
+        LIMIT 1
+    """)
     suspend fun getInfantReg(patientID: String, babyIndex: Int): InfantRegCache?
 
     @Query("SELECT * FROM INFANT_REG WHERE childPatientID = :childPatientID limit 1")

@@ -18,8 +18,10 @@ import org.piramalswasthya.cho.configuration.ChildRegistrationDataset
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentNeonatalOutcomeBinding
 import org.piramalswasthya.cho.model.InfantRegCache
+import org.piramalswasthya.cho.model.NeonatalOutcomeCache
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.InfantRegRepo
+import org.piramalswasthya.cho.repositories.NeonatalOutcomeRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.database.room.SyncState
@@ -35,6 +37,9 @@ class ChildRegistrationFragment : Fragment() {
     
     @Inject
     lateinit var deliveryOutcomeRepo: DeliveryOutcomeRepo
+
+    @Inject
+    lateinit var neonatalOutcomeRepo: NeonatalOutcomeRepo
     
     @Inject
     lateinit var patientRepo: PatientRepo
@@ -101,7 +106,8 @@ class ChildRegistrationFragment : Fragment() {
 
     private fun applyScreenMode(isViewOnly: Boolean) {
         binding.btnSave.visibility = if (isViewOnly) View.GONE else View.VISIBLE
-        binding.btnCancel.text = if (isViewOnly) getString(R.string.back) else getString(R.string.cancel)
+        binding.btnCancel.visibility = if (isViewOnly) View.GONE else View.VISIBLE
+        binding.btnCancel.text = getString(R.string.cancel)
         if (isFormReadOnly == isViewOnly) return
         isFormReadOnly = isViewOnly
         formAdapter = createFormAdapter(readOnly = isFormReadOnly)
@@ -132,15 +138,23 @@ class ChildRegistrationFragment : Fragment() {
 
                 // Load existing infant reg
                 val existing = infantRegRepo.getInfantReg(pid, babyIndex)
+                val legacyNeonatalOutcome = deliveryOutcome.id.let { deliveryOutcomeId ->
+                    if (deliveryOutcomeId > 0L) {
+                        neonatalOutcomeRepo.getNeonatalOutcomesByDeliveryId(deliveryOutcomeId)
+                            .resolveLegacyNeonatalOutcome(babyIndex)
+                    } else {
+                        null
+                    }
+                }
                 
-                currentInfantReg = existing ?: InfantRegCache(
+                currentInfantReg = (existing ?: InfantRegCache(
                     motherPatientID = pid,
                     babyIndex = babyIndex,
                     isActive = true,
                     createdBy = userName,
                     updatedBy = userName,
                     syncState = SyncState.UNSYNCED
-                )
+                )).mergeLegacyNeonatalOutcome(legacyNeonatalOutcome)
 
                 isViewOnlyMode = existing?.processed == "C"
                 applyScreenMode(isViewOnlyMode)
@@ -240,5 +254,36 @@ class ChildRegistrationFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun InfantRegCache.mergeLegacyNeonatalOutcome(
+        neonatalOutcome: NeonatalOutcomeCache?
+    ): InfantRegCache {
+        if (neonatalOutcome == null) return this
+
+        return copy(
+            outcomeAtBirth = outcomeAtBirth ?: neonatalOutcome.outcomeAtBirth,
+            typeOfResuscitation = typeOfResuscitation ?: neonatalOutcome.typeOfResuscitation,
+            newbornComplications = newbornComplications ?: neonatalOutcome.newbornComplications,
+            currentStatusOfBaby = currentStatusOfBaby ?: neonatalOutcome.currentStatusOfBaby,
+            causeOfDeath = causeOfDeath ?: neonatalOutcome.causeOfDeath,
+            otherCauseOfDeath = otherCauseOfDeath ?: neonatalOutcome.otherCauseOfDeath,
+            birthDoseVaccinesGiven = birthDoseVaccinesGiven ?: neonatalOutcome.birthDoseVaccinesGiven,
+            reasonForNoVaccines = reasonForNoVaccines ?: neonatalOutcome.reasonForNoVaccines,
+            vitaminKInjectionGiven = vitaminKInjectionGiven ?: neonatalOutcome.vitaminKInjectionGiven,
+            reasonForNoVitaminK = reasonForNoVitaminK ?: neonatalOutcome.reasonForNoVitaminK,
+            birthCertificateIssued = birthCertificateIssued ?: neonatalOutcome.birthCertificateIssued
+        )
+    }
+
+    private fun List<NeonatalOutcomeCache>.resolveLegacyNeonatalOutcome(
+        babyIndex: Int
+    ): NeonatalOutcomeCache? {
+        if (isEmpty()) return null
+
+        return firstOrNull { it.neonateIndex == babyIndex }
+            ?: firstOrNull { it.neonateIndex == babyIndex + 1 }
+            ?: firstOrNull { it.neonateIndex == babyIndex - 1 }
+            ?: singleOrNull()
     }
 }
