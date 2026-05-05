@@ -53,6 +53,52 @@ interface BenFlowDao {
     @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'PNC') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getPncCount(periodParam: String, createdBy: String) : Int?
 
+    @Query(
+        "SELECT COUNT(*) FROM Visit_DB " +
+                "WHERE LOWER(TRIM(IFNULL(Visit_DB.category, ''))) LIKE '%ncd screening%' " +
+                "AND LOWER(TRIM(IFNULL(createdBy, ''))) = LOWER(TRIM(:createdBy)) " +
+                "AND IFNULL(Visit_DB.benVisitDate, '') LIKE '%' || :periodParam || '%'"
+    )
+    suspend fun getNcdCount(periodParam: String, createdBy: String) : Int?
+
+    @Query(
+        "SELECT COUNT(*) " +
+                "FROM Visit_DB " +
+                "INNER JOIN PATIENT pat ON pat.patientID = Visit_DB.patientID " +
+                "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+                "WHERE LOWER(TRIM(IFNULL(Visit_DB.category, ''))) LIKE '%ncd screening%' " +
+                "AND LOWER(TRIM(IFNULL(Visit_DB.createdBy, ''))) = LOWER(TRIM(:createdBy)) " +
+                "AND IFNULL(Visit_DB.benVisitDate, '') LIKE '%' || :periodParam || '%' " +
+                "AND ( " +
+                "(:genderBucket = 'male' AND LOWER(IFNULL(gen.gender_name, '')) = 'male') " +
+                "OR (:genderBucket = 'female' AND LOWER(IFNULL(gen.gender_name, '')) = 'female') " +
+                "OR (:genderBucket = 'other' AND TRIM(IFNULL(gen.gender_name, '')) <> '' AND LOWER(IFNULL(gen.gender_name, '')) NOT IN ('male', 'female')) " +
+                ")"
+    )
+    suspend fun getNcdCountByGender(
+        genderBucket: String,
+        periodParam: String,
+        createdBy: String
+    ) : Int?
+
+    @Query(
+        "SELECT COUNT(*) " +
+                "FROM Visit_DB " +
+                "INNER JOIN PATIENT pat ON pat.patientID = Visit_DB.patientID " +
+                "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+                "WHERE LOWER(TRIM(IFNULL(Visit_DB.category, ''))) LIKE '%ncd screening%' " +
+                "AND LOWER(TRIM(IFNULL(Visit_DB.createdBy, ''))) = LOWER(TRIM(:createdBy)) " +
+                "AND ( " +
+                "(:genderBucket = 'male' AND LOWER(IFNULL(gen.gender_name, '')) = 'male') " +
+                "OR (:genderBucket = 'female' AND LOWER(IFNULL(gen.gender_name, '')) = 'female') " +
+                "OR (:genderBucket = 'other' AND TRIM(IFNULL(gen.gender_name, '')) <> '' AND LOWER(IFNULL(gen.gender_name, '')) NOT IN ('male', 'female')) " +
+                ")"
+    )
+    suspend fun getNcdCountAllTimeByGender(
+        genderBucket: String,
+        createdBy: String
+    ) : Int?
+
     @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'Neonatal and Infant Health Care Services') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getImmunizationCount(periodParam: String, createdBy: String) : Int?
 
