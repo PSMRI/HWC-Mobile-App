@@ -1,5 +1,7 @@
 package org.piramalswasthya.cho.ui.home.rmncha.eligible_couple
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -142,6 +144,9 @@ class EligibleCoupleTrackingFragment : Fragment() {
                         patientWithEcr.patient.patientID
                     )
                     bottomSheet.show(childFragmentManager, "VisitHistoryBottomSheet")
+                },
+                onCall = { patientWithEcr ->
+                    dialBeneficiary(patientWithEcr.patient.phoneNo)
                 }
             )
         )
@@ -242,5 +247,21 @@ class EligibleCoupleTrackingFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun dialBeneficiary(phoneNumber: String?) {
+        val sanitizedNumber = phoneNumber?.trim().orEmpty()
+        if (sanitizedNumber.isBlank()) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.mobile_number_not_present),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        startActivity(
+            Intent(Intent.ACTION_DIAL, Uri.parse("tel:$sanitizedNumber"))
+        )
     }
 }

@@ -103,6 +103,25 @@ interface MaternalHealthDao {
 
     @Transaction
     @Query("""
+        SELECT DISTINCT p.* FROM PATIENT p
+        LEFT OUTER JOIN PREGNANCY_REGISTER pwr ON p.patientID = pwr.patientID
+        WHERE (pwr.patientID IS NULL OR pwr.active = 1)
+        AND p.genderID = 2
+        AND p.maritalStatusID = 2
+        AND p.statusOfWomanID IN (2)
+        AND p.age BETWEEN 15 AND 49
+        AND NOT EXISTS (
+            SELECT 1 FROM PREGNANCY_ANC anc
+            WHERE anc.patientID = p.patientID
+              AND anc.isActive = 1
+              AND anc.pregnantWomanDelivered = 1
+        )
+        ORDER BY p.registrationDate DESC
+    """)
+    fun getAllPatientsWithANC(): Flow<List<PatientWithPwrCache>>
+
+    @Transaction
+    @Query("""
         SELECT p.* FROM PATIENT p
         WHERE EXISTS (
             SELECT 1 FROM ELIGIBLE_COUPLE_TRACKING ect

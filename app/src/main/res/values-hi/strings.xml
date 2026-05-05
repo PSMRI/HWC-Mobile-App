@@ -1070,9 +1070,7 @@
         <item>Hypoglycemia</item>
         <item>Feeding difficulties</item>
         <item>Convulsions/Seizures</item>
-        <item>Meconium aspiration</item>
         <item>None</item>
-        <item>Other</item>
     </string-array>
     <string-array name="no_current_status_array">
         <item>Healthy and with mother</item>

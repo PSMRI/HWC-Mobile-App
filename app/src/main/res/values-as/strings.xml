@@ -1215,9 +1215,7 @@
         <item>হাইপোগ্লাইচেমিয়া</item>
         <item>খাদ্য গ্ৰহণ অসুবিধা</item>
         <item>খিঁচুনি</item>
-        <item>মেকোনিয়াম এস্পিৰেচন</item>
         <item>নাই</item>
-        <item>অন্য</item>
     </string-array>
 
     <string-array name="no_current_status_array">

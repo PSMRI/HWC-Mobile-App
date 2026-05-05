@@ -325,7 +325,7 @@ class ChildRegistrationDataset(
         corticosteroidGiven.value = saved.corticosteroidGiven
         outcomeAtBirth.value = when (saved.outcomeAtBirth) {
             "Diedrelative during delivery" -> resources.getStringArray(R.array.no_outcome_at_birth_array).getOrNull(3)
-            else -> saved.outcomeAtBirth
+            else -> getLocalValueInArray(R.array.no_outcome_at_birth_array, saved.outcomeAtBirth)
         }
 
         gender.value = saved.genderID?.let {
@@ -334,29 +334,30 @@ class ChildRegistrationDataset(
         babyCriedAtBirth.value = when {
             saved.babyCriedAtBirth == true -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(0) // Immediate cry
             saved.resuscitation == true -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1) // Cried after resuscitation
+            isStillbirthOrDiedAtBirth(outcomeAtBirth.value) -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(2) // Not applicable (Stillbirth)
             else -> null
         }
-        typeOfResuscitation.value = saved.typeOfResuscitation
-        resuscitation.value = if (saved.resuscitation == true) "Yes" else "No"
+        typeOfResuscitation.value = getLocalValuesInArray(R.array.no_type_of_resuscitation_array, saved.typeOfResuscitation)
+        resuscitation.value = saved.resuscitation?.let { if (it) "Yes" else "No" }
         referred.value = saved.referred
-        hadBirthDefect.value = saved.hadBirthDefect
-        birthDefect.value = saved.birthDefect
-        otherDefect.value = saved.otherDefect
+        hadBirthDefect.value = getLocalValueInArray(R.array.no_congenital_anomaly_array, saved.hadBirthDefect)
+        birthDefect.value = getLocalValuesInArray(R.array.no_type_of_congenital_anomaly_array, saved.birthDefect)
+        otherDefect.value = saved.otherDefect?.takeIf { it.isNotBlank() }
         weight.value = saved.weight?.let { (it * 1000).toInt().toString() } // Convert kg to grams for display
-        breastFeedingStarted.value = if (saved.breastFeedingStarted == true) "Yes" else "No"
-        newbornComplications.value = saved.newbornComplications
-        currentStatusOfBaby.value = saved.currentStatusOfBaby
-        causeOfDeath.value = saved.causeOfDeath
-        otherCauseOfDeath.value = saved.otherCauseOfDeath
-        birthDoseVaccinesGiven.value = saved.birthDoseVaccinesGiven
-        reasonForNoVaccines.value = saved.reasonForNoVaccines
+        breastFeedingStarted.value = saved.breastFeedingStarted?.let { if (it) "Yes" else "No" }
+        newbornComplications.value = getLocalValuesInArray(R.array.no_newborn_complications_array, saved.newbornComplications)
+        currentStatusOfBaby.value = getLocalValueInArray(R.array.no_current_status_array, saved.currentStatusOfBaby)
+        causeOfDeath.value = getLocalValuesInArray(R.array.no_cause_of_death_array, saved.causeOfDeath)
+        otherCauseOfDeath.value = saved.otherCauseOfDeath?.takeIf { it.isNotBlank() }
+        birthDoseVaccinesGiven.value = getLocalValuesInArray(R.array.no_birth_dose_vaccines_array, saved.birthDoseVaccinesGiven)
+        reasonForNoVaccines.value = saved.reasonForNoVaccines?.takeIf { it.isNotBlank() }
         vitaminKInjectionGiven.value = when (saved.vitaminKInjectionGiven) {
             true -> resources.getString(R.string.yes)
             false -> resources.getString(R.string.no)
             else -> null
         }
-        reasonForNoVitaminK.value = saved.reasonForNoVitaminK
-        birthCertificateIssued.value = saved.birthCertificateIssued
+        reasonForNoVitaminK.value = saved.reasonForNoVitaminK?.takeIf { it.isNotBlank() }
+        birthCertificateIssued.value = getLocalValueInArray(R.array.no_birth_certificate_array, saved.birthCertificateIssued)
 
         opv0Dose.value = saved.opv0Dose?.let { getDateFromLong(it) }
         bcgDose.value = saved.bcgDose?.let { getDateFromLong(it) }
@@ -373,8 +374,35 @@ class ChildRegistrationDataset(
     ) {
         val idx = list.indexOf(anchor)
         if (idx < 0) return
-        list.add(idx + 1, primary)
-        if (secondary != null) list.add(idx + 2, secondary)
+        if (!list.contains(primary)) {
+            list.add(idx + 1, primary)
+        }
+        if (secondary != null && !list.contains(secondary)) {
+            val primaryIndex = list.indexOf(primary).takeIf { it >= 0 } ?: idx
+            list.add(primaryIndex + 1, secondary)
+        }
+    }
+
+    private fun getLocalValuesInArray(arrayId: Int, entry: String?): String? {
+        if (entry.isNullOrBlank()) return null
+        return entry.split(",")
+            .mapNotNull { raw ->
+                getLocalValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
+            }
+            .distinct()
+            .joinToString(",")
+            .takeIf { it.isNotBlank() }
+    }
+
+    private fun getEnglishValuesInArray(arrayId: Int, entry: String?): String? {
+        if (entry.isNullOrBlank()) return null
+        return entry.split(",")
+            .mapNotNull { raw ->
+                getEnglishValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
+            }
+            .distinct()
+            .joinToString(",")
+            .takeIf { it.isNotBlank() }
     }
 
     // ─── Helper: restore conditional (dependant) fields into the list ──
@@ -382,21 +410,27 @@ class ChildRegistrationDataset(
         saved: InfantRegCache,
         list: MutableList<FormElement>
     ) {
+        val localizedHadBirthDefect = getLocalValueInArray(R.array.no_congenital_anomaly_array, saved.hadBirthDefect)
+        val localizedCurrentStatus = getLocalValueInArray(R.array.no_current_status_array, saved.currentStatusOfBaby)
+        val localizedCauseOfDeath = getLocalValuesInArray(R.array.no_cause_of_death_array, saved.causeOfDeath)
+        val localizedBirthDoseVaccines = getLocalValuesInArray(R.array.no_birth_dose_vaccines_array, saved.birthDoseVaccinesGiven)
+
         if (saved.babyCriedAtBirth == false || saved.resuscitation == true) {
             val criedIdx = list.indexOf(babyCriedAtBirth)
-            if (criedIdx >= 0 && saved.typeOfResuscitation != null) {
+            if (criedIdx >= 0 && !saved.typeOfResuscitation.isNullOrBlank() && !list.contains(typeOfResuscitation)) {
                 list.add(criedIdx + 1, typeOfResuscitation)
             }
         }
-        if (saved.hadBirthDefect == resources.getStringArray(R.array.no_congenital_anomaly_array).getOrNull(0)) {
-            val other = if (saved.birthDefect?.contains("Other") == true) otherDefect else null
+        val anomalyArray = resources.getStringArray(R.array.no_congenital_anomaly_array)
+        if (localizedHadBirthDefect == anomalyArray.getOrNull(0) || localizedHadBirthDefect == anomalyArray.getOrNull(2)) {
+            val other = if (hasSelectedOption(birthDefect.value, getOtherOption(birthDefect.entries))) otherDefect else null
             insertAfter(list, hadBirthDefect, birthDefect, other)
         }
-        if (saved.currentStatusOfBaby == resources.getStringArray(R.array.no_current_status_array).getOrNull(3)) {
-            val other = if (saved.causeOfDeath?.contains("Other") == true) otherCauseOfDeath else null
+        if (localizedCurrentStatus == resources.getStringArray(R.array.no_current_status_array).getOrNull(3)) {
+            val other = if (hasSelectedOption(localizedCauseOfDeath, getOtherOption(causeOfDeath.entries))) otherCauseOfDeath else null
             insertAfter(list, currentStatusOfBaby, causeOfDeath, other)
         }
-        if (saved.birthDoseVaccinesGiven?.contains("None") == true) {
+        if (hasSelectedOption(localizedBirthDoseVaccines, resources.getStringArray(R.array.no_birth_dose_vaccines_array).getOrNull(3))) {
             insertAfter(list, birthDoseVaccinesGiven, reasonForNoVaccines)
         }
         if (saved.vitaminKInjectionGiven == false) {
@@ -462,6 +496,9 @@ class ChildRegistrationDataset(
             list.add(newbornComplications)
         } else {
             list.addAll(getLiveBirthBaseFields())
+        }
+        if (saved != null) {
+            restoreConditionalFields(saved, list)
         }
         refreshConditionalRequirements()
 
@@ -771,12 +808,34 @@ class ChildRegistrationDataset(
             }
 
             birthDoseVaccinesGiven.id -> {
+                val realIndex = (if (index < 0) -index else index) - 1
+                val localizedEntries = birthDoseVaccinesGiven.entries
+                // Locale-neutral "None" identification.
+                val noneIndex = englishResources
+                    .getStringArray(birthDoseVaccinesGiven.arrayId)
+                    .indexOf("None")
+                val noneLocalized = localizedEntries?.getOrNull(noneIndex)
+                val clickedOption = localizedEntries?.getOrNull(realIndex)
+                val isNoneOption = noneIndex >= 0 && realIndex == noneIndex
+                val isChecked = index > 0
+
+                if (clickedOption != null && isChecked) {
+                    if (isNoneOption) {
+                        birthDoseVaccinesGiven.value = clickedOption
+                    } else {
+                        val parts = (birthDoseVaccinesGiven.value ?: "")
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != noneLocalized }
+                        birthDoseVaccinesGiven.value =
+                            if (parts.isEmpty()) null else parts.joinToString(",")
+                    }
+                    forceRefreshId(birthDoseVaccinesGiven.id)
+                }
+
                 val updateIndex = toggleDependant(
                     source = birthDoseVaccinesGiven,
-                    condition = hasSelectedOption(
-                        birthDoseVaccinesGiven.value,
-                        resources.getStringArray(R.array.no_birth_dose_vaccines_array).getOrNull(3)
-                    ),
+                    condition = hasSelectedOption(birthDoseVaccinesGiven.value, noneLocalized),
                     showItems = listOf(reasonForNoVaccines)
                 )
                 refreshConditionalRequirements()
@@ -820,8 +879,38 @@ class ChildRegistrationDataset(
             }
 
             newbornComplications.id -> {
-                val noneOption = resources.getStringArray(R.array.no_newborn_complications_array).lastOrNull()
-                if (!hasSelectedOption(newbornComplications.value, noneOption) &&
+                val realIndex = (if (index < 0) -index else index) - 1
+                val localizedEntries = newbornComplications.entries
+                // Identify "None" by its position in the English array so the
+                // logic works in every locale (Hindi, Assamese, etc.).
+                val noneIndex = englishResources
+                    .getStringArray(newbornComplications.arrayId)
+                    .indexOf("None")
+                val noneLocalized = localizedEntries?.getOrNull(noneIndex)
+                val clickedOption = localizedEntries?.getOrNull(realIndex)
+                val isNoneOption = noneIndex >= 0 && realIndex == noneIndex
+                val isChecked = index > 0
+
+                if (clickedOption != null && isChecked) {
+                    if (isNoneOption) {
+                        // "None" just checked → clear every other selection.
+                        newbornComplications.value = clickedOption
+                    } else {
+                        // A real complication was checked → drop "None" if it was set.
+                        val parts = (newbornComplications.value ?: "")
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != noneLocalized }
+                        newbornComplications.value =
+                            if (parts.isEmpty()) null else parts.joinToString(",")
+                    }
+                    // DiffUtil cannot detect the in-place mutation (same FormElement
+                    // reference in old & new lists), so signal the fragment to call
+                    // notifyItemChanged on this row.
+                    forceRefreshId(newbornComplications.id)
+                }
+
+                if (!hasSelectedOption(newbornComplications.value, noneLocalized) &&
                     !newbornComplications.value.isNullOrBlank()
                 ) {
                     emitAlertErrorMessage(R.string.no_alert_complications)
@@ -854,7 +943,7 @@ class ChildRegistrationDataset(
             form.babyName = babyName.value
             form.infantTerm = infantTerm.value
             form.corticosteroidGiven = corticosteroidGiven.value
-            form.outcomeAtBirth = outcomeAtBirth.value
+            form.outcomeAtBirth = getEnglishValueInArray(R.array.no_outcome_at_birth_array, outcomeAtBirth.value)
 
             form.genderID = gender.value?.let { value ->
                  gender.entries?.indexOf(value)?.plus(1)
@@ -875,24 +964,24 @@ class ChildRegistrationDataset(
                 else -> null
             }
             form.typeOfResuscitation = if (criedValue == criedAfterResuscitation) {
-                typeOfResuscitation.value
+                getEnglishValuesInArray(R.array.no_type_of_resuscitation_array, typeOfResuscitation.value)
             } else {
                 null
             }
 
             form.referred = referred.value
-            form.hadBirthDefect = hadBirthDefect.value
-            form.birthDefect = birthDefect.value
+            form.hadBirthDefect = getEnglishValueInArray(R.array.no_congenital_anomaly_array, hadBirthDefect.value)
+            form.birthDefect = getEnglishValuesInArray(R.array.no_type_of_congenital_anomaly_array, birthDefect.value)
             form.otherDefect = otherDefect.value
             // Convert grams to kg for DB storage (existing field is in kg)
             form.weight = weight.value?.toDoubleOrNull()?.let { it / 1000.0 }
             form.breastFeedingStarted = breastFeedingStarted.value == "Yes"
 
-            form.newbornComplications = newbornComplications.value
-            form.currentStatusOfBaby = currentStatusOfBaby.value
-            form.causeOfDeath = causeOfDeath.value
+            form.newbornComplications = getEnglishValuesInArray(R.array.no_newborn_complications_array, newbornComplications.value)
+            form.currentStatusOfBaby = getEnglishValueInArray(R.array.no_current_status_array, currentStatusOfBaby.value)
+            form.causeOfDeath = getEnglishValuesInArray(R.array.no_cause_of_death_array, causeOfDeath.value)
             form.otherCauseOfDeath = otherCauseOfDeath.value
-            form.birthDoseVaccinesGiven = birthDoseVaccinesGiven.value
+            form.birthDoseVaccinesGiven = getEnglishValuesInArray(R.array.no_birth_dose_vaccines_array, birthDoseVaccinesGiven.value)
             form.reasonForNoVaccines = reasonForNoVaccines.value
 
             form.vitaminKInjectionGiven = when (vitaminKInjectionGiven.value) {
@@ -901,7 +990,7 @@ class ChildRegistrationDataset(
                 else -> null
             }
             form.reasonForNoVitaminK = reasonForNoVitaminK.value
-            form.birthCertificateIssued = birthCertificateIssued.value
+            form.birthCertificateIssued = getEnglishValueInArray(R.array.no_birth_certificate_array, birthCertificateIssued.value)
 
             form.opv0Dose = getLongFromDate(opv0Dose.value)
             form.bcgDose = getLongFromDate(bcgDose.value)

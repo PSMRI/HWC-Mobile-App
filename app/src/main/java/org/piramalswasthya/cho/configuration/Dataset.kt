@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.res.Resources
 import android.util.Range
 import androidx.annotation.StringRes
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
@@ -112,6 +114,18 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
     private val _alertErrorMessageFlow = MutableStateFlow<String?>(null)
     val alertErrorMessageFlow = _alertErrorMessageFlow.asStateFlow()
 
+    /** Signals that a specific FormElement's row needs the adapter to call
+     *  notifyItemChanged. Used when we mutate a FormElement's `value` in place
+     *  (e.g. "None" mutual exclusion) — DiffUtil cannot detect it because the
+     *  list still holds the same reference, so the fragment must force a
+     *  rebind explicitly. */
+    private val _forceRefreshIdFlow = MutableSharedFlow<Int>(extraBufferCapacity = 8)
+    val forceRefreshIdFlow = _forceRefreshIdFlow.asSharedFlow()
+
+    protected fun forceRefreshId(id: Int) {
+        _forceRefreshIdFlow.tryEmit(id)
+    }
+
     suspend fun resetErrorMessageFlow() {
         _alertErrorMessageFlow.emit(null)
     }
@@ -153,14 +167,15 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
         // that could reset EditText fields while user is typing
         if (updateIndex != -1 || errorStateChanged) {
             val newList = list.toMutableList()
-//            if (updateUIForCurrentElement) {
-//                Timber.d("Updating UI element ...")
-//                newList[updateIndex] = list[updateIndex].cloneForm()
-//                updateUIForCurrentElement = false
-//            }
             Timber.d("Emitting list (updateIndex=$updateIndex, errorChanged=$errorStateChanged)")
-//            _listFlow.emit(emptyList())
             _listFlow.emit(newList)
+            // The list emission alone is not enough when only errorText was
+            // mutated in place: DiffUtil's areContentsTheSame compares the same
+            // FormElement reference on both sides, so the change is invisible
+            // and the row stays visually stale. Force a rebind on this row.
+            if (errorStateChanged && updateIndex == -1) {
+                forceRefreshId(formId)
+            }
         } else {
             Timber.d("Skipping list emission (only value changed, no structural or error changes)")
         }

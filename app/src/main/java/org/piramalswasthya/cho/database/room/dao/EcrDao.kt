@@ -76,6 +76,14 @@ interface EcrDao {
     """)
     fun getPatientsForTrackingList(): Flow<List<Patient>>
 
+    @Query("""
+        SELECT COUNT(*) FROM PATIENT
+        WHERE statusOfWomanID = 1
+        AND genderID = 2
+        AND age BETWEEN 15 AND 49
+    """)
+    fun getEligibleCoupleTrackingCount(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(vararg eligibleCoupleTrackingCache: EligibleCoupleTrackingCache)
 

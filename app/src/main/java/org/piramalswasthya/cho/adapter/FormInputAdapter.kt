@@ -96,16 +96,24 @@ class FormInputAdapter(
         fun bind(item: FormElement, isEnabled: Boolean, formValueListener: FormValueListener?) {
             Timber.d("binding triggered!!! $isEnabled ${item.id}")
             if (!isEnabled) {
+                binding.et.isEnabled = false
                 binding.et.isClickable = false
                 binding.et.isFocusable = false
+                binding.et.isFocusableInTouchMode = false
+                binding.et.isLongClickable = false
+                binding.et.isCursorVisible = false
                 handleHintLength(item)
                 binding.form = item
                 binding.et.setText(item.value)
                 binding.executePendingBindings()
                 return
             } else {
+                binding.et.isEnabled = true
                 binding.et.isClickable = true
                 binding.et.isFocusable = true
+                binding.et.isFocusableInTouchMode = true
+                binding.et.isLongClickable = true
+                binding.et.isCursorVisible = true
             }
             binding.form = item
             if (item.errorText == null) binding.tilEditText.isErrorEnabled = false
@@ -344,10 +352,8 @@ class FormInputAdapter(
         fun bind(
             item: FormElement, isEnabled: Boolean, formValueListener: FormValueListener?
         ) {
-            if (!isEnabled) {
-                binding.rg.isClickable = false
-                binding.rg.isFocusable = false
-            }
+            binding.rg.isClickable = isEnabled
+            binding.rg.isFocusable = isEnabled
 //            binding.rg.isEnabled = isEnabled
             binding.invalidateAll()
             binding.form = item
@@ -369,23 +375,6 @@ class FormInputAdapter(
                             gravity = Gravity.CENTER_HORIZONTAL
                         }
                         rdBtn.id = View.generateViewId()
-                        val colorStateList = ColorStateList(
-                            arrayOf<IntArray>(
-                                intArrayOf(-android.R.attr.state_checked),
-                                intArrayOf(android.R.attr.state_checked)
-                            ), intArrayOf(
-                                binding.root.resources.getColor(
-                                    android.R.color.darker_gray,
-                                    binding.root.context.theme
-                                ),  // disabled
-                                binding.root.resources.getColor(
-                                    android.R.color.darker_gray,
-                                    binding.root.context.theme
-                                ) // enabled
-                            )
-                        )
-
-                        if (!isEnabled) rdBtn.buttonTintList = colorStateList
                         rdBtn.text = it
                         addView(rdBtn)
                         if (item.value == it) rdBtn.isChecked = true
@@ -431,7 +420,11 @@ class FormInputAdapter(
             if (!isEnabled) {
                 binding.rg.children.forEach {
                     it.isClickable = false
+                    it.isFocusable = false
+                    it.isEnabled = true
                 }
+            } else {
+                binding.rg.isEnabled = true
             }
             if (item.errorText != null) binding.llContent.setBackgroundResource(R.drawable.state_errored)
             else binding.llContent.setBackgroundResource(0)
@@ -519,7 +512,7 @@ class FormInputAdapter(
                         if (!isEnabled) {
                             cbx.isClickable = false
                             cbx.isFocusable = false
-                            cbx.isEnabled = false
+                            cbx.isEnabled = true
                         }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
@@ -543,7 +536,7 @@ class FormInputAdapter(
                                 }
                             }
                             formValueListener?.onValueChanged(
-                                item, index * (if (b) 1 else -1)
+                                item, (index + 1) * (if (b) 1 else -1)
                             )
                             if (item.value.isNullOrBlank()) {
                                 item.value = null
@@ -579,8 +572,11 @@ class FormInputAdapter(
             binding.form = item
             binding.invalidateAll()
             if (!isEnabled) {
+                binding.et.isEnabled = false
                 binding.et.isFocusable = false
                 binding.et.isClickable = false
+                binding.et.isFocusableInTouchMode = false
+                binding.et.isLongClickable = false
                 binding.executePendingBindings()
                 return
             }

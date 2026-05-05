@@ -6,10 +6,21 @@ import androidx.navigation.NavDirections
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.Icon
+import org.piramalswasthya.cho.repositories.EcrRepo
+import org.piramalswasthya.cho.repositories.InfantRegRepo
+import org.piramalswasthya.cho.repositories.MaternalHealthRepo
+import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.PncRepo
 import javax.inject.Inject
 
 @ActivityRetainedScoped
-class RMNCHAIconDataset @Inject constructor() {
+class RMNCHAIconDataset @Inject constructor(
+    private val maternalHealthRepo: MaternalHealthRepo,
+    private val pncRepo: PncRepo,
+    private val patientRepo: PatientRepo,
+    private val infantRegRepo: InfantRegRepo,
+    private val ecrRepo: EcrRepo,
+) {
 
     companion object {
         const val MODULE_TYPE_KEY = "module_type"
@@ -137,7 +148,7 @@ class RMNCHAIconDataset @Inject constructor() {
             Icon(
                 R.drawable.ic__eligible_couple,
                 resources.getString(R.string.eligible_couple_tracking),
-                null,
+                ecrRepo.getEligibleCoupleTrackingCount(),
                 showECTrackingAction
             ),
             Icon(
@@ -149,7 +160,7 @@ class RMNCHAIconDataset @Inject constructor() {
             Icon(
                 R.drawable.ic__adolescent,
                 resources.getString(R.string.adolescent_list),
-                null,
+                patientRepo.getAdolescentListCount(),
                 showAdolescentListAction
             )
         ).mapIndexed { index, icon ->
@@ -165,43 +176,43 @@ class RMNCHAIconDataset @Inject constructor() {
             Icon(
                 R.drawable.ic__pwr,
                 resources.getString(R.string.pregnant_women_registration),
-                null,
+                maternalHealthRepo.getPWRCount(),
                 showPWRAction
             ),
             Icon(
                 R.drawable.ic__anc_visit,
                 resources.getString(R.string.anc_visits),
-                null,
+                maternalHealthRepo.getANCCount(),
                 showANCVisitsAction
             ),
             Icon(
                 R.drawable.ic__delivery_outcome,
                 resources.getString(R.string.delivery_outcome),
-                null,
+                maternalHealthRepo.getDeliveredWomenCount(),
                 showDeliveryOutcomeAction
             ),
             Icon(
                 R.drawable.ic__mother,
                 resources.getString(R.string.pnc_mother_list),
-                null,
+                pncRepo.getPNCMothersCount(),
                 showPNCMotherListAction
             ),
             Icon(
                 R.drawable.ic__infant_registration,
                 resources.getString(R.string.infant_registration),
-                null,
+                infantRegRepo.getInfantRegisterCount(),
                 showInfantListAction
             ),
             Icon(
                 R.drawable.ic__child_registration,
                 resources.getString(R.string.child_registration),
-                null,
+                infantRegRepo.getRegisteredInfantsCount(),
                 showChildListAction
             ),
             Icon(
                 R.drawable.ic__child_registration,
                 resources.getString(R.string.abortion_list),
-                null,
+                maternalHealthRepo.getAbortionWomenCount(),
                 showAbortionListAction
             )
         ).mapIndexed { index, icon ->
