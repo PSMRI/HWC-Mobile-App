@@ -45,6 +45,9 @@ class ANCVisitsAdapter(
         ) {
             binding.patientWithPwr = item
             binding.clickListener = clickListener
+            binding.ivCall.setOnClickListener {
+                clickListener?.onClickCall(item)
+            }
 
             // Set weeks of pregnancy
             val weeks = item.getWeeksOfPregnancy()
@@ -76,7 +79,8 @@ class ANCVisitsAdapter(
     class ClickListener(
         private val clickedAddANC: ((patientWithPwr: PatientWithPwrDomain) -> Unit)? = null,
         private val clickedANCVisits: ((patientWithPwr: PatientWithPwrDomain) -> Unit)? = null,
-        private val clickedAddPMSMA: ((patientWithPwr: PatientWithPwrDomain) -> Unit)? = null
+        private val clickedAddPMSMA: ((patientWithPwr: PatientWithPwrDomain) -> Unit)? = null,
+        private val clickedCall: ((patientWithPwr: PatientWithPwrDomain) -> Unit)? = null
     ) {
         fun onClickAddANC(item: PatientWithPwrDomain) =
             clickedAddANC?.let { it(item) }
@@ -86,5 +90,8 @@ class ANCVisitsAdapter(
 
         fun onClickAddPMSMA(item: PatientWithPwrDomain) =
             clickedAddPMSMA?.let { it(item) }
+
+        fun onClickCall(item: PatientWithPwrDomain) =
+            clickedCall?.let { it(item) }
     }
 }

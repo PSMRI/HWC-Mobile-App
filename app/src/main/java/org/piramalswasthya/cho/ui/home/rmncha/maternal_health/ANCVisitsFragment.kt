@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -117,6 +118,9 @@ class ANCVisitsFragment : BaseMaternalHealthListFragment<FragmentAncVisitsBindin
                         "Add PMSMA: ${patientWithPwr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
+                },
+                clickedCall = { patientWithPwr ->
+                    dialBeneficiary(patientWithPwr.patient.phoneNo)
                 }
             )
         )
@@ -149,5 +153,21 @@ class ANCVisitsFragment : BaseMaternalHealthListFragment<FragmentAncVisitsBindin
                 onPatientsLoaded()
             }
         }
+    }
+
+    private fun dialBeneficiary(phoneNumber: String?) {
+        val sanitizedNumber = phoneNumber?.trim().orEmpty()
+        if (sanitizedNumber.isBlank()) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.mobile_number_not_present),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        startActivity(
+            Intent(Intent.ACTION_DIAL, Uri.parse("tel:$sanitizedNumber"))
+        )
     }
 }
