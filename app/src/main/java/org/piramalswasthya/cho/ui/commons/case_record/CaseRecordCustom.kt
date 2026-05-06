@@ -1022,7 +1022,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         val visitNo = it.benVisitNo
         val followupVisitFromCache = visitNo?.let { no ->
-            benFlowMap[no]?.VisitReason == "Follow Up"
+            val visitReasonFromMap = benFlowMap[no]?.VisitReason
+            val visitReasonFromSnapshot = viewModel.benFlows.value
+                ?.firstOrNull { benFlow -> benFlow.benVisitNo == no }
+                ?.VisitReason
+            (visitReasonFromMap ?: visitReasonFromSnapshot) == "Follow Up"
         } ?: false
         val followupVisit = followupVisitFromCache || (it.visitCategory == "Follow Up")
 
