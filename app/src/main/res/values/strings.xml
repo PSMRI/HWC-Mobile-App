@@ -622,6 +622,7 @@
     <string name="password_local_saved">password-local-saved</string>
     <string name="remember_me">Remember Me</string>
     <string name="other_cphc_services">Other CPHC Services</string>
+    <string name="other_cphc_category_key" translatable="false">Other CPHC Services</string>
     <string name="reason_for_visit">Reason For Visit</string>
     <string name="ben_card_name">Name:</string>
     <string name="beneficiary_id">Beneficiary ID:</string>

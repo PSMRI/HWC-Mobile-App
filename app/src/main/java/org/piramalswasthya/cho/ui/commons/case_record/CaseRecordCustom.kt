@@ -228,7 +228,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
     private fun isOtherCphcCategory(category: String?): Boolean {
         val c = category?.trim().orEmpty()
-        return c.equals(getString(R.string.other_cphc_services), ignoreCase = true)
+        return c.equals(getString(R.string.other_cphc_category_key), ignoreCase = true)
     }
 
     private fun updateShowCphcDetailsButtonVisibility(visitInfo: PatientDisplayWithVisitInfo?) {
