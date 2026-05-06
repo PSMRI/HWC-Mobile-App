@@ -1530,7 +1530,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         val noDataLabel = getString(R.string.no_data)
         return detailsText.lines().count { line ->
             val trimmed = line.trim()
-            if (!trimmed.startsWith("- ") || !trimmed.contains(":")) return@count false
+            val isItemLine = trimmed.startsWith("- ") || trimmed.startsWith("-- ")
+            if (!isItemLine || !trimmed.contains(":")) return@count false
             val itemValue = trimmed.substringAfter(":").trim()
             itemValue.equals("N/A", ignoreCase = true) || itemValue.equals(noDataLabel, ignoreCase = true)
         }
