@@ -896,7 +896,7 @@
     <string name="no_eligible_couples_found">কোনো যোগ্য দম্পতী পোৱা নগ\'ল</string>
     <string name="no_registered_couples_found">কোনো পঞ্জীয়নভুক্ত দম্পতী পোৱা নগ\'ল</string>
     <string name="call">কল কৰা</string>
-    <string name="no_data">কোনো তথ্য নাই</string>
+    <string name="no_data">N/A</string>
     <string name="search">সন্ধান</string>
     <string name="status">স্থিতি</string>
     <string name="age_ben">বয়স</string>
