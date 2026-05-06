@@ -189,15 +189,17 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
             false -> optionNo
             else -> null
         }
-        referralLevel.value = cacheValue.referralLevel
-        reasonForReferral.value = cacheValue.reasonForReferral
+        // cacheValue.* dropdown fields are stored in English; re-localize for display
+        // so the user sees the form in their current UI language.
+        referralLevel.value = getLocalValueInArray(R.array.referral_level_options, cacheValue.referralLevel)
+        reasonForReferral.value = getLocalValueInArray(R.array.reason_for_referral_options, cacheValue.reasonForReferral)
         followUpRequired.value = when (cacheValue.followUpRequired) {
             true -> optionYes
             false -> optionNo
             else -> null
         }
         followUpDate.value = cacheValue.followUpDate
-        caseStatus.value = cacheValue.caseStatus
+        caseStatus.value = getLocalValueInArray(R.array.case_status_options, cacheValue.caseStatus)
         dateOfDeath.value = cacheValue.dateOfDeath
         remarks.value = cacheValue.remarks
     }
@@ -208,9 +210,10 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
             optionNo -> false
             else -> null
         }
+        // Persist dropdowns in English canonical form so the DB stays locale-neutral.
         if (cacheValue.referralRequired == true) {
-            cacheValue.referralLevel = referralLevel.value
-            cacheValue.reasonForReferral = reasonForReferral.value
+            cacheValue.referralLevel = getEnglishValueInArray(R.array.referral_level_options, referralLevel.value)
+            cacheValue.reasonForReferral = getEnglishValueInArray(R.array.reason_for_referral_options, reasonForReferral.value)
         } else {
             cacheValue.referralLevel = null
             cacheValue.reasonForReferral = null
@@ -227,7 +230,8 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
         } else {
             cacheValue.followUpDate = null
         }
-        cacheValue.caseStatus = caseStatus.value
+        cacheValue.caseStatus = getEnglishValueInArray(R.array.case_status_options, caseStatus.value)
+        // caseStatus.value is local; optionDeath is local — same-locale compare.
         cacheValue.dateOfDeath = if (caseStatus.value == optionDeath) dateOfDeath.value else null
         cacheValue.remarks = remarks.value
     }

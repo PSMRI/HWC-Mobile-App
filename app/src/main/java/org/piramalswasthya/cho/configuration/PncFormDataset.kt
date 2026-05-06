@@ -254,6 +254,13 @@ class PncFormDataset(
         resources.getStringArray(R.array.sterilization_methods_array)
     }
 
+    // English-side reference used when comparing values that were just loaded
+    // from the DB (which are now stored in English). The locale-aware variant
+    // above is still used for runtime comparisons against form-element values.
+    private val englishSterilisation: Array<String> by lazy {
+        englishResources.getStringArray(R.array.sterilization_methods_array)
+    }
+
     suspend fun setUpPage(
         visitNumber: Int,
         ben: PatientDisplay?,
@@ -349,12 +356,20 @@ class PncFormDataset(
         }
 
         saved?.let {
+            // saved.* dropdown fields are stored in English; re-localize for display
+            // so the user always sees the form in their current UI language. Conditional
+            // rendering compares against the English side since saved values are English.
+            val englishContraceptionLast = englishResources.getStringArray(R.array.pnc_contraception_method_array).last()
+            val englishMotherDangerSignLast = englishResources.getStringArray(R.array.pnc_mother_danger_sign_array).last()
+            val englishPlaceOfDeath = englishResources.getStringArray(R.array.pnc_death_place_array)
+            val englishMaternalSymptomsLast = englishResources.getStringArray(R.array.pnc_maternal_symptoms_array).last()
+
             pncPeriod.value = "Day ${it.pncPeriod}"
             visitDate.value = getDateFromLong(it.pncDate)
             ifaTabsGiven.value = it.ifaTabsGiven?.toString()
             calciumSupplementation.value = it.calciumSupplementation?.toString()
-            anyContraceptionMethod.value = it.anyContraceptionMethod?.let {
-                if (it)
+            anyContraceptionMethod.value = it.anyContraceptionMethod?.let { yes ->
+                if (yes)
                     anyContraceptionMethod.entries!!.first()
                 else
                     anyContraceptionMethod.entries!!.last()
@@ -362,68 +377,71 @@ class PncFormDataset(
             if (it.anyContraceptionMethod == true) {
                 list.add(list.indexOf(anyContraceptionMethod) + 1, contraceptionMethod)
             }
-            contraceptionMethod.value = it.contraceptionMethod
+            contraceptionMethod.value = getLocalValueInArray(R.array.pnc_contraception_method_array, it.contraceptionMethod)
             dateOfSterilisation.value = getDateFromLong(it.sterilisationDate ?: System.currentTimeMillis())
-            if (it.contraceptionMethod == contraceptionMethod.entries!!.last()) {
+            if (it.contraceptionMethod == englishContraceptionLast) {
                 list.add(list.indexOf(contraceptionMethod) + 1, otherPpcMethod)
             }
-            if (it.contraceptionMethod?.let { method -> method in sterilisation } == true) {
+            if (it.contraceptionMethod?.let { method -> method in englishSterilisation } == true) {
                 list.add(list.indexOf(contraceptionMethod) + 1, dateOfSterilisation)
             }
             otherPpcMethod.value = it.otherPpcMethod
-            anyDangerSign.value = it.anyDangerSign
+            anyDangerSign.value = getLocalValueInArray(R.array.pnc_confirmation_array, it.anyDangerSign)
             anyDangerSign.value?.let { dangerSignValue ->
+                // anyDangerSign.value is now local; entries.first() is also local — compare same-locale.
                 val isDangerSignYes = dangerSignValue == anyDangerSign.entries!!.first()
                 referralFacility.required = isDangerSignYes
                 if (isDangerSignYes) {
                     list.add(list.indexOf(anyDangerSign) + 1, motherDangerSign)
                 }
             }
-            maternalSymptoms.value = it.maternalSymptoms
-            if (it.maternalSymptoms?.contains("Other") == true || it.maternalSymptoms?.contains(maternalSymptoms.entries!!.last()) == true) {
+            maternalSymptoms.value = getLocalValuesInArray(R.array.pnc_maternal_symptoms_array, it.maternalSymptoms)
+            if (it.maternalSymptoms?.contains("Other") == true || it.maternalSymptoms?.contains(englishMaternalSymptomsLast) == true) {
                 list.add(list.indexOf(maternalSymptoms) + 1, otherMaternalSymptoms)
             }
             otherMaternalSymptoms.value = it.otherMaternalSymptoms
-            pallor.value = it.pallor
-            // Check for Severe pallor → referral alert
+            pallor.value = getLocalValueInArray(R.array.pnc_pallor_array, it.pallor)
+            // Severe pallor → referral alert. it.pallor is English so the literal compare is correct.
             if (it.pallor?.equals("Severe", ignoreCase = true) == true) {
                 referralFacility.required = true
                 if (it.referralFacility.isNullOrBlank()) {
                     referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
                 }
             }
-            
-            vaginalBleeding.value = it.vaginalBleeding
-            // Check for Heavy bleeding or foul smell → referral alert
+
+            vaginalBleeding.value = getLocalValueInArray(R.array.pnc_vaginal_bleeding_array, it.vaginalBleeding)
+            // Heavy / foul smell → referral alert. it.vaginalBleeding is English so literal compare is correct.
             val vaginalBleedingValue = it.vaginalBleeding?.lowercase() ?: ""
-            if (vaginalBleedingValue.contains("heavy", ignoreCase = true) || 
+            if (vaginalBleedingValue.contains("heavy", ignoreCase = true) ||
                 vaginalBleedingValue.contains("foul smell", ignoreCase = true)) {
                 referralFacility.required = true
                 if (it.referralFacility.isNullOrBlank()) {
                     referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
                 }
             }
-            motherDangerSign.value = it.motherDangerSign
-            if (it.motherDangerSign == motherDangerSign.entries!!.last()) {
+            motherDangerSign.value = getLocalValueInArray(R.array.pnc_mother_danger_sign_array, it.motherDangerSign)
+            if (it.motherDangerSign == englishMotherDangerSignLast) {
                 list.add(list.indexOf(motherDangerSign) + 1, otherDangerSign)
             }
             otherDangerSign.value = it.otherDangerSign
-            referralFacility.value = it.referralFacility
+            referralFacility.value = getLocalValueInArray(R.array.pnc_referral_facility_array, it.referralFacility)
             motherDeath.value =
                 if (it.motherDeath) motherDeath.entries!!.first() else motherDeath.entries!!.last()
             if (it.motherDeath) {
                 deathDate.value = getDateStrFromLong(it.deathDate)
-                causeOfDeath.value = it.causeOfDeath
+                causeOfDeath.value = getLocalValueInArray(R.array.pnc_death_cause_array, it.causeOfDeath)
                 otherDeathCause.value = it.otherDeathCause
-                placeOfDeath.value = it.placeOfDeath
+                placeOfDeath.value = getLocalValueInArray(R.array.pnc_death_place_array, it.placeOfDeath)
                 otherPlaceOfDeath.value = it.otherPlaceOfDeath
                 list.addAll(
                     list.indexOf(motherDeath) + 1,
                     listOf(deathDate, causeOfDeath, placeOfDeath)
                 )
+                // causeOfDeath.value is now local; entries.last() is local — compare same-locale.
                 if (causeOfDeath.value == causeOfDeath.entries!!.last())
                     list.add(list.indexOf(causeOfDeath) + 1, otherDeathCause)
-                placeOfDeath.entries?.indexOf(it.placeOfDeath)?.takeIf { index -> index >= 0 }?.let { index ->
+                // it.placeOfDeath is English; look it up in the English array to find the index.
+                englishPlaceOfDeath.indexOf(it.placeOfDeath).takeIf { index -> index >= 0 }?.let { index ->
                     if (index == 8) { // "Other" is at index 8
                         list.add(list.indexOf(placeOfDeath) + 1, otherPlaceOfDeath)
                     }
@@ -875,23 +893,25 @@ class PncFormDataset(
             form.calciumSupplementation = calciumSupplementation.value?.takeIf { it.isNotEmpty() }?.toInt()
             form.anyContraceptionMethod =
                 anyContraceptionMethod.value?.let { it == anyContraceptionMethod.entries!!.first() }
-            form.contraceptionMethod = contraceptionMethod.value?.takeIf { it.isNotEmpty() }
+            // Persist every dropdown value in its English canonical form so the
+            // DB stays locale-neutral. Display-time localization happens in setUpPage.
+            form.contraceptionMethod = getEnglishValueInArray(R.array.pnc_contraception_method_array, contraceptionMethod.value)?.takeIf { it.isNotEmpty() }
             form.sterilisationDate = dateOfSterilisation.value?.let { getLongFromDate(it) }
             form.otherPpcMethod = otherPpcMethod.value?.takeIf { it.isNotEmpty() }
-            form.anyDangerSign = anyDangerSign.value?.takeIf { it.isNotEmpty() }
-            form.maternalSymptoms = maternalSymptoms.value?.takeIf { it.isNotEmpty() }
+            form.anyDangerSign = getEnglishValueInArray(R.array.pnc_confirmation_array, anyDangerSign.value)?.takeIf { it.isNotEmpty() }
+            form.maternalSymptoms = getEnglishValuesInArray(R.array.pnc_maternal_symptoms_array, maternalSymptoms.value)?.takeIf { it.isNotEmpty() }
             form.otherMaternalSymptoms = otherMaternalSymptoms.value?.takeIf { it.isNotEmpty() }
-            form.pallor = pallor.value?.takeIf { it.isNotEmpty() }
-            form.vaginalBleeding = vaginalBleeding.value?.takeIf { it.isNotEmpty() }
-            form.motherDangerSign = motherDangerSign.value?.takeIf { it.isNotEmpty() }
+            form.pallor = getEnglishValueInArray(R.array.pnc_pallor_array, pallor.value)?.takeIf { it.isNotEmpty() }
+            form.vaginalBleeding = getEnglishValueInArray(R.array.pnc_vaginal_bleeding_array, vaginalBleeding.value)?.takeIf { it.isNotEmpty() }
+            form.motherDangerSign = getEnglishValueInArray(R.array.pnc_mother_danger_sign_array, motherDangerSign.value)?.takeIf { it.isNotEmpty() }
             form.otherDangerSign = otherDangerSign.value?.takeIf { it.isNotEmpty() }
-            form.referralFacility = referralFacility.value?.takeIf { it.isNotEmpty() }
+            form.referralFacility = getEnglishValueInArray(R.array.pnc_referral_facility_array, referralFacility.value)?.takeIf { it.isNotEmpty() }
             form.motherDeath =
                 motherDeath.value?.let { it == motherDeath.entries!!.first() } ?: false
             form.deathDate = deathDate.value?.let { getLongFromDate(it) }
-            form.causeOfDeath = causeOfDeath.value?.takeIf { it.isNotEmpty() }
+            form.causeOfDeath = getEnglishValueInArray(R.array.pnc_death_cause_array, causeOfDeath.value)?.takeIf { it.isNotEmpty() }
             form.otherDeathCause = otherDeathCause.value?.takeIf { it.isNotEmpty() }
-            form.placeOfDeath = placeOfDeath.value?.takeIf { it.isNotEmpty() }
+            form.placeOfDeath = getEnglishValueInArray(R.array.pnc_death_place_array, placeOfDeath.value)?.takeIf { it.isNotEmpty() }
             form.otherPlaceOfDeath = otherPlaceOfDeath.value?.takeIf { it.isNotEmpty() }
             form.remarks = remarks.value?.takeIf { it.isNotEmpty() }
         }
