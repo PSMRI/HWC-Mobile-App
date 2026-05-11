@@ -1,9 +1,12 @@
 package org.piramalswasthya.cho.database.shared_preferences
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.piramalswasthya.cho.R
@@ -24,6 +27,15 @@ import javax.inject.Singleton
 class PreferenceDao @Inject constructor(@ApplicationContext private val context: Context) {
 
     private val pref = PreferenceManager.getInstance(context)
+
+    // EncryptedSharedPreferences for secure credential storage
+    private val encryptedPref: SharedPreferences = EncryptedSharedPreferences.create(
+        context,
+        "secret_shared_prefs",
+        MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
 
     @RequiresApi(Build.VERSION_CODES.O)
     val date = LocalDate.of(2023, 11, 1)
@@ -238,49 +250,55 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
     }
 
-    fun registerLoginCred(userName: String,password: String) {
-        val editor = pref.edit()
+    fun registerLoginCred(userName: String, password: String) {
+        val editor = encryptedPref.edit()
         val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
         val prefPasswordKey = context.getString(R.string.password_local_saved)
         editor.putString(prefUserKey, userName)
         editor.putString(prefPasswordKey, password)
         editor.apply()
     }
+
     fun getRememberedUserName(): String? {
         val key = context.getString(R.string.PREF_rem_me_uname)
-        return pref.getString(key, null)
-    }
-    fun getRememberedPassword(): String? {
-        val prefPasswordKey = context.getString(R.string.password_local_saved)
-        return pref.getString(prefPasswordKey, null)
+        return encryptedPref.getString(key, null)
     }
 
-fun registerEsanjeevaniCred(userName: String,password: String) {
-    val editor = pref.edit()
-    val prefUserKey = context.getString(R.string.esanjeevaniusername_local_saved)
-    val prefPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
-    editor.putString(prefUserKey, userName)
-    editor.putString(prefPasswordKey, password)
-    editor.apply()
-}
+    fun getRememberedPassword(): String? {
+        val prefPasswordKey = context.getString(R.string.password_local_saved)
+        return encryptedPref.getString(prefPasswordKey, null)
+    }
+
+    fun registerEsanjeevaniCred(userName: String, password: String) {
+        val editor = encryptedPref.edit()
+        val prefUserKey = context.getString(R.string.esanjeevaniusername_local_saved)
+        val prefPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
+        editor.putString(prefUserKey, userName)
+        editor.putString(prefPasswordKey, password)
+        editor.apply()
+    }
+
     fun getEsanjeevaniUserName(): String? {
         val key = context.getString(R.string.esanjeevaniusername_local_saved)
-        return pref.getString(key, null)
+        return encryptedPref.getString(key, null)
     }
+
     fun getEsanjeevaniPassword(): String? {
         val prefPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
-        return pref.getString(prefPasswordKey, null)
+        return encryptedPref.getString(prefPasswordKey, null)
     }
+
     fun deleteEsanjeevaniCreds() {
-        val editor = pref.edit()
+        val editor = encryptedPref.edit()
         val prefUserKeyEs = context.getString(R.string.esanjeevaniusername_local_saved)
         val prefPasswordKeyEs = context.getString(R.string.esanjeevanipassword_local_saved)
         editor.remove(prefUserKeyEs)
         editor.remove(prefPasswordKeyEs)
         editor.apply()
     }
+
     fun deleteLoginCred() {
-        val editor = pref.edit()
+        val editor = encryptedPref.edit()
         val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
         val prefPasswordKey = context.getString(R.string.password_local_saved)
         editor.remove(prefUserKey)
