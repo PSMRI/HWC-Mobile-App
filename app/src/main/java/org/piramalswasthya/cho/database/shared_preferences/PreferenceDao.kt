@@ -29,13 +29,21 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     private val pref = PreferenceManager.getInstance(context)
 
     // EncryptedSharedPreferences for secure credential storage
-    private val encryptedPref: SharedPreferences = EncryptedSharedPreferences.create(
-        context,
-        "secret_shared_prefs",
-        MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+    private val encryptedPref: SharedPreferences by lazy {
+        try {
+            EncryptedSharedPreferences.create(
+                context,
+                "secret_shared_prefs",
+                MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            Log.e("PreferenceDao", "Failed to create EncryptedSharedPreferences, falling back to standard preferences", e)
+            // Fallback to standard preferences or throw a more informative error
+            pref
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     val date = LocalDate.of(2023, 11, 1)
