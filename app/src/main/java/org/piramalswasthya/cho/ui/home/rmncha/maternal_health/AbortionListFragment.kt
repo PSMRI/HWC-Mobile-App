@@ -21,7 +21,6 @@ import org.piramalswasthya.cho.utils.FaceSearchHelper
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -87,24 +86,24 @@ class AbortionListFragment : Fragment() {
         adapter = AbortionListAdapter(
             AbortionListAdapter.ClickListener(
                 clickedView = { patientID ->
-                    Toast.makeText(
-                        requireContext(),
-                        "View Abortion: $patientID",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    openAbortionActionFragment(actionType = "View", patientId = patientID)
                 },
                 clickedAdd = { patientID ->
-                    Toast.makeText(
-                        requireContext(),
-                        "Add Abortion: $patientID",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    openAbortionActionFragment(actionType = "Add", patientId = patientID)
                 }
             )
         )
 
         binding.rvAbortionList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvAbortionList.adapter = adapter
+    }
+
+    private fun openAbortionActionFragment(actionType: String, patientId: String) {
+        val fragment = AbortionFormFragment.newInstance(actionType = actionType, patientId = patientId)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun setupSearch() {

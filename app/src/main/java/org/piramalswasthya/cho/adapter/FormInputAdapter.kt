@@ -41,8 +41,10 @@ import org.piramalswasthya.cho.databinding.RvItemFormTextViewV2Binding
 import org.piramalswasthya.cho.databinding.RvItemFormTimepickerV2Binding
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.configuration.Dataset
+import org.piramalswasthya.cho.databinding.LayoutUploadFormBinding
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.utils.KeyboardUtils
 import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.model.InputType.AGE_PICKER
@@ -64,8 +66,12 @@ class FormInputAdapter(
     private val imageClickListener: ImageClickListener? = null,
     private val ageClickListener: AgeClickListener? = null,
     private val formValueListener: FormValueListener? = null,
-    private val isEnabled: Boolean = true
-) : ListAdapter<FormElement, ViewHolder>(FormInputDiffCallBack) {
+    private val isEnabled: Boolean = true,
+    private val selectImageClickListener: SelectUploadImageClickListener? = null,
+    private val viewDocumentListner: ViewDocumentOnClick? = null,
+
+    ) : ListAdapter<FormElement, ViewHolder>(FormInputDiffCallBack) {
+    var disableUpload = false
 
     //    @Inject
 //    lateinit var preferenceDao: PreferenceDao
@@ -392,11 +398,6 @@ class FormInputAdapter(
                                     else -> null
                                 }
                                 if (item.hasDependants || item.hasAlertError) {
-                                    Timber.d(
-                                        "listener trigger : ${item.id} ${
-                                            index
-                                        } $it"
-                                    )
                                     formValueListener?.onValueChanged(
                                         item, index
                                     )
@@ -847,6 +848,7 @@ class FormInputAdapter(
             TIME_PICKER -> TimePickerInputViewHolder.from(parent)
             HEADLINE -> HeadlineViewHolder.from(parent)
             AGE_PICKER -> AgePickerViewInputViewHolder.from(parent)
+            InputType.FILE_UPLOAD -> FileUploadInputViewHolder.from(parent)
         }
     }
 
@@ -874,7 +876,7 @@ class FormInputAdapter(
                 isEnabled,
                 formValueListener
             )
-
+            InputType.FILE_UPLOAD -> (holder as FileUploadInputViewHolder).bind(item,selectImageClickListener,viewDocumentListner,isEnabled = !disableUpload)
             TIME_PICKER -> (holder as TimePickerInputViewHolder).bind(item, isEnabled)
             HEADLINE -> (holder as HeadlineViewHolder).bind(item, formValueListener)
             AGE_PICKER -> (holder as AgePickerViewInputViewHolder).bind(
@@ -883,6 +885,42 @@ class FormInputAdapter(
                 isEnabled
             )
         }
+    }
+
+    class FileUploadInputViewHolder private constructor(private val binding: LayoutUploadFormBinding) :
+        ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = LayoutUploadFormBinding.inflate(layoutInflater, parent, false)
+                return FileUploadInputViewHolder(binding)
+            }
+        }
+
+
+        fun bind(
+            item: FormElement,
+            clickListener: SelectUploadImageClickListener?,
+            documentOnClick: ViewDocumentOnClick?,
+            isEnabled: Boolean
+        ) {
+            binding.form = item
+            binding.tvTitle.text = item.title
+            binding.clickListener = clickListener
+            binding.documentclickListener = documentOnClick
+            binding.btnView.visibility = if (item.value != null) View.VISIBLE else View.GONE
+
+            if (isEnabled) {
+                binding.addFile.visibility = View.VISIBLE
+//                binding.addFile.isEnabled = true
+//                binding.addFile.alpha = 1f
+            } else {
+                binding.addFile.visibility = View.GONE
+//                binding.addFile.isEnabled = false
+//                binding.addFile.alpha = 0.5f
+            }
+        }
+
     }
 
     override fun getItemViewType(position: Int) = getItem(position).inputType.ordinal
@@ -940,6 +978,18 @@ class FormInputAdapter(
             }
         }
         return retVal
+    }
+
+    class SelectUploadImageClickListener(private val selectImageClick: (formId: Int) -> Unit) {
+
+        fun onSelectImageClick(form: FormElement) = selectImageClick(form.id)
+
+    }
+
+    class ViewDocumentOnClick(private val viewDocument: (formId: Int) -> Unit) {
+
+        fun onViewDocumentClick(form: FormElement) = viewDocument(form.id)
+
     }
 
     fun syncAllEditTextValues(recyclerView: androidx.recyclerview.widget.RecyclerView) {

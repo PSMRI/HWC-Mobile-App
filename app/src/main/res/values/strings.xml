@@ -725,6 +725,7 @@
     <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
     <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
     <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
+    <string name="add_file">add file</string>
 
     <string name="view">VIEW</string>
     <string name="back">Back</string>

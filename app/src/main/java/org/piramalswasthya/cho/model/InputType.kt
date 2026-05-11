@@ -12,6 +12,7 @@ package org.piramalswasthya.cho.model
         TIME_PICKER,
         HEADLINE,
         AGE_PICKER,
+        FILE_UPLOAD
         
 
     }
