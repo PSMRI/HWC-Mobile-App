@@ -445,16 +445,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
     private fun handleArguments() {
-        val patientInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getSerializable(
-                "patientInfo",
-                org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo::class.java
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            arguments?.getSerializable("patientInfo") as? org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
-        }
-        val isEditMode = arguments?.getBoolean("isEditMode", false) ?: false
+        val patientInfo = getPatientInfo(arguments) ?: getPatientInfo(activity?.intent)
+        val isEditMode = arguments?.getBoolean("isEditMode", false)
+            ?: activity?.intent?.getBooleanExtra("isEdit", false)
+            ?: activity?.intent?.getBooleanExtra("isEditMode", false)
+            ?: false
 
         if (patientInfo != null) {
             populateForm(patientInfo)
@@ -464,6 +459,34 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             } else {
                 setFormEditable(false)
             }
+        }
+    }
+
+    private fun getPatientInfo(bundleSource: Bundle?): org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo? {
+        if (bundleSource == null) return null
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            bundleSource.getSerializable(
+                "patientInfo",
+                org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo::class.java
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            bundleSource.getSerializable("patientInfo") as? org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+        }
+    }
+
+    private fun getPatientInfo(intentSource: Intent?): org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo? {
+        if (intentSource == null) return null
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intentSource.getSerializableExtra(
+                "patientInfo",
+                org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo::class.java
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            intentSource.getSerializableExtra("patientInfo") as? org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
         }
     }
 

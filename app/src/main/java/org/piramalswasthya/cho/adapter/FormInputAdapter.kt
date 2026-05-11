@@ -93,7 +93,12 @@ class FormInputAdapter(
             }
         }
 
-        fun bind(item: FormElement, isEnabled: Boolean, formValueListener: FormValueListener?) {
+        fun bind(
+            item: FormElement,
+            isEnabled: Boolean,
+            formValueListener: FormValueListener?,
+            refreshDeliveryOutcomeFields: (() -> Unit)? = null
+        ) {
             Timber.d("binding triggered!!! $isEnabled ${item.id}")
             if (!isEnabled) {
                 binding.et.isEnabled = false
@@ -163,6 +168,15 @@ class FormInputAdapter(
                     if (item.errorText != binding.tilEditText.error) {
                         binding.tilEditText.isErrorEnabled = item.errorText != null
                         binding.tilEditText.error = item.errorText
+                    }
+
+                    // Delivery outcome fields share a cross-field validation rule.
+                    // Rebind the whole trio so sibling error states refresh when the
+                    // last field in the sum is edited.
+                    if (item.id == 15 || item.id == 16 || item.id == 17) {
+                        binding.root.post {
+                            refreshDeliveryOutcomeFields?.invoke()
+                        }
                     }
 //                        binding.tilEditText.error = null
 //                    else if(item.errorText!= null && binding.tilEditText.error==null)
@@ -855,7 +869,7 @@ class FormInputAdapter(
         val isEnabled = if (isEnabled) item.isEnabled else false
         when (item.inputType) {
             EDIT_TEXT -> (holder as EditTextInputViewHolder).bind(
-                item, isEnabled, formValueListener
+                item, isEnabled, formValueListener, ::refreshDeliveryOutcomeFields
             )
 
             DROPDOWN -> (holder as DropDownInputViewHolder).bind(item, isEnabled, formValueListener)
@@ -886,6 +900,13 @@ class FormInputAdapter(
     }
 
     override fun getItemViewType(position: Int) = getItem(position).inputType.ordinal
+
+    fun refreshDeliveryOutcomeFields() {
+        val startIndex = currentList.indexOfFirst { it.id == 15 }
+        if (startIndex != -1) {
+            notifyItemRangeChanged(startIndex, 3)
+        }
+    }
 
     /**
      * Validation Result : -1 -> all good
