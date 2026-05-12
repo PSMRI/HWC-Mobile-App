@@ -125,6 +125,8 @@ class AbortionFormViewModel(
 
     fun getImageFieldIndex(formId: Int): Int = dataset.getImageFieldIndex(formId)
 
+    fun getAbortionImageFieldValue(formId: Int): String? = dataset.getAbortionImageFieldValue(formId)
+
     class Factory(
         private val patientId: String,
         private val actionType: String,

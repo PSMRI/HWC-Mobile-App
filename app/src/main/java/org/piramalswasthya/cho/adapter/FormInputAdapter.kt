@@ -876,7 +876,12 @@ class FormInputAdapter(
                 isEnabled,
                 formValueListener
             )
-            InputType.FILE_UPLOAD -> (holder as FileUploadInputViewHolder).bind(item,selectImageClickListener,viewDocumentListner,isEnabled = !disableUpload)
+            InputType.FILE_UPLOAD -> (holder as FileUploadInputViewHolder).bind(
+                item,
+                selectImageClickListener,
+                viewDocumentListner,
+                isEnabled = isEnabled && !disableUpload
+            )
             TIME_PICKER -> (holder as TimePickerInputViewHolder).bind(item, isEnabled)
             HEADLINE -> (holder as HeadlineViewHolder).bind(item, formValueListener)
             AGE_PICKER -> (holder as AgePickerViewInputViewHolder).bind(
@@ -908,7 +913,8 @@ class FormInputAdapter(
             binding.tvTitle.text = item.title
             binding.clickListener = clickListener
             binding.documentclickListener = documentOnClick
-            binding.btnView.visibility = if (item.value != null) View.VISIBLE else View.GONE
+            binding.btnView.visibility =
+                if (item.value != null && documentOnClick != null) View.VISIBLE else View.GONE
 
             if (isEnabled) {
                 binding.addFile.visibility = View.VISIBLE

@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.configuration
 
 import android.content.Context
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import org.piramalswasthya.cho.model.FormElement
@@ -14,6 +15,8 @@ class PregnantWomanAncAbortionDataset(
     context: Context,
     currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
+
+    private val appContext = context.applicationContext
 
     private lateinit var registration: PregnantWomanRegistrationCache
 
@@ -228,8 +231,12 @@ class PregnantWomanAncAbortionDataset(
             cache.isYesOrNo = isYesOrNo.entries?.indexOf(isYesOrNo.value ?: "") == 0
             cache.remarks = remarks.value
             cache.dateSterilisation = dateOfSterilization.value?.let { getLongFromDate(it) }
-            cache.abortionImg1 = abortionDischargeSummaryImg1.value
-            cache.abortionImg2 = abortionDischargeSummaryImg2.value
+            cache.abortionImg1 = abortionDischargeSummaryImg1.value?.let {
+                ImgUtils.encodeLocalImageValueForUpload(appContext, it)
+            }
+            cache.abortionImg2 = abortionDischargeSummaryImg2.value?.let {
+                ImgUtils.encodeLocalImageValueForUpload(appContext, it)
+            }
         }
     }
 
@@ -243,4 +250,12 @@ class PregnantWomanAncAbortionDataset(
     }
 
     fun getImageFieldIndex(formId: Int): Int = getIndexById(formId)
+
+    fun getAbortionImageFieldValue(formId: Int): String? {
+        return when (formId) {
+            abortionDischargeSummaryImg1.id -> abortionDischargeSummaryImg1.value
+            abortionDischargeSummaryImg2.id -> abortionDischargeSummaryImg2.value
+            else -> null
+        }
+    }
 }

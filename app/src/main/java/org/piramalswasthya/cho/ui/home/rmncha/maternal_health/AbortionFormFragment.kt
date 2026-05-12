@@ -3,11 +3,13 @@ package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Environment
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.ScrollView
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,9 +24,11 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
+import com.bumptech.glide.Glide
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.work.WorkerUtils
 import java.io.File
 import javax.inject.Inject
@@ -185,7 +189,10 @@ class AbortionFormFragment : Fragment() {
                     binding.form.rvInputForm.adapter?.notifyItemChanged(viewModel.getWeeksOfPregnancyIndex())
                 }
             },
-            isEnabled = isEnabled
+            isEnabled = isEnabled,
+            viewDocumentListner = FormInputAdapter.ViewDocumentOnClick { formId ->
+                if (formId == 21 || formId == 22) showAbortionImagePreview(formId)
+            }
         )
         binding.form.rvInputForm.adapter = formAdapter
         if (latestList.isNotEmpty()) {
@@ -251,6 +258,48 @@ class AbortionFormFragment : Fragment() {
         if (index >= 0) {
             binding.form.rvInputForm.adapter?.notifyItemChanged(index)
         }
+    }
+
+    private fun showAbortionImagePreview(formId: Int) {
+        val raw = viewModel.getAbortionImageFieldValue(formId) ?: return
+        val imageView = ImageView(requireContext()).apply {
+            adjustViewBounds = true
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+        val scroll = ScrollView(requireContext()).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            addView(imageView)
+        }
+        when {
+            raw.startsWith("data:image", ignoreCase = true) -> {
+                val comma = raw.indexOf(',')
+                val payload = if (comma >= 0) raw.substring(comma + 1) else raw
+                ImgUtils.decodeBase64ToBitmap(payload)?.let { imageView.setImageBitmap(it) }
+            }
+            raw.contains("://") -> {
+                Glide.with(this).load(Uri.parse(raw)).fitCenter().into(imageView)
+            }
+            else -> {
+                ImgUtils.decodeBase64ToBitmap(raw)?.let { imageView.setImageBitmap(it) }
+            }
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(
+                when (formId) {
+                    21 -> getString(R.string.abortion_discharge_summary_1)
+                    22 -> getString(R.string.abortion_discharge_summary_2)
+                    else -> getString(R.string.view)
+                }
+            )
+            .setView(scroll)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     companion object {
