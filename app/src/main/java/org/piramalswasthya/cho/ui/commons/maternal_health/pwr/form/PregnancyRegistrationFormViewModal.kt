@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.configuration.PregnantWomanRegistrationDataset
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -78,6 +79,11 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
     val isReadOnly: LiveData<Boolean>
         get() = _isReadOnly
 
+    private val _initErrorMessage = MutableLiveData<String?>()
+    val initErrorMessage: LiveData<String?> get() = _initErrorMessage
+
+    fun clearInitError() { _initErrorMessage.value = null }
+
     private val dataset = PregnantWomanRegistrationDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
 
@@ -88,7 +94,8 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
             try {
                 val asha = userRepo.getLoggedInUser()
                 if (asha == null) {
-                    Timber.e("No logged in user found!")
+                    Timber.e("PregnancyRegistrationFormViewModel: no logged-in user found")
+                    _initErrorMessage.postValue(context.getString(R.string.form_session_expired))
                     return@launch
                 }
 
@@ -138,12 +145,13 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                     _isReadOnly.value = dataset.isFormReadOnly
                 } ?: run {
                     Timber.e("Patient not found for ID: $patientID")
-                    // Handle case where patient is not found
-                    _recordExists.value = false
+                    _initErrorMessage.postValue(context.getString(R.string.form_patient_not_found))
+                    _recordExists.postValue(false)
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error initializing PregnancyRegistrationFormViewModel")
-                _recordExists.value = false
+                _initErrorMessage.postValue(context.getString(R.string.form_load_failed))
+                _recordExists.postValue(false)
             }
         }
     }

@@ -9,6 +9,9 @@
     <string name="anc_alert_hb_severe_anemia">Severe Anaemia — High Risk Pregnancy</string>
     <string name="anc_alert_bp_hrp">Abnormal Blood Pressure detected — High Risk Pregnancy</string>
     <string name="anc_alert_danger_signs_hrp">Alert: Danger Sign(s) selected — High Risk Pregnancy</string>
+    <string name="form_session_expired">Your session has expired. Please log out and log in again to continue.</string>
+    <string name="form_patient_not_found">Patient record not found. Please reopen this form from the beneficiary list.</string>
+    <string name="form_load_failed">Could not load this form. Please try again, and if the problem persists, log out and log in again.</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>

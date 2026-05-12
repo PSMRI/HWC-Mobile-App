@@ -308,6 +308,21 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             }
         }
 
+        viewModel.initErrorMessage.observe(viewLifecycleOwner) { message ->
+            message?.let { errorMessage ->
+                AlertDialog.Builder(requireContext())
+                    .setTitle(getString(R.string.alert_popup))
+                    .setMessage(errorMessage)
+                    .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
+                        dialog.dismiss()
+                        viewModel.clearInitError()
+                        findNavController().navigateUp()
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
+        }
+
         // Observe navigation events
         viewModel.navigateTo.observe(viewLifecycleOwner) { event ->
             event?.let { navigationEvent ->

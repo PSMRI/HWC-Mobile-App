@@ -21,6 +21,7 @@ import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.repositories.UserRepo
 import timber.log.Timber
 import java.util.Calendar
@@ -30,7 +31,7 @@ import javax.inject.Inject
 class PwAncFormViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     preferenceDao: PreferenceDao,
-    @ApplicationContext context: Context,
+    @ApplicationContext private val context: Context,
     private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
@@ -66,6 +67,11 @@ class PwAncFormViewModel @Inject constructor(
     val recordExists: LiveData<Boolean>
         get() = _recordExists
 
+    private val _initErrorMessage = MutableLiveData<String?>()
+    val initErrorMessage: LiveData<String?> get() = _initErrorMessage
+
+    fun clearInitError() { _initErrorMessage.value = null }
+
     //    private lateinit var user: UserDomain
     private val dataset =
         PregnantWomanAncVisitDataset(context, preferenceDao.getCurrentLanguage())
@@ -81,10 +87,11 @@ class PwAncFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            try {
             val asha = userRepo.getLoggedInUser()
             if (asha == null) {
-                Timber.e("No logged in user found")
-                // Handle error state appropriately
+                Timber.e("PwAncFormViewModel: no logged-in user found")
+                _initErrorMessage.postValue(context.getString(R.string.form_session_expired))
                 return@launch
             }
             ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
@@ -100,8 +107,14 @@ class PwAncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
+            if (ben == null) {
+                Timber.e("PwAncFormViewModel: patient not found for ID %s", patientID)
+                _initErrorMessage.postValue(context.getString(R.string.form_patient_not_found))
+                return@launch
+            }
             registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID) ?: run {
                 Timber.e("No registration record found for $patientID")
+                _initErrorMessage.postValue(context.getString(R.string.form_patient_not_found))
                 return@launch
             }
             
@@ -135,6 +148,7 @@ class PwAncFormViewModel @Inject constructor(
                 val registerRecordOrNull = maternalHealthRepo.getSavedRegistrationRecord(patientID)
                 if (registerRecordOrNull == null) {
                     Timber.e("No registration record for patient $patientID; cannot load ANC form")
+                    _initErrorMessage.postValue(context.getString(R.string.form_patient_not_found))
                     _state.postValue(State.SAVE_FAILED)
                     return@launch
                 }
@@ -176,6 +190,10 @@ class PwAncFormViewModel @Inject constructor(
                     lastAnc,
                     null  // No existing data for new visit
                 )
+            }
+            } catch (e: Exception) {
+                Timber.e(e, "PwAncFormViewModel: failed to initialize form")
+                _initErrorMessage.postValue(context.getString(R.string.form_load_failed))
             }
         }
     }
