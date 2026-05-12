@@ -70,7 +70,7 @@ class SyncViewModel @Inject constructor(
                 buildStatus(
                     id = 8,
                     name = "PW ANC",
-                    syncStates = visibleRows.mapNotNull { it.pwr?.syncState }
+                    syncStates = visibleRows.mapNotNull { it.lastAnc?.syncState }
                 )
             )
         }
