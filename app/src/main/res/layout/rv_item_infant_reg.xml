@@ -65,7 +65,7 @@
                     android:contentDescription="@string/status"
                     android:src="@drawable/ic_synced"
                     android:visibility="gone"
-                    app:tint="@android:color/holo_green_dark"
+                    app:syncState="@{item.syncState}"
                     tools:visibility="visible" />
 
             </LinearLayout>

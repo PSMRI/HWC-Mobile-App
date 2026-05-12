@@ -462,7 +462,9 @@ data class InfantRegWithPatient(
 data class ChildRegDomain(
     val motherPatient: Patient,
     val infant: InfantRegCache,
-    val childPatient: Patient?
+    val childPatient: Patient?,
+    val syncState: SyncState? = infant.syncState,
+    val displaySyncState: SyncState? = if (infant.processed == "C" || childPatient != null) infant.syncState else null
 ) {
     /**
      * Get formatted baby name (baby 0, baby 1, etc.)

@@ -223,7 +223,9 @@ data class PatientWithPwrCache(
  */
 data class PatientWithPwrDomain(
     val patient: Patient,
-    val pwr: PregnantWomanRegistrationCache?
+    val pwr: PregnantWomanRegistrationCache?,
+    val syncState: SyncState? = pwr?.syncState,
+    var deliveryOutcomeSyncState: SyncState? = null
 ) {
     /**
      * Get weeks of pregnancy
@@ -364,7 +366,8 @@ data class AbortionDomain(
     val lmpDate: Long,
     val eddDate: Long,
     val weekOfPregnancy: Int?,
-    val abortionDate: Long?
+    val abortionDate: Long?,
+    val syncState: SyncState? = abortionRecord?.syncState
 ) {
     /**
      * Get formatted LMP date string
