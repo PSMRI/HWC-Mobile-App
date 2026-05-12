@@ -855,4 +855,36 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
         return null
     }
 
+    /**
+     * Multi-select variant of [getLocalValueInArray]. Splits a comma-separated
+     * stored value (typically what FormElement uses for CHECKBOXES) and re-localizes
+     * each item, returning a comma-joined string in the current locale.
+     */
+    fun getLocalValuesInArray(arrayId: Int, entry: String?): String? {
+        if (entry.isNullOrBlank()) return null
+        return entry.split(",")
+            .mapNotNull { raw ->
+                getLocalValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
+            }
+            .distinct()
+            .joinToString(",")
+            .takeIf { it.isNotBlank() }
+    }
+
+    /**
+     * Multi-select variant of [getEnglishValueInArray]. Splits a comma-separated
+     * displayed value and converts each item to its English canonical form so the
+     * persisted DB value is locale-neutral.
+     */
+    fun getEnglishValuesInArray(arrayId: Int, entry: String?): String? {
+        if (entry.isNullOrBlank()) return null
+        return entry.split(",")
+            .mapNotNull { raw ->
+                getEnglishValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
+            }
+            .distinct()
+            .joinToString(",")
+            .takeIf { it.isNotBlank() }
+    }
+
 }

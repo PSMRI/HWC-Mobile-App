@@ -383,28 +383,6 @@ class ChildRegistrationDataset(
         }
     }
 
-    private fun getLocalValuesInArray(arrayId: Int, entry: String?): String? {
-        if (entry.isNullOrBlank()) return null
-        return entry.split(",")
-            .mapNotNull { raw ->
-                getLocalValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
-            }
-            .distinct()
-            .joinToString(",")
-            .takeIf { it.isNotBlank() }
-    }
-
-    private fun getEnglishValuesInArray(arrayId: Int, entry: String?): String? {
-        if (entry.isNullOrBlank()) return null
-        return entry.split(",")
-            .mapNotNull { raw ->
-                getEnglishValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
-            }
-            .distinct()
-            .joinToString(",")
-            .takeIf { it.isNotBlank() }
-    }
-
     // ─── Helper: restore conditional (dependant) fields into the list ──
     private fun restoreConditionalFields(
         saved: InfantRegCache,

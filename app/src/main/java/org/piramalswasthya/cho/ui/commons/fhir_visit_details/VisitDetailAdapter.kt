@@ -18,6 +18,7 @@ import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
+import org.piramalswasthya.cho.utils.MasterDataLocalizer
 
 class VisitDetailAdapter(
     private val itemList: MutableList<ChiefComplaintValues>,
@@ -90,8 +91,12 @@ class VisitDetailAdapter(
                 val position = adapterPosition
                 if (position == RecyclerView.NO_POSITION) return@setOnItemClickListener
                 val chiefComplaint = parent.getItemAtPosition(selectedPosition) as ChiefComplaintMaster
-                chiefComplaintOptions.setText(chiefComplaint.chiefComplaint, false)
+                val ctx = chiefComplaintOptions.context
+                val localized =
+                    MasterDataLocalizer.localizeChiefComplaint(ctx, chiefComplaint.chiefComplaint)
+                chiefComplaintOptions.setText(localized, false)
                 itemList[position].id = chiefComplaint.chiefComplaintID
+                itemList[position].chiefComplaint = chiefComplaint.chiefComplaint
             }
 
             chiefComplaintOptions.addTextChangedListener {
@@ -99,9 +104,18 @@ class VisitDetailAdapter(
                 val position = adapterPosition
                 if (position == RecyclerView.NO_POSITION) return@addTextChangedListener
                 val itemData = itemList[position]
+                val typed = it.toString()
+                val ctx = chiefComplaintOptions.context
 
-                if (chiefComplaints.map { master -> master.chiefComplaint }.contains(it.toString())) {
-                    itemData.chiefComplaint = it.toString()
+                // The user's input may be the localized label, the canonical English,
+                // or free-typed text. Canonicalize first; if it resolves to a known
+                // master value, accept it and store the canonical English.
+                val canonical = MasterDataLocalizer.canonicalizeChiefComplaint(ctx, typed)
+                val matchesMaster = canonical != null &&
+                    chiefComplaints.any { master -> master.chiefComplaint == canonical }
+
+                if (matchesMaster) {
+                    itemData.chiefComplaint = canonical!!
                     updateResetButtonState()
                     itemChangeListener.onItemChanged()
                     chiefComplaintOptionInput.apply {
@@ -141,7 +155,12 @@ class VisitDetailAdapter(
                 if (isBinding) return@addTextChangedListener
                 val position = adapterPosition
                 if (position == RecyclerView.NO_POSITION) return@addTextChangedListener
-                itemList[position].durationUnit = it.toString()
+                val typed = it.toString()
+                val ctx = durationUnitDropdown.context
+                // Convert localized display text back to canonical English for storage;
+                // fall back to the raw input if it does not match a known unit.
+                val canonical = MasterDataLocalizer.canonicalizeDurationUnit(ctx, typed) ?: typed
+                itemList[position].durationUnit = canonical
                 itemChangeListener.onItemChanged()
             }
 
@@ -194,21 +213,35 @@ class VisitDetailAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.isBinding = true
         val itemData = itemList[position]
-        holder.chiefComplaintOptions.setText(itemData.chiefComplaint, false)
+        val ctx = holder.itemView.context
+
+        // chiefComplaint is stored in canonical English; show the localized label.
+        holder.chiefComplaintOptions.setText(
+            MasterDataLocalizer.localizeChiefComplaint(ctx, itemData.chiefComplaint),
+            false
+        )
         holder.durationInput.setText(itemData.duration)
-        val selectedDurationUnit = itemData.durationUnit?.takeIf { it.isNotBlank() }
+
+        val canonicalDurationUnit = itemData.durationUnit?.takeIf { it.isNotBlank() }
             ?: unitDropDown.getOrNull(1)
             ?: unitDropDown.firstOrNull()
             ?: ""
-        holder.durationUnitDropdown.setText(selectedDurationUnit, false)
+        holder.durationUnitDropdown.setText(
+            MasterDataLocalizer.localizeDurationUnit(ctx, canonicalDurationUnit),
+            false
+        )
+
         holder.descriptionInput.setText(itemData.description)
         holder.cancelButton.isEnabled = itemCount > 1
         holder.subtractButton.isEnabled = (itemData.duration?.toIntOrNull() ?: 0) > 1
 
+        // Render the duration-unit dropdown with localized labels; the TextWatcher
+        // canonicalizes the displayed text back to English before persisting.
+        val localizedUnits = unitDropDown.map { MasterDataLocalizer.localizeDurationUnit(ctx, it) }
         val unitDropdownAdapter =
-            ArrayAdapter(holder.itemView.context, R.layout.drop_down, unitDropDown)
+            ArrayAdapter(ctx, R.layout.drop_down, localizedUnits)
         val chiefComplaintAdapter = ChiefComplaintAdapter(
-            holder.itemView.context,
+            ctx,
             R.layout.drop_down,
             chiefComplaints,
             holder.chiefComplaintOptions,

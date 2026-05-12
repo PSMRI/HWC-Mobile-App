@@ -138,7 +138,6 @@
     <string name="aadhar_disclaimer_consent_text">मैं इसके द्वारा घोषणा करता/करती हूं कि मैं UIDAI द्वारा जारी अपना आधार नंबर और जनसांख्यिकीय जानकारी राष्ट्रीय स्वास्थ्य प्राधिकरण (NHA) के साथ केवल ABHA नंबर निर्माण के उद्देश्य से स्वेच्छा से साझा कर रहा/रही हूं। मैं समझता/समझती हूं कि मेरा ABHA नंबर ABDM द्वारा समय-समय पर अधिसूचित उद्देश्यों के लिए स्वास्थ्य सेवा प्रावधान सहित उपयोग और साझा किया जा सकता है। \n\nFurther,I am aware that my personal identifiable information (Name, Address, Age, Date of Birth, Gender and Photograph) may be made available to the entities working in the NationalDigital Health Ecosystem (NDHE)which inter alia includes stakeholders and entities such as healthcare professionals (e.g. doctors), facilities (e.g. hospitals, laboratories) and data fiduciaries (e.g. health programmers), which are registered with or linked to the Ayushman Bharat Digital Mission (ABDM), and various processes there under. I authorize NHA to use myAadhaar number for performing Aadhaar based authentication with UIDAI as per the provisions of the Aadhaar (Targeted Delivery of Financial and other Subsidies, Benefits and Services) Act, 2016 for the aforesaid purpose.I understand that UIDAI will share my e-KYC details, or response of “Yes” with NHA upon successful authentication. I have been duly informed about the option of using other IDs apart from Aadhaar; however,I consciously choose to use Aadhaar number for the purpose of availing benefits across the NDHE.I am aware that my personal identifiable information excluding Aadhaar number can be used and shared for purposes as mentioned above.I reserve the right to revoke the given consent at any point of time as per provisions of Aadhar Act and Regulations.</string>
     <string name="generate_abha_id">ABHA नंबर बनाएं</string>
     <string name="aadhar_consent_text">मैं इसके द्वारा पुष्टि करता/करती हूं कि मैंने व्यक्ति को ABHA नंबर निर्माण के लिए उसके आधार नंबर का उपयोग करते हुए नीचे दी गई सहमति प्रक्रिया समझाई है</string>
-    <string name="PREF_rem_me_uname">user-name-local-saved</string>
     <string name="title_activity_nav">नेव एक्टिविटी</string>
     <string name="navigation_drawer_open">नेविगेशन ड्रॉअर खोलें</string>
     <string name="navigation_drawer_close">नेविगेशन ड्रॉअर बंद करें</string>
@@ -309,8 +308,6 @@
     <string name="nav_item_1_text">Name : <b>%s</b></string>
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">लॉग-इन उपयोगकर्ता</string>
-    <string name="PREF_user_name">उपयोगकर्ता नाम</string>
     <string name="individual_s_consent_for_creation_of_abha_number">ABHA नंबर बनाने के लिए व्यक्ति की सहमति।</string>
     <string name="exit">बाहर निकलना</string>
     <string name="timer">घड़ी</string>
@@ -389,7 +386,6 @@
     <string name="note_ben_reg">टिप्पणी!</string>
     <string name="please_search_for_beneficiary">पंजीकरण से पहले लाभार्थी की खोज अवश्य करें।</string>
     <string name="no_patient_found">कोई मेल खाने वाला मरीज नहीं मिला। कृपया नीचे दिए गए विकल्पों में से एक चुनें।</string>
-    <string name="pref_location_data">वरीयता स्थान डेटा</string>
     <string name="chief_complaint2">मुख्य शिकायत सूची</string>
     <string name="beneficiary_name">लाभार्थी का नाम:</string>
     <string name="abha_no">आभा क्रमांक:</string>
@@ -407,7 +403,6 @@
     <string name="view_batch">बैच देखें</string>
     <string name="ok_button">ठीक है</string>
     <string name="change_role">भूमिका बदलें</string>
-    <string name="password_local_saved">पासवर्ड-स्थानीय-सहेजा गया</string>
     <string name="remember_me">मुझे याद करो</string>
     <string name="other_cphc_services">अन्य सीपीएचसी सेवाएं</string>
     <string name="reason_for_visit">भ्रमण का कारण</string>
@@ -1783,6 +1778,69 @@
     <string name="title_elderly_health_assessment">वृद्ध स्वास्थ्य मूल्यांकन</string>
     <string name="title_psychosocial_caregiver_support">मनोसामाजिक एवं देखभालकर्ता सहायता</string>
 
+    <!--
+      Localized labels for chief complaint and duration unit dropdowns.
+      Order MUST match values/strings.xml chief_complaint_en_keys and
+      duration_units_en_keys exactly. MasterDataLocalizer pairs by index.
+    -->
+    <string-array name="chief_complaint_localized">
+        <item>बुखार</item>
+        <item>खांसी</item>
+        <item>सिरदर्द</item>
+        <item>सर्दी</item>
+        <item>उल्टी</item>
+        <item>दस्त</item>
+        <item>शरीर में दर्द</item>
+        <item>पेट दर्द</item>
+        <item>सीने में दर्द</item>
+        <item>सांस लेने में तकलीफ</item>
+        <item>थकान</item>
+        <item>भूख न लगना</item>
+        <item>मोतियाबिंद</item>
+        <item>काला मोतिया</item>
+        <item>मधुमेह संबंधी रेटिनोपैथी</item>
+        <item>निकट दृष्टि दोष</item>
+        <item>ट्रेकोमा</item>
+        <item>कॉर्निया रोग</item>
+        <item>आंख आना / लाल आंख</item>
+        <item>सूखी आंखें</item>
+        <item>सूखी आंखें</item>
+        <item>आंख की एलर्जी</item>
+        <item>आंख की चोट (कुंठित आघात / भेदक चोट)</item>
+        <item>आंख की चोट (कुंठित आघात / भेदक चोट)</item>
+        <item>रासायनिक संपर्क (अम्ल / क्षार / अन्य)</item>
+        <item>रासायनिक संपर्क (अम्ल / क्षार / अन्य)</item>
+        <item>आंख में बाहरी वस्तु</item>
+        <item>दांत में सड़न</item>
+        <item>मसूड़ों के रोग</item>
+        <item>दांतों और जबड़ों की अनियमित व्यवस्था</item>
+        <item>असामान्य वृद्धि, धब्बे या छाले</item>
+        <item>कटा होंठ / तालु</item>
+        <item>डेंटल फ्लोरोसिस</item>
+        <item>दंत आपातकाल</item>
+        <item>गर्दन में सूजन</item>
+        <item>निगलने में कठिनाई</item>
+        <item>कटा होंठ</item>
+        <item>कटा तालु</item>
+        <item>टॉन्सिल का संक्रमण</item>
+        <item>ग्रसनीशोथ</item>
+        <item>स्वरयंत्रशोथ</item>
+        <item>साइनसाइटिस</item>
+        <item>सुनने में कठिनाई</item>
+        <item>कान का मैल</item>
+        <item>जन्मजात कान की विकृति</item>
+        <item>कान में बाहरी वस्तु</item>
+        <item>मुंह खोलकर सांस लेना</item>
+        <item>नकसीर</item>
+        <item>नाक में बाहरी वस्तु</item>
+    </string-array>
 
+    <string-array name="duration_units_localized">
+        <item>घंटे</item>
+        <item>दिन</item>
+        <item>सप्ताह</item>
+        <item>महीने</item>
+        <item>साल</item>
+    </string-array>
 
 </resources>

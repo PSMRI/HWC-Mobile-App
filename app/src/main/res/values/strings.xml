@@ -9,6 +9,9 @@
     <string name="anc_alert_hb_severe_anemia">Severe Anaemia — High Risk Pregnancy</string>
     <string name="anc_alert_bp_hrp">Abnormal Blood Pressure detected — High Risk Pregnancy</string>
     <string name="anc_alert_danger_signs_hrp">Alert: Danger Sign(s) selected — High Risk Pregnancy</string>
+    <string name="form_session_expired">Your session has expired. Please log out and log in again to continue.</string>
+    <string name="form_patient_not_found">Patient record not found. Please reopen this form from the beneficiary list.</string>
+    <string name="form_load_failed">Could not load this form. Please try again, and if the problem persists, log out and log in again.</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
@@ -330,7 +333,7 @@
     <string name="generate_abha_id">Create ABHA Number</string>
 
     <string name="aadhar_consent_text">I hereby confirm that I have explained the below mentioned consent process to the individual for the creation of the ABHA Number using he individual\'s aadhar number</string>
-    <string name="PREF_rem_me_uname">user-name-local-saved</string>
+    <string name="PREF_rem_me_uname" translatable="false">user-name-local-saved</string>
     <string name="title_activity_nav">NavActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -507,8 +510,8 @@
     <string name="nav_item_4_text">Mobile No. : <b>%s</b></string>
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">logged-in-user</string>
-    <string name="PREF_user_name">user name</string>
+    <string name="PREF_user_entry" translatable="false">logged-in-user</string>
+    <string name="PREF_user_name" translatable="false">user name</string>
     <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>
     <string name="exit">Exit</string>
     <string name="timer">timer</string>
@@ -617,7 +620,7 @@
     <string name="view_batch">View Batch</string>
     <string name="ok_button">Ok</string>
     <string name="change_role">Change Role</string>
-    <string name="password_local_saved">password-local-saved</string>
+    <string name="password_local_saved" translatable="false">password-local-saved</string>
     <string name="remember_me">Remember Me</string>
     <string name="other_cphc_services">Other CPHC Services</string>
     <string name="reason_for_visit">Reason For Visit</string>
@@ -1917,6 +1920,133 @@
     </string-array>
     
     <string name="elderly_health_assessment_saved">Elderly Health Assessment Saved</string>
+
+    <!--
+      MasterDataLocalizer mapping arrays. The _en_keys array holds the canonical
+      English values that are used as keys for lookup and for persistence to the
+      DB and server. The _localized array (defined per-locale) holds the
+      locale-specific display label at the same index. Index alignment is
+      load-bearing — do not reorder one without the other.
+    -->
+    <string-array name="chief_complaint_en_keys" translatable="false">
+        <item>Fever</item>
+        <item>Cough</item>
+        <item>Headache</item>
+        <item>Cold</item>
+        <item>Vomiting</item>
+        <item>Diarrhea</item>
+        <item>Body pain</item>
+        <item>Stomach pain</item>
+        <item>Chest pain</item>
+        <item>Shortness of breath</item>
+        <item>Fatigue</item>
+        <item>Loss of appetite</item>
+        <item>Cataract</item>
+        <item>Glaucoma</item>
+        <item>Diabetic retinopathy</item>
+        <item>Presbyopia</item>
+        <item>Trachoma</item>
+        <item>Corneal disease</item>
+        <item>Conjunctivitis/Acute red eye</item>
+        <item>Dry eye / xerophthalmia</item>
+        <item>Dry eye/ xerophthalmia</item>
+        <item>Eye allergy</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye,</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye</item>
+        <item>Chemical exposure (acid/ alkali/other),</item>
+        <item>Chemical exposure (acid/ alkali/other)</item>
+        <item>Foreign body lodged in the eye</item>
+        <item>Dental Decay</item>
+        <item>Gum diseases</item>
+        <item>Irregular arrangement of teeth and jaws</item>
+        <item>Abnormal growth, patch or ulcers</item>
+        <item>Cleft lip/ palate</item>
+        <item>Dental Fluorosis</item>
+        <item>Dental Emergencies</item>
+        <item>Neck swelling</item>
+        <item>Dysphagia</item>
+        <item>Cleft lip</item>
+        <item>Cleft palate</item>
+        <item>Tonsillitis</item>
+        <item>Pharyngitis</item>
+        <item>Laryngitis</item>
+        <item>Sinusitis</item>
+        <item>Difficulty in hearing</item>
+        <item>Ear wax</item>
+        <item>Congenital Ear Malformation</item>
+        <item>Foreign body in ear</item>
+        <item>open mouth breathing</item>
+        <item>Nosebleed</item>
+        <item>Foreign body in nose</item>
+    </string-array>
+
+    <string-array name="chief_complaint_localized">
+        <item>Fever</item>
+        <item>Cough</item>
+        <item>Headache</item>
+        <item>Cold</item>
+        <item>Vomiting</item>
+        <item>Diarrhea</item>
+        <item>Body pain</item>
+        <item>Stomach pain</item>
+        <item>Chest pain</item>
+        <item>Shortness of breath</item>
+        <item>Fatigue</item>
+        <item>Loss of appetite</item>
+        <item>Cataract</item>
+        <item>Glaucoma</item>
+        <item>Diabetic retinopathy</item>
+        <item>Presbyopia</item>
+        <item>Trachoma</item>
+        <item>Corneal disease</item>
+        <item>Conjunctivitis/Acute red eye</item>
+        <item>Dry eye / xerophthalmia</item>
+        <item>Dry eye/ xerophthalmia</item>
+        <item>Eye allergy</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye,</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye</item>
+        <item>Chemical exposure (acid/ alkali/other),</item>
+        <item>Chemical exposure (acid/ alkali/other)</item>
+        <item>Foreign body lodged in the eye</item>
+        <item>Dental Decay</item>
+        <item>Gum diseases</item>
+        <item>Irregular arrangement of teeth and jaws</item>
+        <item>Abnormal growth, patch or ulcers</item>
+        <item>Cleft lip/ palate</item>
+        <item>Dental Fluorosis</item>
+        <item>Dental Emergencies</item>
+        <item>Neck swelling</item>
+        <item>Dysphagia</item>
+        <item>Cleft lip</item>
+        <item>Cleft palate</item>
+        <item>Tonsillitis</item>
+        <item>Pharyngitis</item>
+        <item>Laryngitis</item>
+        <item>Sinusitis</item>
+        <item>Difficulty in hearing</item>
+        <item>Ear wax</item>
+        <item>Congenital Ear Malformation</item>
+        <item>Foreign body in ear</item>
+        <item>open mouth breathing</item>
+        <item>Nosebleed</item>
+        <item>Foreign body in nose</item>
+    </string-array>
+
+    <string-array name="duration_units_en_keys" translatable="false">
+        <item>Hour(s)</item>
+        <item>Day(s)</item>
+        <item>Week(s)</item>
+        <item>Month(s)</item>
+        <item>Year(s)</item>
+    </string-array>
+
+    <string-array name="duration_units_localized">
+        <item>Hour(s)</item>
+        <item>Day(s)</item>
+        <item>Week(s)</item>
+        <item>Month(s)</item>
+        <item>Year(s)</item>
+    </string-array>
 
 </resources>
 

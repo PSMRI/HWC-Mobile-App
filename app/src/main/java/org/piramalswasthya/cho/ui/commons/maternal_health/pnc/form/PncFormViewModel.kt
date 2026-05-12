@@ -64,6 +64,11 @@ class PncFormViewModel @Inject constructor(
     val recordExists: LiveData<Boolean>
         get() = _recordExists
 
+    private val _initErrorMessage = MutableLiveData<String?>()
+    val initErrorMessage: LiveData<String?> get() = _initErrorMessage
+
+    fun clearInitError() { _initErrorMessage.value = null }
+
     //    private lateinit var user: UserDomain
     private val dataset =
         PncFormDataset(context, preferenceDao.getCurrentLanguage())
@@ -102,61 +107,76 @@ class PncFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val asha = userRepo.getLoggedInUser()!!
-            val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
-                _benName.value =
-                    "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
-                _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
-                pncCache = PNCVisitCache(
-                    patientID = patientID,
-                    pncPeriod = visitNumber,
-                    isActive = true,
-                    syncState = SyncState.UNSYNCED,
-                    createdBy = asha.userName,
-                    updatedBy = asha.userName
-                )
-            }
-            deliveryOutcome = deliveryOutcomeRepo.getDeliveryOutcome(patientID)
-            if (deliveryOutcome == null) {
-                val patientRecord = ben?.patient ?: patientRepo.getPatient(patientID)
-                val fallbackMillis = patientRecord.registrationDate?.time ?: System.currentTimeMillis()
-                Timber.e(
-                    "Delivery outcome not found for patient %s. Using registrationDate=%s for PNC form only",
-                    patientID,
-                    fallbackMillis
-                )
-                deliveryOutcome = DeliveryOutcomeCache(
-                    patientID = patientID,
-                    isActive = true,
-                    dateOfDelivery = fallbackMillis,
-                    dateOfDischarge = fallbackMillis,
-                    createdBy = asha.userName,
-                    updatedBy = asha.userName,
-                    syncState = SyncState.UNSYNCED
-                )
-            }
-            
-            pncRepo.getSavedPncRecord(patientID, visitNumber)?.let {
-                pncCache = it
-                _recordExists.value = true
-            } ?: run {
-                _recordExists.value = false
-            }
-            val lastPnc = pncRepo.getLastFilledPncRecord(patientID)
-            val hasPreviousSterilization = hasPreviousPermanentSterilization()
-            val lastSterilizationVisit = if (hasPreviousSterilization) {
-                getLastPermanentSterilizationVisit(visitNumber)
-            } else null
+            try {
+                val asha = userRepo.getLoggedInUser()
+                if (asha == null) {
+                    Timber.e("PncFormViewModel: no logged-in user found")
+                    _initErrorMessage.postValue(context.getString(R.string.form_session_expired))
+                    return@launch
+                }
+                val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
+                    _benName.value =
+                        "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
+                    _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
+                    pncCache = PNCVisitCache(
+                        patientID = patientID,
+                        pncPeriod = visitNumber,
+                        isActive = true,
+                        syncState = SyncState.UNSYNCED,
+                        createdBy = asha.userName,
+                        updatedBy = asha.userName
+                    )
+                }
+                if (ben == null) {
+                    Timber.e("PncFormViewModel: patient not found for ID %s", patientID)
+                    _initErrorMessage.postValue(context.getString(R.string.form_patient_not_found))
+                    return@launch
+                }
+                deliveryOutcome = deliveryOutcomeRepo.getDeliveryOutcome(patientID)
+                if (deliveryOutcome == null) {
+                    val patientRecord = ben.patient
+                    val fallbackMillis = patientRecord.registrationDate?.time ?: System.currentTimeMillis()
+                    Timber.e(
+                        "Delivery outcome not found for patient %s. Using registrationDate=%s for PNC form only",
+                        patientID,
+                        fallbackMillis
+                    )
+                    deliveryOutcome = DeliveryOutcomeCache(
+                        patientID = patientID,
+                        isActive = true,
+                        dateOfDelivery = fallbackMillis,
+                        dateOfDischarge = fallbackMillis,
+                        createdBy = asha.userName,
+                        updatedBy = asha.userName,
+                        syncState = SyncState.UNSYNCED
+                    )
+                }
 
-            dataset.setUpPage(
-                visitNumber,
-                ben,
-                deliveryOutcome!!,
-                lastPnc,
-                if (recordExists.value == true) pncCache else null,
-                hasPreviousSterilization,
-                lastSterilizationVisit
-            )
+                pncRepo.getSavedPncRecord(patientID, visitNumber)?.let {
+                    pncCache = it
+                    _recordExists.value = true
+                } ?: run {
+                    _recordExists.value = false
+                }
+                val lastPnc = pncRepo.getLastFilledPncRecord(patientID)
+                val hasPreviousSterilization = hasPreviousPermanentSterilization()
+                val lastSterilizationVisit = if (hasPreviousSterilization) {
+                    getLastPermanentSterilizationVisit(visitNumber)
+                } else null
+
+                dataset.setUpPage(
+                    visitNumber,
+                    ben,
+                    deliveryOutcome!!,
+                    lastPnc,
+                    if (recordExists.value == true) pncCache else null,
+                    hasPreviousSterilization,
+                    lastSterilizationVisit
+                )
+            } catch (e: Exception) {
+                Timber.e(e, "PncFormViewModel: failed to initialize form")
+                _initErrorMessage.postValue(context.getString(R.string.form_load_failed))
+            }
         }
     }
 

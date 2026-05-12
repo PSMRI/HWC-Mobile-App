@@ -87,6 +87,26 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         setupButtonListeners()
         setupStateObserver()
         setupAlertObserver()
+        setupInitErrorObserver()
+    }
+
+    private fun setupInitErrorObserver() {
+        viewModel.initErrorMessage.observe(viewLifecycleOwner) { message ->
+            message?.let { errorMessage ->
+                context?.let { ctx ->
+                    AlertDialog.Builder(ctx)
+                        .setTitle(getString(R.string.alert_popup))
+                        .setMessage(errorMessage)
+                        .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
+                            dialog.dismiss()
+                            viewModel.clearInitError()
+                            findNavController().navigateUp()
+                        }
+                        .setCancelable(false)
+                        .show()
+                }
+            }
+        }
     }
 
     private fun setupFormAdapter() {

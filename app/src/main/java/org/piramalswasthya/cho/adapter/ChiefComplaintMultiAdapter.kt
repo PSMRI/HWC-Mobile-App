@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.utils.MasterDataLocalizer
 
 class ChiefComplaintMultiAdapter(
     private val chiefComplaints: List<ChiefComplaintDB>,
@@ -38,20 +39,22 @@ class ChiefComplaintMultiAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val chiefComplaint = chiefComplaints[position]
+        val ctx = holder.itemView.context
 
         holder.oldLayout.visibility = if (layoutVariant == null) View.VISIBLE else View.GONE
         holder.newLayout.visibility = if (layoutVariant == null) View.GONE else View.VISIBLE
 
-        holder.chiefComplaintName.setText(chiefComplaint.chiefComplaint)
-        holder.durationInput.setText(chiefComplaint.duration)
-        holder.durationUnitInput.setText(chiefComplaint.durationUnit)
+        val localizedChiefComplaint =
+            MasterDataLocalizer.localizeChiefComplaint(ctx, chiefComplaint.chiefComplaint)
+        val localizedDurationUnit =
+            MasterDataLocalizer.localizeDurationUnit(ctx, chiefComplaint.durationUnit)
 
-        holder.chiefComplaintName.setText(chiefComplaint.chiefComplaint)
+        holder.chiefComplaintName.setText(localizedChiefComplaint)
         holder.durationInput.setText(chiefComplaint.duration)
-        holder.durationUnitInput.setText(chiefComplaint.durationUnit)
+        holder.durationUnitInput.setText(localizedDurationUnit)
 
-        holder.tvChiefComplaint.text = chiefComplaint.chiefComplaint
-        holder.tvDurationValue.text = "${chiefComplaint.duration} ${chiefComplaint.durationUnit}"
+        holder.tvChiefComplaint.text = localizedChiefComplaint
+        holder.tvDurationValue.text = "${chiefComplaint.duration} $localizedDurationUnit"
         holder.tvDescription.text = chiefComplaint.description
 
         // Add a TextWatcher to update the duration property when the EditText changes

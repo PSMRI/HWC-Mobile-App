@@ -132,7 +132,6 @@
     <string name="generate_abha_id">Create ABHA Number</string>
 
     <string name="aadhar_consent_text">I hereby confirm that I have explained the below mentioned consent process to the individual for the creation of the ABHA Number using he individual\'s aadhar number</string>
-    <string name="PREF_rem_me_uname">user-name-local-saved</string>
     <string name="title_activity_nav">NavActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -306,7 +305,6 @@
     <string name="nav_item_1_text">Name : <b>%s</b></string>
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">logged-in-user</string>
     <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>
     <string name="ok">Ok</string>
     <string name="exit">Exit</string>
@@ -375,7 +373,6 @@
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">No matching patient found. Please choose an option from below.</string>
     <string name="no_patient_found">No matching patient found.Please select an option.</string>
-    <string name="pref_location_data" translatable="false">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">ಫಲಾನುಭವಿ ಹೆಸರು:</string>
     <string name="abha_no">ಎ.ಬಿ.ಎಚ್.ಎ ಐ.ಡಿ:</string>
@@ -389,7 +386,6 @@
     <string name="abha">ಎ.ಬಿ.ಎಚ್.ಎ</string>
     <string name="view_batch">View Batch</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
-    <string name="password_local_saved">password-local-saved</string>
     <string name="remember_me">ನನ್ನನ್ನು ನೆನಪಿನಲ್ಲಿ ಇಡು</string>
     <string name="ben_card_name">ಹೆಸರು:</string>
     <string name="beneficiary_id">Beneficiary ID:</string>
@@ -1048,5 +1044,70 @@
     <string name="title_pain_symptom_assessment">ಪ್ಯಾಲಿಯೇಟಿವ್ ಕೇರ್ ಗುರುತಿಸುವ ಫಾರ್ಮ್</string>
     <string name="title_elderly_health_assessment">ವೃದ್ಧರ ಆರೋಗ್ಯ ಮೌಲ್ಯಮಾಪನ</string>
     <string name="title_psychosocial_caregiver_support">ಮನೋಸಾಮಾಜಿಕ ಮತ್ತು ಆರೈಕೆದಾರರ ಸಹಾಯ</string>
+
+    <!--
+      Localized labels for chief complaint and duration unit dropdowns.
+      Order MUST match values/strings.xml chief_complaint_en_keys and
+      duration_units_en_keys exactly. MasterDataLocalizer pairs by index.
+    -->
+    <string-array name="chief_complaint_localized">
+        <item>ಜ್ವರ</item>
+        <item>ಕೆಮ್ಮು</item>
+        <item>ತಲೆನೋವು</item>
+        <item>ಶೀತ</item>
+        <item>ವಾಂತಿ</item>
+        <item>ಅತಿಸಾರ</item>
+        <item>ದೇಹದ ನೋವು</item>
+        <item>ಹೊಟ್ಟೆ ನೋವು</item>
+        <item>ಎದೆ ನೋವು</item>
+        <item>ಉಸಿರಾಟದ ತೊಂದರೆ</item>
+        <item>ಆಯಾಸ</item>
+        <item>ಹಸಿವು ಇಲ್ಲದಿರುವುದು</item>
+        <item>ಕಣ್ಣಿನ ಪೊರೆ</item>
+        <item>ಗ್ಲಾಕೋಮಾ</item>
+        <item>ಮಧುಮೇಹ ರೆಟಿನೋಪತಿ</item>
+        <item>ಪ್ರೆಸ್ಬಯೋಪಿಯಾ</item>
+        <item>ಟ್ರಕೋಮಾ</item>
+        <item>ಕಾರ್ನಿಯಾ ಕಾಯಿಲೆ</item>
+        <item>ಕಾಂಜಂಕ್ಟಿವೈಟಿಸ್ / ಕೆಂಪು ಕಣ್ಣು</item>
+        <item>ಒಣ ಕಣ್ಣು</item>
+        <item>ಒಣ ಕಣ್ಣು</item>
+        <item>ಕಣ್ಣಿನ ಅಲರ್ಜಿ</item>
+        <item>ಕಣ್ಣಿನ ಗಾಯ (ಭಾರೀ ಆಘಾತ / ಚುಚ್ಚುವ ಗಾಯ)</item>
+        <item>ಕಣ್ಣಿನ ಗಾಯ (ಭಾರೀ ಆಘಾತ / ಚುಚ್ಚುವ ಗಾಯ)</item>
+        <item>ರಾಸಾಯನಿಕ ಸಂಪರ್ಕ (ಆಮ್ಲ / ಕ್ಷಾರ / ಇತರೆ)</item>
+        <item>ರಾಸಾಯನಿಕ ಸಂಪರ್ಕ (ಆಮ್ಲ / ಕ್ಷಾರ / ಇತರೆ)</item>
+        <item>ಕಣ್ಣಿನಲ್ಲಿ ಬಾಹ್ಯ ವಸ್ತು</item>
+        <item>ಹಲ್ಲಿನ ಕ್ಷಯ</item>
+        <item>ವಸಡಿನ ಕಾಯಿಲೆಗಳು</item>
+        <item>ಹಲ್ಲು ಮತ್ತು ದವಡೆಯ ಅನಿಯಮಿತ ಜೋಡಣೆ</item>
+        <item>ಅಸಾಮಾನ್ಯ ಬೆಳವಣಿಗೆ, ಚೌಕಟ್ಟು ಅಥವಾ ಹುಣ್ಣು</item>
+        <item>ಸೀಳು ತುಟಿ / ಅಂಗುಳು</item>
+        <item>ಡೆಂಟಲ್ ಫ್ಲೋರೋಸಿಸ್</item>
+        <item>ದಂತ ತುರ್ತು</item>
+        <item>ಕುತ್ತಿಗೆ ಊತ</item>
+        <item>ನುಂಗಲು ಕಷ್ಟ</item>
+        <item>ಸೀಳು ತುಟಿ</item>
+        <item>ಸೀಳು ಅಂಗುಳು</item>
+        <item>ಟಾನ್ಸಿಲೈಟಿಸ್</item>
+        <item>ಗಂಟಲಿನ ಉರಿಯೂತ</item>
+        <item>ಧ್ವನಿಪೆಟ್ಟಿಗೆಯ ಉರಿಯೂತ</item>
+        <item>ಸೈನುಸೈಟಿಸ್</item>
+        <item>ಕೇಳುವಲ್ಲಿ ಕಷ್ಟ</item>
+        <item>ಕಿವಿಯ ಮೇಣ</item>
+        <item>ಜನ್ಮಜಾತ ಕಿವಿಯ ವಿಕೃತಿ</item>
+        <item>ಕಿವಿಯಲ್ಲಿ ಬಾಹ್ಯ ವಸ್ತು</item>
+        <item>ಬಾಯಿ ತೆರೆದು ಉಸಿರಾಟ</item>
+        <item>ಮೂಗಿನ ರಕ್ತಸ್ರಾವ</item>
+        <item>ಮೂಗಿನಲ್ಲಿ ಬಾಹ್ಯ ವಸ್ತು</item>
+    </string-array>
+
+    <string-array name="duration_units_localized">
+        <item>ಗಂಟೆಗಳು</item>
+        <item>ದಿನಗಳು</item>
+        <item>ವಾರಗಳು</item>
+        <item>ತಿಂಗಳುಗಳು</item>
+        <item>ವರ್ಷಗಳು</item>
+    </string-array>
 
 </resources>

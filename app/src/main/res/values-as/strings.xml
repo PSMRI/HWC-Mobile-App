@@ -172,7 +172,6 @@
     <string name="generate_abha_id">ABHA নম্বৰ সৃষ্টি কৰক</string>
 
     <string name="aadhar_consent_text">মই ইয়াৰ দ্বাৰা নিশ্চিত কৰিছোঁ যে ABHA নম্বৰ সৃষ্টিৰ উদ্দেশ্যে ব্যক্তিৰ আধাৰ নম্বৰ ব্যৱহাৰ কৰি তলত উল্লেখ কৰা সন্মতি প্ৰক্ৰিয়াটো তেওঁক বুজাই দিয়া হৈছে।</string>
-    <string name="PREF_rem_me_uname">user-name-local-saved</string>
     <string name="title_activity_nav">নেভিগেচন এক্টিভিটি</string>
     <string name="navigation_drawer_open">নেভিগেচন ড্ৰয়াৰ খোলক</string>
     <string name="navigation_drawer_close">নেভিগেচন ড্ৰয়াৰ বন্ধ কৰক</string>
@@ -349,8 +348,6 @@
     <string name="nav_item_1_text">নাম : <b>%s</b></string>
     <string name="nav_item_4_text">ম’বাইল নম্বৰ : <b>%s</b></string>    <string name="nav_item_2_text">ব্যৱহাৰকাৰী নাম : <b>%s</b></string>
     <string name="nav_item_3_text">ব্যৱহাৰকাৰী ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">লগ-ইন-ব্যৱহাৰকাৰী</string>
-    <string name="PREF_user_name">ব্যৱহাৰকাৰীৰ নাম</string>
     <string name="individual_s_consent_for_creation_of_abha_number">ABHA Number সৃষ্টিৰ বাবে ব্যক্তিৰ সন্মতি।</string>
     <string name="exit">প্ৰস্থান</string>
     <string name="timer">টাইমাৰ</string>
@@ -454,7 +451,6 @@
     <string name="view_batch">বেচ চাওক</string>
     <string name="ok_button">ঠিক আছে</string>
     <string name="change_role">ভূমিকা সলনি কৰক</string>
-    <string name="password_local_saved">পাছৱৰ্ড-স্থানীয়-সংৰক্ষিত</string>
     <string name="remember_me">মোক মনত পেলাওক</string>
     <string name="other_cphc_services">অন্যান্য চিপিএইচচি সেৱাসমূহ</string>
     <string name="reason_for_visit">ভ্ৰমণৰ কাৰণ</string>
@@ -1974,7 +1970,69 @@
     <string name="title_elderly_health_assessment">বয়োজ্যেষ্ঠ স্বাস্থ্য মূল্যায়ন</string>
     <string name="title_psychosocial_caregiver_support">মনোসামাজিক আৰু যত্নপ্ৰদানকাৰী সহায়তা</string>
 
+    <!--
+      Localized labels for chief complaint and duration unit dropdowns.
+      Order MUST match values/strings.xml chief_complaint_en_keys and
+      duration_units_en_keys exactly. MasterDataLocalizer pairs by index.
+    -->
+    <string-array name="chief_complaint_localized">
+        <item>জ্বৰ</item>
+        <item>কাহ</item>
+        <item>মূৰৰ বিষ</item>
+        <item>চৰ্দি</item>
+        <item>বমি</item>
+        <item>ডায়েৰিয়া</item>
+        <item>শৰীৰৰ বিষ</item>
+        <item>পেটৰ বিষ</item>
+        <item>বুকুৰ বিষ</item>
+        <item>উশাহ লোৱাত অসুবিধা</item>
+        <item>ভাগৰ</item>
+        <item>ভোক নলগা</item>
+        <item>চকুৰ ছানি</item>
+        <item>গ্লুকোমা</item>
+        <item>ডায়েবেটিক ৰেটিনোপেথী</item>
+        <item>প্ৰেছবায়োপিয়া</item>
+        <item>ট্ৰেকোমা</item>
+        <item>কৰ্ণিয়াৰ ৰোগ</item>
+        <item>চকু ৰঙা হোৱা</item>
+        <item>শুকান চকু</item>
+        <item>শুকান চকু</item>
+        <item>চকুৰ এলাৰ্জী</item>
+        <item>চকুৰ আঘাত (ভোমা আঘাত / বিন্ধা আঘাত)</item>
+        <item>চকুৰ আঘাত (ভোমা আঘাত / বিন্ধা আঘাত)</item>
+        <item>ৰাসায়নিক সংস্পৰ্শ (এচিড / ক্ষাৰ / অন্য)</item>
+        <item>ৰাসায়নিক সংস্পৰ্শ (এচিড / ক্ষাৰ / অন্য)</item>
+        <item>চকুত বাহ্যিক বস্তু</item>
+        <item>দাঁতৰ ক্ষয়</item>
+        <item>দাঁতৰ মাড়িৰ ৰোগ</item>
+        <item>দাঁত আৰু চোৱালৰ অনিয়মিত গঠন</item>
+        <item>অস্বাভাৱিক বৃদ্ধি, দাগ বা ঘা</item>
+        <item>কটা ওঁঠ / তালু</item>
+        <item>দাঁতৰ ফ্লুৰ\'ছিছ</item>
+        <item>দাঁতৰ জৰুৰীকালীন</item>
+        <item>ডিঙিত ফুলা</item>
+        <item>গিলিবলৈ অসুবিধা</item>
+        <item>কটা ওঁঠ</item>
+        <item>কটা তালু</item>
+        <item>টনচিল ৰোগ</item>
+        <item>গলকণ্ঠ প্ৰদাহ</item>
+        <item>স্বৰযন্ত্ৰ প্ৰদাহ</item>
+        <item>ছাইনাছাইটিছ</item>
+        <item>শুনিবলৈ অসুবিধা</item>
+        <item>কাণৰ ময়লা</item>
+        <item>জন্মগত কাণৰ বিকৃতি</item>
+        <item>কাণত বাহ্যিক বস্তু</item>
+        <item>মুখ মেলি উশাহ লোৱা</item>
+        <item>নাকৰ তেজ</item>
+        <item>নাকত বাহ্যিক বস্তু</item>
+    </string-array>
 
-
+    <string-array name="duration_units_localized">
+        <item>ঘণ্টা</item>
+        <item>দিন</item>
+        <item>সপ্তাহ</item>
+        <item>মাহ</item>
+        <item>বছৰ</item>
+    </string-array>
 
 </resources>

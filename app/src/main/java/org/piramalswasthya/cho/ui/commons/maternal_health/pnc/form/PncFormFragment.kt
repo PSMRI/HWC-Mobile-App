@@ -152,6 +152,20 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         binding.fabEdit.setOnClickListener {
             viewModel.setRecordExist(false)
         }
+        viewModel.initErrorMessage.observe(viewLifecycleOwner) { message ->
+            message?.let { errorMessage ->
+                AlertDialog.Builder(requireContext())
+                    .setTitle(getString(R.string.alert_popup))
+                    .setMessage(errorMessage)
+                    .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
+                        dialog.dismiss()
+                        viewModel.clearInitError()
+                        findNavController().navigateUp()
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
+        }
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 State.IDLE -> {
