@@ -7,9 +7,12 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncModuleIds
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.InfantRegCache
 import org.piramalswasthya.cho.model.InfantRegWithPatient
 import org.piramalswasthya.cho.model.PatientWithDeliveryOutcomeAndInfantRegCache
+import org.piramalswasthya.cho.model.SyncStatusCache
 
 @Dao
 interface InfantRegDao {
@@ -68,6 +71,24 @@ interface InfantRegDao {
     """)
     fun getInfantRegisterCount(): Flow<Int>
 
+    @Query(
+        """
+        SELECT
+            ${SyncModuleIds.INFANT_REG} AS id,
+            'Infant Reg.' AS name,
+            COUNT(CASE WHEN ir.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN ir.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN ir.syncState = :syncingState THEN 1 END) AS syncing
+        FROM INFANT_REG ir
+        WHERE ir.isActive = 1
+        """
+    )
+    fun getInfantRegSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
+
     /**
      * Get patient with delivery outcome and infant reg by patientID
      */
@@ -95,4 +116,23 @@ interface InfantRegDao {
         WHERE ir.isActive = 1
     """)
     fun getAllRegisteredInfantsCount(): Flow<Int>
+
+    @Query(
+        """
+        SELECT
+            ${SyncModuleIds.CHILD_REG} AS id,
+            'Child Reg.' AS name,
+            COUNT(CASE WHEN ir.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN ir.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN ir.syncState = :syncingState THEN 1 END) AS syncing
+        FROM INFANT_REG ir
+        WHERE ir.isActive = 1
+          AND (ir.childPatientID IS NOT NULL OR ir.processed = 'C')
+        """
+    )
+    fun getChildRegSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
 }

@@ -8,11 +8,13 @@ import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.SyncStatusCache
 import java.util.Date
 
 @Dao
@@ -259,5 +261,24 @@ interface PatientDao {
         AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 3650 AND 6935
     """)
     fun getAdolescentListCount(): Flow<Int>
+
+    @Query(
+        """
+        SELECT
+            14 AS id,
+            'Adolescent List' AS name,
+            COUNT(CASE WHEN syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN syncState = :syncingState THEN 1 END) AS syncing
+        FROM PATIENT
+        WHERE dob IS NOT NULL
+          AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 3650 AND 6935
+        """
+    )
+    fun getAdolescentSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
 
 }

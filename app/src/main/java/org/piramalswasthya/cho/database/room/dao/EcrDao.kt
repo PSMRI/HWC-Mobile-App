@@ -2,10 +2,12 @@ package org.piramalswasthya.cho.database.room.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.EligibleCoupleRegCache
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientWithECRCache
+import org.piramalswasthya.cho.model.SyncStatusCache
 
 @Dao
 interface EcrDao {
@@ -83,6 +85,28 @@ interface EcrDao {
         AND age BETWEEN 15 AND 49
     """)
     fun getEligibleCoupleTrackingCount(): Flow<Int>
+
+    @Transaction
+    @Query(
+        """
+        SELECT
+            6 AS id,
+            'EC Tracking' AS name,
+            COUNT(CASE WHEN ect.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN ect.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN ect.syncState = :syncingState THEN 1 END) AS syncing
+        FROM ELIGIBLE_COUPLE_TRACKING ect
+        INNER JOIN PATIENT p ON p.patientID = ect.patientID
+        WHERE p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+          AND p.statusOfWomanID = 1
+        """
+    )
+    fun getEligibleCoupleTrackingSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(vararg eligibleCoupleTrackingCache: EligibleCoupleTrackingCache)

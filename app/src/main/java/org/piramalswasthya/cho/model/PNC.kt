@@ -280,7 +280,8 @@ data class PatientWithPncDomain(
     val patient: Patient,
     val deliveryOutcome: DeliveryOutcomeCache?,
     val latestPnc: PNCVisitCache?,
-    val allPncRecords: List<PNCVisitCache>
+    val allPncRecords: List<PNCVisitCache>,
+    val syncState: SyncState? = resolvePncSyncState(allPncRecords)
 ) {
     /**
      * Get formatted delivery date string
@@ -313,5 +314,15 @@ data class PatientWithPncDomain(
         
         // Eligible if within 42 days OR haven't completed all PNC visits
         return daysSinceDelivery <= 42 || lastPncPeriod < 42
+    }
+}
+
+private fun resolvePncSyncState(records: List<PNCVisitCache>): SyncState? {
+    if (records.isEmpty()) return null
+    return when {
+        records.any { it.syncState == SyncState.SYNCING } -> SyncState.SYNCING
+        records.any { it.syncState == SyncState.UNSYNCED } -> SyncState.UNSYNCED
+        records.all { it.syncState == SyncState.SYNCED } -> SyncState.SYNCED
+        else -> SyncState.UNSYNCED
     }
 }

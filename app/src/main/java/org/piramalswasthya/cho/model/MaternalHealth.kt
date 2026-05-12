@@ -201,7 +201,12 @@ data class PatientWithPwrCache(
         parentColumn = "patientID",
         entityColumn = "patientID"
     )
-    val pwr: List<PregnantWomanRegistrationCache>
+    val pwr: List<PregnantWomanRegistrationCache>,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val ancRecords: List<PregnantWomanAncCache>
 ) {
     /**
      * Active PWR record, or if none active the most recent by createdDate.
@@ -213,7 +218,8 @@ data class PatientWithPwrCache(
     fun asDomainModel(): PatientWithPwrDomain {
         return PatientWithPwrDomain(
             patient = patient,
-            pwr = getActiveOrLatestPwr()
+            pwr = getActiveOrLatestPwr(),
+            ancRecords = ancRecords
         )
     }
 }
@@ -223,7 +229,11 @@ data class PatientWithPwrCache(
  */
 data class PatientWithPwrDomain(
     val patient: Patient,
-    val pwr: PregnantWomanRegistrationCache?
+    val pwr: PregnantWomanRegistrationCache?,
+    val ancRecords: List<PregnantWomanAncCache> = emptyList(),
+    val syncState: SyncState? = pwr?.syncState,
+    val lastAnc: PregnantWomanAncCache? = ancRecords.maxByOrNull { it.visitNumber },
+    var deliveryOutcomeSyncState: SyncState? = null
 ) {
     /**
      * Get weeks of pregnancy
@@ -364,7 +374,8 @@ data class AbortionDomain(
     val lmpDate: Long,
     val eddDate: Long,
     val weekOfPregnancy: Int?,
-    val abortionDate: Long?
+    val abortionDate: Long?,
+    val syncState: SyncState? = abortionRecord?.syncState
 ) {
     /**
      * Get formatted LMP date string

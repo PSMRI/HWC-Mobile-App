@@ -3,7 +3,9 @@ package org.piramalswasthya.cho.database.room.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.*
+import org.piramalswasthya.cho.model.SyncStatusCache
 
 @Dao
 interface MaternalHealthDao {
@@ -151,6 +153,25 @@ interface MaternalHealthDao {
     @Query("SELECT COUNT(DISTINCT patientID) FROM pregnancy_register WHERE active = 1")
     fun getPWRCount(): Flow<Int>
 
+    @Transaction
+    @Query(
+        """
+        SELECT
+            7 AS id,
+            'PW Registration' AS name,
+            COUNT(CASE WHEN pwr.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN pwr.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN pwr.syncState = :syncingState THEN 1 END) AS syncing
+        FROM PREGNANCY_REGISTER pwr
+        WHERE pwr.active = 1
+        """
+    )
+    fun getPregnancyRegistrationSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
+
     /**
      * Get patientIDs for Delivery Outcome list from ANC (isDelivered=true) + DELIVERY_OUTCOME.
      */
@@ -196,6 +217,25 @@ interface MaternalHealthDao {
           AND p.age BETWEEN 15 AND 49
     """)
     fun getDeliveredWomenCount(): Flow<Int>
+
+    @Transaction
+    @Query(
+        """
+        SELECT
+            8 AS id,
+            'PW ANC' AS name,
+            COUNT(CASE WHEN anc.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN anc.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN anc.syncState = :syncingState THEN 1 END) AS syncing
+        FROM PREGNANCY_ANC anc
+        WHERE anc.isActive = 1
+        """
+    )
+    fun getAncSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
 
     /**
      * Get count of women with saved delivery outcome only (for neonatal outcome module).
@@ -263,6 +303,27 @@ interface MaternalHealthDao {
         AND p.age BETWEEN 15 AND 49
     """)
     fun getAllAbortionWomenCount(): Flow<Int>
+
+    @Transaction
+    @Query(
+        """
+        SELECT
+            13 AS id,
+            'Abortion List' AS name,
+            COUNT(CASE WHEN anc.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN anc.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN anc.syncState = :syncingState THEN 1 END) AS syncing
+        FROM PREGNANCY_ANC anc
+        WHERE anc.isAborted = 1
+          AND anc.abortionDate IS NOT NULL
+          AND anc.abortionType = 'Spontaneous'
+        """
+    )
+    fun getAbortionSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
 
     /**
      * Get all patients registered for pregnancy (eligible for PMSMA)

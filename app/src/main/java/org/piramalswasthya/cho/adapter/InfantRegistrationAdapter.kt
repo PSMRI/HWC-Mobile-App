@@ -57,13 +57,6 @@ class InfantRegistrationAdapter(
             binding.btnAction.isEnabled = item.isActionEnabled()
             binding.btnAction.alpha = if (item.isActionEnabled()) 1f else 0.7f
 
-            // Set sync icon visibility
-            binding.ivSync.visibility = if (item.syncState != null && item.syncState == org.piramalswasthya.cho.database.room.SyncState.SYNCED) {
-                android.view.View.VISIBLE
-            } else {
-                android.view.View.GONE
-            }
-
             binding.executePendingBindings()
         }
     }

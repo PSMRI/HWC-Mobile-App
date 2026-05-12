@@ -199,6 +199,7 @@ class EligibleCoupleTrackingFragment : Fragment() {
                         methodOfContraception = latestVisit?.methodOfContraception
                         antraInjectionDate = latestVisit?.antraInjectionDate
                         lmpDateFromTracking = latestVisit?.lmpDate
+                        syncState = latestVisit?.syncState ?: ecr?.syncState
                         antraNextDueDate = if (latestVisit?.methodOfContraception == "ANTRA Injection") {
                             latestVisit.antraDueDate
                         } else {

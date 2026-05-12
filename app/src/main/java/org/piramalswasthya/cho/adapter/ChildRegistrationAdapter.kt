@@ -71,13 +71,6 @@ class ChildRegistrationAdapter(
                 binding.tvAge.text = "NA"
             }
 
-            // Set sync icon visibility
-            binding.ivSync.visibility = if (item.infant.syncState == org.piramalswasthya.cho.database.room.SyncState.SYNCED) {
-                android.view.View.VISIBLE
-            } else {
-                android.view.View.GONE
-            }
-
             binding.executePendingBindings()
         }
     }
