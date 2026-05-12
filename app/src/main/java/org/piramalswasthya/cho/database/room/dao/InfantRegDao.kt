@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncModuleIds
 import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.InfantRegCache
 import org.piramalswasthya.cho.model.InfantRegWithPatient
@@ -73,7 +74,7 @@ interface InfantRegDao {
     @Query(
         """
         SELECT
-            11 AS id,
+            ${SyncModuleIds.INFANT_REG} AS id,
             'Infant Reg.' AS name,
             COUNT(CASE WHEN ir.syncState = :syncedState THEN 1 END) AS synced,
             COUNT(CASE WHEN ir.syncState = :unsyncedState THEN 1 END) AS notSynced,
@@ -119,7 +120,7 @@ interface InfantRegDao {
     @Query(
         """
         SELECT
-            12 AS id,
+            ${SyncModuleIds.CHILD_REG} AS id,
             'Child Reg.' AS name,
             COUNT(CASE WHEN ir.syncState = :syncedState THEN 1 END) AS synced,
             COUNT(CASE WHEN ir.syncState = :unsyncedState THEN 1 END) AS notSynced,

@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncModuleIds
 import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.SyncStatusCache
@@ -33,7 +34,7 @@ interface DeliveryOutcomeDao {
     @Query(
         """
         SELECT
-            9 AS id,
+            ${SyncModuleIds.DELIVERY_OUTCOME} AS id,
             'Delivery Outcome' AS name,
             COUNT(CASE WHEN do.syncState = :syncedState THEN 1 END) AS synced,
             COUNT(CASE WHEN do.syncState = :unsyncedState THEN 1 END) AS notSynced,

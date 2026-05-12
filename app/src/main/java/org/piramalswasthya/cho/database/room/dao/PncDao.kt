@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncModuleIds
 import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.model.PatientWithDeliveryOutcomeAndPncCache
@@ -43,7 +44,7 @@ interface PncDao {
     @Query(
         """
         SELECT
-            10 AS id,
+            ${SyncModuleIds.PNC} AS id,
             'PNC' AS name,
             COUNT(CASE WHEN pnc.syncState = :syncedState THEN 1 END) AS synced,
             COUNT(CASE WHEN pnc.syncState = :unsyncedState THEN 1 END) AS notSynced,

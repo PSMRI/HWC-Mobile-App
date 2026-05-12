@@ -5,6 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import org.piramalswasthya.cho.database.room.SyncModuleIds
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.EcrDao
@@ -81,7 +82,7 @@ class SyncViewModel @Inject constructor(
             val visibleRows = patients.map { it.asDomainModel() }
             listOf(
                 buildStatus(
-                    id = 10,
+                    id = SyncModuleIds.PNC,
                     name = "PNC",
                     syncStates = visibleRows.mapNotNull { it.syncState }
                 )
@@ -94,7 +95,7 @@ class SyncViewModel @Inject constructor(
             val visibleRows = infants.filter { it.isRegistered() }
             listOf(
                 buildStatus(
-                    id = 11,
+                    id = SyncModuleIds.INFANT_REG,
                     name = "Infant Reg.",
                     syncStates = visibleRows.mapNotNull { it.syncState }
                 )
@@ -121,7 +122,7 @@ class SyncViewModel @Inject constructor(
 
             listOf(
                 buildStatus(
-                    id = 12,
+                    id = SyncModuleIds.CHILD_REG,
                     name = "Child Reg.",
                     syncStates = visibleRows.mapNotNull { it.syncState }
                 )
