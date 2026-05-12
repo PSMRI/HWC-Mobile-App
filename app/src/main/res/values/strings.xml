@@ -330,7 +330,7 @@
     <string name="generate_abha_id">Create ABHA Number</string>
 
     <string name="aadhar_consent_text">I hereby confirm that I have explained the below mentioned consent process to the individual for the creation of the ABHA Number using he individual\'s aadhar number</string>
-    <string name="PREF_rem_me_uname">user-name-local-saved</string>
+    <string name="PREF_rem_me_uname" translatable="false">user-name-local-saved</string>
     <string name="title_activity_nav">NavActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -507,8 +507,8 @@
     <string name="nav_item_4_text">Mobile No. : <b>%s</b></string>
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">logged-in-user</string>
-    <string name="PREF_user_name">user name</string>
+    <string name="PREF_user_entry" translatable="false">logged-in-user</string>
+    <string name="PREF_user_name" translatable="false">user name</string>
     <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>
     <string name="exit">Exit</string>
     <string name="timer">timer</string>
@@ -617,7 +617,7 @@
     <string name="view_batch">View Batch</string>
     <string name="ok_button">Ok</string>
     <string name="change_role">Change Role</string>
-    <string name="password_local_saved">password-local-saved</string>
+    <string name="password_local_saved" translatable="false">password-local-saved</string>
     <string name="remember_me">Remember Me</string>
     <string name="other_cphc_services">Other CPHC Services</string>
     <string name="reason_for_visit">Reason For Visit</string>

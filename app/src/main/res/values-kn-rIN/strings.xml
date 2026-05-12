@@ -132,7 +132,6 @@
     <string name="generate_abha_id">Create ABHA Number</string>
 
     <string name="aadhar_consent_text">I hereby confirm that I have explained the below mentioned consent process to the individual for the creation of the ABHA Number using he individual\'s aadhar number</string>
-    <string name="PREF_rem_me_uname">user-name-local-saved</string>
     <string name="title_activity_nav">NavActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -306,7 +305,6 @@
     <string name="nav_item_1_text">Name : <b>%s</b></string>
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">logged-in-user</string>
     <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>
     <string name="ok">Ok</string>
     <string name="exit">Exit</string>
@@ -375,7 +373,6 @@
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">No matching patient found. Please choose an option from below.</string>
     <string name="no_patient_found">No matching patient found.Please select an option.</string>
-    <string name="pref_location_data" translatable="false">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">ಫಲಾನುಭವಿ ಹೆಸರು:</string>
     <string name="abha_no">ಎ.ಬಿ.ಎಚ್.ಎ ಐ.ಡಿ:</string>
@@ -389,7 +386,6 @@
     <string name="abha">ಎ.ಬಿ.ಎಚ್.ಎ</string>
     <string name="view_batch">View Batch</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
-    <string name="password_local_saved">password-local-saved</string>
     <string name="remember_me">ನನ್ನನ್ನು ನೆನಪಿನಲ್ಲಿ ಇಡು</string>
     <string name="ben_card_name">ಹೆಸರು:</string>
     <string name="beneficiary_id">Beneficiary ID:</string>

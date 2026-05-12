@@ -172,7 +172,6 @@
     <string name="generate_abha_id">ABHA নম্বৰ সৃষ্টি কৰক</string>
 
     <string name="aadhar_consent_text">মই ইয়াৰ দ্বাৰা নিশ্চিত কৰিছোঁ যে ABHA নম্বৰ সৃষ্টিৰ উদ্দেশ্যে ব্যক্তিৰ আধাৰ নম্বৰ ব্যৱহাৰ কৰি তলত উল্লেখ কৰা সন্মতি প্ৰক্ৰিয়াটো তেওঁক বুজাই দিয়া হৈছে।</string>
-    <string name="PREF_rem_me_uname">user-name-local-saved</string>
     <string name="title_activity_nav">নেভিগেচন এক্টিভিটি</string>
     <string name="navigation_drawer_open">নেভিগেচন ড্ৰয়াৰ খোলক</string>
     <string name="navigation_drawer_close">নেভিগেচন ড্ৰয়াৰ বন্ধ কৰক</string>
@@ -349,8 +348,6 @@
     <string name="nav_item_1_text">নাম : <b>%s</b></string>
     <string name="nav_item_4_text">ম’বাইল নম্বৰ : <b>%s</b></string>    <string name="nav_item_2_text">ব্যৱহাৰকাৰী নাম : <b>%s</b></string>
     <string name="nav_item_3_text">ব্যৱহাৰকাৰী ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">লগ-ইন-ব্যৱহাৰকাৰী</string>
-    <string name="PREF_user_name">ব্যৱহাৰকাৰীৰ নাম</string>
     <string name="individual_s_consent_for_creation_of_abha_number">ABHA Number সৃষ্টিৰ বাবে ব্যক্তিৰ সন্মতি।</string>
     <string name="exit">প্ৰস্থান</string>
     <string name="timer">টাইমাৰ</string>
@@ -454,7 +451,6 @@
     <string name="view_batch">বেচ চাওক</string>
     <string name="ok_button">ঠিক আছে</string>
     <string name="change_role">ভূমিকা সলনি কৰক</string>
-    <string name="password_local_saved">পাছৱৰ্ড-স্থানীয়-সংৰক্ষিত</string>
     <string name="remember_me">মোক মনত পেলাওক</string>
     <string name="other_cphc_services">অন্যান্য চিপিএইচচি সেৱাসমূহ</string>
     <string name="reason_for_visit">ভ্ৰমণৰ কাৰণ</string>
