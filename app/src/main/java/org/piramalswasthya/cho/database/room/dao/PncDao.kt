@@ -8,8 +8,10 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.model.PatientWithDeliveryOutcomeAndPncCache
+import org.piramalswasthya.cho.model.SyncStatusCache
 
 @Dao
 interface PncDao {
@@ -37,6 +39,24 @@ interface PncDao {
 
     @Query("select * from pnc_visit where patientID = :patientID and isActive = 1")
     suspend fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>
+
+    @Query(
+        """
+        SELECT
+            10 AS id,
+            'PNC' AS name,
+            COUNT(CASE WHEN pnc.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN pnc.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN pnc.syncState = :syncingState THEN 1 END) AS syncing
+        FROM PNC_VISIT pnc
+        WHERE pnc.isActive = 1
+        """
+    )
+    fun getPncSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
 
     /**
      * Get patientIDs of women eligible for PNC mothers list.
