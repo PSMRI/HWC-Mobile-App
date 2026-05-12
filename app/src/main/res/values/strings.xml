@@ -1918,5 +1918,132 @@
     
     <string name="elderly_health_assessment_saved">Elderly Health Assessment Saved</string>
 
+    <!--
+      MasterDataLocalizer mapping arrays. The _en_keys array holds the canonical
+      English values that are used as keys for lookup and for persistence to the
+      DB and server. The _localized array (defined per-locale) holds the
+      locale-specific display label at the same index. Index alignment is
+      load-bearing — do not reorder one without the other.
+    -->
+    <string-array name="chief_complaint_en_keys" translatable="false">
+        <item>Fever</item>
+        <item>Cough</item>
+        <item>Headache</item>
+        <item>Cold</item>
+        <item>Vomiting</item>
+        <item>Diarrhea</item>
+        <item>Body pain</item>
+        <item>Stomach pain</item>
+        <item>Chest pain</item>
+        <item>Shortness of breath</item>
+        <item>Fatigue</item>
+        <item>Loss of appetite</item>
+        <item>Cataract</item>
+        <item>Glaucoma</item>
+        <item>Diabetic retinopathy</item>
+        <item>Presbyopia</item>
+        <item>Trachoma</item>
+        <item>Corneal disease</item>
+        <item>Conjunctivitis/Acute red eye</item>
+        <item>Dry eye / xerophthalmia</item>
+        <item>Dry eye/ xerophthalmia</item>
+        <item>Eye allergy</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye,</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye</item>
+        <item>Chemical exposure (acid/ alkali/other),</item>
+        <item>Chemical exposure (acid/ alkali/other)</item>
+        <item>Foreign body lodged in the eye</item>
+        <item>Dental Decay</item>
+        <item>Gum diseases</item>
+        <item>Irregular arrangement of teeth and jaws</item>
+        <item>Abnormal growth, patch or ulcers</item>
+        <item>Cleft lip/ palate</item>
+        <item>Dental Fluorosis</item>
+        <item>Dental Emergencies</item>
+        <item>Neck swelling</item>
+        <item>Dysphagia</item>
+        <item>Cleft lip</item>
+        <item>Cleft palate</item>
+        <item>Tonsillitis</item>
+        <item>Pharyngitis</item>
+        <item>Laryngitis</item>
+        <item>Sinusitis</item>
+        <item>Difficulty in hearing</item>
+        <item>Ear wax</item>
+        <item>Congenital Ear Malformation</item>
+        <item>Foreign body in ear</item>
+        <item>open mouth breathing</item>
+        <item>Nosebleed</item>
+        <item>Foreign body in nose</item>
+    </string-array>
+
+    <string-array name="chief_complaint_localized">
+        <item>Fever</item>
+        <item>Cough</item>
+        <item>Headache</item>
+        <item>Cold</item>
+        <item>Vomiting</item>
+        <item>Diarrhea</item>
+        <item>Body pain</item>
+        <item>Stomach pain</item>
+        <item>Chest pain</item>
+        <item>Shortness of breath</item>
+        <item>Fatigue</item>
+        <item>Loss of appetite</item>
+        <item>Cataract</item>
+        <item>Glaucoma</item>
+        <item>Diabetic retinopathy</item>
+        <item>Presbyopia</item>
+        <item>Trachoma</item>
+        <item>Corneal disease</item>
+        <item>Conjunctivitis/Acute red eye</item>
+        <item>Dry eye / xerophthalmia</item>
+        <item>Dry eye/ xerophthalmia</item>
+        <item>Eye allergy</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye,</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye</item>
+        <item>Chemical exposure (acid/ alkali/other),</item>
+        <item>Chemical exposure (acid/ alkali/other)</item>
+        <item>Foreign body lodged in the eye</item>
+        <item>Dental Decay</item>
+        <item>Gum diseases</item>
+        <item>Irregular arrangement of teeth and jaws</item>
+        <item>Abnormal growth, patch or ulcers</item>
+        <item>Cleft lip/ palate</item>
+        <item>Dental Fluorosis</item>
+        <item>Dental Emergencies</item>
+        <item>Neck swelling</item>
+        <item>Dysphagia</item>
+        <item>Cleft lip</item>
+        <item>Cleft palate</item>
+        <item>Tonsillitis</item>
+        <item>Pharyngitis</item>
+        <item>Laryngitis</item>
+        <item>Sinusitis</item>
+        <item>Difficulty in hearing</item>
+        <item>Ear wax</item>
+        <item>Congenital Ear Malformation</item>
+        <item>Foreign body in ear</item>
+        <item>open mouth breathing</item>
+        <item>Nosebleed</item>
+        <item>Foreign body in nose</item>
+    </string-array>
+
+    <string-array name="duration_units_en_keys" translatable="false">
+        <item>Hour(s)</item>
+        <item>Day(s)</item>
+        <item>Week(s)</item>
+        <item>Month(s)</item>
+        <item>Year(s)</item>
+    </string-array>
+
+    <string-array name="duration_units_localized">
+        <item>Hour(s)</item>
+        <item>Day(s)</item>
+        <item>Week(s)</item>
+        <item>Month(s)</item>
+        <item>Year(s)</item>
+    </string-array>
+
 </resources>
 

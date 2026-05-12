@@ -1783,6 +1783,69 @@
     <string name="title_elderly_health_assessment">वृद्ध स्वास्थ्य मूल्यांकन</string>
     <string name="title_psychosocial_caregiver_support">मनोसामाजिक एवं देखभालकर्ता सहायता</string>
 
+    <!--
+      Localized labels for chief complaint and duration unit dropdowns.
+      Order MUST match values/strings.xml chief_complaint_en_keys and
+      duration_units_en_keys exactly. MasterDataLocalizer pairs by index.
+    -->
+    <string-array name="chief_complaint_localized">
+        <item>बुखार</item>
+        <item>खांसी</item>
+        <item>सिरदर्द</item>
+        <item>सर्दी</item>
+        <item>उल्टी</item>
+        <item>दस्त</item>
+        <item>शरीर में दर्द</item>
+        <item>पेट दर्द</item>
+        <item>सीने में दर्द</item>
+        <item>सांस लेने में तकलीफ</item>
+        <item>थकान</item>
+        <item>भूख न लगना</item>
+        <item>मोतियाबिंद</item>
+        <item>काला मोतिया</item>
+        <item>मधुमेह संबंधी रेटिनोपैथी</item>
+        <item>निकट दृष्टि दोष</item>
+        <item>ट्रेकोमा</item>
+        <item>कॉर्निया रोग</item>
+        <item>आंख आना / लाल आंख</item>
+        <item>सूखी आंखें</item>
+        <item>सूखी आंखें</item>
+        <item>आंख की एलर्जी</item>
+        <item>आंख की चोट (कुंठित आघात / भेदक चोट)</item>
+        <item>आंख की चोट (कुंठित आघात / भेदक चोट)</item>
+        <item>रासायनिक संपर्क (अम्ल / क्षार / अन्य)</item>
+        <item>रासायनिक संपर्क (अम्ल / क्षार / अन्य)</item>
+        <item>आंख में बाहरी वस्तु</item>
+        <item>दांत में सड़न</item>
+        <item>मसूड़ों के रोग</item>
+        <item>दांतों और जबड़ों की अनियमित व्यवस्था</item>
+        <item>असामान्य वृद्धि, धब्बे या छाले</item>
+        <item>कटा होंठ / तालु</item>
+        <item>डेंटल फ्लोरोसिस</item>
+        <item>दंत आपातकाल</item>
+        <item>गर्दन में सूजन</item>
+        <item>निगलने में कठिनाई</item>
+        <item>कटा होंठ</item>
+        <item>कटा तालु</item>
+        <item>टॉन्सिल का संक्रमण</item>
+        <item>ग्रसनीशोथ</item>
+        <item>स्वरयंत्रशोथ</item>
+        <item>साइनसाइटिस</item>
+        <item>सुनने में कठिनाई</item>
+        <item>कान का मैल</item>
+        <item>जन्मजात कान की विकृति</item>
+        <item>कान में बाहरी वस्तु</item>
+        <item>मुंह खोलकर सांस लेना</item>
+        <item>नकसीर</item>
+        <item>नाक में बाहरी वस्तु</item>
+    </string-array>
 
+    <string-array name="duration_units_localized">
+        <item>घंटे</item>
+        <item>दिन</item>
+        <item>सप्ताह</item>
+        <item>महीने</item>
+        <item>साल</item>
+    </string-array>
 
 </resources>

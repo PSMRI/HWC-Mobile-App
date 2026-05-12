@@ -1049,4 +1049,69 @@
     <string name="title_elderly_health_assessment">ವೃದ್ಧರ ಆರೋಗ್ಯ ಮೌಲ್ಯಮಾಪನ</string>
     <string name="title_psychosocial_caregiver_support">ಮನೋಸಾಮಾಜಿಕ ಮತ್ತು ಆರೈಕೆದಾರರ ಸಹಾಯ</string>
 
+    <!--
+      Localized labels for chief complaint and duration unit dropdowns.
+      Order MUST match values/strings.xml chief_complaint_en_keys and
+      duration_units_en_keys exactly. MasterDataLocalizer pairs by index.
+    -->
+    <string-array name="chief_complaint_localized">
+        <item>ಜ್ವರ</item>
+        <item>ಕೆಮ್ಮು</item>
+        <item>ತಲೆನೋವು</item>
+        <item>ಶೀತ</item>
+        <item>ವಾಂತಿ</item>
+        <item>ಅತಿಸಾರ</item>
+        <item>ದೇಹದ ನೋವು</item>
+        <item>ಹೊಟ್ಟೆ ನೋವು</item>
+        <item>ಎದೆ ನೋವು</item>
+        <item>ಉಸಿರಾಟದ ತೊಂದರೆ</item>
+        <item>ಆಯಾಸ</item>
+        <item>ಹಸಿವು ಇಲ್ಲದಿರುವುದು</item>
+        <item>ಕಣ್ಣಿನ ಪೊರೆ</item>
+        <item>ಗ್ಲಾಕೋಮಾ</item>
+        <item>ಮಧುಮೇಹ ರೆಟಿನೋಪತಿ</item>
+        <item>ಪ್ರೆಸ್ಬಯೋಪಿಯಾ</item>
+        <item>ಟ್ರಕೋಮಾ</item>
+        <item>ಕಾರ್ನಿಯಾ ಕಾಯಿಲೆ</item>
+        <item>ಕಾಂಜಂಕ್ಟಿವೈಟಿಸ್ / ಕೆಂಪು ಕಣ್ಣು</item>
+        <item>ಒಣ ಕಣ್ಣು</item>
+        <item>ಒಣ ಕಣ್ಣು</item>
+        <item>ಕಣ್ಣಿನ ಅಲರ್ಜಿ</item>
+        <item>ಕಣ್ಣಿನ ಗಾಯ (ಭಾರೀ ಆಘಾತ / ಚುಚ್ಚುವ ಗಾಯ)</item>
+        <item>ಕಣ್ಣಿನ ಗಾಯ (ಭಾರೀ ಆಘಾತ / ಚುಚ್ಚುವ ಗಾಯ)</item>
+        <item>ರಾಸಾಯನಿಕ ಸಂಪರ್ಕ (ಆಮ್ಲ / ಕ್ಷಾರ / ಇತರೆ)</item>
+        <item>ರಾಸಾಯನಿಕ ಸಂಪರ್ಕ (ಆಮ್ಲ / ಕ್ಷಾರ / ಇತರೆ)</item>
+        <item>ಕಣ್ಣಿನಲ್ಲಿ ಬಾಹ್ಯ ವಸ್ತು</item>
+        <item>ಹಲ್ಲಿನ ಕ್ಷಯ</item>
+        <item>ವಸಡಿನ ಕಾಯಿಲೆಗಳು</item>
+        <item>ಹಲ್ಲು ಮತ್ತು ದವಡೆಯ ಅನಿಯಮಿತ ಜೋಡಣೆ</item>
+        <item>ಅಸಾಮಾನ್ಯ ಬೆಳವಣಿಗೆ, ಚೌಕಟ್ಟು ಅಥವಾ ಹುಣ್ಣು</item>
+        <item>ಸೀಳು ತುಟಿ / ಅಂಗುಳು</item>
+        <item>ಡೆಂಟಲ್ ಫ್ಲೋರೋಸಿಸ್</item>
+        <item>ದಂತ ತುರ್ತು</item>
+        <item>ಕುತ್ತಿಗೆ ಊತ</item>
+        <item>ನುಂಗಲು ಕಷ್ಟ</item>
+        <item>ಸೀಳು ತುಟಿ</item>
+        <item>ಸೀಳು ಅಂಗುಳು</item>
+        <item>ಟಾನ್ಸಿಲೈಟಿಸ್</item>
+        <item>ಗಂಟಲಿನ ಉರಿಯೂತ</item>
+        <item>ಧ್ವನಿಪೆಟ್ಟಿಗೆಯ ಉರಿಯೂತ</item>
+        <item>ಸೈನುಸೈಟಿಸ್</item>
+        <item>ಕೇಳುವಲ್ಲಿ ಕಷ್ಟ</item>
+        <item>ಕಿವಿಯ ಮೇಣ</item>
+        <item>ಜನ್ಮಜಾತ ಕಿವಿಯ ವಿಕೃತಿ</item>
+        <item>ಕಿವಿಯಲ್ಲಿ ಬಾಹ್ಯ ವಸ್ತು</item>
+        <item>ಬಾಯಿ ತೆರೆದು ಉಸಿರಾಟ</item>
+        <item>ಮೂಗಿನ ರಕ್ತಸ್ರಾವ</item>
+        <item>ಮೂಗಿನಲ್ಲಿ ಬಾಹ್ಯ ವಸ್ತು</item>
+    </string-array>
+
+    <string-array name="duration_units_localized">
+        <item>ಗಂಟೆಗಳು</item>
+        <item>ದಿನಗಳು</item>
+        <item>ವಾರಗಳು</item>
+        <item>ತಿಂಗಳುಗಳು</item>
+        <item>ವರ್ಷಗಳು</item>
+    </string-array>
+
 </resources>
