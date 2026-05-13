@@ -3,10 +3,12 @@ package org.piramalswasthya.cho.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import java.util.Base64
 import android.util.Base64 as base64
 import androidx.annotation.RequiresApi
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -78,6 +80,29 @@ object ImgUtils {
     fun decodeBase64ToBitmap(base64String: String): Bitmap? {
         val decodedBytes = base64.decode(base64String, base64.DEFAULT)
         return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+    }
+
+    /**
+     * Turns a gallery/camera URI or local path into a data-URI base64 string for API upload.
+     * Leaves values that already look like API/base64 payloads unchanged.
+     */
+    fun encodeLocalImageValueForUpload(context: Context, value: String?): String? {
+        val v = value?.trim().orEmpty()
+        if (v.isEmpty()) return null
+        if (v.startsWith("data:image/", ignoreCase = true)) return v
+        if (!v.contains("://") && v.length > 200) return v
+
+        return try {
+            val uri = Uri.parse(v)
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                val bytes = input.readBytes()
+                val encoded = base64.encodeToString(bytes, base64.NO_WRAP)
+                "data:image/jpeg;base64,$encoded"
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "encodeLocalImageValueForUpload failed for value prefix=${v.take(48)}")
+            null
+        }
     }
 
 }

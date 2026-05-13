@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="form"
+            type="org.piramalswasthya.cho.model.FormElement" />
+
+        <variable
+            name="clickListener"
+            type="org.piramalswasthya.cho.adapter.FormInputAdapter.SelectUploadImageClickListener" />
+        <variable
+            name="documentclickListener"
+            type="org.piramalswasthya.cho.adapter.FormInputAdapter.ViewDocumentOnClick" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_ri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_wide">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="@dimen/_150sdp"
+            android:layout_height="wrap_content"
+            android:text="@{form.title}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            android:ellipsize="end"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:maxLines="3"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Upload File" />
+
+
+        <ImageView
+            android:id="@+id/add_file"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_doc_upload"
+            android:contentDescription="@string/add_file"
+            android:onClick="@{()->clickListener.onSelectImageClick(form)}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_view"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:text="@string/view"
+            android:visibility="gone"
+            android:onClick="@{()->documentclickListener.onViewDocumentClick(form)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/add_file"
+
+            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@android:color/white" />
+
+        <ImageView
+            android:id="@+id/iv"
+            benImage="@{form.value}"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:visibility="gone"
+            android:background="@drawable/bg_circular"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_title"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
