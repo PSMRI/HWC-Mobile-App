@@ -996,8 +996,8 @@
     <string name="delivery_outcome">Delivery Outcome</string>
     <string name="pnc_mother_list">PNC Mother List</string>
     <string name="e_pmsma_list" translatable="false">e-PMSMA List</string>
-    <string name="add_e_pmsma_visit" translatable="false">Add e-PMSMA Visit</string>
-    <string name="view_e_pmsma" translatable="false">View e-PMSMA</string>
+    <string name="add_e_pmsma_visit">Add e-PMSMA Visit</string>
+    <string name="view_e_pmsma" >View e-PMSMA</string>
     <string name="infant_registration">Infant Registration</string>
     <string name="child_registration">Child Registration</string>
     <string name="abortion_list">Abortion List</string>

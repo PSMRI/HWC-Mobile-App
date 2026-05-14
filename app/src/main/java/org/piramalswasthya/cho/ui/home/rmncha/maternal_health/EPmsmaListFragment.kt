@@ -104,7 +104,10 @@ class EPmsmaListFragment : BaseMaternalHealthListFragment<FragmentEPmsmaListBind
                 .filter { it.weight != null }
                 .maxOfOrNull { it.visitNumber } ?: 0
             val nextVisitNumber = maxCompletedVisit + 1
-            val isHRP = item.pwr?.isHrp ?: false
+            // Source-of-truth for the e-PMSMA list is ANC anyHighRisk (see
+            // MaternalHealthDao.getHighRiskAncPatientIDs), so gate add-visit on
+            // the same flag — pwr.isHrp can be unset/stale.
+            val isHRP = allAncRecords.any { it.anyHighRisk == true }
 
             if (maxCompletedVisit < 4 || isHRP) {
                 val intent = Intent(
