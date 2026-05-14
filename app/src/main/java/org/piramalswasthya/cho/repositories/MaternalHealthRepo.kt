@@ -21,6 +21,7 @@ import org.piramalswasthya.cho.model.AshaDueListCache
 import org.piramalswasthya.cho.model.AbortionDomain
 import org.piramalswasthya.cho.model.PatientWithPwrCache
 import org.piramalswasthya.cho.model.PmsmaDomain
+import org.piramalswasthya.cho.model.asPmsmaDomainModel
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.network.AmritApiService
@@ -456,6 +457,43 @@ class MaternalHealthRepo @Inject constructor(
     fun getRegisteredPmsmaWomenCount(): Flow<Int> {
         return maternalHealthDao.getAllRegisteredPmsmaWomenCount()
     }
+
+    /**
+     * Get e-PMSMA women — the subset of ANC-eligible women who have at least one
+     * active ANC visit flagged anyHighRisk = true.
+     *
+     * Derived from the same Flow as ANCVisitsFragment / getANCCount and intersected
+     * with the high-risk patientID set, so the e-PMSMA list cannot drift from the
+     * ANC tile.
+     */
+    fun getEPmsmaWomenList(): Flow<List<PmsmaDomain>> {
+        val ancEligibilityWindowMillis = 35L * 24 * 60 * 60 * 1000
+        return getAllPatientsWithANC()
+            .combine(maternalHealthDao.getHighRiskAncPatientIDs()) { patientList, hrIds ->
+                val cutoff = System.currentTimeMillis() - ancEligibilityWindowMillis
+                val hrSet = hrIds.toHashSet()
+                patientList
+                    .filter { hrSet.contains(it.patient.patientID) }
+                    .filter { p ->
+                        val domain = p.asDomainModel()
+                        val hasActivePWR = domain.pwr != null && domain.isActive()
+                        val isFemale = domain.patient.genderID == 2
+                        val age = domain.patient.age ?: 0
+                        val isReproductiveAge = age in 15..49
+                        val isEligibleForANC =
+                            domain.pwr?.lmpDate?.let { lmp -> lmp <= cutoff } ?: false
+                        hasActivePWR && isFemale && isReproductiveAge && isEligibleForANC
+                    }
+                    .map { it.asPmsmaDomainModel() }
+                    .sortedByDescending { it.pwr?.dateOfRegistration ?: 0L }
+            }
+    }
+
+    /**
+     * Count of e-PMSMA women. Derived from getEPmsmaWomenList so the tile count
+     * and list row count cannot drift.
+     */
+    fun getEPmsmaWomenCount(): Flow<Int> = getEPmsmaWomenList().map { it.size }
 
     /**
      * Get all women eligible for neonatal outcome (those with a saved delivery outcome)

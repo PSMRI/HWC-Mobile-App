@@ -353,6 +353,18 @@ interface MaternalHealthDao {
     fun getAllRegisteredPmsmaWomenCount(): Flow<Int>
 
     /**
+     * Get patientIDs of women who have at least one active ANC visit with anyHighRisk = true.
+     * Intersected against the ANC eligibility Flow in the repo to guarantee
+     * e-PMSMA list ⊆ ANC list.
+     */
+    @Query("""
+        SELECT DISTINCT anc.patientID FROM PREGNANCY_ANC anc
+        WHERE anc.isActive = 1
+        AND anc.anyHighRisk = 1
+    """)
+    fun getHighRiskAncPatientIDs(): Flow<List<String>>
+
+    /**
      * Get patientIDs of women who have a saved delivery outcome (eligible for neonatal outcome)
      */
     @Query("""

@@ -645,6 +645,8 @@ class PregnantWomanAncVisitDataset(
                         }
                     }
                 }
+                highRiskCondition.required =
+                    (anyHighRisk.value == anyHighRisk.entries!!.last())
             }
 
             highRiskReferralFacility.value =
@@ -819,6 +821,8 @@ class PregnantWomanAncVisitDataset(
                 }
             }
         }
+        highRiskCondition.required =
+            (anyHighRisk.value == anyHighRisk.entries!!.last())
         // Triggers UI update
         return triggerDependants(
             source = anyHighRisk,
@@ -1195,6 +1199,8 @@ class PregnantWomanAncVisitDataset(
                 }
                 if (highRiskCondition.value == null)
                     highRiskCondition.value = highRiskCondition.entries!!.first()
+                highRiskCondition.required =
+                    (anyHighRisk.value == anyHighRisk.entries!!.last())
             }
 
             highRiskCondition.id -> triggerDependants(
@@ -1623,6 +1629,7 @@ class PregnantWomanAncVisitDataset(
                 position = getIndexById(anyHighRisk.id) + 1
             )
         }
+        highRiskCondition.required = true
         updateHighRiskConditionValue(riskCondition)
     }
 
@@ -1647,6 +1654,7 @@ class PregnantWomanAncVisitDataset(
                 highRiskCondition.value = highRiskCondition.entries?.first()
             }
         }
+        highRiskCondition.required = false
     }
 
 

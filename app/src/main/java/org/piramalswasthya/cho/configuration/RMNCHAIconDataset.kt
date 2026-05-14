@@ -30,6 +30,7 @@ class RMNCHAIconDataset @Inject constructor(
         const val SHOW_DELIVERY_OUTCOME_KEY = "show_delivery_outcome"
         const val SHOW_NEONATAL_OUTCOME_KEY = "show_neonatal_outcome"
         const val SHOW_PNC_MOTHER_LIST_KEY = "show_pnc_mother_list"
+        const val SHOW_E_PMSMA_LIST_KEY = "show_e_pmsma_list"
         const val SHOW_ABORTION_LIST_KEY = "show_abortion_list"
         const val SHOW_INFANT_LIST_KEY = "show_infant_list"
         const val SHOW_CHILD_LIST_KEY = "show_child_list"
@@ -42,6 +43,7 @@ class RMNCHAIconDataset @Inject constructor(
         private const val ACTION_DELIVERY_OUTCOME = 1007 // Action for Delivery Outcome list
         private const val ACTION_PNC_MOTHER_LIST = 1008 // Action for PNC Mother List
         private const val ACTION_NEONATAL_OUTCOME = 1009 // Action for Neonatal Outcome List
+        private const val ACTION_E_PMSMA_LIST = 1016 // Action for e-PMSMA List
         private const val ACTION_ABORTION_LIST = 1011 // Action for Abortion List
         private const val ACTION_INFANT_LIST = 1013 // Action for Infant List
         private const val ACTION_CHILD_LIST = 1014 // Action for Child List
@@ -103,6 +105,14 @@ class RMNCHAIconDataset @Inject constructor(
         override val actionId: Int = ACTION_PNC_MOTHER_LIST
         override val arguments = Bundle().apply {
             putBoolean(SHOW_PNC_MOTHER_LIST_KEY, true)
+        }
+    }
+
+    // NavDirections for showing e-PMSMA List (women flagged high-risk in any ANC visit)
+    private val showEPmsmaListAction = object : NavDirections {
+        override val actionId: Int = ACTION_E_PMSMA_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_E_PMSMA_LIST_KEY, true)
         }
     }
 
@@ -184,6 +194,12 @@ class RMNCHAIconDataset @Inject constructor(
                 resources.getString(R.string.anc_visits),
                 maternalHealthRepo.getANCCount(),
                 showANCVisitsAction
+            ),
+            Icon(
+                R.drawable.ic__pwr,
+                resources.getString(R.string.e_pmsma_list),
+                maternalHealthRepo.getEPmsmaWomenCount(),
+                showEPmsmaListAction
             ),
             Icon(
                 R.drawable.ic__delivery_outcome,

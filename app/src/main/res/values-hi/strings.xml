@@ -909,6 +909,7 @@
     <string name="delivery_date">प्रसव की तारीख</string>
     <string name="days_since_delivery">प्रसव के बाद से दिन</string>
     <string name="no_pnc_mothers_found">कोई प्रसवोत्तर देखभाल करने वाली माताएँ नहीं मिलीं</string>
+    <string name="no_e_pmsma_women_found">कोई ई-पीएमएसएमए महिला नहीं मिली</string>
     <!-- Infant Registration Strings -->
     <string name="infant_reg_list">शिशु पंजीकरण सूची</string>
     <string name="mother_name">मां का नाम</string>

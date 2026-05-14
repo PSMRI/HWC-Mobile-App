@@ -1034,6 +1034,7 @@
     <string name="delivery_date">ডেলিভাৰীৰ তাৰিখ</string>
     <string name="days_since_delivery">ডেলিভাৰীৰ পিছৰ দিন</string>
     <string name="no_pnc_mothers_found">কোনো পিএনচি মাতৃ পোৱা নগ\'ল</string>
+    <string name="no_e_pmsma_women_found">কোনো ই-পিএমএছএমএ মহিলা পোৱা নগ\'ল</string>
 
     <string name="infant_reg_list">শিশুৰ ৰেগ তালিকা</string>
     <string name="mother_name">মাৰ নাম</string>

@@ -20,6 +20,7 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_AN
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_DELIVERY_OUTCOME_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_NEONATAL_OUTCOME_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PNC_MOTHER_LIST_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_E_PMSMA_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ABORTION_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_INFANT_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_CHILD_LIST_KEY
@@ -90,6 +91,7 @@ class SubModuleFragment : Fragment() {
                     val showDeliveryOutcome = navDirections.arguments.getBoolean(SHOW_DELIVERY_OUTCOME_KEY, false)
                     val showNeonatalOutcome = navDirections.arguments.getBoolean(SHOW_NEONATAL_OUTCOME_KEY, false)
                     val showPNCMotherList = navDirections.arguments.getBoolean(SHOW_PNC_MOTHER_LIST_KEY, false)
+                    val showEPmsmaList = navDirections.arguments.getBoolean(SHOW_E_PMSMA_LIST_KEY, false)
                     val showAbortionList = navDirections.arguments.getBoolean(SHOW_ABORTION_LIST_KEY, false)
                     val showInfantList = navDirections.arguments.getBoolean(SHOW_INFANT_LIST_KEY, false)
                     val showChildList = navDirections.arguments.getBoolean(SHOW_CHILD_LIST_KEY, false)
@@ -143,6 +145,14 @@ class SubModuleFragment : Fragment() {
                                 .replace(R.id.fragment_container, fragment)
                                 .addToBackStack(null)
                                 .commit()
+                        }
+                        showEPmsmaList -> {
+                            // Navigate to e-PMSMA List Fragment (high-risk ANC women)
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.EPmsmaListFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showAbortionList -> {
                             // Navigate to Abortion List Fragment
