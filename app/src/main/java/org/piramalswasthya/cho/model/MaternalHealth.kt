@@ -503,6 +503,29 @@ data class PmsmaDomain(
     }
 }
 
+/**
+ * Build a PmsmaDomain from the ANC-list source shape (PatientWithPwrCache).
+ * Mirrors PatientWithPwrForPmsmaCache.asPmsmaDomainModel so the e-PMSMA list can
+ * derive from the same Flow used by ANCVisitsFragment / getANCCount.
+ */
+fun PatientWithPwrCache.asPmsmaDomainModel(): PmsmaDomain {
+    val activePwr = getActiveOrLatestPwr()?.takeIf { it.active }
+    val lmpDateToUse = activePwr?.lmpDate ?: 0L
+    val eddDateToUse =
+        if (lmpDateToUse != 0L) lmpDateToUse + TimeUnit.DAYS.toMillis(280) else 0L
+    val weekOfPregnancyToUse =
+        if (lmpDateToUse != 0L)
+            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
+        else null
+    return PmsmaDomain(
+        patient = patient,
+        pwr = activePwr,
+        lmpDate = lmpDateToUse,
+        eddDate = eddDateToUse,
+        weekOfPregnancy = weekOfPregnancyToUse
+    )
+}
+
 data class PwrPost(
     val id: Long = 0,
     val benId: Long = 0,

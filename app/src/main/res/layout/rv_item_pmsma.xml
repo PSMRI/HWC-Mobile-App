@@ -280,7 +280,7 @@
 
                 </LinearLayout>
 
-                <!-- Row 4: VIEW Button -->
+                <!-- Row 4: Add e-PMSMA Visit + View e-PMSMA Buttons -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -289,13 +289,24 @@
                     android:paddingTop="8dp">
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_add"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:backgroundTint="@android:color/holo_blue_dark"
+                        android:onClick="@{() -> clickListener.onClickAdd(item)}"
+                        android:text="@string/add_e_pmsma_visit"
+                        android:textColor="@color/white" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_view"
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:backgroundTint="@android:color/holo_green_dark"
                         android:onClick="@{() -> clickListener.onClickView(item)}"
-                        android:text="@string/view"
+                        android:text="@string/view_e_pmsma"
                         android:textColor="@color/white" />
 
                 </LinearLayout>

@@ -995,10 +995,12 @@
     <string name="pregnant_women_registration">Pregnant Women Registration</string>
     <string name="delivery_outcome">Delivery Outcome</string>
     <string name="pnc_mother_list">PNC Mother List</string>
+    <string name="e_pmsma_list" translatable="false">e-PMSMA List</string>
+    <string name="add_e_pmsma_visit">Add e-PMSMA Visit</string>
+    <string name="view_e_pmsma" >View e-PMSMA</string>
     <string name="infant_registration">Infant Registration</string>
     <string name="child_registration">Child Registration</string>
     <string name="abortion_list">Abortion List</string>
-    <string name="e_pmsma_list">e-PMSMA List</string>
 
     <!-- Child Care Sub-modules -->
     <string name="infant_list">Infant Registration List</string>
@@ -1155,6 +1157,7 @@
     <string name="delivery_date">Date of Delivery</string>
     <string name="days_since_delivery">Days Since Delivery</string>
     <string name="no_pnc_mothers_found">No PNC Mothers Found</string>
+    <string name="no_e_pmsma_women_found">No e-PMSMA Women Found</string>
 
     <!-- Infant Registration Strings -->
     <string name="infant_reg_list">Infant Reg List</string>

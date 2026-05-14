@@ -9,12 +9,17 @@ import java.util.concurrent.TimeUnit
 import org.piramalswasthya.cho.R
 
 
-abstract class ReferralFollowUpDataset(private val context: Context, currentLanguage: Languages) : Dataset(context, currentLanguage) {
+abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Languages) : Dataset(context, currentLanguage) {
 
-    private val optionYes = context.getString(R.string.yes)
-    private val optionNo = context.getString(R.string.no)
+    // Resolve all user-facing strings, options, and sentinel values through the base
+    // Dataset.resources, which is locked to the *screening* language passed in via
+    // currentLanguage. Using context.getString / context.resources would resolve from
+    // the device locale instead, which can drift from the screening language and break
+    // comparisons like `caseStatus.value == optionDeath` when the two locales differ.
+    private val optionYes = resources.getString(R.string.yes)
+    private val optionNo = resources.getString(R.string.no)
 
-    private val caseStatusEntries = context.resources.getStringArray(R.array.case_status_options)
+    private val caseStatusEntries = resources.getStringArray(R.array.case_status_options)
     private val optionDeath = caseStatusEntries.last()
 
     protected abstract val referralRequired: FormElement
@@ -31,8 +36,8 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     protected fun createReferralRequired(id: Int) = FormElement(
         id = id,
         inputType = InputType.RADIO,
-        title = context.getString(R.string.referral_required_title),
-        entries = context.resources.getStringArray(R.array.referral_required_options),
+        title = resources.getString(R.string.referral_required_title),
+        entries = resources.getStringArray(R.array.referral_required_options),
         trueIndex = 0,
         falseIndex = 1,
         required = true,
@@ -42,24 +47,24 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     protected fun createReferralLevel(id: Int) = FormElement(
         id = id,
         inputType = InputType.DROPDOWN,
-        title = context.getString(R.string.referral_level_title),
-        entries = context.resources.getStringArray(R.array.referral_level_options),
+        title = resources.getString(R.string.referral_level_title),
+        entries = resources.getStringArray(R.array.referral_level_options),
         required = false
     )
 
     protected fun createReasonForReferral(id: Int) = FormElement(
         id = id,
         inputType = InputType.DROPDOWN,
-        title = context.getString(R.string.reason_for_referral_title),
-        entries = context.resources.getStringArray(R.array.reason_for_referral_options),
+        title = resources.getString(R.string.reason_for_referral_title),
+        entries = resources.getStringArray(R.array.reason_for_referral_options),
         required = true
     )
 
     protected fun createFollowUpRequired(id: Int) = FormElement(
         id = id,
         inputType = InputType.RADIO,
-        title = context.getString(R.string.follow_up_required_title),
-        entries = context.resources.getStringArray(R.array.follow_up_required_options),
+        title = resources.getString(R.string.follow_up_required_title),
+        entries = resources.getStringArray(R.array.follow_up_required_options),
         trueIndex = 0,
         falseIndex = 1,
         required = true,
@@ -69,7 +74,7 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     protected fun createFollowUpDate(id: Int) = FormElement(
         id = id,
         inputType = InputType.DATE_PICKER,
-        title = context.getString(R.string.follow_up_date_title),
+        title = resources.getString(R.string.follow_up_date_title),
         required = false
     )
 
@@ -97,8 +102,8 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     protected fun createCaseStatus(id: Int) = FormElement(
         id = id,
         inputType = InputType.DROPDOWN,
-        title = context.getString(R.string.case_status_title),
-        entries = context.resources.getStringArray(R.array.case_status_options),
+        title = resources.getString(R.string.case_status_title),
+        entries = resources.getStringArray(R.array.case_status_options),
         required = true,
         hasDependants = true
     )
@@ -106,7 +111,7 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     protected fun createDateOfDeath(id: Int) = FormElement(
         id = id,
         inputType = InputType.DATE_PICKER,
-        title = context.getString(R.string.date_of_death_title),
+        title = resources.getString(R.string.date_of_death_title),
         required = true,
         max = System.currentTimeMillis()
     )
@@ -114,7 +119,7 @@ abstract class ReferralFollowUpDataset(private val context: Context, currentLang
     protected fun createRemarks(id: Int) = FormElement(
         id = id,
         inputType = InputType.EDIT_TEXT,
-        title = context.getString(R.string.remarks),
+        title = resources.getString(R.string.remarks),
         required = false,
         etMaxLength = 250
     )

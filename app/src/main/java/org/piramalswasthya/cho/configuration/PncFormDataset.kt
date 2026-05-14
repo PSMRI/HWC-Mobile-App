@@ -261,6 +261,10 @@ class PncFormDataset(
         englishResources.getStringArray(R.array.sterilization_methods_array)
     }
 
+    private val englishContraceptionLast: String by lazy {
+        englishResources.getStringArray(R.array.pnc_contraception_method_array).last()
+    }
+
     suspend fun setUpPage(
         visitNumber: Int,
         ben: PatientDisplay?,
@@ -328,7 +332,10 @@ class PncFormDataset(
                 .filter { it > (previousPnc?.pncPeriod ?: 0) }
                 .map { "Day $it" }.toTypedArray()
 
-        // Handle permanent sterilization - disable contraception fields if already selected
+        // Handle permanent sterilization - disable contraception fields if already selected.
+        // lastSterilizationVisit.contraceptionMethod is stored in English (canonical); re-localize
+        // for display and compare against the English-side references so conditional rendering
+        // (dateOfSterilisation / otherPpcMethod) works in every locale.
         if (hasPreviousPermanentSterilization && lastSterilizationVisit != null) {
             anyContraceptionMethod.isEnabled = false
             contraceptionMethod.isEnabled = false
@@ -338,18 +345,18 @@ class PncFormDataset(
             anyContraceptionMethod.value = if (lastSterilizationVisit.anyContraceptionMethod == true)
                 anyContraceptionMethod.entries!!.first() else anyContraceptionMethod.entries!!.last()
 
-            contraceptionMethod.value = lastSterilizationVisit.contraceptionMethod
+            contraceptionMethod.value = getLocalValueInArray(R.array.pnc_contraception_method_array, lastSterilizationVisit.contraceptionMethod)
             dateOfSterilisation.value = getDateFromLong(lastSterilizationVisit.sterilisationDate ?: System.currentTimeMillis())
             otherPpcMethod.value = lastSterilizationVisit.otherPpcMethod
 
             if (lastSterilizationVisit.anyContraceptionMethod == true) {
                 list.add(list.indexOf(anyContraceptionMethod) + 1, contraceptionMethod)
 
-                if (lastSterilizationVisit.contraceptionMethod?.let { it in sterilisation } == true) {
+                if (lastSterilizationVisit.contraceptionMethod?.let { it in englishSterilisation } == true) {
                     list.add(list.indexOf(contraceptionMethod) + 1, dateOfSterilisation)
                 }
 
-                if (lastSterilizationVisit.contraceptionMethod == contraceptionMethod.entries!!.last()) {
+                if (lastSterilizationVisit.contraceptionMethod == englishContraceptionLast) {
                     list.add(list.indexOf(contraceptionMethod) + 1, otherPpcMethod)
                 }
             }
@@ -359,7 +366,6 @@ class PncFormDataset(
             // saved.* dropdown fields are stored in English; re-localize for display
             // so the user always sees the form in their current UI language. Conditional
             // rendering compares against the English side since saved values are English.
-            val englishContraceptionLast = englishResources.getStringArray(R.array.pnc_contraception_method_array).last()
             val englishMotherDangerSignLast = englishResources.getStringArray(R.array.pnc_mother_danger_sign_array).last()
             val englishPlaceOfDeath = englishResources.getStringArray(R.array.pnc_death_place_array)
             val englishMaternalSymptomsLast = englishResources.getStringArray(R.array.pnc_maternal_symptoms_array).last()
@@ -501,20 +507,27 @@ class PncFormDataset(
      * Priority: anyDangerSign > multiple symptoms > severe pallor > vaginal bleeding
      */
     private fun updateReferralRequirement() {
-        // Check anyDangerSign - highest priority
+        // anyDangerSign.value and entries.first() are both in the current UI locale — compare same-locale.
         val hasAnyDangerSign = anyDangerSign.value?.equals(anyDangerSign.entries!!.first(), ignoreCase = true) == true
-        
+
         if (hasAnyDangerSign) {
             referralFacility.required = true
             referralFacility.errorText = null
             return
         }
-        
-        // Check maternalSymptoms - ≥2 actual symptoms (excluding "None")
-        val maternalSymptomsSelected = maternalSymptoms.value?.split(",")?.map { it.trim() } ?: emptyList()
-        val noneEntry = maternalSymptoms.entries?.find { it.equals("None", ignoreCase = true) }
-        val actualSymptoms = maternalSymptomsSelected.filter { it.isNotBlank() && !it.equals(noneEntry, ignoreCase = true) }
-        
+
+        // The remaining checks key off canonical English literals ("None", "Severe", "heavy",
+        // "foul smell"). Since FormElement.value is in the current UI locale, canonicalize each
+        // value to English first so the predicates fire in Hindi / Assamese sessions too.
+
+        // maternalSymptoms - ≥2 actual symptoms (excluding "None")
+        val maternalSymptomsEnglish = getEnglishValuesInArray(
+            R.array.pnc_maternal_symptoms_array, maternalSymptoms.value
+        )?.split(",")?.map { it.trim() } ?: emptyList()
+        val actualSymptoms = maternalSymptomsEnglish.filter {
+            it.isNotBlank() && !it.equals("None", ignoreCase = true)
+        }
+
         if (actualSymptoms.size >= 2) {
             referralFacility.required = true
             // Only show alert if no facility selected yet; clear once selected so it doesn't block submission
@@ -525,10 +538,10 @@ class PncFormDataset(
             }
             return
         }
-        
-        // Check pallor - Severe
-        val pallorValue = pallor.value?.trim() ?: ""
-        if (pallorValue.equals("Severe", ignoreCase = true)) {
+
+        // pallor - Severe
+        val pallorEnglish = getEnglishValueInArray(R.array.pnc_pallor_array, pallor.value)?.trim() ?: ""
+        if (pallorEnglish.equals("Severe", ignoreCase = true)) {
             referralFacility.required = true
             if (referralFacility.value.isNullOrBlank()) {
                 referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
@@ -537,11 +550,13 @@ class PncFormDataset(
             }
             return
         }
-        
-        // Check vaginalBleeding - Heavy or Foul smell
-        val vaginalBleedingValue = vaginalBleeding.value?.trim()?.lowercase() ?: ""
-        if (vaginalBleedingValue.contains("heavy", ignoreCase = true) || 
-            vaginalBleedingValue.contains("foul smell", ignoreCase = true)) {
+
+        // vaginalBleeding - Heavy or Foul smell (substring match on the canonical English entry)
+        val vaginalBleedingEnglish = getEnglishValueInArray(
+            R.array.pnc_vaginal_bleeding_array, vaginalBleeding.value
+        )?.trim()?.lowercase() ?: ""
+        if (vaginalBleedingEnglish.contains("heavy") ||
+            vaginalBleedingEnglish.contains("foul smell")) {
             referralFacility.required = true
             if (referralFacility.value.isNullOrBlank()) {
                 referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
@@ -550,7 +565,7 @@ class PncFormDataset(
             }
             return
         }
-        
+
         // No referral conditions met - clear requirement
         referralFacility.required = false
         referralFacility.errorText = null
