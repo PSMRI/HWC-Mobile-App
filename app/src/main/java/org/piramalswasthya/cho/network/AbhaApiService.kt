@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.network
 
 import okhttp3.ResponseBody
+import org.piramalswasthya.cho.utils.KeyUtils
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -9,8 +10,7 @@ interface AbhaApiService {
     @Headers("No-Auth: true")
     @POST
     suspend fun getToken(
-//        @Url url: String = "https://dev.abdm.gov.in/gateway/v0.5/sessions",
-        @Url url: String = "https://dev.abdm.gov.in/api/hiecm/gateway/v3/sessions",
+        @Url url: String = KeyUtils.abhaTokenUrl(), //BuildConfig.ABHA_TOKEN_URL,
         @Header("X-CM-ID") id: String = "sbx",
         @Header("REQUEST-ID") requestId: String,
         @Header("TIMESTAMP") timestamp: String,
@@ -79,8 +79,7 @@ interface AbhaApiService {
 
     @GET
     suspend fun getAuthCert(
-//        @Url url: String = "https://healthidsbx.abdm.gov.in/api/v2/auth/cert",
-        @Url url: String = "https://abhasbx.abdm.gov.in/abha/api/v3/profile/public/certificate",
+        @Url url: String = KeyUtils.abhaAuthUrl(), //BuildConfig.ABHA_AUTH_URL,
         @Header("REQUEST-ID") requestId: String,
         @Header("TIMESTAMP") timestamp: String
     ): Response<ResponseBody>

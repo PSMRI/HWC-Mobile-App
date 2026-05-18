@@ -26,7 +26,13 @@ object KeyUtils {
     }
 
 
-    external fun baseTmcUrl(): String
+    external fun encryptedPassKey(): String
+
+    external fun abhaClientSecret(): String
+
+    external fun abhaClientID(): String
+
+    external fun baseTMCUrl(): String
 
     external fun baseAmritUrl(): String
 
@@ -34,9 +40,11 @@ object KeyUtils {
 
     external fun baseAbhaUrl(): String
 
+    external fun abhaTokenUrl(): String
+
+    external fun abhaAuthUrl(): String
+
     external fun sanjeevaniApiUrl(): String
-
-
 
 
 }
