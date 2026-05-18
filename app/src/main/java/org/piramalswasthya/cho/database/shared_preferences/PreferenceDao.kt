@@ -59,11 +59,11 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 
     fun getPrimaryApiToken(): String? {
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
-        return pref.getString(prefKey, null)
+        return encryptedPref.getString(prefKey, null)
     }
-//
+
     fun registerPrimaryApiToken(token: String) {
-        val editor = pref.edit()
+        val editor = encryptedPref.edit()
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
         editor.putString(prefKey, token)
         editor.apply()
@@ -71,13 +71,20 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 
     fun getJWTAmritToken(): String? {
         val prefKey = context.getString(R.string.PREF_primary_JWT_API_KEY)
-        return pref.getString(prefKey, null)
+        return encryptedPref.getString(prefKey, null)
     }
 
     fun registerJWTAmritToken(token: String) {
-        val editor = pref.edit()
+        val editor = encryptedPref.edit()
         val prefKey = context.getString(R.string.PREF_primary_JWT_API_KEY)
         editor.putString(prefKey, token)
+        editor.apply()
+    }
+
+    fun clearAmritTokens() {
+        val editor = encryptedPref.edit()
+        editor.remove(context.getString(R.string.PREF_primary_API_KEY))
+        editor.remove(context.getString(R.string.PREF_primary_JWT_API_KEY))
         editor.apply()
     }
 
@@ -308,6 +315,29 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
                 val editor = pref.edit()
                 editor.remove(prefEsUserKey)
                 editor.remove(prefEsPasswordKey)
+                editor.apply()
+            }
+
+            // Migrate Amrit API + JWT tokens from plain prefs to encryptedPref.
+            val prefApiTokenKey = context.getString(R.string.PREF_primary_API_KEY)
+            val prefJwtTokenKey = context.getString(R.string.PREF_primary_JWT_API_KEY)
+
+            val plainApiToken = pref.getString(prefApiTokenKey, null)
+            val plainJwtToken = pref.getString(prefJwtTokenKey, null)
+            val encryptedApiToken = encryptedPref.getString(prefApiTokenKey, null)
+            val encryptedJwtToken = encryptedPref.getString(prefJwtTokenKey, null)
+
+            if (plainApiToken != null && encryptedApiToken == null) {
+                encryptedPref.edit().putString(prefApiTokenKey, plainApiToken).apply()
+            }
+            if (plainJwtToken != null && encryptedJwtToken == null) {
+                encryptedPref.edit().putString(prefJwtTokenKey, plainJwtToken).apply()
+            }
+
+            if (plainApiToken != null || plainJwtToken != null) {
+                val editor = pref.edit()
+                editor.remove(prefApiTokenKey)
+                editor.remove(prefJwtTokenKey)
                 editor.apply()
             }
         } catch (e: Exception) {

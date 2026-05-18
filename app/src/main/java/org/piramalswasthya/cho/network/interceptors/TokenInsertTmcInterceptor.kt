@@ -26,6 +26,11 @@ class TokenInsertTmcInterceptor : Interceptor{
             return JWT
         }
 
+        fun clearTokens() {
+            TOKEN = ""
+            JWT = ""
+        }
+
     }
 
     override fun intercept(chain: Interceptor.Chain): Response {

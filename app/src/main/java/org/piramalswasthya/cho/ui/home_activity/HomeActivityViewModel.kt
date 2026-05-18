@@ -34,6 +34,7 @@ import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
 import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
@@ -216,6 +217,8 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             }
             pref.clearSyncTimestamps()
             pref.deleteEsanjeevaniCreds()
+            pref.clearAmritTokens()
+            TokenInsertTmcInterceptor.clearTokens()
             _navigateToLoginPage.value = true
         }
     }
