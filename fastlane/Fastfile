@@ -1,54 +1,138 @@
+def get_package_name(flavor)
+    UI.user_error!("Missing required parameter: flavor") if flavor.nil?
+    valid_flavors = ["NiramayStag", "NiramayUat", "Niramay"]
+    UI.user_error!("Invalid flavor: #{flavor}") unless valid_flavors.include?(flavor)
+    base_package = "org.piramalswasthya.cho"
+    suffixes = {
+        "NiramayStag" => ".niramay.stag",
+        "NiramayUat" => ".niramay.uat",
+        "Niramay" => ".niramay"
+    }
+    suffix = suffixes[flavor] || ""
+    UI.message "Using package name: #{base_package}#{suffix}"
+    "#{base_package}#{suffix}"
+end
+
+def latest_googleplay_version_code(package_name)
+  UI.user_error!("Missing required parameter: package_name") if package_name.nil?
+
+  json_key_path = File.expand_path('google_play_service_account.json', __dir__)
+
+  begin
+    tracks = ['production', 'beta', 'alpha', 'internal']
+    version_codes = tracks.map do |track|
+      begin
+        google_play_track_version_codes(
+          track: track,
+          package_name: package_name,
+          json_key: json_key_path
+        )
+      rescue => e
+        UI.message "No version codes found for #{track} track: #{e.message}"
+        []
+      end
+    end.reduce([], :concat)
+
+    max_version = version_codes.max
+    if max_version.nil?
+      UI.important "No version codes found in any track, defaulting to 0"
+      return 0
+    end
+    max_version
+  rescue => e
+    UI.error "Failed to retrieve version codes: #{e.message}"
+    raise
+  end
+end
 
 default_platform(:android)
 platform :android do
 
   desc "Build and Distribute Debug APK to Firebase"
-    lane :build_and_distribute_debug do |options|
+  lane :build_and_distribute_debug do |options|
+    flavor = options[:flavor]
+    UI.user_error!("Missing required parameter: flavor") if flavor.nil? || flavor.empty?
+    version_name = options[:version_name]
+    UI.user_error!("Missing required parameter: version_name") if version_name.nil? || version_name.empty?
+    new_version_code = options[:version_code].to_i
+    UI.user_error!("Missing or invalid version_code") if new_version_code <= 0
 
-     latest_release = firebase_app_distribution_get_latest_release(
-         app: ENV['FIREBASE_APP_ID'],
-         service_credentials_file: "firebase_credentials.json"
-    ) rescue begin
-      UI.important("Failed to fetch latest release, defaulting to version 1")
-      OpenStruct.new(buildVersion: "0")
-     end
-     new_version_code = latest_release[:buildVersion].to_i + 1
-     current_version_name = android_get_version_name
-     new_version_name = "#{new_version_code}.0.0"
+    # Convert PascalCase flavor (e.g. "NiramayStag") to camelCase (e.g. "niramayStag")
+    # to match Gradle's productFlavors directory naming
+    gradle_flavor = flavor[0].downcase + flavor[1..]
 
-    # Use file locking to prevent parallel writes
-    require 'fileutils'
-    version_file = "../version/version.properties"
-    lock_file = "#{version_file}.lock"
-    File.open(lock_file, File::RDWR|File::CREAT) do |f|
-      f.flock(File::LOCK_EX)
-      File.open("../version/version.properties", "w") do |file|
-          file.write("VERSION=#{new_version_name}")
-      end
-    end
-    FileUtils.rm_f(lock_file)
+    UI.message "Building with version name: #{version_name}, version code: #{new_version_code}"
 
-      # Build the debug variant
-      gradle(
-        task: "clean assemble#{options[:variant]}Debug",
-        print_command: true,
-        properties: {
-          "org.gradle.jvmargs" => "-Xmx4g -XX:+HeapDumpOnOutOfMemoryError"
-        }
-      )
-
-      # Distribute to Firebase App Distribution for Stag and UAT
-      firebase_app_distribution(
-        app: ENV['FIREBASE_APP_ID'],
-        service_credentials_file: "firebase_credentials.json",
-        release_notes_file: "FirebaseAppDistributionConfig/release_notes.txt",
-        groups_file: "FirebaseAppDistributionConfig/groups.txt",
-        debug: true
-      )
+    File.open("../version/version.properties", "w") do |file|
+      file.write("VERSION=#{version_name}\nVERSIONCODE=#{new_version_code}")
     end
 
+    # Build the debug variant with shared keystore to ensure updates work across CI runs
+    debug_keystore = File.expand_path('../debug-keystore.jks')
+    UI.user_error!("Shared debug keystore not found at #{debug_keystore}. Ensure DEBUG_KEYSTORE_FILE secret is set.") unless File.exist?(debug_keystore)
 
+    gradle(
+      task: "clean assemble#{flavor}Debug",
+      properties: {
+        "android.injected.signing.store.file" => debug_keystore,
+        "android.injected.signing.store.password" => "android",
+        "android.injected.signing.key.alias" => "androiddebugkey",
+        "android.injected.signing.key.password" => "android",
+      }
+    )
 
+    # Distribute to Firebase App Distribution (universal APK for all device architectures)
+    firebase_app_distribution(
+      app: ENV['FIREBASE_APP_ID'],
+      service_credentials_file: "firebase_credentials.json",
+      android_artifact_path: "app/build/outputs/apk/#{gradle_flavor}/debug/app-#{gradle_flavor}-universal-debug.apk",
+      release_notes_file: "FirebaseAppDistributionConfig/release_notes.txt",
+      groups_file: "FirebaseAppDistributionConfig/groups.txt",
+      debug: true
+    )
+  end
 
+  desc "Build, Sign, and Distribute Release AAB to Play Store"
+  lane :build_and_distribute_release do |options|
+    flavor = options[:flavor]
+    UI.user_error!("Missing required parameter: flavor") if flavor.nil? || flavor.empty?
+    version_name = options[:version_name]
+    UI.user_error!("Missing required parameter: version_name") if version_name.nil? || version_name.empty?
+    new_version_code = options[:version_code].to_i
+    UI.user_error!("Missing or invalid version_code") if new_version_code <= 0
+    keystore_path = File.expand_path('../keystore.jks')
+    package_name = get_package_name(flavor)
+
+    # Validate version code is greater than the current highest on Play Store
+    current_max = latest_googleplay_version_code(package_name)
+    UI.user_error!("version_code #{new_version_code} must be greater than the current highest on Play Store (#{current_max})") if new_version_code <= current_max
+
+    UI.message "Building with version name: #{version_name}, version code: #{new_version_code}"
+
+    File.open("../version/version.properties", "w") do |file|
+      file.write("VERSION=#{version_name}\nVERSIONCODE=#{new_version_code}")
+    end
+
+    gradle(
+          task: "clean bundle#{flavor}Release",
+          properties: {
+            "android.injected.signing.store.file" => keystore_path,
+            "android.injected.signing.store.password" => "#{ENV['KEYSTORE_PASSWORD']}",
+            "android.injected.signing.key.alias" => "#{ENV['KEY_ALIAS']}",
+            "android.injected.signing.key.password" => "#{ENV['KEY_PASSWORD']}",
+          }
+      )
+
+    upload_to_play_store(
+          track: "internal",
+          skip_upload_images: true,
+          skip_upload_screenshots: true,
+          release_status: "draft",
+          version_code: new_version_code,
+          version_name: version_name,
+          package_name: package_name,
+          json_key: File.expand_path('google_play_service_account.json', __dir__)
+    )
+  end
 
 end
