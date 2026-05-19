@@ -49,5 +49,8 @@ target_link_libraries(
         ${log-lib}
 )
 
+# 16 KB page size alignment for Google Play compliance (Android 15+)
+target_link_options(${LIBRARY_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
+
 # Include directories
 # include_directories(${CMAKE_SOURCE_DIR}/include)
