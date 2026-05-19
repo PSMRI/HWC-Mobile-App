@@ -22,6 +22,9 @@ on:
         required: true
         type: string
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,30 +35,30 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.branch }}
 
       - name: Cache NDK
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /usr/local/lib/android/sdk/ndk
           key: ubuntu-latest-ndk-r27c
 
       - name: Cache CMake
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cmake
           key: ubuntu-latest-cmake-3.31.1
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: zulu
           java-version: '17'
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
 
       - name: Set up Android NDK
         uses: nttld/setup-ndk@v1.5.0
