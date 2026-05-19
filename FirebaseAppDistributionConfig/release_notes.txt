@@ -1,1 +1,2 @@
-In this version, we improved the user experience and fixed some bugs.
+HWC CI/CD build for Firebase App Distribution.
+This release includes the latest HWC-specific changes and fixes.
