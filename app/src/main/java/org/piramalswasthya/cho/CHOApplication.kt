@@ -53,9 +53,10 @@ class CHOApplication : Application(), Configuration.Provider {
 //        HttpLogger
         super.onCreate()
         FirebaseApp.initializeApp(this)
-//        if (BuildConfig.DEBUG) {
-        Timber.plant(Timber.DebugTree())
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
 
     }
 
