@@ -1,7 +1,5 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -73,7 +71,6 @@ class VisitDetailAdapter(
                     durationInput.setText((durationCount + 1).toString())
                     subtractButton.isEnabled = true
                 }
-                notifyDataSetChanged()
                 itemChangeListener.onItemChanged()
             }
 
@@ -107,6 +104,11 @@ class VisitDetailAdapter(
                 val typed = it.toString()
                 val ctx = chiefComplaintOptions.context
 
+                if (chiefComplaintOptionInput.error != null && typed.isNotBlank()) {
+                    chiefComplaintOptionInput.error = null
+                    chiefComplaintOptionInput.isErrorEnabled = false
+                }
+
                 // The user's input may be the localized label, the canonical English,
                 // or free-typed text. Canonicalize first; if it resolves to a known
                 // master value, accept it and store the canonical English.
@@ -118,16 +120,8 @@ class VisitDetailAdapter(
                     itemData.chiefComplaint = canonical!!
                     updateResetButtonState()
                     itemChangeListener.onItemChanged()
-                    chiefComplaintOptionInput.apply {
-                        hintTextColor = defaultHintTextColor
-                    }
                 } else {
                     itemData.chiefComplaint = ""
-                    chiefComplaintOptionInput.apply {
-                        requestFocus()
-                        boxStrokeColor = Color.RED
-                        hintTextColor = ColorStateList.valueOf(Color.RED)
-                    }
                 }
             }
 
@@ -215,6 +209,9 @@ class VisitDetailAdapter(
         val itemData = itemList[position]
         val ctx = holder.itemView.context
 
+        holder.chiefComplaintOptionInput.error = null
+        holder.chiefComplaintOptionInput.isErrorEnabled = false
+
         // chiefComplaint is stored in canonical English; show the localized label.
         holder.chiefComplaintOptions.setText(
             MasterDataLocalizer.localizeChiefComplaint(ctx, itemData.chiefComplaint),
@@ -261,6 +258,31 @@ class VisitDetailAdapter(
     }
 
     override fun getItemCount(): Int = itemList.size
+
+    fun highlightEmptyChiefComplaints(rv: RecyclerView, message: String): Int {
+        var firstEmpty = -1
+        for (i in itemList.indices) {
+            if (itemList[i].chiefComplaint.isNullOrEmpty()) {
+                if (firstEmpty == -1) firstEmpty = i
+                val vh = rv.findViewHolderForAdapterPosition(i) as? ViewHolder
+                if (vh != null) {
+                    vh.chiefComplaintOptionInput.isErrorEnabled = true
+                    vh.chiefComplaintOptionInput.error = message
+                } else {
+                    val target = i
+                    rv.scrollToPosition(target)
+                    rv.post {
+                        val late = rv.findViewHolderForAdapterPosition(target) as? ViewHolder
+                        late?.chiefComplaintOptionInput?.let {
+                            it.isErrorEnabled = true
+                            it.error = message
+                        }
+                    }
+                }
+            }
+        }
+        return firstEmpty
+    }
 
 }
 

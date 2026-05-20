@@ -161,7 +161,7 @@ class PregnantWomanAncVisitDataset(
         id = 18,
         inputType = InputType.DATE_PICKER,
         title = "Date of Td TT (Booster Dose)",
-        required = true,
+        required = false,
         hasDependants = true,
 
         max = System.currentTimeMillis(),
@@ -487,16 +487,16 @@ class PregnantWomanAncVisitDataset(
         }
 
         lmpDate.value = this.regis.getDateStringFromLong(this.regis.lmpDate)
-        abortionDate.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
+        abortionDate.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
         // TD Dose 1: 5 weeks from LMP to 36 weeks of LMP, ≤ today
         dateOfTTOrTd1.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
         dateOfTTOrTd1.max = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
         // TT Booster: 5 weeks from LMP to 36 weeks of LMP, ≤ today
         dateOfTTOrTdBooster.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
         dateOfTTOrTdBooster.max = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
-        // Abortion date: 5-21 weeks (unchanged)
+        // Abortion date: 5–20 weeks from LMP, ≤ today
         abortionDate.max =
-            minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(21 * 7))
+            minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(20 * 7))
 
         // Next ANC Visit Date range (> today, <= EDD)
         val edd = getEddFromLmp(regis.lmpDate)
@@ -603,6 +603,7 @@ class PregnantWomanAncVisitDataset(
                     abortionFacility.value =
                         abortionFacility.getStringFromPosition(savedAnc.abortionFacilityId)
                     abortionDate.value = savedAnc.abortionDate?.let { getDateFromLong(it) }
+                    list.removeAll(abortionDisabledFields())
                     list.addAll(
                         list.indexOf(isAborted) + 1,
                         listOf(abortionType, abortionFacility, abortionDate)
@@ -783,6 +784,130 @@ class PregnantWomanAncVisitDataset(
         }
     }
 
+    // ANC detail fields disabled when isAborted = Yes (per spec).
+    private fun abortionDisabledFields(): List<FormElement> = listOf(
+        weight, bp, pulseRate, hb, fundalHeight,
+        urineAlbumin, randomBloodSugarTest,
+        dateOfTTOrTd1, dateOfTTOrTd2, dateOfTTOrTdBooster,
+        numFolicAcidTabGiven,
+        anyHighRisk, highRiskCondition, highRiskReferralFacility,
+        hrpConfirm, hrpConfirmedBy,
+        maternalDeath, maternalDeathProbableCause, otherMaternalDeathProbableCause, maternalDateOfDeath,
+        deliveryDone,
+        nextAncVisitDate
+    )
+
+    private fun buildVisibleAncFields(): MutableList<FormElement> {
+        val ancFields = mutableListOf(
+            isAborted,
+            weight,
+            bp,
+            pulseRate,
+            hb,
+            bloodSugarFasting,
+            urineAlbumin,
+            urineSugar,
+            fetalHeartRate,
+            randomBloodSugarTest,
+            dateOfTTOrTd1,
+            numFolicAcidTabGiven,
+            numIfaAcidTabGiven,
+            calciumGiven,
+            anyHighRisk,
+            dangerSigns,
+            highRiskReferralFacility,
+            hrpConfirm,
+            counsellingProvided,
+            nextAncVisitDate
+        )
+
+        ancDate.value?.let {
+            val long = getLongFromDate(it)
+            val weeks = getWeeksOfPregnancy(long, regis.lmpDate)
+
+            if (weeks <= 12) {
+                fundalHeight.inputType = InputType.TEXT_VIEW
+                fundalHeight.value = null
+                ancFields.remove(numIfaAcidTabGiven)
+            } else {
+                fundalHeight.inputType = InputType.EDIT_TEXT
+                ancFields.remove(numFolicAcidTabGiven)
+            }
+
+            if (weeks <= 14) {
+                ancFields.remove(calciumGiven)
+            }
+
+            if (weeks >= Konstants.minWeekToShowDelivered) {
+                ancFields.add(deliveryDone)
+            }
+        }
+
+        if (isAborted.value == isAborted.entries!!.last()) {
+            ancFields.addAll(ancFields.indexOf(isAborted) + 1, listOf(abortionType, abortionFacility, abortionDate))
+        }
+
+        if (anyHighRisk.value == anyHighRisk.entries!!.last()) {
+            val hrIndex = ancFields.indexOf(anyHighRisk)
+            if (hrIndex != -1) {
+                ancFields.add(hrIndex + 1, highRiskCondition)
+                if (highRiskCondition.value == highRiskCondition.entries!!.last()) {
+                    ancFields.add(hrIndex + 2, otherHighRiskCondition)
+                }
+            }
+        }
+
+        if (hrpConfirm.value == hrpConfirm.entries!!.last()) {
+            ancFields.add(ancFields.indexOf(hrpConfirm) + 1, hrpConfirmedBy)
+        }
+
+        if (counsellingProvided.value == counsellingProvided.entries!!.last()) {
+            ancFields.add(ancFields.indexOf(counsellingProvided) + 1, counsellingTopics)
+        }
+
+        val td1Index = ancFields.indexOf(dateOfTTOrTd1)
+        if (td1Index != -1) {
+            if (regis.tt1 != null || dateOfTTOrTd1.value != null) {
+                if (!ancFields.contains(dateOfTTOrTd2)) {
+                    val td1Date = regis.tt1 ?: getLongFromDate(dateOfTTOrTd1.value)
+                    if (td1Date != null) {
+                        val minTd2Date = td1Date + TimeUnit.DAYS.toMillis(4 * 7)
+                        val maxTd2Date = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+
+                        if (minTd2Date <= maxTd2Date) {
+                            dateOfTTOrTd2.inputType = InputType.DATE_PICKER
+                            dateOfTTOrTd2.min = minTd2Date
+                            dateOfTTOrTd2.max = maxTd2Date
+                        } else {
+                            dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
+                        }
+                        ancFields.add(td1Index + 1, dateOfTTOrTd2)
+                    }
+                }
+            }
+            val td2Index = ancFields.indexOf(dateOfTTOrTd2)
+            if (td2Index != -1) {
+                if (regis.tt2 != null || dateOfTTOrTd2.value != null) {
+                    if (!ancFields.contains(dateOfTTOrTdBooster)) {
+                        val minBoosterDate = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
+                        val maxBoosterDate = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+
+                        if (minBoosterDate <= maxBoosterDate) {
+                            dateOfTTOrTdBooster.inputType = InputType.DATE_PICKER
+                            dateOfTTOrTdBooster.min = minBoosterDate
+                            dateOfTTOrTdBooster.max = maxBoosterDate
+                        } else {
+                            dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+                        }
+                        ancFields.add(td2Index + 1, dateOfTTOrTdBooster)
+                    }
+                }
+            }
+        }
+
+        return ancFields
+    }
+
     private fun checkHrpStatus(): Int {
         var isHighRisk = false
         var highRiskReason: String? = null
@@ -953,16 +1078,17 @@ class PregnantWomanAncVisitDataset(
 
             isAborted.id -> {
                 if (isAborted.value == isAborted.entries!![1]) {
-                     triggerDependants(
+                    triggerDependants(
                         source = isAborted,
                         addItems = listOf(abortionType, abortionDate),
-                        removeItems = listOf(abortionFacility),
+                        removeItems = abortionDisabledFields() + listOf(abortionFacility),
                         position = getIndexById(isAborted.id) + 1
                     )
                 } else {
-                     triggerDependants(
+                    val restored = buildVisibleAncFields().also { it.remove(isAborted) }
+                    triggerDependants(
                         source = isAborted,
-                        addItems = listOf(),
+                        addItems = restored,
                         removeItems = listOf(abortionType, abortionDate, abortionFacility),
                         position = getIndexById(isAborted.id) + 1
                     )
@@ -1048,10 +1174,6 @@ class PregnantWomanAncVisitDataset(
             dateOfTTOrTd2.id -> {
                 var result = -1
                 if (dateOfTTOrTd2.value != null) {
-                    if (!dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
-                        dateOfTTOrTd2.title += allTdDosesMessage
-                        result = 1
-                    }
                     // Always Add Booster if Td2 is entered
                     if (getIndexOfTdBooster() == -1) {
                          val res = triggerDependants(
@@ -1116,11 +1238,6 @@ class PregnantWomanAncVisitDataset(
                     }
                     if (dateOfTTOrTd2.inputType != InputType.TEXT_VIEW) {
                         dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
-                        result = 1
-                    }
-                    
-                    if (!dateOfTTOrTdBooster.title.contains(allTdDosesMessage)) {
-                        dateOfTTOrTdBooster.title += allTdDosesMessage
                         result = 1
                     }
                 } else {
