@@ -217,8 +217,6 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             }
             pref.clearSyncTimestamps()
             pref.deleteEsanjeevaniCreds()
-            pref.clearAmritTokens()
-            TokenInsertTmcInterceptor.clearTokens()
             _navigateToLoginPage.value = true
         }
     }

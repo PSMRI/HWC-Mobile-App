@@ -18,6 +18,7 @@ import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
+import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
@@ -35,7 +36,8 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
-    private val patientDao: PatientDao
+    private val patientDao: PatientDao,
+    private val ecrRepo: EcrRepo
 ) : ViewModel() {
 
     companion object {
@@ -239,6 +241,8 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                         _deliveryOutcomeId.postValue(deliveryOutcome.id)
                         // Update patient status to Post Natal Mother so PNC list picks her up
                         updatePatientStatusToPostNatal()
+                        // Retire upstream pregnancy state so she drops off PWR/ANC/e-PMSMA lists.
+                        retirePregnancyLifecycle()
                         _state.postValue(State.SAVE_SUCCESS_NAVIGATE_VITALS)
                     }
                 } catch (e: Exception) {
@@ -285,6 +289,43 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
             Timber.d("Patient status updated to Post Natal Mother for patientID: $patientID")
         } catch (e: Exception) {
             Timber.e(e, "Failed to update patient status to Post Natal Mother")
+        }
+    }
+
+    private suspend fun retirePregnancyLifecycle() {
+        try {
+            maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let { pwr ->
+                if (pwr.active) {
+                    pwr.active = false
+                    pwr.syncState = SyncState.UNSYNCED
+                    maternalHealthRepo.updatePwr(pwr)
+                }
+            }
+
+            val activeAnc = maternalHealthRepo.getAllActiveAncRecords(patientID)
+            if (activeAnc.isNotEmpty()) {
+                activeAnc.forEach {
+                    it.pregnantWomanDelivered = true
+                    it.isActive = false
+                    it.processed = "U"
+                    it.syncState = SyncState.UNSYNCED
+                }
+                maternalHealthRepo.updateAncRecord(activeAnc.toTypedArray())
+            }
+
+            // Clear pregnancy markers on every ECT row so the catch-all cannot leak
+            // post-delivery women back into ANC/PWR lists via stale historical visits.
+            ecrRepo.getAllECT(patientID).forEach { ect ->
+                if (ect.isPregnant != null || ect.pregnancyTestResult != null) {
+                    ect.isPregnant = null
+                    ect.pregnancyTestResult = null
+                    if (ect.processed != "N") ect.processed = "U"
+                    ect.syncState = SyncState.UNSYNCED
+                    ecrRepo.saveEct(ect)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to retire pregnancy lifecycle for patientID: $patientID")
         }
     }
 }

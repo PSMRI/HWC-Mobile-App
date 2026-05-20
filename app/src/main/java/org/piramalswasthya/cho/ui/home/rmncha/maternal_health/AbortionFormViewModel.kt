@@ -15,9 +15,11 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
+import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import timber.log.Timber
 
 class AbortionFormViewModel(
     private val patientId: String,
@@ -26,7 +28,8 @@ class AbortionFormViewModel(
     @ApplicationContext context: Context,
     private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
-    private val userRepo: UserRepo
+    private val userRepo: UserRepo,
+    private val ecrRepo: EcrRepo
 ) : ViewModel() {
 
     enum class State {
@@ -109,11 +112,58 @@ class AbortionFormViewModel(
                     ancCache.syncState = SyncState.UNSYNCED
                     ancCache.updatedDate = System.currentTimeMillis()
                     maternalHealthRepo.persistAncRecord(ancCache)
+                    // Idempotent retirement: matches PwAncFormViewModel abortion branch so re-saves
+                    // from this dedicated form converge state for women aborted before this fix.
+                    retirePregnancyLifecycle()
                     _state.postValue(State.SAVE_SUCCESS)
                 } catch (_: Exception) {
                     _state.postValue(State.SAVE_FAILED)
                 }
             }
+        }
+    }
+
+    private suspend fun retirePregnancyLifecycle() {
+        try {
+            maternalHealthRepo.getSavedRegistrationRecord(patientId)?.let { pwr ->
+                if (pwr.active) {
+                    pwr.active = false
+                    if (pwr.processed != "N") pwr.processed = "U"
+                    pwr.syncState = SyncState.UNSYNCED
+                    maternalHealthRepo.persistRegisterRecord(pwr)
+                }
+            }
+
+            val activeAnc = maternalHealthRepo.getAllActiveAncRecords(patientId)
+            if (activeAnc.isNotEmpty()) {
+                activeAnc.forEach {
+                    it.isActive = false
+                    if (it.processed != "N") it.processed = "U"
+                    it.syncState = SyncState.UNSYNCED
+                }
+                maternalHealthRepo.updateAncRecord(activeAnc.toTypedArray())
+            }
+
+            val patient = patientRepo.getPatient(patientId)
+            if (patient.statusOfWomanID != 1) {
+                patient.statusOfWomanID = 1 // Eligible Couple — fresh start after abortion
+                patient.syncState = SyncState.UNSYNCED
+                patientRepo.updateRecord(patient)
+            }
+            // Deactivate every ECT row + clear pregnancy markers so EC list shows
+            // her as "needs visit" and the ECT catch-all does not leak her back.
+            ecrRepo.getAllECT(patientId).forEach { ect ->
+                if (ect.isActive || ect.isPregnant != null || ect.pregnancyTestResult != null) {
+                    ect.isActive = false
+                    ect.isPregnant = null
+                    ect.pregnancyTestResult = null
+                    if (ect.processed != "N") ect.processed = "U"
+                    ect.syncState = SyncState.UNSYNCED
+                    ecrRepo.saveEct(ect)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to retire pregnancy lifecycle for patientID: $patientId")
         }
     }
 
@@ -134,7 +184,8 @@ class AbortionFormViewModel(
         private val context: Context,
         private val maternalHealthRepo: MaternalHealthRepo,
         private val patientRepo: PatientRepo,
-        private val userRepo: UserRepo
+        private val userRepo: UserRepo,
+        private val ecrRepo: EcrRepo
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")
@@ -145,7 +196,8 @@ class AbortionFormViewModel(
                 context,
                 maternalHealthRepo,
                 patientRepo,
-                userRepo
+                userRepo,
+                ecrRepo
             ) as T
         }
     }

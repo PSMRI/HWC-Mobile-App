@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
+import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.R
@@ -35,6 +36,7 @@ class PwAncFormViewModel @Inject constructor(
     private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
+    private val ecrRepo: EcrRepo,
 ) : ViewModel() {
 
     enum class State {
@@ -344,6 +346,28 @@ class PwAncFormViewModel @Inject constructor(
 
                             }
                             maternalHealthRepo.updateAncRecord(toTypedArray())
+                        }
+                        try {
+                            val patient = patientRepo.getPatient(patientID)
+                            if (patient.statusOfWomanID != 1) {
+                                patient.statusOfWomanID = 1 // Eligible Couple — fresh start after abortion
+                                patient.syncState = SyncState.UNSYNCED
+                                patientRepo.updateRecord(patient)
+                            }
+                            // Deactivate every ECT row + clear pregnancy markers so EC list shows
+                            // her as "needs visit" and the ECT catch-all does not leak her back.
+                            ecrRepo.getAllECT(patientID).forEach { ect ->
+                                if (ect.isActive || ect.isPregnant != null || ect.pregnancyTestResult != null) {
+                                    ect.isActive = false
+                                    ect.isPregnant = null
+                                    ect.pregnancyTestResult = null
+                                    if (ect.processed != "N") ect.processed = "U"
+                                    ect.syncState = SyncState.UNSYNCED
+                                    ecrRepo.saveEct(ect)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Timber.e(e, "Abortion EC transition failed for $patientID")
                         }
 
 
