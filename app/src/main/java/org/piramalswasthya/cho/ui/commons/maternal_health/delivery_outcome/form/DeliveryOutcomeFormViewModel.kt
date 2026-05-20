@@ -326,6 +326,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             Timber.e(e, "Failed to retire pregnancy lifecycle for patientID: $patientID")
+            throw e
         }
     }
 }

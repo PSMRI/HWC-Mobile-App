@@ -86,6 +86,7 @@ class PwAncFormViewModel @Inject constructor(
     private var lastAncVisitNumber: Int = 0
     private var currentVisitNumber: Int = visitNumber
     private var shouldTriggerBeneficiarySyncAfterSave: Boolean = false
+    private var shouldTriggerEctSyncAfterSave: Boolean = false
 
     init {
         viewModelScope.launch {
@@ -266,6 +267,7 @@ class PwAncFormViewModel @Inject constructor(
                 try {
                     _state.postValue(State.SAVING)
                     shouldTriggerBeneficiarySyncAfterSave = false
+                    shouldTriggerEctSyncAfterSave = false
                     val wasCompletedBefore = ancCache.weight != null
                     dataset.mapValues(ancCache, 1)
                     // Mark ANC as updated for re-sync so /maternal/ancVisit/saveAll is called on edits.
@@ -354,18 +356,13 @@ class PwAncFormViewModel @Inject constructor(
                                 patient.syncState = SyncState.UNSYNCED
                                 patientRepo.updateRecord(patient)
                             }
-                            // Deactivate every ECT row + clear pregnancy markers so EC list shows
-                            // her as "needs visit" and the ECT catch-all does not leak her back.
-                            ecrRepo.getAllECT(patientID).forEach { ect ->
-                                if (ect.isActive || ect.isPregnant != null || ect.pregnancyTestResult != null) {
-                                    ect.isActive = false
-                                    ect.isPregnant = null
-                                    ect.pregnancyTestResult = null
-                                    if (ect.processed != "N") ect.processed = "U"
-                                    ect.syncState = SyncState.UNSYNCED
-                                    ecrRepo.saveEct(ect)
-                                }
-                            }
+                            // Clear pregnancy markers and keep (or recreate) one active ECT row,
+                            // so the EC-tracking DAO (filters on isActive = 1) still surfaces her
+                            // after statusOfWomanID is reset to 1.
+                            val createdBy = userRepo.getLoggedInUser()?.userName ?: "system"
+                            ecrRepo.resetEctAfterAbortion(patientID, createdBy)
+                            shouldTriggerBeneficiarySyncAfterSave = true
+                            shouldTriggerEctSyncAfterSave = true
                         } catch (e: Exception) {
                             Timber.e(e, "Abortion EC transition failed for $patientID")
                         }
@@ -416,6 +413,12 @@ class PwAncFormViewModel @Inject constructor(
 
     fun consumeBeneficiarySyncTrigger() {
         shouldTriggerBeneficiarySyncAfterSave = false
+    }
+
+    fun shouldTriggerEctSyncAfterSave(): Boolean = shouldTriggerEctSyncAfterSave
+
+    fun consumeEctSyncTrigger() {
+        shouldTriggerEctSyncAfterSave = false
     }
 
 }

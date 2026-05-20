@@ -150,20 +150,14 @@ class AbortionFormViewModel(
                 patient.syncState = SyncState.UNSYNCED
                 patientRepo.updateRecord(patient)
             }
-            // Deactivate every ECT row + clear pregnancy markers so EC list shows
-            // her as "needs visit" and the ECT catch-all does not leak her back.
-            ecrRepo.getAllECT(patientId).forEach { ect ->
-                if (ect.isActive || ect.isPregnant != null || ect.pregnancyTestResult != null) {
-                    ect.isActive = false
-                    ect.isPregnant = null
-                    ect.pregnancyTestResult = null
-                    if (ect.processed != "N") ect.processed = "U"
-                    ect.syncState = SyncState.UNSYNCED
-                    ecrRepo.saveEct(ect)
-                }
-            }
+            // Clear pregnancy markers and keep (or recreate) one active ECT row,
+            // so the EC-tracking DAO (filters on isActive = 1) still surfaces her
+            // after statusOfWomanID is reset to 1.
+            val createdBy = userRepo.getLoggedInUser()?.userName ?: "system"
+            ecrRepo.resetEctAfterAbortion(patientId, createdBy)
         } catch (e: Exception) {
             Timber.e(e, "Failed to retire pregnancy lifecycle for patientID: $patientId")
+            throw e
         }
     }
 

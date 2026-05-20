@@ -865,42 +865,22 @@ class PregnantWomanAncVisitDataset(
             ancFields.add(ancFields.indexOf(counsellingProvided) + 1, counsellingTopics)
         }
 
+        // Restore canonical Td values, inputTypes, ranges, and suffix from regis history.
+        // Without this, Yes→No leaves Booster as a DATE_PICKER even when regis.tt2 marks
+        // the series complete (or regis.ttBooster marks it already given).
+        setUpTdX()
+
         val td1Index = ancFields.indexOf(dateOfTTOrTd1)
         if (td1Index != -1) {
             if (regis.tt1 != null || dateOfTTOrTd1.value != null) {
                 if (!ancFields.contains(dateOfTTOrTd2)) {
-                    val td1Date = regis.tt1 ?: getLongFromDate(dateOfTTOrTd1.value)
-                    if (td1Date != null) {
-                        val minTd2Date = td1Date + TimeUnit.DAYS.toMillis(4 * 7)
-                        val maxTd2Date = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
-
-                        if (minTd2Date <= maxTd2Date) {
-                            dateOfTTOrTd2.inputType = InputType.DATE_PICKER
-                            dateOfTTOrTd2.min = minTd2Date
-                            dateOfTTOrTd2.max = maxTd2Date
-                        } else {
-                            dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
-                        }
-                        ancFields.add(td1Index + 1, dateOfTTOrTd2)
-                    }
+                    ancFields.add(td1Index + 1, dateOfTTOrTd2)
                 }
             }
             val td2Index = ancFields.indexOf(dateOfTTOrTd2)
-            if (td2Index != -1) {
-                if (regis.tt2 != null || dateOfTTOrTd2.value != null) {
-                    if (!ancFields.contains(dateOfTTOrTdBooster)) {
-                        val minBoosterDate = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
-                        val maxBoosterDate = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
-
-                        if (minBoosterDate <= maxBoosterDate) {
-                            dateOfTTOrTdBooster.inputType = InputType.DATE_PICKER
-                            dateOfTTOrTdBooster.min = minBoosterDate
-                            dateOfTTOrTdBooster.max = maxBoosterDate
-                        } else {
-                            dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
-                        }
-                        ancFields.add(td2Index + 1, dateOfTTOrTdBooster)
-                    }
+            if (td2Index != -1 && (regis.tt2 != null || dateOfTTOrTd2.value != null)) {
+                if (!ancFields.contains(dateOfTTOrTdBooster)) {
+                    ancFields.add(td2Index + 1, dateOfTTOrTdBooster)
                 }
             }
         }
