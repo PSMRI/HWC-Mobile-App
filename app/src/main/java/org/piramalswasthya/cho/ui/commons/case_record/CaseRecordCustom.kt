@@ -253,6 +253,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             viewRecordFragment != true &&
                     (arguments?.getSerializable("MasterDb") as? MasterDb) != null
 
+        masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
+
         // Use DB value for pharmacist_flag in edit path so completed (lab+pharmacist) cases show correct UI even if intent was stale
         var effectivePharmacistFlag: Int? = null
 
@@ -511,7 +513,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         if (isDoctorExistingVisitFlow()) {
             patientId = benVisitInfo.patient.patientID
             patId = benVisitInfo.patient.patientID
-            viewModel.getVitalsDB(patId)
+            viewModel.getVitalsDB(patId, benVisitInfo.benVisitNo)
 
             benVisitInfo.benVisitNo?.let { visitNo ->
                 viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID, visitNo)
@@ -699,8 +701,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 }
             }
         } else {
-            masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
-
             for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
                 val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
                 val chiefC = ChiefComplaintDB(
@@ -919,33 +919,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             // Update button text after adding medicine
             updateSubmitButtonText()
         }
-        if (isDoctorExistingVisitFlow()) {
-            var bool = true
-            // Remove existing observer to prevent duplicates
-            viewModel.vitalsDB.removeObservers(viewLifecycleOwner)
-            viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
-                var vitalDb2 = VitalsMasterDb(
-                    height = vitalsDB.height,
-                    weight = vitalsDB.weight,
-                    bmi = vitalsDB.bmi,
-                    waistCircumference = vitalsDB.waistCircumference,
-                    temperature = vitalsDB.temperature,
-                    pulseRate = vitalsDB.pulseRate,
-                    spo2 = vitalsDB.spo2,
-                    bpSystolic = vitalsDB.bpSystolic,
-                    bpDiastolic = vitalsDB.bpDiastolic,
-                    respiratoryRate = vitalsDB.respiratoryRate,
-                    rbs = vitalsDB.rbs
-                )
-                bool = false
-                populateVitalsFieldsW(vitalDb2)
-            }
-            if (bool) {
-                populateVitalsFields()
-            }
-        } else {
-            populateVitalsFields()
-        }
+        setupVitalsDisplay()
 
         if (isDoctorExistingVisitFlow()) {
             lifecycleScope.launch {
@@ -1190,38 +1164,90 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
     }
 
-    private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
-        //   hideNullFieldsW(vitals)
-        binding.inputHeight.setText(vitals?.height?:"")
-        binding.inputWeight.setText(vitals?.weight?:"")
-        binding.inputBmi.setText(vitals.bmi?:"")
-//        binding.inputWaistCircum.setText(vitals.waistCircumference.toString())
-        binding.inputTemperature.setText(vitals.temperature?:"")
-        binding.inputPulseRate.setText(vitals.pulseRate?:"")
-        binding.inputSpo2.setText(vitals.spo2?:"")
-        binding.bpCustomLayout.inputBpDiastolic.setText(vitals.bpDiastolic?:"0")
-        binding.bpCustomLayout.inputBpSystolic.setText(vitals.bpSystolic?:"0")
-        binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate?:"")
-        binding.inputRBS.setText(vitals.rbs?:"")
+    private fun setupVitalsDisplay() {
+        val preferBundleVitals = isFreshCaseEntryFromVisitDetails
+        populateVitalsFieldsW(
+            buildVitalsFromSources(
+                fromDb = null,
+                fromMaster = masterDb?.vitalsMasterDb,
+                preferBundle = preferBundleVitals
+            )
+        )
+
+        if (!isDoctorExistingVisitFlow()) return
+
+        viewModel.vitalsDB.removeObservers(viewLifecycleOwner)
+        viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
+            populateVitalsFieldsW(
+                buildVitalsFromSources(
+                    fromDb = vitalsDB,
+                    fromMaster = masterDb?.vitalsMasterDb,
+                    preferBundle = preferBundleVitals
+                )
+            )
+        }
     }
 
-    private fun populateVitalsFields() {
-        //   hideNullFields()
-        // Check if the masterDb and vitalsMasterDb are not null
-        if (masterDb != null && masterDb?.vitalsMasterDb != null) {
-            val vitals = masterDb?.vitalsMasterDb
-            binding.inputHeight.setText(vitals?.height?:"")
-            binding.inputWeight.setText(vitals?.weight?:"")
-            binding.inputBmi.setText(vitals?.bmi?:"")
-//            binding.inputWaistCircum.setText(vitals?.waistCircumference?:")
-            binding.inputTemperature.setText(vitals?.temperature?:"")
-            binding.inputPulseRate.setText(vitals?.pulseRate?:"")
-            binding.inputSpo2.setText(vitals?.spo2?:"")
-            binding.bpCustomLayout.inputBpDiastolic.setText(vitals?.bpDiastolic?:"0")
-            binding.bpCustomLayout.inputBpSystolic.setText(vitals?.bpSystolic?:"0")
-            binding.inputRespiratoryPerMin.setText(vitals?.respiratoryRate?:"")
-            binding.inputRBS.setText(vitals?.rbs?:"")
-        }
+    private fun vitalsDisplayValue(value: String?): String {
+        if (value.isNullOrBlank() || value.equals("null", ignoreCase = true)) return ""
+        return value.trim()
+    }
+
+    private fun pickVitalValue(
+        dbValue: String?,
+        bundleValue: String?,
+        preferBundle: Boolean
+    ): String {
+        val db = vitalsDisplayValue(dbValue)
+        val bundle = vitalsDisplayValue(bundleValue)
+        return if (preferBundle) bundle.ifEmpty { db } else db.ifEmpty { bundle }
+    }
+
+    private fun buildVitalsFromSources(
+        fromDb: PatientVitalsModel?,
+        fromMaster: VitalsMasterDb?,
+        preferBundle: Boolean
+    ): VitalsMasterDb {
+        return VitalsMasterDb(
+            height = pickVitalValue(fromDb?.height, fromMaster?.height, preferBundle),
+            weight = pickVitalValue(fromDb?.weight, fromMaster?.weight, preferBundle),
+            bmi = pickVitalValue(fromDb?.bmi, fromMaster?.bmi, preferBundle),
+            waistCircumference = pickVitalValue(
+                fromDb?.waistCircumference,
+                fromMaster?.waistCircumference,
+                preferBundle
+            ),
+            temperature = pickVitalValue(fromDb?.temperature, fromMaster?.temperature, preferBundle),
+            pulseRate = pickVitalValue(fromDb?.pulseRate, fromMaster?.pulseRate, preferBundle),
+            spo2 = pickVitalValue(fromDb?.spo2, fromMaster?.spo2, preferBundle),
+            bpSystolic = pickVitalValue(fromDb?.bpSystolic, fromMaster?.bpSystolic, preferBundle),
+            bpDiastolic = pickVitalValue(fromDb?.bpDiastolic, fromMaster?.bpDiastolic, preferBundle),
+            respiratoryRate = pickVitalValue(
+                fromDb?.respiratoryRate,
+                fromMaster?.respiratoryRate,
+                preferBundle
+            ),
+            rbs = pickVitalValue(fromDb?.rbs, fromMaster?.rbs, preferBundle)
+        )
+    }
+
+    private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
+        binding.inputHeight.setText(vitals.height.orEmpty())
+        binding.inputWeight.setText(vitals.weight.orEmpty())
+        binding.inputBmi.setText(vitals.bmi.orEmpty())
+        binding.inputTemperature.setText(vitals.temperature.orEmpty())
+        binding.inputPulseRate.setText(vitals.pulseRate.orEmpty())
+        binding.inputSpo2.setText(vitals.spo2.orEmpty())
+        binding.bpCustomLayout.inputBpDiastolic.setText(
+            vitals.bpDiastolic.takeUnless { it.isNullOrBlank() } ?: "0"
+        )
+        binding.bpCustomLayout.inputBpSystolic.setText(
+            vitals.bpSystolic.takeUnless { it.isNullOrBlank() } ?: "0"
+        )
+        binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.orEmpty())
+        binding.inputRBS.setText(vitals.rbs.orEmpty())
+        binding.vitalsExtra.visibility = View.VISIBLE
+        binding.vitalsLayout.visibility = View.VISIBLE
     }
 
     private fun hideNullFieldsW(vitalsDB: VitalsMasterDb) {
