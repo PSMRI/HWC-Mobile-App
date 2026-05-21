@@ -52,6 +52,7 @@ object Konstants {
     const val maxAnc4Week = 40
 
     const val minWeekToShowDelivered = 23
+    const val maxWeekToShowAbortion = 24
 
 
     const val babyLowWeight: Double = 2.5

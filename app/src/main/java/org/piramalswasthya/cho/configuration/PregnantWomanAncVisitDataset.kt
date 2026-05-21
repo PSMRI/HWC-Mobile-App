@@ -211,7 +211,7 @@ class PregnantWomanAncVisitDataset(
         id = 23,
         inputType = InputType.EDIT_TEXT,
         title = "Any other High Risk conditions",
-        required = true,
+        required = false,
     )
     private val highRiskReferralFacility = FormElement(
         id = 24,
@@ -245,7 +245,8 @@ class PregnantWomanAncVisitDataset(
     private val maternalDeath = FormElement(
         id = 27, inputType = InputType.RADIO, title = "Maternal Death", entries = arrayOf(
             "No", "Yes",
-        ), required = false, hasDependants = true
+        ), required = false, hasDependants = true,
+        value = "No"
     )
     private val maternalDeathProbableCause = FormElement(
         id = 28,
@@ -423,9 +424,9 @@ class PregnantWomanAncVisitDataset(
             numIfaAcidTabGiven,
             calciumGiven,
             anyHighRisk,
-            dangerSigns,
             highRiskReferralFacility,
             hrpConfirm,
+            dangerSigns,
             counsellingProvided,
             nextAncVisitDate
         ).toMutableList()
@@ -548,12 +549,12 @@ class PregnantWomanAncVisitDataset(
                 val long = getLongFromDate(it)
                 val weeks = getWeeksOfPregnancy(long, regis.lmpDate)
                 if (weeks >= Konstants.minWeekToShowDelivered) {
-                    if (saved?.maternalDeath != true) list.add(deliveryDone) 
+                    if (saved?.maternalDeath != true) list.add(deliveryDone)
                 }
                 if (weeks <= 12) {
                     fundalHeight.inputType = InputType.TEXT_VIEW
                     fundalHeight.value = null
-                    
+
                     list.remove(numIfaAcidTabGiven)
                 } else {
                     fundalHeight.inputType = InputType.EDIT_TEXT
@@ -562,6 +563,9 @@ class PregnantWomanAncVisitDataset(
                 // Disable Calcium up to 14 weeks
                 if (weeks <= 14) {
                     list.remove(calciumGiven)
+                }
+                if (weeks > Konstants.maxWeekToShowAbortion) {
+                    list.remove(isAborted)
                 }
                 getGestationalAgeFormatted(long, regis.lmpDate)
             }
@@ -577,7 +581,7 @@ class PregnantWomanAncVisitDataset(
                  if (woP <= 12) {
                     fundalHeight.inputType = InputType.TEXT_VIEW
                     fundalHeight.value = null
-                     
+
                     list.remove(numIfaAcidTabGiven)
                 } else {
                     fundalHeight.inputType = InputType.EDIT_TEXT
@@ -589,6 +593,9 @@ class PregnantWomanAncVisitDataset(
                 }
                 if (woP >= Konstants.minWeekToShowDelivered) {
                     if (!list.contains(deliveryDone)) list.add(deliveryDone)
+                }
+                if (woP > Konstants.maxWeekToShowAbortion) {
+                    list.remove(isAborted)
                 }
             }
 
@@ -792,7 +799,7 @@ class PregnantWomanAncVisitDataset(
         numFolicAcidTabGiven,
         anyHighRisk, highRiskCondition, highRiskReferralFacility,
         hrpConfirm, hrpConfirmedBy,
-        maternalDeath, maternalDeathProbableCause, otherMaternalDeathProbableCause, maternalDateOfDeath,
+        maternalDeathProbableCause, otherMaternalDeathProbableCause, maternalDateOfDeath,
         deliveryDone,
         nextAncVisitDate
     )
@@ -840,6 +847,10 @@ class PregnantWomanAncVisitDataset(
 
             if (weeks >= Konstants.minWeekToShowDelivered) {
                 ancFields.add(deliveryDone)
+            }
+
+            if (weeks > Konstants.maxWeekToShowAbortion) {
+                ancFields.remove(isAborted)
             }
         }
 
@@ -889,6 +900,9 @@ class PregnantWomanAncVisitDataset(
     }
 
     private fun checkHrpStatus(): Int {
+        if (isAborted.value == isAborted.entries!!.last()) {
+            return -1
+        }
         var isHighRisk = false
         var highRiskReason: String? = null
 
@@ -979,7 +993,46 @@ class PregnantWomanAncVisitDataset(
                 ancDate.value?.let {
                     val long = getLongFromDate(it)
                     val weeks = getWeeksOfPregnancy(long, regis.lmpDate)
-                    val listChanged = if (weeks >= Konstants.minWeekToShowDelivered) {
+
+                    val maternalDeathSelected =
+                        maternalDeath.value == maternalDeath.entries!!.last()
+                    val wasAborted = isAborted.value == isAborted.entries!!.last()
+
+                    // Abortion If Any: visible when weeks <= 24 and maternal death != Yes
+                    val abortionResult = when {
+                        maternalDeathSelected -> -1
+                        weeks <= Konstants.maxWeekToShowAbortion -> {
+                            if (!getFormList().contains(isAborted)) {
+                                triggerDependants(
+                                    source = maternalDeath,
+                                    addItems = listOf(isAborted),
+                                    removeItems = emptyList(),
+                                )
+                            } else -1
+                        }
+                        else -> {
+                            val toRemove = mutableListOf<FormElement>(isAborted)
+                            if (wasAborted) {
+                                toRemove.addAll(
+                                    listOf(abortionType, abortionFacility, abortionDate)
+                                )
+                            }
+                            triggerDependants(
+                                source = maternalDeath,
+                                addItems = emptyList(),
+                                removeItems = toRemove,
+                            )
+                        }
+                    }
+
+                    // Has the pregnant woman delivered?: visible when weeks >= 23,
+                    // hidden if abortion is selected (and still active) or maternal death = Yes
+                    val abortionStillSelected =
+                        wasAborted && weeks <= Konstants.maxWeekToShowAbortion
+                    val listChanged = if (!maternalDeathSelected
+                        && weeks >= Konstants.minWeekToShowDelivered
+                        && !abortionStillSelected
+                    ) {
                         triggerDependants(
                             source = maternalDeath,
                             addItems = listOf(deliveryDone),
@@ -992,6 +1045,7 @@ class PregnantWomanAncVisitDataset(
                             removeItems = listOf(deliveryDone),
                         )
                     }
+
                     weekOfPregnancy.value = getGestationalAgeFormatted(long, regis.lmpDate)
                     val calcVisitNumber = when (weeks) {
                         in Konstants.minAnc1Week..Konstants.maxAnc1Week -> 1
@@ -1002,7 +1056,7 @@ class PregnantWomanAncVisitDataset(
                     }
                     if (ancVisit.entries?.contains(calcVisitNumber.toString()) == true) {
                         ancVisit.value = calcVisitNumber.toString()
-                        
+
                         // Handle Fundal Height visibility (Enable/Disable instead of Add/Remove)
                         if (weeks <= 12) {
                             fundalHeight.inputType = InputType.TEXT_VIEW
@@ -1027,12 +1081,12 @@ class PregnantWomanAncVisitDataset(
                             )
 
                         }
-                        return if (listChanged >= 0 || listChanged2 >= 0)
+                        return if (listChanged >= 0 || listChanged2 >= 0 || abortionResult >= 0)
                             1
                         else
                             -1
                     }
-                    return listChanged
+                    return if (abortionResult >= 0) maxOf(listChanged, abortionResult) else listChanged
                 }
                 -1
             }
@@ -1365,24 +1419,28 @@ class PregnantWomanAncVisitDataset(
                      ancDate.value?.let {
                         val long = getLongFromDate(it)
                         val weeks = getWeeksOfPregnancy(long, regis.lmpDate)
-                        
+
                         if (weeks <= 12) {
                             // Disable Fundal Height but keep visible
                             fundalHeight.inputType = InputType.TEXT_VIEW
                             fundalHeight.value = null
-                            
+
                             ancFields.remove(numIfaAcidTabGiven)
                         } else {
                             fundalHeight.inputType = InputType.EDIT_TEXT
                             ancFields.remove(numFolicAcidTabGiven)
                         }
-                        
+
                         if (weeks <= 14) {
                             ancFields.remove(calciumGiven)
                         }
-                        
-                         if (weeks >= Konstants.minWeekToShowDelivered) {
-                            ancFields.add(deliveryDone) 
+
+                        if (weeks >= Konstants.minWeekToShowDelivered) {
+                            ancFields.add(deliveryDone)
+                        }
+
+                        if (weeks > Konstants.maxWeekToShowAbortion) {
+                            ancFields.remove(isAborted)
                         }
                      }
                      
@@ -1528,25 +1586,28 @@ class PregnantWomanAncVisitDataset(
             calciumGiven.id -> validateIntMinMax(calciumGiven)
 
             dangerSigns.id -> {
-                // Logic to handle "None" exclusivity
+                // Checkbox adapter encodes index as (arrayIndex + 1) * (+1 checked / -1 unchecked).
+                val realIndex = (if (index < 0) -index else index) - 1
+                val isChecked = index > 0
                 val noneStr = "None"
-                val currentVal = dangerSigns.value
                 val noneIndex = dangerSigns.entries?.indexOf(noneStr) ?: -1
+                val isNoneOption = noneIndex >= 0 && realIndex == noneIndex
+                val clickedOption = dangerSigns.entries?.getOrNull(realIndex)
 
-                if (index == noneIndex) { // Interaction with "None"
-                    if (currentVal?.contains(noneStr) == true) {
-                        // "None" is checked. Clear everything else.
+                if (clickedOption != null && isChecked) {
+                    if (isNoneOption) {
                         dangerSigns.value = noneStr
+                    } else {
+                        val parts = (dangerSigns.value ?: "")
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != noneStr }
+                        dangerSigns.value =
+                            if (parts.isEmpty()) null else parts.joinToString(",")
                     }
-                } else { // Interaction with other options
-                    if (currentVal?.contains(noneStr) == true && currentVal.length > noneStr.length) {
-                        // "None" is present AND other items are present. Remove "None".
-                        val pattern = "$noneStr,"
-                        val pattern2 = ",$noneStr"
-                        var newVal = currentVal.replace(pattern, "").replace(pattern2, "")
-                        if (newVal == noneStr) newVal = ""
-                        dangerSigns.value = newVal
-                    }
+                    // Same FormElement reference in old & new lists makes DiffUtil
+                    // miss the in-place value change; force a rebind so checkboxes redraw.
+                    forceRefreshId(dangerSigns.id)
                 }
 
                 // PRD: show HRP alert dialog when any danger sign (other than None) selected
@@ -1581,6 +1642,17 @@ class PregnantWomanAncVisitDataset(
      * Clears high-risk flags when no triggers apply.
      */
     private fun recomputeHighRiskState() {
+        if (isAborted.value == isAborted.entries!!.last()) {
+
+            anyHighRisk.value = anyHighRisk.entries!!.first()
+            highRiskCondition.value = null
+            hrpConfirm.value = null
+            hrpConfirmedBy.value = null
+            highRiskReferralFacility.value = null
+
+            return
+        }
+
         var hasHighRisk = false
         var riskCondition: String? = null
 
@@ -1726,7 +1798,7 @@ class PregnantWomanAncVisitDataset(
                 position = getIndexById(anyHighRisk.id) + 1
             )
         }
-        highRiskCondition.required = true
+
         updateHighRiskConditionValue(riskCondition)
     }
 

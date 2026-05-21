@@ -79,6 +79,7 @@ class PwAncFormViewModel @Inject constructor(
         PregnantWomanAncVisitDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
     val ancAlertMessage = dataset.alertErrorMessageFlow
+    val forceRefreshIdFlow = dataset.forceRefreshIdFlow
 
     private lateinit var ancCache: PregnantWomanAncCache
     private lateinit var registerRecord: PregnantWomanRegistrationCache
