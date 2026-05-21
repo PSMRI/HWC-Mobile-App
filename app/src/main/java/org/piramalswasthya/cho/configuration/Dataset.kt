@@ -173,7 +173,7 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
             // mutated in place: DiffUtil's areContentsTheSame compares the same
             // FormElement reference on both sides, so the change is invisible
             // and the row stays visually stale. Force a rebind on this row.
-            if (errorStateChanged && updateIndex == -1) {
+            if (errorStateChanged && updateIndex == -1 && formElement?.inputType != InputType.EDIT_TEXT) {
                 forceRefreshId(formId)
             }
         } else {
