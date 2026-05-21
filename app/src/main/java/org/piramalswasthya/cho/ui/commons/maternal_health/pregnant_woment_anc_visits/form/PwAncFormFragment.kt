@@ -230,6 +230,10 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
             WorkerUtils.triggerBeneficiarySync(requireContext())
             viewModel.consumeBeneficiarySyncTrigger()
         }
+        if (viewModel.shouldTriggerEctSyncAfterSave()) {
+            WorkerUtils.triggerEligibleCoupleTrackingSync(requireContext())
+            viewModel.consumeEctSyncTrigger()
+        }
 
         // When launched directly from ANC listing, there is no patient home to navigate back to.
         if (benVisitInfo == null) {
