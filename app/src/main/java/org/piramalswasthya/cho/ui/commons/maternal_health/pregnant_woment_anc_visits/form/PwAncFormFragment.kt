@@ -135,6 +135,13 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                         if (it.isNotEmpty()) ancFormAdapter?.submitList(it)
                     }
                 }
+
+                lifecycleScope.launch {
+                    viewModel.forceRefreshIdFlow.collect { id ->
+                        val pos = ancFormAdapter?.currentList?.indexOfFirst { it.id == id } ?: -1
+                        if (pos != -1) ancFormAdapter?.notifyItemChanged(pos)
+                    }
+                }
             }
         }
     }

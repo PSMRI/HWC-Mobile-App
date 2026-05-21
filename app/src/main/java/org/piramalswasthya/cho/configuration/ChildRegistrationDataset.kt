@@ -466,7 +466,7 @@ class ChildRegistrationDataset(
             restoreSavedValues(saved)
         }
 
-        prepopulateDefaults(deliveryOutcomeCache)
+        //prepopulateDefaults(deliveryOutcomeCache)
 
         if (isStillbirthOrDiedAtBirth(outcomeAtBirth.value)) {
             birthDoseVaccinesGiven.required = false
