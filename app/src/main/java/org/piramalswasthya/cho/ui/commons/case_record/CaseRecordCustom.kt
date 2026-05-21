@@ -500,11 +500,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.prescriptionExtra.visibility = View.VISIBLE
         }
 
-        if (isAlreadyFilledReadOnlyForVisibility) {
-            hideReferEditorSection()
-        } else {
-            applyReferSummaryFromVisit(benVisitInfo)
-        }
+        // Refer details are shown only in the bottom refer section, never under diagnosis.
+        hideReferSummaryLabels()
 
         if (isDoctorExistingVisitFlow()) {
             patientId = benVisitInfo.patient.patientID
@@ -697,7 +694,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     if (referNameMap.isEmpty()) {
                         referNameMap = viewModel.getReferNameTypeMap()
                     }
-                    applyReadOnlyVisitFields(record)
+                    hideReferSummaryLabels()
+                    val referReadOnly = isAlreadyFilledReadOnlyForVisibility ||
+                            (viewRecordFragment == true && isFlowComplete == true)
+                    if (isAlreadyFilledReadOnlyForVisibility) {
+                        applyReadOnlyVisitFields(record)
+                    } else {
+                        applyReferEditorSection(record, readOnly = referReadOnly)
+                    }
                 }
             }
         } else {
@@ -1358,29 +1362,37 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.referReason.visibility = View.GONE
     }
 
-    private fun applyReferSummaryFromVisit(
-        visitInfo: PatientDisplayWithVisitInfo,
-        record: InvestigationCaseRecord? = null
-    ) {
-        hideReferSummaryLabels()
-        if (visitInfo.referDate != null) {
-            binding.referDateLabel.visibility = View.VISIBLE
-            binding.referDate.setText(visitInfo.referDate)
-            disableTextInputLayout(binding.referDateLabel)
+    private fun applyReferEditorSection(record: InvestigationCaseRecord?, readOnly: Boolean) {
+        val referInstitutionName = record?.institutionId?.let { referNameMap[it] }
+            ?: benVisitInfo.referTo?.takeIf { it.isNotBlank() }
+        val referReasonText = record?.referReson
+            ?.split(pattern)
+            ?.firstOrNull()
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: benVisitInfo.referralReason
+                ?.split(pattern)
+                ?.firstOrNull()
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+        val hasReferData = !referInstitutionName.isNullOrBlank() || referReasonText != null
+        if (!hasReferData) {
+            if (readOnly) {
+                hideReferEditorSection()
+            }
+            return
         }
-        val referredTo = visitInfo.referTo?.takeIf { it.isNotBlank() }
-            ?: record?.institutionId?.let { referNameMap[it] }
-        if (!referredTo.isNullOrBlank()) {
-            binding.referToLabel.visibility = View.VISIBLE
-            binding.referTo.setText(referredTo)
-            disableTextInputLayout(binding.referToLabel)
-        }
-        val referralReason = visitInfo.referralReason?.split(pattern)?.firstOrNull()?.trim()
-            ?: record?.referReson?.split(pattern)?.firstOrNull()?.trim()
-        if (!referralReason.isNullOrBlank()) {
-            binding.referalReasonLabel.visibility = View.VISIBLE
-            binding.referalReason.setText(referralReason)
-            disableTextInputLayout(binding.referalReasonLabel)
+        binding.textReferHeading.visibility = View.VISIBLE
+        binding.referDropdown.visibility = View.VISIBLE
+        binding.referReason.visibility = View.VISIBLE
+        referInstitutionName?.let { binding.referDropdownText.setText(it, false) }
+        referReasonText?.let { binding.inputReferReason.setText(it) }
+        if (readOnly) {
+            disableDropdownField(binding.referDropdownText, binding.referDropdown)
+            binding.inputReferReason.isFocusable = false
+            binding.inputReferReason.isClickable = false
+            binding.inputReferReason.isCursorVisible = false
+            disableTextInputLayout(binding.referReason)
         }
     }
 
@@ -1424,8 +1436,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
         }
 
-        hideReferEditorSection()
-        applyReferSummaryFromVisit(benVisitInfo, record)
+        hideReferSummaryLabels()
+        applyReferEditorSection(record, readOnly = true)
     }
 
     fun mapProcedureIdsToNames(proceduresMasterData: List<ProceduresMasterData>,procedureIds: List<Int>?): List<String> {
