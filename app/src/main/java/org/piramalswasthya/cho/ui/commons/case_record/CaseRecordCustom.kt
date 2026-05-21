@@ -503,6 +503,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         // Refer details are shown only in the bottom refer section, never under diagnosis.
         hideReferSummaryLabels()
 
+        if (isAlreadyFilledReadOnlyForVisibility) {
+            binding.testName.visibility = View.GONE
+        }
+
         if (isDoctorExistingVisitFlow()) {
             patientId = benVisitInfo.patient.patientID
             patId = benVisitInfo.patient.patientID
@@ -511,11 +515,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             benVisitInfo.benVisitNo?.let { visitNo ->
                 viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID, visitNo)
                 viewModel.getLabList(benVisitInfo.patient.patientID, visitNo)
-            }
-            // Load medicine/prescription and diagnosis so they show in case record (same as lab data)
-            lifecycleScope.launch {
-                loadPrescriptionRowsForVisit(benVisitInfo)
-                convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
             }
             // Remove existing observer to prevent duplicates
             viewModel.labReportList.removeObservers(viewLifecycleOwner)
@@ -695,13 +694,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         referNameMap = viewModel.getReferNameTypeMap()
                     }
                     hideReferSummaryLabels()
-                    val referReadOnly = isAlreadyFilledReadOnlyForVisibility ||
-                            (viewRecordFragment == true && isFlowComplete == true)
-                    if (isAlreadyFilledReadOnlyForVisibility) {
-                        applyReadOnlyVisitFields(record)
-                    } else {
-                        applyReferEditorSection(record, readOnly = referReadOnly)
-                    }
+                    applySavedInvestigationToUi(record, readOnly = isVisitFieldsReadOnly())
                 }
             }
         } else {
@@ -823,6 +816,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             familyM!!.setOnClickListener {
                 showDialogWithFamilyMembers(procedureDropdown, viewModel.labReportProcedureTypes)
             }
+            investigationBD?.let { populateTestNamesFromInvestigation(it, isVisitFieldsReadOnly()) }
         }
         binding.saveTemplate.setOnClickListener {
             saveTemp(uniqueTemplateNames)
@@ -950,6 +944,34 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
         } else {
             populateVitalsFields()
+        }
+
+        if (isDoctorExistingVisitFlow()) {
+            lifecycleScope.launch {
+                reloadSavedCaseRecordData()
+                investigationBD?.let {
+                    applySavedInvestigationToUi(it, readOnly = isVisitFieldsReadOnly())
+                }
+            }
+        }
+    }
+
+    private fun isVisitFieldsReadOnly(): Boolean =
+        isAlreadyFilledReadOnlyForVisibility ||
+                (viewRecordFragment == true && isFlowComplete == true)
+
+    private suspend fun reloadSavedCaseRecordData() {
+        loadPrescriptionRowsForVisit(benVisitInfo)
+        convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
+        if (::dAdapter.isInitialized) {
+            dAdapter.notifyDataSetChanged()
+            binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
+        }
+        if (::pAdapter.isInitialized) {
+            pAdapter.setDispensedLockedItemCount(dispensedLockedPrescriptionCount)
+            pAdapter.notifyDataSetChanged()
+            binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
+            updateSubmitButtonText()
         }
     }
 
@@ -1396,48 +1418,70 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
     }
 
-    /**
-     * When viewing a completed visit: show counselling/refer/test/external with saved values and disable editing.
-     */
-    private fun applyReadOnlyVisitFields(record: InvestigationCaseRecord?) {
-        if (!isAlreadyFilledReadOnlyForVisibility) return
-
+    private fun applyCounsellingField(record: InvestigationCaseRecord?, readOnly: Boolean) {
         val counsellingList = record?.counsellingProvidedList?.filter { it.isNotBlank() }
             ?: record?.counsellingTypes?.trim()?.takeIf { it.isNotEmpty() }?.let { listOf(it) }
         binding.routeDropDown.visibility = if (counsellingList.isNullOrEmpty()) {
-            View.GONE
+            if (readOnly) View.GONE else View.VISIBLE
         } else {
             binding.routeDropDownVal.setText(counsellingList.joinToString(", "), false)
-            disableDropdownField(binding.routeDropDownVal, binding.routeDropDown)
+            if (readOnly) {
+                disableDropdownField(binding.routeDropDownVal, binding.routeDropDown)
+            }
             View.VISIBLE
         }
+    }
 
+    private fun applyExternalInvestigationField(record: InvestigationCaseRecord?, readOnly: Boolean) {
         val externalVal = record?.externalInvestigations?.trim()?.takeIf { it.isNotEmpty() }
-        binding.externalI.visibility = if (externalVal == null) View.GONE else {
-            binding.inputExternalI.setText(externalVal)
+        if (externalVal == null) {
+            if (readOnly) {
+                binding.externalI.visibility = View.GONE
+            }
+            return
+        }
+        binding.externalI.visibility = View.VISIBLE
+        binding.inputExternalI.setText(externalVal)
+        if (readOnly) {
             binding.inputExternalI.isFocusable = false
             binding.inputExternalI.isClickable = false
+            binding.inputExternalI.isCursorVisible = false
+            binding.inputExternalI.keyListener = null
             disableTextInputLayout(binding.externalI)
-            View.VISIBLE
         }
+    }
 
-        val medicineAlreadyFilled = effectivePharmacistFlagForVisibility == 9
-        val testIds = record?.previousTestIds?.split(",")
-            ?.mapNotNull { it.trim().takeIf { s -> s.isNotEmpty() }?.toIntOrNull() }
-        val hasTestValue = !testIds.isNullOrEmpty()
-        binding.testName.visibility = when {
-            medicineAlreadyFilled -> View.GONE
-            !hasTestValue -> View.GONE
-            else -> {
-                val names = mapProcedureIdsToNames(procedureDropdown, testIds)
-                binding.selectF.text = names.joinToString(", ")
-                binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
-                View.VISIBLE
+    private fun populateTestNamesFromInvestigation(record: InvestigationCaseRecord?, readOnly: Boolean) {
+        // Closed case: lab results table shows tests; hide the test-name picker.
+        if (isAlreadyFilledReadOnlyForVisibility) {
+            binding.testName.visibility = View.GONE
+            return
+        }
+        val testIds = (parseTestIds(record?.previousTestIds) + parseTestIds(record?.newTestIds)).toList()
+        if (testIds.isEmpty()) {
+            if (readOnly) {
+                binding.testName.visibility = View.GONE
             }
+            return
         }
+        val names = mapProcedureIdsToNames(procedureDropdown, testIds)
+        if (names.isEmpty()) return
+        selectedTestName.clear()
+        selectedTestName.addAll(testIds)
+        binding.selectF.text = names.joinToString(", ")
+        binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
+        binding.testName.visibility = View.VISIBLE
+        familyM?.isClickable = !readOnly
+        familyM?.isEnabled = !readOnly
+    }
 
-        hideReferSummaryLabels()
-        applyReferEditorSection(record, readOnly = true)
+    /** Restore counselling, external investigation, tests, and refer from saved investigation record. */
+    private fun applySavedInvestigationToUi(record: InvestigationCaseRecord?, readOnly: Boolean) {
+        if (record == null) return
+        applyCounsellingField(record, readOnly)
+        applyExternalInvestigationField(record, readOnly)
+        populateTestNamesFromInvestigation(record, readOnly)
+        applyReferEditorSection(record, readOnly)
     }
 
     fun mapProcedureIdsToNames(proceduresMasterData: List<ProceduresMasterData>,procedureIds: List<Int>?): List<String> {
