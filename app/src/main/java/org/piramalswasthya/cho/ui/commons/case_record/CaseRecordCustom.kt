@@ -595,7 +595,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     } else {
                         for ((index, component) in components.withIndex()) {
                             val resultVal = buildString {
-                                component.componentName?.let { append("<b>${TextUtils.htmlEncode(it)}:</b> ") }
+                                append("<b>${TextUtils.htmlEncode(procedureName)}:</b> ")
+//                                component.componentName?.let { append("<b>${TextUtils.htmlEncode(it)}:</b> ") }
                                 append(TextUtils.htmlEncode(component.testResultValue.orEmpty()))
                                 component.testResultUnit?.let { append(" ${TextUtils.htmlEncode(it)}") }
                                 component.remarks?.let { append(" <br> <b>Remarks: </b> ${TextUtils.htmlEncode(it)}") }
