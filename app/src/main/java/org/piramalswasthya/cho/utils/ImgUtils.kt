@@ -98,22 +98,24 @@ object ImgUtils {
         if (!v.contains("://") && v.length > 200) return v
 
         return try {
-            val sourceBytes = if (!v.contains("://") && v.startsWith("/")) {
-                File(v).takeIf { it.exists() }?.readBytes()
+            val options = BitmapFactory.Options().apply { inSampleSize = 4 }
+            val exifPath: String? = if (!v.contains("://") && v.startsWith("/")) v else null
+
+            // Decode straight from the file / InputStream so inSampleSize=4 caps
+            // peak memory at ~(width/4 × height/4 × 4 bytes). readBytes() would
+            // first materialise the full multi-MB JPEG on the heap, defeating
+            // the downsample and OOM-ing on low-RAM devices.
+            var bitmap: Bitmap = if (exifPath != null) {
+                if (!File(exifPath).exists()) return null
+                BitmapFactory.decodeFile(exifPath, options) ?: return null
             } else {
                 val uri = Uri.parse(v)
-                context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-            } ?: return null
-
-            val options = BitmapFactory.Options().apply { inSampleSize = 4 }
-            var bitmap = BitmapFactory.decodeByteArray(sourceBytes, 0, sourceBytes.size, options)
-                ?: return null
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    BitmapFactory.decodeStream(input, null, options)
+                } ?: return null
+            }
 
             // EXIF rotation is only retrievable from a file on disk.
-            val exifPath = when {
-                !v.contains("://") && v.startsWith("/") -> v
-                else -> null
-            }
             if (exifPath != null) {
                 val exif = android.media.ExifInterface(exifPath)
                 val orientation = exif.getAttributeInt(
@@ -127,12 +129,15 @@ object ImgUtils {
                     android.media.ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
                 }
                 if (!matrix.isIdentity) {
-                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                    val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                    if (rotated !== bitmap) bitmap.recycle()
+                    bitmap = rotated
                 }
             }
 
             val out = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 20, out)
+            bitmap.recycle()
             val encoded = base64.encodeToString(out.toByteArray(), base64.NO_WRAP)
             "data:image/jpeg;base64,$encoded"
         } catch (e: Exception) {

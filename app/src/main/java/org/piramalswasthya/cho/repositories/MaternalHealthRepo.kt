@@ -568,62 +568,82 @@ class MaternalHealthRepo @Inject constructor(
             userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
 
-        try {
-            val response = amritApiService.postAncForm(ancPostList.toList())
-            val statusCode = response.code()
-            if (statusCode != 200) {
-                Timber.w("Bad Response from server for ANC saveAll, code=$statusCode")
+        // Bounded retry: recursion + non-local control flow via thrown
+        // SocketTimeoutException could spin forever (and eventually overflow
+        // the stack) when the server is persistently issuing 5002 or the
+        // network is permanently flaky. After MAX_ANC_UPLOAD_ATTEMPTS we
+        // yield to WorkManager — its outer backoff is the right place to
+        // delay further attempts.
+        repeat(MAX_ANC_UPLOAD_ATTEMPTS) { attempt ->
+            try {
+                val response = amritApiService.postAncForm(ancPostList.toList())
+                val httpCode = response.code()
+                if (httpCode != 200) {
+                    Timber.w("ANC saveAll bad HTTP code=$httpCode (attempt ${attempt + 1})")
+                    return AncUploadResult.Transient
+                }
+
+                val responseString = response.body()?.string()
+                Timber.d("ANC saveAll response body: ${responseString?.take(300)}")
+                if (responseString.isNullOrBlank()) {
+                    Timber.d("ANC saveAll succeeded with empty response body")
+                    return AncUploadResult.Success
+                }
+
+                val jsonObj = try {
+                    JSONObject(responseString)
+                } catch (e: Exception) {
+                    Timber.w(e, "ANC saveAll non-JSON body, treating as success: $responseString")
+                    return AncUploadResult.Success
+                }
+
+                val statusCode = jsonObj.optInt("statusCode", 200)
+                val errorMessage = jsonObj.optString("errorMessage")
+
+                when (statusCode) {
+                    200 -> {
+                        Timber.d("ANC saved successfully to server")
+                        return AncUploadResult.Success
+                    }
+                    5002 -> {
+                        Timber.d("ANC saveAll got 5002; refreshing token (attempt ${attempt + 1})")
+                        if (!userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            Timber.w("Token refresh failed")
+                            return AncUploadResult.Transient
+                        }
+                        // Token refreshed — fall through to next loop iteration.
+                        return@repeat
+                    }
+                    // 5000 = server-side persistence failure — usually a payload
+                    // the server refuses to accept (e.g. oversized base64 image).
+                    // Retrying the same body just loops forever, so we mark it
+                    // terminal and park the row until the user edits / re-saves.
+                    5000 -> {
+                        Log.d("anc error message", errorMessage)
+                        Timber.w("ANC saveAll permanently rejected (5000): $errorMessage")
+                        return AncUploadResult.Terminal(errorMessage)
+                    }
+                    else -> {
+                        Log.d("anc error message", errorMessage)
+                        Timber.w("ANC saveAll server error $statusCode: $errorMessage")
+                        return AncUploadResult.Transient
+                    }
+                }
+            } catch (e: SocketTimeoutException) {
+                Timber.d("ANC saveAll timed out (attempt ${attempt + 1}); retrying")
+                // Fall through to next iteration.
+            } catch (e: JSONException) {
+                Timber.d("ANC saveAll JSON parse error: $e")
                 return AncUploadResult.Transient
             }
-
-            val responseString = response.body()?.string()
-            Timber.d("ANC saveAll response body: ${responseString?.take(300)}")
-            if (responseString.isNullOrBlank()) {
-                Timber.d("ANC saveAll succeeded with empty response body")
-                return AncUploadResult.Success
-            }
-
-            val jsonObj = try {
-                JSONObject(responseString)
-            } catch (e: Exception) {
-                Timber.w(e, "ANC saveAll returned non-JSON body, treating as success: $responseString")
-                return AncUploadResult.Success
-            }
-            val responseStatusCode = jsonObj.optInt("statusCode", 200)
-            val errorMessage = jsonObj.optString("errorMessage")
-            return when (responseStatusCode) {
-                200 -> {
-                    Timber.d("ANC saved successfully to server")
-                    AncUploadResult.Success
-                }
-                5002 -> {
-                    if (userRepo.refreshTokenTmc(user.userName, user.password)) {
-                        throw SocketTimeoutException()
-                    }
-                    AncUploadResult.Transient
-                }
-                // 5000 = server-side persistence failure — usually a payload the
-                // server refuses to accept (e.g. oversized base64 image). Retrying
-                // the same body just loops forever, so we mark it terminal and
-                // park the row until the user edits / re-saves.
-                5000 -> {
-                    Log.d("anc error message", errorMessage)
-                    Timber.w("ANC saveAll permanently rejected (5000): $errorMessage")
-                    AncUploadResult.Terminal(errorMessage)
-                }
-                else -> {
-                    Log.d("anc error message", errorMessage)
-                    Timber.w("ANC saveAll failed: $errorMessage")
-                    AncUploadResult.Transient
-                }
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.d("Caught exception $e here")
-            return postDataToAmritServer(ancPostList)
-        } catch (e: JSONException) {
-            Timber.d("Caught exception $e here")
-            return AncUploadResult.Transient
         }
+
+        Timber.w("ANC saveAll exhausted $MAX_ANC_UPLOAD_ATTEMPTS attempts; deferring to next sync cycle")
+        return AncUploadResult.Transient
+    }
+
+    private companion object {
+        private const val MAX_ANC_UPLOAD_ATTEMPTS = 3
     }
 
     private suspend fun postPwrDataToAmritServer(pwrPostList: MutableSet<PwrPost>): Boolean {
