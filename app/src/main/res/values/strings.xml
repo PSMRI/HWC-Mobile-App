@@ -731,6 +731,7 @@
     <string name="add_file">add file</string>
 
     <string name="view">VIEW</string>
+    <string name="image_unavailable">Image unavailable</string>
     <string name="back">Back</string>
     <string name="something_wend_wong_contact_testing">Something wend wong! Contact testing!</string>
     <string name="iv_sync_state_tv">SYNC STATE</string>

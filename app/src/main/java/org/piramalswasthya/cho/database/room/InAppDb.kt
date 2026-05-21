@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 146, exportSchema = false
+    version = 147, exportSchema = false
 )
 
 
@@ -1159,6 +1159,25 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        // Scrub abortionImg1/2 values that the new save path can't handle:
+        //   1. Inline base64 (LENGTH > 1024) — pre-fix bloat that overflows
+        //      SQLite's 2 MB CursorWindow.
+        //   2. Raw gallery `content://` URIs — these carry only transient
+        //      permission from the picker activity; once that dies the URI
+        //      can never be reloaded by Glide / contentResolver and the
+        //      "view" path throws SecurityException.
+        // Going forward, abortionImg1/2 hold an internal-storage file path;
+        // base64 encoding happens lazily at upload time. Affected records
+        // never successfully uploaded, so no server-side state is lost.
+        val MIGRATION_146_147 = object : Migration(146, 147) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg1 = NULL WHERE LENGTH(abortionImg1) > 1024")
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg2 = NULL WHERE LENGTH(abortionImg2) > 1024")
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg1 = NULL WHERE abortionImg1 LIKE 'content://%'")
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg2 = NULL WHERE abortionImg2 LIKE 'content://%'")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1229,7 +1248,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_142_143,
                             MIGRATION_143_144,
                             MIGRATION_144_145,
-                            MIGRATION_145_146
+                            MIGRATION_145_146,
+                            MIGRATION_146_147
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

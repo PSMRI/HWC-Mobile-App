@@ -1,8 +1,10 @@
 package org.piramalswasthya.cho.repositories
 
+import android.content.Context
 import android.icu.util.Calendar
 import android.util.Log
 import com.google.gson.Gson
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -51,7 +53,18 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import retrofit2.Response
 
+/** Outcome of an upload attempt for one record. */
+private sealed class AncUploadResult {
+    object Success : AncUploadResult()
+    /** Recoverable failure (network blip, 5xx, token refresh): worth retrying next cycle. */
+    object Transient : AncUploadResult()
+    /** Server rejected the payload itself (e.g. statusCode 5000 "Saving anc data to db failed").
+     *  Retrying the same body forever just wastes cycles — caller should park the row. */
+    data class Terminal(val message: String) : AncUploadResult()
+}
+
 class MaternalHealthRepo @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val amritApiService: AmritApiService,
     private val maternalHealthDao: MaternalHealthDao,
     private val ashaDueListDao: AshaDueListDao,
@@ -267,20 +280,39 @@ class MaternalHealthRepo @Inject constructor(
                         it.asPostModel(
                             benId = ben.beneficiaryID!!,
                             benRegId = ben.beneficiaryRegID,
-                            providerServiceMapID = user?.serviceMapId
+                            providerServiceMapID = user?.serviceMapId,
+                            context = context,
                         )
                     )
                     it.syncState = SyncState.SYNCING
                     maternalHealthDao.updateANC(it)
-                    val uploadDone = postDataToAmritServer(ancPostList)
-                    if (uploadDone) {
-                        it.processed = "P"
-                        it.syncState = SyncState.SYNCED
-                    } else {
-                        it.syncState = SyncState.UNSYNCED
-                        hasFailures = true
+                    Timber.d("processNewAncVisit: posting row id=${it.id} patientID=${it.patientID}")
+                    when (val result = postDataToAmritServer(ancPostList)) {
+                        AncUploadResult.Success -> {
+                            // Targeted column update — avoids writing the whole
+                            // row (which would persist any stale field still on
+                            // `it`) and is robust against parallel writers in
+                            // the same sync chain.
+                            maternalHealthDao.markAncSynced(it.id)
+                            Timber.d("processNewAncVisit: row id=${it.id} marked SYNCED")
+                        }
+                        is AncUploadResult.Terminal -> {
+                            // Park the row: getAllUnprocessedAncVisits filters on
+                            // processed IN ('N','U'), so "F" stops the retry loop.
+                            // A subsequent edit resets processed to 'U' and the row
+                            // re-enters the queue.
+                            Timber.w("Parking ANC row ${it.id}: ${result.message}")
+                            it.processed = "F"
+                            it.syncState = SyncState.UNSYNCED
+                            maternalHealthDao.updateANC(it)
+                            hasFailures = true
+                        }
+                        AncUploadResult.Transient -> {
+                            it.syncState = SyncState.UNSYNCED
+                            maternalHealthDao.updateANC(it)
+                            hasFailures = true
+                        }
                     }
-                    maternalHealthDao.updateANC(it)
                 } else {
                     Timber.w("Skipping ANC upload for patient ${it.patientID}: beneficiaryID is null")
                     hasFailures = true
@@ -530,8 +562,8 @@ class MaternalHealthRepo @Inject constructor(
         return maternalHealthDao.getNeonatalOutcomeEligibleWomenCount()
     }
 
-    private suspend fun postDataToAmritServer(ancPostList: MutableSet<ANCPost>): Boolean {
-        if (ancPostList.isEmpty()) return false
+    private suspend fun postDataToAmritServer(ancPostList: MutableSet<ANCPost>): AncUploadResult {
+        if (ancPostList.isEmpty()) return AncUploadResult.Transient
         val user =
             userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
@@ -541,46 +573,56 @@ class MaternalHealthRepo @Inject constructor(
             val statusCode = response.code()
             if (statusCode != 200) {
                 Timber.w("Bad Response from server for ANC saveAll, code=$statusCode")
-                return false
+                return AncUploadResult.Transient
             }
 
             val responseString = response.body()?.string()
+            Timber.d("ANC saveAll response body: ${responseString?.take(300)}")
             if (responseString.isNullOrBlank()) {
                 Timber.d("ANC saveAll succeeded with empty response body")
-                return true
+                return AncUploadResult.Success
             }
 
             val jsonObj = try {
                 JSONObject(responseString)
             } catch (e: Exception) {
                 Timber.w(e, "ANC saveAll returned non-JSON body, treating as success: $responseString")
-                return true
+                return AncUploadResult.Success
             }
             val responseStatusCode = jsonObj.optInt("statusCode", 200)
             val errorMessage = jsonObj.optString("errorMessage")
-            when (responseStatusCode) {
+            return when (responseStatusCode) {
                 200 -> {
                     Timber.d("ANC saved successfully to server")
-                    return true
+                    AncUploadResult.Success
                 }
                 5002 -> {
                     if (userRepo.refreshTokenTmc(user.userName, user.password)) {
                         throw SocketTimeoutException()
                     }
+                    AncUploadResult.Transient
+                }
+                // 5000 = server-side persistence failure — usually a payload the
+                // server refuses to accept (e.g. oversized base64 image). Retrying
+                // the same body just loops forever, so we mark it terminal and
+                // park the row until the user edits / re-saves.
+                5000 -> {
+                    Log.d("anc error message", errorMessage)
+                    Timber.w("ANC saveAll permanently rejected (5000): $errorMessage")
+                    AncUploadResult.Terminal(errorMessage)
                 }
                 else -> {
                     Log.d("anc error message", errorMessage)
                     Timber.w("ANC saveAll failed: $errorMessage")
-                    return false
+                    AncUploadResult.Transient
                 }
             }
-            return false
         } catch (e: SocketTimeoutException) {
             Timber.d("Caught exception $e here")
             return postDataToAmritServer(ancPostList)
         } catch (e: JSONException) {
             Timber.d("Caught exception $e here")
-            return false
+            return AncUploadResult.Transient
         }
     }
 

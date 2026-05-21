@@ -50,6 +50,9 @@ class AbortionFormViewModel(
     private val _formReady = MutableLiveData(false)
     val formReady: LiveData<Boolean> = _formReady
 
+    private val _loadError = MutableLiveData<String?>(null)
+    val loadError: LiveData<String?> = _loadError
+
     private val dataset = PregnantWomanAncAbortionDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
     val isEditable: LiveData<Boolean> get() = _isEditable
@@ -57,37 +60,87 @@ class AbortionFormViewModel(
 
     private lateinit var ancCache: PregnantWomanAncCache
 
+    @Volatile
+    private var loadInProgress: Boolean = false
+
     init {
+        loadForm()
+    }
+
+    /** Re-runs the form load. Safe to call multiple times (e.g. from
+     *  Fragment.onResume) — concurrent calls are coalesced. Used to recover
+     *  from a load that failed transiently (e.g. a background pull hadn't
+     *  finished populating the patient row yet). */
+    fun reload() {
+        if (_formReady.value == true) return
+        loadForm()
+    }
+
+    private fun loadForm() {
+        if (loadInProgress) return
+        loadInProgress = true
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val user = userRepo.getLoggedInUser() ?: return@withContext
-                val patient = patientRepo.getPatientDisplay(patientId) ?: return@withContext
-                _benName.postValue("${patient.patient.firstName} ${patient.patient.lastName ?: ""}".trim())
-                _benAgeGender.postValue("${patient.patient.age} ${patient.ageUnit?.name} | ${patient.gender?.genderName}")
+            try {
+                withContext(Dispatchers.IO) {
+                    _loadError.postValue(null)
+                    Timber.d("AbortionForm load: start patientId=$patientId")
 
-                val allAnc = maternalHealthRepo.getAllActiveAncRecords(patientId) + listOfNotNull(maternalHealthRepo.getLastAnc(patientId))
-                val aborted = allAnc
-                    .distinctBy { it.id }
-                    .filter { it.isAborted && it.abortionDate != null }
-                    .maxByOrNull { it.abortionDate ?: 0L }
-                    ?: return@withContext
+                    val user = userRepo.getLoggedInUser()
+                    if (user == null) {
+                        Timber.w("AbortionForm load: no logged-in user")
+                        _loadError.postValue("Session expired. Please sign in again.")
+                        return@withContext
+                    }
+                    Timber.d("AbortionForm load: user ok")
 
-                val reg = maternalHealthRepo.getSavedRegistrationRecord(patientId) ?: PregnantWomanRegistrationCache(
-                    patientID = patientId,
-                    lmpDate = aborted.lmpDate ?: 0L,
-                    createdBy = user.userName,
-                    updatedBy = user.userName,
-                    syncState = SyncState.UNSYNCED,
-                    active = false
-                )
+                    val patient = try {
+                        patientRepo.getPatientDisplay(patientId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "AbortionForm load: getPatientDisplay threw")
+                        _loadError.postValue("Patient record could not be loaded.")
+                        return@withContext
+                    }
+                    _benName.postValue("${patient.patient.firstName} ${patient.patient.lastName ?: ""}".trim())
+                    _benAgeGender.postValue("${patient.patient.age} ${patient.ageUnit?.name} | ${patient.gender?.genderName}")
+                    Timber.d("AbortionForm load: patient ok")
 
-                ancCache = aborted.copy(updatedBy = user.userName)
-                _recordExists.postValue(ancCache.terminationDoneBy != null || ancCache.methodOfTermination != null)
-                if (actionType.equals("View", true)) {
-                    _isEditable.postValue(false)
+                    val allAnc = maternalHealthRepo.getAllActiveAncRecords(patientId) +
+                        listOfNotNull(maternalHealthRepo.getLastAnc(patientId))
+                    val aborted = allAnc
+                        .distinctBy { it.id }
+                        .filter { it.isAborted && it.abortionDate != null }
+                        .maxByOrNull { it.abortionDate ?: 0L }
+                    if (aborted == null) {
+                        Timber.w("AbortionForm load: no aborted ANC record found for $patientId (scanned ${allAnc.size})")
+                        _loadError.postValue("No abortion record found for this patient yet.")
+                        return@withContext
+                    }
+                    Timber.d("AbortionForm load: aborted found id=${aborted.id}")
+
+                    val reg = maternalHealthRepo.getSavedRegistrationRecord(patientId)
+                        ?: PregnantWomanRegistrationCache(
+                            patientID = patientId,
+                            lmpDate = aborted.lmpDate ?: 0L,
+                            createdBy = user.userName,
+                            updatedBy = user.userName,
+                            syncState = SyncState.UNSYNCED,
+                            active = false
+                        )
+
+                    ancCache = aborted.copy(updatedBy = user.userName)
+                    _recordExists.postValue(ancCache.terminationDoneBy != null || ancCache.methodOfTermination != null)
+                    if (actionType.equals("View", true)) {
+                        _isEditable.postValue(false)
+                    }
+                    dataset.setUpPage(reg, ancCache)
+                    _formReady.postValue(true)
+                    Timber.d("AbortionForm load: complete patientId=$patientId")
                 }
-                dataset.setUpPage(reg, ancCache)
-                _formReady.postValue(true)
+            } catch (e: Exception) {
+                Timber.e(e, "AbortionForm load: uncaught failure for patientId=$patientId")
+                _loadError.postValue("Couldn't load form: ${e.message ?: e.javaClass.simpleName}")
+            } finally {
+                loadInProgress = false
             }
         }
     }

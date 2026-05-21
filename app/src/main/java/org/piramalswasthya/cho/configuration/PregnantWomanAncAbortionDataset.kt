@@ -231,11 +231,14 @@ class PregnantWomanAncAbortionDataset(
             cache.isYesOrNo = isYesOrNo.entries?.indexOf(isYesOrNo.value ?: "") == 0
             cache.remarks = remarks.value
             cache.dateSterilisation = dateOfSterilization.value?.let { getLongFromDate(it) }
+            // Persist the picked image to internal storage and save only its
+            // path. Base64 encoding happens at upload time so the row stays
+            // small enough for SQLite's 2 MB CursorWindow.
             cache.abortionImg1 = abortionDischargeSummaryImg1.value?.let {
-                ImgUtils.encodeLocalImageValueForUpload(appContext, it)
+                ImgUtils.saveImageToInternalStorage(appContext, it)
             }
             cache.abortionImg2 = abortionDischargeSummaryImg2.value?.let {
-                ImgUtils.encodeLocalImageValueForUpload(appContext, it)
+                ImgUtils.saveImageToInternalStorage(appContext, it)
             }
         }
     }
