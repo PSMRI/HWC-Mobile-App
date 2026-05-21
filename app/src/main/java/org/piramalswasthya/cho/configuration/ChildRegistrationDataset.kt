@@ -127,7 +127,7 @@ class ChildRegistrationDataset(
         etMaxLength = 4,
         min = WEIGHT_MIN.toLong(),
         max = WEIGHT_MAX.toLong(),
-        etInputType = android.text.InputType.TYPE_CLASS_NUMBER,
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
     )
 
     // Q7: Any congenital anomaly detected?
