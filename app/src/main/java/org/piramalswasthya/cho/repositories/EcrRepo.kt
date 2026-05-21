@@ -84,6 +84,49 @@ class EcrRepo @Inject constructor(
         database.ecrDao.upsert(eligibleCoupleTrackingCache)
     }
 
+    suspend fun resetEctAfterAbortion(patientID: String, createdBy: String) {
+        val allEct = database.ecrDao.getAllECT(patientID)
+        val mostRecent = allEct.maxByOrNull { it.visitDate }
+        val hasActive = allEct.any { it.isActive }
+
+        allEct.forEach { ect ->
+            var changed = false
+            if (ect.isPregnant != null) {
+                ect.isPregnant = null
+                changed = true
+            }
+            if (ect.pregnancyTestResult != null) {
+                ect.pregnancyTestResult = null
+                changed = true
+            }
+            // Reactivate the most recent row only when nothing is currently active,
+            // so the EC-tracking DAO (which filters on isActive = 1) keeps the
+            // patient visible after the post-abortion statusOfWomanID = 1 reset.
+            if (!hasActive && ect === mostRecent && !ect.isActive) {
+                ect.isActive = true
+                changed = true
+            }
+            if (changed) {
+                if (ect.processed != "N") ect.processed = "U"
+                ect.syncState = SyncState.UNSYNCED
+                database.ecrDao.upsert(ect)
+            }
+        }
+
+        if (allEct.isEmpty()) {
+            val freshEct = EligibleCoupleTrackingCache(
+                patientID = patientID,
+                visitDate = System.currentTimeMillis(),
+                createdBy = createdBy,
+                updatedBy = createdBy,
+                processed = "N",
+                isActive = true,
+                syncState = SyncState.UNSYNCED
+            )
+            database.ecrDao.upsert(freshEct)
+        }
+    }
+
 
     suspend fun pushAndUpdateEctRecord(): Boolean {
         return withContext(Dispatchers.IO) {

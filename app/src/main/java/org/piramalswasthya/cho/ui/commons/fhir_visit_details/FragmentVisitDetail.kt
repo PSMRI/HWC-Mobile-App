@@ -2210,6 +2210,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         for (i in 0 until itemList.size) {
             val chiefComplaintData = itemList[i]
             if (chiefComplaintData.chiefComplaint!!.isEmpty()) {
+                adapter.highlightEmptyChiefComplaints(
+                    binding.rv,
+                    resources.getString(R.string.toast_msg_chief)
+                )
                 if (catBool && subCat) Toast.makeText(
                     requireContext(),
                     resources.getString(R.string.toast_msg_chief),

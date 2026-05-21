@@ -172,6 +172,12 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
+    suspend fun updatePwr(pwr: PregnantWomanRegistrationCache) {
+        withContext(Dispatchers.IO) {
+            maternalHealthDao.updatePwr(pwr)
+        }
+    }
+
     suspend fun getAncDueList(ancStage: Int): List<AncDueListItem> {
         return withContext(Dispatchers.IO) {
             val allPwr = maternalHealthDao.getAllActivePregnancyRegistrations()

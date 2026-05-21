@@ -61,7 +61,7 @@ interface EcrDao {
     )
     suspend fun getEctByVisitDay(patientID: String, visitDate: Long): EligibleCoupleTrackingCache?
 
-    @Query("select * from eligible_couple_tracking where patientID = :patientID order by visitDate desc limit 1")
+    @Query("select * from eligible_couple_tracking where patientID = :patientID and isActive = 1 order by visitDate desc limit 1")
     suspend fun getLatestEct(patientID: String) : EligibleCoupleTrackingCache?
 
     @Query("""
@@ -69,6 +69,7 @@ interface EcrDao {
         LEFT JOIN (
             SELECT patientID, MAX(visitDate) AS lastVisitDate
             FROM ELIGIBLE_COUPLE_TRACKING
+            WHERE isActive = 1
             GROUP BY patientID
         ) ect ON ect.patientID = p.patientID
         WHERE p.statusOfWomanID = 1

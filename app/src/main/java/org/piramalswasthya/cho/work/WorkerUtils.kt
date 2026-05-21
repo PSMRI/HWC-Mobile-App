@@ -266,9 +266,12 @@ object WorkerUtils {
 
     /**
      * Targeted PWR sync for pregnant woman registration form submission.
-     * Pushes local PWR updates immediately after successful save.
+     * Pushes the beneficiary first so the server assigns a beneficiaryID; PWR push
+     * silently skips records where patient.beneficiaryID is null.
      */
     fun triggerPregnantWomanRegistrationSync(context: Context) {
+        val pushBenToAmritWorker = networkWorker<PushBenToAmritWorker>()
+        val pullBenFlowFromAmritWorker = networkWorker<PullBenFlowFromAmritWorker>()
         val pushPWRToAmritWorker = networkWorker<PushPWRToAmritWorker>()
         val pushAncToAmritWorker = networkWorker<PushAncToAmritWorker>()
         val pullPregnantWomenWorker = networkWorker<PullPregnantWomenWorker>()
@@ -278,7 +281,9 @@ object WorkerUtils {
         enqueueReplaceChain(
             context = context,
             workName = "pwr-registration-sync",
-            first = pushPWRToAmritWorker,
+            first = pushBenToAmritWorker,
+            pullBenFlowFromAmritWorker,
+            pushPWRToAmritWorker,
             pushAncToAmritWorker,
             pullPregnantWomenWorker,
             pullAncVisitsWorker
@@ -287,17 +292,28 @@ object WorkerUtils {
 
     /**
      * Targeted ANC sync after ANC form submission.
-     * Pushes local ANC updates (saveAll) and refreshes ANC list from server (getAll).
+     * Pushes beneficiary first so beneficiaryID is populated. Also pushes/pulls PWR
+     * because PwAncFormViewModel.saveForm() mutates the pregnancy_register row
+     * (isHrp, isFirstAncSubmitted, active) when the ANC is high-risk, first-completed,
+     * or ends the pregnancy — leaving PWR UNSYNCED until the next sync.
      */
     fun triggerAncVisitSync(context: Context) {
+        val pushBenToAmritWorker = networkWorker<PushBenToAmritWorker>()
+        val pullBenFlowFromAmritWorker = networkWorker<PullBenFlowFromAmritWorker>()
+        val pushPWRToAmritWorker = networkWorker<PushPWRToAmritWorker>()
         val pushAncToAmritWorker = networkWorker<PushAncToAmritWorker>()
+        val pullPregnantWomenWorker = networkWorker<PullPregnantWomenWorker>()
         val pullAncVisitsWorker = networkWorker<PullAncVisitsWorker>()
 
         Timber.d("Enqueuing targeted ANC sync worker")
         enqueueReplaceChain(
             context = context,
             workName = "anc-visit-sync",
-            first = pushAncToAmritWorker,
+            first = pushBenToAmritWorker,
+            pullBenFlowFromAmritWorker,
+            pushPWRToAmritWorker,
+            pushAncToAmritWorker,
+            pullPregnantWomenWorker,
             pullAncVisitsWorker
         )
     }

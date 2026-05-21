@@ -25,6 +25,7 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import com.bumptech.glide.Glide
+import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
@@ -48,6 +49,9 @@ class AbortionFormFragment : Fragment() {
     @Inject
     lateinit var userRepo: UserRepo
 
+    @Inject
+    lateinit var ecrRepo: EcrRepo
+
     private var _binding: FragmentNewFormBinding? = null
     private val binding get() = _binding!!
 
@@ -62,7 +66,8 @@ class AbortionFormFragment : Fragment() {
             context = requireContext().applicationContext,
             maternalHealthRepo = maternalHealthRepo,
             patientRepo = patientRepo,
-            userRepo = userRepo
+            userRepo = userRepo,
+            ecrRepo = ecrRepo
         )
     }
     private var formAdapter: FormInputAdapter? = null
@@ -152,6 +157,8 @@ class AbortionFormFragment : Fragment() {
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(requireContext(), getString(R.string.save_successful_toast), Toast.LENGTH_LONG).show()
                     WorkerUtils.triggerAncVisitSync(requireContext())
+                    WorkerUtils.triggerEligibleCoupleTrackingSync(requireContext())
+                    WorkerUtils.triggerBeneficiarySync(requireContext())
                     parentFragmentManager.popBackStack()
                 }
                 AbortionFormViewModel.State.SAVE_FAILED -> {

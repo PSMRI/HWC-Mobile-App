@@ -378,6 +378,7 @@
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:visibility="gone"
                         android:backgroundTint="@android:color/holo_red_dark"
                         android:onClick="@{() -> clickListener.onClickAddPMSMA(patientWithPwr)}"
                         android:text="@string/add_pmsma"

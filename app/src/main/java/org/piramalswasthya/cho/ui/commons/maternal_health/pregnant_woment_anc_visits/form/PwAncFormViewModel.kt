@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
+import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.R
@@ -35,6 +36,7 @@ class PwAncFormViewModel @Inject constructor(
     private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
+    private val ecrRepo: EcrRepo,
 ) : ViewModel() {
 
     enum class State {
@@ -84,6 +86,7 @@ class PwAncFormViewModel @Inject constructor(
     private var lastAncVisitNumber: Int = 0
     private var currentVisitNumber: Int = visitNumber
     private var shouldTriggerBeneficiarySyncAfterSave: Boolean = false
+    private var shouldTriggerEctSyncAfterSave: Boolean = false
 
     init {
         viewModelScope.launch {
@@ -264,6 +267,7 @@ class PwAncFormViewModel @Inject constructor(
                 try {
                     _state.postValue(State.SAVING)
                     shouldTriggerBeneficiarySyncAfterSave = false
+                    shouldTriggerEctSyncAfterSave = false
                     val wasCompletedBefore = ancCache.weight != null
                     dataset.mapValues(ancCache, 1)
                     // Mark ANC as updated for re-sync so /maternal/ancVisit/saveAll is called on edits.
@@ -345,6 +349,23 @@ class PwAncFormViewModel @Inject constructor(
                             }
                             maternalHealthRepo.updateAncRecord(toTypedArray())
                         }
+                        try {
+                            val patient = patientRepo.getPatient(patientID)
+                            if (patient.statusOfWomanID != 1) {
+                                patient.statusOfWomanID = 1 // Eligible Couple — fresh start after abortion
+                                patient.syncState = SyncState.UNSYNCED
+                                patientRepo.updateRecord(patient)
+                            }
+                            // Clear pregnancy markers and keep (or recreate) one active ECT row,
+                            // so the EC-tracking DAO (filters on isActive = 1) still surfaces her
+                            // after statusOfWomanID is reset to 1.
+                            val createdBy = userRepo.getLoggedInUser()?.userName ?: "system"
+                            ecrRepo.resetEctAfterAbortion(patientID, createdBy)
+                            shouldTriggerBeneficiarySyncAfterSave = true
+                            shouldTriggerEctSyncAfterSave = true
+                        } catch (e: Exception) {
+                            Timber.e(e, "Abortion EC transition failed for $patientID")
+                        }
 
 
                     } else if (ancCache.maternalDeath == true) {
@@ -392,6 +413,12 @@ class PwAncFormViewModel @Inject constructor(
 
     fun consumeBeneficiarySyncTrigger() {
         shouldTriggerBeneficiarySyncAfterSave = false
+    }
+
+    fun shouldTriggerEctSyncAfterSave(): Boolean = shouldTriggerEctSyncAfterSave
+
+    fun consumeEctSyncTrigger() {
+        shouldTriggerEctSyncAfterSave = false
     }
 
 }
