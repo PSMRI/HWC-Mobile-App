@@ -222,6 +222,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         familyM = binding.testName
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
+        resetTestNameFieldToDefault(readOnly = false)
 
 
         binding.tvAddTemplateTitle.setOnClickListener {
@@ -816,7 +817,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             familyM!!.setOnClickListener {
                 showDialogWithFamilyMembers(procedureDropdown, viewModel.labReportProcedureTypes)
             }
-            investigationBD?.let { populateTestNamesFromInvestigation(it, isVisitFieldsReadOnly()) }
+            resetTestNameFieldToDefault(readOnly = isVisitFieldsReadOnly())
         }
         binding.saveTemplate.setOnClickListener {
             saveTemp(uniqueTemplateNames)
@@ -1451,36 +1452,32 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
     }
 
-    private fun populateTestNamesFromInvestigation(record: InvestigationCaseRecord?, readOnly: Boolean) {
-        // Closed case: lab results table shows tests; hide the test-name picker.
+    /** Test name picker starts empty on each page open; saved tests remain in [investigationBD] for submit logic. */
+    private fun resetTestNameFieldToDefault(readOnly: Boolean) {
         if (isAlreadyFilledReadOnlyForVisibility) {
             binding.testName.visibility = View.GONE
             return
         }
-        val testIds = (parseTestIds(record?.previousTestIds) + parseTestIds(record?.newTestIds)).toList()
-        if (testIds.isEmpty()) {
-            if (readOnly) {
-                binding.testName.visibility = View.GONE
-            }
+        if (readOnly) {
+            binding.testName.visibility = View.GONE
             return
         }
-        val names = mapProcedureIdsToNames(procedureDropdown, testIds)
-        if (names.isEmpty()) return
         selectedTestName.clear()
-        selectedTestName.addAll(testIds)
-        binding.selectF.text = names.joinToString(", ")
-        binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
+        binding.selectF.text = getString(R.string.select_test_name)
+        binding.selectF.setTextColor(
+            ContextCompat.getColor(binding.root.context, R.color.defaultInput)
+        )
         binding.testName.visibility = View.VISIBLE
-        familyM?.isClickable = !readOnly
-        familyM?.isEnabled = !readOnly
+        familyM?.isClickable = true
+        familyM?.isEnabled = true
     }
 
-    /** Restore counselling, external investigation, tests, and refer from saved investigation record. */
+    /** Restore counselling, external investigation, and refer from saved investigation record. */
     private fun applySavedInvestigationToUi(record: InvestigationCaseRecord?, readOnly: Boolean) {
+        resetTestNameFieldToDefault(readOnly)
         if (record == null) return
         applyCounsellingField(record, readOnly)
         applyExternalInvestigationField(record, readOnly)
-        populateTestNamesFromInvestigation(record, readOnly)
         applyReferEditorSection(record, readOnly)
     }
 
@@ -1619,9 +1616,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             .toSet()
     }
 
+    private fun isTestNameFieldBlank(): Boolean {
+        val text = binding.selectF.text?.toString().orEmpty()
+        return text.isBlank() || text == getString(R.string.select_test_name)
+    }
+
     private fun getSelectedTestIds(): Set<Int> {
         val selectedText = binding.selectF.text?.toString().orEmpty()
-        if (selectedText.isBlank()) return emptySet()
+        if (isTestNameFieldBlank()) return emptySet()
         return selectedText.split(",")
             .mapNotNull { testName ->
                 val trimmedName = testName.trim()
@@ -1636,6 +1638,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         if (investigationBD == null) {
             return selectedIds.isNotEmpty()
         }
+        // Blank field on open means no UI change; existing saved tests are preserved on submit.
+        if (selectedIds.isEmpty()) return false
         return selectedIds != existingIds
     }
 
@@ -1753,14 +1757,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
 
 
-        val testName = binding.selectF.text.toString()
-        val testNamesList = testName.split(",").map { it.trim() }
-        val idString = testNamesList.joinToString(",") { testNameS ->
-            val id =
-                findKeyByValue(testNameMap, testNameS) // Replace with your function to get the ID
-            id?.toString() ?: ""
-        }
-        val selectedTestIds = parseTestIds(idString)
+        val selectedTestIds = getSelectedTestIds()
         val existingTestIds = parseTestIds(investigationBD?.previousTestIds) + parseTestIds(investigationBD?.newTestIds)
         val hasNewOrChangedTests = if (investigationBD == null) {
             selectedTestIds.isNotEmpty()
@@ -1902,14 +1899,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
 
 
-        val testName = binding.selectF.text.toString()
-        val testNamesList = testName.split(",").map { it.trim() }
-        val idString = testNamesList.joinToString(",") { testNameS ->
-            val id =
-                findKeyByValue(testNameMap, testNameS) // Replace with your function to get the ID
-            id?.toString() ?: ""
-        }
-        val selectedTestIds = parseTestIds(idString)
+        val selectedTestIds = getSelectedTestIds()
         val existingTestIds = parseTestIds(investigationBD?.previousTestIds) + parseTestIds(investigationBD?.newTestIds)
         val hasNewOrChangedTests = if (investigationBD == null) {
             selectedTestIds.isNotEmpty()
