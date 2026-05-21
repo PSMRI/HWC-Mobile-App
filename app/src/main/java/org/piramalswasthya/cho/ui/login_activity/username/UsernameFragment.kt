@@ -125,10 +125,12 @@ class UsernameFragment() : Fragment() {
                 super.onAuthenticationSucceeded(result)
                 isBiometric = true
                 getCurrentLocation()
-                tryAuthUser = true
+                tryAuthUser = false
                 val userName = binding.etUsername.text.toString()
                 val remember = binding.cbRemember.isChecked
-                loginHwc(userName, "", remember, true)
+                // Reuse the normal login path so the local logged-in user is restored
+                // before Home opens. That keeps downstream modules and the drawer in sync.
+                loginHwc(userName, user?.password ?: "", remember, true)
                 displayMessage("Authentication succeeded!")
             }
 
@@ -363,9 +365,9 @@ class UsernameFragment() : Fragment() {
         } else {
             // Biometric login
             lifecycleScope.launch {
-                val user = userDao.getLoggedInUser()
-
-                hwcViewModel.setOutreachDetails(
+                hwcViewModel.authUser(
+                    userName,
+                    password,
                     "HWC",
                     null,
                     timestamp,
@@ -373,15 +375,63 @@ class UsernameFragment() : Fragment() {
                     currentLocation?.latitude,
                     currentLocation?.longitude,
                     null,
-                    false
+                    requireContext()
                 )
 
-                findNavController().navigate(
-                    UsernameFragmentDirections.actionSignInToHomeFromCho(true)
-                )
+                hwcViewModel.state.observe(viewLifecycleOwner) { state ->
+                    when (state) {
+                        OutreachViewModel.State.SUCCESS -> {
+                            if (rememberUsername)
+                                hwcViewModel.rememberUser(userName, password)
+                            else
+                                hwcViewModel.forgetUser()
 
-                hwcViewModel.resetState()
-                activity?.finish()
+                            lifecycleScope.launch {
+                                try {
+                                    hwcViewModel.setOutreachDetails(
+                                        "HWC",
+                                        null,
+                                        timestamp,
+                                        null,
+                                        currentLocation?.latitude,
+                                        currentLocation?.longitude,
+                                        null,
+                                        false
+                                    )
+                                } catch (_: Exception) {
+                                    // Continue into Home even if the audit write fails.
+                                }
+
+                                findNavController().navigate(
+                                    UsernameFragmentDirections.actionSignInToHomeFromCho(true)
+                                )
+
+                                hwcViewModel.resetState()
+                                activity?.finish()
+                            }
+                        }
+
+                        OutreachViewModel.State.ERROR_SERVER,
+                        OutreachViewModel.State.ERROR_NETWORK -> {
+                            Toast.makeText(requireContext(), "API Services Down", Toast.LENGTH_LONG).show()
+                            hwcViewModel.resetState()
+                        }
+
+                        OutreachViewModel.State.SAVING -> {
+                            Toast.makeText(requireContext(), getString(R.string.processing), Toast.LENGTH_SHORT).show()
+                        }
+                        OutreachViewModel.State.IDLE -> {
+                            // No-op
+                        }
+                        OutreachViewModel.State.LOADING -> {
+                            // No-op
+                        }
+                        OutreachViewModel.State.ERROR_INPUT -> {
+                            Toast.makeText(requireContext(), getString(R.string.invalid_input), Toast.LENGTH_SHORT).show()
+                            hwcViewModel.resetState()
+                        }
+                    }
+                }
             }
         }
     }
