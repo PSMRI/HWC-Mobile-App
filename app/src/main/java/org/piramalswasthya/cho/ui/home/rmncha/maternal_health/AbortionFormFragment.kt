@@ -24,7 +24,12 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
+import android.graphics.drawable.Drawable
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -129,6 +134,15 @@ class AbortionFormFragment : Fragment() {
                 binding.pbForm.visibility = View.GONE
             }
         }
+        viewModel.loadError.observe(viewLifecycleOwner) { error ->
+            if (error != null) {
+                // Surface the failure instead of letting the spinner hang forever.
+                // The list will refresh when we pop back.
+                binding.pbForm.visibility = View.GONE
+                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
+                parentFragmentManager.popBackStack()
+            }
+        }
         viewModel.isEditable.observe(viewLifecycleOwner) { editable ->
             binding.btnSubmit.visibility = if (editable) View.VISIBLE else View.GONE
             binding.fabEdit.visibility = if (!editable && actionType.equals("View", true)) View.VISIBLE else View.GONE
@@ -168,6 +182,14 @@ class AbortionFormFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // If the load hasn't succeeded yet (e.g. the user navigated here right
+        // after save and master data hadn't propagated yet), retry now instead
+        // of forcing an app relaunch.
+        viewModel.reload()
     }
 
     override fun onDestroyView() {
@@ -283,14 +305,35 @@ class AbortionFormFragment : Fragment() {
             )
             addView(imageView)
         }
+        val glideFailureListener = object : RequestListener<Drawable> {
+            override fun onLoadFailed(
+                e: GlideException?,
+                model: Any?,
+                target: Target<Drawable>,
+                isFirstResource: Boolean
+            ): Boolean {
+                Toast.makeText(requireContext(), R.string.image_unavailable, Toast.LENGTH_SHORT).show()
+                return false
+            }
+            override fun onResourceReady(
+                resource: Drawable,
+                model: Any,
+                target: Target<Drawable>?,
+                dataSource: DataSource,
+                isFirstResource: Boolean
+            ): Boolean = false
+        }
         when {
             raw.startsWith("data:image", ignoreCase = true) -> {
                 val comma = raw.indexOf(',')
                 val payload = if (comma >= 0) raw.substring(comma + 1) else raw
                 ImgUtils.decodeBase64ToBitmap(payload)?.let { imageView.setImageBitmap(it) }
             }
+            raw.startsWith("/") -> {
+                Glide.with(this).load(File(raw)).fitCenter().listener(glideFailureListener).into(imageView)
+            }
             raw.contains("://") -> {
-                Glide.with(this).load(Uri.parse(raw)).fitCenter().into(imageView)
+                Glide.with(this).load(Uri.parse(raw)).fitCenter().listener(glideFailureListener).into(imageView)
             }
             else -> {
                 ImgUtils.decodeBase64ToBitmap(raw)?.let { imageView.setImageBitmap(it) }

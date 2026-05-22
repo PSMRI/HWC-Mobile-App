@@ -12,9 +12,11 @@ import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
+import android.content.Context
 import org.piramalswasthya.cho.network.getLongFromDate
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong
+import org.piramalswasthya.cho.utils.ImgUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -726,8 +728,14 @@ data class PregnantWomanAncCache(
     fun asPostModel(
         benId: Long,
         benRegId: Long? = null,
-        providerServiceMapID: Int? = null
+        providerServiceMapID: Int? = null,
+        context: Context? = null,
     ): ANCPost {
+        // abortionImg1/2 hold an internal-storage file path. The server expects
+        // base64 — encode here, lazily, so the DB row stays small. When no
+        // context is supplied (callers that aren't uploading), pass through as-is.
+        val img1ForUpload = context?.let { ImgUtils.encodeLocalImageValueForUpload(it, abortionImg1) } ?: abortionImg1
+        val img2ForUpload = context?.let { ImgUtils.encodeLocalImageValueForUpload(it, abortionImg2) } ?: abortionImg2
         return ANCPost(
             benId = benId,
             benRedId = benRegId,
@@ -780,8 +788,8 @@ data class PregnantWomanAncCache(
             isPaiucdId = isPaiucdId,
             isPaiucd = isPaiucd,
             remarks = remarks,
-            abortionImg1 = abortionImg1,
-            abortionImg2 = abortionImg2,
+            abortionImg1 = img1ForUpload,
+            abortionImg2 = img2ForUpload,
             dateSterilisation = dateSterilisation?.let { getDateStringFromLong(it) },
             isYesOrNo = isYesOrNo
 //            bloodSugarFasting = bloodSugarFasting,

@@ -82,6 +82,12 @@ interface MaternalHealthDao {
     @Update
     suspend fun updateANC(vararg it: PregnantWomanAncCache)
 
+    /** Targeted upsert of post-upload sync state. Avoids whole-row writes
+     *  that can race with other workers in the sync chain re-writing the
+     *  same row with a stale snapshot. */
+    @Query("UPDATE pregnancy_anc SET syncState = 2, processed = 'P' WHERE id = :id")
+    suspend fun markAncSynced(id: Long)
+
     @Update
     suspend fun updatePwr(vararg it: PregnantWomanRegistrationCache)
 
