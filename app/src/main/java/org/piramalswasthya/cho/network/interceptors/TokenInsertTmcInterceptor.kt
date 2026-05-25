@@ -8,22 +8,26 @@ class TokenInsertTmcInterceptor : Interceptor{
 
     companion object {
 
-        private var TOKEN: String = ""
+        fun setCredentials(token: String, jwt: String) {
+            AuthTokenManager.setTmcCredentials(token, jwt)
+        }
+
         fun setToken(iToken: String) {
-            TOKEN = iToken
+            val credentials = AuthTokenManager.getTmcCredentials()
+            AuthTokenManager.setTmcCredentials(iToken, credentials.jwt)
         }
 
         fun getToken(): String {
-            return TOKEN
+            return AuthTokenManager.getTmcCredentials().token
         }
 
-        private var JWT: String = ""
         fun setJwt(iJWT: String) {
-            JWT = iJWT
+            val credentials = AuthTokenManager.getTmcCredentials()
+            AuthTokenManager.setTmcCredentials(credentials.token, iJWT)
         }
 
         fun getJwt(): String {
-            return JWT
+            return AuthTokenManager.getTmcCredentials().jwt
         }
 
     }
@@ -31,10 +35,11 @@ class TokenInsertTmcInterceptor : Interceptor{
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
         if (request.header("No-Auth") == null) {
+            val tmcCredentials = AuthTokenManager.getTmcCredentials()
             request = request
                 .newBuilder()
-                .addHeader("Authorization", TOKEN)
-                .addHeader("Jwttoken" , JWT)
+                .addHeader("Authorization", tmcCredentials.token)
+                .addHeader("Jwttoken" , tmcCredentials.jwt)
                 .build()
         }
         Timber.d("Request : $request")

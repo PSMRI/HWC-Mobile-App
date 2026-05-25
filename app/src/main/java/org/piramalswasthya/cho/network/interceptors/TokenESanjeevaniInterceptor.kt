@@ -7,13 +7,12 @@ import timber.log.Timber
 class TokenESanjeevaniInterceptor : Interceptor{
 
     companion object {
-        private var TOKEN: String = ""
         fun setToken(iToken: String) {
-            TOKEN = iToken
+            AuthTokenManager.setESanjeevaniToken(iToken)
         }
 
         fun getToken(): String {
-            return TOKEN
+            return AuthTokenManager.getESanjeevaniToken()
         }
     }
 
@@ -22,7 +21,7 @@ class TokenESanjeevaniInterceptor : Interceptor{
         if (request.header("No-Auth") == null) {
             request = request
                 .newBuilder()
-                .addHeader("Authorization", "Bearer $TOKEN")
+                .addHeader("Authorization", "Bearer ${AuthTokenManager.getESanjeevaniToken()}")
                 .build()
         }
         Timber.d("Request : $request")
