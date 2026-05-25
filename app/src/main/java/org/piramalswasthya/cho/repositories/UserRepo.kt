@@ -217,25 +217,34 @@ class UserRepo @Inject constructor(
                 val responseJson = JSONObject(responseString)
                 val data = responseJson.getJSONObject("data")
                 val vanSpDetailsArray = data.getJSONArray("UserVanSpDetails")
+                var validEntryFound = false
+                var missingFacilityFound = false
 
                 for (i in 0 until vanSpDetailsArray.length()) {
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
+                    if (!vanSp.has("facilityID")) {
+                        missingFacilityFound = true
+                        continue
+                    }
+                    validEntryFound = true
                     val vanId = vanSp.getInt("vanID")
                     user?.vanId = vanId
                     val servicePointId = vanSp.getInt("servicePointID")
                     user?.servicePointId = servicePointId
                     val servicePointName = vanSp.getString("servicePointName")
                     user?.servicePointName = servicePointName
-                    if (!vanSp.has("facilityID")) {
-                        Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
-                        delay(3000)
-                    }
                     val facilityId = vanSp.getInt("facilityID")
                     user?.facilityID = facilityId
                     user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
 
                 }
-                true
+                if (missingFacilityFound) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                    }
+                    delay(3000)
+                }
+                validEntryFound
             } else {
                 false
             }
@@ -328,10 +337,13 @@ class UserRepo @Inject constructor(
                     user?.serviceMapId = serviceMapId
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
-                    preferenceDao.registerUser(user!!)
-                    getUserVanSpDetails(context)
+                    if (!getUserVanSpDetails(context)) {
+                        user = null
+                        return@withContext
+                    }
                     getLocDetailsBasedOnSpIDAndPsmID()
                     getUserMasterVillage()
+                    preferenceDao.registerUser(user!!)
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
                     GlobalScope.launch(Dispatchers.Main) {
