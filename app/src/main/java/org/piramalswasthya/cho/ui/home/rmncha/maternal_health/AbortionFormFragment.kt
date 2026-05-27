@@ -186,6 +186,8 @@ class AbortionFormFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.cac_form)
         // If the load hasn't succeeded yet (e.g. the user navigated here right
         // after save and master data hadn't propagated yet), retry now instead
         // of forcing an app relaunch.
