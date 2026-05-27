@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.RvItemPatientEcWithFormBinding
 import org.piramalswasthya.cho.model.PatientWithEcrDomain
 import java.util.concurrent.TimeUnit

@@ -353,7 +353,7 @@ data class PatientNetwork(
     val reproductiveStatus: String?,
     val spouseName: String?,
     val titleId: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
     val faceEmbedding: List<Float>?
 ){
 
@@ -429,7 +429,7 @@ data class PatientNetwork(
         mapReproductiveStatusName(patientDisplay.patient.statusOfWomanID) ?: patientDisplay.statusOfWoman?.statusName,
         patientDisplay.patient.spouseName,
         null,
-        user?.vanId,
+        user?.facilityID,
         patientDisplay.patient.faceEmbedding
     )
 

@@ -30,4 +30,4 @@ data class LoginSettingsData(
 )
 
 
-data class LocationRequest(val vanID: Int, val spPSMID: String, val userID: Int)
+data class LocationRequest(val facilityID: Int, val spPSMID: String, val userID: Int)

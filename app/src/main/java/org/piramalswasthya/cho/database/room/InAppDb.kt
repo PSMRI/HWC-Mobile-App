@@ -1178,6 +1178,13 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_147_148 = object : Migration(142, 143) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // HWC API now sends/uses facilityID for benflow-linked operations.
+                safeAddColumn(database, "BENFLOW", "facilityID", "INTEGER")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1249,7 +1256,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_143_144,
                             MIGRATION_144_145,
                             MIGRATION_145_146,
-                            MIGRATION_146_147
+                            MIGRATION_146_147,
+                            MIGRATION_147_148
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

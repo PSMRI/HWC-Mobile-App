@@ -146,7 +146,7 @@ class CbacRepo @Inject constructor(
                                 visitCategory = "NCD screening",
                                 IdrsOrCbac = "CBAC",
                                 createdBy = user.userName,
-                                vanID = userRepo.getLoggedInUser()!!.vanId,
+                                facilityID = userRepo.getLoggedInUser()!!.facilityID!!,
                                 parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId,
                                 subVisitCategory = null,
                                 pregnancyStatus = null,
@@ -166,7 +166,7 @@ class CbacRepo @Inject constructor(
                             sessionID = 3,
                             parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId,
                             createdBy = user.userName,
-                            vanID = userRepo.getLoggedInUser()!!.vanId,
+                            facilityID = userRepo.getLoggedInUser()!!.facilityID!!,
                             beneficiaryRegID = patient.beneficiaryRegID!!,
                             benVisitID = null,
                             providerServiceMapID = userRepo.getLoggedInUser()!!.serviceMapId
