@@ -88,6 +88,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         setupClickListeners()
         observeViewModelState()
         observeAlerts()
+        observeBeneficiarySyncTrigger()
         
         // Handle Back Press
         val fromVisitDetails = arguments?.getBoolean("fromVisitDetails", false) ?: false
@@ -216,6 +217,15 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         }
     }
 
+    private fun observeBeneficiarySyncTrigger() {
+        viewModel.triggerBeneficiarySync.observe(viewLifecycleOwner) { shouldTrigger ->
+            if (shouldTrigger == true) {
+                WorkerUtils.triggerBeneficiarySync(requireContext())
+                viewModel.onBeneficiarySyncTriggered()
+            }
+        }
+    }
+
     private fun checkForAlerts() {
         if(viewModel.isPregnant) {
             Toast.makeText(
@@ -223,6 +233,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 resources.getString(R.string.tracking_form_filled_successfully),
                 Toast.LENGTH_SHORT
             ).show()
+            WorkerUtils.triggerBeneficiarySync(requireContext())
             saveNurseDataInBackground()
             viewModel.resetState()
             navigateBackToList()
@@ -319,6 +330,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         val currentBenVisitInfo = benVisitInfo
         if (currentBenVisitInfo == null) {
             Timber.e("benVisitInfo is null, cannot save nurse data")
+            WorkerUtils.triggerEligibleCoupleTrackingSync(requireContext())
             return
         }
 
@@ -341,10 +353,10 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
 
                 val user = userRepo.getLoggedInUser()
                 saveNurseData(benVisitNo, createNewBenflow, user, currentBenVisitInfo)
-
-                WorkerUtils.triggerAmritSyncWorker(requireContext())
             } catch (e: Exception) {
                 Timber.e(e, "Failed to save nurse data in background")
+            } finally {
+                WorkerUtils.triggerEligibleCoupleTrackingSync(requireContext())
             }
         }
     }

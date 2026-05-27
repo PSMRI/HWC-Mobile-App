@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.configuration
 
 import android.content.Context
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
@@ -13,12 +14,15 @@ class PsychosocialCaregiverSupportDataset(
 
     private lateinit var cache: PsychosocialCaregiverSupport
 
+    private val optionYes = context.getString(R.string.yes_option)
+    private val optionNo = context.getString(R.string.no_option)
+
     // ---------------- Psychosocial counselling ----------------
     private val psychosocialCounsellingProvided = FormElement(
         id = 1,
         inputType = InputType.RADIO,
-        title = "Psychosocial counselling provided",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.psychosocial_counselling_provided),
+        entries = arrayOf(optionYes, optionNo),
         required = true
     )
 
@@ -26,8 +30,8 @@ class PsychosocialCaregiverSupportDataset(
     private val caregiverCounsellingProvided = FormElement(
         id = 2,
         inputType = InputType.RADIO,
-        title = "Caregiver counselling provided",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.psychosocial_caregiver_counselling),
+        entries = arrayOf(optionYes, optionNo),
         required = true
     )
 
@@ -35,8 +39,8 @@ class PsychosocialCaregiverSupportDataset(
     private val caregiverDistressIdentified = FormElement(
         id = 3,
         inputType = InputType.CHECKBOXES,
-        title = "Caregiver distress identified",
-        entries = arrayOf("Yes"),
+        title = context.getString(R.string.psychosocial_caregiver_distress),
+        entries = arrayOf(optionYes),
         required = false
     )
 
@@ -44,7 +48,7 @@ class PsychosocialCaregiverSupportDataset(
     private val counsellingRemarks = FormElement(
         id = 4,
         inputType = InputType.EDIT_TEXT,
-        title = "Counselling remarks",
+        title = context.getString(R.string.psychosocial_counselling_remarks),
         required = false,
         etMaxLength = 250,
         etInputType = android.text.InputType.TYPE_CLASS_TEXT
@@ -90,20 +94,20 @@ class PsychosocialCaregiverSupportDataset(
     // ---------------- Cache Helpers ----------------
     private fun createDefaultCache(): PsychosocialCaregiverSupport {
         return PsychosocialCaregiverSupport(
-            patientID = "",
+            patientId = "",
             benVisitNo = null
         )
     }
 
     private fun populateFromCache(cache: PsychosocialCaregiverSupport) {
         psychosocialCounsellingProvided.value =
-            cache.psychosocialCounsellingProvided?.let { if (it) "Yes" else "No" }
+            cache.psychosocialCounsellingProvided?.let { if (it) optionYes else optionNo }
 
         caregiverCounsellingProvided.value =
-            cache.caregiverCounsellingProvided?.let { if (it) "Yes" else "No" }
+            cache.caregiverCounsellingProvided?.let { if (it) optionYes else optionNo }
 
         caregiverDistressIdentified.value =
-            if (cache.caregiverDistressIdentified == true) "Yes" else null
+            if (cache.caregiverDistressIdentified == true) optionYes else null
 
         counsellingRemarks.value = cache.counsellingRemarks
 
@@ -116,13 +120,13 @@ class PsychosocialCaregiverSupportDataset(
         (cacheModel as PsychosocialCaregiverSupport).let {
 
             it.psychosocialCounsellingProvided =
-                psychosocialCounsellingProvided.value == "Yes"
+                psychosocialCounsellingProvided.value == optionYes
 
             it.caregiverCounsellingProvided =
-                caregiverCounsellingProvided.value == "Yes"
+                caregiverCounsellingProvided.value == optionYes
 
             it.caregiverDistressIdentified =
-                caregiverDistressIdentified.value == "Yes"
+                caregiverDistressIdentified.value == optionYes
 
             it.counsellingRemarks = counsellingRemarks.value
 

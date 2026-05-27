@@ -152,6 +152,20 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         binding.fabEdit.setOnClickListener {
             viewModel.setRecordExist(false)
         }
+        viewModel.initErrorMessage.observe(viewLifecycleOwner) { message ->
+            message?.let { errorMessage ->
+                AlertDialog.Builder(requireContext())
+                    .setTitle(getString(R.string.alert_popup))
+                    .setMessage(errorMessage)
+                    .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
+                        dialog.dismiss()
+                        viewModel.clearInitError()
+                        findNavController().navigateUp()
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
+        }
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 State.IDLE -> {
@@ -166,7 +180,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, getString(R.string.save_successful_toast), Toast.LENGTH_LONG).show()
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    WorkerUtils.triggerPncSync(requireContext())
                     
                     // Finish activity to return to PNC list
                     requireActivity().finish()

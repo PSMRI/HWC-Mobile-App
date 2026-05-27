@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.crypt.CryptoUtil
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao

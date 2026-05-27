@@ -16,7 +16,7 @@ data class EarDiagnosisAssessment(
     val assessmentId: Long = 0L,
 
     @ColumnInfo(name = "patient_id")
-    val patientID: String,
+    val patientId: String,
 
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,
@@ -44,5 +44,9 @@ data class EarDiagnosisAssessment(
     var earConditionType: String? = null,
 
     @ColumnInfo(name = "congenital_ear_malformation")
-    var congenitalEarMalformation: Boolean? = null
+    var congenitalEarMalformation: Boolean? = null,
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0
+
 ) : FormDataModel

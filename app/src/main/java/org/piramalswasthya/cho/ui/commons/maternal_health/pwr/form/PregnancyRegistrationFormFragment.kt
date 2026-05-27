@@ -23,6 +23,7 @@ import org.piramalswasthya.cho.databinding.FragmentPregnancyRegistrationFormBind
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.model.InputType
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -307,6 +308,21 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             }
         }
 
+        viewModel.initErrorMessage.observe(viewLifecycleOwner) { message ->
+            message?.let { errorMessage ->
+                AlertDialog.Builder(requireContext())
+                    .setTitle(getString(R.string.alert_popup))
+                    .setMessage(errorMessage)
+                    .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
+                        dialog.dismiss()
+                        viewModel.clearInitError()
+                        findNavController().navigateUp()
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
+        }
+
         // Observe navigation events
         viewModel.navigateTo.observe(viewLifecycleOwner) { event ->
             event?.let { navigationEvent ->
@@ -320,6 +336,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                     }
 
                     is PregnancyRegistrationFormViewModel.NavigationEvent.NavigateUp -> {
+                        WorkerUtils.triggerPregnantWomanRegistrationSync(requireContext())
                         findNavController().navigateUp()
                         viewModel.clearNavigation()
                     }
@@ -330,6 +347,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                     }
 
                     is PregnancyRegistrationFormViewModel.NavigationEvent.ToVitalsActivity -> {
+                        WorkerUtils.triggerPregnantWomanRegistrationSync(requireContext())
                         // Force content to be hidden during navigation to prevent flickering
                         binding.llContent.visibility = View.GONE
                         binding.pbForm.visibility = View.VISIBLE

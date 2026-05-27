@@ -16,6 +16,7 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ANC_VISITS_KEY
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -205,6 +206,11 @@ class DeliveryOutcomeFormFragment : Fragment() {
                 DeliveryOutcomeFormViewModel.State.SAVE_SUCCESS -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
+                    context?.let { ctx ->
+                        WorkerUtils.triggerDeliveryOutcomeSync(ctx)
+                        WorkerUtils.triggerInfantRegistrationSync(ctx)
+                        WorkerUtils.triggerBeneficiarySync(ctx)
+                    }
                     context?.let {
                         Toast.makeText(it, "Save Successful", Toast.LENGTH_LONG).show()
                     }

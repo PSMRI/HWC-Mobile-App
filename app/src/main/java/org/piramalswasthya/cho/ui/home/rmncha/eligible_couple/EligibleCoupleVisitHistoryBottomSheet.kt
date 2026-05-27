@@ -15,9 +15,11 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ECTrackingAdapter
 import org.piramalswasthya.cho.databinding.BottomSheetEcVisitHistoryBinding
+import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import timber.log.Timber
+import java.util.Calendar
 import javax.inject.Inject
 
 /**
@@ -130,6 +132,7 @@ class EligibleCoupleVisitHistoryBottomSheet : BottomSheetDialogFragment() {
                 binding.tvEmptyState.visibility = View.GONE
 
                 val visits = ecrRepo.getAllECT(patientID)
+                    .let(::deduplicateByVisitDay)
                     .sortedByDescending { it.visitDate } // Most recent first
 
                 if (visits.isEmpty()) {
@@ -156,6 +159,49 @@ class EligibleCoupleVisitHistoryBottomSheet : BottomSheetDialogFragment() {
                 binding.tvEmptyState.text = getString(R.string.error_loading_visits)
             }
         }
+    }
+
+    private fun deduplicateByVisitDay(
+        visits: List<EligibleCoupleTrackingCache>
+    ): List<EligibleCoupleTrackingCache> {
+        return visits
+            .groupBy { toVisitDayKey(it.visitDate) }
+            .values
+            .map { sameDayVisits ->
+                sameDayVisits.maxWithOrNull(
+                    compareBy<EligibleCoupleTrackingCache>(
+                        { completenessScore(it) },
+                        { it.updatedDate },
+                        { it.visitDate },
+                        { it.id }
+                    )
+                ) ?: sameDayVisits.first()
+            }
+    }
+
+    private fun toVisitDayKey(visitDate: Long): String {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = visitDate
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        return "$year-$month-$day"
+    }
+
+    private fun completenessScore(visit: EligibleCoupleTrackingCache): Int {
+        var score = 0
+        if (!visit.isPregnancyTestDone.isNullOrBlank()) score++
+        if (!visit.pregnancyTestResult.isNullOrBlank()) score++
+        if (!visit.isPregnant.isNullOrBlank()) score++
+        if (!visit.methodOfContraception.isNullOrBlank()) score++
+        if (!visit.visitMonth.isNullOrBlank() && !visit.visitMonth.equals("NA", ignoreCase = true)) score++
+        if (!visit.financialYear.isNullOrBlank()) score++
+        if (visit.lmpDate != null && visit.lmpDate != 0L) score++
+        if (!visit.antraDose.isNullOrBlank()) score++
+        if (visit.antraInjectionDate != null && visit.antraInjectionDate != 0L) score++
+        if (visit.antraDueDate != null && visit.antraDueDate != 0L) score++
+        if (visit.dateOfSterilization != null && visit.dateOfSterilization != 0L) score++
+        return score
     }
 
     override fun onDestroyView() {

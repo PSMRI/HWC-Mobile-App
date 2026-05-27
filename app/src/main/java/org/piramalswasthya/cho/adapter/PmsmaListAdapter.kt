@@ -57,9 +57,10 @@ class PmsmaListAdapter(
     }
 
     class ClickListener(
-        private val clickedView: ((patientID: String) -> Unit)? = null
+        private val clickedAdd: ((item: PmsmaDomain) -> Unit)? = null,
+        private val clickedView: ((item: PmsmaDomain) -> Unit)? = null,
     ) {
-        fun onClickView(item: PmsmaDomain) =
-            clickedView?.let { it(item.patient.patientID) }
+        fun onClickAdd(item: PmsmaDomain) = clickedAdd?.invoke(item)
+        fun onClickView(item: PmsmaDomain) = clickedView?.invoke(item)
     }
 }

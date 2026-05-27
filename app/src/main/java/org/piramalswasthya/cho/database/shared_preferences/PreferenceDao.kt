@@ -1,9 +1,12 @@
 package org.piramalswasthya.cho.database.shared_preferences
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.piramalswasthya.cho.R
@@ -25,6 +28,28 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 
     private val pref = PreferenceManager.getInstance(context)
 
+    // EncryptedSharedPreferences for secure credential storage
+    private val encryptedPref: SharedPreferences by lazy {
+        try {
+            EncryptedSharedPreferences.create(
+                context,
+                "secret_shared_prefs",
+                MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            Log.e("PreferenceDao", "Failed to create EncryptedSharedPreferences, falling back to standard preferences", e)
+            // Fallback to standard preferences or throw a more informative error
+            pref
+        }
+    }
+
+    init {
+        // Run one-time migration of plain-text credentials to encrypted storage
+        migrateCredentialsIfNeeded()
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     val date = LocalDate.of(2023, 11, 1)
 
@@ -34,11 +59,11 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 
     fun getPrimaryApiToken(): String? {
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
-        return pref.getString(prefKey, null)
+        return encryptedPref.getString(prefKey, null)
     }
-//
+
     fun registerPrimaryApiToken(token: String) {
-        val editor = pref.edit()
+        val editor = encryptedPref.edit()
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
         editor.putString(prefKey, token)
         editor.apply()
@@ -46,13 +71,20 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 
     fun getJWTAmritToken(): String? {
         val prefKey = context.getString(R.string.PREF_primary_JWT_API_KEY)
-        return pref.getString(prefKey, null)
+        return encryptedPref.getString(prefKey, null)
     }
 
     fun registerJWTAmritToken(token: String) {
-        val editor = pref.edit()
+        val editor = encryptedPref.edit()
         val prefKey = context.getString(R.string.PREF_primary_JWT_API_KEY)
         editor.putString(prefKey, token)
+        editor.apply()
+    }
+
+    fun clearAmritTokens() {
+        val editor = encryptedPref.edit()
+        editor.remove(context.getString(R.string.PREF_primary_API_KEY))
+        editor.remove(context.getString(R.string.PREF_primary_JWT_API_KEY))
         editor.apply()
     }
 
@@ -224,54 +256,144 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
+    fun clearSyncTimestamps() {
+        val editor = pref.edit()
+        editor.remove(context.getString(R.string.last_benflow_sync_time))
+        editor.remove(context.getString(R.string.last_cbac_sync_time))
+        editor.remove(context.getString(R.string.last_patient_sync_time))
+        editor.remove(context.getString(R.string.last_sync_time))
+        editor.apply()
+    }
+
     fun getLastSyncTime(): String {
         val prefKey = context.getString(R.string.last_sync_time)
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
     }
 
-    fun registerLoginCred(userName: String,password: String) {
-        val editor = pref.edit()
+    /**
+     * One-time migration: Move plain-text credentials from regular prefs to encrypted prefs.
+     * Runs once on class initialization.
+     */
+    private fun migrateCredentialsIfNeeded() {
+        try {
+            val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
+            val prefPasswordKey = context.getString(R.string.password_local_saved)
+
+            // Read plain-text values from regular prefs
+            val plainUserName = pref.getString(prefUserKey, null)
+            val plainPassword = pref.getString(prefPasswordKey, null)
+
+            // Check if encrypted versions already exist
+            val encryptedUserName = encryptedPref.getString(prefUserKey, null)
+
+            // Migrate if plain-text exists but encrypted doesn't
+            if (plainUserName != null && encryptedUserName == null) {
+                registerLoginCred(plainUserName, plainPassword ?: "")
+            }
+
+            // Clean up plain-text credentials from regular prefs
+            if (plainUserName != null || plainPassword != null) {
+                val editor = pref.edit()
+                editor.remove(prefUserKey)
+                editor.remove(prefPasswordKey)
+                editor.apply()
+            }
+
+            // Migrate Esanjeevani credentials as well
+            val prefEsUserKey = context.getString(R.string.esanjeevaniusername_local_saved)
+            val prefEsPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
+
+            val plainEsUserName = pref.getString(prefEsUserKey, null)
+            val plainEsPassword = pref.getString(prefEsPasswordKey, null)
+            val encryptedEsUserName = encryptedPref.getString(prefEsUserKey, null)
+
+            if (plainEsUserName != null && encryptedEsUserName == null) {
+                registerEsanjeevaniCred(plainEsUserName, plainEsPassword ?: "")
+            }
+
+            if (plainEsUserName != null || plainEsPassword != null) {
+                val editor = pref.edit()
+                editor.remove(prefEsUserKey)
+                editor.remove(prefEsPasswordKey)
+                editor.apply()
+            }
+
+            // Migrate Amrit API + JWT tokens from plain prefs to encryptedPref.
+            val prefApiTokenKey = context.getString(R.string.PREF_primary_API_KEY)
+            val prefJwtTokenKey = context.getString(R.string.PREF_primary_JWT_API_KEY)
+
+            val plainApiToken = pref.getString(prefApiTokenKey, null)
+            val plainJwtToken = pref.getString(prefJwtTokenKey, null)
+            val encryptedApiToken = encryptedPref.getString(prefApiTokenKey, null)
+            val encryptedJwtToken = encryptedPref.getString(prefJwtTokenKey, null)
+
+            if (plainApiToken != null && encryptedApiToken == null) {
+                encryptedPref.edit().putString(prefApiTokenKey, plainApiToken).apply()
+            }
+            if (plainJwtToken != null && encryptedJwtToken == null) {
+                encryptedPref.edit().putString(prefJwtTokenKey, plainJwtToken).apply()
+            }
+
+            if (plainApiToken != null || plainJwtToken != null) {
+                val editor = pref.edit()
+                editor.remove(prefApiTokenKey)
+                editor.remove(prefJwtTokenKey)
+                editor.apply()
+            }
+        } catch (e: Exception) {
+            Log.e("PreferenceDao", "Error during credential migration: ${e.message}")
+        }
+    }
+
+    fun registerLoginCred(userName: String, password: String) {
+        val editor = encryptedPref.edit()
         val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
         val prefPasswordKey = context.getString(R.string.password_local_saved)
         editor.putString(prefUserKey, userName)
         editor.putString(prefPasswordKey, password)
         editor.apply()
     }
+
     fun getRememberedUserName(): String? {
         val key = context.getString(R.string.PREF_rem_me_uname)
-        return pref.getString(key, null)
-    }
-    fun getRememberedPassword(): String? {
-        val prefPasswordKey = context.getString(R.string.password_local_saved)
-        return pref.getString(prefPasswordKey, null)
+        return encryptedPref.getString(key, null)
     }
 
-fun registerEsanjeevaniCred(userName: String,password: String) {
-    val editor = pref.edit()
-    val prefUserKey = context.getString(R.string.esanjeevaniusername_local_saved)
-    val prefPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
-    editor.putString(prefUserKey, userName)
-    editor.putString(prefPasswordKey, password)
-    editor.apply()
-}
+    fun getRememberedPassword(): String? {
+        val prefPasswordKey = context.getString(R.string.password_local_saved)
+        return encryptedPref.getString(prefPasswordKey, null)
+    }
+
+    fun registerEsanjeevaniCred(userName: String, password: String) {
+        val editor = encryptedPref.edit()
+        val prefUserKey = context.getString(R.string.esanjeevaniusername_local_saved)
+        val prefPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
+        editor.putString(prefUserKey, userName)
+        editor.putString(prefPasswordKey, password)
+        editor.apply()
+    }
+
     fun getEsanjeevaniUserName(): String? {
         val key = context.getString(R.string.esanjeevaniusername_local_saved)
-        return pref.getString(key, null)
+        return encryptedPref.getString(key, null)
     }
+
     fun getEsanjeevaniPassword(): String? {
         val prefPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
-        return pref.getString(prefPasswordKey, null)
+        return encryptedPref.getString(prefPasswordKey, null)
     }
+
     fun deleteEsanjeevaniCreds() {
-        val editor = pref.edit()
+        val editor = encryptedPref.edit()
         val prefUserKeyEs = context.getString(R.string.esanjeevaniusername_local_saved)
         val prefPasswordKeyEs = context.getString(R.string.esanjeevanipassword_local_saved)
         editor.remove(prefUserKeyEs)
         editor.remove(prefPasswordKeyEs)
         editor.apply()
     }
+
     fun deleteLoginCred() {
-        val editor = pref.edit()
+        val editor = encryptedPref.edit()
         val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
         val prefPasswordKey = context.getString(R.string.password_local_saved)
         editor.remove(prefUserKey)

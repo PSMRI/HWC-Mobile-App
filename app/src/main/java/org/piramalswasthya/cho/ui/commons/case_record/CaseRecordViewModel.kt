@@ -138,8 +138,8 @@ class CaseRecordViewModel @Inject constructor(
     val chiefComplaintDB: LiveData<List<ChiefComplaintDB>>
         get() = _chiefComplaintDB
 
-    private val _vitalsDB = MutableLiveData<PatientVitalsModel>()
-    val vitalsDB: LiveData<PatientVitalsModel>
+    private val _vitalsDB = MutableLiveData<PatientVitalsModel?>()
+    val vitalsDB: LiveData<PatientVitalsModel?>
         get() = _vitalsDB
 
 //    private val _visitReason = MutableLiveData<String?>()
@@ -246,14 +246,16 @@ class CaseRecordViewModel @Inject constructor(
     fun getPatientDisplayListForDoctorByPatient(patientID: String) : Flow<List<PatientDisplayWithVisitInfo>> {
         return patientVisitInfoSyncRepo.getPatientDisplayListForDoctorByPatient(patientID)
     }
-      fun getVitalsDB(patientID:String) {
+    fun getVitalsDB(patientID: String, benVisitNo: Int? = null) {
         viewModelScope.launch {
             try {
-                _vitalsDB.value =
+                _vitalsDB.value = if (benVisitNo != null) {
+                    vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(patientID, benVisitNo)
+                } else {
                     vitalsRepo.getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID)
-
+                }
             } catch (e: java.lang.Exception) {
-                Timber.d("Error in Getting Higher Health Care $e")
+                Timber.d("Error loading vitals for case record $e")
             }
         }
     }

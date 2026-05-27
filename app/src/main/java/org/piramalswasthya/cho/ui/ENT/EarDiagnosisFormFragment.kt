@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentEarDiagnosisFormBinding
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import org.piramalswasthya.cho.work.WorkerUtils
 
 @AndroidEntryPoint
 class EarDiagnosisFormFragment :
@@ -57,5 +59,19 @@ class EarDiagnosisFormFragment :
     override fun onDestroyView() {
         super.onDestroyView()  // shows bottom_navigation
         _binding = null
+    }
+
+    // Stamp Ear visit metadata onto MasterDb from arguments and navigate to the vitals screen.
+    override fun onSaveSuccess() {
+        WorkerUtils.earPushWorker(requireContext())
+        val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
+            ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
+        masterDb.visitMasterDb?.apply {
+            category = "Other CPHC Services"
+            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ear
+            reason = org.piramalswasthya.cho.ui.commons.DropdownConst.ear
+        }
+        val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
+        findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
     }
 }

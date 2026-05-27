@@ -12,9 +12,11 @@ import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
+import android.content.Context
 import org.piramalswasthya.cho.network.getLongFromDate
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong
+import org.piramalswasthya.cho.utils.ImgUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -201,7 +203,12 @@ data class PatientWithPwrCache(
         parentColumn = "patientID",
         entityColumn = "patientID"
     )
-    val pwr: List<PregnantWomanRegistrationCache>
+    val pwr: List<PregnantWomanRegistrationCache>,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val ancRecords: List<PregnantWomanAncCache>
 ) {
     /**
      * Active PWR record, or if none active the most recent by createdDate.
@@ -213,7 +220,8 @@ data class PatientWithPwrCache(
     fun asDomainModel(): PatientWithPwrDomain {
         return PatientWithPwrDomain(
             patient = patient,
-            pwr = getActiveOrLatestPwr()
+            pwr = getActiveOrLatestPwr(),
+            ancRecords = ancRecords
         )
     }
 }
@@ -223,7 +231,11 @@ data class PatientWithPwrCache(
  */
 data class PatientWithPwrDomain(
     val patient: Patient,
-    val pwr: PregnantWomanRegistrationCache?
+    val pwr: PregnantWomanRegistrationCache?,
+    val ancRecords: List<PregnantWomanAncCache> = emptyList(),
+    val syncState: SyncState? = pwr?.syncState,
+    val lastAnc: PregnantWomanAncCache? = ancRecords.maxByOrNull { it.visitNumber },
+    var deliveryOutcomeSyncState: SyncState? = null
 ) {
     /**
      * Get weeks of pregnancy
@@ -364,7 +376,8 @@ data class AbortionDomain(
     val lmpDate: Long,
     val eddDate: Long,
     val weekOfPregnancy: Int?,
-    val abortionDate: Long?
+    val abortionDate: Long?,
+    val syncState: SyncState? = abortionRecord?.syncState
 ) {
     /**
      * Get formatted LMP date string
@@ -406,11 +419,15 @@ data class AbortionDomain(
     }
 
     /**
-     * Check if abortion form is filled (has abortion type and facility)
+     * Check if the dedicated abortion form has been submitted. abortionType and
+     * abortionFacility get set during the ANC visit when the pregnancy outcome
+     * is marked aborted, so they cannot indicate this form's submission state.
+     * methodOfTermination and terminationDoneBy are required fields on this
+     * form and are only written by PregnantWomanAncAbortionDataset.mapValues.
      */
     val isAbortionFormFilled: Boolean
-        get() = abortionRecord?.let { 
-            it.abortionType != null && it.abortionFacility != null 
+        get() = abortionRecord?.let {
+            it.methodOfTermination != null && it.terminationDoneBy != null
         } ?: false
 }
 
@@ -490,6 +507,29 @@ data class PmsmaDomain(
     fun getAgeString(): String {
         return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
     }
+}
+
+/**
+ * Build a PmsmaDomain from the ANC-list source shape (PatientWithPwrCache).
+ * Mirrors PatientWithPwrForPmsmaCache.asPmsmaDomainModel so the e-PMSMA list can
+ * derive from the same Flow used by ANCVisitsFragment / getANCCount.
+ */
+fun PatientWithPwrCache.asPmsmaDomainModel(): PmsmaDomain {
+    val activePwr = getActiveOrLatestPwr()?.takeIf { it.active }
+    val lmpDateToUse = activePwr?.lmpDate ?: 0L
+    val eddDateToUse =
+        if (lmpDateToUse != 0L) lmpDateToUse + TimeUnit.DAYS.toMillis(280) else 0L
+    val weekOfPregnancyToUse =
+        if (lmpDateToUse != 0L)
+            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
+        else null
+    return PmsmaDomain(
+        patient = patient,
+        pwr = activePwr,
+        lmpDate = lmpDateToUse,
+        eddDate = eddDateToUse,
+        weekOfPregnancy = weekOfPregnancyToUse
+    )
 }
 
 data class PwrPost(
@@ -689,10 +729,22 @@ data class PregnantWomanAncCache(
     var counsellingTopicsId: Int = 0,  // Counselling Topics ID
     var nextAncVisitDate: Long? = null  // Next ANC Visit Date
 ) : FormDataModel {
-    fun asPostModel(benId: Long): ANCPost {
+    fun asPostModel(
+        benId: Long,
+        benRegId: Long? = null,
+        providerServiceMapID: Int? = null,
+        context: Context? = null,
+    ): ANCPost {
+        // abortionImg1/2 hold an internal-storage file path. The server expects
+        // base64 — encode here, lazily, so the DB row stays small. When no
+        // context is supplied (callers that aren't uploading), pass through as-is.
+        val img1ForUpload = context?.let { ImgUtils.encodeLocalImageValueForUpload(it, abortionImg1) } ?: abortionImg1
+        val img2ForUpload = context?.let { ImgUtils.encodeLocalImageValueForUpload(it, abortionImg2) } ?: abortionImg2
         return ANCPost(
             benId = benId,
+            benRedId = benRegId,
             ancDate = getDateStringFromLong(ancDate),
+            visitDate = getDateStringFromLong(visitDate ?: ancDate),
             isActive = true,
             ancVisit = visitNumber,
             isAborted = isAborted,
@@ -729,7 +781,21 @@ data class PregnantWomanAncCache(
             createdDate = getDateStringFromLong(createdDate),
             createdBy = createdBy,
             updatedDate = getDateStringFromLong(updatedDate),
-            updatedBy = updatedBy
+            updatedBy = updatedBy,
+            providerServiceMapID = providerServiceMapID,
+            filePath = frontFilePath,
+            serialNo = serialNo,
+            methodOfTermination = methodOfTermination,
+            methodOfTerminationId = methodOfTerminationId,
+            terminationDoneBy = terminationDoneBy,
+            terminationDoneById = terminationDoneById,
+            isPaiucdId = isPaiucdId,
+            isPaiucd = isPaiucd,
+            remarks = remarks,
+            abortionImg1 = img1ForUpload,
+            abortionImg2 = img2ForUpload,
+            dateSterilisation = dateSterilisation?.let { getDateStringFromLong(it) },
+            isYesOrNo = isYesOrNo
 //            bloodSugarFasting = bloodSugarFasting,
 //            urineSugar = urineSugar,
 //            fetalHeartRate = fetalHeartRate,
@@ -745,7 +811,9 @@ data class PregnantWomanAncCache(
 data class ANCPost(
     val id: Long = 0,
     val benId: Long = 0,
+    val benRedId: Long? = null,
     val ancDate: String? = null,
+    val visitDate: String? = null,
     val isActive: Boolean,
     val ancVisit: Int,
     val pregnancyTestAtFacility: Boolean? = null,
@@ -780,6 +848,26 @@ data class ANCPost(
     val createdBy: String,
     val updatedDate: String? = null,
     val updatedBy: String,
+    val lmpDate: String? = null,
+    val providerServiceMapID: Int? = null,
+    val filePath: String? = null,
+    val serialNo: String? = null,
+    val methodOfTermination: String? = null,
+    val methodOfTerminationId: Int? = null,
+    val terminationDoneBy: String? = null,
+    val terminationDoneById: Int? = null,
+    val isPaiucdId: Int? = null,
+    val isPaiucd: String? = null,
+    val remarks: String? = null,
+    val abortionImg1: String? = null,
+    val abortionImg2: String? = null,
+    val placeOfDeath: String? = null,
+    val placeOfDeathId: Int? = null,
+    val otherPlaceOfDeath: String? = null,
+    val dateSterilisation: String? = null,
+    val isYesOrNo: Boolean? = null,
+    val placeOfAnc: String? = null,
+    val placeOfAncId: Int? = null,
     // New ANC fields
 //    val bloodSugarFasting: Int? = null,
 //    val urineSugar: String? = null,
@@ -791,11 +879,14 @@ data class ANCPost(
 //    val nextAncVisitDate: String? = null
 ) {
     fun toAncCache(): PregnantWomanAncCache {
+        val resolvedAbortionType = abortionType ?: methodOfTermination
+        val resolvedAbortionFacility = abortionFacility ?: terminationDoneBy
+
         return PregnantWomanAncCache(
             id = id,
             patientID = "",
             visitNumber = ancVisit,
-            ancDate = getLongFromDate(ancDate),
+            ancDate = getLongFromDate(ancDate ?: visitDate),
             pregnancyTestAtFacility = pregnancyTestAtFacility,
             uptResult = uptResult,
             uptResultId = when(uptResult) {
@@ -804,23 +895,23 @@ data class ANCPost(
                 else -> -1
             },
             isAborted = isAborted,
-            abortionType = abortionType,
-            abortionTypeId = when(abortionType) {
+            abortionType = resolvedAbortionType,
+            abortionTypeId = when(resolvedAbortionType) {
                 "Induced" -> 0
                 "Spontaneous" -> 1
-                else -> -1
-            },
-            abortionFacility = abortionFacility,
-            abortionFacilityId = when(abortionFacility) {
+                else -> methodOfTerminationId ?: -1
+            }.let { if (it < 0) 0 else it },
+            abortionFacility = resolvedAbortionFacility,
+            abortionFacilityId = when(resolvedAbortionFacility) {
                 "Govt. Hospital" -> 0
                 "Pvt. Hospital" -> 1
-                else -> -1
-            },
+                else -> terminationDoneById ?: -1
+            }.let { if (it < 0) 0 else it },
             abortionDate = getLongFromDate(abortionDate),
             weight = weightOfPW,
             bpSystolic = bpSystolic,
             bpDiastolic = bpDiastolic,
-            pulseRate = pulseRate.toString(),
+            pulseRate = pulseRate?.toString(),
             hb = hb,
             fundalHeight = fundalHeight,
             urineAlbumin = when (urineAlbuminPresent) {
@@ -833,6 +924,20 @@ data class ANCPost(
 //            randomBloodSugarTestId
             numFolicAcidTabGiven = folicAcidTabs,
             numIfaAcidTabGiven = ifaTabs,
+            serialNo = serialNo,
+            methodOfTermination = methodOfTermination,
+            methodOfTerminationId = methodOfTerminationId ?: 0,
+            terminationDoneBy = terminationDoneBy,
+            terminationDoneById = terminationDoneById ?: 0,
+            isPaiucdId = isPaiucdId ?: 0,
+            isPaiucd = isPaiucd,
+            remarks = remarks,
+            visitDate = getLongFromDate(visitDate).takeIf { it > 0L }
+                ?: getLongFromDate(ancDate ?: visitDate),
+            isYesOrNo = isYesOrNo,
+            abortionImg1 = abortionImg1,
+            abortionImg2 = abortionImg2,
+            dateSterilisation = getLongFromDate(dateSterilisation),
             anyHighRisk = isHighRisk,
             highRisk = highRiskCondition,
 //            highRiskId
@@ -854,6 +959,8 @@ data class ANCPost(
             updatedBy = updatedBy,
             updatedDate = getLongFromDate(updatedDate),
             syncState = SyncState.SYNCED,
+            frontFilePath = filePath,
+            backFilePath = null,
             // Map new ANC fields
 //            bloodSugarFasting = bloodSugarFasting,
 //            urineSugar = urineSugar,

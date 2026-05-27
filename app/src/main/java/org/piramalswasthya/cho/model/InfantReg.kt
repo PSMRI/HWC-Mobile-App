@@ -12,6 +12,20 @@ import org.piramalswasthya.cho.network.getLongFromDate
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
+
+private fun formatMotherFullName(patient: Patient): String {
+    return "${patient.firstName} ${patient.lastName ?: ""}".trim()
+}
+
+private fun formatBabyOrdinalName(motherFirstName: String?, babyIndex: Int): String {
+    return when (babyIndex) {
+        0 -> "1st baby of $motherFirstName"
+        1 -> "2nd baby of $motherFirstName"
+        2 -> "3rd baby of $motherFirstName"
+        else -> "${babyIndex + 1}th baby of $motherFirstName"
+    }
+}
 
 @Entity(
     tableName = "INFANT_REG",
@@ -79,6 +93,34 @@ data class InfantRegCache(
     var updatedDate: Long = System.currentTimeMillis(),
     var syncState: SyncState
 ) : FormDataModel {
+    fun hasRegistrationData(): Boolean {
+        return !infantTerm.isNullOrBlank() ||
+            !corticosteroidGiven.isNullOrBlank() ||
+            genderID != null ||
+            babyCriedAtBirth != null ||
+            resuscitation != null ||
+            !referred.isNullOrBlank() ||
+            !hadBirthDefect.isNullOrBlank() ||
+            !birthDefect.isNullOrBlank() ||
+            !otherDefect.isNullOrBlank() ||
+            weight != null ||
+            breastFeedingStarted != null ||
+            opv0Dose != null ||
+            bcgDose != null ||
+            hepBDose != null ||
+            vitkDose != null ||
+            !outcomeAtBirth.isNullOrBlank() ||
+            !typeOfResuscitation.isNullOrBlank() ||
+            !newbornComplications.isNullOrBlank() ||
+            !currentStatusOfBaby.isNullOrBlank() ||
+            !causeOfDeath.isNullOrBlank() ||
+            !otherCauseOfDeath.isNullOrBlank() ||
+            !birthDoseVaccinesGiven.isNullOrBlank() ||
+            !reasonForNoVaccines.isNullOrBlank() ||
+            vitaminKInjectionGiven != null ||
+            !reasonForNoVitaminK.isNullOrBlank() ||
+            !birthCertificateIssued.isNullOrBlank()
+    }
 
     private fun getDateStringFromLong(dateLong: Long?): String? {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
@@ -152,16 +194,19 @@ data class PatientWithDeliveryOutcomeAndInfantRegCache(
         val activeDo = deliveryOutcome?.firstOrNull { it.isActive } ?: return emptyList()
         val activeIr = savedInfantRegRecords.filter { it.isActive }
         val list = mutableListOf<InfantRegDomain>()
-        val numLiveBirth = activeDo.liveBirth ?: 1
-        if (numLiveBirth == 0) return emptyList()
-        
-        for (i in 0 until numLiveBirth) {
+        val totalBirths = (activeDo.deliveryOutcome ?: ((activeDo.liveBirth ?: 0) + (activeDo.stillBirth ?: 0)))
+            .coerceAtLeast(0)
+        if (totalBirths == 0) return emptyList()
+        val numLiveBirth = (activeDo.liveBirth ?: 0).coerceAtLeast(0)
+
+        for (i in 0 until totalBirths) {
             list.add(
                 InfantRegDomain(
                     motherPatient = patient,
                     babyIndex = i,
                     deliveryOutcome = activeDo,
                     savedIr = activeIr.firstOrNull { it.babyIndex == i },
+                    isLiveBirth = i < numLiveBirth
                 )
             )
         }
@@ -178,24 +223,21 @@ data class InfantRegDomain(
     var babyName: String = "Baby ${babyIndex + 1} of ${motherPatient.firstName}",
     val deliveryOutcome: DeliveryOutcomeCache,
     val savedIr: InfantRegCache?,
+    val isLiveBirth: Boolean = true,
     val syncState: SyncState? = savedIr?.syncState
 ) {
     /**
      * Get formatted baby name (1st baby, 2nd baby, etc.)
      */
     val customName: String
-        get() = savedIr?.babyName?.takeIf { it.isNotBlank() } ?: when (babyIndex) {
-            0 -> "1st baby of ${motherPatient.firstName}"
-            1 -> "2nd baby of ${motherPatient.firstName}"
-            2 -> "3rd baby of ${motherPatient.firstName}"
-            else -> "${babyIndex + 1}th baby of ${motherPatient.firstName}"
-        }
+        get() = savedIr?.babyName?.takeIf { it.isNotBlank() }
+            ?: formatBabyOrdinalName(motherPatient.firstName, babyIndex)
 
     /**
      * Get mother's full name
      */
     fun getMotherFullName(): String {
-        return "${motherPatient.firstName} ${motherPatient.lastName ?: ""}".trim()
+        return formatMotherFullName(motherPatient)
     }
 
     /**
@@ -208,7 +250,18 @@ data class InfantRegDomain(
     /**
      * Check if infant is registered
      */
-    fun isRegistered(): Boolean = savedIr != null
+    fun isRegistered(): Boolean = savedIr?.hasRegistrationData() == true
+
+    /**
+     * Only live-birth rows should show Register when not yet saved.
+     * Non-live-birth rows are always View state in list.
+     */
+    fun shouldShowRegisterAction(): Boolean = isLiveBirth && !isRegistered()
+
+    /**
+     * Guard clicks for non-live-birth rows with no saved record.
+     */
+    fun isActionEnabled(): Boolean = isLiveBirth || isRegistered()
 }
 
 data class InfantRegPost(
@@ -319,6 +372,11 @@ data class InfantRegApiPost(
     val bcgDose: String? = null,
     val hepBDose: String? = null,
     val vitkDose: String? = null,
+    val deliveryDischargeSummary1: String? = null,
+    val deliveryDischargeSummary2: String? = null,
+    val deliveryDischargeSummary3: String? = null,
+    val deliveryDischargeSummary4: String? = null,
+    val isSNCU: String? = null,
     val outcomeAtBirth: String? = null,
     val typeOfResuscitation: String? = null,
     val newbornComplications: String? = null,
@@ -331,10 +389,45 @@ data class InfantRegApiPost(
     val reasonForNoVitaminK: String? = null,
     val birthCertificateIssued: String? = null,
     val createdDate: String? = null,
-    val createdBy: String,
+    val createdBy: String? = null,
     val updatedDate: String? = null,
-    val updatedBy: String
+    val updatedBy: String? = null
 )
+
+/**
+ * HWC Child API payload (`/child/saveAll`, `/child/getAll`).
+ */
+data class ChildApiPost(
+    val id: Long = 0,
+    val benId: Long,
+    val babyName: String? = null,
+    val infantTerm: String? = null,
+    val corticosteroidGiven: String? = null,
+    val gender: String? = null,
+    val babyCriedAtBirth: Boolean? = null,
+    val resuscitation: Boolean? = null,
+    val referred: String? = null,
+    val hadBirthDefect: String? = null,
+    val birthDefect: String? = null,
+    val otherDefect: String? = null,
+    val weight: Double = 0.0,
+    val breastFeedingStarted: Boolean? = null,
+    val opv0Dose: String? = null,
+    val bcgDose: String? = null,
+    val hepBDose: String? = null,
+    val vitkDose: String? = null,
+    val createdDate: String? = null,
+    val createdBy: String? = null,
+    val updatedDate: String? = null,
+    val updatedBy: String? = null
+)
+
+fun getIsoDateTimeStringFromLong(dateLong: Long?): String? {
+    if (dateLong == null) return null
+    return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }.format(dateLong)
+}
 
 /**
  * Infant Registration with Patient (mother and child) relation
@@ -369,7 +462,9 @@ data class InfantRegWithPatient(
 data class ChildRegDomain(
     val motherPatient: Patient,
     val infant: InfantRegCache,
-    val childPatient: Patient?
+    val childPatient: Patient?,
+    val syncState: SyncState? = infant.syncState,
+    val displaySyncState: SyncState? = if (infant.processed == "C" || childPatient != null) infant.syncState else null
 ) {
     /**
      * Get formatted baby name (baby 0, baby 1, etc.)
@@ -382,23 +477,18 @@ data class ChildRegDomain(
 
             return childFullName
                 ?: infant.babyName?.takeIf { it.isNotBlank() }
-                ?: when (infant.babyIndex) {
-                    0 -> "1st baby of ${motherPatient.firstName}"
-                    1 -> "2nd baby of ${motherPatient.firstName}"
-                    2 -> "3rd baby of ${motherPatient.firstName}"
-                    else -> "${infant.babyIndex + 1}th baby of ${motherPatient.firstName}"
-                }
+                ?: formatBabyOrdinalName(motherPatient.firstName, infant.babyIndex)
         }
 
     /**
      * Get mother's full name
      */
     fun getMotherFullName(): String {
-        return "${motherPatient.firstName} ${motherPatient.lastName ?: ""}".trim()
+        return formatMotherFullName(motherPatient)
     }
 
     /**
      * Check if child patient is registered
      */
-    fun isChildRegistered(): Boolean = childPatient != null
+    fun isChildRegistered(): Boolean = infant.processed == "C" || childPatient != null
 }

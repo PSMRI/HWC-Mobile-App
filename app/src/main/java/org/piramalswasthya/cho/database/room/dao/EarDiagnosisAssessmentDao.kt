@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.EarDiagnosisAssessment
 
 @Dao
@@ -34,4 +35,8 @@ interface EarDiagnosisAssessmentDao {
                 "ORDER BY assessment_id DESC LIMIT 1"
     )
     suspend fun getAssessmentByPatientIdAndVisitNo(patientID: String, benVisitNo: Int): EarDiagnosisAssessment?
+    @Query("SELECT * FROM EAR_DIAGNOSIS_ASSESSMENT WHERE syncState = :unsyncedState")
+    suspend fun getUnsyncedAssessments(
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): List<EarDiagnosisAssessment>
 }

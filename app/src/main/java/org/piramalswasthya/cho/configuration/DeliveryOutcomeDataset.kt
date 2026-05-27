@@ -345,18 +345,30 @@ class DeliveryOutcomeDataset(
                 R.array.do_mode_of_delivery_array,
                 saved.modeOfDelivery
             )
-            indicationForLSCS.value = saved.indicationForLSCS
+            // saved.* dropdown fields are stored in English; re-localize for display
+            // so the user sees the form in their current UI language regardless of
+            // which language the data was originally entered in.
+            indicationForLSCS.value = getLocalValuesInArray(
+                R.array.do_indication_for_lscs_array,
+                saved.indicationForLSCS
+            )
             indicationForLSCSOther.value = saved.indicationForLSCSOther
             privateHospitalName.value = saved.privateHospitalName
 
             // Load mother condition fields
-            motherCondition.value = saved.motherCondition
+            motherCondition.value = getLocalValueInArray(
+                R.array.do_mother_condition_array,
+                saved.motherCondition
+            )
             motherCurrentlyAdmitted.value = when (saved.motherCurrentlyAdmitted) {
                 true -> resources.getStringArray(R.array.do_mother_admitted_array)[0]
                 false -> resources.getStringArray(R.array.do_mother_admitted_array)[1]
                 null -> null
             }
-            maternalComplications.value = saved.maternalComplications
+            maternalComplications.value = getLocalValuesInArray(
+                R.array.do_maternal_complications_array,
+                saved.maternalComplications
+            )
             dateOfDischarge.value = saved.dateOfDischarge?.let { getDateFromLong(it) }
             timeOfDischarge.value = saved.timeOfDischarge
             deliveryOutcome.value = saved.deliveryOutcome?.toString()
@@ -419,14 +431,21 @@ class DeliveryOutcomeDataset(
             dateOfDelivery.min = this.deliveryDateMillis
             dateOfDischarge.min = this.deliveryDateMillis
 
-            motherCondition.value = saved.motherCondition
+            motherCondition.value = getLocalValueInArray(
+                R.array.do_mother_condition_array,
+                saved.motherCondition
+            )
             motherCurrentlyAdmitted.value = when (saved.motherCurrentlyAdmitted) {
                 true -> resources.getStringArray(R.array.do_mother_admitted_array)[0]
                 false -> resources.getStringArray(R.array.do_mother_admitted_array)[1]
                 null -> null
             }
-            maternalComplications.value = saved.maternalComplications
+            maternalComplications.value = getLocalValuesInArray(
+                R.array.do_maternal_complications_array,
+                saved.maternalComplications
+            )
             dateOfDischarge.value = saved.dateOfDischarge?.let { getDateFromLong(it) }
+            timeOfDischarge.value = saved.timeOfDischarge
 
             val conditionIndex = resources.getStringArray(R.array.do_mother_condition_array).indexOf(motherCondition.value)
             if (conditionIndex == 1 || conditionIndex == 2) {
@@ -434,6 +453,7 @@ class DeliveryOutcomeDataset(
             }
             if (motherCurrentlyAdmitted.value == resources.getStringArray(R.array.do_mother_admitted_array)[1]) {
                 list.add(list.indexOf(motherCurrentlyAdmitted) + 1, dateOfDischarge)
+                list.add(list.indexOf(dateOfDischarge) + 1, timeOfDischarge)
             }
         } else {
             dateOfDelivery.value = getDateFromLong(deliveryDateMillis)
@@ -441,6 +461,7 @@ class DeliveryOutcomeDataset(
             motherCurrentlyAdmitted.value = null
             maternalComplications.value = null
             dateOfDischarge.value = null
+            timeOfDischarge.value = null
         }
 
         setUpPage(list)
@@ -798,11 +819,13 @@ class DeliveryOutcomeDataset(
     private suspend fun handleMotherAdmittedChange(index: Int): Int {
         dateOfDischarge.value = null
         dateOfDischarge.errorText = null
+        timeOfDischarge.value = null
+        timeOfDischarge.errorText = null
         val result = triggerDependants(
             source = motherCurrentlyAdmitted,
             passedIndex = index,
             triggerIndex = 1, // Index 1 = "No (Discharged)"
-            target = dateOfDischarge
+            target = listOf(dateOfDischarge, timeOfDischarge)
         )
         return result
     }
@@ -869,26 +892,29 @@ class DeliveryOutcomeDataset(
         val admittedYes = resources.getStringArray(R.array.do_mother_admitted_array)[0]
         val conditionMaternalDeath = resources.getStringArray(R.array.do_mother_condition_array)[3]
 
-        // Map delivery details fields
+        // Map delivery details fields. Persist every dropdown / radio / checkbox
+        // value in its English canonical form so the DB stays locale-neutral.
+        // Display-time localization is handled in setUpPage.
         form.dateOfDelivery = getLongFromDate(dateOfDelivery.value, DATE_FORMAT_DD_MM_YYYY)?.takeIf { it != 0L } ?: deliveryDateMillis
         form.timeOfDelivery = timeOfDelivery.value
-        form.placeOfDelivery = placeOfDelivery.value
-        form.modeOfDelivery = modeOfDelivery.value
-        form.deliveryConductedBy = deliveryConductedBy.value
+        form.placeOfDelivery = getEnglishValueInArray(R.array.do_place_of_delivery_array, placeOfDelivery.value)
+        form.modeOfDelivery = getEnglishValueInArray(R.array.do_mode_of_delivery_array, modeOfDelivery.value)
+        form.deliveryConductedBy = getEnglishValueInArray(R.array.do_delivery_conducted_by_array, deliveryConductedBy.value)
         form.gestationalAgeAtDelivery = gestationalAgeAtDelivery.value
-        form.indicationForLSCS = indicationForLSCS.value
+        form.indicationForLSCS = getEnglishValuesInArray(R.array.do_indication_for_lscs_array, indicationForLSCS.value)
         form.indicationForLSCSOther = indicationForLSCSOther.value
         form.privateHospitalName = privateHospitalName.value
 
         // Map mother condition fields
-        form.motherCondition = motherCondition.value
-        form.maternalComplications = maternalComplications.value?.takeIf { s -> s.isNotBlank() }
+        form.motherCondition = getEnglishValueInArray(R.array.do_mother_condition_array, motherCondition.value)
+        form.maternalComplications = getEnglishValuesInArray(R.array.do_maternal_complications_array, maternalComplications.value)?.takeIf { s -> s.isNotBlank() }
         form.motherCurrentlyAdmitted = motherCurrentlyAdmitted.value == admittedYes
         form.dateOfDischarge = dateOfDischarge.value?.let { getLongFromDate(it) }.takeIf { it != 0L }
         form.timeOfDischarge = timeOfDischarge.value
         form.deliveryOutcome = deliveryOutcome.value?.toIntOrNull()
         form.liveBirth = liveBirth.value?.toIntOrNull()
         form.stillBirth = stillBirth.value?.toIntOrNull()
+        // motherCondition.value is local; conditionMaternalDeath is also local — same-locale compare.
         form.isDeath = motherCondition.value == conditionMaternalDeath
         if (form.isDeath == true) {
             form.isDeathValue = "Maternal Death"

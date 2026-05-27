@@ -57,8 +57,6 @@ class AbortionListAdapter(
                 )
             )
 
-            // Hide the ADD button
-            binding.btnAction.visibility = android.view.View.GONE
 
             // Set sync icon visibility
             binding.ivSync.visibility = if (item.abortionRecord?.syncState == org.piramalswasthya.cho.database.room.SyncState.SYNCED) {

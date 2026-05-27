@@ -72,7 +72,8 @@ data class PatientWithECRCache(
  */
 data class PatientWithEcrDomain(
     val patient: Patient,
-    val ecr: EligibleCoupleRegCache?
+    val ecr: EligibleCoupleRegCache?,
+    var syncState: SyncState? = ecr?.syncState
 ) {
     /**
      * Calculate EC status based on LMP date

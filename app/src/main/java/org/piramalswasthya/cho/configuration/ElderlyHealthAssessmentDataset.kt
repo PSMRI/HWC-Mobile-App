@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.configuration
 import android.content.Context
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.ElderlyHealthAssessment
 import org.piramalswasthya.cho.model.FormElement
@@ -7,7 +8,7 @@ import org.piramalswasthya.cho.model.InputType
 
 
 class ElderlyHealthAssessmentDataset(
-    context: Context,
+    private val context: Context,
     currentLanguage: Languages
 ) : ReferralFollowUpDataset(context, currentLanguage) {
 
@@ -17,61 +18,157 @@ class ElderlyHealthAssessmentDataset(
 
     var onShowAlert: ((String) -> Unit)? = null
 
+    private val optionYes = context.getString(R.string.yes_option)
+    private val optionNo = context.getString(R.string.no_option)
+    private val optionIndependent = context.getString(R.string.elderly_independent)
+    private val optionDependent = context.getString(R.string.elderly_dependent)
+
+    private val optionNoDecline = context.getString(R.string.elderly_status_no_decline)
+    private val optionPartialDependence = context.getString(R.string.elderly_status_partial_dependence)
+    private val optionFunctionalDependence = context.getString(R.string.elderly_status_functional_dependence)
+    private val optionHighlyDependent = context.getString(R.string.elderly_status_highly_dependent)
+    private val optionUnknown = context.getString(R.string.elderly_status_unknown)
+
+    private val optionSuspected = context.getString(R.string.elderly_outcome_suspected)
+    private val optionNotSuspected = context.getString(R.string.elderly_outcome_not_suspected)
 
     private val geriatricComplaints = FormElement(
         id = 1,
         inputType = InputType.RADIO,
-        title = "General geriatric complaints present?",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.elderly_geriatric_complaints),
+        entries = arrayOf(optionYes, optionNo),
         required = true
     )
 
     private val multipleChronicConditions = FormElement(
         id = 2,
         inputType = InputType.CHECKBOXES,
-        title = "Multiple chronic conditions",
-        entries = arrayOf("Yes"),
+        title = context.getString(R.string.elderly_multiple_chronic),
+        entries = arrayOf(optionYes),
         required = false
     )
 
     private val recentFalls = FormElement(
         id = 3,
         inputType = InputType.CHECKBOXES,
-        title = "Recent falls",
-        entries = arrayOf("Yes"),
+        title = context.getString(R.string.elderly_recent_falls),
+        entries = arrayOf(optionYes),
         required = false
     )
 
     private val difficultyWalkingBalance = FormElement(
         id = 4,
         inputType = InputType.CHECKBOXES,
-        title = "Difficulty in walking or balance",
-        entries = arrayOf("Yes"),
+        title = context.getString(R.string.elderly_difficulty_walking),
+        entries = arrayOf(optionYes),
         required = false
     )
 
     private val visualHearingDifficulty = FormElement(
         id = 5,
         inputType = InputType.CHECKBOXES,
-        title = "Visual or hearing difficulty",
-        entries = arrayOf("Yes"),
+        title = context.getString(R.string.elderly_visual_hearing),
+        entries = arrayOf(optionYes),
         required = false
     )
 
     private val functionalDecline = FormElement(
         id = 6,
         inputType = InputType.RADIO,
-        title = "Functional decline / difficulty in daily activities (ADL)",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.elderly_functional_decline),
+        entries = arrayOf(optionYes, optionNo),
         required = true,
-        hasAlertError = true
+        hasAlertError = true,
+        hasDependants = true
+    )
+
+    // ADL Assessment Fields
+    private val functionalassesmentHeadline = FormElement(
+        id = 32,
+        inputType = InputType.HEADLINE,
+        title = context.getString(R.string.elderly_functional_assessment_headline),
+        required = false
+    )
+    private var bathing = FormElement(
+        id = 7,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.elderly_bathing),
+        entries = arrayOf(optionIndependent, optionDependent),
+        required = true,
+        hasDependants = true
+    )
+
+    private var dressing = FormElement(
+        id = 8,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.elderly_dressing),
+        entries = arrayOf(optionIndependent, optionDependent),
+        required = true,
+        hasDependants = true
+    )
+
+    private var toileting = FormElement(
+        id = 9,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.elderly_toileting),
+        entries = arrayOf(optionIndependent, optionDependent),
+        required = true,
+        hasDependants = true
+    )
+
+    private var transferring = FormElement(
+        id = 10,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.elderly_transferring),
+        entries = arrayOf(optionIndependent, optionDependent),
+        required = true,
+        hasDependants = true
+    )
+
+    private var continence = FormElement(
+        id = 11,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.elderly_continence),
+        entries = arrayOf(optionIndependent, optionDependent),
+        required = true,
+        hasDependants = true
+    )
+
+    private var feeding = FormElement(
+        id = 12,
+        inputType = InputType.RADIO,
+        title = context.getString(R.string.elderly_feeding),
+        entries = arrayOf(optionIndependent, optionDependent),
+        required = true,
+        hasDependants = true
+    )
+
+    private var totalScore = FormElement(
+        id = 13,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.elderly_total_score),
+        required = false
+    )
+
+    private var functionalStatus = FormElement(
+        id = 14,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.elderly_functional_status),
+        required = false
+    )
+
+    private var functionalDeclineFlag = FormElement(
+        id = 15,
+        inputType = InputType.TEXT_VIEW,
+        title = context.getString(R.string.elderly_functional_decline_flag),
+        required = false
     )
 
     private val memoryLoss = FormElement(
-        id = 7,
+        id = 16,
         inputType = InputType.RADIO,
-        title = "Memory loss or confusion",
-        entries = arrayOf("Yes", "No"),
+        title = context.getString(R.string.elderly_memory_loss),
+        entries = arrayOf(optionYes, optionNo),
         required = true,
         hasAlertError = true,
         hasDependants = true
@@ -80,59 +177,59 @@ class ElderlyHealthAssessmentDataset(
     // ---- Section B: Dementia Screening Checklist ----
 
     private val dementiaSectionHeadline = FormElement(
-        id = 8,
+        id = 17,
         inputType = InputType.HEADLINE,
-        title = "Dementia Screening Checklist",
+        title = context.getString(R.string.elderly_dementia_headline),
         required = false
     )
 
     private val dementiaMemoryLoss = FormElement(
-        id = 9,
+        id = 18,
         inputType = InputType.CHECKBOXES,
-        title = "Progressive memory loss",
-        entries = arrayOf("Yes"),
+        title = context.getString(R.string.elderly_dementia_memory_loss),
+        entries = arrayOf(optionYes),
         required = false,
         hasDependants = true
     )
 
     private val dementiaDisorientation = FormElement(
-        id = 10,
+        id = 19,
         inputType = InputType.CHECKBOXES,
-        title = "Disorientation (time/place/person)",
-        entries = arrayOf("Yes"),
+        title = context.getString(R.string.elderly_dementia_disorientation),
+        entries = arrayOf(optionYes),
         required = false,
         hasDependants = true
     )
 
     private val dementiaBehaviouralChanges = FormElement(
-        id = 11,
+        id = 20,
         inputType = InputType.CHECKBOXES,
-        title = "Behavioural changes",
-        entries = arrayOf("Yes"),
+        title = context.getString(R.string.elderly_dementia_behavioural),
+        entries = arrayOf(optionYes),
         required = false,
         hasDependants = true
     )
 
     private val dementiaSelfCareDecline = FormElement(
-        id = 12,
+        id = 21,
         inputType = InputType.CHECKBOXES,
-        title = "Decline in self-care / routine activities",
-        entries = arrayOf("Yes"),
+        title = context.getString(R.string.elderly_dementia_self_care),
+        entries = arrayOf(optionYes),
         required = false,
         hasDependants = true
     )
 
     private var dementiaScreeningOutcome = FormElement(
-        id = 13,
+        id = 22,
         inputType = InputType.TEXT_VIEW,
-        title = "Screening Outcome",
+        title = context.getString(R.string.elderly_screening_outcome),
         required = false
     )
 
     private var dementiaReferralRequired = FormElement(
-        id = 14,
+        id = 23,
         inputType = InputType.TEXT_VIEW,
-        title = "Referral Required",
+        title = context.getString(R.string.elderly_referral_required),
         required = false
     )
 
@@ -154,10 +251,16 @@ class ElderlyHealthAssessmentDataset(
         list.add(difficultyWalkingBalance)
         list.add(visualHearingDifficulty)
         list.add(functionalDecline)
+
+        if (functionalDecline.value == optionYes) {
+            list.addAll(getADLFields())
+            computeADLScore()
+        }
+
         list.add(memoryLoss)
 
         // Section B: Dementia Screening – enabled only if Memory loss = Yes AND age >= 60
-        if (memoryLoss.value == "Yes" && patientAge != null && patientAge >= 60) {
+        if (memoryLoss.value == optionYes && patientAge != null && patientAge >= 60) {
             list.addAll(getDementiaSectionFields())
             computeDementiaOutcome()
         }
@@ -172,6 +275,32 @@ class ElderlyHealthAssessmentDataset(
             recentFalls,
             difficultyWalkingBalance,
             visualHearingDifficulty
+        )
+    }
+
+    private fun getADLFields(): List<FormElement> {
+        return listOf(
+            functionalassesmentHeadline,
+            bathing,
+            dressing,
+            toileting,
+            transferring,
+            continence,
+            feeding,
+            totalScore,
+            functionalStatus,
+            functionalDeclineFlag
+        )
+    }
+
+    private fun getADLAnswerFields(): List<FormElement> {
+        return listOf(
+            bathing,
+            dressing,
+            toileting,
+            transferring,
+            continence,
+            feeding
         )
     }
 
@@ -195,14 +324,14 @@ class ElderlyHealthAssessmentDataset(
             dementiaReferralRequired
         )
     }
-    override val referralRequired = createReferralRequired(15)
-    override val referralLevel = createReferralLevel(16)
-    override val reasonForReferral = createReasonForReferral(17)
-    override val followUpRequired = createFollowUpRequired(18)
-    override val followUpDate = createFollowUpDate(19)
-    override val caseStatus = createCaseStatus(20)
-    override val dateOfDeath = createDateOfDeath(21)
-    override val remarks = createRemarks(22)
+    override val referralRequired = createReferralRequired(24)
+    override val referralLevel = createReferralLevel(25)
+    override val reasonForReferral = createReasonForReferral(26)
+    override val followUpRequired = createFollowUpRequired(27)
+    override val followUpDate = createFollowUpDate(28)
+    override val caseStatus = createCaseStatus(29)
+    override val dateOfDeath = createDateOfDeath(30)
+    override val remarks = createRemarks(31)
 
     private suspend fun computeDementiaOutcome() {
         val anySelected = listOf(
@@ -210,10 +339,10 @@ class ElderlyHealthAssessmentDataset(
             dementiaDisorientation,
             dementiaBehaviouralChanges,
             dementiaSelfCareDecline
-        ).any { it.value == "Yes" }
+        ).any { it.value == optionYes }
 
-        val newOutcomeValue = if (anySelected) "Suspected" else "Not suspected"
-        val newReferralValue = if (anySelected) "Yes" else "No"
+        val newOutcomeValue = if (anySelected) optionSuspected else optionNotSuspected
+        val newReferralValue = if (anySelected) optionYes else optionNo
 
         // Find existing indices in the actual list BEFORE updating the references
         val oldOutcomeIndex = getIndexById(dementiaScreeningOutcome.id)
@@ -236,6 +365,59 @@ class ElderlyHealthAssessmentDataset(
         }
     }
 
+    private suspend fun computeADLScore() {
+        // Find existing indices in the actual list BEFORE updating the references
+        val oldTotalIndex = getIndexById(totalScore.id)
+        val oldStatusIndex = getIndexById(functionalStatus.id)
+        val oldFlagIndex = getIndexById(functionalDeclineFlag.id)
+
+        val adlFields = getADLAnswerFields()
+        val allAnswered = adlFields.all { !it.value.isNullOrBlank() }
+
+        if (!allAnswered) {
+            totalScore = totalScore.copy(value = null)
+            functionalStatus = functionalStatus.copy(value = null)
+            functionalDeclineFlag = functionalDeclineFlag.copy(value = null)
+        } else {
+            val scores = adlFields.map { field ->
+                when (field.value) {
+                    optionIndependent -> 1
+                    optionDependent -> 0
+                    else -> 0
+                }
+            }
+            val total = scores.sum()
+
+            val status = when (total) {
+                6 -> optionNoDecline
+                in 4..5 -> optionPartialDependence
+                in 2..3 -> optionFunctionalDependence
+                in 0..1 -> optionHighlyDependent
+                else -> optionUnknown
+            }
+
+            val flag = if (total <= 5) optionYes else optionNo
+
+            totalScore = totalScore.copy(value = total.toString())
+            functionalStatus = functionalStatus.copy(value = status)
+            functionalDeclineFlag = functionalDeclineFlag.copy(value = flag)
+        }
+
+        if (oldTotalIndex != -1) {
+            setUpPage(
+                mList = getFormList().toMutableList().apply {
+                    this[oldTotalIndex] = totalScore
+                    if (oldStatusIndex != -1) {
+                        this[oldStatusIndex] = functionalStatus
+                    }
+                    if (oldFlagIndex != -1) {
+                        this[oldFlagIndex] = functionalDeclineFlag
+                    }
+                }
+            )
+        }
+    }
+
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         val referralFollowUpResult = handleReferralFollowUpChange(formId, index)
@@ -244,9 +426,14 @@ class ElderlyHealthAssessmentDataset(
 
             functionalDecline.id -> {
                 if (index == 0) {
-                    onShowAlert?.invoke("Patient has functional decline. Please refer to higher facility if needed.")
+                    onShowAlert?.invoke(context.getString(R.string.elderly_alert_functional_decline))
                 }
-                -1
+                handleFunctionalDeclineChange(index)
+            }
+
+            bathing.id, dressing.id, toileting.id, transferring.id, continence.id, feeding.id -> {
+                computeADLScore()
+                getIndexById(totalScore.id)
             }
 
             memoryLoss.id -> handleMemoryLossChange(index)
@@ -267,7 +454,7 @@ class ElderlyHealthAssessmentDataset(
 
     private suspend fun handleMemoryLossChange(index: Int): Int {
         if (index == 0) {
-            onShowAlert?.invoke("Patient has memory loss. Please refer to higher facility if needed.")
+            onShowAlert?.invoke(context.getString(R.string.elderly_alert_memory_loss))
         }
 
         val isEligible = patientAge != null && patientAge!! >= 60
@@ -295,9 +482,33 @@ class ElderlyHealthAssessmentDataset(
         }
     }
 
+    private suspend fun handleFunctionalDeclineChange(index: Int): Int {
+        return if (index == 0) {
+            // Functional decline = Yes → show ADL fields
+            triggerDependants(
+                source = functionalDecline,
+                addItems = getADLFields(),
+                removeItems = emptyList()
+            )
+            computeADLScore()
+            functionalDecline.id
+        } else {
+
+            getADLFields().forEach {
+                it.value = null
+            }
+            triggerDependants(
+                source = functionalDecline,
+                addItems = emptyList(),
+                removeItems = getADLFields()
+            )
+            functionalDecline.id
+        }
+    }
+
     private fun createDefaultCache(): ElderlyHealthAssessment {
         return ElderlyHealthAssessment(
-            patientID = "",
+            patientId = "",
             benVisitNo = 0,
             geriatricComplaints = null,
             multipleChronicConditions = null,
@@ -305,6 +516,15 @@ class ElderlyHealthAssessmentDataset(
             difficultyWalkingBalance = null,
             visualHearingDifficulty = null,
             functionalDecline = null,
+            bathing = null,
+            dressing = null,
+            toileting = null,
+            transferring = null,
+            continence = null,
+            feeding = null,
+            totalScore = null,
+            functionalStatus = null,
+            functionalDeclineFlag = null,
             memoryLoss = null,
             dementiaMemoryLoss = null,
             dementiaDisorientation = null,
@@ -317,52 +537,96 @@ class ElderlyHealthAssessmentDataset(
 
     private fun populateFromCache(cache: ElderlyHealthAssessment) {
         geriatricComplaints.value = when(cache.geriatricComplaints) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
 
         multipleChronicConditions.value =
-            if (cache.multipleChronicConditions == true) "Yes" else null
+            if (cache.multipleChronicConditions == true) optionYes else null
 
         recentFalls.value =
-            if (cache.recentFalls == true) "Yes" else null
+            if (cache.recentFalls == true) optionYes else null
 
         difficultyWalkingBalance.value =
-            if (cache.difficultyWalkingBalance == true) "Yes" else null
+            if (cache.difficultyWalkingBalance == true) optionYes else null
 
         visualHearingDifficulty.value =
-            if (cache.visualHearingDifficulty == true) "Yes" else null
+            if (cache.visualHearingDifficulty == true) optionYes else null
 
         functionalDecline.value = when(cache.functionalDecline) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
+            else -> null
+        }
+
+        bathing.value = when(cache.bathing) {
+            1 -> optionIndependent
+            0 -> optionDependent
+            else -> null
+        }
+
+        dressing.value = when(cache.dressing) {
+            1 -> optionIndependent
+            0 -> optionDependent
+            else -> null
+        }
+
+        toileting.value = when(cache.toileting) {
+            1 -> optionIndependent
+            0 -> optionDependent
+            else -> null
+        }
+
+        transferring.value = when(cache.transferring) {
+            1 -> optionIndependent
+            0 -> optionDependent
+            else -> null
+        }
+
+        continence.value = when(cache.continence) {
+            1 -> optionIndependent
+            0 -> optionDependent
+            else -> null
+        }
+
+        feeding.value = when(cache.feeding) {
+            1 -> optionIndependent
+            0 -> optionDependent
+            else -> null
+        }
+
+        totalScore.value = cache.totalScore?.toString()
+        functionalStatus.value = cache.functionalStatus
+        functionalDeclineFlag.value = when(cache.functionalDeclineFlag) {
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
 
         memoryLoss.value = when(cache.memoryLoss) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
 
         // Dementia fields
         dementiaMemoryLoss.value =
-            if (cache.dementiaMemoryLoss == true) "Yes" else null
+            if (cache.dementiaMemoryLoss == true) optionYes else null
 
         dementiaDisorientation.value =
-            if (cache.dementiaDisorientation == true) "Yes" else null
+            if (cache.dementiaDisorientation == true) optionYes else null
 
         dementiaBehaviouralChanges.value =
-            if (cache.dementiaBehaviouralChanges == true) "Yes" else null
+            if (cache.dementiaBehaviouralChanges == true) optionYes else null
 
         dementiaSelfCareDecline.value =
-            if (cache.dementiaSelfCareDecline == true) "Yes" else null
+            if (cache.dementiaSelfCareDecline == true) optionYes else null
 
         dementiaScreeningOutcome.value = cache.dementiaScreeningOutcome
         dementiaReferralRequired.value = when(cache.dementiaReferralRequired) {
-            true -> "Yes"
-            false -> "No"
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         populateReferralFollowUpFromCache(cache)
@@ -372,44 +636,88 @@ class ElderlyHealthAssessmentDataset(
         (cacheModel as ElderlyHealthAssessment).let {
 
             it.geriatricComplaints =
-                geriatricComplaints.value == "Yes"
+                geriatricComplaints.value == optionYes
 
             it.multipleChronicConditions =
-                multipleChronicConditions.value == "Yes"
+                multipleChronicConditions.value == optionYes
 
             it.recentFalls =
-                recentFalls.value == "Yes"
+                recentFalls.value == optionYes
 
             it.difficultyWalkingBalance =
-                difficultyWalkingBalance.value == "Yes"
+                difficultyWalkingBalance.value == optionYes
 
             it.visualHearingDifficulty =
-                visualHearingDifficulty.value == "Yes"
+                visualHearingDifficulty.value == optionYes
 
             it.functionalDecline =
-                functionalDecline.value == "Yes"
+                functionalDecline.value == optionYes
+
+            it.bathing = when(bathing.value) {
+                optionIndependent -> 1
+                optionDependent -> 0
+                else -> null
+            }
+
+            it.dressing = when(dressing.value) {
+                optionIndependent -> 1
+                optionDependent -> 0
+                else -> null
+            }
+
+            it.toileting = when(toileting.value) {
+                optionIndependent -> 1
+                optionDependent -> 0
+                else -> null
+            }
+
+            it.transferring = when(transferring.value) {
+                optionIndependent -> 1
+                optionDependent -> 0
+                else -> null
+            }
+
+            it.continence = when(continence.value) {
+                optionIndependent -> 1
+                optionDependent -> 0
+                else -> null
+            }
+
+            it.feeding = when(feeding.value) {
+                optionIndependent -> 1
+                optionDependent -> 0
+                else -> null
+            }
+
+            it.totalScore = totalScore.value?.toIntOrNull()
+            it.functionalStatus = functionalStatus.value
+            it.functionalDeclineFlag = when (functionalDeclineFlag.value) {
+                optionYes -> true
+                optionNo -> false
+                else -> null
+            }
 
             it.memoryLoss =
-                memoryLoss.value == "Yes"
+                memoryLoss.value == optionYes
 
             // Dementia fields
             it.dementiaMemoryLoss =
-                dementiaMemoryLoss.value == "Yes"
+                dementiaMemoryLoss.value == optionYes
 
             it.dementiaDisorientation =
-                dementiaDisorientation.value == "Yes"
+                dementiaDisorientation.value == optionYes
 
             it.dementiaBehaviouralChanges =
-                dementiaBehaviouralChanges.value == "Yes"
+                dementiaBehaviouralChanges.value == optionYes
 
             it.dementiaSelfCareDecline =
-                dementiaSelfCareDecline.value == "Yes"
+                dementiaSelfCareDecline.value == optionYes
 
             it.dementiaScreeningOutcome =
                 dementiaScreeningOutcome.value
 
             it.dementiaReferralRequired =
-                dementiaReferralRequired.value == "Yes"
+                dementiaReferralRequired.value == optionYes
             mapReferralFollowUpValues(it)
         }
     }

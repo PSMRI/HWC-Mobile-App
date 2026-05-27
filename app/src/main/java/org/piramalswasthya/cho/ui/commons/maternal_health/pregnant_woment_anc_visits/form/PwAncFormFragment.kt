@@ -87,6 +87,26 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         setupButtonListeners()
         setupStateObserver()
         setupAlertObserver()
+        setupInitErrorObserver()
+    }
+
+    private fun setupInitErrorObserver() {
+        viewModel.initErrorMessage.observe(viewLifecycleOwner) { message ->
+            message?.let { errorMessage ->
+                context?.let { ctx ->
+                    AlertDialog.Builder(ctx)
+                        .setTitle(getString(R.string.alert_popup))
+                        .setMessage(errorMessage)
+                        .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
+                            dialog.dismiss()
+                            viewModel.clearInitError()
+                            findNavController().navigateUp()
+                        }
+                        .setCancelable(false)
+                        .show()
+                }
+            }
+        }
     }
 
     private fun setupFormAdapter() {
@@ -113,6 +133,13 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                     viewModel.formList.collect {
                         latestFormList = it
                         if (it.isNotEmpty()) ancFormAdapter?.submitList(it)
+                    }
+                }
+
+                lifecycleScope.launch {
+                    viewModel.forceRefreshIdFlow.collect { id ->
+                        val pos = ancFormAdapter?.currentList?.indexOfFirst { it.id == id } ?: -1
+                        if (pos != -1) ancFormAdapter?.notifyItemChanged(pos)
                     }
                 }
             }
@@ -205,7 +232,15 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         binding.llContent.visibility = View.VISIBLE
         binding.pbForm.visibility = View.GONE
         Toast.makeText(context, getString(R.string.save_successful_toast), Toast.LENGTH_LONG).show()
-        WorkerUtils.triggerAmritSyncWorker(requireContext())
+        WorkerUtils.triggerAncVisitSync(requireContext())
+        if (viewModel.shouldTriggerBeneficiarySyncAfterSave()) {
+            WorkerUtils.triggerBeneficiarySync(requireContext())
+            viewModel.consumeBeneficiarySyncTrigger()
+        }
+        if (viewModel.shouldTriggerEctSyncAfterSave()) {
+            WorkerUtils.triggerEligibleCoupleTrackingSync(requireContext())
+            viewModel.consumeEctSyncTrigger()
+        }
 
         // When launched directly from ANC listing, there is no patient home to navigate back to.
         if (benVisitInfo == null) {

@@ -12,18 +12,8 @@ class OralHealthDataset(
     currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
 
-    companion object {
-        private const val YES = "Yes"
-        private const val NO = "No"
-        private const val DENTAL_EMERGENCY_PAIN = "Pain"
-        private const val DENTAL_EMERGENCY_ABSCESS = "Abscess"
-        private const val DENTAL_EMERGENCY_SWELLING = "Swelling"
-        private const val DENTAL_EMERGENCY_TOOTH_INJURY = "Tooth Injury"
-        private const val DENTAL_EMERGENCY_AVULSION = "Avulsion"
-        private const val DENTAL_EMERGENCY_NON_HEALING_ULCER = "Non-Healing Ulcer"
-        private const val DENTAL_EMERGENCY_UNCONTROLLED_BLEEDING = "Uncontrolled Bleeding"
-        private const val DENTAL_EMERGENCY_TRAUMA = "Trauma (Fractured jaw/mobile teeth)"
-    }
+    private val optionYes = context.getString(R.string.yes_option)
+    private val optionNo = context.getString(R.string.no_option)
 
     private lateinit var cache: OralHealth
     private var lastSelectedToothDecaySymptoms: Set<String> = emptySet()
@@ -34,8 +24,8 @@ class OralHealthDataset(
     private val toothDecayPresent = FormElement(
         id = 1,
         inputType = InputType.RADIO,
-        title = "Tooth Decay Present",
-        entries = arrayOf(YES, NO),
+        title = context.getString(R.string.oral_tooth_decay_present),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasDependants = true
     )
@@ -43,16 +33,16 @@ class OralHealthDataset(
     private val toothDecaySymptoms = FormElement(
         id = 2,
         inputType = InputType.CHECKBOXES,
-        title = "Symptoms of Tooth Decay",
+        title = context.getString(R.string.oral_tooth_decay_symptoms),
         entries = arrayOf(
-            "Black spot",
-            "Discoloration of tooth Cavity",
-            "Hole in the tooth",
-            "Sensitivity to hot and cold, sweet and sour",
-            "Food lodgment in the cavity/ between teeth",
-            "Pain",
-            "Swelling",
-            "Pus discharge"
+            context.getString(R.string.oral_symptom_black_spot),
+            context.getString(R.string.oral_symptom_discoloration),
+            context.getString(R.string.oral_symptom_hole),
+            context.getString(R.string.oral_symptom_sensitivity),
+            context.getString(R.string.oral_symptom_food_lodgment),
+            context.getString(R.string.oral_symptom_pain),
+            context.getString(R.string.oral_symptom_swelling),
+            context.getString(R.string.oral_symptom_pus_discharge)
         ),
         required = false,
         hasAlertError = true
@@ -61,8 +51,8 @@ class OralHealthDataset(
     private val gumDiseasePresent = FormElement(
         id = 3,
         inputType = InputType.RADIO,
-        title = "Gum Diseases Present",
-        entries = arrayOf(YES, NO),
+        title = context.getString(R.string.oral_gum_disease_present),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasDependants = true
     )
@@ -70,14 +60,14 @@ class OralHealthDataset(
     private val gumDiseaseSymptoms = FormElement(
         id = 4,
         inputType = InputType.CHECKBOXES,
-        title = "Symptoms of Gum Diseases",
+        title = context.getString(R.string.oral_gum_disease_symptoms),
         entries = arrayOf(
-            "Foul smell",
-            "Bleeding gums",
-            "Deposits and discoloration of tooth",
-            "Loose teeth",
-            "Widening gap between teeth",
-            "Swollen gums"
+            context.getString(R.string.oral_gum_foul_smell),
+            context.getString(R.string.oral_gum_bleeding),
+            context.getString(R.string.oral_gum_deposits),
+            context.getString(R.string.oral_gum_loose_teeth),
+            context.getString(R.string.oral_gum_widening_gap),
+            context.getString(R.string.oral_gum_swollen)
         ),
         required = false,
         hasAlertError = true
@@ -86,8 +76,8 @@ class OralHealthDataset(
     private val irregularTeethJaws = FormElement(
         id = 5,
         inputType = InputType.RADIO,
-        title = "Irregular Teeth/Jaws",
-        entries = arrayOf(YES, NO),
+        title = context.getString(R.string.oral_irregular_teeth_jaws),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -95,8 +85,8 @@ class OralHealthDataset(
     private val abnormalGrowthUlcer = FormElement(
         id = 6,
         inputType = InputType.RADIO,
-        title = "Abnormal Growth/Ulcer",
-        entries = arrayOf(YES, NO),
+        title = context.getString(R.string.oral_abnormal_growth_ulcer),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -104,8 +94,8 @@ class OralHealthDataset(
     private val cleftLipPalate = FormElement(
         id = 7,
         inputType = InputType.RADIO,
-        title = "Cleft Lip/Palate",
-        entries = arrayOf(YES, NO),
+        title = context.getString(R.string.oral_cleft_lip_palate),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -113,8 +103,8 @@ class OralHealthDataset(
     private val dentalFluorosis = FormElement(
         id = 8,
         inputType = InputType.RADIO,
-        title = "Dental Fluorosis",
-        entries = arrayOf(YES, NO),
+        title = context.getString(R.string.oral_dental_fluorosis),
+        entries = arrayOf(optionYes, optionNo),
         required = false,
         hasAlertError = true
     )
@@ -122,16 +112,16 @@ class OralHealthDataset(
     private val dentalEmergency = FormElement(
         id = 9,
         inputType = InputType.CHECKBOXES,
-        title = "Dental Emergency",
+        title = context.getString(R.string.oral_dental_emergency),
         entries = arrayOf(
-            DENTAL_EMERGENCY_PAIN,
-            DENTAL_EMERGENCY_ABSCESS,
-            DENTAL_EMERGENCY_SWELLING,
-            DENTAL_EMERGENCY_TOOTH_INJURY,
-            DENTAL_EMERGENCY_AVULSION,
-            DENTAL_EMERGENCY_NON_HEALING_ULCER,
-            DENTAL_EMERGENCY_UNCONTROLLED_BLEEDING,
-            DENTAL_EMERGENCY_TRAUMA
+            context.getString(R.string.oral_emergency_pain),
+            context.getString(R.string.oral_emergency_abscess),
+            context.getString(R.string.oral_emergency_swelling),
+            context.getString(R.string.oral_emergency_tooth_injury),
+            context.getString(R.string.oral_emergency_avulsion),
+            context.getString(R.string.oral_emergency_non_healing_ulcer),
+            context.getString(R.string.oral_emergency_uncontrolled_bleeding),
+            context.getString(R.string.oral_emergency_trauma)
         ),
         required = false,
         hasAlertError = true
@@ -146,7 +136,7 @@ class OralHealthDataset(
 
         val list = mutableListOf<FormElement>()
         list.add(toothDecayPresent)
-        if (toothDecayPresent.value == YES) {
+        if (toothDecayPresent.value == optionYes) {
             toothDecaySymptoms.required = true
             list.add(toothDecaySymptoms)
         } else {
@@ -154,7 +144,7 @@ class OralHealthDataset(
         }
 
         list.add(gumDiseasePresent)
-        if (gumDiseasePresent.value == YES) {
+        if (gumDiseasePresent.value == optionYes) {
             gumDiseaseSymptoms.required = true
             list.add(gumDiseaseSymptoms)
         } else {
@@ -278,15 +268,15 @@ class OralHealthDataset(
     }
 
     private fun String?.toYesNoBool(): Boolean? = when (this) {
-        YES -> true
-        NO  -> false
+        optionYes -> true
+        optionNo  -> false
         else -> null
     }
 
     private fun populateFromCache(cache: OralHealth) {
         toothDecayPresent.value = when (cache.toothDecayPresent) {
-            true -> YES
-            false -> NO
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         toothDecaySymptoms.value = if (cache.toothDecayPresent == true) {
@@ -296,30 +286,30 @@ class OralHealthDataset(
         }
 
         gumDiseasePresent.value = when (cache.gumDiseasePresent) {
-            true -> YES
-            false -> NO
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         gumDiseaseSymptoms.value = if (cache.gumDiseasePresent == true) cache.gumDiseaseSymptoms else null
 
         irregularTeethJaws.value = when (cache.irregularTeethJaws) {
-            true -> YES
-            false -> NO
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         abnormalGrowthUlcer.value = when (cache.abnormalGrowthUlcer) {
-            true -> YES
-            false -> NO
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         cleftLipPalate.value = when (cache.cleftLipPalate) {
-            true -> YES
-            false -> NO
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         dentalFluorosis.value = when (cache.dentalFluorosis) {
-            true -> YES
-            false -> NO
+            true -> optionYes
+            false -> optionNo
             else -> null
         }
         dentalEmergency.value = cache.dentalEmergency
@@ -342,4 +332,3 @@ class OralHealthDataset(
         }
     }
 }
-

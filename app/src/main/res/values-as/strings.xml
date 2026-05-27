@@ -172,7 +172,6 @@
     <string name="generate_abha_id">ABHA নম্বৰ সৃষ্টি কৰক</string>
 
     <string name="aadhar_consent_text">মই ইয়াৰ দ্বাৰা নিশ্চিত কৰিছোঁ যে ABHA নম্বৰ সৃষ্টিৰ উদ্দেশ্যে ব্যক্তিৰ আধাৰ নম্বৰ ব্যৱহাৰ কৰি তলত উল্লেখ কৰা সন্মতি প্ৰক্ৰিয়াটো তেওঁক বুজাই দিয়া হৈছে।</string>
-    <string name="PREF_rem_me_uname">user-name-local-saved</string>
     <string name="title_activity_nav">নেভিগেচন এক্টিভিটি</string>
     <string name="navigation_drawer_open">নেভিগেচন ড্ৰয়াৰ খোলক</string>
     <string name="navigation_drawer_close">নেভিগেচন ড্ৰয়াৰ বন্ধ কৰক</string>
@@ -349,8 +348,6 @@
     <string name="nav_item_1_text">নাম : <b>%s</b></string>
     <string name="nav_item_4_text">ম’বাইল নম্বৰ : <b>%s</b></string>    <string name="nav_item_2_text">ব্যৱহাৰকাৰী নাম : <b>%s</b></string>
     <string name="nav_item_3_text">ব্যৱহাৰকাৰী ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">লগ-ইন-ব্যৱহাৰকাৰী</string>
-    <string name="PREF_user_name">ব্যৱহাৰকাৰীৰ নাম</string>
     <string name="individual_s_consent_for_creation_of_abha_number">ABHA Number সৃষ্টিৰ বাবে ব্যক্তিৰ সন্মতি।</string>
     <string name="exit">প্ৰস্থান</string>
     <string name="timer">টাইমাৰ</string>
@@ -454,7 +451,6 @@
     <string name="view_batch">বেচ চাওক</string>
     <string name="ok_button">ঠিক আছে</string>
     <string name="change_role">ভূমিকা সলনি কৰক</string>
-    <string name="password_local_saved">পাছৱৰ্ড-স্থানীয়-সংৰক্ষিত</string>
     <string name="remember_me">মোক মনত পেলাওক</string>
     <string name="other_cphc_services">অন্যান্য চিপিএইচচি সেৱাসমূহ</string>
     <string name="reason_for_visit">ভ্ৰমণৰ কাৰণ</string>
@@ -569,16 +565,16 @@
 
     <string name="form_input_empty_error">প্ৰয়োজনীয় ক্ষেত্ৰ খালী হ\'ব নোৱাৰে !</string>
     <string name="form_input_upper_case_error">কেৱল ডাঙৰ আখৰৰ বৰ্ণমালাহে অনুমতি দিয়া হৈছে!</string>
-    <string name="form_input_missing_entry_error">ক্ষেত্ৰত %1d সংখ্যা থাকিব লাগিব।</string>
+    <string name="form_input_missing_entry_error">ক্ষেত্ৰত %1$d সংখ্যা থাকিব লাগিব।</string>
     <string name="form_input_alphabet_space_only_error">কেৱল বৰ্ণমালা আৰু বগা স্থানৰ অনুমতি!</string>
     <string name="form_input_alphabet_special_only_error">কেৱল বৰ্ণমালা আৰু বিশেষ আখৰৰ অনুমতি!</string>
-    <string name="form_input_min_limit_error">%1s %2d তকৈ ডাঙৰ বা সমান হব লাগে</string>
+    <string name="form_input_min_limit_error">%1$s %2$d তকৈ ডাঙৰ বা সমান হব লাগে</string>
     <string name="form_input_alph_numeric_space_only_error">কেৱল বৰ্ণমালা আৰু সংখ্যাৰ অনুমতি!</string>
     <string name="form_input__no_alpha_space_error">কোনো বৰ্ণমালা বা স্থানৰ অনুমতি নাই!</string>
     <string name="form_input_digit_only_error">কেৱল Digits ৰ অনুমতি!</string>
-    <string name="form_input_min_limit_error_decimal">%1s %2.1f তকৈ ডাঙৰ বা সমান হব লাগে</string>
-    <string name="form_input_max_limit_error">%1s %2d তকৈ কম বা সমান হব লাগে</string>
-    <string name="form_input_max_limit_error_decimal">%1s %2.1f তকৈ কম বা সমান হব লাগে</string>
+    <string name="form_input_min_limit_error_decimal">%1$s %2$.1f তকৈ ডাঙৰ বা সমান হব লাগে</string>
+    <string name="form_input_max_limit_error">%1$s %2$d তকৈ কম বা সমান হব লাগে</string>
+    <string name="form_input_max_limit_error_decimal">%1$s %2$.1f তকৈ কম বা সমান হব লাগে</string>
     <string name="form_input_error_invalid_mobile">অবৈধ মোবাইল নম্বৰ !</string>
     <string name="form_input_error_invalid_rch">অবৈধ RCH আইডি !</string>
     <string name="form_input_error_invalid_mcp">অবৈধ এমচিপি নম্বৰ !</string>
@@ -816,6 +812,20 @@
 
     <!-- EC Tracking Form -->
     <string name="ec_tracking_title">যোগ্য দম্পতী অনুসৰণ</string>
+    <string name="status_of_woman_eligible_couple_name">যোগ্য দম্পতি</string>
+    <string name="status_of_woman_eligible_couple_code">EC</string>
+    <string name="status_of_woman_pregnant_woman_name">গৰ্ভৱতী মহিলা</string>
+    <string name="status_of_woman_pregnant_woman_code">PW</string>
+    <string name="status_of_woman_postnatal_name">প্ৰসবোত্তৰ</string>
+    <string name="status_of_woman_postnatal_code">PN</string>
+    <string name="status_of_woman_elderly_name">বৃদ্ধ</string>
+    <string name="status_of_woman_elderly_code">EL</string>
+    <string name="status_of_woman_adolescent_name">কৈশোৰীয়া</string>
+    <string name="status_of_woman_adolescent_code">AD</string>
+    <string name="status_of_woman_permanent_sterilization_name">স্থায়ী বন্ধ্যাকৰণ</string>
+    <string name="status_of_woman_permanent_sterilization_code">ST</string>
+    <string name="status_of_woman_not_applicable_name">প্ৰযোজ্য নহয়</string>
+    <string name="status_of_woman_not_applicable_code">NA</string>
     <string name="is_pregnancy_test_done">গৰ্ভাৱস্থাৰ পৰীক্ষা কৰা হয়নে?</string>
     <string name="pregnancy_test_result">গৰ্ভাৱস্থা পৰীক্ষাৰ ফলাফল</string>
     <string name="is_woman_pregnant">মহিলাগৰাকী গৰ্ভৱতী নেকি?</string>
@@ -1024,6 +1034,7 @@
     <string name="delivery_date">ডেলিভাৰীৰ তাৰিখ</string>
     <string name="days_since_delivery">ডেলিভাৰীৰ পিছৰ দিন</string>
     <string name="no_pnc_mothers_found">কোনো পিএনচি মাতৃ পোৱা নগ\'ল</string>
+    <string name="no_e_pmsma_women_found">কোনো ই-পিএমএছএমএ মহিলা পোৱা নগ\'ল</string>
 
     <string name="infant_reg_list">শিশুৰ ৰেগ তালিকা</string>
     <string name="mother_name">মাৰ নাম</string>
@@ -1201,9 +1212,7 @@
         <item>হাইপোগ্লাইচেমিয়া</item>
         <item>খাদ্য গ্ৰহণ অসুবিধা</item>
         <item>খিঁচুনি</item>
-        <item>মেকোনিয়াম এস্পিৰেচন</item>
         <item>নাই</item>
-        <item>অন্য</item>
     </string-array>
 
     <string-array name="no_current_status_array">
@@ -1339,6 +1348,8 @@
     <string name="antra_next_due_date">ANTRA পৰৱৰ্তী তাৰিখ</string>
 
     <!-- Nose Diagnosis Form Strings -->
+    <string name="difficulty_in_breathing">উশাহ লোৱাত অসুবিধা</string>
+    <string name="open_mouth_breathing">মুখ খুলি উশাহ লোৱা</string>
     <string name="nose_bleed_title">নাকৰ ৰক্তপাত (Epistaxis)</string>
     <string name="systolic_bp_title">সিষ্ট’লিক BP (mmHg)</string>
     <string name="diastolic_bp_title">ডায়াষ্ট’লিক BP (mmHg)</string>
@@ -1349,6 +1360,8 @@
     <string name="sinusitis_with_pain">হয় (মুখৰ বেদনা / কোমলতা)</string>
 
     <!-- Nose Diagnosis Alert Messages -->
+    <string name="difficulty_in_breathing_alert">উশাহ লোৱাত অসুবিধা ধৰা পৰিছে। URI / Rhinitis / Sinusitis নিৰ্ণয় কৰক। HWC ত পৰিচালনযোগ্য নহলে বিশেষজ্ঞৰ ওপৰলৈ পঠিয়াওক।</string>
+    <string name="open_mouth_breathing_alert">মুখ খুলি উশাহ লোৱা ধৰা পৰিছে। URI / Rhinitis / Sinusitis নিৰ্ণয় কৰক। HWC ত পৰিচালনযোগ্য নহলে বিশেষজ্ঞৰ ওপৰলৈ পঠিয়াওক।</string>
     <string name="nose_bleed_alert_systolic_bp">সিষ্ট’লিক BP &gt; 120 mmHg। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
     <string name="nose_bleed_alert_diastolic_bp">ডায়াষ্ট’লিক BP &gt; 80 mmHg। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
     <string name="foreign_body_posterior_alert">পিছফালে দৃশ্যমান পোৱা গৈছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
@@ -1362,9 +1375,7 @@
     </string-array>
 
     <!-- Mental Health Screening Strings - Assamese -->
-    <!-- Response Options -->
-    <string name="yes_option">হয়</string>
-    <string name="no_option">নহয়</string>
+
 
     <!-- Initial Screening Questions -->
     <string name="emotional_behavioural_concerns">মানসিক বা আচৰণগত উদ্বেগ আছে</string>
@@ -1466,12 +1477,563 @@
     </string-array>
 
     <!-- PHQ-9 Alert Strings -->
-    <string name="phq9_alert_referral_mo_phc">MO/PHC লৈ প্ৰেৰণ কৰক (PHQ-9 স্ক’ৰ ≥ 10)</string>
-    <string name="phq9_alert_urgent">জৰুৰী প্ৰেৰণ (PHQ-9 স্ক’ৰ ≥ 15)</string>
-    <string name="phq9_alert_emergency">আপাতকালীন প্ৰেৰণ (PHQ-9 স্ক’ৰ ≥ 20)</string>
+    <string name="phq9_alert_referral_mo_phc"><font color="#FF0000">MO/PHC লৈ প্ৰেৰণ কৰক (PHQ-9 স্ক’ৰ ≥ 10)</font></string>
+    <string name="phq9_alert_urgent"><font color="#FF0000">জৰুৰী প্ৰেৰণ (PHQ-9 স্ক’ৰ ≥ 15)</font></string>
+    <string name="phq9_alert_emergency"><font color="#FF0000">আপাতকালীন প্ৰেৰণ (PHQ-9 স্ক’ৰ ≥ 20)</font></string>
 
     <!-- Mental Health Screening Form Titles and Messages -->
     <string name="title_mental_health_screening">মানসিক স্বাস্থ্য পৰীক্ষা</string>
     <string name="mental_health_screening_saved">মানসিক স্বাস্থ্য পৰীক্ষা সফলভাৱে সংৰক্ষণ কৰা হৈছে</string>
     <string name="cd_camera_search">কেমেৰা খোলক</string>
+
+    <!-- Ear Diagnosis Dataset -->
+    <string name="ear_difficulty_hearing">শুনাত অসুবিধা</string>
+    <string name="ear_whisper_test_response">ফুচফুচনি পৰীক্ষাৰ প্ৰতিক্ৰিয়া</string>
+    <string name="ear_whisper_correct">শুদ্ধ</string>
+    <string name="ear_whisper_incorrect">ভুল</string>
+    <string name="ear_hearing_test_outcome">শ্ৰৱণ পৰীক্ষাৰ ফলাফল</string>
+    <string name="ear_hearing_normal">স্বাভাৱিক</string>
+    <string name="ear_hearing_slight_loss">সামান্য হ্ৰাস</string>
+    <string name="ear_hearing_moderate">মধ্যম</string>
+    <string name="ear_hearing_severe">গুৰুতৰ</string>
+    <string name="ear_hearing_deaf">বধিৰ</string>
+    <string name="ear_pain">কাণৰ বিষ</string>
+    <string name="ear_discharge_present">কাণৰ পৰা স্ৰাৱ</string>
+    <string name="ear_foreign_body">কাণত বিদেশী বস্তু</string>
+    <string name="ear_foreign_body_superficial">হয় (পৃষ্ঠীয়)</string>
+    <string name="ear_foreign_body_deep">হয় (গভীৰ)</string>
+    <string name="ear_condition_type">কাণৰ অৱস্থাৰ প্ৰকাৰ</string>
+    <string name="ear_otomycosis">অট\'মাইক\'ছিছ</string>
+    <string name="ear_otitis_externa">অটাইটিছ এক্সটাৰ্না</string>
+    <string name="ear_acute_discharge">তীব্ৰ কাণৰ স্ৰাৱ</string>
+    <string name="ear_chronic_discharge">দীৰ্ঘকালীন কাণৰ স্ৰাৱ</string>
+    <string name="ear_wax">কাণৰ মলি</string>
+    <string name="ear_congenital_malformation">জন্মগত কাণৰ বিকৃতি</string>
+    <string name="ear_alert_abnormal_hearing">অস্বাভাৱিক শ্ৰৱণ ধৰা পৰিছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="ear_alert_deep_foreign_body">গভীৰ বিদেশী বস্তু ধৰা পৰিছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="ear_alert_congenital_malformation">জন্মগত কাণৰ বিকৃতি ধৰা পৰিছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+
+    <!-- Ophthalmic Screening -->
+    <string name="ophthalmic_screening_title">চকুৰ পৰীক্ষা</string>
+    <string name="ophthalmic_symptomatic_title">চক্ষু বিজ্ঞান লক্ষণাত্মক</string>
+    <string name="ophthalmic_screening_section_title">অন্ধত্ব আৰু প্ৰতিসৰণ ত্ৰুটিৰ বাবে পৰীক্ষা</string>
+    <string name="ophthalmic_is_diabetic">ৰোগী মধুমেহত আক্ৰান্ত নেকি? <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_screening_performed">মধুমেহ ৰোগীৰ বাবে পৰীক্ষা কৰা হৈছে <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_right">দূৰ দৃষ্টি তীক্ষ্ণতা \u2013 সোঁ চকু <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_left">দূৰ দৃষ্টি তীক্ষ্ণতা \u2013 বাওঁ চকু <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_visual_impairment_alert">সন্দেহজনক দৃষ্টি দোষ</string>
+    <string name="ophthalmic_reason_for_visit">ভ্ৰমণৰ কাৰণ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_near_va">ওচৰৰ দৃষ্টি তীক্ষ্ণতা <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_chart_used">দৃষ্টি তীক্ষ্ণতা চাৰ্ট ব্যৱহাৰ কৰা হৈছে <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_case_identification_title">কেছ চিনাক্তকৰণ</string>
+    <string name="ophthalmic_case_id_alert">সন্দেহজনক দৃষ্টি দোষ চিনাক্ত কৰা হৈছে। অনুগ্ৰহ কৰি তলত কেছ চিনাক্তকৰণ সম্পূৰ্ণ কৰক।</string>
+    <string name="ophthalmic_case_id_conditions">কেছ চিনাক্তকৰণ আৰু অৱস্থা(সমূহ)</string>
+    <string name="ophthalmic_case_id_conditions_mandatory">কেছ চিনাক্তকৰণ আৰু অৱস্থা(সমূহ) <font color="#FF0000">*</font></string>
+    <string name="select_conditions">অৱস্থা(সমূহ) বাছক</string>
+    <string name="ophthalmic_vitamin_a_deficiency">ভিটামিন এ-ৰ অভাৱ / জেৰ\'ফথেলমিয়া</string>
+    <string name="ophthalmic_cataract_symptoms">ছানি পৰাৰ লক্ষণ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_glaucoma_symptoms">গ্লুক\'মাৰ লক্ষণ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dr_symptoms">মধুমেহজনিত ৰেটিন\'পেথিৰ লক্ষণ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_presbyopia_symptoms">প্ৰেছবায়\'পিয়াৰ লক্ষণ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_trachoma_status">ট্ৰেক\'মাৰ অৱস্থা <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_corneal_disease_type">কৰ্ণিয়াৰ ৰোগৰ প্ৰকাৰ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_vitamin_a_deficiency_label">ভিটামিন এ-ৰ অভাৱৰ লক্ষণ / বিট\'ট স্পট চিনাক্ত <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_select_trachoma_status">ট্ৰেক\'মাৰ অৱস্থা বাছক</string>
+    <string name="ophthalmic_select_corneal_disease_type">কৰ্ণিয়াৰ ৰোগৰ প্ৰকাৰ বাছক</string>
+    <string name="ophthalmic_alert_ophthalmologist_referral">ৰোগীক দ্বিতীয় স্তৰত চক্ষু বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="ophthalmic_alert_presbyopia_management">ৰোগীয়ে প্ৰেছবায়\'পিয়া প্ৰবন্ধনৰ বাবে (যেনে, পঢ়াৰ চশমা) যোগ্য হ\'ব পাৰে।</string>
+    <string name="ophthalmic_alert_vitamin_a">ভিটামিন এ প্ৰফাইলেক্সিচ দিয়া হওক। ৰোগীক দ্বিতীয় স্তৰত চক্ষু বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="ophthalmic_injury_trauma_title">আঘাত আৰু ট্ৰমা ফৰ্ম</string>
+    <string name="ophthalmic_injury_type_label">আঘাতৰ প্ৰকাৰ <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_select_injury_type">আঘাতৰ প্ৰকাৰ বাছক</string>
+    <string name="ophthalmic_foreign_body_removal_attempted">বিদেশী বস্তু আঁতৰোৱাৰ চেষ্টা কৰা হৈছে</string>
+    <string name="ophthalmic_chemical_exposure_wash_performed">ৰাসায়নিক সংস্পৰ্শ \u2013 ভালদৰে ধোৱা হৈছে</string>
+
+    <string-array name="ophthalmic_reason_for_visit_options">
+        <item>স্ক্ৰীণিং</item>
+        <item>লক্ষণগত</item>
+        <item>চকুৰ আঘাত/ট্ৰমাৰ বাবে প্ৰাথমিক চিকিৎসা</item>
+    </string-array>
+
+    <string-array name="ophthalmic_chart_options">
+        <item>স্নেলেন দূৰত্বৰ চাৰ্ট</item>
+        <item>নিকট দৃষ্টিৰ চাৰ্ট</item>
+    </string-array>
+
+    <string-array name="ophthalmic_case_id_options">
+        <item>চানি</item>
+        <item>গ্লুকোমা</item>
+        <item>ডায়েবেটিক ৰেটিনোপেথী</item>
+        <item>প্ৰেছবায়\'পিয়া</item>
+        <item>ট্ৰেক\'মা</item>
+        <item>কৰ্ণিয়াৰ ৰোগ</item>
+        <item>চকু উঠা</item>
+        <item>চকু শুকাই যোৱা</item>
+        <item>চকুৰ এলাৰ্জি</item>
+    </string-array>
+
+    <string-array name="ophthalmic_injury_type_options">
+        <item>যান্ত্ৰিক বিদেশী বস্তু</item>
+        <item>কুণ্ঠিত আঘাত</item>
+        <item>কটা আঘাতৰ সন্দেহ</item>
+        <item>ৰাসায়নিক (এচিড/ক্ষাৰ/অন্য)</item>
+    </string-array>
+
+    <string-array name="ophthalmic_foreign_body_options">
+        <item>চেষ্ট কৰা হোৱা নাই</item>
+        <item>কনজাংটিভেল থলীৰ পৰা চেষ্টা কৰা হৈছে</item>
+        <item>কৰ্ণিয়াত সোমাই থকা বস্তু</item>
+    </string-array>
+
+    <string-array name="ophthalmic_trachoma_options">
+        <item>সন্দেহযুক্ত সক্ৰিয় ট্ৰেক\'মা</item>
+        <item>সন্দেহযুক্ত TT/TI</item>
+        <item>ট্ৰেক\'মা নাই</item>
+    </string-array>
+
+    <string-array name="ophthalmic_corneal_disease_options">
+        <item>কৰ্ণিয়াৰ অস্বচ্ছতা</item>
+        <item>সন্দেহযুক্ত কৰ্ণিয়াৰ আলচাৰ</item>
+        <item>অন্য কৰ্ণিয়াৰ ৰোগ</item>
+    </string-array>
+    <string name="saved_successfully">সফলভাৱে সংৰক্ষণ কৰা হৈছে</string>
+    <string name="save_failed_retry">সংৰক্ষণ কৰাত বিফল। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।</string>
+    <string name="please_complete_field">অনুগ্ৰহ কৰি সম্পূৰ্ণ কৰক: %s</string>
+
+    <!-- Oral Health Dataset -->
+    <string name="oral_tooth_decay_present">দাঁতৰ পচন</string>
+    <string name="oral_tooth_decay_symptoms">দাঁতৰ পচনৰ লক্ষণ</string>
+    <string name="oral_symptom_black_spot">ক\'লা দাগ</string>
+    <string name="oral_symptom_discoloration">দাঁতৰ গহ্বৰত ৰং সলনি</string>
+    <string name="oral_symptom_hole">দাঁতত ফুটা</string>
+    <string name="oral_symptom_sensitivity">গৰম আৰু ঠাণ্ডা, মিঠা আৰু টেঙাৰ প্ৰতি সংবেদনশীলতা</string>
+    <string name="oral_symptom_food_lodgment">গহ্বৰ/দাঁতৰ মাজত খাদ্য জমা হোৱা</string>
+    <string name="oral_symptom_pain">বিষ</string>
+    <string name="oral_symptom_swelling">ফুলা</string>
+    <string name="oral_symptom_pus_discharge">পূঁজ ওলোৱা</string>
+    <string name="oral_gum_disease_present">মাৰিৰ ৰোগ</string>
+    <string name="oral_gum_disease_symptoms">মাৰিৰ ৰোগৰ লক্ষণ</string>
+    <string name="oral_gum_foul_smell">দুৰ্গন্ধ</string>
+    <string name="oral_gum_bleeding">মাৰিৰ পৰা তেজ ওলোৱা</string>
+    <string name="oral_gum_deposits">দাঁতত জমা আৰু ৰং সলনি</string>
+    <string name="oral_gum_loose_teeth">ঢিলা দাঁত</string>
+    <string name="oral_gum_widening_gap">দাঁতৰ মাজত ফাঁক বাঢ়ি যোৱা</string>
+    <string name="oral_gum_swollen">ফুলা মাৰি</string>
+    <string name="oral_irregular_teeth_jaws">অনিয়মিত দাঁত/হনু</string>
+    <string name="oral_abnormal_growth_ulcer">অস্বাভাৱিক বৃদ্ধি/ঘা</string>
+    <string name="oral_cleft_lip_palate">ফাটা ওঁঠ/তালু</string>
+    <string name="oral_dental_fluorosis">দন্ত ফ্ল\'ৰ\'ছিছ</string>
+    <string name="oral_dental_emergency">দন্ত জৰুৰীকালীন</string>
+    <string name="oral_emergency_pain">বিষ</string>
+    <string name="oral_emergency_abscess">ফোঁহা</string>
+    <string name="oral_emergency_swelling">ফুলা</string>
+    <string name="oral_emergency_tooth_injury">দাঁতৰ আঘাত</string>
+    <string name="oral_emergency_avulsion">দাঁত উভালি যোৱা</string>
+    <string name="oral_emergency_non_healing_ulcer">ভাল নোহোৱা ঘা</string>
+    <string name="oral_emergency_uncontrolled_bleeding">অনিয়ন্ত্ৰিত ৰক্তক্ষৰণ</string>
+    <string name="oral_emergency_trauma">আঘাত (ভঙা হনু/লৰচৰ দাঁত)</string>
+    <string name="oral_health_referral_alert">ৰোগীক দ্বিতীয় স্তৰত দন্ত চিকিৎসকৰ ওচৰলৈ পঠিয়াওক।</string>
+
+    <!-- Elderly Health Assessment Dataset -->
+    <string name="elderly_geriatric_complaints">সাধাৰণ জৰাবিদ্যা সম্পৰ্কীয় অভিযোগ আছেনে?</string>
+    <string name="elderly_multiple_chronic">একাধিক দীৰ্ঘম্যাদী অৱস্থা</string>
+    <string name="elderly_recent_falls">শেহতীয়া পতন</string>
+    <string name="elderly_difficulty_walking">খোজকঢ়া বা ভাৰসাম্যত অসুবিধা</string>
+    <string name="elderly_visual_hearing">দৃষ্টি বা শ্ৰৱণ সমস্যা</string>
+    <string name="elderly_functional_decline">কাৰ্যক্ষমতাৰ অৱনতি / দৈনন্দিন কামত অসুবিধা (ADL)</string>
+    <string name="elderly_functional_assessment_headline">কাৰ্যক্ষমতা মূল্যায়ন শাখা</string>
+    <string name="elderly_bathing">গা ধোৱা</string>
+    <string name="elderly_dressing">কাপোৰ পিন্ধা</string>
+    <string name="elderly_toileting">শৌচালয় যোৱা</string>
+    <string name="elderly_transferring">স্থানান্তৰ</string>
+    <string name="elderly_continence">মূত্ৰ নিয়ন্ত্ৰণ</string>
+    <string name="elderly_feeding">খোৱা</string>
+    <string name="elderly_independent">স্বতন্ত্ৰ (1)</string>
+    <string name="elderly_dependent">নিৰ্ভৰশীল (0)</string>
+    <string name="elderly_total_score">মুঠ স্কোৰ</string>
+    <string name="elderly_functional_status">কাৰ্যক্ষমতাৰ অৱস্থা</string>
+    <string name="elderly_functional_decline_flag">কাৰ্যক্ষমতাৰ অৱনতিৰ চিন</string>
+    <string name="elderly_status_no_decline">কোনো অৱনতি নাই</string>
+    <string name="elderly_status_partial_dependence">আংশিক নিৰ্ভৰশীলতা</string>
+    <string name="elderly_status_functional_dependence">কাৰ্যক্ষমতাত নিৰ্ভৰশীলতা</string>
+    <string name="elderly_status_highly_dependent">অত্যন্ত নিৰ্ভৰশীল</string>
+    <string name="elderly_status_unknown">অজ্ঞাত</string>
+    <string name="elderly_memory_loss">স্মৃতিশক্তি হ্ৰাস বা বিভ্ৰান্তি</string>
+    <string name="elderly_dementia_headline">ডিমেনচিয়া স্ক্ৰীনিং চেকলিষ্ট</string>
+    <string name="elderly_dementia_memory_loss">ক্ৰমান্বয়ে স্মৃতিশক্তি হ্ৰাস</string>
+    <string name="elderly_dementia_disorientation">বিভ্ৰান্তি (সময়/স্থান/ব্যক্তি)</string>
+    <string name="elderly_dementia_behavioural">আচৰণগত পৰিৱৰ্তন</string>
+    <string name="elderly_dementia_self_care">আত্ম-যত্ন / দৈনন্দিন কাৰ্যত অৱনতি</string>
+    <string name="elderly_screening_outcome">পৰীক্ষাৰ ফলাফল</string>
+    <string name="elderly_referral_required">ৰেফাৰেল প্ৰয়োজন</string>
+    <string name="elderly_outcome_suspected">সন্দেহজনক</string>
+    <string name="elderly_outcome_not_suspected">সন্দেহজনক নহয়</string>
+    <string name="elderly_alert_functional_decline">ৰোগীৰ কাৰ্যক্ষমতাত অৱনতি আছে। প্ৰয়োজনত উচ্চ সুবিধালৈ প্ৰেৰণ কৰক।</string>
+    <string name="elderly_alert_memory_loss">ৰোগীৰ স্মৃতিশক্তি হ্ৰাস আছে। প্ৰয়োজনত উচ্চ সুবিধালৈ প্ৰেৰণ কৰক।</string>
+
+    <!-- Psychosocial Caregiver Support Dataset -->
+    <string name="psychosocial_counselling_provided">মনোসামাজিক পৰামৰ্শ প্ৰদান কৰা হৈছে</string>
+    <string name="psychosocial_caregiver_counselling">যত্নকাৰীক পৰামৰ্শ প্ৰদান কৰা হৈছে</string>
+    <string name="psychosocial_caregiver_distress">যত্নকাৰীৰ মানসিক চাপ চিনাক্ত কৰা হৈছে</string>
+    <string name="psychosocial_counselling_remarks">পৰামৰ্শ মন্তব্য</string>
+
+    <!-- Mental Health Screening – remaining hardcoded strings -->
+    <string name="mh_depression_severity">বিষণ্নতাৰ তীব্ৰতা</string>
+    <string name="mh_system_action">চিষ্টেম কাৰ্য</string>
+    <string name="mh_current_tobacco_use">বৰ্তমান তম্বাকু ব্যৱহাৰ</string>
+    <string name="mh_tobacco_type">তম্বাকু ব্যৱহাৰৰ ধৰণ</string>
+    <string name="mh_tobacco_smoking">ধূমপান</string>
+    <string name="mh_tobacco_smokeless">ধোঁৱাবিহীন</string>
+    <string name="mh_tobacco_both">দুয়োটা</string>
+    <string name="mh_tobacco_frequency">তম্বাকু ব্যৱহাৰৰ সঘনতা</string>
+    <string name="mh_tobacco_occasional">মাজে মাজে</string>
+    <string name="mh_tobacco_daily">দৈনিক</string>
+    <string name="mh_tobacco_outcome">তম্বাকু ব্যৱহাৰৰ ফলাফল</string>
+    <string name="mh_tobacco_system_action">চিষ্টেম কাৰ্য</string>
+    <string name="mh_intervention_psychoeducation">মনোশিক্ষা</string>
+    <string name="mh_intervention_counselling">পৰামৰ্শ</string>
+    <string name="mh_intervention_stress_mgmt">মানসিক চাপ ব্যৱস্থাপনা</string>
+    <string name="mh_intervention_family_counselling">পৰিয়ালৰ পৰামৰ্শ</string>
+    <!-- Throat Diagnosis Dataset -->
+    <string name="throat_diagnosis_symptoms">লক্ষণসমূহ</string>
+    <string name="throat_symptom_pain">বিষ</string>
+    <string name="throat_symptom_soreness">কণ্ঠত ঘা / খচখচনি</string>
+    <string name="throat_symptom_cold">লগত হোৱা চৰ্দি</string>
+    <string name="throat_symptom_itching">খজুৱতি</string>
+    <string name="throat_symptom_hoarseness">মাত ভঙা বা ডাঠ হোৱা</string>
+    <string name="throat_diagnosis_neck_swelling">ডিঙিত ফুলা আছে</string>
+    <string name="throat_diagnosis_difficulty_swallowing">গিলি খোৱাত অসুবিধা</string>
+    <string name="throat_diagnosis_tonsillitis">টনচিলাইটিছ</string>
+    <string name="throat_diagnosis_pharyngitis">ফেৰিঞ্জাইটিছ</string>
+    <string name="throat_diagnosis_laryngitis">লেৰিঞ্জাইটিছ</string>
+    <string name="throat_diagnosis_sinusitis">ছাইনাছাইটিছ</string>
+    <string name="throat_diagnosis_cleft_lip">ফাটা ওঁঠ</string>
+    <string name="throat_diagnosis_cleft_palate">ফাটা তালু</string>
+
+    <string name="throat_alert_neck_swelling">ডিঙিত ফুলা ধৰা পৰিছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="throat_alert_difficulty_swallowing">গিলি খোৱাত অসুবিধা পোৱা গৈছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="throat_alert_cleft_lip">ফাটা ওঁঠ ধৰা পৰিছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+    <string name="throat_alert_cleft_palate">ফাটা তালু ধৰা পৰিছে। ৰোগীক দ্বিতীয় স্তৰত বিশেষজ্ঞৰ ওচৰলৈ পঠিয়াওক।</string>
+
+    <!-- Palliative Care / Pain and Symptom Assessment -->
+    <string name="palliative_care_identification_headline">উপশমমূলক যতনৰ চিনাক্তকৰণ (Palliative Care)</string>
+    <string name="pain_symptom_assessment_palliative">বিষ আৰু লক্ষণৰ মূল্যায়ন</string>
+    
+    <string name="persistent_pain_present">নিৰন্তৰ বিষ আছে</string>
+    <string name="pain_severity">বিষৰ তীব্ৰতা</string>
+    <string name="pain_duration">বিষৰ সময়কাল</string>
+    <string name="pain_duration_less_than_one_month">&lt; ১ মাহ</string>
+    <string name="pain_duration_one_to_six_months">১–৬ মাহ</string>
+    <string name="pain_duration_more_than_six_months">&gt; ৬ মাহ</string>
+    <string name="mild">সামান্য</string>
+    <string name="moderate">মধ্যম</string>
+    <string name="severe">গুৰুতৰ</string>
+
+    <string name="other_symptoms_present">অন্যান্য লক্ষণসমূহ আছে</string>
+    <string name="other_symptoms_severity">অন্যান্য লক্ষণসমূহৰ তীব্ৰতা</string>
+    <string name="immediate_relief_provided">তৎকালীন সকাহ দিয়া হৈছে</string>
+    
+    <string name="symptom_assessment_basic_title">লক্ষণৰ মূল্যায়ন</string>
+    <string name="symptom_assessment_basic_field_title">লক্ষণসমূহ</string>
+    <string name="symptom_nausea_vomiting">বমি ভাব / বমি</string>
+    <string name="symptom_constipation">কষ্টকাঠিন্য</string>
+    <string name="symptom_anxiety_restlessness">উদ্বেগ / অস্থিৰতা</string>
+    <string name="symptom_sleep_disturbance">টোপনিত ব্যাঘাত</string>
+    <string name="breathlessness">উশাহ লোৱাত কষ্ট</string>
+    <string name="nausea">বমি ভাব</string>
+    <string name="fatigue">ভাগৰ</string>
+    <string name="weakness">দুৰ্বলতা</string>
+    <string name="other">অন্য</string>
+    
+    <string name="basic_management_cho_level_title">সাধাৰণ পৰিচালনা</string>
+    <string name="basic_symptom_relief_provided">প্ৰাথমিক লক্ষণৰ সকাহ প্ৰদান কৰা হৈছে</string>
+    <string name="basic_psychosocial_support_provided">মানসিক আৰু সামাজিক সঁহাৰি প্ৰদান কৰা হৈছে</string>
+    <string name="basic_caregiver_counselling_provided">যতন লওঁতাক পৰামৰ্শ দিয়া হৈছে</string>
+    <string name="basic_management_remarks">মন্তব্য</string>
+    
+    <string name="distressing_symptoms_present">যন্ত্ৰণাদায়ক লক্ষণসমূহ আছে</string>
+    <string name="bedridden_or_severely_dependent">বিছনাত পৰা বা বেয়াকৈ নিৰ্ভৰশীল</string>
+    <string name="life_limiting_illness_known">জীৱন সীমিত কৰা ৰোগৰ কথা জনা যায়</string>
+    <string name="caregiver_support_required">যতন লওঁতাৰ সহায় প্ৰয়োজন</string>
+
+    <string name="severe_pain_referral_alert">গভীৰ বিষ। অনুগ্ৰহ কৰি উচ্চ সুবিধালৈ প্ৰেৰণ কৰক।</string>
+    <string name="severe_symptoms_referral_alert">গভীৰ লক্ষণ। অনুগ্ৰহ কৰি উচ্চ সুবিধালৈ প্ৰেৰণ কৰক।</string>
+
+    <!-- Generic Referral & Follow Up Fields -->
+    <string name="referral_required_title">প্ৰেৰণ কৰাৰ প্ৰয়োজন নেকি?</string>
+    <string-array name="referral_required_options">
+        <item>হয়</item>
+        <item>নহয়</item>
+    </string-array>
+    
+    <string name="referral_level_title">প্ৰেৰণ কৰাৰ স্তৰ</string>
+    <string-array name="referral_level_options">
+        <item>প্রাথমিক স্বাস্থ্য কেন্দ্র</item>
+        <item>কমিউনিটি স্বাস্থ্য কেন্দ্র</item>
+        <item>জিলা চিকিৎসালয়</item>
+        <item>উপশমমূলক যতন গোট</item>
+    </string-array>
+    
+    <string name="reason_for_referral_title">প্ৰেৰণ কৰাৰ কাৰণ</string>
+    <string-array name="reason_for_referral_options">
+        <item>গভীৰ বিষ</item>
+        <item>কাৰ্য্যক্ষম নিৰ্ভৰশীলতা</item>
+        <item>ডিমেনচিয়াৰ সন্দেহ</item>
+        <item>জীৱনৰ শেষৰ যতন</item>
+    </string-array>
+    
+    <string name="follow_up_required_title">ফলো-আপ প্ৰয়োজন নেকি?</string>
+    <string-array name="follow_up_required_options">
+        <item>হয়</item>
+        <item>নহয়</item>
+    </string-array>
+    
+    <string name="follow_up_date_title">ফলো-আপ তাৰিখ</string>
+    
+    <string name="case_status_title">কেছৰ অৱস্থা</string>
+    <string-array name="case_status_options">
+        <item>সুস্থ হৈছে</item>
+        <item>চিকিৎসা চলি আছে</item>
+        <item>মৃত্যু</item>
+    </string-array>
+    
+    <string name="date_of_death_title">মৃত্যুৰ তাৰিখ</string>
+    <string name="yes_option">হয়</string>
+    <string name="no_option">নহয়</string>
+
+
+    <string name="mh_suicide_immediate_assess">চিঅ’ই তাৎক্ষণিক বিপদাশংকা মূল্যায়ন কৰে</string>
+    <string name="mh_date_format_pattern">dd/MM/yyyy</string>
+    <string name="mh_suicide_risk_alert_moderate">মধ্যমীয়া আত্মহত্যাৰ বিপদাশংকা: তাৎক্ষণিক পৰামৰ্শৰ প্ৰয়োজন। প্ৰেৰণ কৰাৰ কথা বিবেচনা কৰক।</string>
+    <string name="mh_suicide_risk_alert_high">উচ্চ আত্মহত্যাৰ বিপদাশংকা: জৰুৰীকালীন হস্তক্ষেপৰ প্ৰয়োজন। লগে লಗೆ প্ৰেৰণ কৰক।</string>
+
+    <string name="mh_suspected">সন্দেহজনক</string>
+    <string name="mh_de_addiction">নিচামুক্তি</string>
+    <string name="mh_de_addiction_centre">নিচামুক্তি কেন্দ্ৰ</string>
+
+    <string-array name="phq9_severity_options">
+        <item>নূন্যতম</item>
+        <item>সামান্য</item>
+        <item>মধ্যম</item>
+        <item>মধ্যমীয়া গম্ভীৰ</item>
+        <item>গম্ভীৰ</item>
+    </string-array>
+
+    <string-array name="phq9_system_action_options">
+        <item>মনোশিক্ষা</item>
+        <item>পৰামৰ্শ - MO/PHCলৈ প্ৰেৰণ কৰক</item>
+        <item>প্ৰেৰণ - জৰুৰী প্ৰেৰণ</item>
+        <item>প্ৰেৰণ - জৰুৰীকালীন প্ৰেৰণ</item>
+    </string-array>
+
+    <string-array name="mh_tobacco_outcome_options">
+        <item>ব্যৱহাৰ চিনাক্ত কৰা হৈছে</item>
+        <item>কোনো ব্যৱহাৰ চিনাক্ত কৰা হোৱಾ নাই</item>
+    </string-array>
+
+    <string-array name="mh_tobacco_system_action_options">
+        <item>সংক্ষিপ্ত পৰামৰ্শ</item>
+        <item>প্ৰেৰণ</item>
+    </string-array>
+
+    <string-array name="mh_alcohol_classification_options">
+        <item>কোনো সমস্যাজনক সুರা সেৱন চিনাক্ত কৰা হোৱা নাই</item>
+        <item>সমস্যাজনক সুৰা সেৱনৰ সন্দেহ</item>
+    </string-array>
+
+    <string-array name="mh_ed_outcome_options">
+        <item>সন্দেহজনক মৃগীৰোগ</item>
+        <item>সন্দেহজনক ডিমেনচিয়া</item>
+        <item>সন্দেহজনক</item>
+        <item>সন্দেহজনক নহয়</item>
+    </string-array>
+
+    <string name="mh_ed_reason_neurological">স্নায়বিক অৱস্থাৰ সন্দেহ</string>
+
+    <string-array name="mh_referral_level_dmhp_options">
+        <item>প্ৰাথমিক স্বাস্থ্য কেন্দ্ৰ (PHC)</item>
+        <item>সামূহিক স্বাস্থ্য কেন্দ্ৰ (CHC)</item>
+        <item>জিลา চিকিৎসালয়</item>
+        <item>জিলা মানসিক স্বাস্থ্য কাৰ্যসূচী (DMHP)</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_alcohol_options">
+        <item>প্ৰাথমিক স্বাস্থ্য কেন্দ্ৰ (PHC)</item>
+        <item>নিচামুক্তি কেন্দ্ৰ (De-addiction)</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_rbsk_options">
+        <item>RBSK DEIC</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_child_options">
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>DH</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_adult_options">
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>DH</item>
+        <item>DMHP</item>
+        <item>নিচামুক্তি কেন্দ্ৰ</item>
+    </string-array>
+    
+    <string-array name="mh_referral_level_standard_mh_options">
+        <item>প্ৰাথমিক স্বাস্থ্য কেন্দ্ৰ (PHC)</item>
+        <item>জিলা মানসিক স্বাস্থ্য কাৰ্যসূচী (DMHP)</item>
+    </string-array>
+
+    <!-- Missing Mental Health Strings -->
+    <string-array name="alcohol_system_action_options">
+        <item>সংক্ষিপ্ত হস্তক্ষেপ</item>
+        <item>প্ৰেৰণ</item>
+    </string-array>
+    <string-array name="mh_case_closure_reason_options">
+        <item>আৰোগ্য</item>
+        <item>প্ৰেৰণ কৰা হৈছে</item>
+        <item>ফ\'ল\'-আপ হেৰুৱাইছে</item>
+        <item>মৃত্যু</item>
+    </string-array>
+    <string-array name="mh_reason_for_referral_options">
+        <item>আত্মহত্যাৰ আশংকা / আত্ম-ক্ষতি</item>
+        <item>মধ্যমীয়াৰ পৰা গুৰুতৰ হতাশা</item>
+        <item>গুৰুতৰ মানসিক বিকাৰৰ সন্দেহ</item>
+        <item>নিচা নিৰ্ভৰশীলতা / প্ৰত্যাহাৰ লক্ষণ</item>
+        <item>কাৰ্য্যকৰী দুৰ্বলতা</item>
+        <item>স্নায়বিক অৱস্থাৰ সন্দেহ</item>
+        <item>শিশুৰ আচৰণ সম্পৰ্কীয় উদ্বেগ</item>
+        <item>নিজৰ বা আনৰ বাবে বিপদাশংকা</item>
+        <item>কোনো উন্নতি নাই / অৱনতি</item>
+        <item>বিশেষজ্ঞৰ যত্নৰ প্ৰয়োজন</item>
+    </string-array>
+    <string-array name="mh_reason_for_referral_options_under_11">
+        <item>মানসিক স্বাস্থ্য সম্পৰ্কীয় অভিযোগ</item>
+        <item>চিকিৎসা সম্পৰ্কীয় জটিলতা</item>
+    </string-array>
+    <string-array name="mh_referral_level_options">
+        <item>PHC</item>
+        <item>DMHP</item>
+        <item>নিচামুক্তি কেন্দ্ৰ</item>
+    </string-array>
+
+    <string name="ed_age_60_years">বয়স ≥ ৬০ বছৰ</string>
+    <string name="ed_confusion_disorientation">বিভ্ৰান্তি বা দিশহাৰা হোৱা</string>
+    <string name="ed_duration_minutes">সময়সীমা (মিনিট)</string>
+    <string name="ed_edConfusionordrowsiness">খণ্ডটোৰ পিছত বিভ্ৰান্তি বা টোপনি ভাব</string>
+    <string name="ed_edRecurrentEpisodeloss">চেতনা হেৰুওৱাৰ খণ্ড</string>
+    <string name="ed_functional_decline">দৈনন্দিন কাৰ্য্যত অৱনতি (নিজা যত্ন, সচৰাচৰ কাৰ্য্য)</string>
+    <string name="ed_intervention_type">হস্তক্ষেপৰ প্ৰকাৰ</string>
+    <string name="ed_progressive_memory_loss">ক্ৰমান্বয়ে স্মৃতিশক্তি হেৰুওৱা</string>
+    <string name="ed_psychosocial_intervention_provided">মনোসামাজিক হস্তক্ষেপ প্ৰদান কৰা হৈছে</string>
+    <string name="ed_reason">কাৰণ</string>
+    <string name="ed_recurrent_jerky_movements">সঘনাই জঁক দিয়া / ফিট হোৱা</string>
+    <string name="ed_referral_required">প্ৰেৰণৰ প্ৰয়োজন</string>
+    <string name="ed_remarks">মন্তব্য</string>
+    <string name="ed_screening_outcome">পৰীক্ষাৰ ফলাফল</string>
+    <string name="ed_session_date">অধিবেশনৰ তাৰিখ</string>
+    <string name="epilepsy_dementia_checklist_title">মৃগীৰোগ আৰু ডিমেনচিয়া পৰীক্ষণৰ চেকলিষ্ট</string>
+
+    <string name="mh_adherence_to_advice_title">পৰামৰ্শ পালন</string>
+    <string name="mh_case_closure_reason_title">গোচৰ বন্ধ কৰাৰ কাৰণ</string>
+    <string name="mh_follow_up_date_title">ফ\'ল\'-আপৰ তাৰিখ</string>
+    <string name="mh_follow_up_required_title">ফ\'ল\'-আপৰ প্ৰয়োজন</string>
+    <string name="mh_improvement_noted_title">উন্নতি দেখা গৈছে</string>
+    <string name="mh_reason_for_referral_title">প্ৰেৰণ কৰাৰ কাৰণ</string>
+    <string name="mh_referral_date_title">প্ৰেৰণ কৰাৰ তাৰিখ</string>
+    <string name="mh_referral_escalation_title">উচ্ছ পৰ্যায়লৈ প্ৰেৰণ কৰাৰ প্ৰয়োজন</string>
+    <string name="mh_referral_level_title">প্ৰেৰণৰ স্তৰ</string>
+    <string name="mh_referral_required_title">প্ৰেৰণৰ প্ৰয়োজন</string>
+    <string name="mh_repeat_phq9_title">PHQ-9 পুনৰাবৃত্তি কৰক</string>
+
+
+    <string name="substance_alcohol_classification">মদ্যপানৰ শ্ৰেণীবিভাজন</string>
+    <string name="substance_alcohol_frequency">মদ্যপানৰ হাৰ</string>
+    <string name="substance_alcohol_impact">দৈনন্দিন কাৰ্য্যত প্ৰভাৱ (স্বাস্থ্য, পৰিয়াল, কাম)</string>
+    <string name="substance_alcohol_loss">মদ্যপানৰ ওপৰত নিয়ন্ত্ৰণ হেৰুওৱা</string>
+    <string name="substance_alcohol_problematic">সমস্যামূলক মদ্যপানৰ বিষয়ে চিএইচঅ\'ৰ মূল্যায়ন</string>
+    <string name="substance_alcohol_system_action">ব্যৱস্থাৰ কাৰ্য্য</string>
+    <string name="substance_alcohol_title">মদ্যপান চিনাক্তকৰণ</string>
+    <string name="substance_alcohol_withdrawal">প্ৰত্যাহাৰ লক্ষণৰ ইংগিত দিয়া লক্ষণসমূহ</string>
+    <string name="substance_tobacco_title">ধঁপাত ব্যৱহাৰ চিনাক্তকৰণ</string>
+    
+    <string name="elderly_health_assessment_saved">বয়োজ্যেষ্ঠ স্বাস্থ্য মূল্যায়ন সফলতাৰে ছেভ কৰা হৈছে</string>
+    <string name="ear_diagnosis_saved">কাণৰ ৰোগ নিৰ্ণয় ছেভ কৰা হৈছে</string>
+    <string name="throat_diagnosis_saved">ডিঙিৰ ৰোগ নিৰ্ণয় ছেভ কৰা হৈছে</string>
+    <string name="nose_diagnosis_saved">নাকৰ ৰোগ নিৰ্ণয় সফলতাৰে সংৰক্ষণ কৰা হৈছে</string>
+    <string name="title_nose_diagnosis">নাকৰ নিৰ্ণয় ফৰ্ম</string>
+    <string name="title_ear_diagnosis">কাণৰ নিৰ্ণয় ফৰ্ম</string>
+    <string name="title_throat_diagnosis">গলাৰ নিৰ্ণয় ফৰ্ম</string>
+    <string name="title_oral_health">দাঁতৰ স্বাস্থ্য ফৰ্ম</string>
+    <string name="oral_health_saved">মুখৰ স্বাস্থ্যৰ বিৱৰণ সফলভাৱে সংৰক্ষণ কৰা হৈছে</string>
+    <string name="title_pain_symptom_assessment">প্যালিয়েটিভ কেয়াৰ চিনাক্তকৰণ ফৰ্ম</string>
+    <string name="title_elderly_health_assessment">বয়োজ্যেষ্ঠ স্বাস্থ্য মূল্যায়ন</string>
+    <string name="title_psychosocial_caregiver_support">মনোসামাজিক আৰু যত্নপ্ৰদানকাৰী সহায়তা</string>
+
+    <!--
+      Localized labels for chief complaint and duration unit dropdowns.
+      Order MUST match values/strings.xml chief_complaint_en_keys and
+      duration_units_en_keys exactly. MasterDataLocalizer pairs by index.
+    -->
+    <string-array name="chief_complaint_localized">
+        <item>জ্বৰ</item>
+        <item>কাহ</item>
+        <item>মূৰৰ বিষ</item>
+        <item>চৰ্দি</item>
+        <item>বমি</item>
+        <item>ডায়েৰিয়া</item>
+        <item>শৰীৰৰ বিষ</item>
+        <item>পেটৰ বিষ</item>
+        <item>বুকুৰ বিষ</item>
+        <item>উশাহ লোৱাত অসুবিধা</item>
+        <item>ভাগৰ</item>
+        <item>ভোক নলগা</item>
+        <item>চকুৰ ছানি</item>
+        <item>গ্লুকোমা</item>
+        <item>ডায়েবেটিক ৰেটিনোপেথী</item>
+        <item>প্ৰেছবায়োপিয়া</item>
+        <item>ট্ৰেকোমা</item>
+        <item>কৰ্ণিয়াৰ ৰোগ</item>
+        <item>চকু ৰঙা হোৱা</item>
+        <item>শুকান চকু</item>
+        <item>শুকান চকু</item>
+        <item>চকুৰ এলাৰ্জী</item>
+        <item>চকুৰ আঘাত (ভোমা আঘাত / বিন্ধা আঘাত)</item>
+        <item>চকুৰ আঘাত (ভোমা আঘাত / বিন্ধা আঘাত)</item>
+        <item>ৰাসায়নিক সংস্পৰ্শ (এচিড / ক্ষাৰ / অন্য)</item>
+        <item>ৰাসায়নিক সংস্পৰ্শ (এচিড / ক্ষাৰ / অন্য)</item>
+        <item>চকুত বাহ্যিক বস্তু</item>
+        <item>দাঁতৰ ক্ষয়</item>
+        <item>দাঁতৰ মাড়িৰ ৰোগ</item>
+        <item>দাঁত আৰু চোৱালৰ অনিয়মিত গঠন</item>
+        <item>অস্বাভাৱিক বৃদ্ধি, দাগ বা ঘা</item>
+        <item>কটা ওঁঠ / তালু</item>
+        <item>দাঁতৰ ফ্লুৰ\'ছিছ</item>
+        <item>দাঁতৰ জৰুৰীকালীন</item>
+        <item>ডিঙিত ফুলা</item>
+        <item>গিলিবলৈ অসুবিধা</item>
+        <item>কটা ওঁঠ</item>
+        <item>কটা তালু</item>
+        <item>টনচিল ৰোগ</item>
+        <item>গলকণ্ঠ প্ৰদাহ</item>
+        <item>স্বৰযন্ত্ৰ প্ৰদাহ</item>
+        <item>ছাইনাছাইটিছ</item>
+        <item>শুনিবলৈ অসুবিধা</item>
+        <item>কাণৰ ময়লা</item>
+        <item>জন্মগত কাণৰ বিকৃতি</item>
+        <item>কাণত বাহ্যিক বস্তু</item>
+        <item>মুখ মেলি উশাহ লোৱা</item>
+        <item>নাকৰ তেজ</item>
+        <item>নাকত বাহ্যিক বস্তু</item>
+    </string-array>
+
+    <string-array name="duration_units_localized">
+        <item>ঘণ্টা</item>
+        <item>দিন</item>
+        <item>সপ্তাহ</item>
+        <item>মাহ</item>
+        <item>বছৰ</item>
+    </string-array>
+
 </resources>

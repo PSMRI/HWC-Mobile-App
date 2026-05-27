@@ -211,21 +211,25 @@ class NeonatalOutcomeDataset(
         saved: NeonatalOutcomeCache,
         formElements: MutableList<FormElement>
     ) {
-        // Restore typeOfResuscitation if "Cried after resuscitation" was selected
-        val criedAfterResuscitation = resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1)
-        if (saved.criedImmediately == criedAfterResuscitation && saved.typeOfResuscitation != null) {
+        // saved.* fields are persisted in English; compare against the English array
+        // so this works regardless of the user's current UI locale.
+        val englishCried = englishResources.getStringArray(R.array.no_cried_immediately_array)
+        val englishAnomaly = englishResources.getStringArray(R.array.no_congenital_anomaly_array)
+        val englishStatus = englishResources.getStringArray(R.array.no_current_status_array)
+
+        if (saved.criedImmediately == englishCried.getOrNull(1) && saved.typeOfResuscitation != null) {
             val criedIdx = formElements.indexOf(criedImmediately)
             if (criedIdx >= 0) {
                 formElements.add(criedIdx + 1, typeOfResuscitation)
             }
         }
-        if (saved.congenitalAnomalyDetected == resources.getStringArray(R.array.no_congenital_anomaly_array)[0]) { // Yes
+        if (saved.congenitalAnomalyDetected == englishAnomaly.getOrNull(0)) { // Yes
             formElements.add(formElements.indexOf(congenitalAnomalyDetected) + 1, typeOfCongenitalAnomaly)
             if (saved.typeOfCongenitalAnomaly?.contains("Other") == true) {
                 formElements.add(formElements.indexOf(typeOfCongenitalAnomaly) + 1, otherCongenitalAnomaly)
             }
         }
-        if (saved.currentStatusOfBaby == resources.getStringArray(R.array.no_current_status_array)[3]) { // Died
+        if (saved.currentStatusOfBaby == englishStatus.getOrNull(3)) { // Died
             formElements.add(formElements.indexOf(currentStatusOfBaby) + 1, causeOfDeath)
             if (saved.causeOfDeath?.contains("Other") == true) {
                 formElements.add(formElements.indexOf(causeOfDeath) + 1, otherCauseOfDeath)
@@ -254,18 +258,21 @@ class NeonatalOutcomeDataset(
         )
 
         saved?.let {
-            outcomeAtBirth.value = saved.outcomeAtBirth
-            sex.value = saved.sex
-            criedImmediately.value = saved.criedImmediately
+            // saved.* fields are stored in English; re-localize for display so the
+            // user always sees the form in their current UI language regardless of
+            // which language the data was originally entered in.
+            outcomeAtBirth.value = getLocalValueInArray(R.array.no_outcome_at_birth_array, saved.outcomeAtBirth)
+            sex.value = getLocalValueInArray(R.array.no_sex_array, saved.sex)
+            criedImmediately.value = getLocalValueInArray(R.array.no_cried_immediately_array, saved.criedImmediately)
             birthWeight.value = saved.birthWeight?.toString()
-            congenitalAnomalyDetected.value = saved.congenitalAnomalyDetected
-            typeOfCongenitalAnomaly.value = saved.typeOfCongenitalAnomaly
+            congenitalAnomalyDetected.value = getLocalValueInArray(R.array.no_congenital_anomaly_array, saved.congenitalAnomalyDetected)
+            typeOfCongenitalAnomaly.value = getLocalValuesInArray(R.array.no_type_of_congenital_anomaly_array, saved.typeOfCongenitalAnomaly)
             otherCongenitalAnomaly.value = saved.otherCongenitalAnomaly
-            newbornComplications.value = saved.newbornComplications
-            currentStatusOfBaby.value = saved.currentStatusOfBaby
-            causeOfDeath.value = saved.causeOfDeath
+            newbornComplications.value = getLocalValuesInArray(R.array.no_newborn_complications_array, saved.newbornComplications)
+            currentStatusOfBaby.value = getLocalValueInArray(R.array.no_current_status_array, saved.currentStatusOfBaby)
+            causeOfDeath.value = getLocalValuesInArray(R.array.no_cause_of_death_array, saved.causeOfDeath)
             otherCauseOfDeath.value = saved.otherCauseOfDeath
-            birthDoseVaccinesGiven.value = saved.birthDoseVaccinesGiven
+            birthDoseVaccinesGiven.value = getLocalValuesInArray(R.array.no_birth_dose_vaccines_array, saved.birthDoseVaccinesGiven)
             reasonForNoVaccines.value = saved.reasonForNoVaccines
             vitaminKInjectionGiven.value = when (saved.vitaminKInjectionGiven) {
                 true -> resources.getString(R.string.yes)
@@ -273,7 +280,7 @@ class NeonatalOutcomeDataset(
                 else -> null
             }
             reasonForNoVitaminK.value = saved.reasonForNoVitaminK
-            birthCertificateIssued.value = saved.birthCertificateIssued
+            birthCertificateIssued.value = getLocalValueInArray(R.array.no_birth_certificate_array, saved.birthCertificateIssued)
 
             restoreConditionalFields(saved, formElements)
         }
@@ -326,10 +333,15 @@ class NeonatalOutcomeDataset(
                 )
             }
             typeOfCongenitalAnomaly.id -> {
-                // handle multi-select and "Other"
+                // handle multi-select and "Other" — convert to English first so the
+                // check works in every locale, not just when UI is English.
+                val englishValues = getEnglishValuesInArray(
+                    R.array.no_type_of_congenital_anomaly_array,
+                    typeOfCongenitalAnomaly.value
+                )
                 toggleDependant(
                     source = typeOfCongenitalAnomaly,
-                    condition = typeOfCongenitalAnomaly.value?.contains("Other") == true,
+                    condition = englishValues?.contains("Other") == true,
                     showItems = listOf(otherCongenitalAnomaly)
                 )
             }
@@ -344,16 +356,79 @@ class NeonatalOutcomeDataset(
                 )
             }
             causeOfDeath.id -> {
+                val englishValues = getEnglishValuesInArray(
+                    R.array.no_cause_of_death_array,
+                    causeOfDeath.value
+                )
                 toggleDependant(
                     source = causeOfDeath,
-                    condition = causeOfDeath.value?.contains("Other") == true,
+                    condition = englishValues?.contains("Other") == true,
                     showItems = listOf(otherCauseOfDeath)
                 )
             }
+            newbornComplications.id -> {
+                val realIndex = (if (index < 0) -index else index) - 1
+                val localizedEntries = newbornComplications.entries
+                // Identify "None" by its position in the English array so the
+                // logic works in every locale (Hindi, Assamese, etc.).
+                val noneIndex = englishResources
+                    .getStringArray(newbornComplications.arrayId)
+                    .indexOf("None")
+                val noneLocalized = localizedEntries?.getOrNull(noneIndex)
+                val clickedOption = localizedEntries?.getOrNull(realIndex) ?: return -1
+                val isNoneOption = noneIndex >= 0 && realIndex == noneIndex
+                val isChecked = index > 0
+
+                if (isChecked) {
+                    if (isNoneOption) {
+                        // "None" just checked — clear every other selection.
+                        newbornComplications.value = clickedOption
+                    } else {
+                        // A real complication was checked — drop "None" if it was set.
+                        val parts = (newbornComplications.value ?: "")
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != noneLocalized }
+                        newbornComplications.value =
+                            if (parts.isEmpty()) null else parts.joinToString(",")
+                    }
+                    forceRefreshId(newbornComplications.id)
+                }
+                -1
+            }
             birthDoseVaccinesGiven.id -> {
+                val realIndex = (if (index < 0) -index else index) - 1
+                val localizedEntries = birthDoseVaccinesGiven.entries
+                // Locale-neutral "None" identification.
+                val noneIndex = englishResources
+                    .getStringArray(birthDoseVaccinesGiven.arrayId)
+                    .indexOf("None")
+                val noneLocalized = localizedEntries?.getOrNull(noneIndex)
+                val clickedOption = localizedEntries?.getOrNull(realIndex)
+                val isNoneOption = noneIndex >= 0 && realIndex == noneIndex
+                val isChecked = index > 0
+
+                if (clickedOption != null && isChecked) {
+                    if (isNoneOption) {
+                        birthDoseVaccinesGiven.value = clickedOption
+                    } else {
+                        val parts = (birthDoseVaccinesGiven.value ?: "")
+                            .split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != noneLocalized }
+                        birthDoseVaccinesGiven.value =
+                            if (parts.isEmpty()) null else parts.joinToString(",")
+                    }
+                    forceRefreshId(birthDoseVaccinesGiven.id)
+                }
+
+                val noneIsSelected = noneLocalized != null && (birthDoseVaccinesGiven.value ?: "")
+                    .split(",")
+                    .map { it.trim() }
+                    .any { it == noneLocalized }
                 toggleDependant(
                     source = birthDoseVaccinesGiven,
-                    condition = birthDoseVaccinesGiven.value?.contains("None") == true,
+                    condition = noneIsSelected,
                     showItems = listOf(reasonForNoVaccines)
                 )
             }
@@ -394,24 +469,27 @@ class NeonatalOutcomeDataset(
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as NeonatalOutcomeCache).let { form ->
-            form.outcomeAtBirth = outcomeAtBirth.value
+            // Persist every dropdown / radio / checkbox value in its English canonical
+            // form so the DB is locale-neutral. Display-time localization is handled
+            // in setUpPage by re-converting via getLocalValueInArray.
+            form.outcomeAtBirth = getEnglishValueInArray(R.array.no_outcome_at_birth_array, outcomeAtBirth.value)
             form.outcomeAtBirthId = outcomeAtBirth.getPosition()
-            form.sex = sex.value
+            form.sex = getEnglishValueInArray(R.array.no_sex_array, sex.value)
             form.sexId = sex.getPosition()
-            form.criedImmediately = criedImmediately.value
+            form.criedImmediately = getEnglishValueInArray(R.array.no_cried_immediately_array, criedImmediately.value)
             form.criedImmediatelyId = criedImmediately.getPosition()
-            form.typeOfResuscitation = typeOfResuscitation.value
+            form.typeOfResuscitation = getEnglishValuesInArray(R.array.no_type_of_resuscitation_array, typeOfResuscitation.value)
             form.birthWeight = birthWeight.value?.toIntOrNull()
-            form.congenitalAnomalyDetected = congenitalAnomalyDetected.value
+            form.congenitalAnomalyDetected = getEnglishValueInArray(R.array.no_congenital_anomaly_array, congenitalAnomalyDetected.value)
             form.congenitalAnomalyDetectedId = congenitalAnomalyDetected.getPosition()
-            form.typeOfCongenitalAnomaly = typeOfCongenitalAnomaly.value
+            form.typeOfCongenitalAnomaly = getEnglishValuesInArray(R.array.no_type_of_congenital_anomaly_array, typeOfCongenitalAnomaly.value)
             form.otherCongenitalAnomaly = otherCongenitalAnomaly.value
-            form.newbornComplications = newbornComplications.value
-            form.currentStatusOfBaby = currentStatusOfBaby.value
+            form.newbornComplications = getEnglishValuesInArray(R.array.no_newborn_complications_array, newbornComplications.value)
+            form.currentStatusOfBaby = getEnglishValueInArray(R.array.no_current_status_array, currentStatusOfBaby.value)
             form.currentStatusOfBabyId = currentStatusOfBaby.getPosition()
-            form.causeOfDeath = causeOfDeath.value
+            form.causeOfDeath = getEnglishValuesInArray(R.array.no_cause_of_death_array, causeOfDeath.value)
             form.otherCauseOfDeath = otherCauseOfDeath.value
-            form.birthDoseVaccinesGiven = birthDoseVaccinesGiven.value
+            form.birthDoseVaccinesGiven = getEnglishValuesInArray(R.array.no_birth_dose_vaccines_array, birthDoseVaccinesGiven.value)
             form.reasonForNoVaccines = reasonForNoVaccines.value
             form.vitaminKInjectionGiven = when (vitaminKInjectionGiven.value) {
                 resources.getString(R.string.yes) -> true
@@ -419,12 +497,13 @@ class NeonatalOutcomeDataset(
                 else -> null
             }
             form.reasonForNoVitaminK = reasonForNoVitaminK.value
-            form.birthCertificateIssued = birthCertificateIssued.value
+            form.birthCertificateIssued = getEnglishValueInArray(R.array.no_birth_certificate_array, birthCertificateIssued.value)
             form.birthCertificateIssuedId = birthCertificateIssued.getPosition()
-            
-            // Set audit flags
-            form.isStillbirth = outcomeAtBirth.value?.contains("Still Birth") == true
-            form.isNeonatalDeath = currentStatusOfBaby.value == resources.getStringArray(R.array.no_current_status_array)[3]
+
+            // Audit flags read off the just-persisted English values so they don't
+            // depend on the UI locale at the moment of save.
+            form.isStillbirth = form.outcomeAtBirth?.contains("Still Birth") == true
+            form.isNeonatalDeath = form.currentStatusOfBaby == englishResources.getStringArray(R.array.no_current_status_array)[3]
         }
     }
 }

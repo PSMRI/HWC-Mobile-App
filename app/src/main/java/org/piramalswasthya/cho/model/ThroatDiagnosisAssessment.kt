@@ -15,7 +15,7 @@ data class ThroatDiagnosisAssessment(
     val assessmentId: Long = 0L,
 
     @ColumnInfo(name = "patient_id")
-    val patientID: String,
+    val patientId: String,
 
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,
@@ -47,6 +47,9 @@ data class ThroatDiagnosisAssessment(
     var cleftLip: Boolean? = null,
 
     @ColumnInfo(name = "cleft_palate")
-    var cleftPalate: Boolean? = null
+    var cleftPalate: Boolean? = null,
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0
 
 ) : FormDataModel

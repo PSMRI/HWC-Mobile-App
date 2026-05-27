@@ -10,7 +10,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.configuration.PregnantWomanRegistrationDataset
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
@@ -29,6 +31,9 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
     private val maternalHealthRepo: MaternalHealthRepo,
     private val userRepo: UserRepo
 ) : ViewModel() {
+    companion object {
+        private const val STATUS_PREGNANT_WOMAN = 2
+    }
 
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
@@ -74,6 +79,11 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
     val isReadOnly: LiveData<Boolean>
         get() = _isReadOnly
 
+    private val _initErrorMessage = MutableLiveData<String?>()
+    val initErrorMessage: LiveData<String?> get() = _initErrorMessage
+
+    fun clearInitError() { _initErrorMessage.value = null }
+
     private val dataset = PregnantWomanRegistrationDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
 
@@ -84,7 +94,8 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
             try {
                 val asha = userRepo.getLoggedInUser()
                 if (asha == null) {
-                    Timber.e("No logged in user found!")
+                    Timber.e("PregnancyRegistrationFormViewModel: no logged-in user found")
+                    _initErrorMessage.postValue(context.getString(R.string.form_session_expired))
                     return@launch
                 }
 
@@ -134,12 +145,13 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                     _isReadOnly.value = dataset.isFormReadOnly
                 } ?: run {
                     Timber.e("Patient not found for ID: $patientID")
-                    // Handle case where patient is not found
-                    _recordExists.value = false
+                    _initErrorMessage.postValue(context.getString(R.string.form_patient_not_found))
+                    _recordExists.postValue(false)
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error initializing PregnancyRegistrationFormViewModel")
-                _recordExists.value = false
+                _initErrorMessage.postValue(context.getString(R.string.form_load_failed))
+                _recordExists.postValue(false)
             }
         }
     }
@@ -243,9 +255,13 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
 
                 // Map form values to cache
                 dataset.mapValues(registrationCache, 1) // Assuming pageNumber = 1
+                registrationCache.syncState = SyncState.UNSYNCED
+                registrationCache.processed =
+                    if (registrationCache.processed == "N") "N" else "U"
 
                 // Save to repository
                 maternalHealthRepo.persistRegisterRecord(registrationCache)
+                updatePatientStatusToPregnant(registrationCache.patientID)
 
                 Timber.d("Pregnancy registration saved successfully for patient: ${registrationCache.patientID}")
 
@@ -256,6 +272,20 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                 Timber.e(e, "Saving pregnancy registration data failed!!")
                 _state.postValue(State.SAVE_FAILED)
             }
+        }
+    }
+
+    private suspend fun updatePatientStatusToPregnant(patientID: String) {
+        try {
+            val patient = patientRepo.getPatient(patientID)
+            if (patient.statusOfWomanID != STATUS_PREGNANT_WOMAN) {
+                patient.statusOfWomanID = STATUS_PREGNANT_WOMAN
+                patient.syncState = SyncState.UNSYNCED
+                patientRepo.updateRecord(patient)
+                Timber.d("Patient status updated to Pregnant Woman for patientId=$patientID")
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to update patient status to Pregnant Woman for patientId=$patientID")
         }
     }
 

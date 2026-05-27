@@ -41,8 +41,10 @@ import org.piramalswasthya.cho.databinding.RvItemFormTextViewV2Binding
 import org.piramalswasthya.cho.databinding.RvItemFormTimepickerV2Binding
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.configuration.Dataset
+import org.piramalswasthya.cho.databinding.LayoutUploadFormBinding
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.utils.KeyboardUtils
 import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.model.InputType.AGE_PICKER
@@ -64,8 +66,12 @@ class FormInputAdapter(
     private val imageClickListener: ImageClickListener? = null,
     private val ageClickListener: AgeClickListener? = null,
     private val formValueListener: FormValueListener? = null,
-    private val isEnabled: Boolean = true
-) : ListAdapter<FormElement, ViewHolder>(FormInputDiffCallBack) {
+    private val isEnabled: Boolean = true,
+    private val selectImageClickListener: SelectUploadImageClickListener? = null,
+    private val viewDocumentListner: ViewDocumentOnClick? = null,
+
+    ) : ListAdapter<FormElement, ViewHolder>(FormInputDiffCallBack) {
+    var disableUpload = false
 
     //    @Inject
 //    lateinit var preferenceDao: PreferenceDao
@@ -93,19 +99,32 @@ class FormInputAdapter(
             }
         }
 
-        fun bind(item: FormElement, isEnabled: Boolean, formValueListener: FormValueListener?) {
+        fun bind(
+            item: FormElement,
+            isEnabled: Boolean,
+            formValueListener: FormValueListener?,
+            refreshDeliveryOutcomeFields: (() -> Unit)? = null
+        ) {
             Timber.d("binding triggered!!! $isEnabled ${item.id}")
             if (!isEnabled) {
+                binding.et.isEnabled = false
                 binding.et.isClickable = false
                 binding.et.isFocusable = false
+                binding.et.isFocusableInTouchMode = false
+                binding.et.isLongClickable = false
+                binding.et.isCursorVisible = false
                 handleHintLength(item)
                 binding.form = item
                 binding.et.setText(item.value)
                 binding.executePendingBindings()
                 return
             } else {
+                binding.et.isEnabled = true
                 binding.et.isClickable = true
                 binding.et.isFocusable = true
+                binding.et.isFocusableInTouchMode = true
+                binding.et.isLongClickable = true
+                binding.et.isCursorVisible = true
             }
             binding.form = item
             if (item.errorText == null) binding.tilEditText.isErrorEnabled = false
@@ -155,6 +174,15 @@ class FormInputAdapter(
                     if (item.errorText != binding.tilEditText.error) {
                         binding.tilEditText.isErrorEnabled = item.errorText != null
                         binding.tilEditText.error = item.errorText
+                    }
+
+                    // Delivery outcome fields share a cross-field validation rule.
+                    // Rebind the whole trio so sibling error states refresh when the
+                    // last field in the sum is edited.
+                    if (item.id == 15 || item.id == 16 || item.id == 17) {
+                        binding.root.post {
+                            refreshDeliveryOutcomeFields?.invoke()
+                        }
                     }
 //                        binding.tilEditText.error = null
 //                    else if(item.errorText!= null && binding.tilEditText.error==null)
@@ -344,10 +372,8 @@ class FormInputAdapter(
         fun bind(
             item: FormElement, isEnabled: Boolean, formValueListener: FormValueListener?
         ) {
-            if (!isEnabled) {
-                binding.rg.isClickable = false
-                binding.rg.isFocusable = false
-            }
+            binding.rg.isClickable = isEnabled
+            binding.rg.isFocusable = isEnabled
 //            binding.rg.isEnabled = isEnabled
             binding.invalidateAll()
             binding.form = item
@@ -369,23 +395,6 @@ class FormInputAdapter(
                             gravity = Gravity.CENTER_HORIZONTAL
                         }
                         rdBtn.id = View.generateViewId()
-                        val colorStateList = ColorStateList(
-                            arrayOf<IntArray>(
-                                intArrayOf(-android.R.attr.state_checked),
-                                intArrayOf(android.R.attr.state_checked)
-                            ), intArrayOf(
-                                binding.root.resources.getColor(
-                                    android.R.color.darker_gray,
-                                    binding.root.context.theme
-                                ),  // disabled
-                                binding.root.resources.getColor(
-                                    android.R.color.darker_gray,
-                                    binding.root.context.theme
-                                ) // enabled
-                            )
-                        )
-
-                        if (!isEnabled) rdBtn.buttonTintList = colorStateList
                         rdBtn.text = it
                         addView(rdBtn)
                         if (item.value == it) rdBtn.isChecked = true
@@ -403,11 +412,6 @@ class FormInputAdapter(
                                     else -> null
                                 }
                                 if (item.hasDependants || item.hasAlertError) {
-                                    Timber.d(
-                                        "listener trigger : ${item.id} ${
-                                            index
-                                        } $it"
-                                    )
                                     formValueListener?.onValueChanged(
                                         item, index
                                     )
@@ -431,7 +435,11 @@ class FormInputAdapter(
             if (!isEnabled) {
                 binding.rg.children.forEach {
                     it.isClickable = false
+                    it.isFocusable = false
+                    it.isEnabled = true
                 }
+            } else {
+                binding.rg.isEnabled = true
             }
             if (item.errorText != null) binding.llContent.setBackgroundResource(R.drawable.state_errored)
             else binding.llContent.setBackgroundResource(0)
@@ -519,7 +527,7 @@ class FormInputAdapter(
                         if (!isEnabled) {
                             cbx.isClickable = false
                             cbx.isFocusable = false
-                            cbx.isEnabled = false
+                            cbx.isEnabled = true
                         }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
@@ -543,7 +551,7 @@ class FormInputAdapter(
                                 }
                             }
                             formValueListener?.onValueChanged(
-                                item, index * (if (b) 1 else -1)
+                                item, (index + 1) * (if (b) 1 else -1)
                             )
                             if (item.value.isNullOrBlank()) {
                                 item.value = null
@@ -579,8 +587,11 @@ class FormInputAdapter(
             binding.form = item
             binding.invalidateAll()
             if (!isEnabled) {
+                binding.et.isEnabled = false
                 binding.et.isFocusable = false
                 binding.et.isClickable = false
+                binding.et.isFocusableInTouchMode = false
+                binding.et.isLongClickable = false
                 binding.executePendingBindings()
                 return
             }
@@ -851,6 +862,7 @@ class FormInputAdapter(
             TIME_PICKER -> TimePickerInputViewHolder.from(parent)
             HEADLINE -> HeadlineViewHolder.from(parent)
             AGE_PICKER -> AgePickerViewInputViewHolder.from(parent)
+            InputType.FILE_UPLOAD -> FileUploadInputViewHolder.from(parent)
         }
     }
 
@@ -859,7 +871,7 @@ class FormInputAdapter(
         val isEnabled = if (isEnabled) item.isEnabled else false
         when (item.inputType) {
             EDIT_TEXT -> (holder as EditTextInputViewHolder).bind(
-                item, isEnabled, formValueListener
+                item, isEnabled, formValueListener, ::refreshDeliveryOutcomeFields
             )
 
             DROPDOWN -> (holder as DropDownInputViewHolder).bind(item, isEnabled, formValueListener)
@@ -878,7 +890,12 @@ class FormInputAdapter(
                 isEnabled,
                 formValueListener
             )
-
+            InputType.FILE_UPLOAD -> (holder as FileUploadInputViewHolder).bind(
+                item,
+                selectImageClickListener,
+                viewDocumentListner,
+                isEnabled = isEnabled && !disableUpload
+            )
             TIME_PICKER -> (holder as TimePickerInputViewHolder).bind(item, isEnabled)
             HEADLINE -> (holder as HeadlineViewHolder).bind(item, formValueListener)
             AGE_PICKER -> (holder as AgePickerViewInputViewHolder).bind(
@@ -889,7 +906,51 @@ class FormInputAdapter(
         }
     }
 
+    class FileUploadInputViewHolder private constructor(private val binding: LayoutUploadFormBinding) :
+        ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = LayoutUploadFormBinding.inflate(layoutInflater, parent, false)
+                return FileUploadInputViewHolder(binding)
+            }
+        }
+
+
+        fun bind(
+            item: FormElement,
+            clickListener: SelectUploadImageClickListener?,
+            documentOnClick: ViewDocumentOnClick?,
+            isEnabled: Boolean
+        ) {
+            binding.form = item
+            binding.tvTitle.text = item.title
+            binding.clickListener = clickListener
+            binding.documentclickListener = documentOnClick
+            binding.btnView.visibility =
+                if (item.value != null && documentOnClick != null) View.VISIBLE else View.GONE
+
+            if (isEnabled) {
+                binding.addFile.visibility = View.VISIBLE
+//                binding.addFile.isEnabled = true
+//                binding.addFile.alpha = 1f
+            } else {
+                binding.addFile.visibility = View.GONE
+//                binding.addFile.isEnabled = false
+//                binding.addFile.alpha = 0.5f
+            }
+        }
+
+    }
+
     override fun getItemViewType(position: Int) = getItem(position).inputType.ordinal
+
+    fun refreshDeliveryOutcomeFields() {
+        val startIndex = currentList.indexOfFirst { it.id == 15 }
+        if (startIndex != -1) {
+            notifyItemRangeChanged(startIndex, 3)
+        }
+    }
 
     /**
      * Validation Result : -1 -> all good
@@ -944,6 +1005,18 @@ class FormInputAdapter(
             }
         }
         return retVal
+    }
+
+    class SelectUploadImageClickListener(private val selectImageClick: (formId: Int) -> Unit) {
+
+        fun onSelectImageClick(form: FormElement) = selectImageClick(form.id)
+
+    }
+
+    class ViewDocumentOnClick(private val viewDocument: (formId: Int) -> Unit) {
+
+        fun onViewDocumentClick(form: FormElement) = viewDocument(form.id)
+
     }
 
     fun syncAllEditTextValues(recyclerView: androidx.recyclerview.widget.RecyclerView) {

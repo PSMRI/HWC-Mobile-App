@@ -21,6 +21,7 @@ import android.widget.RadioGroup.LayoutParams
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDivider
@@ -101,7 +102,7 @@ fun Button.setAbortionActionText(item: AbortionDomain?) {
 fun Button.setInfantRegActionText(item: InfantRegDomain?) {
     item ?: return
     text = context.getString(
-        if (item.isRegistered()) Resource.string.view else Resource.string.register
+        if (item.shouldShowRegisterAction()) Resource.string.register else Resource.string.view
     )
 }
 
@@ -307,21 +308,32 @@ private val rotate = RotateAnimation(
 
 @BindingAdapter("syncState")
 fun ImageView.setSyncState(syncState: SyncState?) {
+    clearAnimation()
     syncState?.let {
         visibility = View.VISIBLE
         val drawable = when (it) {
             SyncState.UNSYNCED -> Resource.drawable.ic_unsynced
             SyncState.SYNCING -> Resource.drawable.ic_syncing
             SyncState.SYNCED -> Resource.drawable.ic_synced
-            else -> {
-                Resource.drawable.ic_unsynced
-            }
+            else -> Resource.drawable.ic_unsynced
         }
         setImageResource(drawable)
+        imageTintList = android.content.res.ColorStateList.valueOf(
+            ContextCompat.getColor(
+                context,
+                when (it) {
+                    SyncState.SYNCED -> android.R.color.holo_green_dark
+                    SyncState.UNSYNCED -> android.R.color.holo_red_dark
+                    SyncState.SYNCING -> android.R.color.holo_orange_light
+                    else -> android.R.color.darker_gray
+                }
+            )
+        )
         isClickable = it == SyncState.UNSYNCED
         if (it == SyncState.SYNCING) startAnimation(rotate)
     } ?: run {
         visibility = View.INVISIBLE
+        isClickable = false
     }
 }
 
@@ -440,5 +452,4 @@ fun TextView.setAsteriskTextView(required: Boolean?, title: String?) {
         }
     }
 }
-
 

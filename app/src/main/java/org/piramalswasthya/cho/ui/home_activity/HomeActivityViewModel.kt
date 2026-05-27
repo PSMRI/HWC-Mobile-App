@@ -16,6 +16,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
@@ -30,8 +31,10 @@ import org.piramalswasthya.cho.model.PatientVisitDataBundle
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
@@ -78,9 +81,55 @@ class HomeActivityViewModel @Inject constructor (application: Application,
 
     fun init(context: Context){
         viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                seedStatusOfWomanMaster()
+            }
             extracted(context)
 //            getStockDetailsOfSubStore()
         }
+    }
+
+    private suspend fun seedStatusOfWomanMaster() {
+        val appContext = getApplication<Application>()
+        database.statusOfWomanDao.insertAll(
+            listOf(
+                StatusOfWomanMaster(
+                    1,
+                    appContext.getString(R.string.status_of_woman_eligible_couple_name),
+                    appContext.getString(R.string.status_of_woman_eligible_couple_code)
+                ),
+                StatusOfWomanMaster(
+                    2,
+                    appContext.getString(R.string.status_of_woman_pregnant_woman_name),
+                    appContext.getString(R.string.status_of_woman_pregnant_woman_code)
+                ),
+                StatusOfWomanMaster(
+                    3,
+                    appContext.getString(R.string.status_of_woman_postnatal_name),
+                    appContext.getString(R.string.status_of_woman_postnatal_code)
+                ),
+                StatusOfWomanMaster(
+                    4,
+                    appContext.getString(R.string.status_of_woman_elderly_name),
+                    appContext.getString(R.string.status_of_woman_elderly_code)
+                ),
+                StatusOfWomanMaster(
+                    5,
+                    appContext.getString(R.string.status_of_woman_adolescent_name),
+                    appContext.getString(R.string.status_of_woman_adolescent_code)
+                ),
+                StatusOfWomanMaster(
+                    6,
+                    appContext.getString(R.string.status_of_woman_permanent_sterilization_name),
+                    appContext.getString(R.string.status_of_woman_permanent_sterilization_code)
+                ),
+                StatusOfWomanMaster(
+                    7,
+                    appContext.getString(R.string.status_of_woman_not_applicable_name),
+                    appContext.getString(R.string.status_of_woman_not_applicable_code)
+                )
+            )
+        )
     }
 
     fun triggerDownSyncWorker(context: Context, syncName: String){
@@ -137,32 +186,36 @@ class HomeActivityViewModel @Inject constructor (application: Application,
 
     fun logout(myLocation:Location?,logoutType: String) {
         viewModelScope.launch {
-            val user = userDao.getLoggedInUser()
-            val lat = myLocation?.latitude
-            val long = myLocation?.longitude
-            val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
-            val timeZone = TimeZone.getTimeZone("GMT+0530")
-            val formatter = SimpleDateFormat(pattern, Locale.getDefault())
-            formatter.timeZone = timeZone
+            withContext(Dispatchers.IO) {
+                val user = userDao.getLoggedInUser()
+                val lat = myLocation?.latitude
+                val long = myLocation?.longitude
+                val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
+                val timeZone = TimeZone.getTimeZone("GMT+0530")
+                val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+                formatter.timeZone = timeZone
 
-            val logoutTimestamp = formatter.format(Date())
+                val logoutTimestamp = formatter.format(Date())
 
-            val selectedOutreachProgram = SelectedOutreachProgram(0,
-                user?.userId,
-                user?.userName,
-                null,
-                null,
-                logoutTimestamp,
-                null,
-                lat,
-                long,
-                logoutType,
-            null)
-            userDao.insertOutreachProgram(selectedOutreachProgram)
-            userDao.resetAllUsersLoggedInState()
-            if (user != null) {
-                userDao.updateLogoutTime(user.userId,Date())
+                val selectedOutreachProgram = SelectedOutreachProgram(0,
+                    // USER row is removed by clearAllTables(), so keep FK nullable for logout audit.
+                    null,
+                    user?.userName,
+                    null,
+                    null,
+                    logoutTimestamp,
+                    null,
+                    lat,
+                    long,
+                    logoutType,
+                null)
+                // Reset all local persisted records so next login starts clean.
+                database.clearAllTables()
+                // Preserve logout audit trail for later sync after local reset.
+                userDao.insertOutreachProgram(selectedOutreachProgram)
+                dataLoadFlagManager.setDataLoaded(false)
             }
+            pref.clearSyncTimestamps()
             pref.deleteEsanjeevaniCreds()
             _navigateToLoginPage.value = true
         }

@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.res.Resources
 import android.util.Range
 import androidx.annotation.StringRes
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
@@ -112,6 +114,18 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
     private val _alertErrorMessageFlow = MutableStateFlow<String?>(null)
     val alertErrorMessageFlow = _alertErrorMessageFlow.asStateFlow()
 
+    /** Signals that a specific FormElement's row needs the adapter to call
+     *  notifyItemChanged. Used when we mutate a FormElement's `value` in place
+     *  (e.g. "None" mutual exclusion) — DiffUtil cannot detect it because the
+     *  list still holds the same reference, so the fragment must force a
+     *  rebind explicitly. */
+    private val _forceRefreshIdFlow = MutableSharedFlow<Int>(extraBufferCapacity = 8)
+    val forceRefreshIdFlow = _forceRefreshIdFlow.asSharedFlow()
+
+    protected fun forceRefreshId(id: Int) {
+        _forceRefreshIdFlow.tryEmit(id)
+    }
+
     suspend fun resetErrorMessageFlow() {
         _alertErrorMessageFlow.emit(null)
     }
@@ -153,14 +167,15 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
         // that could reset EditText fields while user is typing
         if (updateIndex != -1 || errorStateChanged) {
             val newList = list.toMutableList()
-//            if (updateUIForCurrentElement) {
-//                Timber.d("Updating UI element ...")
-//                newList[updateIndex] = list[updateIndex].cloneForm()
-//                updateUIForCurrentElement = false
-//            }
             Timber.d("Emitting list (updateIndex=$updateIndex, errorChanged=$errorStateChanged)")
-//            _listFlow.emit(emptyList())
             _listFlow.emit(newList)
+            // The list emission alone is not enough when only errorText was
+            // mutated in place: DiffUtil's areContentsTheSame compares the same
+            // FormElement reference on both sides, so the change is invisible
+            // and the row stays visually stale. Force a rebind on this row.
+            if (errorStateChanged && updateIndex == -1 && formElement?.inputType != InputType.EDIT_TEXT) {
+                forceRefreshId(formId)
+            }
         } else {
             Timber.d("Skipping list emission (only value changed, no structural or error changes)")
         }
@@ -838,6 +853,38 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
             return it // Fallback: return the entry as-is to avoid crash
         }
         return null
+    }
+
+    /**
+     * Multi-select variant of [getLocalValueInArray]. Splits a comma-separated
+     * stored value (typically what FormElement uses for CHECKBOXES) and re-localizes
+     * each item, returning a comma-joined string in the current locale.
+     */
+    fun getLocalValuesInArray(arrayId: Int, entry: String?): String? {
+        if (entry.isNullOrBlank()) return null
+        return entry.split(",")
+            .mapNotNull { raw ->
+                getLocalValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
+            }
+            .distinct()
+            .joinToString(",")
+            .takeIf { it.isNotBlank() }
+    }
+
+    /**
+     * Multi-select variant of [getEnglishValueInArray]. Splits a comma-separated
+     * displayed value and converts each item to its English canonical form so the
+     * persisted DB value is locale-neutral.
+     */
+    fun getEnglishValuesInArray(arrayId: Int, entry: String?): String? {
+        if (entry.isNullOrBlank()) return null
+        return entry.split(",")
+            .mapNotNull { raw ->
+                getEnglishValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
+            }
+            .distinct()
+            .joinToString(",")
+            .takeIf { it.isNotBlank() }
     }
 
 }

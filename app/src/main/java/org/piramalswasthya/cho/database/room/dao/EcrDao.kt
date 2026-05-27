@@ -2,9 +2,12 @@ package org.piramalswasthya.cho.database.room.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.EligibleCoupleRegCache
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientWithECRCache
+import org.piramalswasthya.cho.model.SyncStatusCache
 
 @Dao
 interface EcrDao {
@@ -48,8 +51,63 @@ interface EcrDao {
 //    @Query("select * from eligible_couple_tracking where benId = :benId and CAST((strftime('%s','now') - visitDate/1000)/60/60/24 AS INTEGER) < 30 order by visitDate limit 1")
     suspend fun getEct(patientID: String, visitDate : Long): EligibleCoupleTrackingCache?
 
-    @Query("select * from eligible_couple_tracking where patientID = :patientID order by visitDate desc limit 1")
+    @Query(
+        """
+        SELECT * FROM eligible_couple_tracking
+        WHERE patientID = :patientID
+        AND date(visitDate / 1000, 'unixepoch', 'localtime') = date(:visitDate / 1000, 'unixepoch', 'localtime')
+        LIMIT 1
+        """
+    )
+    suspend fun getEctByVisitDay(patientID: String, visitDate: Long): EligibleCoupleTrackingCache?
+
+    @Query("select * from eligible_couple_tracking where patientID = :patientID and isActive = 1 order by visitDate desc limit 1")
     suspend fun getLatestEct(patientID: String) : EligibleCoupleTrackingCache?
+
+    @Query("""
+        SELECT p.* FROM PATIENT p
+        LEFT JOIN (
+            SELECT patientID, MAX(visitDate) AS lastVisitDate
+            FROM ELIGIBLE_COUPLE_TRACKING
+            WHERE isActive = 1
+            GROUP BY patientID
+        ) ect ON ect.patientID = p.patientID
+        WHERE p.statusOfWomanID = 1
+        AND p.genderID = 2
+        AND p.age BETWEEN 15 AND 49
+        ORDER BY COALESCE(ect.lastVisitDate, 0) DESC, p.registrationDate DESC
+    """)
+    fun getPatientsForTrackingList(): Flow<List<Patient>>
+
+    @Query("""
+        SELECT COUNT(*) FROM PATIENT
+        WHERE statusOfWomanID = 1
+        AND genderID = 2
+        AND age BETWEEN 15 AND 49
+    """)
+    fun getEligibleCoupleTrackingCount(): Flow<Int>
+
+    @Transaction
+    @Query(
+        """
+        SELECT
+            6 AS id,
+            'EC Tracking' AS name,
+            COUNT(CASE WHEN ect.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN ect.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN ect.syncState = :syncingState THEN 1 END) AS syncing
+        FROM ELIGIBLE_COUPLE_TRACKING ect
+        INNER JOIN PATIENT p ON p.patientID = ect.patientID
+        WHERE p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+          AND p.statusOfWomanID = 1
+        """
+    )
+    fun getEligibleCoupleTrackingSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(vararg eligibleCoupleTrackingCache: EligibleCoupleTrackingCache)

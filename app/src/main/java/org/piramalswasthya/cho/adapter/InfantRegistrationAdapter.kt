@@ -44,24 +44,18 @@ class InfantRegistrationAdapter(
             clickListener: ClickListener?
         ) {
             binding.item = item
-            binding.clickListener = clickListener
+            binding.clickListener = if (item.isActionEnabled()) clickListener else null
 
             // Set button color based on registration status (text is bound via app:infantRegActionText)
-            val isRegistered = item.isRegistered()
+            val showRegister = item.shouldShowRegisterAction()
             binding.btnAction.setBackgroundColor(
                 binding.root.resources.getColor(
-                    if (isRegistered) android.R.color.holo_green_dark 
-                    else android.R.color.holo_red_dark,
+                    if (showRegister) android.R.color.holo_red_dark else android.R.color.holo_green_dark,
                     null
                 )
             )
-
-            // Set sync icon visibility
-            binding.ivSync.visibility = if (item.syncState != null && item.syncState == org.piramalswasthya.cho.database.room.SyncState.SYNCED) {
-                android.view.View.VISIBLE
-            } else {
-                android.view.View.GONE
-            }
+            binding.btnAction.isEnabled = item.isActionEnabled()
+            binding.btnAction.alpha = if (item.isActionEnabled()) 1f else 0.7f
 
             binding.executePendingBindings()
         }

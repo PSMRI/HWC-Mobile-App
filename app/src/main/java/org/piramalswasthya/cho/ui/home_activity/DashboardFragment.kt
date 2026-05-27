@@ -2,14 +2,17 @@ package org.piramalswasthya.cho.ui.home_activity
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
@@ -36,6 +39,10 @@ class DashboardFragment : Fragment() {
 
     private var ancCount : Int? = 0
     private var pncCount : Int? = 0
+    private var maleNcdCount : Int? = 0
+    private var femaleNcdCount : Int? = 0
+    private var othersNcdCount : Int? = 0
+    private var ncdCount : Int? = 0
     private var immunizationCount : Int? = 0
     private var ectCount : Int? = 0
 
@@ -84,9 +91,9 @@ class DashboardFragment : Fragment() {
         if(user?.userName == null){
             return
         }
-        maleOpdCount = benFlowDao.getOpdCount(1, periodParam!!, user.userName) ?: 0
-        femaleOpdCount = benFlowDao.getOpdCount(2, periodParam!!, user.userName) ?: 0
-        othersOpdCount = benFlowDao.getOpdCount(3, periodParam!!, user.userName) ?: 0
+        maleOpdCount = benFlowDao.getDoctorModuleOpdCount("male", periodParam!!) ?: 0
+        femaleOpdCount = benFlowDao.getDoctorModuleOpdCount("female", periodParam!!) ?: 0
+        othersOpdCount = benFlowDao.getDoctorModuleOpdCount("other", periodParam!!) ?: 0
         totalOpdCount = maleOpdCount!! + femaleOpdCount!! + othersOpdCount!!
 
         binding.opdMaleValue.text = maleOpdCount.toString()
@@ -96,6 +103,16 @@ class DashboardFragment : Fragment() {
 
         ancCount = benFlowDao.getAncCount(periodParam!!, user.userName) ?: 0
         pncCount = benFlowDao.getPncCount(periodParam!!, user.userName) ?: 0
+        maleNcdCount = benFlowDao.getNcdCountByGender("male", periodParam!!, user.userName) ?: 0
+        femaleNcdCount = benFlowDao.getNcdCountByGender("female", periodParam!!, user.userName) ?: 0
+        othersNcdCount = benFlowDao.getNcdCountByGender("other", periodParam!!, user.userName) ?: 0
+        if ((maleNcdCount!! + femaleNcdCount!! + othersNcdCount!!) == 0) {
+            maleNcdCount = benFlowDao.getNcdCountAllTimeByGender("male", user.userName) ?: 0
+            femaleNcdCount = benFlowDao.getNcdCountAllTimeByGender("female", user.userName) ?: 0
+            othersNcdCount = benFlowDao.getNcdCountAllTimeByGender("other", user.userName) ?: 0
+        }
+        ncdCount = maleNcdCount!! + femaleNcdCount!! + othersNcdCount!!
+
         immunizationCount = benFlowDao.getImmunizationCount(periodParam!!, user.userName) ?: 0
         ectCount = benFlowDao.getEctCount(periodParam!!, user.userName) ?: 0
 
@@ -103,7 +120,10 @@ class DashboardFragment : Fragment() {
         binding.tvPncValue.text = pncCount.toString()
         binding.tvImmValue.text = immunizationCount.toString()
         binding.tvFamValue.text = ectCount.toString()
-
+        binding.ncdMaleValue.text = maleNcdCount.toString()
+        binding.ncdFemaleValue.text = femaleNcdCount.toString()
+        binding.ncdOtherValue.text = othersNcdCount.toString()
+        binding.ncdTotalValue.text = ncdCount.toString()
 
     }
     @RequiresApi(Build.VERSION_CODES.O)
@@ -128,6 +148,21 @@ class DashboardFragment : Fragment() {
                 fetchAndDisplayCount()
             }
 
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                benFlowDao.observeDoctorModuleListCount().collect {
+                    fetchAndDisplayCount()
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            fetchAndDisplayCount()
         }
     }
 }

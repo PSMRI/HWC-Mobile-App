@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.databinding.FragmentOphthalmicScreeningBinding
 import org.piramalswasthya.cho.ui.commons.DropdownConst
 import android.app.AlertDialog
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.work.WorkerUtils
 
 @AndroidEntryPoint
 class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
@@ -34,6 +35,13 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             }
         }
     }
+
+    private val chartOptions by lazy { resources.getStringArray(R.array.ophthalmic_chart_options) }
+    private val caseIdOptions by lazy { resources.getStringArray(R.array.ophthalmic_case_id_options) }
+    private val injuryTypeOptions by lazy { resources.getStringArray(R.array.ophthalmic_injury_type_options) }
+    private val foreignBodyOptions by lazy { resources.getStringArray(R.array.ophthalmic_foreign_body_options) }
+    private val trachomaOptions by lazy { resources.getStringArray(R.array.ophthalmic_trachoma_options) }
+    private val cornealDiseaseOptions by lazy { resources.getStringArray(R.array.ophthalmic_corneal_disease_options) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,7 +81,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
     private fun setupDropdowns() {
         val chartValues = DropdownConst.visualAcuityChartList
-        val chartAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, chartValues)
+        val chartAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, chartOptions)
         binding.actvChartUsed.setAdapter(chartAdapter)
         binding.actvChartUsed.setOnItemClickListener { _, _, position, _ ->
             viewModel.setChartUsed(chartValues[position])
@@ -98,21 +106,21 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
 
         val trachomaValues = DropdownConst.trachomaStatusList
-        val trachomaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, trachomaValues)
+        val trachomaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, trachomaOptions)
         binding.actvTrachomaStatus.setAdapter(trachomaAdapter)
         binding.actvTrachomaStatus.setOnItemClickListener { _, _, position, _ ->
             viewModel.setTrachomaStatus(trachomaValues[position])
         }
 
         val cornealValues = DropdownConst.cornealDiseaseTypeList
-        val cornealAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cornealValues)
+        val cornealAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cornealDiseaseOptions)
         binding.actvCornealDiseaseType.setAdapter(cornealAdapter)
         binding.actvCornealDiseaseType.setOnItemClickListener { _, _, position, _ ->
             viewModel.setCornealDiseaseType(cornealValues[position])
         }
 
         val foreignBodyValues = DropdownConst.foreignBodyRemovalOptions
-        val foreignBodyAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, foreignBodyValues)
+        val foreignBodyAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, foreignBodyOptions)
         binding.actvForeignBodyRemoval.setAdapter(foreignBodyAdapter)
         binding.actvForeignBodyRemoval.setOnItemClickListener { _, _, position, _ ->
             viewModel.setForeignBodyRemoval(foreignBodyValues[position])
@@ -183,7 +191,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.ophthalmic_case_id_conditions))
-            .setMultiChoiceItems(options, checkedItems) { _, which, isChecked ->
+            .setMultiChoiceItems(caseIdOptions, checkedItems) { _, which, isChecked ->
                 checkedItems[which] = isChecked
             }
             .setPositiveButton(getString(android.R.string.ok)) { _, _ ->
@@ -208,7 +216,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.ophthalmic_select_injury_type))
-            .setMultiChoiceItems(options, checkedItems) { _, which, isChecked ->
+            .setMultiChoiceItems(injuryTypeOptions, checkedItems) { _, which, isChecked ->
                 checkedItems[which] = isChecked
             }
             .setPositiveButton(getString(android.R.string.ok)) { _, _ ->
@@ -231,24 +239,22 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
         binding.btnNext.isEnabled = false
         viewModel.save {
-            Toast.makeText(requireContext(), "Saved successfully", Toast.LENGTH_SHORT).show()
-            val isInjuryTrauma = args.reasonForVisit == DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA ||
-                    args.reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY
-            if (isInjuryTrauma) {
-                // PRD: "Next Button – Proceed to previous page."
-                findNavController().popBackStack()
-            } else {
-                val benVisitInfo = args.benVisitInfo
-                if (benVisitInfo != null) {
-                    findNavController().navigate(
-                        OphthalmicScreeningFragmentDirections
-                            .actionOphthalmicScreeningFragmentToFhirVisitDetailsFragment(benVisitInfo)
-                    )
-                } else {
-                    binding.btnNext.isEnabled = true
-                    Toast.makeText(requireContext(), "Error returning to details", Toast.LENGTH_SHORT).show()
-                }
+            Toast.makeText(requireContext(), getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show()
+            WorkerUtils.ophthalmicPushWorker(requireContext())
+            val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
+                ?: org.piramalswasthya.cho.model.MasterDb(patientId = args.patientID, visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
+
+            masterDb.visitMasterDb?.apply {
+                category = "Other CPHC Services"
+                subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ophthalmic
+                reason = args.reasonForVisit
             }
+
+            val bundle = android.os.Bundle().apply {
+                putSerializable("MasterDb", masterDb)
+                putInt("benVisitNo", args.benVisitNo)
+            }
+            findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
         }
     }
 
@@ -280,7 +286,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             else -> return
         }
 
-        Toast.makeText(requireContext(), "Please complete: ${getString(messageRes)}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.please_complete_field, getString(messageRes)), Toast.LENGTH_SHORT).show()
 
         binding.root.findViewById<ScrollView>(R.id.scroll_view)?.let { scrollView ->
             scrollView.post {
@@ -326,6 +332,13 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             binding.llNearVaSection.visibility = if (show) View.VISIBLE else View.GONE
         }
 
+        viewModel.chartUsed.observe(viewLifecycleOwner) { value ->
+            val localizedText = getLocalizedText(value, DropdownConst.visualAcuityChartList, chartOptions)
+            if (binding.actvChartUsed.text.toString() != localizedText) {
+                binding.actvChartUsed.setText(localizedText, false)
+            }
+        }
+
         viewModel.canProceed.observe(viewLifecycleOwner) { canProceed ->
             if (args.reasonForVisit == DropdownConst.REASON_FIRST_AID_EYE_INJURY ||
                 args.reasonForVisit == DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA
@@ -337,7 +350,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         viewModel.saveError.observe(viewLifecycleOwner) { failed ->
             if (failed) {
                 binding.btnNext.isEnabled = true
-                Toast.makeText(requireContext(), "Save failed. Please retry.", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.save_failed_retry), Toast.LENGTH_LONG).show()
             }
         }
 
@@ -368,8 +381,9 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
 
         viewModel.foreignBodyRemoval.observe(viewLifecycleOwner) { value ->
-            if (!value.isNullOrEmpty() && binding.actvForeignBodyRemoval.text.toString() != value) {
-                binding.actvForeignBodyRemoval.setText(value, false)
+            val localizedText = getLocalizedText(value, DropdownConst.foreignBodyRemovalOptions, foreignBodyOptions)
+            if (!localizedText.isNullOrEmpty() && binding.actvForeignBodyRemoval.text.toString() != localizedText) {
+                binding.actvForeignBodyRemoval.setText(localizedText, false)
             }
         }
 
@@ -463,15 +477,27 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             applyRadioState(binding.rgVitaminADeficiency, value, R.id.rb_vitamin_a_yes, R.id.rb_vitamin_a_no)
         }
         viewModel.trachomaStatus.observe(viewLifecycleOwner) { value ->
-            if (!value.isNullOrEmpty() && binding.actvTrachomaStatus.text.toString() != value) {
-                binding.actvTrachomaStatus.setText(value, false)
+            val localizedText = getLocalizedText(value, DropdownConst.trachomaStatusList, trachomaOptions)
+            if (!localizedText.isNullOrEmpty() && binding.actvTrachomaStatus.text.toString() != localizedText) {
+                binding.actvTrachomaStatus.setText(localizedText, false)
             }
         }
         viewModel.cornealDiseaseType.observe(viewLifecycleOwner) { value ->
-            if (!value.isNullOrEmpty() && binding.actvCornealDiseaseType.text.toString() != value) {
-                binding.actvCornealDiseaseType.setText(value, false)
+            val localizedText = getLocalizedText(value, DropdownConst.cornealDiseaseTypeList, cornealDiseaseOptions)
+            if (!localizedText.isNullOrEmpty() && binding.actvCornealDiseaseType.text.toString() != localizedText) {
+                binding.actvCornealDiseaseType.setText(localizedText, false)
             }
         }
+    }
+
+    private fun getLocalizedText(internalValue: String?, internalList: List<String>, localizedList: Array<String>): String {
+        if (internalValue == null) return ""
+        val index = internalList.indexOf(internalValue)
+        return if (index != -1 && index < localizedList.size) localizedList[index] else internalValue ?: ""
+    }
+    
+    private fun getLocalizedList(internalValues: List<String>?, internalList: List<String>, localizedList: Array<String>): List<String> {
+        return internalValues?.map { getLocalizedText(it, internalList, localizedList) } ?: emptyList()
     }
 
     private fun applyMultiSelectDisplay(
@@ -488,11 +514,13 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
     }
 
     private fun applyInjuryTypesDisplay(types: List<String>?) {
-        applyMultiSelectDisplay(binding.tvInjuryTypeSelection, types, R.string.ophthalmic_select_injury_type)
+        val localizedTypes = getLocalizedList(types, DropdownConst.injuryTypeList, injuryTypeOptions)
+        applyMultiSelectDisplay(binding.tvInjuryTypeSelection, localizedTypes, R.string.ophthalmic_select_injury_type)
     }
 
     private fun applyCaseIdConditionsDisplay(conditions: List<String>?) {
-        applyMultiSelectDisplay(binding.tvCaseIdSelection, conditions, R.string.select_conditions)
+        val localizedConditions = getLocalizedList(conditions, DropdownConst.caseIdConditionsList, caseIdOptions)
+        applyMultiSelectDisplay(binding.tvCaseIdSelection, localizedConditions, R.string.select_conditions)
     }
 
     private fun applyRadioState(

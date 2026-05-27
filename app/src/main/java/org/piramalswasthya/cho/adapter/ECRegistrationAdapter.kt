@@ -49,6 +49,9 @@ class ECRegistrationAdapter(
         ) {
             binding.patientWithEcr = item
             binding.clickListener = clickListener
+            binding.ivCall.setOnClickListener {
+                clickListener?.onClickCall(item)
+            }
 
             // Always show LMP and Status layout blocks
             binding.llLmpDate.visibility = View.VISIBLE
@@ -90,12 +93,16 @@ class ECRegistrationAdapter(
 
     class ClickListener(
         private val onAddVisit: ((patientWithEcr: PatientWithEcrDomain) -> Unit)? = null,
-        private val onViewVisit: ((patientWithEcr: PatientWithEcrDomain) -> Unit)? = null
+        private val onViewVisit: ((patientWithEcr: PatientWithEcrDomain) -> Unit)? = null,
+        private val onCall: ((patientWithEcr: PatientWithEcrDomain) -> Unit)? = null
     ) {
         fun onAddVisit(item: PatientWithEcrDomain) =
             onAddVisit?.let { it(item) }
 
         fun onViewVisit(item: PatientWithEcrDomain) =
             onViewVisit?.let { it(item) }
+
+        fun onClickCall(item: PatientWithEcrDomain) =
+            onCall?.let { it(item) }
     }
 }

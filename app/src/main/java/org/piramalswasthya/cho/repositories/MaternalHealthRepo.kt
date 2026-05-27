@@ -1,12 +1,18 @@
 package org.piramalswasthya.cho.repositories
 
+import android.content.Context
 import android.icu.util.Calendar
 import android.util.Log
+import com.google.gson.Gson
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
+import okhttp3.ResponseBody
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
@@ -17,9 +23,12 @@ import org.piramalswasthya.cho.model.AshaDueListCache
 import org.piramalswasthya.cho.model.AbortionDomain
 import org.piramalswasthya.cho.model.PatientWithPwrCache
 import org.piramalswasthya.cho.model.PmsmaDomain
+import org.piramalswasthya.cho.model.asPmsmaDomainModel
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.VillageIdList
+import org.piramalswasthya.cho.network.getLongFromDate
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
@@ -32,6 +41,7 @@ import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import org.piramalswasthya.cho.model.ANCPost
 import org.piramalswasthya.cho.model.AncCompletedListItem
 import org.piramalswasthya.cho.model.AncDueListItem
+import org.piramalswasthya.cho.model.PwrPost
 //import org.piramalswasthya.sakhi.helpers.getTodayMillis
 //import org.piramalswasthya.sakhi.model.*
 //import org.piramalswasthya.sakhi.network.GetDataPaginatedRequest
@@ -41,15 +51,27 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import retrofit2.Response
+
+/** Outcome of an upload attempt for one record. */
+private sealed class AncUploadResult {
+    object Success : AncUploadResult()
+    /** Recoverable failure (network blip, 5xx, token refresh): worth retrying next cycle. */
+    object Transient : AncUploadResult()
+    /** Server rejected the payload itself (e.g. statusCode 5000 "Saving anc data to db failed").
+     *  Retrying the same body forever just wastes cycles — caller should park the row. */
+    data class Terminal(val message: String) : AncUploadResult()
+}
 
 class MaternalHealthRepo @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val amritApiService: AmritApiService,
     private val maternalHealthDao: MaternalHealthDao,
     private val ashaDueListDao: AshaDueListDao,
     private val database: InAppDb,
     private val userRepo: UserRepo,
     private val patientDao: PatientDao,
-//    private val preferenceDao: PreferenceDao,
+    private val preferenceDao: PreferenceDao,
 ) {
 
     suspend fun getSavedRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
@@ -163,6 +185,12 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
+    suspend fun updatePwr(pwr: PregnantWomanRegistrationCache) {
+        withContext(Dispatchers.IO) {
+            maternalHealthDao.updatePwr(pwr)
+        }
+    }
+
     suspend fun getAncDueList(ancStage: Int): List<AncDueListItem> {
         return withContext(Dispatchers.IO) {
             val allPwr = maternalHealthDao.getAllActivePregnancyRegistrations()
@@ -235,27 +263,103 @@ class MaternalHealthRepo @Inject constructor(
     suspend fun processNewAncVisit(): Boolean {
         return withContext(Dispatchers.IO) {
             val ancList = maternalHealthDao.getAllUnprocessedAncVisits()
+            Timber.d("ANC upload queue size: ${ancList.size}")
+            if (ancList.isEmpty()) {
+                Timber.d("No unsynced ANC records found for upload")
+                return@withContext true
+            }
 
             val ancPostList = mutableSetOf<ANCPost>()
+            val user = userRepo.getLoggedInUser()
+            var hasFailures = false
             ancList.forEach {
                 ancPostList.clear()
                 val ben = patientDao.getPatient(it.patientID)
                 if(ben.beneficiaryID != null){
-                    ancPostList.add(it.asPostModel(ben.beneficiaryID!!))
+                    ancPostList.add(
+                        it.asPostModel(
+                            benId = ben.beneficiaryID!!,
+                            benRegId = ben.beneficiaryRegID,
+                            providerServiceMapID = user?.serviceMapId,
+                            context = context,
+                        )
+                    )
                     it.syncState = SyncState.SYNCING
                     maternalHealthDao.updateANC(it)
-                    val uploadDone = postDataToAmritServer(ancPostList)
-                    if (uploadDone) {
-                        it.processed = "P"
-                        it.syncState = SyncState.SYNCED
-                    } else {
-                        it.syncState = SyncState.UNSYNCED
+                    Timber.d("processNewAncVisit: posting row id=${it.id} patientID=${it.patientID}")
+                    when (val result = postDataToAmritServer(ancPostList)) {
+                        AncUploadResult.Success -> {
+                            // Targeted column update — avoids writing the whole
+                            // row (which would persist any stale field still on
+                            // `it`) and is robust against parallel writers in
+                            // the same sync chain.
+                            maternalHealthDao.markAncSynced(it.id)
+                            Timber.d("processNewAncVisit: row id=${it.id} marked SYNCED")
+                        }
+                        is AncUploadResult.Terminal -> {
+                            // Park the row: getAllUnprocessedAncVisits filters on
+                            // processed IN ('N','U'), so "F" stops the retry loop.
+                            // A subsequent edit resets processed to 'U' and the row
+                            // re-enters the queue.
+                            Timber.w("Parking ANC row ${it.id}: ${result.message}")
+                            it.processed = "F"
+                            it.syncState = SyncState.UNSYNCED
+                            maternalHealthDao.updateANC(it)
+                            hasFailures = true
+                        }
+                        AncUploadResult.Transient -> {
+                            it.syncState = SyncState.UNSYNCED
+                            maternalHealthDao.updateANC(it)
+                            hasFailures = true
+                        }
                     }
-                    maternalHealthDao.updateANC(it)
+                } else {
+                    Timber.w("Skipping ANC upload for patient ${it.patientID}: beneficiaryID is null")
+                    hasFailures = true
                 }
             }
 
-            return@withContext true
+            return@withContext !hasFailures
+        }
+    }
+
+    suspend fun processNewPWRRecords(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val pwrList = maternalHealthDao.getAllUnprocessedPWRs()
+            if (pwrList.isEmpty()) {
+                Timber.d("No unsynced PWR records found for upload")
+                return@withContext true
+            }
+
+            var hasFailures = false
+            val pwrPostList = mutableSetOf<PwrPost>()
+
+            pwrList.forEach { pwr ->
+                pwrPostList.clear()
+                val patient = patientDao.getPatient(pwr.patientID)
+                val benId = patient.beneficiaryID
+                if (benId == null) {
+                    Timber.w("Skipping PWR upload for patient ${pwr.patientID}: beneficiaryID is null")
+                    hasFailures = true
+                    return@forEach
+                }
+
+                pwr.syncState = SyncState.SYNCING
+                maternalHealthDao.updatePwr(pwr)
+
+                pwrPostList.add(pwr.asPwrPost().copy(benId = benId))
+                val uploadDone = postPwrDataToAmritServer(pwrPostList)
+                if (uploadDone) {
+                    pwr.processed = "P"
+                    pwr.syncState = SyncState.SYNCED
+                } else {
+                    pwr.syncState = SyncState.UNSYNCED
+                    hasFailures = true
+                }
+                maternalHealthDao.updatePwr(pwr)
+            }
+
+            return@withContext !hasFailures
         }
     }
 
@@ -264,6 +368,24 @@ class MaternalHealthRepo @Inject constructor(
      */
     fun getAllPatientsWithPWR(): Flow<List<PatientWithPwrCache>> {
         return maternalHealthDao.getAllPatientsWithPWR()
+            .combine(maternalHealthDao.getAllPatientsWithPWRFromEligibleCoupleTracking()) { pwrList, ectPositiveList ->
+                (pwrList + ectPositiveList)
+                    .distinctBy { it.patient.patientID }
+                    .sortedByDescending {
+                        it.getActiveOrLatestPwr()?.createdDate ?: it.patient.registrationDate?.time ?: 0L
+                    }
+            }
+    }
+
+    fun getAllPatientsWithANC(): Flow<List<PatientWithPwrCache>> {
+        return maternalHealthDao.getAllPatientsWithANC()
+            .combine(maternalHealthDao.getAllPatientsWithPWRFromEligibleCoupleTracking()) { pwrList, ectPositiveList ->
+                (pwrList + ectPositiveList)
+                    .distinctBy { it.patient.patientID }
+                    .sortedByDescending {
+                        it.getActiveOrLatestPwr()?.createdDate ?: it.patient.registrationDate?.time ?: 0L
+                    }
+            }
     }
 
     /**
@@ -276,10 +398,46 @@ class MaternalHealthRepo @Inject constructor(
     }
 
     /**
-     * Get count of pregnant women registrations
+     * Get count of women on the Pregnant Women Registration list.
+     * Derives from the same combined Flow as PregnantWomenRegistrationFragment
+     * (PWR-side + ECT-positive catch-all) and applies the same Kotlin predicate,
+     * so the grid count and the list row count cannot drift.
      */
     fun getPWRCount(): Flow<Int> {
-        return maternalHealthDao.getPWRCount()
+        return getAllPatientsWithPWR().map { list ->
+            list.map { it.asDomainModel() }
+                .count { domain ->
+                    val isFemale = domain.patient.genderID == 2
+                    val age = domain.patient.age ?: 0
+                    val isReproductiveAge = age in 15..49
+                    val isPostnatal = domain.patient.statusOfWomanID == 3
+                    isFemale && isReproductiveAge && !isPostnatal
+                }
+        }
+    }
+
+    /**
+     * Get count of women eligible for ANC.
+     * Derives from the same combined Flow as ANCVisitsFragment (PWR-side + ECT-positive catch-all)
+     * and applies the same Kotlin predicate, so the grid count and the list row count cannot drift.
+     */
+    fun getANCCount(): Flow<Int> {
+        val ancEligibilityWindowMillis = 35L * 24 * 60 * 60 * 1000
+        return getAllPatientsWithANC().map { list ->
+            val now = System.currentTimeMillis()
+            val cutoff = now - ancEligibilityWindowMillis
+            list.map { it.asDomainModel() }
+                .count { domain ->
+                    val hasActivePWR = domain.pwr != null && domain.isActive()
+                    val isFemale = domain.patient.genderID == 2
+                    val age = domain.patient.age ?: 0
+                    val isReproductiveAge = age in 15..49
+                    val isEligibleForANC = domain.pwr?.lmpDate?.let { lmp ->
+                        lmp <= cutoff
+                    } ?: false
+                    hasActivePWR && isFemale && isReproductiveAge && isEligibleForANC
+                }
+        }
     }
 
     /**
@@ -339,6 +497,43 @@ class MaternalHealthRepo @Inject constructor(
     }
 
     /**
+     * Get e-PMSMA women — the subset of ANC-eligible women who have at least one
+     * active ANC visit flagged anyHighRisk = true.
+     *
+     * Derived from the same Flow as ANCVisitsFragment / getANCCount and intersected
+     * with the high-risk patientID set, so the e-PMSMA list cannot drift from the
+     * ANC tile.
+     */
+    fun getEPmsmaWomenList(): Flow<List<PmsmaDomain>> {
+        val ancEligibilityWindowMillis = 35L * 24 * 60 * 60 * 1000
+        return getAllPatientsWithANC()
+            .combine(maternalHealthDao.getHighRiskAncPatientIDs()) { patientList, hrIds ->
+                val cutoff = System.currentTimeMillis() - ancEligibilityWindowMillis
+                val hrSet = hrIds.toHashSet()
+                patientList
+                    .filter { hrSet.contains(it.patient.patientID) }
+                    .filter { p ->
+                        val domain = p.asDomainModel()
+                        val hasActivePWR = domain.pwr != null && domain.isActive()
+                        val isFemale = domain.patient.genderID == 2
+                        val age = domain.patient.age ?: 0
+                        val isReproductiveAge = age in 15..49
+                        val isEligibleForANC =
+                            domain.pwr?.lmpDate?.let { lmp -> lmp <= cutoff } ?: false
+                        hasActivePWR && isFemale && isReproductiveAge && isEligibleForANC
+                    }
+                    .map { it.asPmsmaDomainModel() }
+                    .sortedByDescending { it.pwr?.dateOfRegistration ?: 0L }
+            }
+    }
+
+    /**
+     * Count of e-PMSMA women. Derived from getEPmsmaWomenList so the tile count
+     * and list row count cannot drift.
+     */
+    fun getEPmsmaWomenCount(): Flow<Int> = getEPmsmaWomenList().map { it.size }
+
+    /**
      * Get all women eligible for neonatal outcome (those with a saved delivery outcome)
      */
     fun getNeonatalOutcomeEligibleWomen(): Flow<List<PatientWithPwrCache>> {
@@ -367,64 +562,280 @@ class MaternalHealthRepo @Inject constructor(
         return maternalHealthDao.getNeonatalOutcomeEligibleWomenCount()
     }
 
-    private suspend fun postDataToAmritServer(ancPostList: MutableSet<ANCPost>): Boolean {
-        if (ancPostList.isEmpty()) return false
+    private suspend fun postDataToAmritServer(ancPostList: MutableSet<ANCPost>): AncUploadResult {
+        if (ancPostList.isEmpty()) return AncUploadResult.Transient
         val user =
             userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
 
+        // Bounded retry: recursion + non-local control flow via thrown
+        // SocketTimeoutException could spin forever (and eventually overflow
+        // the stack) when the server is persistently issuing 5002 or the
+        // network is permanently flaky. After MAX_ANC_UPLOAD_ATTEMPTS we
+        // yield to WorkManager — its outer backoff is the right place to
+        // delay further attempts.
+        repeat(MAX_ANC_UPLOAD_ATTEMPTS) { attempt ->
+            try {
+                val response = amritApiService.postAncForm(ancPostList.toList())
+                val httpCode = response.code()
+                if (httpCode != 200) {
+                    Timber.w("ANC saveAll bad HTTP code=$httpCode (attempt ${attempt + 1})")
+                    return AncUploadResult.Transient
+                }
+
+                val responseString = response.body()?.string()
+                Timber.d("ANC saveAll response body: ${responseString?.take(300)}")
+                if (responseString.isNullOrBlank()) {
+                    Timber.d("ANC saveAll succeeded with empty response body")
+                    return AncUploadResult.Success
+                }
+
+                val jsonObj = try {
+                    JSONObject(responseString)
+                } catch (e: Exception) {
+                    Timber.w(e, "ANC saveAll non-JSON body, treating as success: $responseString")
+                    return AncUploadResult.Success
+                }
+
+                val statusCode = jsonObj.optInt("statusCode", 200)
+                val errorMessage = jsonObj.optString("errorMessage")
+
+                when (statusCode) {
+                    200 -> {
+                        Timber.d("ANC saved successfully to server")
+                        return AncUploadResult.Success
+                    }
+                    5002 -> {
+                        Timber.d("ANC saveAll got 5002; refreshing token (attempt ${attempt + 1})")
+                        if (!userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            Timber.w("Token refresh failed")
+                            return AncUploadResult.Transient
+                        }
+                        // Token refreshed — fall through to next loop iteration.
+                        return@repeat
+                    }
+                    // 5000 = server-side persistence failure — usually a payload
+                    // the server refuses to accept (e.g. oversized base64 image).
+                    // Retrying the same body just loops forever, so we mark it
+                    // terminal and park the row until the user edits / re-saves.
+                    5000 -> {
+                        Log.d("anc error message", errorMessage)
+                        Timber.w("ANC saveAll permanently rejected (5000): $errorMessage")
+                        return AncUploadResult.Terminal(errorMessage)
+                    }
+                    else -> {
+                        Log.d("anc error message", errorMessage)
+                        Timber.w("ANC saveAll server error $statusCode: $errorMessage")
+                        return AncUploadResult.Transient
+                    }
+                }
+            } catch (e: SocketTimeoutException) {
+                Timber.d("ANC saveAll timed out (attempt ${attempt + 1}); retrying")
+                // Fall through to next iteration.
+            } catch (e: JSONException) {
+                Timber.d("ANC saveAll JSON parse error: $e")
+                return AncUploadResult.Transient
+            }
+        }
+
+        Timber.w("ANC saveAll exhausted $MAX_ANC_UPLOAD_ATTEMPTS attempts; deferring to next sync cycle")
+        return AncUploadResult.Transient
+    }
+
+    private companion object {
+        private const val MAX_ANC_UPLOAD_ATTEMPTS = 3
+    }
+
+    private suspend fun postPwrDataToAmritServer(pwrPostList: MutableSet<PwrPost>): Boolean {
+        if (pwrPostList.isEmpty()) return false
+        val user = userRepo.getLoggedInUser()
+            ?: throw IllegalStateException("No user logged in!!")
         try {
-
-            val response = amritApiService.postAncForm(ancPostList.toList())
+            val response = amritApiService.postPregnantWomanForm(pwrPostList.toList())
             val statusCode = response.code()
-
             if (statusCode == 200) {
-                try {
-                    val responseString = response.body()?.string()
-                    if (responseString != null) {
-                        val jsonObj = JSONObject(responseString)
-
-                        val errormessage = jsonObj.getString("errorMessage")
-                        if (jsonObj.isNull("statusCode")) throw IllegalStateException("Amrit server not responding properly, Contact Service Administrator!!")
-                        val responsestatuscode = jsonObj.getInt("statusCode")
-
-                        when (responsestatuscode) {
-                            200 -> {
-                                Timber.d("Saved Successfully to server")
-                                return true
-                            }
-
-                            5002 -> {
-                                if (userRepo.refreshTokenTmc(
-                                        user.userName,
-                                        user.password
-                                    )
-                                ) throw SocketTimeoutException()
-                            }
-
-                            else -> {
-                                Log.d("anc error message", errormessage)
-                                throw IOException("Throwing away IO eXcEpTiOn")
+                val responseString = response.body()?.string()
+                if (responseString != null) {
+                    val jsonObj = JSONObject(responseString)
+                    val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                    val errorMessage = jsonObj.optString("errorMessage")
+                    when (responseStatusCode) {
+                        200 -> {
+                            Timber.d("PWR saved successfully to server")
+                            return true
+                        }
+                        5002 -> {
+                            if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                                throw SocketTimeoutException()
                             }
                         }
+                        else -> {
+                            Timber.w("PWR saveAll failed: $errorMessage")
+                            throw IOException("PWR saveAll failed with statusCode=$responseStatusCode")
+                        }
                     }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
-            } else {
             }
-            Timber.w("Bad Response from server, need to check $ancPostList $response ")
+            Timber.w("Bad response from server for PWR saveAll: $response")
             return false
         } catch (e: SocketTimeoutException) {
-            Timber.d("Caught exception $e here")
-            return postDataToAmritServer(ancPostList)
+            Timber.d("Caught timeout for PWR sync $e; retrying")
+            return postPwrDataToAmritServer(pwrPostList)
         } catch (e: JSONException) {
-            Timber.d("Caught exception $e here")
+            Timber.d("Caught JSON exception for PWR sync $e")
             return false
         }
     }
 
+    private fun extractGetAllDataArray(jsonObj: JSONObject): JSONArray {
+        return when (val dataNode = jsonObj.opt("data")) {
+            is JSONArray -> dataNode
+            is JSONObject -> dataNode.optJSONArray("data")
+            else -> null
+        } ?: JSONArray()
+    }
 
+    private suspend fun <T> pullMaternalRecordsFromServer(
+        moduleName: String,
+        fetch: suspend (VillageIdList) -> Response<ResponseBody>,
+        retryOnTimeout: suspend () -> Boolean,
+        parseItem: (Gson, JSONObject) -> T,
+        benIdOf: (T) -> Long,
+        saveItem: suspend (item: T, patientID: String, userName: String) -> Unit
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
+            val user = userRepo.getLoggedInUser()
+                ?: throw IllegalStateException("No user logged in!!")
+            try {
+                val villageList = VillageIdList(
+                    RepositorySyncUtils.parseVillageIds(user.assignVillageIds ?: ""),
+                    preferenceDao.getLastPatientSyncTime()
+                )
+                val response = fetch(villageList)
+                if (response.code() != 200) {
+                    Timber.w("Bad response from server for $moduleName getAll: $response")
+                    return@withContext false
+                }
+
+                val responseString = response.body()?.string()
+                if (responseString.isNullOrBlank()) {
+                    Timber.w("Empty response body for $moduleName getAll")
+                    return@withContext false
+                }
+
+                val jsonObj = JSONObject(responseString)
+                val responseStatusCode = jsonObj.optInt("statusCode", 200)
+                val errorMessage = jsonObj.optString("errorMessage")
+                when (responseStatusCode) {
+                    200 -> {
+                        val dataArray = extractGetAllDataArray(jsonObj)
+                        val gson = Gson()
+                        var savedCount = 0
+                        for (i in 0 until dataArray.length()) {
+                            val item = parseItem(gson, dataArray.getJSONObject(i))
+                            val benId = benIdOf(item)
+                            if (benId == 0L) {
+                                Timber.w("Skipping $moduleName getAll item with invalid benId at index=$i")
+                                continue
+                            }
+
+                            val patient = patientDao.getPatientByAnyBeneficiaryId(benId)
+                            if (patient == null) {
+                                Timber.w("No local patient found for $moduleName benId=$benId, skipping")
+                                continue
+                            }
+
+                            saveItem(item, patient.patientID, user.userName)
+                            savedCount++
+                        }
+                        Timber.d("$moduleName getAll downsync completed, saved=$savedCount received=${dataArray.length()}")
+                        return@withContext true
+                    }
+
+                    5000 -> {
+                        Timber.d("No $moduleName records found on server")
+                        return@withContext true
+                    }
+
+                    5002 -> {
+                        if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                            throw SocketTimeoutException()
+                        }
+                    }
+
+                    else -> {
+                        Timber.w("$moduleName getAll failed: $errorMessage")
+                        throw IOException("$moduleName getAll failed with statusCode=$responseStatusCode")
+                    }
+                }
+                return@withContext false
+            } catch (e: SocketTimeoutException) {
+                Timber.d("Caught timeout for $moduleName getAll $e; retrying")
+                return@withContext retryOnTimeout()
+            } catch (e: JSONException) {
+                Timber.d("Caught JSON exception for $moduleName getAll $e")
+                return@withContext false
+            }
+        }
+    }
+
+    suspend fun pullPregnantWomenFromServer(): Boolean {
+        return pullMaternalRecordsFromServer(
+            moduleName = "PWR",
+            fetch = { villageList -> amritApiService.getAllPregnantWomen(villageList) },
+            retryOnTimeout = { pullPregnantWomenFromServer() },
+            parseItem = { gson, json -> gson.fromJson(json.toString(), PwrPost::class.java) },
+            benIdOf = { pwrNetwork -> pwrNetwork.benId },
+            saveItem = { pwrNetwork, patientID, userName ->
+                val incoming = pwrNetwork.toPwrCache().copy(
+                    patientID = patientID,
+                    processed = "P",
+                    syncState = SyncState.SYNCED,
+                    updatedDate = System.currentTimeMillis(),
+                    updatedBy = pwrNetwork.updatedBy.ifBlank { userName }
+                )
+                val existing = maternalHealthDao.getSavedRecord(patientID)
+                val merged = if (existing != null) {
+                    incoming.copy(
+                        id = existing.id,
+                        createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+                        createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
+                    )
+                } else {
+                    incoming
+                }
+                maternalHealthDao.saveRecord(merged)
+            }
+        )
+    }
+
+    suspend fun pullAncVisitsFromServer(): Boolean {
+        return pullMaternalRecordsFromServer(
+            moduleName = "ANC",
+            fetch = { villageList -> amritApiService.getAllAncVisits(villageList) },
+            retryOnTimeout = { pullAncVisitsFromServer() },
+            parseItem = { gson, json -> gson.fromJson(json.toString(), ANCPost::class.java) },
+            benIdOf = { ancNetwork -> ancNetwork.benId },
+            saveItem = { ancNetwork, patientID, userName ->
+                val incoming = ancNetwork.toAncCache().copy(
+                    patientID = patientID,
+                    processed = "P",
+                    syncState = SyncState.SYNCED,
+                    updatedDate = if (ancNetwork.updatedDate.isNullOrBlank()) System.currentTimeMillis() else getLongFromDate(ancNetwork.updatedDate),
+                    updatedBy = ancNetwork.updatedBy.ifBlank { userName }
+                )
+                val existing = maternalHealthDao.getSavedRecord(patientID, incoming.visitNumber)
+                val merged = if (existing != null) {
+                    incoming.copy(
+                        id = existing.id,
+                        createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+                        createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
+                    )
+                } else {
+                    incoming
+                }
+                maternalHealthDao.saveRecord(merged)
+            }
+        )
+    }
 }

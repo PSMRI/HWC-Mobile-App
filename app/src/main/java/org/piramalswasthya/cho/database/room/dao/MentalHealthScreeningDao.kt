@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 
 @Dao
@@ -39,4 +40,9 @@ interface MentalHealthScreeningDao {
         patientID: String,
         benVisitNo: Int
     ): MentalHealthScreeningCache?
+
+    @Query("SELECT * FROM MENTAL_HEALTH_SCREENING WHERE syncState = :unsyncedState")
+    suspend fun getUnsyncedAssessments(
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): List<MentalHealthScreeningCache>
 }

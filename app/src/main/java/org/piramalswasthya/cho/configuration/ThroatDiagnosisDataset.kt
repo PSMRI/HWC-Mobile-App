@@ -206,7 +206,7 @@ class ThroatDiagnosisDataset(
     /* -------------------- CACHE -------------------- */
 
     private fun createDefaultCache() =
-        ThroatDiagnosisAssessment(patientID = "", benVisitNo = null)
+        ThroatDiagnosisAssessment(patientId = "", benVisitNo = null)
 
     private fun populateFromCache(cache: ThroatDiagnosisAssessment) {
         symptoms.value = cache.symptoms?.joinToString(", ")

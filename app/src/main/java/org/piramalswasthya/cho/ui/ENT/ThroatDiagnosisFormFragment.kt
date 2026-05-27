@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +15,12 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentThroatDiagnosisFormBinding
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import org.piramalswasthya.cho.ui.commons.DropdownConst
+import org.piramalswasthya.cho.work.WorkerUtils
+import androidx.navigation.fragment.findNavController
 
 @AndroidEntryPoint
 class ThroatDiagnosisFormFragment :
@@ -96,4 +102,18 @@ class ThroatDiagnosisFormFragment :
         super.onDestroyView()
         _binding = null
     }
-}
+
+    // Stamp Throat visit metadata onto MasterDb from arguments and navigate to vitals; replaces fresh MasterDb construction that lost chief-complaint data.
+    override fun onSaveSuccess() {
+        WorkerUtils.throatPushWorker(requireContext())
+        val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
+            ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
+        masterDb.visitMasterDb?.apply {
+            category = "Other CPHC Services"
+            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.throat
+            reason = org.piramalswasthya.cho.ui.commons.DropdownConst.throat
+        }
+        val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
+        findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
+    }
+}

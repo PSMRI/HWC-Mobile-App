@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import org.piramalswasthya.cho.work.WorkerUtils
 
 
 @AndroidEntryPoint
@@ -41,7 +42,7 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
     override val cancelButton: View get() = binding.btnCancel
 
     override fun getFormTitle(): String = getString(R.string.title_elderly_health_assessment)
-    override fun getSaveSuccessMessage(): String = "Assessment Saved"
+    override fun getSaveSuccessMessage(): String = getString(R.string.elderly_health_assessment_saved)
     override fun getFormFlow(): Flow<List<FormElement>> = viewModel.formList
     override fun onUpdateFormValue(formId: Int, index: Int) =
         viewModel.updateListOnValueChanged(formId, index)
@@ -72,5 +73,19 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    // Stamp Elderly Health Assessment metadata onto MasterDb from arguments and navigate to the vitals screen.
+    override fun onSaveSuccess() {
+        WorkerUtils.elderlyPushWorker(requireContext())
+        val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
+            ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
+        masterDb.visitMasterDb?.apply {
+            category = "Other CPHC Services"
+            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.elderlyHealthAssessment
+            reason = org.piramalswasthya.cho.ui.commons.DropdownConst.elderlyHealthAssessment
+        }
+        val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
+        findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
     }
 }

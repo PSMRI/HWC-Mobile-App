@@ -3,7 +3,9 @@ package org.piramalswasthya.cho.database.room.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.*
+import org.piramalswasthya.cho.model.SyncStatusCache
 
 @Dao
 interface MaternalHealthDao {
@@ -80,6 +82,12 @@ interface MaternalHealthDao {
     @Update
     suspend fun updateANC(vararg it: PregnantWomanAncCache)
 
+    /** Targeted upsert of post-upload sync state. Avoids whole-row writes
+     *  that can race with other workers in the sync chain re-writing the
+     *  same row with a stale snapshot. */
+    @Query("UPDATE pregnancy_anc SET syncState = 2, processed = 'P' WHERE id = :id")
+    suspend fun markAncSynced(id: Long)
+
     @Update
     suspend fun updatePwr(vararg it: PregnantWomanRegistrationCache)
 
@@ -104,11 +112,37 @@ interface MaternalHealthDao {
     @Transaction
     @Query("""
         SELECT DISTINCT p.* FROM PATIENT p
-        INNER JOIN ELIGIBLE_COUPLE_TRACKING ect ON p.patientID = ect.patientID
-        WHERE ect.pregnancyTestResult = 'Positive'
+        LEFT OUTER JOIN PREGNANCY_REGISTER pwr ON p.patientID = pwr.patientID
+        WHERE (pwr.patientID IS NULL OR pwr.active = 1)
+        AND p.genderID = 2
+        AND p.maritalStatusID = 2
+        AND p.statusOfWomanID IN (2)
+        AND p.age BETWEEN 15 AND 49
+        AND NOT EXISTS (
+            SELECT 1 FROM PREGNANCY_ANC anc
+            WHERE anc.patientID = p.patientID
+              AND anc.isActive = 1
+              AND anc.pregnantWomanDelivered = 1
+        )
+        ORDER BY p.registrationDate DESC
+    """)
+    fun getAllPatientsWithANC(): Flow<List<PatientWithPwrCache>>
+
+    @Transaction
+    @Query("""
+        SELECT p.* FROM PATIENT p
+        WHERE EXISTS (
+            SELECT 1 FROM ELIGIBLE_COUPLE_TRACKING ect
+            WHERE ect.patientID = p.patientID
+            AND (
+                LOWER(IFNULL(ect.pregnancyTestResult, '')) = 'positive'
+                OR LOWER(IFNULL(ect.isPregnant, '')) IN ('yes', 'true')
+            )
+        )
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
-        ORDER BY ect.createdDate DESC
+        AND p.statusOfWomanID IN (2)
+        ORDER BY p.registrationDate DESC
     """)
     fun getAllPatientsWithPWRFromEligibleCoupleTracking(): Flow<List<PatientWithPwrCache>>
 
@@ -126,30 +160,102 @@ interface MaternalHealthDao {
     @Query("SELECT COUNT(DISTINCT patientID) FROM pregnancy_register WHERE active = 1")
     fun getPWRCount(): Flow<Int>
 
+    @Transaction
+    @Query(
+        """
+        SELECT
+            7 AS id,
+            'PW Registration' AS name,
+            COUNT(CASE WHEN pwr.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN pwr.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN pwr.syncState = :syncingState THEN 1 END) AS syncing
+        FROM PREGNANCY_REGISTER pwr
+        WHERE pwr.active = 1
+        """
+    )
+    fun getPregnancyRegistrationSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
+
     /**
-     * Get patientIDs of women who have delivered (pregnantWomanDelivered = true in ANC)
+     * Get patientIDs for Delivery Outcome list from ANC (isDelivered=true) + DELIVERY_OUTCOME.
      */
     @Query("""
-        SELECT DISTINCT anc.patientID FROM pregnancy_anc anc
-        INNER JOIN pregnancy_register pwr ON anc.patientID = pwr.patientID
-        WHERE anc.isActive = 1
-        AND anc.pregnantWomanDelivered = 1
-        AND pwr.active = 1
-        ORDER BY anc.updatedDate DESC
+        SELECT src.patientID
+        FROM (
+            SELECT patientID, MAX(updatedDate) AS lastUpdated
+            FROM PREGNANCY_ANC
+            WHERE isActive = 1
+              AND pregnantWomanDelivered = 1
+            GROUP BY patientID
+            UNION ALL
+            SELECT patientID, MAX(updatedDate) AS lastUpdated
+            FROM DELIVERY_OUTCOME
+            WHERE isActive = 1
+            GROUP BY patientID
+        ) src
+        INNER JOIN PATIENT p ON src.patientID = p.patientID
+        WHERE p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+        GROUP BY src.patientID
+        ORDER BY MAX(src.lastUpdated) DESC
     """)
     fun getDeliveredWomenPatientIDs(): Flow<List<String>>
 
     /**
-     * Get count of delivered women
+     * Get count of delivered women from ANC (isDelivered=true) + DELIVERY_OUTCOME.
      */
     @Query("""
-        SELECT COUNT(DISTINCT anc.patientID) FROM pregnancy_anc anc
-        INNER JOIN pregnancy_register pwr ON anc.patientID = pwr.patientID
-        WHERE anc.isActive = 1
-        AND anc.pregnantWomanDelivered = 1
-        AND pwr.active = 1
+        SELECT COUNT(DISTINCT src.patientID)
+        FROM (
+            SELECT patientID
+            FROM PREGNANCY_ANC
+            WHERE isActive = 1
+              AND pregnantWomanDelivered = 1
+            UNION
+            SELECT patientID
+            FROM DELIVERY_OUTCOME
+            WHERE isActive = 1
+        ) src
+        INNER JOIN PATIENT p ON src.patientID = p.patientID
+        WHERE p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
     """)
     fun getDeliveredWomenCount(): Flow<Int>
+
+    @Transaction
+    @Query(
+        """
+        SELECT
+            8 AS id,
+            'PW ANC' AS name,
+            COUNT(CASE WHEN anc.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN anc.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN anc.syncState = :syncingState THEN 1 END) AS syncing
+        FROM PREGNANCY_ANC anc
+        WHERE anc.isActive = 1
+        """
+    )
+    fun getAncSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
+
+    /**
+     * Get count of women with saved delivery outcome only (for neonatal outcome module).
+     */
+    @Query("""
+        SELECT COUNT(DISTINCT do.patientID)
+        FROM DELIVERY_OUTCOME do
+        INNER JOIN PATIENT p ON do.patientID = p.patientID
+        WHERE do.isActive = 1
+          AND p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+    """)
+    fun getSavedDeliveryOutcomeWomenCount(): Flow<Int>
 
     /**
      * Get patient with PWR by patientID
@@ -159,18 +265,17 @@ interface MaternalHealthDao {
     suspend fun getPatientWithPWRByID(patientID: String): PatientWithPwrCache?
 
     /**
-     * Get delivered women by patientIDs (batch query to avoid N+1)
-     * Returns patients with their pregnancy registration data, filtered for females aged 15-49
+     * Get delivered women by patientIDs (batch query to avoid N+1).
+     * Keeps LEFT join on pregnancy register so list still shows if PWR row is missing locally.
      */
     @Transaction
     @Query("""
         SELECT DISTINCT p.* FROM PATIENT p
-        INNER JOIN PREGNANCY_REGISTER pwr ON p.patientID = pwr.patientID
+        LEFT JOIN PREGNANCY_REGISTER pwr ON p.patientID = pwr.patientID
         WHERE p.patientID IN (:patientIDs)
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
-        AND pwr.active = 1
-        ORDER BY pwr.createdDate DESC
+        ORDER BY p.registrationDate DESC
     """)
     suspend fun getDeliveredWomenByIDs(patientIDs: List<String>): List<PatientWithPwrCache>
 
@@ -184,10 +289,8 @@ interface MaternalHealthDao {
         INNER JOIN PREGNANCY_ANC anc ON p.patientID = anc.patientID
         WHERE anc.isAborted = 1
         AND anc.abortionDate IS NOT NULL
-        AND anc.abortionType = 'Spontaneous'
         AND p.genderID = 2
-        AND p.age BETWEEN 15 AND 49 
-        AND anc.abortionType = 'Spontaneous'
+        AND p.age BETWEEN 15 AND 49
         ORDER BY anc.abortionDate DESC
     """)
     fun getAllAbortionWomenList(): Flow<List<PatientWithPwrAndAncCache>>
@@ -200,11 +303,30 @@ interface MaternalHealthDao {
         INNER JOIN PREGNANCY_ANC anc ON p.patientID = anc.patientID
         WHERE anc.isAborted = 1
         AND anc.abortionDate IS NOT NULL
-        AND anc.abortionType = 'Spontaneous'
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
     """)
     fun getAllAbortionWomenCount(): Flow<Int>
+
+    @Transaction
+    @Query(
+        """
+        SELECT
+            13 AS id,
+            'Abortion List' AS name,
+            COUNT(CASE WHEN anc.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN anc.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN anc.syncState = :syncingState THEN 1 END) AS syncing
+        FROM PREGNANCY_ANC anc
+        WHERE anc.isAborted = 1
+          AND anc.abortionDate IS NOT NULL
+        """
+    )
+    fun getAbortionSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
 
     /**
      * Get all patients registered for pregnancy (eligible for PMSMA)
@@ -234,13 +356,26 @@ interface MaternalHealthDao {
     fun getAllRegisteredPmsmaWomenCount(): Flow<Int>
 
     /**
+     * Get patientIDs of women who have at least one active ANC visit with anyHighRisk = true.
+     * Intersected against the ANC eligibility Flow in the repo to guarantee
+     * e-PMSMA list ⊆ ANC list.
+     */
+    @Query("""
+        SELECT DISTINCT anc.patientID FROM PREGNANCY_ANC anc
+        WHERE anc.isActive = 1
+        AND anc.anyHighRisk = 1
+    """)
+    fun getHighRiskAncPatientIDs(): Flow<List<String>>
+
+    /**
      * Get patientIDs of women who have a saved delivery outcome (eligible for neonatal outcome)
      */
     @Query("""
         SELECT DISTINCT do.patientID FROM DELIVERY_OUTCOME do
-        INNER JOIN pregnancy_register pwr ON do.patientID = pwr.patientID
-        WHERE pwr.active = 1
-        AND do.isActive = 1
+        INNER JOIN PATIENT p ON do.patientID = p.patientID
+        WHERE do.isActive = 1
+        AND p.genderID = 2
+        AND p.age BETWEEN 15 AND 49
         ORDER BY do.updatedDate DESC
     """)
     fun getNeonatalOutcomeEligibleWomenPatientIDs(): Flow<List<String>>
@@ -250,9 +385,10 @@ interface MaternalHealthDao {
      */
     @Query("""
         SELECT COUNT(DISTINCT do.patientID) FROM DELIVERY_OUTCOME do
-        INNER JOIN pregnancy_register pwr ON do.patientID = pwr.patientID
-        WHERE pwr.active = 1
-        AND do.isActive = 1
+        INNER JOIN PATIENT p ON do.patientID = p.patientID
+        WHERE do.isActive = 1
+        AND p.genderID = 2
+        AND p.age BETWEEN 15 AND 49
     """)
     fun getNeonatalOutcomeEligibleWomenCount(): Flow<Int>
 }

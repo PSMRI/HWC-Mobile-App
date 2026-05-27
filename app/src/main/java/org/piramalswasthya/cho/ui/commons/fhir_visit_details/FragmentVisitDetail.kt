@@ -390,7 +390,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     requireContext(),
                     R.layout.dropdown_subcategory,
                     R.id.tv_dropdown_item_text,
-                    listOf(DropdownConst.oral)
+                    listOf(DropdownConst.oral,DropdownConst.mentalHealth)
                 )
             )
         }
@@ -487,7 +487,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 "Difficulty in hearing",
                 "Ear wax",
                 "Congenital Ear Malformation",
-                "Foreign body in ear."
+                "Foreign body in ear"
             )
             val validThroatChiefComplaints = listOf(
                 "Neck swelling",
@@ -1092,7 +1092,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.plusButton.setOnClickListener {
             val newItem = ChiefComplaintValues()
             itemList.add(newItem)
-            adapter.notifyItemInserted(itemList.size - 1)
+            adapter.notifyDataSetChanged()
             binding.plusButton.isEnabled = false
             validateAndEnableDropdowns()
         }
@@ -1179,7 +1179,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             DropdownConst.male_ncd
         ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female" ->
             resolveFemaleSubCategoryOptions()
-        else -> listOf(DropdownConst.oral)
+        else -> listOf(DropdownConst.oral , DropdownConst.mentalHealth)
     }
 
     private fun rebuildSubCategoryAdapter() {
@@ -1738,114 +1738,56 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 reasonForVisit == DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA
             ){
                 isNavigationInProgress = true
-//                binding.btnSubmit.isEnabled = false
-                saveVisitData(skipChiefComplaintValidation = true) { benVisitNo ->
-                    findNavController().navigate(
-                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToOphthalmicScreeningFragment(
-                            patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo,
-                            benVisitInfo = benVisitInfo,
-                            reasonForVisit = reasonForVisit
-                        )
-                    )
+                proceedToSpecializedForm(skipChiefComplaintValidation = true) { bundle ->
+                    findNavController().navigate(R.id.ophthalmicScreeningFragment, bundle)
                 }
             }
             else if(reasonForVisit == DropdownConst.ear ){
-                saveVisitData { benVisitNo ->
-                    isNavigationInProgress = true
-//                    binding..isEnabled = false
-                    findNavController().navigate(
-                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEarDiagnosisFormFragment(
-                            patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo
-                        )
-                    )
+                isNavigationInProgress = true
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
+                    findNavController().navigate(R.id.earDiagnosisFormFragment, bundle)
                 }
             }
             else if(reasonForVisit == DropdownConst.dental){
                 isNavigationInProgress = true
-//                binding.btnSubmit.isEnabled = false
-                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
-                    findNavController().navigate(
-                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToOralHealthFormFragment(
-                            patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo,
-                            benVisitInfo = benVisitInfo
-                        )
-                    )
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
+                    findNavController().navigate(R.id.oralHealthFormFragment, bundle)
                 }
             }
             else if(reasonForVisit == DropdownConst.nose){
                 isNavigationInProgress = true
-                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
-                    isNavigationInProgress = true
-//                    binding.btnSubmit.isEnabled = false
-                    findNavController().navigate(
-                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToNoseDiagnosisFormFragment(
-                            patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo
-                        )
-                    )
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
+                    findNavController().navigate(R.id.fragment_nose_diagnosis_form, bundle)
                 }
             }
             else if(reasonForVisit == DropdownConst.throat){
                 isNavigationInProgress = true
-                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
-                    isNavigationInProgress = true
-//                    binding.btnSubmit.isEnabled = false
-                    findNavController().navigate(
-                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToThroatDiagnosisFormFragment(
-                            patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo
-                        )
-                    )
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
+                    findNavController().navigate(R.id.throatDiagnosisFormFragment, bundle)
                 }
             }
             else if(reasonForVisit == DropdownConst.elderlyHealthAssessment){
                 isNavigationInProgress = true
-                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
-                    findNavController().navigate(
-                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToFragmentElderlyHealthAssessmentForm(
-                            patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo
-                        )
-                    )
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
+                    findNavController().navigate(R.id.fragment_elderly_health_assessment_form, bundle)
                 }
             }
             else if(reasonForVisit == DropdownConst.persistentPain){
-                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
-                    isNavigationInProgress = true
-//                    binding.btnSubmit.isEnabled = false
-                    findNavController().navigate(
-                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPainAndSymptomAssessmentFormFragment(
-                            patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo
-                        )
-                    )
+                isNavigationInProgress = true
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
+                    findNavController().navigate(R.id.painAndSymptomAssessmentFormFragment, bundle)
                 }
             }
             else if(reasonForVisit == DropdownConst.psychosocialCaregiverSupport){
-                saveVisitData(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { benVisitNo ->
-                    isNavigationInProgress = true
-//                    binding.btnSubmit.isEnabled = false
-                    findNavController().navigate(
-                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPsychosocialCaregiverSupportFormFragment(
-                            patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo
-                        )
-                    )
+                isNavigationInProgress = true
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
+                    findNavController().navigate(R.id.psychosocialCaregiverSupportFormFragment, bundle)
                 }
             }
             else if(reasonForVisit == DropdownConst.mentalHealth || reasonForVisit == DropdownConst.mentalHealthScreening){
-
                 isNavigationInProgress = true
-                saveVisitData (skipChiefComplaintValidation = viewModel.getIsFollowUp()){ benVisitNo ->
-                    findNavController().navigate(
-                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToMentalHealthScreeningFormFragment(
-                            patientID = benVisitInfo.patient.patientID,
-                            benVisitNo = benVisitNo
-                        )
-                    )
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()){ bundle ->
+                    findNavController().navigate(R.id.mentalHealthScreeningFormFragment, bundle)
                 }
             }
 
@@ -1988,18 +1930,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val subCategory = binding.subCatInput.text.toString()
         visitMasterDb.subCategory = subCategory
 
-        val chiefComplaintList2 = mutableListOf<ChiefComplaintValues>()
-        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
-            for (chiefComplaintData in chiefComplaintList) {
-                var cc = ChiefComplaintValues(
-                    id = chiefComplaintData.chiefComplaintId,
-                    chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
-                    duration = chiefComplaintData.duration.nullIfEmpty(),
-                    durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
-                    description = chiefComplaintData.description.nullIfEmpty()
-                )
-                chiefComplaintList2.add(cc)
-            }
+        val chiefComplaintList2 = chiefComplaintDB2.map { chiefComplaintData ->
+            ChiefComplaintValues(
+                id = chiefComplaintData.chiefComplaintId,
+                chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
+                duration = chiefComplaintData.duration.nullIfEmpty(),
+                durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
+                description = chiefComplaintData.description.nullIfEmpty()
+            )
         }
 
         visitMasterDb.chiefComplaint = chiefComplaintList2
@@ -2040,18 +1978,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val subCategory = binding.subCatInput.text.toString()
         visitMasterDb.subCategory = subCategory
 
-        val chiefComplaintList2 = mutableListOf<ChiefComplaintValues>()
-        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
-            for (chiefComplaintData in chiefComplaintList) {
-                var cc = ChiefComplaintValues(
-                    id = chiefComplaintData.chiefComplaintId,
-                    chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
-                    duration = chiefComplaintData.duration.nullIfEmpty(),
-                    durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
-                    description = chiefComplaintData.description.nullIfEmpty()
-                )
-                chiefComplaintList2.add(cc)
-            }
+        val chiefComplaintList2 = chiefComplaintDB2.map { chiefComplaintData ->
+            ChiefComplaintValues(
+                id = chiefComplaintData.chiefComplaintId,
+                chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
+                duration = chiefComplaintData.duration.nullIfEmpty(),
+                durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
+                description = chiefComplaintData.description.nullIfEmpty()
+            )
         }
 
         visitMasterDb.chiefComplaint = chiefComplaintList2
@@ -2081,26 +2015,88 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         visitMasterDb.subCategory = subCategory
 
         val chiefComplaintList = mutableListOf<ChiefComplaintValues>()
-        for (i in 0 until itemList.size) {
-            val chiefComplaintData = itemList[i]
 
-            if (chiefComplaintData.chiefComplaint!!.isNotEmpty() &&
-                chiefComplaintData.duration!!.isNotEmpty()
-            ) {
-                var cc = ChiefComplaintValues(
-                    id = chiefComplaintData.id,
-                    chiefComplaint = chiefComplaintData.chiefComplaint,
-                    duration = chiefComplaintData.duration,
-                    durationUnit = chiefComplaintData.durationUnit,
-                    description = chiefComplaintData.description.nullIfEmpty()
-                )
-                chiefComplaintList.add(cc)
+        // Use chiefComplaintDB2 for follow-up, itemList otherwise
+        if (viewModel.getIsFollowUp()) {
+            for (i in 0 until chiefComplaintDB2.size) {
+                val chiefComplaintData = chiefComplaintDB2[i]
+
+                if (!chiefComplaintData.chiefComplaint.isNullOrEmpty() &&
+                    !chiefComplaintData.duration.isNullOrEmpty()
+                ) {
+                    var cc = ChiefComplaintValues(
+                        id = chiefComplaintData.chiefComplaintId,
+                        chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
+                        duration = chiefComplaintData.duration.nullIfEmpty(),
+                        durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
+                        description = chiefComplaintData.description.nullIfEmpty()
+                    )
+                    chiefComplaintList.add(cc)
+                }
+            }
+        } else {
+            for (i in 0 until itemList.size) {
+                val chiefComplaintData = itemList[i]
+
+                if (chiefComplaintData.chiefComplaint!!.isNotEmpty() &&
+                    chiefComplaintData.duration!!.isNotEmpty()
+                ) {
+                    var cc = ChiefComplaintValues(
+                        id = chiefComplaintData.id,
+                        chiefComplaint = chiefComplaintData.chiefComplaint,
+                        duration = chiefComplaintData.duration,
+                        durationUnit = chiefComplaintData.durationUnit,
+                        description = chiefComplaintData.description.nullIfEmpty()
+                    )
+                    chiefComplaintList.add(cc)
+                }
             }
         }
 
         visitMasterDb.chiefComplaint = chiefComplaintList
         masterDb?.visitMasterDb = visitMasterDb
         bundle.putSerializable("MasterDb", masterDb)
+    }
+
+    private fun proceedToSpecializedForm(skipChiefComplaintValidation: Boolean = false, navigateToForm: (Bundle) -> Unit) {
+        if (!skipChiefComplaintValidation && !addChiefComplaintsData()) {
+            isNavigationInProgress = false
+            return
+        }
+
+        if (viewModel.getIsFollowUp()) {
+            setVisitMasterDataForFollow()
+        } else {
+            setVisitMasterData()
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                var benVisitNo = 0
+                viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
+                    if (it == null) {
+                        benVisitNo = 1
+                    } else if (it.nurseFlag == 1) {
+                        benVisitNo = it.benVisitNo
+                    } else {
+                        benVisitNo = it.benVisitNo + 1
+                    }
+                }
+
+                val bundle = Bundle().apply {
+                    putString("patientID", benVisitInfo.patient.patientID)
+                    putInt("benVisitNo", benVisitNo)
+                    putSerializable("MasterDb", masterDb)
+                    putSerializable("benVisitInfo", benVisitInfo)
+                    putString("reasonForVisit", binding.reasonForVisitInput.text.toString())
+                }
+
+                navigateToForm(bundle)
+            } catch (e: Exception) {
+                isNavigationInProgress = false
+                Timber.e(e, "Error preparing specialized form navigation")
+            }
+        }
     }
 
     private fun saveVisitData(skipChiefComplaintValidation: Boolean = false, onSuccess: (Int) -> Unit) {
@@ -2214,6 +2210,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         for (i in 0 until itemList.size) {
             val chiefComplaintData = itemList[i]
             if (chiefComplaintData.chiefComplaint!!.isEmpty()) {
+                adapter.highlightEmptyChiefComplaints(
+                    binding.rv,
+                    resources.getString(R.string.toast_msg_chief)
+                )
                 if (catBool && subCat) Toast.makeText(
                     requireContext(),
                     resources.getString(R.string.toast_msg_chief),

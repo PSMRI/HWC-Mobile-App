@@ -15,7 +15,7 @@ data class NoseDiagnosisAssessment(
     val assessmentId: Long = 0L,
 
     @ColumnInfo(name = "patient_id")
-    val patientID: String,
+    val patientId: String,
 
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,
@@ -30,16 +30,19 @@ data class NoseDiagnosisAssessment(
     var noseBleed: Boolean? = null,
 
     @ColumnInfo(name = "systolic_bp")
-    var systolicBP: Int? = null,
+    var systolicBp: Int? = null,
 
     @ColumnInfo(name = "diastolic_bp")
-    var diastolicBP: Int? = null,
+    var diastolicBp: Int? = null,
 
     @ColumnInfo(name = "foreign_body_nose")
     var foreignBodyNose: String? = null,
 
     @ColumnInfo(name = "sinusitis")
-    var sinusitis: Boolean? = null
+    var sinusitis: Boolean? = null,
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0
 
 
 

@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import androidx.room.Index
 import org.piramalswasthya.cho.configuration.FormDataModel
@@ -22,7 +23,7 @@ data class MentalHealthScreeningCache(
     val screeningId: Long = 0L,
 
     @ColumnInfo(name = "patient_id")
-    val patientID: String,
+    val patientId: String,
 
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,
@@ -195,6 +196,8 @@ data class MentalHealthScreeningCache(
     var edRecurrentEpisodeloss: Boolean? = null,
     @ColumnInfo(name = "ed_recurrent_jerky_movements")
     var edRecurrentJerkyMovements: Boolean? = null,
+    @ColumnInfo(name = "ed_confusion_ordrowsiness")
+    var edConfusionordrowsiness: Boolean? = null,
 
     @ColumnInfo(name = "ed_progressive_memory_loss")
     var edProgressiveMemoryLoss: Boolean? = null,
@@ -226,6 +229,9 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "ed_referral_required")
     var edReferralRequired: String? = null,
 
+    @ColumnInfo(name = "ed_reason")
+    var edReason: String? = null,
+
     @ColumnInfo(name = "referral_required")
     var referralRequired: Boolean? = null,
 
@@ -247,10 +253,17 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "improvement_noted")
     var improvementNoted: String? = null,
 
+    @ColumnInfo(name = "adherence_to_advice")
+    var adherenceToAdvice: String? = null,
+
     @ColumnInfo(name = "referral_escalation_required")
     var referralEscalationRequired: Boolean? = null,
 
     @ColumnInfo(name = "case_closure_reason")
-    var caseClosureReason: String? = null
+    var caseClosureReason: String? = null,
+
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0,
 
 ) : FormDataModel

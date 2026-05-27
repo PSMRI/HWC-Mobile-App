@@ -108,7 +108,12 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
 
         viewLifecycleOwner.lifecycleScope.launch {
             getFormFlow().collect { list ->
-                if (list.isNotEmpty()) adapter.submitList(list)
+                if (list.isNotEmpty()) {
+                    adapter.submitList(list.toMutableList()) {
+                        //This are required to reflected without requiring manual scroll.
+                        inputFormRecyclerView.post { adapter.notifyDataSetChanged() }
+                    }
+                }
             }
         }
 
@@ -132,6 +137,7 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
                     contentLayout.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
                     Toast.makeText(requireContext(), getSaveSuccessMessage(), Toast.LENGTH_LONG).show()
+                    viewModel.resetState() // Reset to IDLE so back-stack re-delivery does not retrigger onSaveSuccess().
                     onSaveSuccess()
                 }
 

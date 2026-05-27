@@ -9,14 +9,15 @@ import android.widget.Filter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.utils.MasterDataLocalizer
 
 class ChiefComplaintAdapter(
-    context: Context,
+    private val ctx: Context,
     resource: Int,
     private val dataList: List<ChiefComplaintMaster>,
     autoCompleteTextView: AutoCompleteTextView,
     private val dataListConst: List<ChiefComplaintMaster>,
-) : ArrayAdapter<ChiefComplaintMaster>(context, resource, dataList) {
+) : ArrayAdapter<ChiefComplaintMaster>(ctx, resource, dataList) {
     init {
         // Set the custom filter to the AutoCompleteTextView
         autoCompleteTextView.setAdapter(this)
@@ -24,14 +25,16 @@ class ChiefComplaintAdapter(
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)
         val chiefComplaint = dataList[position]
-        (view as? TextView)?.text = chiefComplaint.chiefComplaint
+        (view as? TextView)?.text =
+            MasterDataLocalizer.localizeChiefComplaint(ctx, chiefComplaint.chiefComplaint)
         return view
     }
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getDropDownView(position, convertView, parent)
         val chiefComplaint = dataList[position]
-        (view as? TextView)?.text = chiefComplaint.chiefComplaint
+        (view as? TextView)?.text =
+            MasterDataLocalizer.localizeChiefComplaint(ctx, chiefComplaint.chiefComplaint)
         return view
     }
     override fun getFilter(): Filter {
@@ -51,8 +54,15 @@ class ChiefComplaintAdapter(
                     val lowerCaseQuery = query.toString().lowercase()
 
                     for (item in dataListConst) {
-                        // Only match complaints that start with the query text (prefix match)
-                        if (item.chiefComplaint.lowercase().startsWith(lowerCaseQuery)) {
+                        // Match against the localized label so users can search in their own language;
+                        // also keep matching the canonical English so legacy/free-typed input still works.
+                        val localized = MasterDataLocalizer
+                            .localizeChiefComplaint(ctx, item.chiefComplaint)
+                            .lowercase()
+                        val canonical = item.chiefComplaint.lowercase()
+                        if (localized.startsWith(lowerCaseQuery) ||
+                            canonical.startsWith(lowerCaseQuery)
+                        ) {
                             filteredData.add(item)
                         }
                     }

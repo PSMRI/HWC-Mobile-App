@@ -1,5 +1,7 @@
 package org.piramalswasthya.cho.ui.home.rmncha.eligible_couple
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,9 +22,9 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ECRegistrationAdapter
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.FragmentEligibleCoupleTrackingBinding
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientWithEcrDomain
 import org.piramalswasthya.cho.repositories.EcrRepo
-import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.utils.FaceSearchHelper
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
@@ -37,9 +39,6 @@ import javax.inject.Inject
 class EligibleCoupleTrackingFragment : Fragment() {
 
     @Inject
-    lateinit var patientRepo: PatientRepo
-
-    @Inject
     lateinit var ecrRepo: EcrRepo
 
     @Inject
@@ -52,11 +51,7 @@ class EligibleCoupleTrackingFragment : Fragment() {
     private lateinit var adapter: ECRegistrationAdapter
     private var allPatients: List<PatientWithEcrDomain> = emptyList()
     private var filteredPatients: List<PatientWithEcrDomain> = emptyList()
-    private var currentPatientsList: List<org.piramalswasthya.cho.model.PatientDisplay>? = null
-
-    companion object {
-        const val STATUS_ELIGIBLE_COUPLE = 1
-    }
+    private var currentPatientsList: List<Patient>? = null
 
     /**
      * Reusable face-search helper — handles speech-to-text and camera face matching.
@@ -149,6 +144,9 @@ class EligibleCoupleTrackingFragment : Fragment() {
                         patientWithEcr.patient.patientID
                     )
                     bottomSheet.show(childFragmentManager, "VisitHistoryBottomSheet")
+                },
+                onCall = { patientWithEcr ->
+                    dialBeneficiary(patientWithEcr.patient.phoneNo)
                 }
             )
         )
@@ -178,51 +176,34 @@ class EligibleCoupleTrackingFragment : Fragment() {
 
     private fun observePatients() {
         lifecycleScope.launch {
-            patientRepo.getPatientListFlow().collectLatest { patientsList ->
+            ecrRepo.getPatientsForTrackingList().collectLatest { patientsList ->
                 currentPatientsList = patientsList
                 processPatientsList(patientsList)
             }
         }
     }
 
-    private suspend fun processPatientsList(patientsList: List<org.piramalswasthya.cho.model.PatientDisplay>) {
+    private suspend fun processPatientsList(patientsList: List<Patient>) {
         val filteredPatientsList = patientsList
-            .filter { patientDisplay ->
-                val isFemale = patientDisplay.patient.genderID == 2
-                val age = patientDisplay.patient.age ?: 0
-                val isReproductiveAge = age in 15..49
-                val statusOfWomanID = patientDisplay.patient.statusOfWomanID
-                val isEligibleCouple = statusOfWomanID == STATUS_ELIGIBLE_COUPLE
-
-                isFemale && isReproductiveAge && isEligibleCouple
-            }
 
         allPatients = withContext(Dispatchers.IO) {
-            filteredPatientsList.map { patientDisplay ->
+            filteredPatientsList.map { patient ->
                 async {
-                    val ecr = ecrRepo.getSavedECR(patientDisplay.patient.patientID)
-                    val latestVisit = ecrRepo.getLatestEctByBenId(patientDisplay.patient.patientID)
-
-                    val hasPositivePregnancyTest = latestVisit?.let { visit ->
-                        visit.isPregnancyTestDone == "Yes" && visit.pregnancyTestResult == "Positive"
-                    } ?: false
-
-                    if (hasPositivePregnancyTest) {
-                        null
-                    } else {
-                        PatientWithEcrDomain(
-                            patient = patientDisplay.patient,
-                            ecr = ecr
-                        ).apply {
-                            lastVisitDate = latestVisit?.visitDate
-                            methodOfContraception = latestVisit?.methodOfContraception
-                            antraInjectionDate = latestVisit?.antraInjectionDate
-                            lmpDateFromTracking = latestVisit?.lmpDate
-                            antraNextDueDate = if (latestVisit?.methodOfContraception == "ANTRA Injection") {
-                                latestVisit.antraDueDate
-                            } else {
-                                null
-                            }
+                    val ecr = ecrRepo.getSavedECR(patient.patientID)
+                    val latestVisit = ecrRepo.getLatestEctByBenId(patient.patientID)
+                    PatientWithEcrDomain(
+                        patient = patient,
+                        ecr = ecr
+                    ).apply {
+                        lastVisitDate = latestVisit?.visitDate
+                        methodOfContraception = latestVisit?.methodOfContraception
+                        antraInjectionDate = latestVisit?.antraInjectionDate
+                        lmpDateFromTracking = latestVisit?.lmpDate
+                        syncState = latestVisit?.syncState ?: ecr?.syncState
+                        antraNextDueDate = if (latestVisit?.methodOfContraception == "ANTRA Injection") {
+                            latestVisit.antraDueDate
+                        } else {
+                            null
                         }
                     }
                 }
@@ -267,5 +248,21 @@ class EligibleCoupleTrackingFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun dialBeneficiary(phoneNumber: String?) {
+        val sanitizedNumber = phoneNumber?.trim().orEmpty()
+        if (sanitizedNumber.isBlank()) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.mobile_number_not_present),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        startActivity(
+            Intent(Intent.ACTION_DIAL, Uri.parse("tel:$sanitizedNumber"))
+        )
     }
 }

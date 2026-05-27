@@ -63,6 +63,26 @@ data class PainAndSymptomAssessment(
     @ColumnInfo(name = "palliative_care_eligible")
     var palliativeCareEligible: Boolean? = null,
 
+    // ---- Symptom Assessment (Basic) ----
+    @ColumnInfo(name = "basic_symptoms_selected")
+    var basicSymptomsSelected: String? = null,
+
+    // ---- Basic Management (CHO Level) ----
+    @ColumnInfo(name = "basic_symptom_relief_provided")
+    var basicSymptomReliefProvided: Boolean? = null,
+
+    @ColumnInfo(name = "basic_psychosocial_support_provided")
+    var basicPsychosocialSupportProvided: Boolean? = null,
+
+    @ColumnInfo(name = "basic_caregiver_counselling_provided")
+    var basicCaregiverCounsellingProvided: Boolean? = null,
+
+    @ColumnInfo(name = "basic_management_remarks")
+    var basicManagementRemarks: String? = null,
+
+    @ColumnInfo(name = "syncState")
+    var syncState: Int = 0,
+
 
     // ---------------- Referral & Follow-up (Section F) ----------------
 

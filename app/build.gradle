@@ -142,6 +142,9 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation 'androidx.biometric:biometric:1.2.0-alpha05'
 
+    // EncryptedSharedPreferences for secure credential storage
+    implementation "androidx.security:security-crypto:1.1.0-alpha06"
+
     //tensorflow and mediapipe.
     implementation 'com.google.mediapipe:tasks-vision:0.10.21'
     implementation ("org.tensorflow:tensorflow-lite:2.11.0")

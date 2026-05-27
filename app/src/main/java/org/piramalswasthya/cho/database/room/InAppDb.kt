@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 143, exportSchema = false
+    version = 147, exportSchema = false
 )
 
 
@@ -349,7 +349,6 @@ abstract class InAppDb : RoomDatabase() {
     abstract val mentalHealthScreeningDao: MentalHealthScreeningDao
     abstract val throatDiagnosisAssessmentDao: ThroatDiagnosisAssessmentDao
     abstract val elderlyHealthAssessmentDao: ElderlyHealthAssessmentDao
-
 
     companion object {
         @Volatile
@@ -565,14 +564,13 @@ abstract class InAppDb : RoomDatabase() {
                     )
                 """)
 
-                // Insert default status values
-                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
-                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
-                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
-                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
-                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
-                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
-                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
             }
         }
 
@@ -830,11 +828,11 @@ abstract class InAppDb : RoomDatabase() {
                 )
                 database.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_oral_health_patient_id " +
-                        "ON ORAL_HEALTH(patient_id)"
+                            "ON ORAL_HEALTH(patient_id)"
                 )
                 database.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_oral_health_patient_visit " +
-                        "ON ORAL_HEALTH(patient_id, ben_visit_no)"
+                            "ON ORAL_HEALTH(patient_id, ben_visit_no)"
                 )
             }
         }
@@ -1119,6 +1117,69 @@ abstract class InAppDb : RoomDatabase() {
 
         val MIGRATION_142_143 = object : Migration(142, 143) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                // Add ADL assessment columns to ELDERLY_HEALTH_ASSESSMENT
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "bathing", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "dressing", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "toileting", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "transferring", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "continence", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "feeding", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "total_score", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "functional_status", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "functional_decline_flag", "INTEGER")
+            }
+        }
+        val MIGRATION_143_144 = object : Migration(143, 144) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_reason", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_confusion_ordrowsiness", "INTEGER")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "adherence_to_advice", "TEXT")
+            }
+        }
+
+        val MIGRATION_144_145 = object : Migration(144, 145) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_symptoms_selected", "TEXT")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_symptom_relief_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_psychosocial_support_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_caregiver_counselling_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_management_remarks", "TEXT")
+            }
+        }
+        val MIGRATION_145_146 = object : Migration(145, 146) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "EAR_DIAGNOSIS_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "THROAT_DIAGNOSIS_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "ORAL_HEALTH", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "PSYCHOSOCIAL_CAREGIVER_SUPPORT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        // Scrub abortionImg1/2 values that the new save path can't handle:
+        //   1. Inline base64 (LENGTH > 1024) — pre-fix bloat that overflows
+        //      SQLite's 2 MB CursorWindow.
+        //   2. Raw gallery `content://` URIs — these carry only transient
+        //      permission from the picker activity; once that dies the URI
+        //      can never be reloaded by Glide / contentResolver and the
+        //      "view" path throws SecurityException.
+        // Going forward, abortionImg1/2 hold an internal-storage file path;
+        // base64 encoding happens lazily at upload time. Affected records
+        // never successfully uploaded, so no server-side state is lost.
+        val MIGRATION_146_147 = object : Migration(146, 147) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg1 = NULL WHERE LENGTH(abortionImg1) > 1024")
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg2 = NULL WHERE LENGTH(abortionImg2) > 1024")
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg1 = NULL WHERE abortionImg1 LIKE 'content://%'")
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg2 = NULL WHERE abortionImg2 LIKE 'content://%'")
+            }
+        }
+
+        val MIGRATION_147_148 = object : Migration(142, 143) {
+            override fun migrate(database: SupportSQLiteDatabase) {
                 // HWC API now sends/uses facilityID for benflow-linked operations.
                 safeAddColumn(database, "BENFLOW", "facilityID", "INTEGER")
             }
@@ -1191,22 +1252,14 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_139_140,
                             MIGRATION_140_141,
                             MIGRATION_141_142,
-                            MIGRATION_142_143
+                            MIGRATION_142_143,
+                            MIGRATION_143_144,
+                            MIGRATION_144_145,
+                            MIGRATION_145_146,
+                            MIGRATION_146_147,
+                            MIGRATION_147_148
                         )
                         .fallbackToDestructiveMigration()
-                        .addCallback(object : RoomDatabase.Callback() {
-                            override fun onCreate(db: SupportSQLiteDatabase) {
-                                super.onCreate(db)
-                                // Populate STATUS_OF_WOMAN_MASTER on fresh database creation
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
-                            }
-                        })
                         .setQueryCallback(
                             object : QueryCallback {
                                 override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {

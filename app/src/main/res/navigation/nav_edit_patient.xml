@@ -360,6 +360,11 @@
         <argument
             android:name="benVisitNo"
             app:argType="integer"/>
+        <action
+            android:id="@+id/action_throatDiagnosisFormFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment"
+            app:popUpTo="@id/fhirVisitDetailsFragment"
+            app:popUpToInclusive="false" />
     </fragment>
     <fragment
         android:id="@+id/fragment_elderly_health_assessment_form"

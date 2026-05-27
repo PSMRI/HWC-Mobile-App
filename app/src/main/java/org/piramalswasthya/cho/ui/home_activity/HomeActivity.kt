@@ -175,6 +175,13 @@ class HomeActivity : AppCompatActivity() {
         }.also { runnable = it }, delay.toLong())
         super.onResume()
 
+        // Catch-up push: kick the ANC visit sync chain whenever the user brings
+        // the app forward. If the chain previously stopped mid-way (Doze, kill,
+        // network blip) any row still UNSYNCED gets another attempt without the
+        // user having to relaunch. The chain is enqueued under a unique-work
+        // name so a fresh enqueue is a no-op when one is already in flight.
+        WorkerUtils.triggerAncVisitSync(this)
+
         inAppUpdateHelper.resumeUpdateIfNeeded()
 
     }

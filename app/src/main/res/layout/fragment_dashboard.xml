@@ -204,8 +204,9 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_ncd"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_margin="@dimen/margin_small"
                     android:layout_weight="1"
                     android:backgroundTint="@android:color/holo_orange_light"
@@ -215,28 +216,93 @@
 
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="@dimen/padding_wide">
+                        android:layout_height="match_parent"
+                        android:padding="17dp"
+
+                        >
 
                         <TextView
-                            android:id="@+id/tv_ncd"
-                            android:lines="3"
+                            android:id="@+id/ncdText"
+                            android:lines="1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/ncd_count"
 
                             android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+                        <TextView
+                            android:id="@+id/ncdMaleText"
+                            android:lines="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/male_opd"
+                            android:textStyle="bold"
+                            android:textSize="14dp"
+                            android:layout_below="@id/ncdText"
+                            app:layout_constraintStart_toStartOf="parent" />
 
                         <TextView
-                            android:id="@+id/tv_ncd_value"
+                            android:id="@+id/ncdMaleValue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:layout_marginLeft="50dp"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_below="@id/ncdText"
+                            app:layout_constraintStart_toStartOf="parent" />
+                        <TextView
+                            android:id="@+id/ncdFemaleText"
+                            android:lines="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/female_opd"
+                            android:textSize="14dp"
+                            android:textStyle="bold"
+                            android:layout_below="@id/ncdMaleValue"
+                            app:layout_constraintStart_toStartOf="parent" />
+
+                        <TextView
+                            android:id="@+id/ncdFemaleValue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:layout_marginLeft="50dp"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_below="@id/ncdMaleValue"
+                            app:layout_constraintStart_toStartOf="parent" />
+                        <TextView
+                            android:id="@+id/ncdOtherText"
+                            android:lines="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/others_opd"
+                            android:textSize="14dp"
+                            android:textStyle="bold"
+                            android:layout_below="@id/ncdFemaleValue"
+                            app:layout_constraintStart_toStartOf="parent" />
+
+                        <TextView
+                            android:id="@+id/ncdOtherValue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:layout_marginLeft="50dp"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_below="@id/ncdFemaleValue"
+                            app:layout_constraintStart_toStartOf="parent" />
+
+                        <TextView
+                            android:id="@+id/ncdTotalValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/tv_ncd"
+                            android:layout_below="@id/ncdOtherValue"
                             android:layout_alignParentEnd="false"
-
                             android:layout_centerHorizontal="true"
                             android:text="0"
                             android:textAppearance="@style/TextAppearance.Material3.DisplaySmall" />
+
                     </RelativeLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>

@@ -19,8 +19,10 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
+import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.repositories.UserRepo
 import timber.log.Timber
 import java.util.Calendar
@@ -30,10 +32,11 @@ import javax.inject.Inject
 class PwAncFormViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     preferenceDao: PreferenceDao,
-    @ApplicationContext context: Context,
+    @ApplicationContext private val context: Context,
     private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
+    private val ecrRepo: EcrRepo,
 ) : ViewModel() {
 
     enum class State {
@@ -66,24 +69,33 @@ class PwAncFormViewModel @Inject constructor(
     val recordExists: LiveData<Boolean>
         get() = _recordExists
 
+    private val _initErrorMessage = MutableLiveData<String?>()
+    val initErrorMessage: LiveData<String?> get() = _initErrorMessage
+
+    fun clearInitError() { _initErrorMessage.value = null }
+
     //    private lateinit var user: UserDomain
     private val dataset =
         PregnantWomanAncVisitDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
     val ancAlertMessage = dataset.alertErrorMessageFlow
+    val forceRefreshIdFlow = dataset.forceRefreshIdFlow
 
     private lateinit var ancCache: PregnantWomanAncCache
     private lateinit var registerRecord: PregnantWomanRegistrationCache
     private var ben: PatientDisplay? = null
     private var lastAncVisitNumber: Int = 0
     private var currentVisitNumber: Int = visitNumber
+    private var shouldTriggerBeneficiarySyncAfterSave: Boolean = false
+    private var shouldTriggerEctSyncAfterSave: Boolean = false
 
     init {
         viewModelScope.launch {
+            try {
             val asha = userRepo.getLoggedInUser()
             if (asha == null) {
-                Timber.e("No logged in user found")
-                // Handle error state appropriately
+                Timber.e("PwAncFormViewModel: no logged-in user found")
+                _initErrorMessage.postValue(context.getString(R.string.form_session_expired))
                 return@launch
             }
             ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
@@ -99,8 +111,14 @@ class PwAncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
+            if (ben == null) {
+                Timber.e("PwAncFormViewModel: patient not found for ID %s", patientID)
+                _initErrorMessage.postValue(context.getString(R.string.form_patient_not_found))
+                return@launch
+            }
             registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID) ?: run {
                 Timber.e("No registration record found for $patientID")
+                _initErrorMessage.postValue(context.getString(R.string.form_patient_not_found))
                 return@launch
             }
             
@@ -134,6 +152,7 @@ class PwAncFormViewModel @Inject constructor(
                 val registerRecordOrNull = maternalHealthRepo.getSavedRegistrationRecord(patientID)
                 if (registerRecordOrNull == null) {
                     Timber.e("No registration record for patient $patientID; cannot load ANC form")
+                    _initErrorMessage.postValue(context.getString(R.string.form_patient_not_found))
                     _state.postValue(State.SAVE_FAILED)
                     return@launch
                 }
@@ -175,6 +194,10 @@ class PwAncFormViewModel @Inject constructor(
                     lastAnc,
                     null  // No existing data for new visit
                 )
+            }
+            } catch (e: Exception) {
+                Timber.e(e, "PwAncFormViewModel: failed to initialize form")
+                _initErrorMessage.postValue(context.getString(R.string.form_load_failed))
             }
         }
     }
@@ -244,8 +267,13 @@ class PwAncFormViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 try {
                     _state.postValue(State.SAVING)
+                    shouldTriggerBeneficiarySyncAfterSave = false
+                    shouldTriggerEctSyncAfterSave = false
                     val wasCompletedBefore = ancCache.weight != null
                     dataset.mapValues(ancCache, 1)
+                    // Mark ANC as updated for re-sync so /maternal/ancVisit/saveAll is called on edits.
+                    if (ancCache.processed != "N") ancCache.processed = "U"
+                    ancCache.syncState = SyncState.UNSYNCED
                     ancCache.updatedDate = System.currentTimeMillis()
                     val isCompletedNow = ancCache.weight != null
                     
@@ -299,7 +327,12 @@ class PwAncFormViewModel @Inject constructor(
                         }
                     }
                     if (ancCache.pregnantWomanDelivered == true) {
-
+                        val patient = patientRepo.getPatient(patientID)
+                        patient.statusOfWomanID = 3 // Post Natal Mother
+                        patient.syncState = SyncState.UNSYNCED
+                        patientRepo.updateRecord(patient)
+                        shouldTriggerBeneficiarySyncAfterSave = true
+                        Timber.d("ANC delivered=true for patient $patientID, marked postnatal and queued beneficiary sync")
                     } else if (ancCache.isAborted) {
 
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
@@ -316,6 +349,23 @@ class PwAncFormViewModel @Inject constructor(
 
                             }
                             maternalHealthRepo.updateAncRecord(toTypedArray())
+                        }
+                        try {
+                            val patient = patientRepo.getPatient(patientID)
+                            if (patient.statusOfWomanID != 1) {
+                                patient.statusOfWomanID = 1 // Eligible Couple — fresh start after abortion
+                                patient.syncState = SyncState.UNSYNCED
+                                patientRepo.updateRecord(patient)
+                            }
+                            // Clear pregnancy markers and keep (or recreate) one active ECT row,
+                            // so the EC-tracking DAO (filters on isActive = 1) still surfaces her
+                            // after statusOfWomanID is reset to 1.
+                            val createdBy = userRepo.getLoggedInUser()?.userName ?: "system"
+                            ecrRepo.resetEctAfterAbortion(patientID, createdBy)
+                            shouldTriggerBeneficiarySyncAfterSave = true
+                            shouldTriggerEctSyncAfterSave = true
+                        } catch (e: Exception) {
+                            Timber.e(e, "Abortion EC transition failed for $patientID")
                         }
 
 
@@ -358,6 +408,18 @@ class PwAncFormViewModel @Inject constructor(
 
     fun resetAlertMessage() {
         viewModelScope.launch { dataset.resetErrorMessageFlow() }
+    }
+
+    fun shouldTriggerBeneficiarySyncAfterSave(): Boolean = shouldTriggerBeneficiarySyncAfterSave
+
+    fun consumeBeneficiarySyncTrigger() {
+        shouldTriggerBeneficiarySyncAfterSave = false
+    }
+
+    fun shouldTriggerEctSyncAfterSave(): Boolean = shouldTriggerEctSyncAfterSave
+
+    fun consumeEctSyncTrigger() {
+        shouldTriggerEctSyncAfterSave = false
     }
 
 }
