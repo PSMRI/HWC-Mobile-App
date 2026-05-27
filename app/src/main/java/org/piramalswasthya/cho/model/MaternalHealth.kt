@@ -419,11 +419,15 @@ data class AbortionDomain(
     }
 
     /**
-     * Check if abortion form is filled (has abortion type and facility)
+     * Check if the dedicated abortion form has been submitted. abortionType and
+     * abortionFacility get set during the ANC visit when the pregnancy outcome
+     * is marked aborted, so they cannot indicate this form's submission state.
+     * methodOfTermination and terminationDoneBy are required fields on this
+     * form and are only written by PregnantWomanAncAbortionDataset.mapValues.
      */
     val isAbortionFormFilled: Boolean
-        get() = abortionRecord?.let { 
-            it.abortionType != null && it.abortionFacility != null 
+        get() = abortionRecord?.let {
+            it.methodOfTermination != null && it.terminationDoneBy != null
         } ?: false
 }
 
