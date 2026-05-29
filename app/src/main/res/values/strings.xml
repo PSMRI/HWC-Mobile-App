@@ -507,6 +507,10 @@
     <string name="toast_file_uploaded">You have uploaded the file</string>
     <string name="toast_file_size_max">Please select file less than 5MB</string>
     <string name="nav_item_1_text">Name : <b>%s</b></string>
+    <string name="nav_item_5_text">Facility Name : <b>%s</b></string>
+    <string name="nav_item_6_text">Employee Id : <b>%s</b></string>
+    <string name="nav_item_7_text">Facility Id : <b>%s</b></string>
+    <string name="nav_item_8_text">Location Type : <b>%s</b></string>
     <string name="nav_item_4_text">Mobile No. : <b>%s</b></string>
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>

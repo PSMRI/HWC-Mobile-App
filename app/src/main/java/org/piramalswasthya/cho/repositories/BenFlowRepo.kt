@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
+import org.json.JSONArray
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
@@ -178,11 +179,46 @@ class BenFlowRepo @Inject constructor(
     suspend fun downloadAndSyncFlowRecords(): Boolean {
 
         val user = userRepo.getLoggedInUser()
+        val loggedInFacilityID = user?.facilityID
+        val parsedVillageIds = convertStringToIntList(user?.assignVillageIds ?: "")
+        val prefVillageIds = preferenceDao.getUserLocationData()
+            ?.villageList
+            ?.mapNotNull { it.districtBranchID.toIntOrNull() }
+            ?.distinct()
+            ?: emptyList()
+        val effectiveVillageIds: List<Int> = when {
+            parsedVillageIds.isNotEmpty() -> parsedVillageIds
+            prefVillageIds.isNotEmpty() -> prefVillageIds
+            user?.masterVillageID != null -> listOf(user.masterVillageID!!)
+            else -> emptyList()
+        }
+        val lastSyncDate = preferenceDao.getLastBenflowSyncTime()
+
+//        if (effectiveVillageIds.isEmpty() || lastSyncDate.isBlank()) {
+//            Log.w(
+//                "BenFlowFacilityDebug",
+//                "downloadAndSyncFlowRecords: skipped due to incomplete payload villageIDs=$effectiveVillageIds lastSyncDate='$lastSyncDate' assignVillageIds='${user?.assignVillageIds}' masterVillageID=${user?.masterVillageID}"
+//            )
+//            return false
+//        }
 
         val villageList = VillageIdList(
-            convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastBenflowSyncTime()
+            effectiveVillageIds,
+            lastSyncDate
         )
+        Log.i(
+            "BenFlowFacilityDebug",
+            "downloadAndSyncFlowRecords: userFacility=${user?.facilityID}, userVan=${user?.vanId}, assignVillageIds='${user?.assignVillageIds}', prefVillageCount=${prefVillageIds.size}, finalVillageCount=${villageList.villageID.size}, lastSyncDate='${villageList.lastSyncDate}'"
+        )
+        if (loggedInFacilityID != null) {
+            val updatedRows = benFlowDao.backfillNullFacilityID(loggedInFacilityID)
+            Log.i(
+                "BenFlowFacilityDebug",
+                "downloadAndSyncFlowRecords: backfillNullFacilityID applied facilityID=$loggedInFacilityID updatedRows=$updatedRows"
+            )
+        } else {
+            Log.w("BenFlowFacilityDebug", "downloadAndSyncFlowRecords: loggedIn user facilityID is null; backfill skipped")
+        }
 
         when(val response = getBenFlowCountToDownload(villageList)){
             is NetworkResult.Success -> {
@@ -403,18 +439,52 @@ class BenFlowRepo @Inject constructor(
     }
 
     suspend fun insertBenFlow(benFlow: BenFlow) {
+        Log.d(
+            "BenFlowFacilityDebug",
+            "insertBenFlow(): benFlowID=${benFlow.benFlowID}, benRegID=${benFlow.beneficiaryRegID}, vanID=${benFlow.vanID}, facilityID=${benFlow.facilityID}"
+        )
         benFlowDao.insertBenFlow(benFlow = benFlow)
     }
 
     suspend fun syncFlowIds(villageList: VillageIdList): NetworkResult<NetworkResponse> {
+        val loggedInUser = userRepo.getLoggedInUser()
 
         return networkResultInterceptor {
             val response = apiService.getBenFlowRecords(villageList)
             val responseBody = response.body()?.string()
+            // Always log here: refreshTokenInterceptor only runs onSuccess when JSON statusCode==200.
+            try {
+                val jo = responseBody?.let { JSONObject(it) }
+                val sc = jo?.optInt("statusCode", -1) ?: -1
+                val dataNode = jo?.opt("data")
+                val dataLen = when (dataNode) {
+                    is JSONArray -> dataNode.length()
+                    else -> -1
+                }
+                Log.i(
+                    "BenFlowFacilityDebug",
+                    "syncFlowIds: httpCode=${response.code()} jsonStatusCode=$sc dataArrayLength=$dataLen bodyLen=${responseBody?.length ?: 0}"
+                )
+                Timber.i(
+                    "BenFlowFacilityDebug syncFlowIds: httpCode=%s jsonStatusCode=%s dataArrayLength=%s",
+                    response.code(),
+                    sc,
+                    dataLen
+                )
+                if (sc != 200) {
+                    Log.w("BenFlowFacilityDebug", "syncFlowIds: skipping insert loop — JSON statusCode!=200 (see refreshTokenInterceptor). body snippet: ${responseBody?.take(400)}")
+                }
+            } catch (e: Exception) {
+                Log.e("BenFlowFacilityDebug", "syncFlowIds: failed to parse response for debug log", e)
+            }
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
                     val benflowArray = responseBody.let { JSONObject(it).getJSONArray("data") }
+                    Log.i(
+                        "BenFlowFacilityDebug",
+                        "syncFlowIds onSuccess: processing ${benflowArray.length()} benflow row(s)"
+                    )
                     var isSuccess = true
 
                     var totalDownloaded = 0
@@ -433,20 +503,44 @@ class BenFlowRepo @Inject constructor(
 
                         try {
                             val data = benflowArray.getJSONObject(i).toString()
+                            val benFlowJson = benflowArray.getJSONObject(i)
+                            Log.i(
+                                "BenFlowFacilityDebug",
+                                "syncFlowIds row: raw benflowID=${benFlowJson.optLong("benFlowID")}, hasFacilityID=${benFlowJson.has("facilityID")}, facilityID=${benFlowJson.opt("facilityID")}, vanID=${benFlowJson.opt("vanID")}"
+                            )
                             val benFlow = Gson().fromJson(data, BenFlow::class.java)
-                            val patient = patientRepo.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
-                            benFlowDao.insertBenFlow(benFlow)
+                            val benFlowToInsert =
+                                if (benFlow.facilityID == null || benFlow.facilityID == 0) {
+                                    val fallbackFacilityId = loggedInUser?.facilityID
+                                    if (fallbackFacilityId != null) {
+                                        Log.w(
+                                            "BenFlowFacilityDebug",
+                                            "syncFlowIds row: facilityID missing in benflow payload; applying fallback from logged-in user facilityID=$fallbackFacilityId for benFlowID=${benFlow.benFlowID}"
+                                        )
+                                        benFlow.copy(facilityID = fallbackFacilityId)
+                                    } else {
+                                        benFlow
+                                    }
+                                } else {
+                                    benFlow
+                                }
+                            Log.i(
+                                "BenFlowFacilityDebug",
+                                "syncFlowIds row: parsed benFlowID=${benFlow.benFlowID}, benRegID=${benFlow.beneficiaryRegID}, vanID=${benFlow.vanID}, facilityID=${benFlow.facilityID}, facilityIDToInsert=${benFlowToInsert.facilityID}"
+                            )
+                            val patient = patientRepo.getPatientByBenRegId(benFlowToInsert.beneficiaryRegID!!)
+                            insertBenFlow(benFlowToInsert)
                             if(patient != null){
-                                if (benFlow.reproductiveStatusId != null &&
-                                    patient.statusOfWomanID != benFlow.reproductiveStatusId
+                                if (benFlowToInsert.reproductiveStatusId != null &&
+                                    patient.statusOfWomanID != benFlowToInsert.reproductiveStatusId
                                 ) {
-                                    patient.statusOfWomanID = benFlow.reproductiveStatusId
+                                    patient.statusOfWomanID = benFlowToInsert.reproductiveStatusId
                                     patientRepo.updateRecord(patient)
                                 }
-                                checkAndAddNewVisitInfo(benFlow, patient)
-                                updateBenFlowId(benFlow, patient)
-                                checkAndDownsyncNurseData(benFlow, patient)
-                                checkAndDownsyncDoctorData(benFlow, patient)
+                                checkAndAddNewVisitInfo(benFlowToInsert, patient)
+                                updateBenFlowId(benFlowToInsert, patient)
+                                checkAndDownsyncNurseData(benFlowToInsert, patient)
+                                checkAndDownsyncDoctorData(benFlowToInsert, patient)
                                 val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(
                                     patient.patientID,
                                     SyncState.SHARED_OFFLINE
@@ -489,6 +583,7 @@ class BenFlowRepo @Inject constructor(
                             }
                         } catch (e : Exception){
                             isSuccess = false
+                            Log.e("BenFlowFacilityDebug", "syncFlowIds(): failed to parse/insert benflow", e)
                         }
                     }
                     NetworkResult.Success(DownsyncSuccess(isSuccess))
@@ -513,6 +608,10 @@ class BenFlowRepo @Inject constructor(
                     val data = responseBody.let { JSONObject(it).getString("data") }
                     val result = Gson().fromJson(data, CountDownSync::class.java)
                     WorkerUtils.totalRecordsToDownload = result.response.toInt()
+                    Log.i(
+                        "BenFlowFacilityDebug",
+                        "getBenFlowCountToDownload: serverCount=${result.response}, villageCount=${villageList.villageID.size}, lastSyncDate='${villageList.lastSyncDate}'"
+                    )
                     NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {

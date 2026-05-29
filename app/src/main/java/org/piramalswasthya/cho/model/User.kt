@@ -77,6 +77,14 @@ data class UserCache(
 
     @ColumnInfo(name = "facilityID")
     val facilityID: Int?,
+    @ColumnInfo(name = "facilityType")
+    val facilityType: String?,
+    @ColumnInfo(name = "facilityName")
+    val facilityName: String?,
+    @ColumnInfo(name = "employeeId")
+    val employeeId: String?,
+    @ColumnInfo(name = "locationType")
+    val locationType: String?,
 
     @ColumnInfo(name = "zone_name")
     val zoneName : String,
@@ -170,6 +178,10 @@ data class UserCache(
             servicePointName = servicePointName,
             vanId = vanId,
             facilityID = facilityID,
+            facilityName = facilityName,
+            facilityType = facilityType,
+            employeeId = employeeId,
+            locationType = locationType,
             zoneId = zoneId,
             zoneName = zoneName,
             parkingPlaceId = parkingPlaceId,
@@ -234,6 +246,10 @@ data class UserDomain(
     val zoneName: String,
     val vanId: Int,
     val facilityID : Int?,
+    val facilityName : String? = null,
+    val facilityType : String? = null,
+    val employeeId : String? = null,
+    val locationType : String? = null,
     val country: LocationEntity,
     val states : List<LocationEntity>,
     val districts : List<LocationEntity>,
@@ -289,6 +305,10 @@ data class UserNetwork(
     var zoneId: Int = -1,
     var vanId : Int = -1,
     var facilityID:Int=-1,
+    var facilityType: String?=null,
+    var facilityName: String?=null,
+    var employeeId: String?=null,
+    var locationType: String?=null,
     var parkingPlaceName: String?=null,
     var servicePointName: String?=null,
     var zoneName : String?=null,
@@ -356,6 +376,10 @@ data class UserNetwork(
             vanId = vanId,
             zoneId = zoneId,
             facilityID = facilityID,
+            facilityName = facilityName,
+            facilityType = facilityType,
+            employeeId = employeeId,
+            locationType = locationType,
             zoneName = zoneName?:"",
             parkingPlaceId = parkingPlaceId,
             parkingPlaceName = parkingPlaceName?:"",

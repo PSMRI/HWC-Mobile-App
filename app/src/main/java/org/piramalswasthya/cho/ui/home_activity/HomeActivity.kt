@@ -679,8 +679,15 @@ class HomeActivity : AppCompatActivity() {
             val user = userRepo.getLoggedInUser()
             val headerView = binding.navView.getHeaderView(0)
             headerView.findViewById<TextView>(R.id.tv_nav_name).text = getString(R.string.nav_item_1_text, user?.name)
-//            headerView.findViewById<TextView>(R.id.tv_nav_role).text = getString(R.string.nav_item_2_text, user?.userName)
+            headerView.findViewById<TextView>(R.id.tv_nav_facilityName).text = getString(R.string.nav_item_5_text, user?.facilityName)
             headerView.findViewById<TextView>(R.id.tv_nav_id).text = getString(R.string.nav_item_3_text, user?.userId)
+            headerView.findViewById<TextView>(R.id.tv_nav_employeeId).text = getString(R.string.nav_item_6_text, user?.employeeId)
+            headerView.findViewById<TextView>(R.id.tv_nav_facilityId).text = getString(
+                R.string.nav_item_7_text,
+                user?.facilityID?.toString() ?: getString(R.string.not_available)
+            )
+            headerView.findViewById<TextView>(R.id.tv_nav_location_type).text = getString(R.string.nav_item_8_text, user?.locationType)
+//            headerView.findViewById<TextView>(R.id.tv_nav_role).text = getString(R.string.nav_item_2_text, user?.userName)
             headerView.findViewById<TextView>(R.id.tv_nav_contact_no).text = getString(R.string.nav_item_4_text, user?.contactNo)
             headerView.findViewById<TextView>(R.id.tv_nav_contact_no).visibility =
                 if (user?.contactNo.isNullOrEmpty()) View.GONE else View.VISIBLE

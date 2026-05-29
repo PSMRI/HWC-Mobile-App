@@ -346,8 +346,13 @@
     <string name="toast_file_uploaded">আপুনি ফাইলটো আপলোড কৰিছে</string>
     <string name="toast_file_size_max">অনুগ্ৰহ কৰি 5MB তকৈ কম ফাইল নিৰ্ব্বাচন কৰক</string>
     <string name="nav_item_1_text">নাম : <b>%s</b></string>
-    <string name="nav_item_4_text">ম’বাইল নম্বৰ : <b>%s</b></string>    <string name="nav_item_2_text">ব্যৱহাৰকাৰী নাম : <b>%s</b></string>
+    <string name="nav_item_4_text">ম’বাইল নম্বৰ : <b>%s</b></string>
+    <string name="nav_item_2_text">ব্যৱহাৰকাৰী নাম : <b>%s</b></string>
     <string name="nav_item_3_text">ব্যৱহাৰকাৰী ID :  <b>%d</b></string>
+    <string name="nav_item_5_text">সুবিধাৰ নাম : <b>%s</b></string>
+    <string name="nav_item_6_text">কৰ্মচাৰী আইডি : <b>%s</b></string>
+    <string name="nav_item_7_text">সুবিধা আইডি : <b>%s</b></string>
+    <string name="nav_item_8_text">অৱস্থানৰ প্ৰকাৰ : <b>%s</b></string>
     <string name="individual_s_consent_for_creation_of_abha_number">ABHA Number সৃষ্টিৰ বাবে ব্যক্তিৰ সন্মতি।</string>
     <string name="exit">প্ৰস্থান</string>
     <string name="timer">টাইমাৰ</string>

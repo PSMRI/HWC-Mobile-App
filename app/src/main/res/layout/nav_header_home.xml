@@ -33,6 +33,22 @@
             android:id="@+id/tv_nav_name"
             style="@style/nav_header_item_tv"
             />
+        <TextView
+            android:id="@+id/tv_nav_facilityName"
+            style="@style/nav_header_item_tv"
+            />
+        <TextView
+            android:id="@+id/tv_nav_employeeId"
+            style="@style/nav_header_item_tv"
+            />
+        <TextView
+            android:id="@+id/tv_nav_facilityId"
+            style="@style/nav_header_item_tv"
+            />
+        <TextView
+            android:id="@+id/tv_nav_location_type"
+            style="@style/nav_header_item_tv"
+            />
 
         <TextView
             android:id="@+id/tv_nav_role"

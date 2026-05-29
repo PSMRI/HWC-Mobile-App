@@ -305,9 +305,14 @@
     <string name="toast_cat_select">कृपया श्रेणी चुनें</string>
     <string name="toast_file_uploaded">आपने फ़ाइल अपलोड कर दी है</string>
     <string name="toast_file_size_max">कृपया 5MB से कम आकार की फ़ाइल चुनें</string>
-    <string name="nav_item_1_text">Name : <b>%s</b></string>
-    <string name="nav_item_2_text">Username : <b>%s</b></string>
-    <string name="nav_item_3_text">User ID :  <b>%d</b></string>
+    <string name="nav_item_1_text">नाम : <b>%s</b></string>
+    <string name="nav_item_2_text">उपयोगकर्ता नाम : <b>%s</b></string>
+    <string name="nav_item_3_text">उपयोगकर्ता आईडी : <b>%d</b></string>
+    <string name="nav_item_5_text">सुविधा का नाम : <b>%s</b></string>
+    <string name="nav_item_6_text">कर्मचारी आईडी : <b>%s</b></string>
+    <string name="nav_item_7_text">सुविधा आईडी : <b>%s</b></string>
+    <string name="nav_item_8_text">स्थान प्रकार : <b>%s</b></string>
+    <string name="nav_item_4_text">मोबाइल नंबर : <b>%s</b></string>
     <string name="individual_s_consent_for_creation_of_abha_number">ABHA नंबर बनाने के लिए व्यक्ति की सहमति।</string>
     <string name="exit">बाहर निकलना</string>
     <string name="timer">घड़ी</string>

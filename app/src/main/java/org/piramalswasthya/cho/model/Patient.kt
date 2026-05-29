@@ -353,7 +353,7 @@ data class PatientNetwork(
     val reproductiveStatus: String?,
     val spouseName: String?,
     val titleId: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
     val faceEmbedding: List<Float>?
 ){
 
@@ -429,7 +429,7 @@ data class PatientNetwork(
         mapReproductiveStatusName(patientDisplay.patient.statusOfWomanID) ?: patientDisplay.statusOfWoman?.statusName,
         patientDisplay.patient.spouseName,
         null,
-        user?.vanId,
+        user?.facilityID,
         patientDisplay.patient.faceEmbedding
     )
 
@@ -457,7 +457,7 @@ data class BenPhone(
     val parkingPlaceID: Int?,
     val phoneNo: String?,
     val phoneTypeID: Int?,
-    val vanID: Int?
+    val facilityID: Int?
 ){
     //    alternateContactNumber:null
 //    benRelationshipID:11
@@ -466,7 +466,7 @@ data class BenPhone(
 //    parkingPlaceID:10
 //    phoneNo:"8989898989"
 //    phoneTypeID:1
-//    vanID:61
+//    facilityID:61
     constructor(patient: Patient, user: UserDomain?) : this(
         null,
         11,
@@ -475,7 +475,7 @@ data class BenPhone(
         user?.parkingPlaceId,
         patient.phoneNo,
         1,
-        user?.vanId
+        user?.facilityID
     )
 }
 
