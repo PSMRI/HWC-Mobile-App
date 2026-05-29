@@ -231,6 +231,7 @@ class UserRepo @Inject constructor(
                     if (!vanSp.has("facilityID")) {
                         Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
                         delay(3000)
+                        continue
                     }
                     val facilityId = vanSp.getInt("facilityID")
                     user?.facilityID = facilityId

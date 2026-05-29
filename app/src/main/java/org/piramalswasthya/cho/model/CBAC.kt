@@ -1011,7 +1011,7 @@ data class CbacVisitDetails(
     val healthFacilityLocation: String?=null,
     val reportFilePath: String?=null,
     val createdBy: String,
-    val facilityID: Int,
+    val facilityID: Int?,
     val parkingPlaceID: Int,
     val fileIDs:String?=null
 )

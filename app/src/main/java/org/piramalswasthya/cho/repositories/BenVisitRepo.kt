@@ -442,7 +442,7 @@ class BenVisitRepo @Inject constructor(
                              visitCode = benFlow.visitCode,
                              providerServiceMapID = benFlow.providerServiceMapId,
                              specialist_flag = null,
-                             facilityID = benFlow.facilityID,
+                             facilityID = benFlow.facilityID ?: user.facilityID,
                              parkingPlaceID = benFlow.parkingPlaceID
                         )
 
@@ -595,7 +595,7 @@ class BenVisitRepo @Inject constructor(
                                 visitID = benFlow.benVisitID,
                                 visitDate = benFlow.visitDate,
                                 parkingPlaceID = benFlow.parkingPlaceID,
-                                facilityID = benFlow.facilityID,
+                                facilityID = benFlow.facilityID ?: user?.facilityID,
                                 itemStockExit = itemStockExitList
                             )
                             if (pharmacistPatientIssueDataRequest.itemStockExit.isNotEmpty()) {
@@ -678,7 +678,7 @@ class BenVisitRepo @Inject constructor(
                         visitID = benFlow.benVisitID,
                         visitDate = benFlow.visitDate,
                         parkingPlaceID = benFlow.parkingPlaceID,
-                        facilityID = benFlow.facilityID,
+                        facilityID = benFlow.facilityID ?: user?.facilityID,
                         itemStockExit = itemStockExitList
                     )
 

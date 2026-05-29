@@ -439,14 +439,14 @@ class PatientRepo @Inject constructor(
             user?.masterVillageID?.let { listOf(it) } ?: emptyList()
         }
         val lastSyncDate = preferenceDao.getLastPatientSyncTime()
-        if (effectiveVillageIds.isEmpty() || lastSyncDate.isBlank()) {
-            Timber.w(
-                "downloadAndSyncPatientRecords skipped: incomplete payload villageIDs=%s lastSyncDate=%s",
-                effectiveVillageIds,
-                lastSyncDate
-            )
-            return false
-        }
+//        if (effectiveVillageIds.isEmpty() || lastSyncDate.isBlank()) {
+//            Timber.w(
+//                "downloadAndSyncPatientRecords skipped: incomplete payload villageIDs=%s lastSyncDate=%s",
+//                effectiveVillageIds,
+//                lastSyncDate
+//            )
+//            return false
+//        }
 
         val villageList = VillageIdList(
             effectiveVillageIds,

@@ -76,11 +76,11 @@ data class BenNewFlow (
         ageUnits = patientDisplay?.ageUnit?.name?.lowercase(),
         false,
         user?.serviceMapId?.toString(),
-        user?.facilityID,
-        user?.facilityType,
-        user?.facilityName,
-        user?.employeeId,
-        user?.locationType
+        facilityID = user?.facilityID,
+        facilityName = user?.facilityName,
+        facilityType = user?.facilityType,
+        employeeId = user?.employeeId,
+        locationType = user?.locationType
     )
 
 //    val beneficiaryRegID: Long?,
