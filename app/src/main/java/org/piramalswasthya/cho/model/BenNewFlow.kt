@@ -38,7 +38,11 @@ data class BenNewFlow (
     val ageUnits: String?,
     val emergencyRegistration: Boolean?,
     val providerServiceMapId: String?,
-    val facilityID: Int?
+    val facilityID: Int?,
+    val facilityName: String?,
+    val facilityType: String?,
+    val employeeId: String?,
+    val locationType: String?
 ){
     constructor(user: UserDomain?, patientDisplay: PatientDisplay?) : this(
         patientDisplay?.patient?.beneficiaryRegID,
@@ -72,7 +76,11 @@ data class BenNewFlow (
         ageUnits = patientDisplay?.ageUnit?.name?.lowercase(),
         false,
         user?.serviceMapId?.toString(),
-        user?.facilityID
+        user?.facilityID,
+        user?.facilityType,
+        user?.facilityName,
+        user?.employeeId,
+        user?.locationType
     )
 
 //    val beneficiaryRegID: Long?,

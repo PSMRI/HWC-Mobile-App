@@ -342,12 +342,13 @@ class UserRepo @Inject constructor(
                     val serviceMapId =
                         privilegesObject.getInt("providerServiceMapID")
                     user?.serviceMapId = serviceMapId
+                    applyFacilityDataFromLoginResponse(data)
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
-                    preferenceDao.registerUser(user!!)
                     getUserVanSpDetails(context)
                     getLocDetailsBasedOnSpIDAndPsmID()
                     getUserMasterVillage()
+                    preferenceDao.registerUser(user!!)
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
                     GlobalScope.launch(Dispatchers.Main) {
@@ -467,6 +468,43 @@ class UserRepo @Inject constructor(
                 preferenceDao.saveUserLocationData(LocationData(
                     stateId.toInt(), stateMasterName, districtId.toInt(),districtName, blockId.toInt(),blockName, villageLocationDataList))
             }
+        }
+    }
+
+    private fun applyFacilityDataFromLoginResponse(data: JSONObject) {
+        if (!data.has("facilityData")) return
+        try {
+            val facilityData = data.getJSONObject("facilityData")
+            val facilityUser = facilityData.optJSONObject("user")
+            val facilityLocation = facilityData.optJSONObject("location")
+            if (facilityUser != null) {
+                user?.employeeId = when {
+                    facilityUser.has("employeeId") -> facilityUser.getString("employeeId")
+                    facilityUser.has("employeeID") -> facilityUser.getString("employeeID")
+                    else -> null
+                }?.nullIfEmpty()
+            }
+            if (facilityLocation != null) {
+                user?.locationType = when {
+                    facilityLocation.has("locationType") -> facilityLocation.getString("locationType")
+                    else -> null
+                }?.nullIfEmpty()
+            }
+            val facilities = facilityData.optJSONArray("facilities") ?: return
+            if (facilities.length() == 0) return
+            val facility = facilities.getJSONObject(0)
+            val facilityId = when {
+                facility.has("facilityId") -> facility.getInt("facilityId")
+                facility.has("facilityID") -> facility.getInt("facilityID")
+                else -> -1
+            }
+            if (facilityId != -1) {
+                user?.facilityID = facilityId
+            }
+            user?.facilityType = facility.optString("facilityType", "").nullIfEmpty()
+            user?.facilityName = facility.optString("facilityName", "").nullIfEmpty()
+        } catch (e: JSONException) {
+            Timber.w(e, "applyFacilityDataFromLoginResponse: failed to parse facilityData")
         }
     }
 

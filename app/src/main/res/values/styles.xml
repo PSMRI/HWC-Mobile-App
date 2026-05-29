@@ -21,6 +21,7 @@
         <item name="android:padding">@dimen/padding_small</item>
         <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
         <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
     </style>
 
 
