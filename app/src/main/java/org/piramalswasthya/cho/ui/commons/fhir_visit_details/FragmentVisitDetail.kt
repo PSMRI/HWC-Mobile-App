@@ -470,85 +470,86 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
-        else if(subCat == DropdownConst.ent){
-            val validNoseChiefComplaints = listOf(
-                "Pain",
-                "Nasal discharge",
-                "Difficulty in breathing",
-                "open mouth breathing",
-                "Sinusitis",
-                "Nosebleed",
-                "Foreign body in nose"
-            )
+        else if(subCat == DropdownConst.ent) {
 
-            val validEarChiefComplaints = listOf(
-                "Ear Pain",
-                "Ear discharge",
-                "Difficulty in hearing",
-                "Ear wax",
-                "Congenital Ear Malformation",
-                "Foreign body in ear"
-            )
-            val validThroatChiefComplaints = listOf(
-                "Neck swelling",
-                "Dysphagia",
-                "Hoarseness of Voice",
-                "Cleft lip",
-                "Cleft palate",
-                "Tonsillitis",
-                "Pharyngitis",
-                "Laryngitis",
-                "Sinusitis"
-            )
-
-            val hasValidChiefComplaintForNose = if (viewModel.getIsFollowUp()) {
-                chiefComplaintDB2.any { item ->
-                    validNoseChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            } else {
-                itemList.any { item ->
-                    validNoseChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            }
-
-            val hasValidChiefComplaintForEar = if (viewModel.getIsFollowUp()) {
-                chiefComplaintDB2.any { item ->
-                    validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            } else {
-                itemList.any { item ->
-                    validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            }
-
-            val hasValidChiefComplaintForThroat = if (viewModel.getIsFollowUp()) {
-                chiefComplaintDB2.any { item ->
-                    validThroatChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            } else {
-                itemList.any { item ->
-                    validThroatChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            }
-
-            var entFilteredReasons = DropdownConst.entReasons
-
-            if (!hasValidChiefComplaintForNose) {
-                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.nose }
-            }
-
-            if (!hasValidChiefComplaintForEar) {
-                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.ear }
-            }
-            if (!hasValidChiefComplaintForThroat) {
-                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.throat }
-            }
+//            val validNoseChiefComplaints = listOf(
+//                "Pain",
+//                "Nasal discharge",
+//                "Difficulty in breathing",
+//                "open mouth breathing",
+//                "Sinusitis",
+//                "Nosebleed",
+//                "Foreign body in nose"
+//            )
+//
+//            val validEarChiefComplaints = listOf(
+//                "Ear Pain",
+//                "Ear discharge",
+//                "Difficulty in hearing",
+//                "Ear wax",
+//                "Congenital Ear Malformation",
+//                "Foreign body in ear"
+//            )
+//            val validThroatChiefComplaints = listOf(
+//                "Neck swelling",
+//                "Dysphagia",
+//                "Hoarseness of Voice",
+//                "Cleft lip",
+//                "Cleft palate",
+//                "Tonsillitis",
+//                "Pharyngitis",
+//                "Laryngitis",
+//                "Sinusitis"
+//            )
+//
+//            val hasValidChiefComplaintForNose = if (viewModel.getIsFollowUp()) {
+//                chiefComplaintDB2.any { item ->
+//                    validNoseChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+//                }
+//            } else {
+//                itemList.any { item ->
+//                    validNoseChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+//                }
+//            }
+//
+//            val hasValidChiefComplaintForEar = if (viewModel.getIsFollowUp()) {
+//                chiefComplaintDB2.any { item ->
+//                    validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+//                }
+//            } else {
+//                itemList.any { item ->
+//                    validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+//                }
+//            }
+//
+//            val hasValidChiefComplaintForThroat = if (viewModel.getIsFollowUp()) {
+//                chiefComplaintDB2.any { item ->
+//                    validThroatChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+//                }
+//            } else {
+//                itemList.any { item ->
+//                    validThroatChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
+//                }
+//            }
+//
+//            var entFilteredReasons = DropdownConst.entReasons
+//
+//            if (!hasValidChiefComplaintForNose) {
+//                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.nose }
+//            }
+//
+//            if (!hasValidChiefComplaintForEar) {
+//                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.ear }
+//            }
+//            if (!hasValidChiefComplaintForThroat) {
+//                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.throat }
+//            }
 
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                entFilteredReasons
+                DropdownConst.entReasonDisplayList
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
@@ -1224,13 +1225,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         if (binding.subCatInput.text.toString() == DropdownConst.ent) {
             setReasonForVisitDropdown(DropdownConst.ent)
             val currentReason = binding.reasonForVisitInput.text.toString()
-            if (currentReason == DropdownConst.nose || currentReason == DropdownConst.ear || currentReason == DropdownConst.throat) {
+            val normalizedCurrentReason = normalizeEntReasonForVisit(currentReason)
+            if (normalizedCurrentReason == DropdownConst.nose || normalizedCurrentReason == DropdownConst.ear || normalizedCurrentReason == DropdownConst.throat) {
                 // Check if current reason is still a valid option in the adapter
                 val adapter = binding.reasonForVisitInput.adapter
                 var isValid = false
                 if (adapter != null) {
                     for (i in 0 until adapter.count) {
-                        if (adapter.getItem(i).toString() == currentReason) {
+                        if (normalizeEntReasonForVisit(adapter.getItem(i).toString()) == normalizedCurrentReason) {
                             isValid = true
                             break
                         }
@@ -1241,6 +1243,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     viewModel.selectedReasonForVisit = ""
                 }
             }
+        }
+    }
+
+    private fun normalizeEntReasonForVisit(reason: String): String {
+        return when (reason.trim().uppercase(Locale.ROOT)) {
+            "EAR (E)", DropdownConst.ear -> DropdownConst.ear
+            "NOSE (N)", DropdownConst.nose -> DropdownConst.nose
+            "THROAT (T)", DropdownConst.throat -> DropdownConst.throat
+            else -> reason
         }
     }
 
@@ -1742,7 +1753,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     findNavController().navigate(R.id.ophthalmicScreeningFragment, bundle)
                 }
             }
-            else if(reasonForVisit == DropdownConst.ear ){
+            else if(normalizeEntReasonForVisit(reasonForVisit) == DropdownConst.ear ){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.earDiagnosisFormFragment, bundle)
@@ -1754,13 +1765,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     findNavController().navigate(R.id.oralHealthFormFragment, bundle)
                 }
             }
-            else if(reasonForVisit == DropdownConst.nose){
+            else if(normalizeEntReasonForVisit(reasonForVisit) == DropdownConst.nose){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.fragment_nose_diagnosis_form, bundle)
                 }
             }
-            else if(reasonForVisit == DropdownConst.throat){
+            else if(normalizeEntReasonForVisit(reasonForVisit) == DropdownConst.throat){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.throatDiagnosisFormFragment, bundle)
