@@ -798,10 +798,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
             setVisibility()
             setReasonForVisitDropdown(viewModel.selectedSubCat)
-            binding.subCatDropDown.apply {
-                boxStrokeColor = resources.getColor(R.color.purple)
-                hintTextColor = defaultHintTextColor
-            }
+//            binding.subCatDropDown.apply {
+//                boxStrokeColor = resources.getColor(R.color.purple)
+//                hintTextColor = defaultHintTextColor
+//            }
         }
 
 
