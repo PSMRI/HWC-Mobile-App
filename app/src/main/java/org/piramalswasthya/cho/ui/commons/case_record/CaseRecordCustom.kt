@@ -2136,7 +2136,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 if (resp != null) {
                     val previousTestList = resp.toMutableList()
                     for (index in selectedItems.indices) {
-                        if (previousTestList.contains(procedureDropdown!![index].procedureID)) {
+                        if (previousTestList.contains(procedureDropdown[index].procedureID)) {
                             alertDialog.listView[index].isEnabled = true
 //                            alertDialog.listView.get(index).setOnClickListener() {
 //                                alertDialog.listView.get(index).isEnabled = false
