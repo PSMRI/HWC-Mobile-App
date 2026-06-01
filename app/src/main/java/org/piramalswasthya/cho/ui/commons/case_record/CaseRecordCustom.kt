@@ -179,8 +179,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         return binding.root
     }
 
-    /** Hides add/edit controls only; read-only visit fields (counselling, refer, tests) are managed separately. */
-    private fun setCaseEntryControlsVisibility(isVisible: Boolean) {
+    private fun setCaseEditorVisibility(isVisible: Boolean) {
         val visibility = if (isVisible) View.VISIBLE else View.GONE
         binding.plusButtonD.visibility = visibility
         binding.plusButtonP.visibility = visibility
@@ -189,6 +188,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.tempName.visibility = visibility
         binding.saveTemplate.visibility = visibility
         binding.deleteTemp.visibility = visibility
+        binding.externalI.visibility = visibility
+        binding.testName.visibility = visibility
+        binding.referReason.visibility = visibility
+        binding.referDropdown.visibility = visibility
+        binding.textReferHeading.visibility = visibility
     }
 
     private fun hideReferSummaryLabels() {
@@ -202,14 +206,15 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         btnSubmit?.text = getString(submitTextRes)
         btnCancel?.visibility = View.VISIBLE
         btnCancel?.text = getString(R.string.close)
-        setCaseEntryControlsVisibility(true)
+        setCaseEditorVisibility(true)
     }
 
     private fun applyReadOnlyCaseUi(btnSubmit: Button?, btnCancel: Button?) {
         btnSubmit?.visibility = View.GONE
         btnCancel?.visibility = View.VISIBLE
         btnCancel?.text = getString(R.string.close)
-        setCaseEntryControlsVisibility(false)
+        setCaseEditorVisibility(false)
+        hideReferSummaryLabels()
     }
 
     private fun isDoctorWorkflowRole(): Boolean {
@@ -334,7 +339,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 binding.patientList.visibility = View.GONE
             }
 
-            setCaseEntryControlsVisibility(false)
+            setCaseEditorVisibility(false)
 
             getVisitResObserver(benVisitInfo)
             if (isClosedViewOnly) {
@@ -386,6 +391,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                 benFlowMap[visitNo] = benFlow
                             }
                         }
+
 
                         benFlowListCache = benFlowMap.values.toList()
 
@@ -1010,17 +1016,15 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         // Refresh ben flow data in background, but do not block click navigation on observer timing.
         getVisitResObserver(it)
 
-            benFlowMap.clear()
-            distinctList.forEach { benFlow ->
-                benFlow.benVisitNo?.let { visitNo ->
-                    benFlowMap[visitNo] = benFlow
-                }
-            }
-
-            benFlowListCache = benFlowMap.values.toList()
-
-            val selectedVisitFlow = it.benVisitNo?.let { visitNo -> benFlowMap[visitNo] }
-            val followupVisit = selectedVisitFlow?.VisitReason == "Follow Up"
+        val visitNo = it.benVisitNo
+        val followupVisitFromCache = visitNo?.let { no ->
+            val visitReasonFromMap = benFlowMap[no]?.VisitReason
+            val visitReasonFromSnapshot = viewModel.benFlows.value
+                ?.firstOrNull { benFlow -> benFlow.benVisitNo == no }
+                ?.VisitReason
+            (visitReasonFromMap ?: visitReasonFromSnapshot) == "Follow Up"
+        } ?: false
+        val followupVisit = followupVisitFromCache || (it.visitCategory == "Follow Up")
 
             findNavController().navigate(
                 R.id.action_caseRecordCustom_self, Bundle().apply {
@@ -1031,7 +1035,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 }
             )
         }
-    }
 
     private suspend fun loadPrescriptionRowsForVisit(visitInfo: PatientDisplayWithVisitInfo) {
         val visitNo = visitInfo.benVisitNo
