@@ -227,6 +227,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         return (isDoctorWorkflowRole() && !isFreshCaseEntryFromVisitDetails) || viewRecordFragment == true
     }
 
+    /** Prefer navigation args (visit list click) over activity intent (initial open). */
+    @Suppress("DEPRECATION")
+    private fun resolveBenVisitInfo(): PatientDisplayWithVisitInfo {
+        val fromArguments = arguments?.getSerializable("benVisitInfo") as? PatientDisplayWithVisitInfo
+        if (fromArguments != null) return fromArguments
+        return requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+    }
+
     private fun isOtherCphcCategory(category: String?): Boolean {
         val c = category?.trim().orEmpty()
         return c.equals(getString(R.string.other_cphc_category_key), ignoreCase = true)
@@ -305,12 +313,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     (arguments?.getSerializable("MasterDb") as? MasterDb) != null
 
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
+        benVisitInfo = resolveBenVisitInfo()
 
-        // Use DB value for pharmacist_flag in edit path so completed (lab+pharmacist) cases show correct UI even if intent was stale
+        // Use DB value for pharmacist_flag in edit path so completed (lab+pharmacist) cases get correct UI even if intent was stale
         var effectivePharmacistFlag: Int? = null
 
         if (viewRecordFragment == true) {
-            benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
             updateShowCphcDetailsButtonVisibility(benVisitInfo)
             // Pending pharmacist cycle is not a closed case, even if stale extras say flowComplete=true.
             if ((benVisitInfo.pharmacist_flag ?: 0) == 1) {
@@ -365,90 +373,13 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 applyReadOnlyCaseUi(btnSubmit, btnCancel)
             }
 
-
-            lifecycleScope.launch {
-                val isDoctorCanEditInView = benVisitInfo.nurseFlag == 9 &&
-                        ((benVisitInfo.doctorFlag == 1 || benVisitInfo.doctorFlag == 3) ||
-                                (benVisitInfo.doctorFlag == 9 && benVisitInfo.pharmacist_flag == 1)) &&
-                        benVisitInfo.pharmacist_flag != 9 &&
-                        isDoctorWorkflowRole() &&
-                        !isClosedViewOnly
-                if (isFollowupVisit == true && isDoctorCanEditInView){
-                    btnSubmit?.visibility = View.VISIBLE
-                    // Always use Submit for new data, Close Case for review only
-                    btnSubmit?.text = getString(R.string.submit)
-                    // Remove existing observer to prevent duplicates
-                    viewModel.benFlows.removeObservers(viewLifecycleOwner)
-                    viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
-                        if (benFlowList.isNullOrEmpty()) return@observe
-
-                        val distinctList =
-                            benFlowList.distinctBy { it.benVisitNo }
-
-                        benFlowMap.clear()
-                        distinctList.forEach { benFlow ->
-                            benFlow.benVisitNo?.let { visitNo ->
-                                benFlowMap[visitNo] = benFlow
-                            }
-                        }
-
-
-                        benFlowListCache = benFlowMap.values.toList()
-
-                        val lastNonFollowUp = benFlowMap.values
-                            .sortedBy { it.benVisitNo }
-                            .lastOrNull { it.VisitReason != "Follow Up" }
-
-                        lastNonFollowUp?.let {
-
-                            val benVisitInfo = PatientDisplayWithVisitInfo(
-                                benVisitInfo.patient,
-                                genderName = null,
-                                villageName = null,
-                                ageUnit = null,
-                                maritalStatus = null,
-                                nurseDataSynced =null,
-                                doctorDataSynced = null,
-                                createNewBenFlow = null,
-                                prescriptionID = null,
-                                benVisitNo = it.benVisitNo,
-                                visitCategory = null,
-                                benFlowID = null,
-                                nurseFlag = null,
-                                doctorFlag = null,
-                                labtechFlag = null,
-                                pharmacist_flag = null,
-                                visitDate = null,
-                                referDate = null,
-                                referTo = null,
-                                referralReason = null
-                            )
-
-                            lifecycleScope.launch {
-                                loadPrescriptionRowsForVisit(benVisitInfo)
-                                convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
-                            }
-                        }
-                    }
-                } else {
-                    lifecycleScope.launch {
-                        loadPrescriptionRowsForVisit(benVisitInfo)
-                        convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
-                    }
-                }
-            }
             lifecycleScope.launch {
                 testNameMap = viewModel.getTestNameTypeMap()
                 referNameMap = viewModel.getReferNameTypeMap()
-                if (benVisitInfo.benVisitNo != null) {
-                    viewModel.getPreviousTest(benVisitInfo)
-                }
             }
 
         } else {
             binding.patientList.visibility = View.VISIBLE
-            benVisitInfo =
-                requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
             updateShowCphcDetailsButtonVisibility(benVisitInfo)
 
             getVisitResObserver(benVisitInfo)
@@ -979,10 +910,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         if (isDoctorExistingVisitFlow()) {
             lifecycleScope.launch {
-                reloadSavedCaseRecordData()
-                investigationBD?.let {
-                    applySavedInvestigationToUi(it, readOnly = isVisitFieldsReadOnly())
+                if (referNameMap.isEmpty()) {
+                    referNameMap = viewModel.getReferNameTypeMap()
                 }
+                reloadSavedCaseRecordData()
             }
         }
     }
@@ -992,8 +923,35 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 (viewRecordFragment == true && isFlowComplete == true)
 
     private suspend fun reloadSavedCaseRecordData() {
-        loadPrescriptionRowsForVisit(benVisitInfo)
-        convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
+        val visitNo = benVisitInfo.benVisitNo
+        val patientID = benVisitInfo.patient.patientID
+        patId = patientID
+
+        val savedDiagnosis = viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo)
+        val savedPrescription = viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo)
+        val visitInfoForLoad = if (
+            isFollowupVisit == true &&
+            !isVisitFieldsReadOnly() &&
+            savedDiagnosis.isEmpty() &&
+            savedPrescription.isEmpty()
+        ) {
+            resolveLastNonFollowUpVisitInfo() ?: benVisitInfo
+        } else {
+            benVisitInfo
+        }
+
+        loadPrescriptionRowsForVisit(visitInfoForLoad)
+        convertToDiagnosisValues(
+            viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(visitInfoForLoad)
+        )
+
+        if (visitNo != null && visitNo > 0) {
+            viewModel.getVitalsDB(patientID, visitNo)
+            viewModel.getChiefComplaintDB(patientID, visitNo)
+            viewModel.getLabList(patientID, visitNo)
+            viewModel.getPreviousTest(benVisitInfo)
+        }
+
         if (::dAdapter.isInitialized) {
             dAdapter.notifyDataSetChanged()
             binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
@@ -1004,6 +962,37 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
             updateSubmitButtonText()
         }
+    }
+
+    private fun resolveLastNonFollowUpVisitInfo(): PatientDisplayWithVisitInfo? {
+        val lastNonFollowUp = (viewModel.benFlows.value ?: benFlowListCache)
+            .sortedBy { it.benVisitNo }
+            .lastOrNull { it.VisitReason != "Follow Up" }
+            ?: return null
+        val sourceVisitNo = lastNonFollowUp.benVisitNo ?: return null
+        if (sourceVisitNo == benVisitInfo.benVisitNo) return null
+        return PatientDisplayWithVisitInfo(
+            benVisitInfo.patient,
+            genderName = null,
+            villageName = null,
+            ageUnit = null,
+            maritalStatus = null,
+            nurseDataSynced = null,
+            doctorDataSynced = null,
+            createNewBenFlow = null,
+            prescriptionID = null,
+            benVisitNo = sourceVisitNo,
+            visitCategory = null,
+            benFlowID = null,
+            nurseFlag = null,
+            doctorFlag = null,
+            labtechFlag = null,
+            pharmacist_flag = null,
+            visitDate = null,
+            referDate = null,
+            referTo = null,
+            referralReason = null
+        )
     }
 
     private fun getVisitResObserver(benVisitInfo: PatientDisplayWithVisitInfo){
