@@ -46,7 +46,6 @@ fun AutoCompleteTextView.setupDropdownKeyboardHandling() {
     showSoftInputOnFocus = false
 
     val lastClickTimeTag = "last_click_time"
-    val dropdownStateTag = "dropdown_is_showing"
     val tagExistingClickListener = View.generateViewId()
 
     isFocusable = true
@@ -64,7 +63,7 @@ fun AutoCompleteTextView.setupDropdownKeyboardHandling() {
 
                 performClickSafely(view, existingClickListener)
 
-                toggleDropdownState(dropdownStateTag.hashCode())
+                toggleDropdownState()
 
                 return@setOnTouchListener true
             }
@@ -79,10 +78,6 @@ fun AutoCompleteTextView.setupDropdownKeyboardHandling() {
     setOnFocusChangeListener { view, hasFocus ->
         if (hasFocus) {
             hideKeyboardForSelfAndActivity()
-        } else {
-            post {
-                setTag(dropdownStateTag.hashCode(), isPopupShowing)
-            }
         }
         existingFocusListener?.onFocusChange(view, hasFocus)
     }
@@ -107,15 +102,11 @@ private fun AutoCompleteTextView.performClickSafely(view: View, existingClickLis
     view.performClick()
 }
 
-private fun AutoCompleteTextView.toggleDropdownState(dropdownStateTagHash: Int) {
+private fun AutoCompleteTextView.toggleDropdownState() {
     if (adapter == null || adapter.count == 0) return
-    val isDropdownShowing = getTag(dropdownStateTagHash) as? Boolean ?: false
-    val actualPopupShowing = isPopupShowing
-    if (isDropdownShowing || actualPopupShowing) {
+    if (isPopupShowing) {
         dismissDropDown()
-        setTag(dropdownStateTagHash, false)
     } else {
         showDropDown()
-        setTag(dropdownStateTagHash, true)
     }
 }

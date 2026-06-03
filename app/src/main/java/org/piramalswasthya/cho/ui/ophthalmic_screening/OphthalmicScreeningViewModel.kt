@@ -427,7 +427,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _showForeignBodyAlert.value = injuryTypes.contains(DropdownConst.INJURY_MECHANICAL_FOREIGN_BODY) &&
                 _foreignBodyRemoval.value == DropdownConst.FOREIGN_BODY_LODGED_IN_CORNEA
         _showChemicalExposureAlert.value = injuryTypes.contains(DropdownConst.INJURY_CHEMICAL) &&
-                _chemicalExposure.value != null
+                _chemicalExposure.value == true
     }
 
 
@@ -598,11 +598,9 @@ class OphthalmicScreeningViewModel @Inject constructor(
     }
 
     private fun validateSnellenVA(rightVA: String?, leftVA: String?): ValidationResult {
-        if (rightVA == null || leftVA == null) {
-            return ValidationResult(fieldsValid = false, alert = false, caseIdByVA = false)
-        }
-        val impaired = isVisualImpairment(rightVA) || isVisualImpairment(leftVA)
-        return ValidationResult(fieldsValid = true, alert = impaired, caseIdByVA = impaired)
+        val impaired = isVisualImpairment(rightVA ?: "") || isVisualImpairment(leftVA ?: "")
+        val bothFilled = rightVA != null && leftVA != null
+        return ValidationResult(fieldsValid = bothFilled, alert = impaired, caseIdByVA = impaired)
     }
 
     private fun validateNearVA(nearVaValue: String?): ValidationResult {
