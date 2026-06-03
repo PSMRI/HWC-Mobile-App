@@ -23,8 +23,12 @@ class DropdownConst {
         val ear: String = "EAR"
         val nose: String = "NOSE"
         val throat: String = "THROAT"
+        val earDisplay: String = "Ear (E)"
+        val noseDisplay: String = "Nose (N)"
+        val throatDisplay: String = "Throat (T)"
         val dental: String = "Dental"
         val entReasons: List<String> = listOf(ear, nose, throat)
+        val entReasonDisplayList: List<String> = listOf(earDisplay, noseDisplay, throatDisplay)
         val oralReasons: List<String> = listOf(dental)
         val oralChiefComplaints: Set<String> = setOf(
             "Dental Decay",
