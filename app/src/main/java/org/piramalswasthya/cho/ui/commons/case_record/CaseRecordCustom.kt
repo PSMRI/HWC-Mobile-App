@@ -227,12 +227,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         return (isDoctorWorkflowRole() && !isFreshCaseEntryFromVisitDetails) || viewRecordFragment == true
     }
 
-    /** Prefer navigation args (visit list click) over activity intent (initial open). */
-    @Suppress("DEPRECATION")
     private fun resolveBenVisitInfo(): PatientDisplayWithVisitInfo {
         val fromArguments = arguments?.getSerializable("benVisitInfo") as? PatientDisplayWithVisitInfo
         if (fromArguments != null) return fromArguments
-        return requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        return requireNotNull(
+            requireActivity().intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
+        ) {
+            "benVisitInfo is required (fragment arguments or activity intent)"
+        }
     }
 
     private fun isOtherCphcCategory(category: String?): Boolean {
