@@ -1664,7 +1664,26 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
         val selectedCategory = selectedCategoryRadioButton?.tag.toString()
         if(selectedCategory == OTHER_CPHC_SERVICES){
-            val reasonForVisit = binding.reasonForVisitInput.text.toString()
+            val selectedSubCategory = binding.subCatInput.text?.toString()?.trim().orEmpty()
+            if (selectedSubCategory.isEmpty()) {
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.toast_sub_cat_select),
+                    Toast.LENGTH_SHORT
+                ).show()
+                return
+            }
+
+            val reasonForVisit = binding.reasonForVisitInput.text?.toString()?.trim().orEmpty()
+            if (reasonForVisit.isEmpty()) {
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.toast_visit_reason_select),
+                    Toast.LENGTH_SHORT
+                ).show()
+                return
+            }
+
             if(reasonForVisit == DropdownConst.anc){
 
 //                viewModel.activePwrRecord.observe(viewLifecycleOwner) { it1->
@@ -1800,6 +1819,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()){ bundle ->
                     findNavController().navigate(R.id.mentalHealthScreeningFormFragment, bundle)
                 }
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.toast_visit_reason_select),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
         }
@@ -1974,7 +1999,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
     private fun setVisitMasterDataForFollow() {
-        val masterDb = MasterDb(patientId)
+        if (masterDb == null) {
+            masterDb = MasterDb(patientId)
+        }
         val visitMasterDb = VisitMasterDb()
 
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
@@ -2000,7 +2027,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
 
         visitMasterDb.chiefComplaint = chiefComplaintList2
-        masterDb.visitMasterDb = visitMasterDb
+        masterDb?.visitMasterDb = visitMasterDb
         bundle.putSerializable("MasterDb", masterDb)
     }
 
@@ -2073,6 +2100,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         if (!skipChiefComplaintValidation && !addChiefComplaintsData()) {
             isNavigationInProgress = false
             return
+        }
+
+        if (masterDb == null) {
+            masterDb = MasterDb(patientId)
         }
 
         if (viewModel.getIsFollowUp()) {
