@@ -689,8 +689,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.deliveryDate.setText("")
         if (binding.subCatInput.text.isNullOrBlank()) {
             setSubCategoryDropdown()
+        } else if (viewModel.selectedSubCat.isBlank()) {
+            // Belt-and-suspenders: if view-state restoration brought the field text back
+            // but the ViewModel state was cleared earlier in the lifecycle, rehydrate it.
+            viewModel.selectedSubCat = binding.subCatInput.text.toString()
         }
-        if (binding.reasonForVisitInput.text.isNullOrBlank() && viewModel.selectedSubCat.isNotBlank()) {
+        if (!binding.reasonForVisitInput.text.isNullOrBlank() && viewModel.selectedReasonForVisit.isBlank()) {
+            viewModel.selectedReasonForVisit = binding.reasonForVisitInput.text.toString()
+        }
+        if (viewModel.selectedSubCat.isNotBlank()) {
             setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
     }
@@ -1211,7 +1218,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 options
             )
         )
-        if (currentSubCat !in options) {
+        // Only clear when the field has a real value that's no longer valid.
+        // Treating empty text as "invalid" wipes selectedSubCat / selectedReasonForVisit
+        // during the onViewCreated pass that runs before Android's view-state restoration,
+        // which then leaves the reason-for-visit dropdown un-rehydrated on back-nav.
+        if (currentSubCat.isNotEmpty() && currentSubCat !in options) {
             binding.subCatInput.setText("", false)
             viewModel.selectedSubCat = ""
             binding.reasonForVisitInput.setText("", false)
