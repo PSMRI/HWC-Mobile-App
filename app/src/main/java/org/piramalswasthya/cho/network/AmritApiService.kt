@@ -289,11 +289,12 @@ interface AmritApiService {
                                    @Path("gender") gender: String,
                                    @Query("apiKey") apiKey :String): Response<ResponseBody>
 
-    @GET("hwc-api/master/doctor/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}/{facilityID}")
+    @GET("hwc-api/master/doctor/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}/{facilityID}/{vanID}")
     suspend fun getDoctorMasterData(@Path("visitCategoryID") visitCategoryID: Int,
                                    @Path("providerServiceMapID") providerServiceMapID : Int,
                                    @Path("gender") gender: String,
                                    @Path("facilityID") facilityID: Int,
+                                   @Path("vanID") vanID: Int,
                                    @Query("apiKey") apiKey :String): Response<ResponseBody>
 
     @POST("hwc-api/generalOPD/getBenCaseRecordFromDoctorGeneralOPD")

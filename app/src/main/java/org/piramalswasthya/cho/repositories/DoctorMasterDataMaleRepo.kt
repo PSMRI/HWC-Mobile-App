@@ -54,7 +54,7 @@ class DoctorMasterDataMaleRepo @Inject constructor(
 
             val response = amritApiService.getDoctorMasterData(
                 visitCategoryID, providerServiceMapID,
-                gender,facilityID, apiKey
+                gender,facilityID, 0, apiKey
             )
 
             if (response.code() == 200) {
