@@ -430,9 +430,8 @@ class MentalHealthScreeningDataset(
 
     private val substanceAlcoholClassification = createTextViewElement(317, context.getString(R.string.substance_alcohol_classification))
 
-    private val substanceAlcoholSystemAction by lazy {
-        createDropDownElement(318, context.getString(R.string.substance_alcohol_system_action), alcoholSystemActionOptions, hasDependants = true)
-    }
+    // Auto-filled by the system based on the alcohol classification (see computeAlcoholClassification)
+    private val substanceAlcoholSystemAction = createTextViewElement(318, context.getString(R.string.substance_alcohol_system_action))
 
     private val substance_alcohol_frequency: FormElement by lazy {
         FormElement(
@@ -990,7 +989,7 @@ class MentalHealthScreeningDataset(
             }
 
             edRecurrentEpisodeloss.id, edRecurrentJerkyMovements.id, edConfusionordrowsiness.id, edProgressiveMemoryLoss.id,
-            edConfusionDisorientation.id, edFunctionalDecline.id, substanceAlcoholSystemAction.id -> {
+            edConfusionDisorientation.id, edFunctionalDecline.id -> {
                 rebuildConditionalSections()
                 formId
             }
@@ -1265,6 +1264,7 @@ class MentalHealthScreeningDataset(
 
         if (use == null && frequency == null && loss == null && impact == null && withdrawal == null && problematic == null) {
             substanceAlcoholClassification.value = null
+            substanceAlcoholSystemAction.value = null
             return
         }
 
@@ -1285,6 +1285,15 @@ class MentalHealthScreeningDataset(
             noAlcoholUse -> alcoholClassificationOptions.getOrNull(0)
             hasRiskFactor -> alcoholClassificationOptions.getOrNull(1)
             occasionalWithNoRisks -> alcoholClassificationOptions.getOrNull(0)
+            else -> null
+        }
+
+        // System action is auto-filled from the classification:
+        // "No problematic alcohol use identified" -> "Brief intervention"
+        // "Problematic alcohol use suspected"     -> "Referral"
+        substanceAlcoholSystemAction.value = when (substanceAlcoholClassification.value) {
+            alcoholClassificationOptions.getOrNull(0) -> alcoholSystemActionOptions.getOrNull(0)
+            alcoholClassificationOptions.getOrNull(1) -> alcoholSystemActionOptions.getOrNull(1)
             else -> null
         }
     }
