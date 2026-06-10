@@ -101,6 +101,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private lateinit var villageAdapter :VillageDropdownAdapter
     private var isSettingVillageProgrammatically = false
     private var isAgeChangedInEditMode = false
+    private var isMaritalStatusChangedInEditMode = false
     private var isProgrammaticChange = false
     private var isReadOnly = false
     private var isEditModeAfterRegistration = false
@@ -569,6 +570,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private fun setFormEditable(isEditable: Boolean) {
         isReadOnly = !isEditable
         isAgeChangedInEditMode = false
+        isMaritalStatusChangedInEditMode = false
         binding.lastName.isEnabled = isEditable
         binding.phoneNo.isEnabled = isEditable
         binding.statusOfWomanDropdown.isEnabled = isEditable
@@ -988,7 +990,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val hintRes = if (genderId == 2) R.string.husband_s_name else if (genderId == 1) R.string.wife_s_name else R.string.spouse_name
                     binding.spouseNameText.hint = getText(hintRes)
 
-                    binding.spouseName.isEnabled = !isReadOnly && (!isEditModeAfterRegistration || isAgeChangedInEditMode)
+                    binding.spouseName.isEnabled = !isReadOnly &&
+                        (!isEditModeAfterRegistration || isAgeChangedInEditMode || isMaritalStatusChangedInEditMode)
                     binding.spouseNameText.isEndIconVisible = binding.spouseName.isEnabled
 
                     val isSpouseNameFilled = binding.spouseName.text?.isNotEmpty() == true && isValidName(binding.spouseName.text.toString())
@@ -1055,6 +1058,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 viewModel.maritalStatusId = item.id
                 viewModel.maritalStatusName = item.display
                 binding.maritalStatusDropdown.setText(item.display, false)
+                if (!isReadOnly && isEditModeAfterRegistration && !isProgrammaticChange) {
+                    isMaritalStatusChangedInEditMode = true
+                }
                 setMarriedFieldsVisibility()
                 updateStatusOfWomanVisibility()
             }
