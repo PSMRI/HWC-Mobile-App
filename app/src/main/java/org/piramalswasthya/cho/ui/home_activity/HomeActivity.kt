@@ -145,7 +145,7 @@ class HomeActivity : AppCompatActivity() {
 
     var handler: Handler = Handler()
     var runnable: Runnable? = null
-    var delay = 30000
+    var delay = 15 * 60 * 1000
 
     private val REQUEST_CODE_PERMISSION = 123
 
