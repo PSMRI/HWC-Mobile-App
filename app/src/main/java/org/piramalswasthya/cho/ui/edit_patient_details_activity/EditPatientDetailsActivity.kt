@@ -87,8 +87,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
             }
             insets
         }
-
-        handleInitialNavigation()
+        if(savedInstanceState == null) {
+            handleInitialNavigation()
+        }
         setupNavigationListener()
         setupUIListeners()
     }
