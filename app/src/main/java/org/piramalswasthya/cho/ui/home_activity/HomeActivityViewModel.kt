@@ -209,6 +209,13 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                     long,
                     logoutType,
                 null)
+                // Cancel any in-flight sync workers BEFORE wiping the DB. Otherwise a
+                // chain still running from this session survives the logout (logout
+                // does not stop WorkManager) and, on relogin, races the fresh login
+                // sync chain — its benflow pull can run while the patient table is
+                // being repopulated, leaving the Nurse/Doctor/Lab/Pharmacist worklists
+                // empty until the next sync cycle.
+                WorkerUtils.cancelAllWork(getApplication())
                 // Reset all local persisted records so next login starts clean.
                 database.clearAllTables()
                 // Preserve logout audit trail for later sync after local reset.
