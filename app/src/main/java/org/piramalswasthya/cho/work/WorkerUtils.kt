@@ -43,6 +43,18 @@ object WorkerUtils {
             .build()
     }
 
+    // PullBenFlowFromAmritWorker can return Result.retry() when a benflow row's
+    // beneficiary hasn't been inserted by the concurrent patient pull yet (the
+    // benflow->patient join builds the role worklists). Use a short LINEAR backoff so
+    // the worklists recover within ~10s of a lost race instead of waiting for the next
+    // periodic down-sync.
+    private inline fun <reified T : ListenableWorker> benflowWorker(): OneTimeWorkRequest {
+        return OneTimeWorkRequestBuilder<T>()
+            .setConstraints(networkOnlyConstraint)
+            .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+            .build()
+    }
+
     private fun createRmnchPullWorkers(): RmnchPullWorkers {
         return RmnchPullWorkers(
             eligibleCouples = networkWorker<PullEligibleCouplesWorker>(),
@@ -70,7 +82,7 @@ object WorkerUtils {
 
     fun triggerDownSyncWorker(context : Context, syncName: String){
 
-        val pullBenFlowFromAmritWorker = networkWorker<PullBenFlowFromAmritWorker>()
+        val pullBenFlowFromAmritWorker = benflowWorker<PullBenFlowFromAmritWorker>()
         val pullPatientFromAmritWorker = networkWorker<PullPatientsFromServer>()
         val pullFormAmritWorker = networkWorker<PullLabRecordFormWorker>()
         val pullCbacFromAmritWorker = networkWorker<PullCbacFromAmritWorker>()
@@ -130,7 +142,7 @@ object WorkerUtils {
 
     fun triggerAmritSyncWorker(context : Context){
 
-        val pullBenFlowFromAmritWorker = networkWorker<PullBenFlowFromAmritWorker>()
+        val pullBenFlowFromAmritWorker = benflowWorker<PullBenFlowFromAmritWorker>()
         val pushBenToAmritWorker = networkWorker<PushBenToAmritWorker>()
         val pushBenVisitInfoRequest = networkWorker<PushBenVisitInfoToAmrit>()
         val pushBenDoctorInfoPendingTestToAmrit = networkWorker<PushBenDoctorInfoPendingTestToAmrit>()

@@ -234,8 +234,11 @@ class BenFlowRepo @Inject constructor(
 
         when(val response = syncFlowIds(villageList)){
             is NetworkResult.Success -> {
-                return true
-//                return (response.data as DownsyncSuccess).isSuccess
+                // Only report success (which lets PullBenFlowFromAmritWorker advance
+                // lastBenflowSyncTime) when EVERY benflow row matched a local patient. A partial run
+                // must not move the hour-truncated watermark, otherwise the server returns 0 rows on
+                // the next pull and the unmatched rows' module data is lost until data is cleared.
+                return (response.data as DownsyncSuccess).isSuccess
             }
             is NetworkResult.Error -> {
                 Log.d("error code is", response.code.toString())
@@ -580,6 +583,20 @@ class BenFlowRepo @Inject constructor(
                                     }
                                     patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = pvis.patientID, benVisitNo =  pvis.benVisitNo)
                                 }
+                            } else {
+                                // No local patient yet for this benRegID. The role worklists
+                                // (Nurse/Doctor/Lab/Pharmacist) are built from PatientVisitInfoSync rows
+                                // that are ONLY created inside the patient != null branch above, so skipping
+                                // here leaves those modules empty for this beneficiary. This happens when the
+                                // patient down-sync that inserts this benRegID hasn't finished yet (the two
+                                // pulls run on concurrent worker chains). Mark the run incomplete so the
+                                // caller does NOT advance the benflow watermark — the next pull re-downloads
+                                // the full payload and matches the patient once it has landed.
+                                isSuccess = false
+                                Log.w(
+                                    "BenFlowFacilityDebug",
+                                    "syncFlowIds row: no local patient for benRegID=${benFlowToInsert.beneficiaryRegID} (benFlowID=${benFlowToInsert.benFlowID}); marking run incomplete to retry next sync"
+                                )
                             }
                         } catch (e : Exception){
                             isSuccess = false
