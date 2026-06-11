@@ -222,6 +222,8 @@ class UserRepo @Inject constructor(
 
                 for (i in 0 until vanSpDetailsArray.length()) {
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
+                    val serviceProviderMapId = vanSp.getInt("providerServiceMapID")
+                    user?.serviceMapId = serviceProviderMapId
 //                    val vanId = vanSp.getInt("vanID")
 //                    user?.vanId = vanId
 //                    val servicePointId = vanSp.getInt("servicePointID")

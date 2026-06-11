@@ -1049,7 +1049,7 @@ class MentalHealthScreeningDataset(
             list.addAll(listOf(
                 substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
                 substanceSystemAction.copy(),
-                substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholWithdrawal, substanceAlcoholProblematic,
+                substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic,
                 substanceAlcoholClassification.copy(), substanceAlcoholSystemAction
             ))
             if (isYes(substanceCurrentTobaccoUse.value)) {
@@ -1062,6 +1062,7 @@ class MentalHealthScreeningDataset(
                 list.add(idx + 1, substance_alcohol_frequency)
                 list.add(idx + 2, substance_alcohol_loss)
                 list.add(idx + 3, substanceAlcoholImpact)
+                list.add(idx + 4, substanceAlcoholWithdrawal)
             } else {
                 clearAlcoholSubFields()
             }
@@ -1452,6 +1453,7 @@ class MentalHealthScreeningDataset(
         substance_alcohol_frequency.value = null
         substance_alcohol_loss.value = null
         substanceAlcoholImpact.value = null
+        substanceAlcoholWithdrawal.value = null
     }
 
     private fun clearSuicideValues() {

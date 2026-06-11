@@ -24,7 +24,8 @@ class MasterLocationSettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
         navHostFragment = supportFragmentManager.findFragmentById(binding.navHostUserLocation.id) as NavHostFragment
         val navController = navHostFragment.navController
-        navController.navigate(R.id.loginSettingsFragmentMaster)
+        if(savedInstanceState ==  null){
+        navController.navigate(R.id.loginSettingsFragmentMaster)}
     }
 
     override fun onBackPressed() {

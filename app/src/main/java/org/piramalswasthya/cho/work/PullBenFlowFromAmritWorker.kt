@@ -39,6 +39,14 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
 
     companion object {
         const val name = "PullBenFlowFromAmritWorker"
+
+        // Initial run + up to 2 retries (3 executions total). A retry fires when the
+        // benflow->patient join misses because the concurrent patient pull hasn't
+        // landed the row yet; by the retry the patient pull has typically finished. We
+        // cap attempts and then release the chain with success() — the watermark is
+        // still at epoch on an incomplete run, so the next periodic down-sync
+        // re-downloads the full payload and recovers with no data loss.
+        private const val MAX_RUN_ATTEMPTS = 3
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -56,10 +64,21 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
                 val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
                 if (workerResult) {
                     preferenceDao.setLastBenflowSyncTime(currTimeStamp)
+                    Timber.d("Benflow Download Worker completed")
+                    Result.success()
+                } else if (runAttemptCount < MAX_RUN_ATTEMPTS - 1) {
+                    // Incomplete run: a benflow row had no matching local patient yet
+                    // (the patient down-sync on the concurrent chain hasn't landed it).
+                    // Watermark was NOT advanced, so retry shortly — the patient pull
+                    // will have finished and the join populates the role worklists.
+                    Timber.d("Benflow Download incomplete (patient join missed); retry attempt ${runAttemptCount + 1}")
+                    Result.retry()
+                } else {
+                    // Give up after MAX_RUN_ATTEMPTS so the chain is released. Watermark
+                    // still at epoch → next periodic down-sync re-downloads and recovers.
+                    Timber.d("Benflow Download still incomplete after $MAX_RUN_ATTEMPTS attempts; releasing chain")
+                    Result.success()
                 }
-
-                Timber.d("Benflow Download Worker completed")
-                Result.success()
 //            }
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for push amrit worker $e")
