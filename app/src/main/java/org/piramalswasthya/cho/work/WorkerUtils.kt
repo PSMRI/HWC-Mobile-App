@@ -83,6 +83,9 @@ object WorkerUtils {
     fun triggerDownSyncWorker(context : Context, syncName: String){
 
         val pullBenFlowFromAmritWorker = benflowWorker<PullBenFlowFromAmritWorker>()
+        // Deferred per-beneficiary nurse/doctor case-record pull (the slow part of the benflow
+        // downsync). Runs LAST so RMNCH/CPHC pulls aren't blocked behind the per-beneficiary loop.
+        val pullClinicalRecordsWorker = benflowWorker<PullClinicalRecordsWorker>()
         val pullPatientFromAmritWorker = networkWorker<PullPatientsFromServer>()
         val pullFormAmritWorker = networkWorker<PullLabRecordFormWorker>()
         val pullCbacFromAmritWorker = networkWorker<PullCbacFromAmritWorker>()
@@ -137,12 +140,18 @@ object WorkerUtils {
                 pullEarFromAmritWorker,pullOphthalmicFromAmritWorker, pullOralFromAmritWorker, pullPainAssessmentFromAmritWorker, pullPsychosocialCaregiverSupport, pullNoseFromAmritWorker, pullThroatFromAmritWorker,  pullElderlyFromAmritWorker,
                 pullMentalFromAmritWorker
             ))
+            // Per-beneficiary nurse/doctor pull runs last, after RMNCH/CPHC, and advances the
+            // benflow watermark.
+            .then(pullClinicalRecordsWorker)
             .enqueue()
     }
 
     fun triggerAmritSyncWorker(context : Context){
 
         val pullBenFlowFromAmritWorker = benflowWorker<PullBenFlowFromAmritWorker>()
+        // Deferred per-beneficiary nurse/doctor case-record pull (the slow part of the benflow
+        // downsync). Runs LAST so RMNCH/CPHC pulls aren't blocked behind the per-beneficiary loop.
+        val pullClinicalRecordsWorker = benflowWorker<PullClinicalRecordsWorker>()
         val pushBenToAmritWorker = networkWorker<PushBenToAmritWorker>()
         val pushBenVisitInfoRequest = networkWorker<PushBenVisitInfoToAmrit>()
         val pushBenDoctorInfoPendingTestToAmrit = networkWorker<PushBenDoctorInfoPendingTestToAmrit>()
@@ -256,6 +265,9 @@ object WorkerUtils {
                 pullEarFromAmritWorker, pullOphthalmicFromAmritWorker , pullOralFromAmritWorker, pullPainAssessmentFromAmritWorker, pullPsychosocialCaregiverSupport, pullNoseFromAmritWorker, pullThroatFromAmritWorker, pullElderlyFromAmritWorker,
                 pullMentalFromAmritWorker
             ))
+            // Per-beneficiary nurse/doctor pull runs last, after RMNCH/CPHC, and advances the
+            // benflow watermark.
+            .then(pullClinicalRecordsWorker)
 //           .then(pushLabDataToAmrit)
             .enqueue()
     }
