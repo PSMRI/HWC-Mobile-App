@@ -176,7 +176,7 @@ class BenFlowRepo @Inject constructor(
 
     }
 
-    suspend fun downloadAndSyncFlowRecords(): Boolean {
+    suspend fun downloadAndSyncFlowRecords(pullClinical: Boolean = true): Boolean {
 
         val user = userRepo.getLoggedInUser()
         val loggedInFacilityID = user?.facilityID
@@ -232,7 +232,7 @@ class BenFlowRepo @Inject constructor(
             else -> {}
         }
 
-        when(val response = syncFlowIds(villageList)){
+        when(val response = syncFlowIds(villageList, pullClinical)){
             is NetworkResult.Success -> {
                 // Only report success (which lets PullBenFlowFromAmritWorker advance
                 // lastBenflowSyncTime) when EVERY benflow row matched a local patient. A partial run
@@ -456,7 +456,7 @@ class BenFlowRepo @Inject constructor(
         benFlowDao.insertBenFlow(benFlow = benFlow)
     }
 
-    suspend fun syncFlowIds(villageList: VillageIdList): NetworkResult<NetworkResponse> {
+    suspend fun syncFlowIds(villageList: VillageIdList, pullClinical: Boolean = true): NetworkResult<NetworkResponse> {
         val loggedInUser = userRepo.getLoggedInUser()
 
         return networkResultInterceptor {
@@ -549,18 +549,23 @@ class BenFlowRepo @Inject constructor(
                                 }
                                 checkAndAddNewVisitInfo(benFlowToInsert, patient)
                                 updateBenFlowId(benFlowToInsert, patient)
-                                // A failed nurse/doctor sub-pull does NOT throw (networkResultInterceptor
-                                // swallows it into NetworkResult.Error), so mark the run incomplete here.
-                                // Otherwise the watermark advances while the visit data is missing and the
-                                // next pull never re-fetches it.
-                                val nurseOk = checkAndDownsyncNurseData(benFlowToInsert, patient)
-                                val doctorOk = checkAndDownsyncDoctorData(benFlowToInsert, patient)
-                                if (!nurseOk || !doctorOk) {
-                                    isSuccess = false
-                                    Log.w(
-                                        "BenFlowFacilityDebug",
-                                        "syncFlowIds row: sub-pull failed (nurseOk=$nurseOk, doctorOk=$doctorOk) for benRegID=${benFlowToInsert.beneficiaryRegID} (benFlowID=${benFlowToInsert.benFlowID}); marking run incomplete to retry next sync"
-                                    )
+                                // The per-beneficiary nurse/doctor case-record pull (2 API calls each)
+                                // is the slow part of the benflow downsync. It runs ONLY in the clinical
+                                // pass (PullClinicalRecordsWorker, last in the chain) so the role worklists
+                                // built above appear early and the RMNCH/CPHC pulls aren't blocked behind it.
+                                // A failed sub-pull does NOT throw (networkResultInterceptor swallows it into
+                                // NetworkResult.Error), so mark the run incomplete here; otherwise the watermark
+                                // advances while the visit data is missing and the next pull never re-fetches it.
+                                if (pullClinical) {
+                                    val nurseOk = checkAndDownsyncNurseData(benFlowToInsert, patient)
+                                    val doctorOk = checkAndDownsyncDoctorData(benFlowToInsert, patient)
+                                    if (!nurseOk || !doctorOk) {
+                                        isSuccess = false
+                                        Log.w(
+                                            "BenFlowFacilityDebug",
+                                            "syncFlowIds row: sub-pull failed (nurseOk=$nurseOk, doctorOk=$doctorOk) for benRegID=${benFlowToInsert.beneficiaryRegID} (benFlowID=${benFlowToInsert.benFlowID}); marking run incomplete to retry next sync"
+                                        )
+                                    }
                                 }
                                 val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(
                                     patient.patientID,
@@ -626,7 +631,7 @@ class BenFlowRepo @Inject constructor(
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
-                    syncFlowIds(villageList)
+                    syncFlowIds(villageList, pullClinical)
                 },
             )
         }

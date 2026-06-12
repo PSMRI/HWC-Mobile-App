@@ -56,27 +56,28 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
 
                 Log.d("Benflow In Progress", "Benflow In Progress")
 
-                val currentInstant = Instant.now()
-                val currentDateTime = LocalDateTime.ofInstant(currentInstant, ZoneId.of("Asia/Kolkata"))
-                val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
-                val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
-
-                val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
+                // Worklist-only pass: inserts benflow rows and builds the role worklists
+                // (PATIENT_VISIT_INFO_SYNC) so the Nurse/Doctor/Lab/Pharmacist lists appear early.
+                // The slow per-beneficiary nurse/doctor case-record pull (~2 API calls per
+                // beneficiary) AND the benflow watermark advance are deferred to
+                // PullClinicalRecordsWorker at the END of the chain, so the RMNCH/CPHC pulls are
+                // not blocked behind the per-beneficiary loop. Because the watermark is NOT
+                // advanced here, the same fresh payload remains available to the clinical worker.
+                val workerResult = benFlowRepo.downloadAndSyncFlowRecords(pullClinical = false)
                 if (workerResult) {
-                    preferenceDao.setLastBenflowSyncTime(currTimeStamp)
-                    Timber.d("Benflow Download Worker completed")
+                    Timber.d("Benflow worklist sync completed")
                     Result.success()
                 } else if (runAttemptCount < MAX_RUN_ATTEMPTS - 1) {
                     // Incomplete run: a benflow row had no matching local patient yet
                     // (the patient down-sync on the concurrent chain hasn't landed it).
-                    // Watermark was NOT advanced, so retry shortly — the patient pull
-                    // will have finished and the join populates the role worklists.
-                    Timber.d("Benflow Download incomplete (patient join missed); retry attempt ${runAttemptCount + 1}")
+                    // Retry shortly — the patient pull will have finished and the join
+                    // populates the role worklists.
+                    Timber.d("Benflow worklist incomplete (patient join missed); retry attempt ${runAttemptCount + 1}")
                     Result.retry()
                 } else {
-                    // Give up after MAX_RUN_ATTEMPTS so the chain is released. Watermark
-                    // still at epoch → next periodic down-sync re-downloads and recovers.
-                    Timber.d("Benflow Download still incomplete after $MAX_RUN_ATTEMPTS attempts; releasing chain")
+                    // Give up after MAX_RUN_ATTEMPTS so the chain is released. The clinical
+                    // worker at the end retries the join and only then advances the watermark.
+                    Timber.d("Benflow worklist still incomplete after $MAX_RUN_ATTEMPTS attempts; releasing chain")
                     Result.success()
                 }
 //            }
