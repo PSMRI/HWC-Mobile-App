@@ -18,6 +18,7 @@ import androidx.work.WorkManager
 import org.piramalswasthya.sakhi.work.PullBenFlowFromAmritWorker
 import org.piramalswasthya.sakhi.work.PushBenToAmritWorker
 import timber.log.Timber
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 object WorkerUtils {
@@ -163,6 +164,10 @@ object WorkerUtils {
         chain.enqueue()
     }
 
+    private fun rmnchaWorkName(scope: UpsyncScope): String {
+        return "$UPSYNC_RMNCHA-${scope.name.lowercase(Locale.US)}"
+    }
+
     fun enqueueDownsync(
         context: Context,
         scope: DownsyncScope = DownsyncScope.FULL,
@@ -284,7 +289,7 @@ object WorkerUtils {
             )
             UpsyncScope.EC_TRACKING -> enqueueChain(
                 context,
-                UPSYNC_RMNCHA,
+                rmnchaWorkName(scope),
                 ExistingWorkPolicy.REPLACE,
                 networkWorker<PushBenToAmritWorker>(),
                 listOf(networkWorker<PushECToAmritWorker>(), networkWorker<PullEligibleCouplesWorker>())
@@ -292,7 +297,7 @@ object WorkerUtils {
             UpsyncScope.PREGNANCY_REGISTRATION,
             UpsyncScope.ANC_VISIT -> enqueueChain(
                 context,
-                UPSYNC_RMNCHA,
+                rmnchaWorkName(scope),
                 ExistingWorkPolicy.REPLACE,
                 networkWorker<PushBenToAmritWorker>(),
                 listOf(
@@ -304,7 +309,7 @@ object WorkerUtils {
             )
             UpsyncScope.DELIVERY_OUTCOME -> enqueueChain(
                 context,
-                UPSYNC_RMNCHA,
+                rmnchaWorkName(scope),
                 ExistingWorkPolicy.REPLACE,
                 networkWorker<PushBenToAmritWorker>(),
                 listOf(
@@ -314,7 +319,7 @@ object WorkerUtils {
             )
             UpsyncScope.INFANT_REGISTRATION -> enqueueChain(
                 context,
-                UPSYNC_RMNCHA,
+                rmnchaWorkName(scope),
                 ExistingWorkPolicy.REPLACE,
                 networkWorker<PushBenToAmritWorker>(),
                 listOf(
@@ -324,14 +329,14 @@ object WorkerUtils {
             )
             UpsyncScope.IMMUNIZATION -> enqueueChain(
                 context,
-                UPSYNC_RMNCHA,
+                rmnchaWorkName(scope),
                 ExistingWorkPolicy.REPLACE,
                 networkWorker<PushBenToAmritWorker>(),
                 listOf(networkWorker<PushChildImmunizationToAmritWorker>())
             )
             UpsyncScope.PNC -> enqueueChain(
                 context,
-                UPSYNC_RMNCHA,
+                rmnchaWorkName(scope),
                 ExistingWorkPolicy.REPLACE,
                 networkWorker<PushBenToAmritWorker>(),
                 listOf(networkWorker<PushPNCToAmritWorker>(), networkWorker<PullPncFromAmritWorker>())
