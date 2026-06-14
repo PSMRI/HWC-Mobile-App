@@ -148,7 +148,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 // Master data is fresh — kick off background sync and return immediately
                 // so the UI is not kept waiting by network calls the user can't see.
                 Log.d("syncing started first", "syncing started")
-                WorkerUtils.triggerAmritSyncWorker(context)
+                WorkerUtils.enqueueFullSync(context)
                 _state.postValue(State.SAVE_SUCCESS)
                 return
             }
@@ -171,7 +171,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 awaitAll(j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10)
             }
 
-            WorkerUtils.triggerAmritSyncWorker(context)
+            WorkerUtils.enqueueFullSync(context)
             dataLoadFlagManager.setDataLoaded(true)
             _state.postValue(State.SAVE_SUCCESS)
         } catch (_e: Exception) {

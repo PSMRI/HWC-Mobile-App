@@ -22,12 +22,14 @@ import java.time.ZoneId
  * Pulls the per-beneficiary nurse (beneficiaryGeneralOPDNurseFormDataToApp) and doctor
  * (getBenCaseRecordFromDoctorGeneralOPD) case records for the current benflow payload.
  *
- * This is the slow part of the benflow downsync — roughly 2 sequential API calls per
- * beneficiary (e.g. ~600 calls for 300 beneficiaries on a fresh sync). It is enqueued as the
- * LAST worker in the down-sync / amrit-sync chains so that:
+ * This is the slow part of the benflow downsync — ~2 API calls per beneficiary. The per-beneficiary
+ * pulls are now run with bounded concurrency inside BenFlowRepo.syncFlowIds rather than one at a
+ * time. This worker is enqueued in the SAME parallel stage as the RMNCH/CPHC pulls (not last,
+ * behind them) so that:
  *  - the role worklists (PATIENT_VISIT_INFO_SYNC), which are created early by the worklist-only
- *    benflow pass in [org.piramalswasthya.sakhi.work.PullBenFlowFromAmritWorker], appear quickly, and
- *  - the RMNCH and CPHC pulls are not blocked behind the per-beneficiary loop.
+ *    benflow pass in [org.piramalswasthya.sakhi.work.PullBenFlowFromAmritWorker], appear quickly,
+ *  - the case-record data is pulled concurrently with RMNCH/CPHC so it is available early, and
+ *  - the RMNCH and CPHC pulls are still not blocked behind the per-beneficiary loop.
  *
  * The benflow watermark ([PreferenceDao.setLastBenflowSyncTime]) is advanced HERE, not in the
  * worklist pass. The doctor pull condition is not idempotent across re-derivation, so it relies
