@@ -730,7 +730,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                         viewModel.isDataSaved.observe(viewLifecycleOwner) {
                             when (it!!) {
                                 true -> {
-                                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                                    WorkerUtils.clinicalPushWorker(requireContext())
                                     requireActivity().finish()
                                 }
                                 else -> {}

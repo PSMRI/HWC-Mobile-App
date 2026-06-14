@@ -967,7 +967,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 viewModel.isDataSaved.observe(viewLifecycleOwner){
                     when(it!!){
                         true ->{
-                            WorkerUtils.triggerAmritSyncWorker(requireContext())
+                                    WorkerUtils.clinicalPushWorker(requireContext())
                             requireActivity().finish()
                         }
                         else ->{
@@ -1830,7 +1830,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 viewModel.isDataSaved.observe(viewLifecycleOwner) {
                     if (it == true) {
                         viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
-                        WorkerUtils.triggerAmritSyncWorker(requireContext())
+                        WorkerUtils.clinicalPushWorker(requireContext())
                         onSuccess(benVisitNo)
                     } else if (it == false) {
                         viewModel.isDataSaved.removeObservers(viewLifecycleOwner)

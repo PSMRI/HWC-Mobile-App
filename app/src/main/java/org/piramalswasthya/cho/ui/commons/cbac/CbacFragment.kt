@@ -127,7 +127,7 @@ class CbacFragment : Fragment() , NavigationAdapter  {
                 CbacViewModel.State.SAVE_SUCCESS -> {
                     Timber.d("CBAC form saved successfully!")
                     viewModel.resetState()
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    WorkerUtils.enqueueUpsync(requireContext(), WorkerUtils.UpsyncScope.CBAC)
                     findNavController().navigateUp()
                 }
 
