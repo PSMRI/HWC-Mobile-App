@@ -50,13 +50,12 @@ class PullCbacFromAmritWorker @AssistedInject constructor(
                 preferenceDao.setLastCbacSyncTime(currTimeStamp)
             }
 
-            // Worklist-only refresh (second chance for the benflow->patient join). The slow
-            // per-beneficiary nurse/doctor pull and the benflow watermark advance are deferred to
-            // PullClinicalRecordsWorker at the end of the chain so RMNCH/CPHC aren't blocked behind
-            // the per-beneficiary loop. The watermark is intentionally NOT advanced here.
-            benFlowRepo.downloadAndSyncFlowRecords(pullClinical = false)
-
-            Timber.d("Cbac + Benflow worklist download worker completed")
+            // NOTE: the benflow worklist refresh that used to run here was redundant — the benflow
+            // payload is already downloaded and the role worklists built by PullBenFlowFromAmritWorker
+            // immediately before this worker, and PullClinicalRecordsWorker re-pulls it once more for
+            // the case-data pass. Downloading/iterating the full payload a third time only slowed sync,
+            // so this worker now pulls CBAC only.
+            Timber.d("Cbac download worker completed")
             Result.success()
 //            }
         } catch (e: SocketTimeoutException) {

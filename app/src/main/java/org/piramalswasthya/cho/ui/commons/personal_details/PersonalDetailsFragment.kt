@@ -444,7 +444,7 @@ class PersonalDetailsFragment : Fragment() {
 
                     viewModelPatientDetails.isDataSaved.observe(viewLifecycleOwner) { state ->
                         if (state == true) {
-                            WorkerUtils.triggerAmritSyncWorker(requireContext())
+                            WorkerUtils.triggerBeneficiarySync(requireContext())
 
                             Toast.makeText(
                                 requireContext(),

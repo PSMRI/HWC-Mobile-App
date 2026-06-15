@@ -280,7 +280,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
             CPHCviewModel.isDataSaved.observe(viewLifecycleOwner){
                 when(it!!){
                     true ->{
-                        WorkerUtils.triggerAmritSyncWorker(requireContext())
+                        WorkerUtils.triggerAncVisitSync(requireContext())
                         requireActivity().finish()
                     }
                     else ->{

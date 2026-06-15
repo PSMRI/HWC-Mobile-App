@@ -2677,7 +2677,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
                     viewModel.isDataSaved.observe(viewLifecycleOwner) { saved ->
                         if (saved == true) {
-                            WorkerUtils.triggerAmritSyncWorker(requireContext())
+                            WorkerUtils.clinicalPushWorker(requireContext())
                             Toast.makeText(
                                 requireContext(),
                                 getString(R.string.case_closed_successfully),

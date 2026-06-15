@@ -42,8 +42,13 @@ class PullLabRecordFormWorker @AssistedInject constructor(
             Timber.e("Caught Exception for Patient Download worker $e")
             Result.retry()
         } catch (e: Exception) {
-            Timber.e("PullLabRecordFormWorker failed while syncing lab procedure data", e)
-            Result.failure()
+            // Do NOT fail the chain: this is step 2 of triggerDownSyncWorker, and a Result.failure()
+            // here cancels benflow + CBAC + all RMNCH pulls. The lab procedure master seed is
+            // non-critical for downsync and is also re-seeded lazily when the Lab Technician form
+            // opens (LabTechnicianFormViewModel:95 / ProcedureRepo:296), so a failure here is safe to
+            // swallow for the background sync.
+            Timber.e(e, "PullLabRecordFormWorker failed while syncing lab procedure data; continuing chain")
+            Result.success()
         }
     }
 

@@ -3,6 +3,9 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.json.JSONArray
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
@@ -93,6 +96,12 @@ class BenFlowRepo @Inject constructor(
     private val procedureDao: ProcedureDao,
     private val caseRecordeDao: CaseRecordeDao,
 ) {
+
+    companion object {
+        // Max beneficiaries pulled concurrently in the per-record nurse/doctor case-data pass.
+        // Kept small so the server isn't hammered while still cutting wall-clock time dramatically.
+        private const val CLINICAL_PULL_CONCURRENCY = 3
+    }
 
     private fun buildDrugStrength(strength: String?, unitOfMeasurement: String?): String? {
         val cleanStrength = strength?.trim().orEmpty()
@@ -401,12 +410,12 @@ class BenFlowRepo @Inject constructor(
     }
 
     // Returns true when there is nothing to pull or the sub-pull succeeded; false when an
-    // attempted nurse-data pull failed. networkResultInterceptor swallows all exceptions into
-    // NetworkResult.Error, so a failed pull never throws — the caller must inspect this result,
-    // otherwise the run would advance the watermark while the visit data is silently missing.
+    // attempted nurse-data pull failed. The local sync-state gate protects locally edited rows
+    // from overwrite, while the local nurseFlag is intentionally not used as a server-side
+    // eligibility gate because fresh first-sync rows need to pass through here.
     suspend fun checkAndDownsyncNurseData(benFlow: BenFlow, patient: Patient): Boolean {
         val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patient.patientID, benVisitNo = benFlow.benVisitNo!!)
-        if(patientVisitInfoSync != null && benFlow.nurseFlag!! == 9 && patientVisitInfoSync.nurseFlag!! == 1){
+        if (patientVisitInfoSync != null && patientVisitInfoSync.nurseDataSynced != SyncState.UNSYNCED) {
             patientVisitInfoSync.nurseFlag = 9
             patientVisitInfoSync.doctorFlag = 1
             return getAndSaveNurseDataToDb(benFlow, patient, patientVisitInfoSync) is NetworkResult.Success
@@ -417,7 +426,12 @@ class BenFlowRepo @Inject constructor(
     // See checkAndDownsyncNurseData: returns false only when an attempted doctor-data pull failed.
     suspend fun checkAndDownsyncDoctorData(benFlow: BenFlow, patient: Patient): Boolean {
         val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patient.patientID, benVisitNo = benFlow.benVisitNo!!)
-        if(patientVisitInfoSync != null && benFlow.doctorFlag!! > 1 && patientVisitInfoSync.doctorDataSynced != SyncState.UNSYNCED && patientVisitInfoSync.labDataSynced != SyncState.UNSYNCED){
+        if (
+            patientVisitInfoSync != null &&
+            patientVisitInfoSync.nurseFlag == 9 &&
+            patientVisitInfoSync.doctorDataSynced != SyncState.UNSYNCED &&
+            patientVisitInfoSync.labDataSynced != SyncState.UNSYNCED
+        ) {
             patientVisitInfoSync.doctorFlag = benFlow.doctorFlag
             return getAndSaveDoctorDataToDb(benFlow, patient, patientVisitInfoSync) is NetworkResult.Success
         }
@@ -500,6 +514,12 @@ class BenFlowRepo @Inject constructor(
                     var totalDownloaded = 0
                     var lastReportedProgress = -1
 
+                    // Beneficiaries whose per-record nurse/doctor case data still needs pulling.
+                    // Collected during the (fast, DB-only) worklist pass below and pulled AFTER the
+                    // loop with bounded concurrency, so the ~2 sequential API calls per beneficiary
+                    // no longer run one beneficiary at a time.
+                    val clinicalTargets = mutableListOf<Pair<BenFlow, Patient>>()
+
                     for (i in 0 until benflowArray.length()) {
 
                         totalDownloaded++
@@ -551,21 +571,11 @@ class BenFlowRepo @Inject constructor(
                                 updateBenFlowId(benFlowToInsert, patient)
                                 // The per-beneficiary nurse/doctor case-record pull (2 API calls each)
                                 // is the slow part of the benflow downsync. It runs ONLY in the clinical
-                                // pass (PullClinicalRecordsWorker, last in the chain) so the role worklists
-                                // built above appear early and the RMNCH/CPHC pulls aren't blocked behind it.
-                                // A failed sub-pull does NOT throw (networkResultInterceptor swallows it into
-                                // NetworkResult.Error), so mark the run incomplete here; otherwise the watermark
-                                // advances while the visit data is missing and the next pull never re-fetches it.
+                                // pass (PullClinicalRecordsWorker) so the role worklists built above appear
+                                // early. Defer the actual pulls until after this loop and run them with
+                                // bounded concurrency instead of one beneficiary at a time.
                                 if (pullClinical) {
-                                    val nurseOk = checkAndDownsyncNurseData(benFlowToInsert, patient)
-                                    val doctorOk = checkAndDownsyncDoctorData(benFlowToInsert, patient)
-                                    if (!nurseOk || !doctorOk) {
-                                        isSuccess = false
-                                        Log.w(
-                                            "BenFlowFacilityDebug",
-                                            "syncFlowIds row: sub-pull failed (nurseOk=$nurseOk, doctorOk=$doctorOk) for benRegID=${benFlowToInsert.beneficiaryRegID} (benFlowID=${benFlowToInsert.benFlowID}); marking run incomplete to retry next sync"
-                                        )
-                                    }
+                                    clinicalTargets.add(benFlowToInsert to patient)
                                 }
                                 val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(
                                     patient.patientID,
@@ -625,6 +635,44 @@ class BenFlowRepo @Inject constructor(
                             isSuccess = false
                             Log.e("BenFlowFacilityDebug", "syncFlowIds(): failed to parse/insert benflow", e)
                         }
+                    }
+
+                    // Bounded-concurrency per-beneficiary nurse/doctor pull. Nurse and doctor for the
+                    // SAME beneficiary stay sequential (the doctor check reads flags the nurse pull may
+                    // touch), but up to CLINICAL_PULL_CONCURRENCY beneficiaries are pulled in parallel,
+                    // turning ~2*N serial round-trips into ~2*N/CONCURRENCY. A failed sub-pull does NOT
+                    // throw (networkResultInterceptor swallows it into NetworkResult.Error), so mark the
+                    // run incomplete here; otherwise the watermark advances while visit data is missing
+                    // and the next pull never re-fetches it.
+                    if (pullClinical && clinicalTargets.isNotEmpty()) {
+                        Log.i(
+                            "BenFlowFacilityDebug",
+                            "syncFlowIds clinical pull: targetCount=${clinicalTargets.size}, concurrency=$CLINICAL_PULL_CONCURRENCY"
+                        )
+                        val clinicalPullStartedAt = System.currentTimeMillis()
+                        clinicalTargets.chunked(CLINICAL_PULL_CONCURRENCY).forEach { batch ->
+                            coroutineScope {
+                                batch.map { (bf, p) ->
+                                    async {
+                                        val nurseOk = checkAndDownsyncNurseData(bf, p)
+                                        val doctorOk = checkAndDownsyncDoctorData(bf, p)
+                                        Triple(bf, nurseOk, doctorOk)
+                                    }
+                                }.awaitAll()
+                            }.forEach { (bf, nurseOk, doctorOk) ->
+                                if (!nurseOk || !doctorOk) {
+                                    isSuccess = false
+                                    Log.w(
+                                        "BenFlowFacilityDebug",
+                                        "syncFlowIds row: sub-pull failed (nurseOk=$nurseOk, doctorOk=$doctorOk) for benRegID=${bf.beneficiaryRegID} (benFlowID=${bf.benFlowID}); marking run incomplete to retry next sync"
+                                    )
+                                }
+                            }
+                        }
+                        Log.i(
+                            "BenFlowFacilityDebug",
+                            "syncFlowIds clinical pull completed in ${System.currentTimeMillis() - clinicalPullStartedAt}ms"
+                        )
                     }
                     NetworkResult.Success(DownsyncSuccess(isSuccess))
                 },

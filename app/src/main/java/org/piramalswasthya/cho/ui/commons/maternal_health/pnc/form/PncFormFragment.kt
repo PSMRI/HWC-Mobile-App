@@ -223,7 +223,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
             CPHCviewModel.isDataSaved.observe(viewLifecycleOwner){
                 when(it!!){
                     true ->{
-                        WorkerUtils.triggerAmritSyncWorker(requireContext())
+                        WorkerUtils.triggerPncSync(requireContext())
                         requireActivity().finish()
                     }
                     else ->{

@@ -412,7 +412,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.isDataSaved.observe(viewLifecycleOwner) { state ->
             if (state == true) {
                 if (isEditModeAfterRegistration) {
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    WorkerUtils.triggerBeneficiarySync(requireContext())
                     Toast.makeText(
                         requireContext(),
                         getString(R.string.patient_edited_successfully_title),
@@ -420,7 +420,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     ).show()
                     requireActivity().finish()
                 } else {
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    WorkerUtils.triggerBeneficiarySync(requireContext())
                     Toast.makeText(
                         requireContext(),
                         getString(R.string.patient_registered_successfully_title),

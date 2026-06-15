@@ -166,7 +166,7 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter{
             CPHCviewModel.isDataSaved.observe(viewLifecycleOwner){
                 when(it!!){
                     true ->{
-                        WorkerUtils.triggerAmritSyncWorker(requireContext())
+                        WorkerUtils.enqueueUpsync(requireContext(), WorkerUtils.UpsyncScope.IMMUNIZATION)
                         requireActivity().finish()
                     }
                     else ->{
