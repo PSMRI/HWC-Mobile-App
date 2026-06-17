@@ -23,12 +23,8 @@ class DropdownConst {
         val ear: String = "EAR"
         val nose: String = "NOSE"
         val throat: String = "THROAT"
-        val earDisplay: String = "Ear (E)"
-        val noseDisplay: String = "Nose (N)"
-        val throatDisplay: String = "Throat (T)"
         val dental: String = "Dental"
         val entReasons: List<String> = listOf(ear, nose, throat)
-        val entReasonDisplayList: List<String> = listOf(earDisplay, noseDisplay, throatDisplay)
         val oralReasons: List<String> = listOf(dental)
         val oralChiefComplaints: Set<String> = setOf(
             "Dental Decay",
@@ -75,18 +71,6 @@ class DropdownConst {
         val male_elderly: List<String> = listOf(ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
         val female_elderly: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
         val age_0_to_1: List<String> = listOf(neonatalAndInfant, ent, oral, elderlyAndPalliative, mentalHealth)
-        val allSubCategoryList: List<String> = listOf(
-            careAndPreg,
-            fpAndOtherRep,
-            ncdScreening,
-            neonatalAndInfant,
-            immunization,
-            ophthalmic,
-            ent,
-            oral,
-            elderlyAndPalliative,
-            mentalHealth
-        )
         val visualAcuityList = listOf("6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60", "<6/60")
         val visualImpairmentList = listOf("6/18", "6/24", "6/36", "6/60", "<6/60")
         val nearVisualAcuityList = listOf("N6", "N8", "N10", "N12")
@@ -103,24 +87,6 @@ class DropdownConst {
             screening,
             REASON_SYMPTOMATIC,
             REASON_FIRST_AID_INJURY_TRAUMA
-        )
-        val allReasonForVisitList: List<String> = listOf(
-            anc,
-            pnc,
-            fpAndCs,
-            immunization,
-            ncdScreening,
-            screening,
-            REASON_SYMPTOMATIC,
-            REASON_FIRST_AID_INJURY_TRAUMA,
-            earDisplay,
-            noseDisplay,
-            throatDisplay,
-            dental,
-            elderlyHealthAssessment,
-            persistentPain,
-            psychosocialCaregiverSupport,
-            mentalHealthScreening
         )
 
         const val CONDITION_CATARACT = "Cataract"
