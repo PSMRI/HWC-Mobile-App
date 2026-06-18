@@ -82,7 +82,7 @@ class VisitDetailAdapter(
                 if (durationCount > 1) {
                     durationInput.setText((durationCount - 1).toString())
                 }
-//                itemChangeListener.onItemChanged()
+                itemChangeListener.onItemChanged()
             }
 
             chiefComplaintOptions.setOnItemClickListener { parent, _, selectedPosition, _ ->
@@ -96,7 +96,7 @@ class VisitDetailAdapter(
                 itemList[position].id = chiefComplaint.chiefComplaintID
                 itemList[position].chiefComplaint = chiefComplaint.chiefComplaint
                 updateResetButtonState()
-//                itemChangeListener.onItemChanged()
+                itemChangeListener.onItemChanged()
             }
 
             chiefComplaintOptions.addTextChangedListener {
@@ -125,7 +125,7 @@ class VisitDetailAdapter(
                     itemChangeListener.onItemChanged()
                 } else {
                     itemData.chiefComplaint = ""
-//                    itemChangeListener.onItemChanged()
+                    itemChangeListener.onItemChanged()
                 }
             }
 
