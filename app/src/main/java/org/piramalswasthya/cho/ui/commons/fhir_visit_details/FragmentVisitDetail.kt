@@ -1031,10 +1031,21 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             val isValid = hasAtLeastOneCompleteChiefComplaint()
             binding.subCatDropDown.isEnabled = isValid
             binding.reasonForVisitDropDown.isEnabled = isValid
+            if (!isValid) {
+                clearSubCategoryAndReasonForVisit()
+            }
         } else {
             binding.subCatDropDown.isEnabled = true
             binding.reasonForVisitDropDown.isEnabled = true
         }
+    }
+
+    private fun clearSubCategoryAndReasonForVisit() {
+        viewModel.selectedSubCat = ""
+        viewModel.selectedReasonForVisit = ""
+        binding.subCatInput.setText("", false)
+        binding.reasonForVisitInput.setText("", false)
+        removeVisibility()
     }
 
     private fun updateSubCategoryAndReasonVisibility() {
