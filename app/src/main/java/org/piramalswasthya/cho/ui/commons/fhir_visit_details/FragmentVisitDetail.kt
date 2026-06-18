@@ -1028,7 +1028,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val isNewCC = binding.radioButton3.isChecked
 
         if (selectedCategory == OTHER_CPHC_SERVICES && isNewCC) {
-            val isValid = !isAnyItemEmpty()
+            val isValid = hasAtLeastOneCompleteChiefComplaint()
             binding.subCatDropDown.isEnabled = isValid
             binding.reasonForVisitDropDown.isEnabled = isValid
         } else {
@@ -1433,6 +1433,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     fun isAnyItemEmpty(): Boolean {
         return itemList.any { item ->
             item.chiefComplaint.isNullOrBlank() || item.duration.isNullOrBlank()
+        }
+    }
+
+    private fun hasAtLeastOneCompleteChiefComplaint(): Boolean {
+        return itemList.any { item ->
+            !item.chiefComplaint.isNullOrBlank() && !item.duration.isNullOrBlank()
         }
     }
 
