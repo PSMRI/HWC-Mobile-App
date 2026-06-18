@@ -678,16 +678,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         if(selectedCategory == "General OPD"){
             binding.reasonText.visibility = View.VISIBLE
             binding.radioGroup2.visibility = View.VISIBLE
-            binding.subCatDropDown.visibility = View.GONE
-            binding.reasonForVisitDropDown.visibility = View.GONE
+            binding.layyy.visibility = View.VISIBLE
         }
         else{
             binding.reasonText.visibility = View.VISIBLE
             binding.radioGroup2.visibility = View.VISIBLE
-            binding.subCatDropDown.visibility = View.VISIBLE
-            binding.reasonForVisitDropDown.visibility = View.VISIBLE
             binding.layyy.visibility = View.VISIBLE
         }
+        updateSubCategoryAndReasonVisibility()
         validateAndEnableDropdowns()
 
         requireActivity().onBackPressedDispatcher.addCallback(
@@ -946,8 +944,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                    binding.reasonText.visibility = View.VISIBLE
                     binding.reasonText.visibility = View.VISIBLE
                     binding.radioGroup2.visibility = View.VISIBLE
-                    binding.subCatDropDown.visibility = View.GONE
-                    binding.reasonForVisitDropDown.visibility = View.GONE
                     binding.layyy.visibility = View.VISIBLE
 //                    binding.usePrevious.visibility = View.VISIBLE
 //                    category = binding.radioButton1.text.toString()
@@ -961,8 +957,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     setVisibility()
                     binding.reasonText.visibility = View.VISIBLE
                     binding.radioGroup2.visibility = View.VISIBLE
-                    binding.subCatDropDown.visibility = View.VISIBLE
-                    binding.reasonForVisitDropDown.visibility = View.VISIBLE
                     binding.layyy.visibility = View.VISIBLE
                     binding.usePrevious.visibility = View.GONE
 //                    category = binding.radioButton2.text.toString()
@@ -970,6 +964,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
                 }
             }
+            updateSubCategoryAndReasonVisibility()
             validateAndEnableDropdowns()
         }
         binding.radioGroup2.setOnCheckedChangeListener { _, checkedId ->
@@ -983,6 +978,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.vitalsHeading.visibility = View.GONE
                     binding.vitalsLayout.visibility = View.GONE
                     binding.usePrevious.visibility = View.GONE
+                    updateSubCategoryAndReasonVisibility()
 //                    binding.radioButton3.text.toString()
                     binding.radioButton3.tag.toString()
                 }
@@ -990,6 +986,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 else -> {
                     viewModel.setIsFollowUp(true)
                     chiefAndVitalsDataFill()
+                    updateSubCategoryAndReasonVisibility()
                     binding.radioButton4.tag.toString()
 //                    binding.radioButton4.text.toString()
                 }
@@ -1038,6 +1035,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.subCatDropDown.isEnabled = true
             binding.reasonForVisitDropDown.isEnabled = true
         }
+    }
+
+    private fun updateSubCategoryAndReasonVisibility() {
+        val selectedCategoryRadioButton =
+            view?.findViewById<RadioButton>(binding.radioGroup.checkedRadioButtonId)
+        val selectedCategory = selectedCategoryRadioButton?.tag.toString()
+        val showForNewChiefComplaint =
+            selectedCategory == OTHER_CPHC_SERVICES && !viewModel.getIsFollowUp()
+        val visibility = if (showForNewChiefComplaint) View.VISIBLE else View.GONE
+        binding.subCatDropDown.visibility = visibility
+        binding.reasonForVisitDropDown.visibility = visibility
     }
 
     private fun resolveChildSubCategoryOptions(): List<String> {
@@ -1403,6 +1411,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.radioButton3.isChecked = false
             binding.radioButton4.isChecked = true
             chiefAndVitalsDataFill()
+            updateSubCategoryAndReasonVisibility()
 //            reason = binding.radioButton4.text.toString()
             reason = binding.radioButton4.tag.toString()
         } else {
@@ -1415,18 +1424,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.vitalsHeading.visibility = View.GONE
             binding.vitalsLayout.visibility = View.GONE
             binding.usePrevious.visibility = View.GONE
+            updateSubCategoryAndReasonVisibility()
 //            reason = binding.radioButton4.text.toString()
             reason = binding.radioButton3.tag.toString()
         }
     }
 
     fun isAnyItemEmpty(): Boolean {
-        for (item in itemList) {
-            if (item.chiefComplaint.isNullOrEmpty() || item.duration.isNullOrEmpty() || item.durationUnit.isNullOrEmpty()) {
-                return true
-            }
+        return itemList.any { item ->
+            item.chiefComplaint.isNullOrBlank() || item.duration.isNullOrBlank()
         }
-        return false
     }
 
 

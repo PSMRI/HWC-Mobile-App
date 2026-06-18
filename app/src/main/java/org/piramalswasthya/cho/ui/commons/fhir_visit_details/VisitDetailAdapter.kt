@@ -82,6 +82,7 @@ class VisitDetailAdapter(
                 if (durationCount > 1) {
                     durationInput.setText((durationCount - 1).toString())
                 }
+//                itemChangeListener.onItemChanged()
             }
 
             chiefComplaintOptions.setOnItemClickListener { parent, _, selectedPosition, _ ->
@@ -94,6 +95,8 @@ class VisitDetailAdapter(
                 chiefComplaintOptions.setText(localized, false)
                 itemList[position].id = chiefComplaint.chiefComplaintID
                 itemList[position].chiefComplaint = chiefComplaint.chiefComplaint
+                updateResetButtonState()
+//                itemChangeListener.onItemChanged()
             }
 
             chiefComplaintOptions.addTextChangedListener {
@@ -122,6 +125,7 @@ class VisitDetailAdapter(
                     itemChangeListener.onItemChanged()
                 } else {
                     itemData.chiefComplaint = ""
+//                    itemChangeListener.onItemChanged()
                 }
             }
 
@@ -223,6 +227,9 @@ class VisitDetailAdapter(
             ?: unitDropDown.getOrNull(1)
             ?: unitDropDown.firstOrNull()
             ?: ""
+        if (itemData.durationUnit.isNullOrBlank()) {
+            itemData.durationUnit = canonicalDurationUnit
+        }
         holder.durationUnitDropdown.setText(
             MasterDataLocalizer.localizeDurationUnit(ctx, canonicalDurationUnit),
             false
