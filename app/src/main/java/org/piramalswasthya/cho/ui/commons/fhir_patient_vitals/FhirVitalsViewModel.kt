@@ -27,6 +27,7 @@ import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.CphcDetailsRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.UserRepo
@@ -45,7 +46,8 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
                                               private val visitRepo: VisitReasonsAndCategoriesRepo,
                                               private val vitalsRepo: VitalsRepo,
                                               private val patientRepo: PatientRepo,
-                                              private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo
+                                              private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
+                                              private val cphcDetailsRepo: CphcDetailsRepository,
 
 ) :
     ViewModel() {
@@ -121,10 +123,12 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
                           patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
             try {
-                saveVisitDbToCatche(visitDB)
-                chiefComplaints.forEach {
-                    saveChiefComplaintDbToCatche(it)
-                }
+                cphcDetailsRepo.replaceVisitAndChiefComplaints(
+                    visitDB = visitDB,
+                    chiefComplaints = chiefComplaints,
+                    patientID = visitDB.patientID,
+                    benVisitNo = visitDB.benVisitNo ?: patientVisitInfoSync.benVisitNo,
+                )
                 savePatientVitalInfoToCache(patientVitals)
                 savePatientVisitInfoSync(patientVisitInfoSync)
                 _isDataSaved.value = true

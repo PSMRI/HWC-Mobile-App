@@ -22,7 +22,8 @@ class OphthalmicRepository @Inject constructor(
     private val patientDao: PatientDao,
     private val amritApiService: AmritApiService,
     private val userRepo: UserRepo,
-    private val prefDao: PreferenceDao
+    private val prefDao: PreferenceDao,
+    private val cphcDetailsRepo: CphcDetailsRepository,
 ) {
     suspend fun getOphthalmicVisit(patientID: String, benVisitNo: Int): OphthalmicVisit? {
         return ophthalmicDao.getOphthalmicVisit(patientID, benVisitNo)
@@ -32,11 +33,13 @@ class OphthalmicRepository @Inject constructor(
         if (visit.visitId.isNotEmpty()) {
              val existing = ophthalmicDao.getOphthalmicVisitById(visit.visitId)
              if (existing == null) {
+                 cphcDetailsRepo.clearAssessmentsForVisit(visit.patientID, visit.benVisitNo)
                  ophthalmicDao.insertOphthalmicVisit(visit)
              } else {
                  ophthalmicDao.updateOphthalmicVisit(visit)
              }
         } else {
+            cphcDetailsRepo.clearAssessmentsForVisit(visit.patientID, visit.benVisitNo)
             ophthalmicDao.insertOphthalmicVisit(visit)
         }
     }

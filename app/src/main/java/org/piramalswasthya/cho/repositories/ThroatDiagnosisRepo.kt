@@ -21,10 +21,14 @@ class ThroatDiagnosisRepo @Inject constructor(
     private val patientDao: PatientDao,
     private val amritApiService: AmritApiService,
     private val userRepo: UserRepo,
-    private val prefDao: PreferenceDao
+    private val prefDao: PreferenceDao,
+    private val cphcDetailsRepo: CphcDetailsRepository,
 ) {
     suspend fun saveAssessment(assessment: ThroatDiagnosisAssessment) {
         if (assessment.assessmentId == 0L) {
+            assessment.benVisitNo?.let { visitNo ->
+                cphcDetailsRepo.clearAssessmentsForVisit(assessment.patientId, visitNo)
+            }
             throatDiagnosisAssessmentDao.insert(assessment)
         } else {
             throatDiagnosisAssessmentDao.update(assessment)

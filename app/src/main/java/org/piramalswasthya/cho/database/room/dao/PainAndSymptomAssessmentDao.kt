@@ -47,4 +47,10 @@ interface PainAndSymptomAssessmentDao {
     suspend fun getUnsyncedAssessments(
         unsyncedState: Int = SyncStateValue.UNSYNCED
     ): List<PainAndSymptomAssessment>
+
+    @Query(
+        "DELETE FROM PAIN_SYMPTOM_ASSESSMENT " +
+            "WHERE patient_id = :patientID AND ben_visit_no = :benVisitNo"
+    )
+    suspend fun deleteByPatientIdAndVisitNo(patientID: String, benVisitNo: Int)
 }

@@ -67,6 +67,8 @@ import org.piramalswasthya.cho.repositories.ThroatDiagnosisRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
+import org.piramalswasthya.cho.ui.commons.CphcFormType
+import org.piramalswasthya.cho.ui.commons.CphcFormTypeResolver
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.Exception
@@ -359,6 +361,37 @@ class CaseRecordViewModel @Inject constructor(
             Timber.d("Error in getVisitCategoryByPatientAndVisit $e")
             null
         }
+    }
+
+    suspend fun getLatestVisitDbByPatientAndVisit(patientID: String, benVisitNo: Int): VisitDB? {
+        return try {
+            visitReasonsAndCategoriesRepo.getLatestVisitDbByPatientIDAndBenVisitNo(patientID, benVisitNo)
+        } catch (e: Exception) {
+            Timber.d("Error in getLatestVisitDbByPatientAndVisit $e")
+            null
+        }
+    }
+
+    suspend fun resolveCphcFormTypeForVisit(patientID: String, benVisitNo: Int): CphcFormType {
+        val latestVisit = getLatestVisitDbByPatientAndVisit(patientID, benVisitNo)
+        val resolved = CphcFormTypeResolver.resolve(
+            latestVisit?.reasonForVisit,
+            latestVisit?.subCategory
+        )
+        if (resolved != CphcFormType.UNKNOWN) return resolved
+
+        val existingTypes = buildList {
+            if (getEarDiagnosisByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.EAR)
+            if (getNoseDiagnosisByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.NOSE)
+            if (getThroatDiagnosisByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.THROAT)
+            if (getOralHealthByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.ORAL)
+            if (getOphthalmicByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.OPHTHALMIC)
+            if (getElderlyByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.ELDERLY)
+            if (getMentalByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.MENTAL)
+            if (getPainAssessmentByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.PAIN)
+            if (getPsychosocialByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.PSYCHOSOCIAL)
+        }
+        return existingTypes.singleOrNull() ?: CphcFormType.UNKNOWN
     }
 
     suspend fun getNoseDiagnosisByPatientAndVisit(patientID: String, benVisitNo: Int): NoseDiagnosisAssessment? {

@@ -11,6 +11,7 @@ import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.CphcDetailsRepository
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
@@ -22,6 +23,7 @@ class OtherCPHCServicesViewModel @Inject constructor(
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
+    private val cphcDetailsRepo: CphcDetailsRepository,
 
     ) : ViewModel() {
 
@@ -38,7 +40,12 @@ class OtherCPHCServicesViewModel @Inject constructor(
     ){
         viewModelScope.launch {
             try {
-                saveVisitDbToCatche(visitDB)
+                val benVisitNo = visitDB.benVisitNo ?: patientVisitInfoSync.benVisitNo
+                cphcDetailsRepo.replaceVisitDb(
+                    visitDB = visitDB,
+                    patientID = visitDB.patientID,
+                    benVisitNo = benVisitNo,
+                )
                 savePatientVitalInfoToCache(patientVitals)
                 savePatientVisitInfoSync(patientVisitInfoSync)
                 _isDataSaved.value = true

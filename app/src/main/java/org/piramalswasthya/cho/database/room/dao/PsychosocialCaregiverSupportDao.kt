@@ -49,4 +49,10 @@ interface PsychosocialCaregiverSupportDao {
     suspend fun getUnsyncedAssessments(
         unsyncedState: Int = SyncStateValue.UNSYNCED
     ): List<PsychosocialCaregiverSupport>
+
+    @Query(
+        "DELETE FROM PSYCHOSOCIAL_CAREGIVER_SUPPORT " +
+            "WHERE patient_id = :patientID AND ben_visit_no = :benVisitNo"
+    )
+    suspend fun deleteByPatientIdAndVisitNo(patientID: String, benVisitNo: Int)
 }

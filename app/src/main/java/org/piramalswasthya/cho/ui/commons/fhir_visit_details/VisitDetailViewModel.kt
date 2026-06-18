@@ -31,6 +31,7 @@ import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.CbacRepo
+import org.piramalswasthya.cho.repositories.CphcDetailsRepository
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
@@ -60,6 +61,7 @@ class VisitDetailViewModel @Inject constructor(
     private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
     private val ecrRepo: EcrRepo,
     private val cbacRepo: CbacRepo,
+    private val cphcDetailsRepo: CphcDetailsRepository,
 
     @ApplicationContext private val application: Context
 ) : ViewModel() {
@@ -187,10 +189,12 @@ class VisitDetailViewModel @Inject constructor(
                           patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
             try {
-                saveVisitDbToCatche(visitDB)
-                chiefComplaints.forEach {
-                    saveChiefComplaintDbToCatche(it)
-                }
+                cphcDetailsRepo.replaceVisitAndChiefComplaints(
+                    visitDB = visitDB,
+                    chiefComplaints = chiefComplaints,
+                    patientID = visitDB.patientID,
+                    benVisitNo = visitDB.benVisitNo ?: patientVisitInfoSync.benVisitNo,
+                )
                 savePatientVitalInfoToCache(patientVitals)
                 savePatientVisitInfoSync(patientVisitInfoSync)
                 _isDataSaved.value = true

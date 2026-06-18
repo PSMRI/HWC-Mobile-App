@@ -27,4 +27,10 @@ interface OphthalmicDao {
     suspend fun getUnsyncedOphthalmicVisits(
         unsyncedState: Int = SyncStateValue.UNSYNCED
     ): List<OphthalmicVisit>
+
+    @Query(
+        "DELETE FROM OPHTHALMIC_VISIT " +
+            "WHERE patientID = :patientID AND benVisitNo = :benVisitNo"
+    )
+    suspend fun deleteByPatientIdAndVisitNo(patientID: String, benVisitNo: Int)
 }
