@@ -962,7 +962,8 @@ class MentalHealthScreeningDataset(
                 formId
             }
 
-            substanceCurrentTobaccoUse.id -> {
+            substanceCurrentTobaccoUse.id, substanceTobaccoType.id,
+            substanceTobaccoFrequency.id -> {
                 rebuildConditionalSections()
                 formId
             }
@@ -1047,24 +1048,45 @@ class MentalHealthScreeningDataset(
         // Substance use section
         if (isYes(substanceUseConcerns.value)) {
             list.addAll(listOf(
-                substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse,
-                substanceSystemAction.copy(),
-                substanceAlcoholHeader, substanceAlcoholUse, substanceAlcoholProblematic,
-                substanceAlcoholClassification.copy(), substanceAlcoholSystemAction
+                substanceHeader, substanceTobaccoHeader, substanceCurrentTobaccoUse
             ))
             if (isYes(substanceCurrentTobaccoUse.value)) {
-                val idx = list.indexOf(substanceCurrentTobaccoUse)
-                list.add(idx + 1, substanceTobaccoType)
-                list.add(idx + 2, substanceTobaccoFrequency)
+                list.add(substanceTobaccoType)
+                list.add(substanceTobaccoFrequency)
+                // Reveal the system action only after both tobacco type and frequency are selected.
+                if (substanceTobaccoType.value != null && substanceTobaccoFrequency.value != null) {
+                    list.add(substanceSystemAction.copy())
+                }
             }
+            list.addAll(listOf(substanceAlcoholHeader, substanceAlcoholUse))
             if (isYes(substanceAlcoholUse.value)) {
-                val idx = list.indexOf(substanceAlcoholUse)
-                list.add(idx + 1, substance_alcohol_frequency)
-                list.add(idx + 2, substance_alcohol_loss)
-                list.add(idx + 3, substanceAlcoholImpact)
-                list.add(idx + 4, substanceAlcoholWithdrawal)
+                list.add(substance_alcohol_frequency)
+                list.add(substance_alcohol_loss)
+                list.add(substanceAlcoholImpact)
+                list.add(substanceAlcoholWithdrawal)
+                list.add(substanceAlcoholProblematic)
+                val allAlcoholInputsFilled =
+                    substance_alcohol_frequency.value != null &&
+                    substance_alcohol_loss.value != null &&
+                    substanceAlcoholImpact.value != null &&
+                    substanceAlcoholWithdrawal.value != null &&
+                    substanceAlcoholProblematic.value != null
+                if (allAlcoholInputsFilled) {
+                    list.add(substanceAlcoholClassification.copy())
+                    list.add(substanceAlcoholSystemAction)
+                }
             } else {
                 clearAlcoholSubFields()
+                list.add(substanceAlcoholProblematic)
+                if (substanceAlcoholProblematic.value != null) {
+                    list.add(substanceAlcoholClassification.copy())
+                    // Hide the system action when there is no alcohol use and no problematic use reported.
+                    val hideAlcoholSystemAction =
+                        isNo(substanceAlcoholUse.value) && isNo(substanceAlcoholProblematic.value)
+                    if (!hideAlcoholSystemAction) {
+                        list.add(substanceAlcoholSystemAction)
+                    }
+                }
             }
         }
 
@@ -1094,7 +1116,16 @@ class MentalHealthScreeningDataset(
         }
 
         // Psychosocial intervention
-        if (isBriefIntervention(substanceAlcoholSystemAction.value)) {
+        val lockPsychosocialToNo = isYes(substanceUseConcerns.value) &&
+                isNo(substanceAlcoholUse.value) && isNo(substanceAlcoholProblematic.value)
+        if (lockPsychosocialToNo) {
+            edPsychosocialIntervention.value = yesNoOptions[1]
+            edPsychosocialIntervention.isEnabled = false
+            list.add(edPsychosocialIntervention)
+            clearEdPsychosocialDependants()
+        } else if (list.contains(substanceAlcoholSystemAction) &&
+            isBriefIntervention(substanceAlcoholSystemAction.value)) {
+            edPsychosocialIntervention.isEnabled = true
             list.add(edPsychosocialIntervention)
             if (isYes(edPsychosocialIntervention.value)) {
                 list.add(edInterventionType)
@@ -1106,6 +1137,7 @@ class MentalHealthScreeningDataset(
                 clearEdPsychosocialDependants()
             }
         } else {
+            edPsychosocialIntervention.isEnabled = true
             clearEdPsychosocialValues()
         }
 
@@ -1282,8 +1314,19 @@ class MentalHealthScreeningDataset(
                 !isYes(impact) &&
                 !isYes(withdrawal)
 
+
+        if (noAlcoholUse) {
+            if (isYes(problematic)) {
+                substanceAlcoholClassification.value = alcoholClassificationOptions.getOrNull(1)
+                substanceAlcoholSystemAction.value = alcoholSystemActionOptions.getOrNull(0)
+            } else {
+                substanceAlcoholClassification.value = alcoholClassificationOptions.getOrNull(0)
+                substanceAlcoholSystemAction.value = null
+            }
+            return
+        }
+
         substanceAlcoholClassification.value = when {
-            noAlcoholUse -> alcoholClassificationOptions.getOrNull(0)
             hasRiskFactor -> alcoholClassificationOptions.getOrNull(1)
             occasionalWithNoRisks -> alcoholClassificationOptions.getOrNull(0)
             else -> null
