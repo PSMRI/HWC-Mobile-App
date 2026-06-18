@@ -69,7 +69,6 @@ import org.piramalswasthya.cho.work.WorkerUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 import java.util.TimeZone
 import timber.log.Timber
 import javax.inject.Inject
@@ -471,84 +470,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
         else if(subCat == DropdownConst.ent){
-            val validNoseChiefComplaints = listOf(
-                "Pain",
-                "Nasal discharge",
-                "Difficulty in breathing",
-                "open mouth breathing",
-                "Sinusitis",
-                "Nosebleed",
-                "Foreign body in nose"
-            )
-
-            val validEarChiefComplaints = listOf(
-                "Ear Pain",
-                "Ear discharge",
-                "Difficulty in hearing",
-                "Ear wax",
-                "Congenital Ear Malformation",
-                "Foreign body in ear"
-            )
-            val validThroatChiefComplaints = listOf(
-                "Neck swelling",
-                "Dysphagia",
-                "Hoarseness of Voice",
-                "Cleft lip",
-                "Cleft palate",
-                "Tonsillitis",
-                "Pharyngitis",
-                "Laryngitis",
-                "Sinusitis"
-            )
-
-            val hasValidChiefComplaintForNose = if (viewModel.getIsFollowUp()) {
-                chiefComplaintDB2.any { item ->
-                    validNoseChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            } else {
-                itemList.any { item ->
-                    validNoseChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            }
-
-            val hasValidChiefComplaintForEar = if (viewModel.getIsFollowUp()) {
-                chiefComplaintDB2.any { item ->
-                    validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            } else {
-                itemList.any { item ->
-                    validEarChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            }
-
-            val hasValidChiefComplaintForThroat = if (viewModel.getIsFollowUp()) {
-                chiefComplaintDB2.any { item ->
-                    validThroatChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            } else {
-                itemList.any { item ->
-                    validThroatChiefComplaints.any { it.equals(item.chiefComplaint, ignoreCase = true) }
-                }
-            }
-
-            var entFilteredReasons = DropdownConst.entReasons
-
-            if (!hasValidChiefComplaintForNose) {
-                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.nose }
-            }
-
-            if (!hasValidChiefComplaintForEar) {
-                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.ear }
-            }
-            if (!hasValidChiefComplaintForThroat) {
-                entFilteredReasons = entFilteredReasons.filter { it != DropdownConst.throat }
-            }
-
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                entFilteredReasons
+                DropdownConst.entReasons
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
@@ -1112,45 +1038,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.subCatDropDown.isEnabled = true
             binding.reasonForVisitDropDown.isEnabled = true
         }
-        rebuildSubCategoryAdapter()
     }
-
-    private val normalizedOphthalmicChiefComplaints: Set<String> by lazy {
-        DropdownConst.ophthalmicChiefComplaints.mapTo(mutableSetOf()) { normalizeComplaint(it) }
-    }
-
-    private val normalizedOralChiefComplaints: Set<String> by lazy {
-        DropdownConst.oralChiefComplaints.mapTo(mutableSetOf()) { normalizeComplaint(it) }
-    }
-
-    private fun normalizeComplaint(value: String?): String {
-        return value
-            ?.lowercase(Locale.ROOT)
-            ?.trim()
-            ?.replace("\\s*/\\s*".toRegex(), "/")
-            ?.replace("\\s+".toRegex(), " ")
-            ?.replace("[,.;:]+$".toRegex(), "")
-            ?: ""
-    }
-
-    private fun hasOphthalmicChiefComplaint(): Boolean {
-        val complaints = if (viewModel.getIsFollowUp()) {
-            chiefComplaintDB2.map { it.chiefComplaint }
-        } else {
-            itemList.map { it.chiefComplaint }
-        }
-        return complaints.any { normalizeComplaint(it) in normalizedOphthalmicChiefComplaints }
-    }
-
-    private fun hasOralChiefComplaint(): Boolean {
-        val complaints = if (viewModel.getIsFollowUp()) {
-            chiefComplaintDB2.map { it.chiefComplaint }
-        } else {
-            itemList.map { it.chiefComplaint }
-        }
-        return complaints.any { normalizeComplaint(it) in normalizedOralChiefComplaints }
-    }
-
 
     private fun resolveChildSubCategoryOptions(): List<String> {
         val isFemale = benVisitInfo.genderName?.lowercase() == "female"
@@ -1184,24 +1072,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     private fun rebuildSubCategoryAdapter() {
         if (!::benVisitInfo.isInitialized) return
-        val includeOphthalmic = hasOphthalmicChiefComplaint()
-        val includeOral = hasOralChiefComplaint()
-
-        fun List<String>.withOptionalOphthalmic(): List<String> =
-            if (includeOphthalmic) {
-                if (contains(DropdownConst.ophthalmic)) this else this + DropdownConst.ophthalmic
-            } else this.filter { it != DropdownConst.ophthalmic }
-
-        fun List<String>.withOptionalOral(): List<String> =
-            if (includeOral) {
-                if (contains(DropdownConst.oral)) this else this + DropdownConst.oral
-            } else this.filter { it != DropdownConst.oral }
-
         val options = resolveBaseSubCategoryOptions()
-            .withOptionalOphthalmic()
-            .withOptionalOral()
-
-        val currentSubCat = binding.subCatInput.text?.toString() ?: ""
         binding.subCatInput.setAdapter(
             SubCategoryAdapter(
                 requireContext(),
@@ -1210,38 +1081,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 options
             )
         )
-        if (currentSubCat !in options) {
-            binding.subCatInput.setText("", false)
-            viewModel.selectedSubCat = ""
-            binding.reasonForVisitInput.setText("", false)
-            viewModel.selectedReasonForVisit = ""
-        }
-
-        validateEntReasonForVisit()
-    }
-
-    private fun validateEntReasonForVisit() {
-        if (binding.subCatInput.text.toString() == DropdownConst.ent) {
-            setReasonForVisitDropdown(DropdownConst.ent)
-            val currentReason = binding.reasonForVisitInput.text.toString()
-            if (currentReason == DropdownConst.nose || currentReason == DropdownConst.ear || currentReason == DropdownConst.throat) {
-                // Check if current reason is still a valid option in the adapter
-                val adapter = binding.reasonForVisitInput.adapter
-                var isValid = false
-                if (adapter != null) {
-                    for (i in 0 until adapter.count) {
-                        if (adapter.getItem(i).toString() == currentReason) {
-                            isValid = true
-                            break
-                        }
-                    }
-                }
-                if (!isValid) {
-                    binding.reasonForVisitInput.setText("", false)
-                    viewModel.selectedReasonForVisit = ""
-                }
-            }
-        }
     }
 
     private fun extractFormValues() {
@@ -1520,7 +1359,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 )
                 chiefComplaintDB2.add(chiefC) // Add the item to the list
             }
-            rebuildSubCategoryAdapter()
         }
         if (chiefComplaintDB2.size==0){
             binding.usePrevious.visibility = View.GONE
