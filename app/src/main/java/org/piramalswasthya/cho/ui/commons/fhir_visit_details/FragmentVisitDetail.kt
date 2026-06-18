@@ -65,6 +65,7 @@ import org.piramalswasthya.cho.utils.HelperUtil.getEddDateFromLmpDate
 import org.piramalswasthya.cho.utils.HelperUtil.setCustomOnClickListener
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.work.WorkerUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -612,12 +613,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //        binding.btnSubmit.isEnabled = true
         deliveryDate = null
         binding.deliveryDate.setText("")
-        if (binding.subCatInput.text.isNullOrBlank()) {
+        if (binding.subCatInput.text.isNullOrBlank() && viewModel.selectedSubCat.isBlank()) {
             setSubCategoryDropdown()
         }
-        if (binding.reasonForVisitInput.text.isNullOrBlank() && viewModel.selectedSubCat.isNotBlank()) {
-            setReasonForVisitDropdown(viewModel.selectedSubCat)
-        }
+        restoreVisitDropdownState()
     }
 
     override fun onPause(){
@@ -808,8 +807,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         masterDb?.patientId = benVisitInfo.patient.patientID
         patientId = benVisitInfo.patient.patientID
 
+        val savedSubCat = viewModel.selectedSubCat
+        val savedReasonForVisit = viewModel.selectedReasonForVisit
         setSubCategoryDropdown()
-        setReasonForVisitDropdown(viewModel.selectedSubCat)
+        if (savedSubCat.isNotBlank()) {
+            viewModel.selectedSubCat = savedSubCat
+            binding.subCatInput.setText(savedSubCat, false)
+        }
+        if (savedReasonForVisit.isNotBlank()) {
+            viewModel.selectedReasonForVisit = savedReasonForVisit
+        }
+        restoreVisitDropdownState()
 
         viewModel.init(benVisitInfo.patient.patientID,benVisitInfo.patient.beneficiaryID.toString())
 
@@ -924,7 +932,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             viewModel.setIsFollowUp(isWithinThreeDays(it))
             makeFollowUpDefault()
         }
-        binding.subCatInput.threshold = 1
         lifecycleScope.launch {
             viewModel.chiefComplaintMaster.collect { chiefComplaintsList ->
                 chiefComplaints.clear()
@@ -1047,6 +1054,29 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.reasonForVisitInput.setText("", false)
         removeVisibility()
     }
+
+    private fun restoreVisitDropdownState() {
+        val subCat = viewModel.selectedSubCat.ifBlank { binding.subCatInput.text?.toString().orEmpty() }
+        if (subCat.isBlank()) return
+
+        viewModel.selectedSubCat = subCat
+        if (binding.subCatInput.text?.toString() != subCat) {
+            binding.subCatInput.setText(subCat, false)
+        }
+        setReasonForVisitDropdown(subCat)
+
+        val reason = viewModel.selectedReasonForVisit.ifBlank {
+            binding.reasonForVisitInput.text?.toString().orEmpty()
+        }
+        if (reason.isNotBlank()) {
+            viewModel.selectedReasonForVisit = reason
+            if (binding.reasonForVisitInput.text?.toString() != reason) {
+                binding.reasonForVisitInput.setText(reason, false)
+            }
+            setVisibility()
+        }
+    }
+
 
     private fun updateSubCategoryAndReasonVisibility() {
         val selectedCategoryRadioButton =
