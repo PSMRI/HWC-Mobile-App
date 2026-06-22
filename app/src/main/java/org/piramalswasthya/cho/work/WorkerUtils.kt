@@ -15,6 +15,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
 import androidx.work.WorkContinuation
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import org.piramalswasthya.sakhi.work.PullBenFlowFromAmritWorker
 import org.piramalswasthya.sakhi.work.PushBenToAmritWorker
 import timber.log.Timber
@@ -107,6 +108,18 @@ object WorkerUtils {
         return OneTimeWorkRequestBuilder<T>()
             .setConstraints(networkOnlyConstraint)
             .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+            .build()
+    }
+
+    // Single-pass benflow pull for the upsync/form-save chains: lands the just-pushed patient's
+    // benflow so the nurse/doctor push gate passes, then releases the chain without retrying the
+    // full village payload (which would block the push for ~30s per submit).
+    private fun benflowUpsyncPullWorker(): OneTimeWorkRequest {
+        return OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .setInputData(
+                workDataOf(PullBenFlowFromAmritWorker.KEY_RELEASE_ON_INCOMPLETE to true)
+            )
             .build()
     }
 
@@ -204,6 +217,10 @@ object WorkerUtils {
                 networkWorker<PushBenToAmritWorker>()
             )
             .then(networkWorker<CreateRevisitBenflowWorker>())
+            // Pull the server BenFlow (nurseFlag==1) into the local DB before pushing nurse
+            // data; processUnsyncedNurseData() skips the saveNurseData call without it.
+            // Single-pass (no retry) so it doesn't block the push behind a full-payload retry storm.
+            .then(benflowUpsyncPullWorker())
             .then(
                 listOf(
                     networkWorker<PushBenVisitInfoToAmrit>(),
@@ -267,6 +284,10 @@ object WorkerUtils {
                 networkWorker<PushBenToAmritWorker>(),
                 listOf(
                     networkWorker<CreateRevisitBenflowWorker>(),
+                    // Pull the server BenFlow (nurseFlag==1) into the local DB before pushing nurse
+                    // data; processUnsyncedNurseData() skips the saveNurseData call without it.
+                    // Single-pass (no retry) so it doesn't block the push behind a full-payload retry storm.
+                    benflowUpsyncPullWorker(),
                     networkWorker<PushBenVisitInfoToAmrit>(),
                     networkWorker<PushBenDoctorInfoPendingTestToAmrit>(),
                     networkWorker<PushBenDoctorInfoWithoutTestToAmrit>(),
