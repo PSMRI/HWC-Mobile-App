@@ -217,7 +217,17 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                     if (binding.btnManualIssue.isChecked) "Manual Issue" else "System Issue"
                             }
                             binding.consultantValue.text = it.consultantName
-                            binding.visitCodeValue.text = it.visitCode.toString()
+                            val patientName = listOf(
+                                benVisitInfo.patient.firstName,
+                                benVisitInfo.patient.lastName
+                            ).filter { name -> !name.isNullOrBlank() }.joinToString(" ")
+                            val patientAge =
+                                "${benVisitInfo.patient.age ?: ""} ${benVisitInfo.ageUnit ?: ""}".trim()
+                            binding.visitCodeValue.text = listOf(
+                                patientName,
+                                patientAge,
+                                benVisitInfo.genderName ?: ""
+                            ).filter { part -> part.isNotBlank() }.joinToString(", ")
                             binding.prescriptionIdValue.text = it.prescriptionID.toString()
 
                             visitCode = it.visitCode
@@ -233,8 +243,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                 }
                                 dtos?.itemList = mergedItems
                                 itemAdapter?.submitList(mergedItems)
-                                binding.pharmacistListContainer.prescriptionCount.text =
-                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
                                 if (items != null) {
                                     patientCount = items.size
                                 }
@@ -251,13 +259,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
 //        }
         }
 
-    }
-
-    fun getResultStr(count:Int?):String{
-        if(count==1||count==0){
-            return " Prescription"
-        }
-        return " Prescriptions"
     }
 
     override fun getFragmentId(): Int {
