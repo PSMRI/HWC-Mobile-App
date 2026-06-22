@@ -128,7 +128,7 @@
     <string name="revisit_details_text">Revisit Details</string>
     <string name="case_record_text">Case Record</string>
     <string name="lab_record_text">Lab Record</string>
-    <string name="pharmacist_record_text">Pharmacist Record</string>
+    <string name="pharmacist_record_text">Pharmacy</string>
 
 
     <string name="anc">ANC</string>
@@ -612,9 +612,9 @@
     <string name="abha_no">Abha No:</string>
     <string name="ben_id">Ben Id:</string>
     <string name="ben_age">Age:</string>
-    <string name="quantity_prescribed">Quantity Prescribed:</string>
+    <string name="quantity_prescribed">Prescribed Quantity:</string>
     <string name="quantity_in_hand">Quantity In Hand:</string>
-    <string name="quantity_dispensed">Quantity Dispensed:</string>
+    <string name="quantity_dispensed">Dispensed Quantity:</string>
     <string name="special_instructions">Special Instructions:</string>
     <string name="dispensed_quantity">Dispensed Quantity:</string>
     <string name="expiry_date">Expiry Date:</string>
@@ -677,7 +677,8 @@
     <string name="visit_code">Visit Code:</string>
     <string name="prescription_id">Prescription ID:</string>
     <string name="form_label">Form: </string>
-    <string name="available_quantity">Available Quantity: </string>
+    <string name="available_quantity">Total Available Quantity: </string>
+    <string name="patient_details_label">Patient: </string>
     <string name="prescribed_label">Prescribed: </string>
     <string name="prescribed_label_qt">Prescribed Quantity: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>

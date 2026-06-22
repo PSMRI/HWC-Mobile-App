@@ -40,6 +40,15 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
     companion object {
         const val name = "PullBenFlowFromAmritWorker"
 
+        // Set on the request (via input data) when this worker runs inside an upsync/form-save
+        // chain purely to land the just-pushed patient's benflow so the nurse/doctor push can
+        // proceed. In that mode an incomplete run is RELEASED immediately (no retry): the local
+        // patient we just registered always matches on the first pass, so its benflow row is
+        // inserted regardless of other beneficiaries. Retrying would re-download the full village
+        // payload 3x with backoff and block the push chain for no benefit — the other
+        // beneficiaries' worklists are recovered by the periodic/full down-sync instead.
+        const val KEY_RELEASE_ON_INCOMPLETE = "release_on_incomplete"
+
         // Initial run + up to 2 retries (3 executions total). A retry fires when the
         // benflow->patient join misses because the concurrent patient pull hasn't
         // landed the row yet; by the retry the patient pull has typically finished. We
@@ -64,8 +73,15 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
                 // not blocked behind the per-beneficiary loop. Because the watermark is NOT
                 // advanced here, the same fresh payload remains available to the clinical worker.
                 val workerResult = benFlowRepo.downloadAndSyncFlowRecords(pullClinical = false)
+                val releaseOnIncomplete = inputData.getBoolean(KEY_RELEASE_ON_INCOMPLETE, false)
                 if (workerResult) {
                     Timber.d("Benflow worklist sync completed")
+                    Result.success()
+                } else if (releaseOnIncomplete) {
+                    // Upsync/form-save path: the just-pushed patient's benflow is already inserted
+                    // in this single pass, so the nurse/doctor push can proceed now. Skip the
+                    // full-payload retry storm (other beneficiaries are recovered by down-sync).
+                    Timber.d("Benflow worklist incomplete; releasing upsync chain without retry")
                     Result.success()
                 } else if (runAttemptCount < MAX_RUN_ATTEMPTS - 1) {
                     // Incomplete run: a benflow row had no matching local patient yet

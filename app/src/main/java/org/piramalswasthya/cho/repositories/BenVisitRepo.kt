@@ -173,6 +173,9 @@ class BenVisitRepo @Inject constructor(
 
         patientNurseDataUnSyncList.forEach {
 
+            if(it.patient.beneficiaryRegID == null){
+                Timber.w("Nurse data upsync SKIPPED: beneficiaryRegID is null for patientID=${it.patient.patientID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo}. Beneficiary not yet registered on server; clinical data stays UNSYNCED.")
+            }
             if(it.patient.beneficiaryRegID != null){
 
                 withContext(Dispatchers.IO){
@@ -218,7 +221,9 @@ class BenVisitRepo @Inject constructor(
                             else -> { }
                         }
 
-                    } else { }
+                    } else {
+                        Timber.w("Nurse data upsync SKIPPED: no matching BenFlow with nurseFlag==1 for patientID=${it.patient.patientID}, benRegID=${it.patient.beneficiaryRegID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo} (benFlow=$benFlow). Clinical data stays UNSYNCED.")
+                    }
                 }
             }
         }
@@ -235,6 +240,9 @@ class BenVisitRepo @Inject constructor(
 
         patientDoctorDataUnSyncList.forEach {
 
+            if(it.patient.beneficiaryRegID == null){
+                Timber.w("Doctor data (pending test) upsync SKIPPED: beneficiaryRegID is null for patientID=${it.patient.patientID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo}. Beneficiary not yet registered on server; clinical data stays UNSYNCED.")
+            }
             if(it.patient.beneficiaryRegID != null){
                 withContext(Dispatchers.IO){
 
@@ -289,6 +297,9 @@ class BenVisitRepo @Inject constructor(
 
         patientDoctorDataUnSyncList.forEach {
 
+            if(it.patient.beneficiaryRegID == null){
+                Timber.w("Doctor data (without test) upsync SKIPPED: beneficiaryRegID is null for patientID=${it.patient.patientID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo}. Beneficiary not yet registered on server; clinical data stays UNSYNCED.")
+            }
             if(it.patient.beneficiaryRegID != null){
                 withContext(Dispatchers.IO){
 
@@ -343,6 +354,9 @@ class BenVisitRepo @Inject constructor(
 
         patientDoctorDataUnSyncList.forEach {
 
+            if(it.patient.beneficiaryRegID == null){
+                Timber.w("Doctor data (after test) upsync SKIPPED: beneficiaryRegID is null for patientID=${it.patient.patientID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo}. Beneficiary not yet registered on server; clinical data stays UNSYNCED.")
+            }
             if(it.patient.beneficiaryRegID != null){
                 withContext(Dispatchers.IO){
 
