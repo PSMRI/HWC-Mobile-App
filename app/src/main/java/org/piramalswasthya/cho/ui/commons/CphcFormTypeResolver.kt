@@ -27,11 +27,19 @@ object CphcFormTypeResolver {
             DropdownConst.nose.lowercase() -> CphcFormType.NOSE
             DropdownConst.throat.lowercase() -> CphcFormType.THROAT
             DropdownConst.dental.lowercase() -> CphcFormType.ORAL
-            DropdownConst.elderlyHealthAssessment.lowercase() -> CphcFormType.ELDERLY
-            DropdownConst.persistentPain.lowercase() -> CphcFormType.PAIN
-            DropdownConst.psychosocialCaregiverSupport.lowercase() -> CphcFormType.PSYCHOSOCIAL
+            DropdownConst.elderlyHealthAssessment.lowercase(),
+            DropdownConst.functionalDeclineOrDependency.lowercase() -> CphcFormType.ELDERLY
+            DropdownConst.persistentPain.lowercase(),
+            DropdownConst.distressingSymptoms.lowercase() -> CphcFormType.PAIN
+            DropdownConst.psychosocialCaregiverSupport.lowercase(),
+            DropdownConst.caregiverSupportCounselling.lowercase() -> CphcFormType.PSYCHOSOCIAL
             DropdownConst.mentalHealth.lowercase(),
-            DropdownConst.mentalHealthScreening.lowercase() -> CphcFormType.MENTAL
+            DropdownConst.mentalHealthScreening.lowercase(),
+            DropdownConst.emotionalBehaviouralConcerns.lowercase(),
+            DropdownConst.substanceUseConcerns.lowercase(),
+            DropdownConst.selfHarmSuicideThoughts.lowercase(),
+            DropdownConst.memoryLossConfusion.lowercase(),
+            DropdownConst.seizuresFitsLoc.lowercase() -> CphcFormType.MENTAL
             DropdownConst.screening.lowercase(),
             DropdownConst.REASON_SYMPTOMATIC.lowercase(),
             DropdownConst.REASON_FIRST_AID_EYE_INJURY.lowercase(),

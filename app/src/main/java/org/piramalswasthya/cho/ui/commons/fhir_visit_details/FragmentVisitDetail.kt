@@ -314,145 +314,147 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private fun setSubCategoryDropdown(){
         viewModel.selectedSubCat = ""
         binding.subCatInput.setText(viewModel.selectedSubCat, false)
-        var isAdapterSet = false
-        if( ageCheckForChild(benVisitInfo.patient.dob) ){
-
-            if (ageCheckForFemaleChild(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
-                val subCatAdapter = SubCategoryAdapter(
-                    requireContext(),
-                    R.layout.dropdown_subcategory,
-                    R.id.tv_dropdown_item_text,
-                    DropdownConst.age_0_to_1)
-                binding.subCatInput.setAdapter(subCatAdapter)
-                isAdapterSet = true
-            } else if (age15To18ForFemaleChild(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female") {
-                val subCatAdapter = SubCategoryAdapter(
-                    requireContext(),
-                    R.layout.dropdown_subcategory,
-                    R.id.tv_dropdown_item_text,
-                    DropdownConst.female_15_to_18)
-                binding.subCatInput.setAdapter(subCatAdapter)
-                isAdapterSet = true
-            } else {
-                val subCatAdapter = SubCategoryAdapter(
-                    requireContext(),
-                    R.layout.dropdown_subcategory,
-                    R.id.tv_dropdown_item_text,
-                    DropdownConst.age_0_to_1)
-                binding.subCatInput.setAdapter(subCatAdapter)
-                isAdapterSet = true
-            }
-
-
-//            viewModel.selectedSubCat = DropdownConst.age_0_to_1[0]
-//            binding.subCatInput.setText(viewModel.selectedSubCat, false)
-//            setReasonForVisitDropdown(viewModel.selectedSubCat)
-        }
-        else if(ageCheckForElderly(benVisitInfo.patient.dob)){
-            setElderlySubCategoryAdapter()
-            isAdapterSet = true
-        }
-        else if(benVisitInfo.genderName?.lowercase() == "male" && ageCheckForNCD(benVisitInfo.patient.dob)){
-            val subCatAdapter = SubCategoryAdapter(
-                requireContext(),
-                R.layout.dropdown_subcategory,
-                R.id.tv_dropdown_item_text,
-                DropdownConst.male_ncd)
-            binding.subCatInput.setAdapter(subCatAdapter)
-            isAdapterSet = true
-        }
-        else if( ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
-            if(ageCheckForNCD(benVisitInfo.patient.dob)){
-                val subCatAdapter = SubCategoryAdapter(
-                    requireContext(),
-                    R.layout.dropdown_subcategory,
-                    R.id.tv_dropdown_item_text,
-                    DropdownConst.female_ncd)
-                binding.subCatInput.setAdapter(subCatAdapter)
-                isAdapterSet = true
-            }
-            else{
-                val subCatAdapter = SubCategoryAdapter(
-                    requireContext(),
-                    R.layout.dropdown_subcategory,
-                    R.id.tv_dropdown_item_text,
-                    DropdownConst.female_1_to_59)
-                binding.subCatInput.setAdapter(subCatAdapter)
-                isAdapterSet = true
-            }
-//            viewModel.selectedSubCat = DropdownConst.female_1_to_59[0]
-//            binding.subCatInput.setText(viewModel.selectedSubCat, false)
-//            setReasonForVisitDropdown(viewModel.selectedSubCat)
-        }
-        if (!isAdapterSet) {
-            binding.subCatInput.setAdapter(
-                SubCategoryAdapter(
-                    requireContext(),
-                    R.layout.dropdown_subcategory,
-                    R.id.tv_dropdown_item_text,
-                    listOf(DropdownConst.oral,DropdownConst.mentalHealth)
-                )
-            )
-        }
         rebuildSubCategoryAdapter()
+
+//        var isAdapterSet = false
+//        if( ageCheckForChild(benVisitInfo.patient.dob) ){
+//
+//            if (ageCheckForFemaleChild(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
+//                val subCatAdapter = SubCategoryAdapter(
+//                    requireContext(),
+//                    R.layout.dropdown_subcategory,
+//                    R.id.tv_dropdown_item_text,
+//                    DropdownConst.age_0_to_1)
+//                binding.subCatInput.setAdapter(subCatAdapter)
+//                isAdapterSet = true
+//            } else if (age15To18ForFemaleChild(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female") {
+//                val subCatAdapter = SubCategoryAdapter(
+//                    requireContext(),
+//                    R.layout.dropdown_subcategory,
+//                    R.id.tv_dropdown_item_text,
+//                    DropdownConst.female_15_to_18)
+//                binding.subCatInput.setAdapter(subCatAdapter)
+//                isAdapterSet = true
+//            } else {
+//                val subCatAdapter = SubCategoryAdapter(
+//                    requireContext(),
+//                    R.layout.dropdown_subcategory,
+//                    R.id.tv_dropdown_item_text,
+//                    DropdownConst.age_0_to_1)
+//                binding.subCatInput.setAdapter(subCatAdapter)
+//                isAdapterSet = true
+//            }
+//
+//
+////            viewModel.selectedSubCat = DropdownConst.age_0_to_1[0]
+////            binding.subCatInput.setText(viewModel.selectedSubCat, false)
+////            setReasonForVisitDropdown(viewModel.selectedSubCat)
+//        }
+//        else if(ageCheckForElderly(benVisitInfo.patient.dob)){
+//            setElderlySubCategoryAdapter()
+//            isAdapterSet = true
+//        }
+//        else if(benVisitInfo.genderName?.lowercase() == "male" && ageCheckForNCD(benVisitInfo.patient.dob)){
+//            val subCatAdapter = SubCategoryAdapter(
+//                requireContext(),
+//                R.layout.dropdown_subcategory,
+//                R.id.tv_dropdown_item_text,
+//                DropdownConst.male_ncd)
+//            binding.subCatInput.setAdapter(subCatAdapter)
+//            isAdapterSet = true
+//        }
+//        else if( ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
+//            if(ageCheckForNCD(benVisitInfo.patient.dob)){
+//                val subCatAdapter = SubCategoryAdapter(
+//                    requireContext(),
+//                    R.layout.dropdown_subcategory,
+//                    R.id.tv_dropdown_item_text,
+//                    DropdownConst.female_ncd)
+//                binding.subCatInput.setAdapter(subCatAdapter)
+//                isAdapterSet = true
+//            }
+//            else{
+//                val subCatAdapter = SubCategoryAdapter(
+//                    requireContext(),
+//                    R.layout.dropdown_subcategory,
+//                    R.id.tv_dropdown_item_text,
+//                    DropdownConst.female_1_to_59)
+//                binding.subCatInput.setAdapter(subCatAdapter)
+//                isAdapterSet = true
+//            }
+////            viewModel.selectedSubCat = DropdownConst.female_1_to_59[0]
+////            binding.subCatInput.setText(viewModel.selectedSubCat, false)
+////            setReasonForVisitDropdown(viewModel.selectedSubCat)
+//        }
+//        if (!isAdapterSet) {
+//            binding.subCatInput.setAdapter(
+//                SubCategoryAdapter(
+//                    requireContext(),
+//                    R.layout.dropdown_subcategory,
+//                    R.id.tv_dropdown_item_text,
+//                    listOf(DropdownConst.oral,DropdownConst.mentalHealth)
+//                )
+//            )
+//        }
+//        rebuildSubCategoryAdapter()
     }
 
-    private fun setElderlySubCategoryAdapter() {
-        val options = when (benVisitInfo.genderName?.lowercase()) {
-            "male" -> DropdownConst.male_elderly
-            "female" -> DropdownConst.female_elderly
-            else -> listOf(DropdownConst.oral)
-        }
-        binding.subCatInput.setAdapter(
-            SubCategoryAdapter(
-                requireContext(),
-                R.layout.dropdown_subcategory,
-                R.id.tv_dropdown_item_text,
-                options
-            )
-        )
-    }
+//    private fun setElderlySubCategoryAdapter() {
+//        val options = when (benVisitInfo.genderName?.lowercase()) {
+//            "male" -> DropdownConst.male_elderly
+//            "female" -> DropdownConst.female_elderly
+//            else -> listOf(DropdownConst.oral)
+//        }
+//        binding.subCatInput.setAdapter(
+//            SubCategoryAdapter(
+//                requireContext(),
+//                R.layout.dropdown_subcategory,
+//                R.id.tv_dropdown_item_text,
+//                options
+//            )
+//        )
+//    }
 
     private fun setReasonForVisitDropdown(subCat: String){
 
         Log.d("Reason for visit is ", "Working " + subCat)
-        if(subCat == DropdownConst.careAndPreg){
-            val subCatAdapter = SubCategoryAdapter(
-                requireContext(),
-                R.layout.dropdown_subcategory,
-                R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.anc, DropdownConst.pnc)
-            )
-            binding.reasonForVisitInput.setAdapter(subCatAdapter)
-
-//            viewModel.selectedReasonForVisit = DropdownConst.anc
-//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
-        }
-        else if(subCat == DropdownConst.fpAndOtherRep){
-            val subCatAdapter = SubCategoryAdapter(
-                requireContext(),
-                R.layout.dropdown_subcategory,
-                R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.fpAndCs)
-            )
-            binding.reasonForVisitInput.setAdapter(subCatAdapter)
-
-//            viewModel.selectedReasonForVisit = DropdownConst.fpAndCs
-//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
-        }
-        else if(subCat == DropdownConst.neonatalAndInfant){
-            val subCatAdapter = SubCategoryAdapter(
-                requireContext(),
-                R.layout.dropdown_subcategory,
-                R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.immunization)
-            )
-            binding.reasonForVisitInput.setAdapter(subCatAdapter)
-
-//            viewModel.selectedReasonForVisit = DropdownConst.immunization
-//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
-        }
-        else if(subCat == DropdownConst.ncdScreening){
+//        if(subCat == DropdownConst.careAndPreg){
+//            val subCatAdapter = SubCategoryAdapter(
+//                requireContext(),
+//                R.layout.dropdown_subcategory,
+//                R.id.tv_dropdown_item_text,
+//                listOf(DropdownConst.anc, DropdownConst.pnc)
+//            )
+//            binding.reasonForVisitInput.setAdapter(subCatAdapter)
+//
+////            viewModel.selectedReasonForVisit = DropdownConst.anc
+////            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
+//        }
+//        else if(subCat == DropdownConst.fpAndOtherRep){
+//            val subCatAdapter = SubCategoryAdapter(
+//                requireContext(),
+//                R.layout.dropdown_subcategory,
+//                R.id.tv_dropdown_item_text,
+//                listOf(DropdownConst.fpAndCs)
+//            )
+//            binding.reasonForVisitInput.setAdapter(subCatAdapter)
+//
+////            viewModel.selectedReasonForVisit = DropdownConst.fpAndCs
+////            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
+//        }
+//        else if(subCat == DropdownConst.neonatalAndInfant){
+//            val subCatAdapter = SubCategoryAdapter(
+//                requireContext(),
+//                R.layout.dropdown_subcategory,
+//                R.id.tv_dropdown_item_text,
+//                listOf(DropdownConst.immunization)
+//            )
+//            binding.reasonForVisitInput.setAdapter(subCatAdapter)
+//
+////            viewModel.selectedReasonForVisit = DropdownConst.immunization
+////            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
+//        }
+        if(subCat == DropdownConst.ncdScreening || subCat == DropdownConst.ncd){
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
@@ -489,28 +491,31 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
         else if(subCat == DropdownConst.elderlyAndPalliative){
-             val elderlyAndPalliativeReasons = mutableListOf<String>()
-            if (ageCheckForElderly(benVisitInfo.patient.dob)) {
-                elderlyAndPalliativeReasons.add(DropdownConst.elderlyHealthAssessment)
-            }
-            elderlyAndPalliativeReasons.add(DropdownConst.persistentPain)
-            elderlyAndPalliativeReasons.add(DropdownConst.psychosocialCaregiverSupport)
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                elderlyAndPalliativeReasons
+                DropdownConst.elderlyAndPalliativeReasons
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
+
+//             val elderlyAndPalliativeReasons = mutableListOf<String>()
+//            if (ageCheckForElderly(benVisitInfo.patient.dob)) {
+//                elderlyAndPalliativeReasons.add(DropdownConst.elderlyHealthAssessment)
+//            }
+//            elderlyAndPalliativeReasons.add(DropdownConst.persistentPain)
+//            elderlyAndPalliativeReasons.add(DropdownConst.psychosocialCaregiverSupport)
         }
         else if(subCat == DropdownConst.mentalHealth){
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.mentalHealthScreening)
+                DropdownConst.mentalHealthReasons
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
+
+//                listOf(DropdownConst.mentalHealthScreening)
         }
         else{
             viewModel.selectedReasonForVisit = ""
@@ -1089,35 +1094,50 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.reasonForVisitDropDown.visibility = visibility
     }
 
-    private fun resolveChildSubCategoryOptions(): List<String> {
-        val isFemale = benVisitInfo.genderName?.lowercase() == "female"
-        return when {
-            ageCheckForFemaleChild(benVisitInfo.patient.dob) && isFemale -> DropdownConst.age_0_to_1
-            age15To18ForFemaleChild(benVisitInfo.patient.dob) && isFemale -> DropdownConst.female_15_to_18
-            else -> DropdownConst.age_0_to_1
+    private fun resolveCphcSubCategoryOptions(): List<String> {
+        val options = DropdownConst.cphcSubCategoriesAllAges.toMutableList()
+        val dob = benVisitInfo.patient.dob
+        if (ageCheckForNCD(dob)) {
+            options.add(DropdownConst.elderlyAndPalliative)
+            options.add(DropdownConst.ncd)
         }
+        if (ageCheckForElderly(dob)) {
+            options.add(DropdownConst.mentalHealth)
+        }
+        return options.distinct()
     }
 
-    private fun resolveElderlySubCategoryOptions(): List<String> =
-        when (benVisitInfo.genderName?.lowercase()) {
-            "male"   -> DropdownConst.male_elderly
-            "female" -> DropdownConst.female_elderly
-            else     -> listOf(DropdownConst.oral)
-        }
+//    private fun resolveChildSubCategoryOptions(): List<String> {
+//        val isFemale = benVisitInfo.genderName?.lowercase() == "female"
+//        return when {
+//            ageCheckForFemaleChild(benVisitInfo.patient.dob) && isFemale -> DropdownConst.age_0_to_1
+//            age15To18ForFemaleChild(benVisitInfo.patient.dob) && isFemale -> DropdownConst.female_15_to_18
+//            else -> DropdownConst.age_0_to_1
+//        }
+//    }
+//
+//    private fun resolveElderlySubCategoryOptions(): List<String> =
+//        when (benVisitInfo.genderName?.lowercase()) {
+//            "male"   -> DropdownConst.male_elderly
+//            "female" -> DropdownConst.female_elderly
+//            else     -> listOf(DropdownConst.oral)
+//        }
+//
+//    private fun resolveFemaleSubCategoryOptions(): List<String> =
+//        if (ageCheckForNCD(benVisitInfo.patient.dob)) DropdownConst.female_ncd
+//        else DropdownConst.female_1_to_59
 
-    private fun resolveFemaleSubCategoryOptions(): List<String> =
-        if (ageCheckForNCD(benVisitInfo.patient.dob)) DropdownConst.female_ncd
-        else DropdownConst.female_1_to_59
+    private fun resolveBaseSubCategoryOptions(): List<String> = resolveCphcSubCategoryOptions()
 
-    private fun resolveBaseSubCategoryOptions(): List<String> = when {
-        ageCheckForChild(benVisitInfo.patient.dob) -> resolveChildSubCategoryOptions()
-        ageCheckForElderly(benVisitInfo.patient.dob) -> resolveElderlySubCategoryOptions()
-        benVisitInfo.genderName?.lowercase() == "male" && ageCheckForNCD(benVisitInfo.patient.dob) ->
-            DropdownConst.male_ncd
-        ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female" ->
-            resolveFemaleSubCategoryOptions()
-        else -> listOf(DropdownConst.oral , DropdownConst.mentalHealth)
-    }
+//    private fun resolveBaseSubCategoryOptions(): List<String> = when {
+//        ageCheckForChild(benVisitInfo.patient.dob) -> resolveChildSubCategoryOptions()
+//        ageCheckForElderly(benVisitInfo.patient.dob) -> resolveElderlySubCategoryOptions()
+//        benVisitInfo.genderName?.lowercase() == "male" && ageCheckForNCD(benVisitInfo.patient.dob) ->
+//            DropdownConst.male_ncd
+//        ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female" ->
+//            resolveFemaleSubCategoryOptions()
+//        else -> listOf(DropdownConst.oral , DropdownConst.mentalHealth)
+//    }
 
     private fun rebuildSubCategoryAdapter() {
         if (!::benVisitInfo.isInitialized) return
@@ -1670,13 +1690,30 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     findNavController().navigate(R.id.painAndSymptomAssessmentFormFragment, bundle)
                 }
             }
-            else if(reasonForVisit == DropdownConst.psychosocialCaregiverSupport){
+            else if(reasonForVisit == DropdownConst.functionalDeclineOrDependency){
+                isNavigationInProgress = true
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
+                    findNavController().navigate(R.id.fragment_elderly_health_assessment_form, bundle)
+                }
+            }
+            else if(reasonForVisit == DropdownConst.distressingSymptoms){
+                isNavigationInProgress = true
+                proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
+                    findNavController().navigate(R.id.painAndSymptomAssessmentFormFragment, bundle)
+                }
+            }
+            else if(reasonForVisit == DropdownConst.psychosocialCaregiverSupport ||
+                reasonForVisit == DropdownConst.caregiverSupportCounselling){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.psychosocialCaregiverSupportFormFragment, bundle)
                 }
             }
-            else if(reasonForVisit == DropdownConst.mentalHealth || reasonForVisit == DropdownConst.mentalHealthScreening){
+            else if(
+                reasonForVisit in DropdownConst.mentalHealthReasons ||
+                reasonForVisit == DropdownConst.mentalHealth ||
+                reasonForVisit == DropdownConst.mentalHealthScreening
+            ){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()){ bundle ->
                     findNavController().navigate(R.id.mentalHealthScreeningFormFragment, bundle)
