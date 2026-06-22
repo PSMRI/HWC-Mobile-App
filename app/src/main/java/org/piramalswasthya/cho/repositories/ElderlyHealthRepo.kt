@@ -19,10 +19,12 @@ class ElderlyHealthRepo @Inject constructor(
     private val patientDao: PatientDao,
     private val amritApiService: AmritApiService,
     private val userRepo: UserRepo,
-    private val prefDao: PreferenceDao
+    private val prefDao: PreferenceDao,
+    private val cphcDetailsRepo: CphcDetailsRepository,
 ) {
     suspend fun saveAssessment(assessment: ElderlyHealthAssessment) {
         if (assessment.assessmentId == 0L) {
+            cphcDetailsRepo.clearAssessmentsForVisit(assessment.patientId, assessment.benVisitNo)
             elderlyHealthAssessmentDao.insert(assessment)
         } else {
             elderlyHealthAssessmentDao.update(assessment)

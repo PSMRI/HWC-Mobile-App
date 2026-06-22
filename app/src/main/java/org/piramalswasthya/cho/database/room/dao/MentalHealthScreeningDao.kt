@@ -45,4 +45,10 @@ interface MentalHealthScreeningDao {
     suspend fun getUnsyncedAssessments(
         unsyncedState: Int = SyncStateValue.UNSYNCED
     ): List<MentalHealthScreeningCache>
+
+    @Query(
+        "DELETE FROM MENTAL_HEALTH_SCREENING " +
+            "WHERE patient_id = :patientID AND ben_visit_no = :benVisitNo"
+    )
+    suspend fun deleteByPatientIdAndVisitNo(patientID: String, benVisitNo: Int)
 }

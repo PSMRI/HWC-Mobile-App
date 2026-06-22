@@ -42,5 +42,11 @@ interface OralHealthDao {
     suspend fun getUnsyncedAssessments(
         unsyncedState: Int = SyncStateValue.UNSYNCED
     ): List<OralHealth>
+
+    @Query(
+        "DELETE FROM ORAL_HEALTH " +
+            "WHERE patient_id = :patientID AND ben_visit_no = :benVisitNo"
+    )
+    suspend fun deleteByPatientIdAndVisitNo(patientID: String, benVisitNo: Int)
 }
 

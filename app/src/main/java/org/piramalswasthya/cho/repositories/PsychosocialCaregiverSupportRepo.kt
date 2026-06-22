@@ -21,10 +21,14 @@ class PsychosocialCaregiverSupportRepo @Inject constructor(
     private val patientDao: PatientDao,
     private val amritApiService: AmritApiService,
     private val userRepo: UserRepo,
-    private val prefDao: PreferenceDao
+    private val prefDao: PreferenceDao,
+    private val cphcDetailsRepo: CphcDetailsRepository,
 ) {
     suspend fun saveAssessment(assessment: PsychosocialCaregiverSupport) {
         if (assessment.assessmentId == 0L) {
+            assessment.benVisitNo?.let { visitNo ->
+                cphcDetailsRepo.clearAssessmentsForVisit(assessment.patientId, visitNo)
+            }
             psychosocialCaregiverSupportDao.insert(assessment)
         } else {
             psychosocialCaregiverSupportDao.update(assessment)

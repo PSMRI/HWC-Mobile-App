@@ -45,4 +45,10 @@ interface NoseDiagnosisAssessmentDao {
     suspend fun getUnsyncedAssessments(
         unsyncedState: Int = SyncStateValue.UNSYNCED
     ): List<NoseDiagnosisAssessment>
+
+    @Query(
+        "DELETE FROM NOSE_DIAGNOSIS_ASSESSMENT " +
+            "WHERE patient_id = :patientID AND ben_visit_no = :benVisitNo"
+    )
+    suspend fun deleteByPatientIdAndVisitNo(patientID: String, benVisitNo: Int)
 }

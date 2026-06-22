@@ -65,11 +65,11 @@ import org.piramalswasthya.cho.utils.HelperUtil.getEddDateFromLmpDate
 import org.piramalswasthya.cho.utils.HelperUtil.setCustomOnClickListener
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.work.WorkerUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 import java.util.TimeZone
 import timber.log.Timber
 import javax.inject.Inject
@@ -314,34 +314,28 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private fun setSubCategoryDropdown() {
         viewModel.selectedSubCat = ""
         binding.subCatInput.setText(viewModel.selectedSubCat, false)
-        applySubCategoryOptions(DropdownConst.allSubCategoryList)
+        rebuildSubCategoryAdapter()
     }
 
-    private fun applySubCategoryOptions(options: List<String>) {
-        val currentSubCat = binding.subCatInput.text?.toString() ?: ""
-        binding.subCatInput.setAdapter(
-            SubCategoryAdapter(
-                requireContext(),
-                R.layout.dropdown_subcategory,
-                R.id.tv_dropdown_item_text,
-                options
-            )
-        )
-        if (currentSubCat.isNotEmpty() && currentSubCat !in options) {
-            binding.subCatInput.setText("", false)
-            viewModel.selectedSubCat = ""
-        }
-    }
-
-    private fun setReasonForVisitDropdown() {
+    private fun setReasonForVisitAdapter(reasons: List<String>) {
         binding.reasonForVisitInput.setAdapter(
             SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                DropdownConst.allReasonForVisitList
+                reasons
             )
         )
+    }
+
+    private fun setReasonForVisitDropdown(subCat: String) {
+        val reasons = DropdownConst.reasonForVisitBySubCategory[subCat]
+        if (reasons != null) {
+            setReasonForVisitAdapter(reasons)
+        } else {
+            viewModel.selectedReasonForVisit = ""
+            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
+        }
     }
 
     fun removeVisibility(){
@@ -439,17 +433,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //        binding.btnSubmit.isEnabled = true
         deliveryDate = null
         binding.deliveryDate.setText("")
-        if (binding.subCatInput.text.isNullOrBlank()) {
+        if (binding.subCatInput.text.isNullOrBlank() && viewModel.selectedSubCat.isBlank()) {
             setSubCategoryDropdown()
-        } else if (viewModel.selectedSubCat.isBlank()) {
-            // Belt-and-suspenders: if view-state restoration brought the field text back
-            // but the ViewModel state was cleared earlier in the lifecycle, rehydrate it.
-            viewModel.selectedSubCat = binding.subCatInput.text.toString()
         }
-        if (!binding.reasonForVisitInput.text.isNullOrBlank() && viewModel.selectedReasonForVisit.isBlank()) {
-            viewModel.selectedReasonForVisit = binding.reasonForVisitInput.text.toString()
-        }
-        setReasonForVisitDropdown()
+        restoreVisitDropdownState()
     }
 
     override fun onPause(){
@@ -503,23 +490,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             category = binding.radioButton1.tag.toString()
         }
 
-        val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
-        val selectedCategoryRadioButton = view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
-        val selectedCategory = selectedCategoryRadioButton?.tag.toString()
+        binding.reasonText.visibility = View.VISIBLE
+        binding.radioGroup2.visibility = View.VISIBLE
+        binding.layyy.visibility = View.VISIBLE
+        updateSubCategoryAndReasonVisibility()
+        validateAndEnableDropdowns()
 
-        if(selectedCategory == "General OPD"){
-            binding.reasonText.visibility = View.VISIBLE
-            binding.radioGroup2.visibility = View.VISIBLE
-            binding.subCatDropDown.visibility = View.GONE
-            binding.reasonForVisitDropDown.visibility = View.GONE
-        }
-        else{
-            binding.reasonText.visibility = View.VISIBLE
-            binding.radioGroup2.visibility = View.VISIBLE
-            binding.subCatDropDown.visibility = View.VISIBLE
-            binding.reasonForVisitDropDown.visibility = View.VISIBLE
-            binding.layyy.visibility = View.VISIBLE
-        }
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             onBackPressedCallback
@@ -550,11 +526,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.subCatInput.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedSubCat = parent.getItemAtPosition(position) as String
             binding.subCatInput.setText(viewModel.selectedSubCat, false)
+            viewModel.selectedReasonForVisit = ""
+            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
             setVisibility()
-//            binding.subCatDropDown.apply {
-//                boxStrokeColor = resources.getColor(R.color.purple)
-//                hintTextColor = defaultHintTextColor
-//            }
+            setReasonForVisitDropdown(viewModel.selectedSubCat)
+            binding.subCatDropDown.apply {
+                boxStrokeColor = resources.getColor(R.color.purple)
+                hintTextColor = defaultHintTextColor
+            }
         }
 
 
@@ -637,8 +616,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         masterDb?.patientId = benVisitInfo.patient.patientID
         patientId = benVisitInfo.patient.patientID
 
+        val savedSubCat = viewModel.selectedSubCat
+        val savedReasonForVisit = viewModel.selectedReasonForVisit
         setSubCategoryDropdown()
-        setReasonForVisitDropdown()
+        if (savedSubCat.isNotBlank()) {
+            viewModel.selectedSubCat = savedSubCat
+            binding.subCatInput.setText(savedSubCat, false)
+        }
+        if (savedReasonForVisit.isNotBlank()) {
+            viewModel.selectedReasonForVisit = savedReasonForVisit
+        }
+        restoreVisitDropdownState()
 
         viewModel.init(benVisitInfo.patient.patientID,benVisitInfo.patient.beneficiaryID.toString())
 
@@ -753,7 +741,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             viewModel.setIsFollowUp(isWithinThreeDays(it))
             makeFollowUpDefault()
         }
-        binding.subCatInput.threshold = 1
         lifecycleScope.launch {
             viewModel.chiefComplaintMaster.collect { chiefComplaintsList ->
                 chiefComplaints.clear()
@@ -773,8 +760,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                    binding.reasonText.visibility = View.VISIBLE
                     binding.reasonText.visibility = View.VISIBLE
                     binding.radioGroup2.visibility = View.VISIBLE
-                    binding.subCatDropDown.visibility = View.GONE
-                    binding.reasonForVisitDropDown.visibility = View.GONE
                     binding.layyy.visibility = View.VISIBLE
 //                    binding.usePrevious.visibility = View.VISIBLE
 //                    category = binding.radioButton1.text.toString()
@@ -788,8 +773,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     setVisibility()
                     binding.reasonText.visibility = View.VISIBLE
                     binding.radioGroup2.visibility = View.VISIBLE
-                    binding.subCatDropDown.visibility = View.VISIBLE
-                    binding.reasonForVisitDropDown.visibility = View.VISIBLE
                     binding.layyy.visibility = View.VISIBLE
                     binding.usePrevious.visibility = View.GONE
 //                    category = binding.radioButton2.text.toString()
@@ -797,6 +780,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
                 }
             }
+            updateSubCategoryAndReasonVisibility()
+            validateAndEnableDropdowns()
         }
         binding.radioGroup2.setOnCheckedChangeListener { _, checkedId ->
             reason = when (checkedId) {
@@ -809,6 +794,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.vitalsHeading.visibility = View.GONE
                     binding.vitalsLayout.visibility = View.GONE
                     binding.usePrevious.visibility = View.GONE
+                    updateSubCategoryAndReasonVisibility()
 //                    binding.radioButton3.text.toString()
                     binding.radioButton3.tag.toString()
                 }
@@ -816,10 +802,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 else -> {
                     viewModel.setIsFollowUp(true)
                     chiefAndVitalsDataFill()
+                    updateSubCategoryAndReasonVisibility()
                     binding.radioButton4.tag.toString()
 //                    binding.radioButton4.text.toString()
                 }
             }
+            validateAndEnableDropdowns()
         }
         adapter = VisitDetailAdapter(
             itemList,
@@ -828,6 +816,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             object : RecyclerViewItemChangeListener {
                 override fun onItemChanged() {
                     binding.plusButton.isEnabled = !isAnyItemEmpty()
+                    validateAndEnableDropdowns()
                 }
             },
             chiefComplaintsForFilter,
@@ -844,17 +833,96 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             itemList.add(newItem)
             adapter.notifyDataSetChanged()
             binding.plusButton.isEnabled = false
+            validateAndEnableDropdowns()
         }
 
     }
+    private fun validateAndEnableDropdowns() {
+        val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
+        val selectedCategoryRadioButton = view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
+        val selectedCategory = selectedCategoryRadioButton?.tag.toString()
+        val isNewCC = binding.radioButton3.isChecked
 
-    private fun normalizeEntReasonForVisit(reason: String): String {
-        return when (reason.trim().uppercase(Locale.ROOT)) {
-            "EAR (E)", DropdownConst.ear -> DropdownConst.ear
-            "NOSE (N)", DropdownConst.nose -> DropdownConst.nose
-            "THROAT (T)", DropdownConst.throat -> DropdownConst.throat
-            else -> reason
+        if (selectedCategory == OTHER_CPHC_SERVICES && isNewCC) {
+            val isValid = hasAtLeastOneCompleteChiefComplaint()
+            binding.subCatDropDown.isEnabled = isValid
+            binding.reasonForVisitDropDown.isEnabled = isValid
+            if (!isValid) {
+                clearSubCategoryAndReasonForVisit()
+            }
+        } else {
+            binding.subCatDropDown.isEnabled = true
+            binding.reasonForVisitDropDown.isEnabled = true
         }
+    }
+
+    private fun clearSubCategoryAndReasonForVisit() {
+        viewModel.selectedSubCat = ""
+        viewModel.selectedReasonForVisit = ""
+        binding.subCatInput.setText("", false)
+        binding.reasonForVisitInput.setText("", false)
+        removeVisibility()
+    }
+
+    private fun restoreVisitDropdownState() {
+        val subCat = viewModel.selectedSubCat.ifBlank { binding.subCatInput.text?.toString().orEmpty() }
+        if (subCat.isBlank()) return
+
+        viewModel.selectedSubCat = subCat
+        if (binding.subCatInput.text?.toString() != subCat) {
+            binding.subCatInput.setText(subCat, false)
+        }
+        setReasonForVisitDropdown(subCat)
+
+        val reason = viewModel.selectedReasonForVisit.ifBlank {
+            binding.reasonForVisitInput.text?.toString().orEmpty()
+        }
+        if (reason.isNotBlank()) {
+            viewModel.selectedReasonForVisit = reason
+            if (binding.reasonForVisitInput.text?.toString() != reason) {
+                binding.reasonForVisitInput.setText(reason, false)
+            }
+            setVisibility()
+        }
+    }
+
+
+    private fun updateSubCategoryAndReasonVisibility() {
+        val selectedCategoryRadioButton =
+            view?.findViewById<RadioButton>(binding.radioGroup.checkedRadioButtonId)
+        val selectedCategory = selectedCategoryRadioButton?.tag.toString()
+        val showForNewChiefComplaint =
+            selectedCategory == OTHER_CPHC_SERVICES && !viewModel.getIsFollowUp()
+        val visibility = if (showForNewChiefComplaint) View.VISIBLE else View.GONE
+        binding.subCatDropDown.visibility = visibility
+        binding.reasonForVisitDropDown.visibility = visibility
+    }
+
+    private fun resolveCphcSubCategoryOptions(): List<String> {
+        val options = DropdownConst.cphcSubCategoriesAllAges.toMutableList()
+        val dob = benVisitInfo.patient.dob
+        if (ageCheckForNCD(dob)) {
+            options.add(DropdownConst.ncd)
+        }
+        if (ageCheckForElderly(dob)) {
+            options.add(DropdownConst.elderlyAndPalliative)
+        }
+        return options.distinct()
+    }
+
+    private fun resolveBaseSubCategoryOptions(): List<String> = resolveCphcSubCategoryOptions()
+
+    private fun rebuildSubCategoryAdapter() {
+        if (!::benVisitInfo.isInitialized) return
+        val options = resolveBaseSubCategoryOptions()
+        binding.subCatInput.setAdapter(
+            SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                options
+            )
+        )
     }
 
     private fun extractFormValues() {
@@ -967,7 +1035,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 viewModel.isDataSaved.observe(viewLifecycleOwner){
                     when(it!!){
                         true ->{
-                                    WorkerUtils.clinicalPushWorker(requireContext())
+                            WorkerUtils.triggerAmritSyncWorker(requireContext())
                             requireActivity().finish()
                         }
                         else ->{
@@ -1177,6 +1245,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.radioButton3.isChecked = false
             binding.radioButton4.isChecked = true
             chiefAndVitalsDataFill()
+            updateSubCategoryAndReasonVisibility()
 //            reason = binding.radioButton4.text.toString()
             reason = binding.radioButton4.tag.toString()
         } else {
@@ -1189,18 +1258,22 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.vitalsHeading.visibility = View.GONE
             binding.vitalsLayout.visibility = View.GONE
             binding.usePrevious.visibility = View.GONE
+            updateSubCategoryAndReasonVisibility()
 //            reason = binding.radioButton4.text.toString()
             reason = binding.radioButton3.tag.toString()
         }
     }
 
     fun isAnyItemEmpty(): Boolean {
-        for (item in itemList) {
-            if (item.chiefComplaint.isNullOrEmpty() || item.duration.isNullOrEmpty() || item.durationUnit.isNullOrEmpty()) {
-                return true
-            }
+        return itemList.any { item ->
+            item.chiefComplaint.isNullOrBlank() || item.duration.isNullOrBlank()
         }
-        return false
+    }
+
+    private fun hasAtLeastOneCompleteChiefComplaint(): Boolean {
+        return itemList.any { item ->
+            !item.chiefComplaint.isNullOrBlank() && !item.duration.isNullOrBlank()
+        }
     }
 
 
@@ -1265,26 +1338,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
         val selectedCategory = selectedCategoryRadioButton?.tag.toString()
         if(selectedCategory == OTHER_CPHC_SERVICES){
-            val selectedSubCategory = binding.subCatInput.text?.toString()?.trim().orEmpty()
-            if (selectedSubCategory.isEmpty()) {
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.toast_sub_cat_select),
-                    Toast.LENGTH_SHORT
-                ).show()
-                return
-            }
-
-            val reasonForVisit = binding.reasonForVisitInput.text?.toString()?.trim().orEmpty()
-            if (reasonForVisit.isEmpty()) {
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.toast_visit_reason_select),
-                    Toast.LENGTH_SHORT
-                ).show()
-                return
-            }
-
+            val reasonForVisit = binding.reasonForVisitInput.text.toString()
             if(reasonForVisit == DropdownConst.anc){
 
 //                viewModel.activePwrRecord.observe(viewLifecycleOwner) { it1->
@@ -1373,7 +1427,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     findNavController().navigate(R.id.ophthalmicScreeningFragment, bundle)
                 }
             }
-            else if(normalizeEntReasonForVisit(reasonForVisit) == DropdownConst.ear ){
+            else if(reasonForVisit == DropdownConst.ear ){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.earDiagnosisFormFragment, bundle)
@@ -1385,47 +1439,52 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     findNavController().navigate(R.id.oralHealthFormFragment, bundle)
                 }
             }
-            else if(normalizeEntReasonForVisit(reasonForVisit) == DropdownConst.nose){
+            else if(reasonForVisit == DropdownConst.nose){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.fragment_nose_diagnosis_form, bundle)
                 }
             }
-            else if(normalizeEntReasonForVisit(reasonForVisit) == DropdownConst.throat){
+            else if(reasonForVisit == DropdownConst.throat){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.throatDiagnosisFormFragment, bundle)
                 }
             }
-            else if(reasonForVisit == DropdownConst.elderlyHealthAssessment){
+            else if(
+                reasonForVisit == DropdownConst.elderlyHealthAssessment ||
+                reasonForVisit == DropdownConst.functionalDeclineOrDependency
+            ){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.fragment_elderly_health_assessment_form, bundle)
                 }
             }
-            else if(reasonForVisit == DropdownConst.persistentPain){
+            else if(
+                reasonForVisit == DropdownConst.persistentPain ||
+                reasonForVisit == DropdownConst.distressingSymptoms
+            ){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.painAndSymptomAssessmentFormFragment, bundle)
                 }
             }
-            else if(reasonForVisit == DropdownConst.psychosocialCaregiverSupport){
+            else if(reasonForVisit == DropdownConst.psychosocialCaregiverSupport ||
+                reasonForVisit == DropdownConst.caregiverSupportCounselling){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()) { bundle ->
                     findNavController().navigate(R.id.psychosocialCaregiverSupportFormFragment, bundle)
                 }
             }
-            else if(reasonForVisit == DropdownConst.mentalHealth || reasonForVisit == DropdownConst.mentalHealthScreening){
+            else if(
+                reasonForVisit in DropdownConst.mentalHealthReasons ||
+                reasonForVisit == DropdownConst.mentalHealth ||
+                reasonForVisit == DropdownConst.mentalHealthScreening
+            ){
                 isNavigationInProgress = true
                 proceedToSpecializedForm(skipChiefComplaintValidation = viewModel.getIsFollowUp()){ bundle ->
                     findNavController().navigate(R.id.mentalHealthScreeningFormFragment, bundle)
                 }
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.toast_visit_reason_select),
-                    Toast.LENGTH_SHORT
-                ).show()
             }
 
         }
@@ -1600,9 +1659,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
     private fun setVisitMasterDataForFollow() {
-        if (masterDb == null) {
-            masterDb = MasterDb(patientId)
-        }
+        val masterDb = MasterDb(patientId)
         val visitMasterDb = VisitMasterDb()
 
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
@@ -1628,7 +1685,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
 
         visitMasterDb.chiefComplaint = chiefComplaintList2
-        masterDb?.visitMasterDb = visitMasterDb
+        masterDb.visitMasterDb = visitMasterDb
         bundle.putSerializable("MasterDb", masterDb)
     }
 
@@ -1701,10 +1758,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         if (!skipChiefComplaintValidation && !addChiefComplaintsData()) {
             isNavigationInProgress = false
             return
-        }
-
-        if (masterDb == null) {
-            masterDb = MasterDb(patientId)
         }
 
         if (viewModel.getIsFollowUp()) {
@@ -1830,7 +1883,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 viewModel.isDataSaved.observe(viewLifecycleOwner) {
                     if (it == true) {
                         viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
-                        WorkerUtils.clinicalPushWorker(requireContext())
+                        WorkerUtils.triggerAmritSyncWorker(requireContext())
                         onSuccess(benVisitNo)
                     } else if (it == false) {
                         viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
@@ -1853,10 +1906,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         for (i in 0 until itemList.size) {
             val chiefComplaintData = itemList[i]
             if (chiefComplaintData.chiefComplaint!!.isEmpty()) {
-                adapter.highlightEmptyChiefComplaints(
-                    binding.rv,
-                    resources.getString(R.string.toast_msg_chief)
-                )
                 if (catBool && subCat) Toast.makeText(
                     requireContext(),
                     resources.getString(R.string.toast_msg_chief),

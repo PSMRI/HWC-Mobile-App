@@ -125,6 +125,12 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
     suspend fun getVisitDbByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : VisitDB?{
         return visitReasonsAndCategoriesDao.getVisitDbByBenRegIdAndBenVisitNo(patientID, benVisitNo)
     }
+
+    suspend fun getLatestVisitDbByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int): VisitDB? {
+        return withContext(Dispatchers.IO) {
+            visitReasonsAndCategoriesDao.getLatestVisitDbByPatientIDAndBenVisitNo(patientID, benVisitNo)
+        }
+    }
      fun getVisitDbByPatientIDAndBenVisitNo(patientID: String) : LiveData<String?>{
         return visitReasonsAndCategoriesDao.getLatestVisitIdByPatientId(patientID)
     }

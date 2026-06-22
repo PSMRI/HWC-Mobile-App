@@ -21,10 +21,14 @@ class OralHealthRepo @Inject constructor(
     private val patientDao: PatientDao,
     private val amritApiService: AmritApiService,
     private val userRepo: UserRepo,
-    private val prefDao: PreferenceDao
+    private val prefDao: PreferenceDao,
+    private val cphcDetailsRepo: CphcDetailsRepository,
 ) {
     suspend fun save(oralHealth: OralHealth) {
         if (oralHealth.oralHealthId == 0L) {
+            oralHealth.benVisitNo?.let { visitNo ->
+                cphcDetailsRepo.clearAssessmentsForVisit(oralHealth.patientID, visitNo)
+            }
             oralHealthDao.insert(oralHealth)
         } else {
             oralHealthDao.update(oralHealth)

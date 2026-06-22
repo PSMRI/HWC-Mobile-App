@@ -20,10 +20,14 @@ class MentalHealthScreeningRepo @Inject constructor(
     private val patientDao: PatientDao,
     private val amritApiService: AmritApiService,
     private val userRepo: UserRepo,
-    private val prefDao: PreferenceDao
+    private val prefDao: PreferenceDao,
+    private val cphcDetailsRepo: CphcDetailsRepository,
 ) {
     suspend fun saveScreening(screening: MentalHealthScreeningCache): MentalHealthScreeningCache {
         return if (screening.screeningId == 0L) {
+            screening.benVisitNo?.let { visitNo ->
+                cphcDetailsRepo.clearAssessmentsForVisit(screening.patientId, visitNo)
+            }
             val screeningId = mentalHealthScreeningDao.insert(screening)
             screening.copy(screeningId = screeningId)
         } else {
