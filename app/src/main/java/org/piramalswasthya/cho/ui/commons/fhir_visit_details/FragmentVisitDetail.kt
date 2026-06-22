@@ -1098,11 +1098,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val options = DropdownConst.cphcSubCategoriesAllAges.toMutableList()
         val dob = benVisitInfo.patient.dob
         if (ageCheckForNCD(dob)) {
-            options.add(DropdownConst.elderlyAndPalliative)
             options.add(DropdownConst.ncd)
         }
         if (ageCheckForElderly(dob)) {
-            options.add(DropdownConst.mentalHealth)
+            options.add(DropdownConst.elderlyAndPalliative)
         }
         return options.distinct()
     }

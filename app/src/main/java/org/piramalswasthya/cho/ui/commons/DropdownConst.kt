@@ -92,7 +92,7 @@ class DropdownConst {
         )
 
         /** Sub categories available for all genders and age groups. */
-        val cphcSubCategoriesAllAges: List<String> = listOf(ent, ophthalmic, oral)
+        val cphcSubCategoriesAllAges: List<String> = listOf(ent, ophthalmic, oral, mentalHealth)
 
         // Previous sub-category lists (retained for reference):
         // val male_ncd: List<String> = listOf(ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
