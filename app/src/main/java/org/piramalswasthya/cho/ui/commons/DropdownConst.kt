@@ -21,9 +21,6 @@ class DropdownConst {
         val screening: String = "Screening"
         val ent: String = "ENT"
         val oral: String = "Oral"
-        // val ear: String = "EAR"
-        // val nose: String = "NOSE"
-        // val throat: String = "THROAT"
         val ear: String = "Ear (E)"
         val nose: String = "Nose (N)"
         val throat: String = "Throat (T)"
@@ -59,13 +56,11 @@ class DropdownConst {
 
         val elderlyAndPalliative: String = "Elderly & Palliative"
         val persistentPain: String = "Persistent pain"
-        // val psychosocialCaregiverSupport: String = "Psychosocial Caregiver Support"
         val caregiverSupportCounselling: String = "Caregiver support / counselling"
         val psychosocialCaregiverSupport: String = caregiverSupportCounselling
         val functionalDeclineOrDependency: String = "Functional decline or dependency"
         val distressingSymptoms: String = "Distressing symptoms"
         val mentalHealth: String = "Mental Health"
-        // val mentalHealthScreening: String = "Mental Health Screening"
         val mentalHealthScreening: String = "Mental Health Screening"
         val elderlyHealthAssessment: String = "General geriatric complaints"
 
@@ -94,15 +89,6 @@ class DropdownConst {
         /** Sub categories available for all genders and age groups. */
         val cphcSubCategoriesAllAges: List<String> = listOf(ent, ophthalmic, oral, mentalHealth)
 
-        // Previous sub-category lists (retained for reference):
-        // val male_ncd: List<String> = listOf(ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
-        // val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
-        // val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
-        // val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
-        // val male_elderly: List<String> = listOf(ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
-        // val female_elderly: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, oral, elderlyAndPalliative, mentalHealth)
-        // val age_0_to_1: List<String> = listOf(neonatalAndInfant, ent, oral, elderlyAndPalliative, mentalHealth)
-
         val visualAcuityList = listOf("6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60", "<6/60")
         val visualImpairmentList = listOf("6/18", "6/24", "6/36", "6/60", "<6/60")
         val nearVisualAcuityList = listOf("N6", "N8", "N10", "N12")
@@ -113,13 +99,22 @@ class DropdownConst {
         val visualAcuityChartList = listOf(CHART_SNELLENS, CHART_NEAR_VISION)
 
         const val REASON_SYMPTOMATIC = "Symptomatic"
-        // const val REASON_FIRST_AID_INJURY_TRAUMA = "First aid for eye injury/ trauma"
         const val REASON_FIRST_AID_INJURY_TRAUMA = "First aid for eye injury, trauma"
         const val REASON_FIRST_AID_EYE_INJURY = REASON_FIRST_AID_INJURY_TRAUMA
         val ophthalmicReasonForVisitList = listOf(
             screening,
             REASON_SYMPTOMATIC,
             REASON_FIRST_AID_INJURY_TRAUMA
+        )
+
+        val reasonForVisitBySubCategory: Map<String, List<String>> = mapOf(
+            ncd to listOf(ncdScreening),
+            ncdScreening to listOf(ncdScreening),
+            ophthalmic to ophthalmicReasonForVisitList,
+            ent to entReasons,
+            oral to oralReasons,
+            elderlyAndPalliative to elderlyAndPalliativeReasons,
+            mentalHealth to mentalHealthReasons,
         )
 
         const val CONDITION_CATARACT = "Cataract"
