@@ -336,31 +336,22 @@
                 </LinearLayout>
 
                 <!-- Row 5: Action Buttons -->
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:orientation="horizontal"
                     android:paddingTop="8dp">
-
-                    <androidx.constraintlayout.helper.widget.Flow
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        app:constraint_referenced_ids="btn_add_anc,btn_anc_visits,btn_add_pmsma"
-                        app:flow_horizontalBias="0.0"
-                        app:flow_horizontalGap="8dp"
-                        app:flow_horizontalStyle="packed"
-                        app:flow_wrapMode="chain"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_add_anc"
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
                         android:backgroundTint="@color/green"
                         android:onClick="@{() -> clickListener.onClickAddANC(patientWithPwr)}"
-                        android:text="@string/add_anc_visit"
+                        android:text="@string/add_visit"
                         android:textColor="@color/white" />
 
                     <com.google.android.material.button.MaterialButton
@@ -370,23 +361,11 @@
                         android:layout_height="wrap_content"
                         android:backgroundTint="@color/green"
                         android:onClick="@{() -> clickListener.onClickANCVisits(patientWithPwr)}"
-                        android:text="@string/anc_visits"
-                        android:textColor="@color/white" />
+                        android:text="@string/view_visits"
+                        android:textColor="@color/white"
+                        app:strokeColor="@color/primary" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_add_pmsma"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        android:backgroundTint="@android:color/holo_red_dark"
-                        android:onClick="@{() -> clickListener.onClickAddPMSMA(patientWithPwr)}"
-                        android:text="@string/add_pmsma"
-                        android:textColor="@color/white" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-
+                </LinearLayout>
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
