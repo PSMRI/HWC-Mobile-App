@@ -524,6 +524,22 @@ class DateTimeUtil {
 
 }
 
+/**
+ * Applies min/max date bounds only when provided. Using 0 as a fallback when null
+ * restricts the picker to epoch (1970-01-01) and crashes if the initial date is later.
+ * max must never be less than min — that also crashes the platform DatePicker.
+ */
+fun DatePicker.applySafeDateConstraints(min: Long?, max: Long?) {
+    when {
+        min != null && max != null -> {
+            minDate = min
+            maxDate = maxOf(min, max)
+        }
+        min != null -> minDate = min
+        max != null -> maxDate = max
+    }
+}
+
 data class AgePicker(val years: Int, val months: Int, val weeks: Int, val days: Int)
 
 
