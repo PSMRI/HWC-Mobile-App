@@ -311,6 +311,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         return (ageGap >= minAge)
     }
 
+    private fun ageCheckForMentalHealth(dob: Date?): Boolean {
+        if (dob == null) return false
+        val today = Calendar.getInstance()
+        val birth = Calendar.getInstance().apply { time = dob }
+        var ageYears = today.get(Calendar.YEAR) - birth.get(Calendar.YEAR)
+        if (today.get(Calendar.DAY_OF_YEAR) < birth.get(Calendar.DAY_OF_YEAR)) {
+            ageYears--
+        }
+        return ageYears >= 11
+    }
+
     private fun setSubCategoryDropdown() {
         viewModel.selectedSubCat = ""
         binding.subCatInput.setText(viewModel.selectedSubCat, false)
@@ -901,6 +912,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private fun resolveCphcSubCategoryOptions(): List<String> {
         val options = DropdownConst.cphcSubCategoriesAllAges.toMutableList()
         val dob = benVisitInfo.patient.dob
+        if (ageCheckForMentalHealth(dob)) {
+            options.add(DropdownConst.mentalHealth)
+        }
         if (ageCheckForNCD(dob)) {
             options.add(DropdownConst.ncd)
         }
@@ -914,6 +928,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     private fun rebuildSubCategoryAdapter() {
         if (!::benVisitInfo.isInitialized) return
+        val selectedSubCat = viewModel.selectedSubCat.ifBlank {
+            binding.subCatInput.text?.toString().orEmpty()
+        }
+        if (selectedSubCat == DropdownConst.mentalHealth &&
+            !ageCheckForMentalHealth(benVisitInfo.patient.dob)
+        ) {
+            clearSubCategoryAndReasonForVisit()
+        }
         val options = resolveBaseSubCategoryOptions()
         binding.subCatInput.setAdapter(
             SubCategoryAdapter(
