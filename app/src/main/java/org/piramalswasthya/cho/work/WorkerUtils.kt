@@ -118,7 +118,13 @@ object WorkerUtils {
         return OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .setInputData(
-                workDataOf(PullBenFlowFromAmritWorker.KEY_RELEASE_ON_INCOMPLETE to true)
+                workDataOf(
+                    PullBenFlowFromAmritWorker.KEY_RELEASE_ON_INCOMPLETE to true,
+                    // Pull the full worklist (epoch watermark): the benflow we just created on the
+                    // server would be filtered out by the incremental hour-truncated watermark,
+                    // leaving the nurse/doctor push gate permanently UNSYNCED on some devices.
+                    PullBenFlowFromAmritWorker.KEY_IGNORE_WATERMARK to true
+                )
             )
             .build()
     }
