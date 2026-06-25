@@ -72,7 +72,7 @@ class PharmacistItemAdapter(
                 item.batchList.filter { it.isSelected }.sumOf { it.dispenseQuantity }
             } else {
 //                item.batchList.sumOf { it.qty }
-                item.qtyPrescribed.toString() ?: ""
+                item.qtyPrescribed.toString()
             }
             binding.quantityValue.text = item.batchList.sumOf { it.qty }.toString()
 
