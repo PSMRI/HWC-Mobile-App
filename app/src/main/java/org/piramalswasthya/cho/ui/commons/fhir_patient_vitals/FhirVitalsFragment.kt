@@ -816,6 +816,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         )
         masterDb?.vitalsMasterDb = vitalDb
         bundle.putSerializable("MasterDb", masterDb)
+        arguments?.getInt("benVisitNo", -1)?.takeIf { it > 0 }?.let { bundle.putInt("benVisitNo", it) }
     }
 
 }

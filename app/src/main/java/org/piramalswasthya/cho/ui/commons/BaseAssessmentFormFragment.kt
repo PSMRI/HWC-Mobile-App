@@ -155,6 +155,24 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
         findNavController().navigateUp()
     }
 
+    protected fun navigateToCphcVitalsAfterSave(
+        subCategory: String,
+        reasonForVisit: String? = null,
+        category: String = CphcFormNavigation.OTHER_CPHC_CATEGORY,
+        requireMasterDb: Boolean = false,
+    ) {
+        findNavController().navigate(
+            R.id.customVitalsFragment,
+            CphcFormNavigation.buildVitalsBundle(
+                arguments = arguments,
+                category = category,
+                subCategory = subCategory,
+                reasonForVisit = reasonForVisit,
+                requireMasterDb = requireMasterDb,
+            ),
+        )
+    }
+
     private fun observeAlert() {
         viewModel.showAlert.observe(viewLifecycleOwner) { message ->
             message?.let { showAlertDialog(it) }

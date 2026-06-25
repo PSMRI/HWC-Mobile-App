@@ -62,21 +62,12 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
 
     // Stamp Oral Health visit metadata onto MasterDb from arguments and navigate to vitals.
     override fun onSaveSuccess() {
-        val masterDb = requireNotNull(arguments?.getSerializable("MasterDb") as? MasterDb) { // requireNotNull enforces that the caller (nav-graph) must supply a MasterDb bundle.
-            "MasterDb is required for OralHealthFormFragment but was not provided"
-        }
         WorkerUtils.oralPushWorker(requireContext())
-
-        masterDb.visitMasterDb?.apply {
-            category = "Other CPHC Services"
-            subCategory = DropdownConst.oral
-            reason = DropdownConst.dental
-        }
-
-        val bundle = Bundle().apply {
-            putSerializable("MasterDb", masterDb)
-        }
-        findNavController().navigate(R.id.customVitalsFragment, bundle) // Use global action ID to remain consistent with all other specialized-form navigation.
+        navigateToCphcVitalsAfterSave(
+            subCategory = DropdownConst.oral,
+            reasonForVisit = DropdownConst.dental,
+            requireMasterDb = true,
+        )
     }
 
     override fun onDestroyView() {
