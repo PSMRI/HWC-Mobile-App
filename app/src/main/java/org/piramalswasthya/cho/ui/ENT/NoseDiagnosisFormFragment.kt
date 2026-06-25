@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNoseDiagnosisFormBinding
+import org.piramalswasthya.cho.ui.commons.CphcFormNavigation
 import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -120,16 +121,14 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
                     Toast.makeText(context, getString(R.string.nose_diagnosis_saved), Toast.LENGTH_LONG).show()
                     // Prevent re-delivery of SAVE_SUCCESS when returning from Vitals via back/cancel.
                     viewModel.resetState()
-                    // Stamp Nose visit metadata onto MasterDb and navigate to vitals; replaces the previous navigateUp() that bypassed visit registration.
-                    val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
-                        ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
-                    masterDb.visitMasterDb?.apply {
-                        category = "Other CPHC Services"
-                        subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.nose
-                        reason = org.piramalswasthya.cho.ui.commons.DropdownConst.nose
-                    }
-                    val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
-                    findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
+                    findNavController().navigate(
+                        org.piramalswasthya.cho.R.id.customVitalsFragment,
+                        CphcFormNavigation.buildVitalsBundle(
+                            arguments = arguments,
+                            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.nose,
+                            reasonForVisit = org.piramalswasthya.cho.ui.commons.DropdownConst.nose,
+                        ),
+                    )
                 }
 
                 BaseFormViewModel.State.SAVE_FAILED -> {

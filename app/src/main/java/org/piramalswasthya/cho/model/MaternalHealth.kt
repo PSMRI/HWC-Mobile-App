@@ -315,6 +315,27 @@ data class PatientWithPwrDomain(
     }
 }
 
+private fun resolveAbortionLmpDate(
+    pwrList: List<PregnantWomanRegistrationCache>,
+    abortionRecord: PregnantWomanAncCache?
+): Long {
+    return pwrList.maxByOrNull { it.createdDate }?.lmpDate?.takeIf { it > 0 }
+        ?: abortionRecord?.lmpDate?.takeIf { it > 0 }
+        ?: 0L
+}
+
+private fun PregnantWomanAncCache.abortionGestationalReferenceDate(): Long =
+    abortionDate ?: visitDate ?: ancDate
+
+private fun weeksOfPregnancyAtAbortion(
+    lmpDate: Long,
+    abortionRecord: PregnantWomanAncCache?
+): Int? {
+    if (lmpDate <= 0L || abortionRecord == null) return null
+    return getWeeksOfPregnancy(abortionRecord.abortionGestationalReferenceDate(), lmpDate)
+        .takeIf { it in 0..40 }
+}
+
 /**
  * Patient with PWR and ANC records (for abortion list).
  * PWR is a list; active and latest-by-createdDate are selected when building the domain.
@@ -336,23 +357,15 @@ data class PatientWithPwrAndAncCache(
     fun asAbortionDomainModel(): AbortionDomain {
         val abortionRecord = ancRecords.firstOrNull { it.isAborted && it.abortionDate != null }
         val activePwr = pwr.filter { it.active }.maxByOrNull { it.createdDate }
-        val registeredPwr = pwr.maxByOrNull { it.createdDate }
 
-        // Use LMP from registered PWR (even if inactive) or abortion record
-        val lmpDateToUse = registeredPwr?.lmpDate
-            ?: abortionRecord?.let { 
-                // If no PWR, try to get LMP from abortion record (if stored)
-                // For now, use 0L if not available
-                0L
-            } ?: 0L
+        val lmpDateToUse = resolveAbortionLmpDate(pwr, abortionRecord)
 
         val eddDateToUse = if (lmpDateToUse != 0L) {
             lmpDateToUse + TimeUnit.DAYS.toMillis(280)
         } else 0L
 
-        val weekOfPregnancyToUse = if (lmpDateToUse != 0L) {
-            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
-        } else null
+        // Gestational age at abortion — not from today (pregnancy already ended).
+        val weekOfPregnancyToUse = weeksOfPregnancyAtAbortion(lmpDateToUse, abortionRecord)
 
         return AbortionDomain(
             patient = patient,

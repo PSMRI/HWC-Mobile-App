@@ -79,6 +79,7 @@ import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.CphcFormType
+import org.piramalswasthya.cho.ui.commons.CphcFormTypeResolver
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.frequencyMap
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.instructionDropdownList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalReferDropdownVal
@@ -1073,6 +1074,71 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         return resolvedType == targetType
     }
 
+    private fun shouldShowCphcSection(
+        resolvedType: CphcFormType,
+        sectionType: CphcFormType,
+        hasSavedData: Boolean,
+    ): Boolean {
+        return shouldLoadCphcForm(resolvedType, sectionType) ||
+            (resolvedType == CphcFormType.UNKNOWN && hasSavedData)
+    }
+
+    private suspend fun <T> loadCphcSectionIfNeeded(
+        formType: CphcFormType,
+        sectionType: CphcFormType,
+        loader: suspend () -> T?,
+    ): T? {
+        if (!shouldLoadCphcForm(formType, sectionType) && formType != CphcFormType.UNKNOWN) {
+            return null
+        }
+        val saved = loader()
+        return saved.takeIf { shouldShowCphcSection(formType, sectionType, saved != null) }
+    }
+
+    private suspend fun resolveEffectiveBenVisitNoForCphcPopup(patientId: String): Int? {
+        arguments?.getInt("benVisitNo", -1)?.takeIf { it > 0 }?.let { return it }
+
+        if (isFreshCaseEntryFromVisitDetails) {
+            val lastSync = viewModel.getLastVisitInfoSync(patientId)
+            return when {
+                lastSync == null -> 1
+                lastSync.nurseFlag == 1 -> lastSync.benVisitNo
+                else -> lastSync.benVisitNo + 1
+            }
+        }
+
+        return benVisitInfo.benVisitNo?.takeIf { it > 0 }
+    }
+
+    private suspend fun resolveCphcFormTypeForPopup(patientId: String, visitNo: Int): CphcFormType {
+        val fromDb = viewModel.resolveCphcFormTypeForVisit(patientId, visitNo)
+        if (fromDb != CphcFormType.UNKNOWN) return fromDb
+        val visitMaster = masterDb?.visitMasterDb
+        return CphcFormTypeResolver.resolve(visitMaster?.reason, visitMaster?.subCategory)
+    }
+
+    private suspend fun getChiefComplaintsForCphcPopup(
+        patientId: String,
+        visitNo: Int,
+    ): List<ChiefComplaintDB> {
+        val fromDb = viewModel.getChiefComplaintByPatientAndVisit(patientId, visitNo)
+        if (fromDb.isNotEmpty()) return fromDb
+
+        return masterDb?.visitMasterDb?.chiefComplaint.orEmpty().map { cc ->
+            ChiefComplaintDB(
+                id = generateUuid(),
+                chiefComplaintId = cc.id,
+                chiefComplaint = cc.chiefComplaint,
+                duration = cc.duration,
+                durationUnit = cc.durationUnit,
+                description = cc.description,
+                patientID = patientId,
+                benVisitNo = visitNo,
+                benFlowID = null,
+            )
+        }
+    }
+
     private fun showPreviousCphcDetailsPopup() {
         fun boolLabel(value: Boolean?): String = when (value) {
             true -> getString(R.string.yes)
@@ -1081,45 +1147,44 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
         fun valueLabel(value: Any?): String = value?.toString()?.takeIf { it.isNotBlank() } ?: getString(R.string.no_data)
 
-        val currentVisitNo = benVisitInfo.benVisitNo
-
         lifecycleScope.launch {
             val popupPatientId = if (patId.isNotBlank()) patId else benVisitInfo.patient.patientID
+            val currentVisitNo = resolveEffectiveBenVisitNoForCphcPopup(popupPatientId)
             val details = if (currentVisitNo == null || currentVisitNo <= 0) {
                 ""
             } else {
                 buildString {
-                    val formType = viewModel.resolveCphcFormTypeForVisit(popupPatientId, currentVisitNo)
+                    val formType = resolveCphcFormTypeForPopup(popupPatientId, currentVisitNo)
 
                     val chiefComplaints =
-                        viewModel.getChiefComplaintByPatientAndVisit(popupPatientId, currentVisitNo)
-                    val earDiagnosis = if (shouldLoadCphcForm(formType, CphcFormType.EAR)) {
+                        getChiefComplaintsForCphcPopup(popupPatientId, currentVisitNo)
+                    val earDiagnosis = loadCphcSectionIfNeeded(formType, CphcFormType.EAR) {
                         viewModel.getEarDiagnosisByPatientAndVisit(popupPatientId, currentVisitNo)
-                    } else null
-                    val noseDiagnosis = if (shouldLoadCphcForm(formType, CphcFormType.NOSE)) {
+                    }
+                    val noseDiagnosis = loadCphcSectionIfNeeded(formType, CphcFormType.NOSE) {
                         viewModel.getNoseDiagnosisByPatientAndVisit(popupPatientId, currentVisitNo)
-                    } else null
-                    val throatDiagnosis = if (shouldLoadCphcForm(formType, CphcFormType.THROAT)) {
+                    }
+                    val throatDiagnosis = loadCphcSectionIfNeeded(formType, CphcFormType.THROAT) {
                         viewModel.getThroatDiagnosisByPatientAndVisit(popupPatientId, currentVisitNo)
-                    } else null
-                    val oralHealth = if (shouldLoadCphcForm(formType, CphcFormType.ORAL)) {
+                    }
+                    val oralHealth = loadCphcSectionIfNeeded(formType, CphcFormType.ORAL) {
                         viewModel.getOralHealthByPatientAndVisit(popupPatientId, currentVisitNo)
-                    } else null
-                    val ophthalmicVisit = if (shouldLoadCphcForm(formType, CphcFormType.OPHTHALMIC)) {
+                    }
+                    val ophthalmicVisit = loadCphcSectionIfNeeded(formType, CphcFormType.OPHTHALMIC) {
                         viewModel.getOphthalmicByPatientAndVisit(popupPatientId, currentVisitNo)
-                    } else null
-                    val elderlyAssessment = if (shouldLoadCphcForm(formType, CphcFormType.ELDERLY)) {
+                    }
+                    val elderlyAssessment = loadCphcSectionIfNeeded(formType, CphcFormType.ELDERLY) {
                         viewModel.getElderlyByPatientAndVisit(popupPatientId, currentVisitNo)
-                    } else null
-                    val mentalScreening = if (shouldLoadCphcForm(formType, CphcFormType.MENTAL)) {
+                    }
+                    val mentalScreening = loadCphcSectionIfNeeded(formType, CphcFormType.MENTAL) {
                         viewModel.getMentalByPatientAndVisit(popupPatientId, currentVisitNo)
-                    } else null
-                    val painAssessment = if (shouldLoadCphcForm(formType, CphcFormType.PAIN)) {
+                    }
+                    val painAssessment = loadCphcSectionIfNeeded(formType, CphcFormType.PAIN) {
                         viewModel.getPainAssessmentByPatientAndVisit(popupPatientId, currentVisitNo)
-                    } else null
-                    val psychosocialSupport = if (shouldLoadCphcForm(formType, CphcFormType.PSYCHOSOCIAL)) {
+                    }
+                    val psychosocialSupport = loadCphcSectionIfNeeded(formType, CphcFormType.PSYCHOSOCIAL) {
                         viewModel.getPsychosocialByPatientAndVisit(popupPatientId, currentVisitNo)
-                    } else null
+                    }
                     val hasAnyCphcData =
                         chiefComplaints.isNotEmpty() ||
                                 earDiagnosis != null ||
