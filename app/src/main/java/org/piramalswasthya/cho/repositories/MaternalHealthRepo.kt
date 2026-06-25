@@ -78,6 +78,10 @@ class MaternalHealthRepo @Inject constructor(
         return maternalHealthDao.getSavedRecord(benId)
     }
 
+    suspend fun getLatestRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
+        return maternalHealthDao.getLatestRegistrationRecord(benId)
+    }
+
 
 
     suspend fun getActiveRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
