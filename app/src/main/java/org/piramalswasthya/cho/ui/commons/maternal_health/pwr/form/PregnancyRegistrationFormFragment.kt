@@ -20,9 +20,11 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentPregnancyRegistrationFormBinding
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_MATERNAL_HEALTH
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.model.InputType
+import org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
@@ -337,7 +339,11 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
 
                     is PregnancyRegistrationFormViewModel.NavigationEvent.NavigateUp -> {
                         WorkerUtils.triggerPregnantWomanRegistrationSync(requireContext())
-                        findNavController().navigateUp()
+                        if (isFromEligibleCoupleTracking()) {
+                            navigateToMaternalHealthFromEct()
+                        } else {
+                            findNavController().navigateUp()
+                        }
                         viewModel.clearNavigation()
                     }
 
@@ -437,23 +443,32 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             return
         }
 
-        arguments?.getBoolean("fromECT", false)?.let { fromECT ->
-            if (fromECT) {
-                try {
-                    findNavController().popBackStack(R.id.fhirVisitDetailsFragment, false)
-                } catch (e: Exception) {
-                    Timber.e(e, "Navigation to Visit Details failed")
-                    if (!findNavController().navigateUp()) {
-                        requireActivity().onBackPressedDispatcher.onBackPressed()
-                    }
-                }
-                return
-            }
+        if (isFromEligibleCoupleTracking()) {
+            navigateToMaternalHealthFromEct()
+            return
         }
 
         if (!findNavController().navigateUp()) {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+    }
+
+    private fun isFromEligibleCoupleTracking(): Boolean {
+        if (arguments?.getBoolean("fromECT", false) == true) return true
+        return findNavController().currentBackStackEntry?.arguments?.getBoolean("fromECT", false) == true
+    }
+
+    private fun navigateToMaternalHealthFromEct() {
+        val activity = requireActivity()
+        if (activity is SubModuleActivity) {
+            activity.navigateToMaternalHealthCards()
+            return
+        }
+        val intent = SubModuleActivity.getIntent(requireContext(), MODULE_MATERNAL_HEALTH).apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(intent)
+        activity.finish()
     }
 
     override fun getFragmentId(): Int = R.id.pregnantWomanRegistrationFragment
