@@ -38,7 +38,7 @@ class TokenInsertTmcInterceptor : Interceptor{
         if (request.header("No-Auth") == null) {
             request = request
                 .newBuilder()
-                .addHeader("Authorization", TOKEN)
+                //.addHeader("Authorization", TOKEN)
                 .addHeader("Jwttoken" , JWT)
                 .build()
         }

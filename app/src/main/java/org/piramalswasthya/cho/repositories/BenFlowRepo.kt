@@ -567,7 +567,16 @@ class BenFlowRepo @Inject constructor(
                                 "BenFlowFacilityDebug",
                                 "syncFlowIds row: parsed benFlowID=${benFlow.benFlowID}, benRegID=${benFlow.beneficiaryRegID}, vanID=${benFlow.vanID}, facilityID=${benFlow.facilityID}, facilityIDToInsert=${benFlowToInsert.facilityID}"
                             )
-                            val patient = patientRepo.getPatientByBenRegId(benFlowToInsert.beneficiaryRegID!!)
+                            val benRegId = benFlowToInsert.beneficiaryRegID
+                            if (benRegId == null) {
+                                Log.w(
+                                    "BenFlowFacilityDebug",
+                                    "syncFlowIds row: benflow has null beneficiaryRegID; skipping unmatchable row (benFlowID=${benFlowToInsert.benFlowID})"
+                                )
+                                insertBenFlow(benFlowToInsert)
+                                continue
+                            }
+                            val patient = patientRepo.getPatientByBenRegId(benRegId)
                             insertBenFlow(benFlowToInsert)
                             if(patient != null){
                                 if (benFlowToInsert.reproductiveStatusId != null &&
