@@ -185,7 +185,7 @@ class BenFlowRepo @Inject constructor(
 
     }
 
-    suspend fun downloadAndSyncFlowRecords(pullClinical: Boolean = true): Boolean {
+    suspend fun downloadAndSyncFlowRecords(pullClinical: Boolean = true, ignoreWatermark: Boolean = false): Boolean {
 
         val user = userRepo.getLoggedInUser()
         val loggedInFacilityID = user?.facilityID
@@ -201,7 +201,16 @@ class BenFlowRepo @Inject constructor(
             user?.masterVillageID != null -> listOf(user.masterVillageID!!)
             else -> emptyList()
         }
-        val lastSyncDate = preferenceDao.getLastBenflowSyncTime()
+        // Upsync/form-save re-pull passes ignoreWatermark=true so a JUST-created benflow (whose
+        // server timestamp the incremental hour-truncated watermark would exclude) is reliably
+        // returned by the server. Safe because this pass runs pullClinical=false and does NOT
+        // advance the watermark (only PullClinicalRecordsWorker does), so incremental downsync is
+        // unaffected.
+        val lastSyncDate = if (ignoreWatermark) {
+            preferenceDao.getEpochBenflowSyncTime()
+        } else {
+            preferenceDao.getLastBenflowSyncTime()
+        }
 
 //        if (effectiveVillageIds.isEmpty() || lastSyncDate.isBlank()) {
 //            Log.w(
@@ -558,7 +567,16 @@ class BenFlowRepo @Inject constructor(
                                 "BenFlowFacilityDebug",
                                 "syncFlowIds row: parsed benFlowID=${benFlow.benFlowID}, benRegID=${benFlow.beneficiaryRegID}, vanID=${benFlow.vanID}, facilityID=${benFlow.facilityID}, facilityIDToInsert=${benFlowToInsert.facilityID}"
                             )
-                            val patient = patientRepo.getPatientByBenRegId(benFlowToInsert.beneficiaryRegID!!)
+                            val benRegId = benFlowToInsert.beneficiaryRegID
+                            if (benRegId == null) {
+                                Log.w(
+                                    "BenFlowFacilityDebug",
+                                    "syncFlowIds row: benflow has null beneficiaryRegID; skipping unmatchable row (benFlowID=${benFlowToInsert.benFlowID})"
+                                )
+                                insertBenFlow(benFlowToInsert)
+                                continue
+                            }
+                            val patient = patientRepo.getPatientByBenRegId(benRegId)
                             insertBenFlow(benFlowToInsert)
                             if(patient != null){
                                 if (benFlowToInsert.reproductiveStatusId != null &&

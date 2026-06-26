@@ -219,6 +219,13 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
     }
 
+    // Watermark that pulls the FULL benflow worklist (same value used for a first-ever sync).
+    // Used by the upsync/form-save benflow re-pull to land a JUST-created benflow that the
+    // incremental (hour-truncated) watermark would otherwise filter out.
+    fun getEpochBenflowSyncTime(): String {
+        return DateTimeUtil.formatCustDateAndTime(epochTimestamp)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setLastBenflowSyncTime(currTimeStamp: Long){
         val prefKey = context.getString(R.string.last_benflow_sync_time)
