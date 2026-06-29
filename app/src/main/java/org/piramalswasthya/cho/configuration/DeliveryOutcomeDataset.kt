@@ -222,7 +222,8 @@ class DeliveryOutcomeDataset(
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 1,
         max = 6,
-        min = 0
+        min = 0,
+        refreshSiblingsOnChange = true
     )
 
     private val liveBirth = FormElement(
@@ -234,7 +235,8 @@ class DeliveryOutcomeDataset(
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 1,
         max = 6,
-        min = 0
+        min = 0,
+        refreshSiblingsOnChange = true
     )
 
     private val stillBirth = FormElement(
@@ -246,7 +248,8 @@ class DeliveryOutcomeDataset(
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 1,
         max = 6,
-        min = 0
+        min = 0,
+        refreshSiblingsOnChange = true
     )
 
     // Store EDD and LMP for calculations
