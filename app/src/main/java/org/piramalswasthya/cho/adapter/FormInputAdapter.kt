@@ -274,7 +274,7 @@ class FormInputAdapter(
                     binding.et.removeTextChangedListener(textWatcher)
                     val imm =
                         binding.root.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?
-                    imm!!.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+                    imm?.hideSoftInputFromWindow(binding.et.windowToken, 0)
                 }
             }
             binding.et.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
@@ -401,6 +401,7 @@ class FormInputAdapter(
                         rdBtn.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                            binding.rg.clearFocus()
                         }
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
@@ -523,6 +524,7 @@ class FormInputAdapter(
                         cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                            binding.llChecks.clearFocus()
                         }
                         if (!isEnabled) {
                             cbx.isClickable = false
