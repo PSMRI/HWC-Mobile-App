@@ -117,7 +117,8 @@ class AbortionFormViewModel(
                     }
                     Timber.d("AbortionForm load: aborted found id=${aborted.id}")
 
-                    val savedReg = maternalHealthRepo.getLatestRegistrationRecord(patientId)
+                    val savedReg = maternalHealthRepo.getSavedRegistrationRecord(patientId)
+                        ?: maternalHealthRepo.getLatestRegistrationRecord(patientId)
                     val lmpDate = savedReg?.lmpDate?.takeIf { it > 0 }
                         ?: aborted.lmpDate?.takeIf { it > 0 }
                         ?: 0L
