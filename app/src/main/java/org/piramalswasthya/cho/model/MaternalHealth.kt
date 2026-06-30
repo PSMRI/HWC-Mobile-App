@@ -318,8 +318,8 @@ data class PatientWithPwrDomain(
 private fun List<PregnantWomanRegistrationCache>.resolvePregnancyLmpDate(
     fallbackLmp: Long? = null
 ): Long =
-    filter { it.active }.maxByOrNull { it.createdDate }?.lmpDate?.takeIf { it > 0 }
-        ?: maxByOrNull { it.createdDate }?.lmpDate?.takeIf { it > 0 }
+    filter { it.active && it.lmpDate > 0L }.maxByOrNull { it.createdDate }?.lmpDate
+        ?: filter { it.lmpDate > 0L }.maxByOrNull { it.createdDate }?.lmpDate
         ?: fallbackLmp?.takeIf { it > 0 }
         ?: 0L
 

@@ -15,7 +15,7 @@ fun getWeeksOfPregnancy(regLong: Long, lmpLong: Long) =
 /** Current gestational age in whole weeks — matches ANC visit list display. */
 fun getCurrentWeeksOfPregnancy(lmpLong: Long): Int {
     if (lmpLong <= 0L) return 0
-    return getWeeksOfPregnancy(getTodayMillis(), lmpLong)
+    return getWeeksOfPregnancy(getTodayMillis(), lmpLong).coerceAtLeast(0)
 }
 
 /** Current gestational age formatted — matches ANC visit list, used on read-only form fields. */
@@ -37,12 +37,7 @@ fun getGestationalAgeFormatted(regLong: Long, lmpLong: Long): String {
     }
     val totalDays = TimeUnit.MILLISECONDS.toDays(diff).toInt().coerceAtLeast(0)
     val weeks = totalDays / 7
-    val days = totalDays % 7
-    return if (days == 0) {
-        "$weeks weeks"
-    } else {
-        "$weeks weeks"
-    }
+    return "$weeks weeks"
 }
 
 
