@@ -41,7 +41,7 @@ fun getGestationalAgeFormatted(regLong: Long, lmpLong: Long): String {
     return if (days == 0) {
         "$weeks weeks"
     } else {
-        "$weeks weeks $days days"
+        "$weeks weeks"
     }
 }
 
