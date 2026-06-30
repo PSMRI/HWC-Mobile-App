@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -64,6 +65,11 @@ class ANCVisitsAdapter(
             binding.tvEdd.text = item.getFormattedEDD()
 
             binding.tvLastVisit.text = "N/A"
+
+            // Hide "Add Visit" button if ANC 4 is completed and patient is not HRP
+            val isAnc4Completed = item.ancRecords.any { it.visitNumber == 4 && it.weight != null }
+            val isHRP = item.pwr?.isHrp ?: false
+            binding.btnAddAnc.visibility = if (isAnc4Completed && !isHRP) View.GONE else View.VISIBLE
 
             binding.executePendingBindings()
         }
