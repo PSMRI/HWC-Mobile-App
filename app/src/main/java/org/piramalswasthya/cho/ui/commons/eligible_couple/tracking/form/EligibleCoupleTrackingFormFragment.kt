@@ -31,7 +31,7 @@ import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.OtherCPHCServicesViewModel
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.home.rmncha.maternal_health.MaternalHealthNavHostFragment
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
@@ -227,16 +227,8 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
     }
 
     private fun checkForAlerts() {
-        if(viewModel.isPregnant) {
-            Toast.makeText(
-                requireContext(),
-                resources.getString(R.string.tracking_form_filled_successfully),
-                Toast.LENGTH_SHORT
-            ).show()
-            WorkerUtils.triggerBeneficiarySync(requireContext())
-            saveNurseDataInBackground()
-            viewModel.resetState()
-            navigateBackToList()
+        if (viewModel.shouldOpenPregnantWomanRegistration) {
+            navigateToPregnantWomanRegistration()
             return
         }
         // If no alert to show, proceed directly
@@ -254,6 +246,54 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         }
         // Alerts will be handled by the observer
     }
+
+    private fun navigateToPregnantWomanRegistration() {
+        if (!isAdded || isRemoving) return
+
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.tracking_form_filled_successfully),
+            Toast.LENGTH_SHORT
+        ).show()
+        WorkerUtils.triggerBeneficiarySync(requireContext())
+        saveNurseDataInBackground()
+        viewModel.resetState()
+
+        val bundle = Bundle().apply {
+            putString("patientID", viewModel.patientID)
+            putBoolean("fromECT", true)
+            putInt("destinationId", R.id.pregnancyRegistrationFormFragment)
+        }
+
+        try {
+            findNavController().navigate(
+                R.id.action_eligibleCoupleTrackingFormFragment_to_pregnancyRegistrationFormFragment,
+                bundle
+            )
+            return
+        } catch (directNavError: Exception) {
+            Timber.d(directNavError, "Direct PWR navigation unavailable, trying nav host fallback")
+        }
+
+        try {
+            findNavController().navigate(
+                R.id.action_eligibleCoupleTrackingFormFragment_to_maternalHealthNavHostFragment,
+                bundle
+            )
+            return
+        } catch (navHostError: Exception) {
+            Timber.d(navHostError, "Nav host PWR navigation unavailable, using fragment transaction")
+        }
+
+        val fragment = MaternalHealthNavHostFragment().apply {
+            arguments = bundle
+        }
+        requireActivity().supportFragmentManager.commit {
+            replace(R.id.fragment_container, fragment)
+            addToBackStack("PWR_FROM_ECT")
+        }
+    }
+
     private fun navigateBackToList() {
         if (!isAdded || isRemoving) return
 

@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.adapter
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.res.ColorStateList
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
@@ -44,6 +45,7 @@ import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.utils.KeyboardUtils
+import org.piramalswasthya.cho.utils.applySafeDateConstraints
 import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.model.InputType.AGE_PICKER
 import org.piramalswasthya.cho.model.InputType.CHECKBOXES
@@ -279,6 +281,9 @@ class FormInputAdapter(
                     // EditText rows during a scroll) it would re-open the keyboard
                     // even though no field was tapped.
                     KeyboardUtils.hideKeyboard(binding.et)
+//                     val imm =
+//                         binding.root.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?
+//                     imm?.hideSoftInputFromWindow(binding.et.windowToken, 0)
                 }
             }
             binding.et.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
@@ -405,6 +410,7 @@ class FormInputAdapter(
                         rdBtn.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                            binding.rg.clearFocus()
                         }
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
@@ -527,6 +533,7 @@ class FormInputAdapter(
                         cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                            binding.llChecks.clearFocus()
                         }
                         if (!isEnabled) {
                             cbx.isClickable = false
@@ -639,8 +646,7 @@ class FormInputAdapter(
                 )
                 item.errorText = null
                 binding.tilEditText.error = null
-                datePickerDialog.datePicker.maxDate = item.max ?: 0
-                datePickerDialog.datePicker.minDate = item.min ?: 0
+                datePickerDialog.datePicker.applySafeDateConstraints(item.min, item.max)
                 if (item.showYearFirstInDatePicker)
                     datePickerDialog.datePicker.touchables[0].performClick()
                 datePickerDialog.show()

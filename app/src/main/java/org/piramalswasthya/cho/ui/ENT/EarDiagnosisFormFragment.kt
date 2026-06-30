@@ -64,14 +64,8 @@ class EarDiagnosisFormFragment :
     // Stamp Ear visit metadata onto MasterDb from arguments and navigate to the vitals screen.
     override fun onSaveSuccess() {
         WorkerUtils.earPushWorker(requireContext())
-        val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
-            ?: org.piramalswasthya.cho.model.MasterDb(patientId = arguments?.getString("patientID") ?: "", visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
-        masterDb.visitMasterDb?.apply {
-            category = "Other CPHC Services"
-            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ear
-            reason = org.piramalswasthya.cho.ui.commons.DropdownConst.ear
-        }
-        val bundle = android.os.Bundle().apply { putSerializable("MasterDb", masterDb) }
-        findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
+        navigateToCphcVitalsAfterSave(
+            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ear,
+        )
     }
 }
