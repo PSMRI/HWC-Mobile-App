@@ -3,8 +3,8 @@ package org.piramalswasthya.cho.configuration
 import android.content.Context
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.utils.ImgUtils
+import org.piramalswasthya.cho.helpers.getCurrentGestationalAgeFormatted
 import org.piramalswasthya.cho.helpers.Languages
-import org.piramalswasthya.cho.helpers.getGestationalAgeFormatted
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
@@ -154,7 +154,7 @@ class PregnantWomanAncAbortionDataset(
         dateOfSterilization.min = abortionAnc.abortionDate
 
         visitDate.value = abortionAnc.visitDate?.let { getDateFromLong(it) }
-        weekOfPregnancy.value = gestationalAgeAtAbortion(abortionAnc)
+        weekOfPregnancy.value = getCurrentGestationalAgeFormatted(registration.lmpDate)
         abortionType.value = abortionAnc.abortionType
         abortionFacility.value = abortionAnc.abortionFacility
         abortionDate.value = abortionAnc.abortionDate?.let { getDateFromLong(it) }
@@ -185,23 +185,9 @@ class PregnantWomanAncAbortionDataset(
         setUpPage(list)
     }
 
-    private fun gestationalAgeAtAbortion(abortionAnc: PregnantWomanAncCache): String {
-        if (registration.lmpDate <= 0L) return "NA"
-        val referenceDate = abortionAnc.abortionDate ?: abortionAnc.visitDate ?: abortionAnc.ancDate
-        return getGestationalAgeFormatted(referenceDate, registration.lmpDate)
-    }
-
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
-            visitDate.id -> {
-                visitDate.value?.let {
-                    if (registration.lmpDate > 0L) {
-                        weekOfPregnancy.value =
-                            getGestationalAgeFormatted(getLongFromDate(it), registration.lmpDate)
-                    }
-                }
-                -1
-            }
+            visitDate.id -> -1
 
             isPaiucd.id -> {
                 isYesOrNo.value = null

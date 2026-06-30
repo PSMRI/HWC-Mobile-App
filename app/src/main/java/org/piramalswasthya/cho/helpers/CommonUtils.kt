@@ -12,6 +12,18 @@ import java.util.concurrent.TimeUnit
 fun getWeeksOfPregnancy(regLong: Long, lmpLong: Long) =
     (TimeUnit.MILLISECONDS.toDays(regLong - lmpLong) / 7).toInt()
 
+/** Current gestational age in whole weeks — matches ANC visit list display. */
+fun getCurrentWeeksOfPregnancy(lmpLong: Long): Int {
+    if (lmpLong <= 0L) return 0
+    return getWeeksOfPregnancy(getTodayMillis(), lmpLong)
+}
+
+/** Current gestational age formatted — matches ANC visit list, used on read-only form fields. */
+fun getCurrentGestationalAgeFormatted(lmpLong: Long): String {
+    if (lmpLong <= 0L) return "NA"
+    return getGestationalAgeFormatted(getTodayMillis(), lmpLong)
+}
+
 /**
  * Formats gestational age as "X weeks Y days"
  * @param regLong Current date in milliseconds

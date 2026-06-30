@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
+import org.piramalswasthya.cho.helpers.getCurrentWeeksOfPregnancy
 import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import android.content.Context
@@ -243,8 +244,7 @@ data class PatientWithPwrDomain(
      */
     fun getWeeksOfPregnancy(): Int {
         return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
-            val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - pwr.lmpDate)
-            (daysSinceLMP / 7).toInt()
+            getCurrentWeeksOfPregnancy(pwr.lmpDate)
         } else {
             0
         }
@@ -315,26 +315,18 @@ data class PatientWithPwrDomain(
     }
 }
 
+private fun List<PregnantWomanRegistrationCache>.resolvePregnancyLmpDate(
+    fallbackLmp: Long? = null
+): Long =
+    filter { it.active }.maxByOrNull { it.createdDate }?.lmpDate?.takeIf { it > 0 }
+        ?: maxByOrNull { it.createdDate }?.lmpDate?.takeIf { it > 0 }
+        ?: fallbackLmp?.takeIf { it > 0 }
+        ?: 0L
+
 private fun resolveAbortionLmpDate(
     pwrList: List<PregnantWomanRegistrationCache>,
     abortionRecord: PregnantWomanAncCache?
-): Long {
-    return pwrList.maxByOrNull { it.createdDate }?.lmpDate?.takeIf { it > 0 }
-        ?: abortionRecord?.lmpDate?.takeIf { it > 0 }
-        ?: 0L
-}
-
-private fun PregnantWomanAncCache.abortionGestationalReferenceDate(): Long =
-    abortionDate ?: visitDate ?: ancDate
-
-private fun weeksOfPregnancyAtAbortion(
-    lmpDate: Long,
-    abortionRecord: PregnantWomanAncCache?
-): Int? {
-    if (lmpDate <= 0L || abortionRecord == null) return null
-    return getWeeksOfPregnancy(abortionRecord.abortionGestationalReferenceDate(), lmpDate)
-        .takeIf { it in 0..40 }
-}
+): Long = pwrList.resolvePregnancyLmpDate(abortionRecord?.lmpDate)
 
 /**
  * Patient with PWR and ANC records (for abortion list).
@@ -364,8 +356,10 @@ data class PatientWithPwrAndAncCache(
             lmpDateToUse + TimeUnit.DAYS.toMillis(280)
         } else 0L
 
-        // Gestational age at abortion — not from today (pregnancy already ended).
-        val weekOfPregnancyToUse = weeksOfPregnancyAtAbortion(lmpDateToUse, abortionRecord)
+        // Same current GA as ANC visit list (today vs LMP), not GA at abortion/visit date.
+        val weekOfPregnancyToUse = if (lmpDateToUse != 0L) {
+            getCurrentWeeksOfPregnancy(lmpDateToUse).takeIf { it in 1..40 }
+        } else null
 
         return AbortionDomain(
             patient = patient,
