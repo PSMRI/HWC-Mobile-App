@@ -29,6 +29,7 @@ class AncBottomSheetFragment : BottomSheetDialogFragment() {
     lateinit var maternalHealthRepo: MaternalHealthRepo
 
     private var patientID: String? = null
+    private var allLoadedVisits: List<PregnantWomanAncCache> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,6 +48,9 @@ class AncBottomSheetFragment : BottomSheetDialogFragment() {
         val adapter = AncVisitBottomSheetAdapter(
             AncVisitBottomSheetAdapter.AncVisitClickListener { ancVisit ->
                 // Navigate to the specific ANC visit form
+                // If ANC 4 is completed, all visits should be read-only
+                val isAnc4Completed = allLoadedVisits.any { it.visitNumber == 4 && it.weight != null }
+                val isOldVisit = ancVisit.weight != null || isAnc4Completed
                 val intent = Intent(
                     requireContext(),
                     org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java
@@ -54,7 +58,7 @@ class AncBottomSheetFragment : BottomSheetDialogFragment() {
                     putExtra("navigateTo", "ANC")
                     putExtra("patientID", patientID)
                     putExtra("visitNumber", ancVisit.visitNumber)
-                    putExtra("isOldVisit", ancVisit.weight != null) // Read-only if completed
+                    putExtra("isOldVisit", isOldVisit)
                 }
                 startActivity(intent)
                 dismiss()
@@ -81,6 +85,7 @@ class AncBottomSheetFragment : BottomSheetDialogFragment() {
                 
                 val ancVisits = maternalHealthRepo.getAllActiveAncRecords(id)
                     .sortedBy { it.visitNumber }
+                allLoadedVisits = ancVisits
                 
                 // Pass LMP date and all visits to adapter for status calculation
                 adapter.updateData(ancVisits, lmpDate)
