@@ -128,7 +128,11 @@ class AadhaarOtpViewModel @Inject constructor(
                         _name =
                             result.data.ABHAProfile.firstName + " " + result.data.ABHAProfile.lastName
                     }
-                    _phrAddress = result.data.ABHAProfile.phrAddress!![0]
+                    try {
+                        _phrAddress = result.data.ABHAProfile.phrAddress!![0]
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                     _abhaNumber = result.data.ABHAProfile.ABHANumber
 
                     val gsonData = Gson().toJson(result.data)
