@@ -11,7 +11,7 @@ data class FormElement(
     @ArrayRes var arrayId : Int = -1,
     var entries: Array<String>? = null,
     var doubleStar: Boolean = false,
-    val hasDependants: Boolean = false,
+    var hasDependants: Boolean = false,
     var hasAlertError: Boolean = false,
     var value: String? = null,
     val regex: String? = null,

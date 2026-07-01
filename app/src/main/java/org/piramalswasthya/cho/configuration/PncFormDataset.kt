@@ -21,6 +21,7 @@ class PncFormDataset(
     private var visit: Int = 0
     private var dateOfDelivery: Long = 0L
     private var previousPncVisitDate: Long? = null
+    private var previousPncPeriod: Int = 0
 
     private val pncPeriod = FormElement(
         id = 1,
@@ -38,6 +39,7 @@ class PncFormDataset(
         title = resources.getString(R.string.pnc_visit_date),
         arrayId = -1,
         required = true,
+        isEnabled = false,
         hasDependants = false
     )
 
@@ -248,6 +250,9 @@ class PncFormDataset(
             cal.add(Calendar.YEAR, -1)
             return cal.timeInMillis
         }
+
+        private fun getTodayStartMillis(): Long =
+            Calendar.getInstance().setToStartOfTheDay().timeInMillis
     }
 
     private val sterilisation: Array<String> by lazy {
@@ -291,46 +296,24 @@ class PncFormDataset(
         )
         dateOfDelivery = deliveryOutcomeCache.dateOfDelivery ?: 0L
         previousPncVisitDate = previousPnc?.pncDate
-        
+        previousPncPeriod = previousPnc?.pncPeriod ?: 0
+
+        configureDeliveryDateField()
+        resetVisitDateToDisabled()
+
         if (dateOfDelivery != 0L) {
             deathDate.min = dateOfDelivery
             dateOfSterilisation.min = dateOfDelivery
-            deliveryDate.isEnabled = false
         }
         deathDate.max = System.currentTimeMillis()
         dateOfSterilisation.max = System.currentTimeMillis()
         anyDangerSign.value = anyDangerSign.entries!!.last()
         motherDeath.value = motherDeath.entries!!.last()
-        
+
         // Set default value for motherDeath to "No"
         motherDeath.value = motherDeath.entries!!.last()
-        
-        val daysSinceDeliveryMillis = if (deliveryOutcomeCache.dateOfDelivery != null) {
-            val deliveryCal = Calendar.getInstance()
-            deliveryCal.timeInMillis = deliveryOutcomeCache.dateOfDelivery!!
-            deliveryCal.setToStartOfTheDay()
-            val deliveryMillis = deliveryCal.timeInMillis
-            Calendar.getInstance().setToStartOfTheDay().timeInMillis - deliveryMillis
-        } else {
-            0L
-        }
-        val daysSinceDelivery = if (daysSinceDeliveryMillis > 0) {
-            TimeUnit.MILLISECONDS.toDays(daysSinceDeliveryMillis)
-        } else 0L
-        
-        deliveryDate.value = getDateFromLong(dateOfDelivery)
-        pncPeriod.entries =
-            listOf(
-                1,
-                3,
-                7,
-                14,
-                21,
-                28,
-                42
-            ).filter { if (daysSinceDelivery == 0L) it <= 1 else it <= daysSinceDelivery }
-                .filter { it > (previousPnc?.pncPeriod ?: 0) }
-                .map { "Day $it" }.toTypedArray()
+
+        updatePncPeriodEntries()
 
         // Handle permanent sterilization - disable contraception fields if already selected.
         // lastSterilizationVisit.contraceptionMethod is stored in English (canonical); re-localize
@@ -372,6 +355,7 @@ class PncFormDataset(
 
             pncPeriod.value = "Day ${it.pncPeriod}"
             visitDate.value = getDateFromLong(it.pncDate)
+            enableVisitDateForSelection()
             ifaTabsGiven.value = it.ifaTabsGiven?.toString()
             calciumSupplementation.value = it.calciumSupplementation?.toString()
             anyContraceptionMethod.value = it.anyContraceptionMethod?.let { yes ->
@@ -501,6 +485,66 @@ class PncFormDataset(
 
     }
 
+    private fun configureDeliveryDateField() {
+        val today = getTodayStartMillis()
+        if (dateOfDelivery != 0L) {
+            deliveryDate.inputType = InputType.TEXT_VIEW
+            deliveryDate.isEnabled = false
+            deliveryDate.required = false
+            deliveryDate.hasDependants = false
+            deliveryDate.value = getDateFromLong(dateOfDelivery)
+        } else {
+            deliveryDate.inputType = InputType.DATE_PICKER
+            deliveryDate.isEnabled = true
+            deliveryDate.required = true
+            deliveryDate.hasDependants = true
+            deliveryDate.min = getMinDeliveryDate()
+            deliveryDate.max = today
+            deliveryDate.value = null
+        }
+    }
+
+    private fun resetVisitDateToDisabled() {
+        visitDate.inputType = InputType.TEXT_VIEW
+        visitDate.isEnabled = false
+        visitDate.min = null
+        visitDate.max = null
+        visitDate.value = null
+    }
+
+    private fun enableVisitDateForSelection() {
+        visitDate.inputType = InputType.DATE_PICKER
+        visitDate.isEnabled = true
+        visitDate.min = null
+        visitDate.max = null
+    }
+
+    private fun updatePncPeriodEntries() {
+        val daysSinceDeliveryMillis = if (dateOfDelivery != 0L) {
+            val deliveryCal = Calendar.getInstance()
+            deliveryCal.timeInMillis = dateOfDelivery
+            deliveryCal.setToStartOfTheDay()
+            val deliveryMillis = deliveryCal.timeInMillis
+            getTodayStartMillis() - deliveryMillis
+        } else {
+            0L
+        }
+        val daysSinceDelivery = if (daysSinceDeliveryMillis > 0) {
+            TimeUnit.MILLISECONDS.toDays(daysSinceDeliveryMillis)
+        } else 0L
+
+        pncPeriod.entries = listOf(1, 3, 7, 14, 21, 28, 42)
+            .filter { if (daysSinceDelivery == 0L) it <= 1 else it <= daysSinceDelivery }
+            .filter { it > previousPncPeriod }
+            .map { "Day $it" }
+            .toTypedArray()
+    }
+
+    fun getSelectedDeliveryDateMillis(): Long? {
+        val fromField = deliveryDate.value?.let { getLongFromDate(it) }?.takeIf { it > 0L }
+        return fromField ?: dateOfDelivery.takeIf { it > 0L }
+    }
+
     /**
      * Evaluates all referral conditions and updates referralFacility.required and errorText accordingly.
      * Checks: anyDangerSign, maternalSymptoms (≥2 symptoms), pallor (Severe), vaginalBleeding (Heavy/Foul smell).
@@ -573,59 +617,19 @@ class PncFormDataset(
 
     // ─── Helper: handle PNC period selection and compute visit date range ─
     private fun handlePncPeriodChange(): Int {
-        visitDate.inputType = InputType.DATE_PICKER
         visitDate.value = null
-        val today = Calendar.getInstance().setToStartOfTheDay().timeInMillis
-        val deliveryCal = Calendar.getInstance()
-        deliveryCal.timeInMillis = dateOfDelivery
-        deliveryCal.setToStartOfTheDay()
-        val deliveryDateStart = deliveryCal.timeInMillis
+        enableVisitDateForSelection()
+        return getIndexById(visitDate.id)
+    }
 
-        // Previous PNC visit date (if exists) - must be after this
-        val previousVisitDateStart = previousPncVisitDate?.let {
-            val prevCal = Calendar.getInstance()
-            prevCal.timeInMillis = it
-            prevCal.setToStartOfTheDay()
-            prevCal.timeInMillis
+    private fun handleDeliveryDateChange(): Int {
+        dateOfDelivery = deliveryDate.value?.let { getLongFromDate(it) } ?: 0L
+        if (dateOfDelivery != 0L) {
+            deathDate.min = dateOfDelivery
+            dateOfSterilisation.min = dateOfDelivery
         }
-
-        when (val visitNumber = pncPeriod.value!!.substring(4).toInt()) {
-            1 -> {
-                // Day 1: Delivery date only (24-48 hours)
-                visitDate.min = minOf(today, deliveryDateStart)
-                visitDate.max = minOf(
-                    today,
-                    deliveryDateStart + TimeUnit.DAYS.toMillis(1)
-                )
-            }
-
-            3 -> {
-                // Day 3: Exactly Delivery + 3 days
-                val day3Date = deliveryDateStart + TimeUnit.DAYS.toMillis(3)
-                visitDate.min = minOf(today, day3Date)
-                visitDate.max = minOf(today, day3Date)
-            }
-
-            7, 14, 21, 28, 42 -> {
-                // Day 7/14/21/28/42: ±3 days from scheduled date
-                val scheduledDate = deliveryDateStart + TimeUnit.DAYS.toMillis(visitNumber.toLong())
-                val minDate = scheduledDate - TimeUnit.DAYS.toMillis(3)
-                val maxDate = scheduledDate + TimeUnit.DAYS.toMillis(3)
-
-                // Visit date cannot be before delivery date
-                val minAllowed = maxOf(deliveryDateStart, minDate)
-                // Visit date cannot be after today
-                val maxAllowed = minOf(today, maxDate)
-                // Visit date cannot be earlier than previous PNC visit date
-                val finalMin = previousVisitDateStart?.let { maxOf(minAllowed, it + TimeUnit.DAYS.toMillis(1)) } ?: minAllowed
-
-                visitDate.min = minOf(today, finalMin)
-                visitDate.max = minOf(today, maxAllowed)
-            }
-
-            else -> throw IllegalStateException("Illegal PNC Date $visitNumber")
-        }
-        return -1
+        updatePncPeriodEntries()
+        return getIndexById(pncPeriod.id)
     }
 
     // ─── Helper: handle contraception method selection ─────────────────
@@ -747,6 +751,8 @@ class PncFormDataset(
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
+            deliveryDate.id -> handleDeliveryDateChange()
+
             pncPeriod.id -> handlePncPeriodChange()
 
             ifaTabsGiven.id -> {
