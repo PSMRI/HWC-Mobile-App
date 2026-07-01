@@ -61,21 +61,18 @@ interface PncDao {
 
     /**
      * Get patientIDs of women eligible for PNC mothers list.
-     * Source: DeliveryOutcome + Patient (postnatal), excluding completed 42-day PNC.
+     * Source: Patient status postnatal (same pattern as EC/PWR lists), excluding completed 42-day PNC.
      */
     @Query("""
-        SELECT DISTINCT do.patientID
-        FROM DELIVERY_OUTCOME do
-        INNER JOIN PATIENT p ON do.patientID = p.patientID
-        WHERE do.isActive = 1
-          AND do.dateOfDelivery IS NOT NULL
-          AND p.genderID = 2
+        SELECT p.patientID
+        FROM PATIENT p
+        WHERE p.genderID = 2
           AND p.age BETWEEN 15 AND 49
           AND p.maritalStatusID = 2
           AND p.statusOfWomanID = 3
           AND NOT EXISTS (
               SELECT 1 FROM PNC_VISIT p42
-              WHERE p42.patientID = do.patientID
+              WHERE p42.patientID = p.patientID
                 AND p42.isActive = 1
                 AND p42.pncPeriod = 42
           )
@@ -86,18 +83,15 @@ interface PncDao {
      * Get count of women eligible for PNC mothers list.
      */
     @Query("""
-        SELECT COUNT(DISTINCT do.patientID)
-        FROM DELIVERY_OUTCOME do
-        INNER JOIN PATIENT p ON do.patientID = p.patientID
-        WHERE do.isActive = 1
-          AND do.dateOfDelivery IS NOT NULL
-          AND p.genderID = 2
+        SELECT COUNT(*)
+        FROM PATIENT p
+        WHERE p.genderID = 2
           AND p.age BETWEEN 15 AND 49
           AND p.maritalStatusID = 2
           AND p.statusOfWomanID = 3
           AND NOT EXISTS (
               SELECT 1 FROM PNC_VISIT p42
-              WHERE p42.patientID = do.patientID
+              WHERE p42.patientID = p.patientID
                 AND p42.isActive = 1
                 AND p42.pncPeriod = 42
           )
@@ -113,16 +107,13 @@ interface PncDao {
 
     /**
      * Get all PNC mothers with their delivery outcome and PNC data.
-     * Source of truth: DeliveryOutcome + Patient status postnatal.
+     * Source of truth: Patient status postnatal (delivery outcome joined via Room relation).
      */
     @Transaction
     @Query("""
-        SELECT DISTINCT p.*
+        SELECT p.*
         FROM PATIENT p
-        INNER JOIN DELIVERY_OUTCOME do ON p.patientID = do.patientID
-        WHERE do.isActive = 1
-          AND do.dateOfDelivery IS NOT NULL
-          AND p.genderID = 2
+        WHERE p.genderID = 2
           AND p.age BETWEEN 15 AND 49
           AND p.maritalStatusID = 2
           AND p.statusOfWomanID = 3

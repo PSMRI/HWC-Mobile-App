@@ -90,7 +90,13 @@ class PatientRepo @Inject constructor(
     private val prescriptionDao: PrescriptionDao,
     private val registrarMasterDataDao: RegistrarMasterDataDao,
     private val batchDao: BatchDao,
+    private val maternalHealthRepo: MaternalHealthRepo,
+    private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
 ) {
+
+    companion object {
+        private const val STATUS_POST_NATAL_MOTHER = 3
+    }
 
     private fun mapReproductiveStatusId(status: String?): Int? {
         return when (status?.trim()?.lowercase()) {
@@ -117,6 +123,7 @@ class PatientRepo @Inject constructor(
         // Ensure master data exists before inserting patient
         ensureMasterDataExists(patient)
         patientDao.insertPatient(patient)
+        routePostNatalPatientIfNeeded(patient)
     }
 
     /**
@@ -195,7 +202,14 @@ class PatientRepo @Inject constructor(
     suspend fun updateRecord(it: Patient) {
         withContext(Dispatchers.IO) {
             patientDao.updatePatient(it)
+            routePostNatalPatientIfNeeded(it)
         }
+    }
+
+    private suspend fun routePostNatalPatientIfNeeded(patient: Patient) {
+        if (patient.statusOfWomanID != STATUS_POST_NATAL_MOTHER || patient.genderID != 2) return
+        maternalHealthRepo.retirePregnancyLifecycleForPostNatal(patient.patientID)
+        deliveryOutcomeRepo.ensureActiveDeliveryOutcomeForPnc(patient)
     }
 
     suspend fun updatePatientSyncing(patient: Patient) {

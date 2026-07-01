@@ -195,6 +195,43 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
+    /**
+     * Retire active pregnancy records when a beneficiary is marked postnatal
+     * during registration/edit so she moves off PWR/ANC lists onto PNC Mother list.
+     */
+    suspend fun retirePregnancyLifecycleForPostNatal(patientID: String) {
+        withContext(Dispatchers.IO) {
+            getSavedRegistrationRecord(patientID)?.let { pwr ->
+                if (pwr.active) {
+                    pwr.active = false
+                    pwr.syncState = SyncState.UNSYNCED
+                    maternalHealthDao.updatePwr(pwr)
+                }
+            }
+
+            val activeAnc = maternalHealthDao.getAllActiveAncRecords(patientID)
+            if (activeAnc.isNotEmpty()) {
+                activeAnc.forEach {
+                    it.pregnantWomanDelivered = true
+                    it.isActive = false
+                    it.processed = "U"
+                    it.syncState = SyncState.UNSYNCED
+                }
+                maternalHealthDao.updateANC(*activeAnc.toTypedArray())
+            }
+
+            database.ecrDao.getAllECT(patientID).forEach { ect ->
+                if (ect.isPregnant != null || ect.pregnancyTestResult != null) {
+                    ect.isPregnant = null
+                    ect.pregnancyTestResult = null
+                    if (ect.processed != "N") ect.processed = "U"
+                    ect.syncState = SyncState.UNSYNCED
+                    database.ecrDao.updateEligibleCoupleTracking(ect)
+                }
+            }
+        }
+    }
+
     suspend fun getAncDueList(ancStage: Int): List<AncDueListItem> {
         return withContext(Dispatchers.IO) {
             val allPwr = maternalHealthDao.getAllActivePregnancyRegistrations()
