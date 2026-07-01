@@ -84,6 +84,36 @@ class DeliveryOutcomeRepo @Inject constructor(
         }
     }
 
+    /**
+     * Ensures an active delivery-outcome row exists so postnatal beneficiaries
+     * registered/edited via beneficiary form can enter the PNC workflow.
+     */
+    suspend fun ensureActiveDeliveryOutcomeForPnc(patient: Patient) {
+        withContext(Dispatchers.IO) {
+            val existing = deliveryOutcomeDao.getDeliveryOutcome(patient.patientID)
+            if (existing != null) {
+                if (!existing.isActive) {
+                    existing.isActive = true
+                    existing.syncState = SyncState.UNSYNCED
+                    deliveryOutcomeDao.updateDeliveryOutcome(existing)
+                }
+                return@withContext
+            }
+
+            val userName = userRepo.getLoggedInUser()?.userName?.takeIf { it.isNotBlank() } ?: "system"
+            deliveryOutcomeDao.saveDeliveryOutcome(
+                DeliveryOutcomeCache(
+                    patientID = patient.patientID,
+                    isActive = true,
+                    dateOfDelivery = null,
+                    createdBy = userName,
+                    updatedBy = userName,
+                    syncState = SyncState.UNSYNCED
+                )
+            )
+        }
+    }
+
     suspend fun processNewDeliveryOutcomes(): Boolean {
         return withContext(Dispatchers.IO) {
             val deliveryList = deliveryOutcomeDao.getAllUnprocessedDeliveryOutcomes()
