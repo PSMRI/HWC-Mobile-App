@@ -166,14 +166,23 @@ class BenVisitRepo @Inject constructor(
 
     }
 
+    // Returns true when every unsynced nurse record was resolved (pushed, or genuinely had nothing
+    // to do). Returns false when at least one record was SKIPPED because a transient precondition
+    // had not landed yet — the beneficiary is not yet registered on the server (beneficiaryRegID
+    // null) or the server BenFlow (nurseFlag==1) has not been pulled into the local DB. The caller
+    // (PushBenVisitInfoToAmrit) maps false to a bounded Result.retry() so the push re-runs once the
+    // prerequisite registration/benflow pull catches up, instead of leaving the visit UNSYNCED until
+    // the next periodic down-sync.
     suspend fun processUnsyncedNurseData() : Boolean{
 
         val patientNurseDataUnSyncList = patientVisitInfoSyncRepo.getPatientNurseDataUnsynced()
         val user = userRepo.getLoggedInUser()
+        var anyPending = false
 
         patientNurseDataUnSyncList.forEach {
 
             if(it.patient.beneficiaryRegID == null){
+                anyPending = true
                 Timber.w("Nurse data upsync SKIPPED: beneficiaryRegID is null for patientID=${it.patient.patientID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo}. Beneficiary not yet registered on server; clinical data stays UNSYNCED.")
             }
             if(it.patient.beneficiaryRegID != null){
@@ -222,13 +231,14 @@ class BenVisitRepo @Inject constructor(
                         }
 
                     } else {
+                        anyPending = true
                         Timber.w("Nurse data upsync SKIPPED: no matching BenFlow with nurseFlag==1 for patientID=${it.patient.patientID}, benRegID=${it.patient.beneficiaryRegID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo} (benFlow=$benFlow). Clinical data stays UNSYNCED.")
                     }
                 }
             }
         }
 
-        return true
+        return !anyPending
 
     }
 

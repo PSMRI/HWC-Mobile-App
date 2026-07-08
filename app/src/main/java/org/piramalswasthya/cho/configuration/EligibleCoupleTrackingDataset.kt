@@ -692,6 +692,10 @@ class EligibleCoupleTrackingDataset(
         return isPregnant.value == "Yes" || pregnancyTestResult.value == "Positive"
     }
 
+    fun shouldOpenPregnantWomanRegistration(): Boolean {
+        return pregnancyTestResult.value == "Positive" && isPregnant.value == "Yes"
+    }
+
     fun isSterilizationSelected(): Boolean {
         return methodOfContraception.value in listOf(MALE_STERILIZATION_VAL, FEMALE_STERILIZATION_VAL, MINILAP_VAL)
     }

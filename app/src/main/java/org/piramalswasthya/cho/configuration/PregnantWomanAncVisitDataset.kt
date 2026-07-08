@@ -5,8 +5,8 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.Languages
+import org.piramalswasthya.cho.helpers.getCurrentGestationalAgeFormatted
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
-import org.piramalswasthya.cho.helpers.getGestationalAgeFormatted
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PatientDisplay
@@ -545,7 +545,7 @@ class PregnantWomanAncVisitDataset(
 
 //        ancDate.value = getDateFromLong(System.currentTimeMillis())
         if (saved == null) {
-            weekOfPregnancy.value = ancDate.value?.let {
+            ancDate.value?.let {
                 val long = getLongFromDate(it)
                 val weeks = getWeeksOfPregnancy(long, regis.lmpDate)
                 if (weeks >= Konstants.minWeekToShowDelivered) {
@@ -567,8 +567,8 @@ class PregnantWomanAncVisitDataset(
                 if (weeks > Konstants.maxWeekToShowAbortion) {
                     list.remove(isAborted)
                 }
-                getGestationalAgeFormatted(long, regis.lmpDate)
             }
+            weekOfPregnancy.value = getCurrentGestationalAgeFormatted(regis.lmpDate)
         }
 
         ancVisit.value = if (ancVisit.entries?.contains(visitNumber.toString()) == true) visitNumber.toString() else (ancVisit.entries?.firstOrNull() ?: visitNumber.toString())
@@ -600,7 +600,7 @@ class PregnantWomanAncVisitDataset(
             }
 
             ancDate.value = getDateFromLong(savedAnc.ancDate)
-            weekOfPregnancy.value = getGestationalAgeFormatted(savedAnc.ancDate, regis.lmpDate)
+            weekOfPregnancy.value = getCurrentGestationalAgeFormatted(regis.lmpDate)
             
             if (list.contains(isAborted)) {
                 isAborted.value =
@@ -1046,7 +1046,7 @@ class PregnantWomanAncVisitDataset(
                         )
                     }
 
-                    weekOfPregnancy.value = getGestationalAgeFormatted(long, regis.lmpDate)
+                    weekOfPregnancy.value = getCurrentGestationalAgeFormatted(regis.lmpDate)
                     val calcVisitNumber = when (weeks) {
                         in Konstants.minAnc1Week..Konstants.maxAnc1Week -> 1
                         in Konstants.minAnc2Week..Konstants.maxAnc2Week -> 2

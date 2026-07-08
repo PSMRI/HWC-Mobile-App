@@ -94,6 +94,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     val formList = dataset.listFlow
 
     var isPregnant: Boolean = false
+    var shouldOpenPregnantWomanRegistration: Boolean = false
     var isSterilized: Boolean = false
     var isAntraSelectedAfterSave: Boolean = false
 
@@ -199,6 +200,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
                     // Check statuses in background
                     isPregnant = dataset.isPregnancyPositive()
+                    shouldOpenPregnantWomanRegistration = dataset.shouldOpenPregnantWomanRegistration()
                     isSterilized = dataset.isSterilizationSelected()
                     isAntraSelectedAfterSave = dataset.isAntraSelected()
                 }

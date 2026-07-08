@@ -291,9 +291,14 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
     private fun hardCodedListUpdate(formId: Int) {
         binding.form.rvInputForm.adapter?.apply {
             when (formId) {
-
-                1 -> notifyItemChanged(1)
-
+                1 -> {
+                    notifyItemChanged(1)
+                    val visitDateIndex = (binding.form.rvInputForm.adapter as? FormInputAdapter)
+                        ?.currentList?.indexOfFirst { it.id == 2 } ?: -1
+                    if (visitDateIndex >= 0) {
+                        notifyItemChanged(visitDateIndex)
+                    }
+                }
             }
         }
     }

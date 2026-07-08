@@ -16,6 +16,7 @@ import android.widget.ScrollView
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOphthalmicScreeningBinding
+import org.piramalswasthya.cho.ui.commons.CphcFormNavigation
 import org.piramalswasthya.cho.ui.commons.DropdownConst
 import android.app.AlertDialog
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
@@ -241,19 +242,11 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         viewModel.save {
             Toast.makeText(requireContext(), getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show()
             WorkerUtils.ophthalmicPushWorker(requireContext())
-            val masterDb = arguments?.getSerializable("MasterDb") as? org.piramalswasthya.cho.model.MasterDb
-                ?: org.piramalswasthya.cho.model.MasterDb(patientId = args.patientID, visitMasterDb = org.piramalswasthya.cho.model.VisitMasterDb())
-
-            masterDb.visitMasterDb?.apply {
-                category = "Other CPHC Services"
-                subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ophthalmic
-                reason = args.reasonForVisit
-            }
-
-            val bundle = android.os.Bundle().apply {
-                putSerializable("MasterDb", masterDb)
-                putInt("benVisitNo", args.benVisitNo)
-            }
+            val bundle = CphcFormNavigation.buildVitalsBundle(
+                arguments = arguments,
+                subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ophthalmic,
+                reasonForVisit = args.reasonForVisit,
+            )
             findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
         }
     }

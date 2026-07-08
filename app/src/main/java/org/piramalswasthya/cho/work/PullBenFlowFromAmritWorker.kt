@@ -49,6 +49,13 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
         // beneficiaries' worklists are recovered by the periodic/full down-sync instead.
         const val KEY_RELEASE_ON_INCOMPLETE = "release_on_incomplete"
 
+        // Set on the request (via input data) when this worklist pull runs in the upsync/form-save
+        // chain to land a JUST-created benflow. It pulls the full worklist (epoch watermark) instead
+        // of the incremental hour-truncated watermark, which would otherwise filter out a benflow
+        // created seconds earlier and leave the nurse/doctor push gate permanently UNSYNCED. Safe
+        // because the worklist pass does not advance the watermark.
+        const val KEY_IGNORE_WATERMARK = "ignore_watermark"
+
         // Initial run + up to 2 retries (3 executions total). A retry fires when the
         // benflow->patient join misses because the concurrent patient pull hasn't
         // landed the row yet; by the retry the patient pull has typically finished. We
@@ -72,7 +79,8 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
                 // PullClinicalRecordsWorker at the END of the chain, so the RMNCH/CPHC pulls are
                 // not blocked behind the per-beneficiary loop. Because the watermark is NOT
                 // advanced here, the same fresh payload remains available to the clinical worker.
-                val workerResult = benFlowRepo.downloadAndSyncFlowRecords(pullClinical = false)
+                val ignoreWatermark = inputData.getBoolean(KEY_IGNORE_WATERMARK, false)
+                val workerResult = benFlowRepo.downloadAndSyncFlowRecords(pullClinical = false, ignoreWatermark = ignoreWatermark)
                 val releaseOnIncomplete = inputData.getBoolean(KEY_RELEASE_ON_INCOMPLETE, false)
                 if (workerResult) {
                     Timber.d("Benflow worklist sync completed")

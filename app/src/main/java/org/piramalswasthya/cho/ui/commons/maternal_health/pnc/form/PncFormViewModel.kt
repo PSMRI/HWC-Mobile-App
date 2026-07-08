@@ -134,18 +134,10 @@ class PncFormViewModel @Inject constructor(
                 }
                 deliveryOutcome = deliveryOutcomeRepo.getDeliveryOutcome(patientID)
                 if (deliveryOutcome == null) {
-                    val patientRecord = ben.patient
-                    val fallbackMillis = patientRecord.registrationDate?.time ?: System.currentTimeMillis()
-                    Timber.e(
-                        "Delivery outcome not found for patient %s. Using registrationDate=%s for PNC form only",
-                        patientID,
-                        fallbackMillis
-                    )
                     deliveryOutcome = DeliveryOutcomeCache(
                         patientID = patientID,
                         isActive = true,
-                        dateOfDelivery = fallbackMillis,
-                        dateOfDischarge = fallbackMillis,
+                        dateOfDelivery = null,
                         createdBy = asha.userName,
                         updatedBy = asha.userName,
                         syncState = SyncState.UNSYNCED
@@ -196,18 +188,7 @@ class PncFormViewModel @Inject constructor(
                     dataset.mapValues(pncCache, 1)
                     pncRepo.persistPncRecord(pncCache)
 
-                    // Update delivery outcome if date of delivery is missing
-                    if (deliveryOutcome?.dateOfDelivery == null || deliveryOutcome?.dateOfDelivery == 0L) {
-                        val saveDeliveryOutcome = DeliveryOutcomeCache(
-                            patientID = patientID,
-                            syncState = SyncState.UNSYNCED,
-                            createdBy = pncCache.updatedBy,
-                            updatedBy = pncCache.updatedBy,
-                            dateOfDelivery = pncCache.pncDate, // Use PNC date as fallback
-                            isActive = true
-                        )
-                        deliveryOutcomeRepo.saveDeliveryOutcome(saveDeliveryOutcome)
-                    }
+                    persistDeliveryDateIfNeeded(pncCache.updatedBy)
 
                     // Update woman status after PNC
                     updateWomanStatusAfterPnc(pncCache)
@@ -222,6 +203,30 @@ class PncFormViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun persistDeliveryDateIfNeeded(updatedBy: String) {
+        val selectedDeliveryDate = dataset.getSelectedDeliveryDateMillis() ?: return
+        val existing = deliveryOutcome ?: deliveryOutcomeRepo.getDeliveryOutcome(patientID)
+        val outcome = if (existing != null) {
+            existing.copy(
+                dateOfDelivery = selectedDeliveryDate,
+                isActive = true,
+                updatedBy = updatedBy,
+                syncState = SyncState.UNSYNCED
+            )
+        } else {
+            DeliveryOutcomeCache(
+                patientID = patientID,
+                isActive = true,
+                dateOfDelivery = selectedDeliveryDate,
+                createdBy = updatedBy,
+                updatedBy = updatedBy,
+                syncState = SyncState.UNSYNCED
+            )
+        }
+        deliveryOutcomeRepo.saveDeliveryOutcome(outcome)
+        deliveryOutcome = outcome
     }
 
     // ─── Helper: close PNC visits and update patient on maternal death ───

@@ -171,6 +171,9 @@ class PharmacistFormViewModel @Inject constructor(
 
     suspend fun getPrescription(benVisitInfo : PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
+            if (isNetworkAvailable()) {
+                refreshBatchData()
+            }
             var listPrescription = patientRepo.getPrescriptions(benVisitInfo)
             if (listPrescription.isNullOrEmpty()) {
                 // For unsynced local doctor submissions, pharmacist data may still exist only in case-record tables.

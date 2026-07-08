@@ -2,8 +2,8 @@ package org.piramalswasthya.cho.adapter
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.res.ColorStateList
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
@@ -18,7 +18,6 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -46,6 +45,7 @@ import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.utils.KeyboardUtils
+import org.piramalswasthya.cho.utils.applySafeDateConstraints
 import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.model.InputType.AGE_PICKER
 import org.piramalswasthya.cho.model.InputType.CHECKBOXES
@@ -178,8 +178,11 @@ class FormInputAdapter(
 
                     // Delivery outcome fields share a cross-field validation rule.
                     // Rebind the whole trio so sibling error states refresh when the
-                    // last field in the sum is edited.
-                    if (item.id == 15 || item.id == 16 || item.id == 17) {
+                    // last field in the sum is edited. Gated by an explicit opt-in flag
+                    // (NOT the element id) because ids are reused across datasets — id
+                    // 15/16/17 are height/weight/bmi in the PW registration form, and
+                    // rebinding the focused EditText on every keystroke steals focus.
+                    if (item.refreshSiblingsOnChange) {
                         binding.root.post {
                             refreshDeliveryOutcomeFields?.invoke()
                         }
@@ -272,9 +275,15 @@ class FormInputAdapter(
                 if (hasFocus) binding.et.addTextChangedListener(textWatcher)
                 else {
                     binding.et.removeTextChangedListener(textWatcher)
-                    val imm =
-                        binding.root.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?
-                    imm!!.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+                    // Use a deterministic hide here. The previous toggleSoftInput()
+                    // call *toggled* the IME, so when a field lost focus while the
+                    // keyboard was already closed (e.g. as the RecyclerView recycles
+                    // EditText rows during a scroll) it would re-open the keyboard
+                    // even though no field was tapped.
+                    KeyboardUtils.hideKeyboard(binding.et)
+//                     val imm =
+//                         binding.root.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?
+//                     imm?.hideSoftInputFromWindow(binding.et.windowToken, 0)
                 }
             }
             binding.et.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
@@ -401,6 +410,7 @@ class FormInputAdapter(
                         rdBtn.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                            binding.rg.clearFocus()
                         }
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
@@ -523,6 +533,7 @@ class FormInputAdapter(
                         cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                            binding.llChecks.clearFocus()
                         }
                         if (!isEnabled) {
                             cbx.isClickable = false
@@ -635,8 +646,7 @@ class FormInputAdapter(
                 )
                 item.errorText = null
                 binding.tilEditText.error = null
-                datePickerDialog.datePicker.maxDate = item.max ?: 0
-                datePickerDialog.datePicker.minDate = item.min ?: 0
+                datePickerDialog.datePicker.applySafeDateConstraints(item.min, item.max)
                 if (item.showYearFirstInDatePicker)
                     datePickerDialog.datePicker.touchables[0].performClick()
                 datePickerDialog.show()
@@ -946,7 +956,7 @@ class FormInputAdapter(
     override fun getItemViewType(position: Int) = getItem(position).inputType.ordinal
 
     fun refreshDeliveryOutcomeFields() {
-        val startIndex = currentList.indexOfFirst { it.id == 15 }
+        val startIndex = currentList.indexOfFirst { it.refreshSiblingsOnChange }
         if (startIndex != -1) {
             notifyItemRangeChanged(startIndex, 3)
         }

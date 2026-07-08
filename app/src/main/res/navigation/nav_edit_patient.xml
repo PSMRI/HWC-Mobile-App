@@ -239,7 +239,15 @@
         <argument
             android:name="createdDate"
             app:argType="long" />
+        <action
+            android:id="@+id/action_eligibleCoupleTrackingFormFragment_to_maternalHealthNavHostFragment"
+            app:destination="@id/maternalHealthNavHostFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/maternalHealthNavHostFragment"
+        android:name="org.piramalswasthya.cho.ui.home.rmncha.maternal_health.MaternalHealthNavHostFragment"
+        android:label="MaternalHealthNavHostFragment" />
     <fragment
         android:id="@+id/cbacFragment"
         android:name="org.piramalswasthya.cho.ui.commons.cbac.CbacFragment"

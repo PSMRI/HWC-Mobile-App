@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
+import org.piramalswasthya.cho.helpers.getCurrentWeeksOfPregnancy
 import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import android.content.Context
@@ -243,8 +244,7 @@ data class PatientWithPwrDomain(
      */
     fun getWeeksOfPregnancy(): Int {
         return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
-            val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - pwr.lmpDate)
-            (daysSinceLMP / 7).toInt()
+            getCurrentWeeksOfPregnancy(pwr.lmpDate)
         } else {
             0
         }
@@ -315,6 +315,19 @@ data class PatientWithPwrDomain(
     }
 }
 
+private fun List<PregnantWomanRegistrationCache>.resolvePregnancyLmpDate(
+    fallbackLmp: Long? = null
+): Long =
+    filter { it.active && it.lmpDate > 0L }.maxByOrNull { it.createdDate }?.lmpDate
+        ?: filter { it.lmpDate > 0L }.maxByOrNull { it.createdDate }?.lmpDate
+        ?: fallbackLmp?.takeIf { it > 0 }
+        ?: 0L
+
+private fun resolveAbortionLmpDate(
+    pwrList: List<PregnantWomanRegistrationCache>,
+    abortionRecord: PregnantWomanAncCache?
+): Long = pwrList.resolvePregnancyLmpDate(abortionRecord?.lmpDate)
+
 /**
  * Patient with PWR and ANC records (for abortion list).
  * PWR is a list; active and latest-by-createdDate are selected when building the domain.
@@ -336,22 +349,16 @@ data class PatientWithPwrAndAncCache(
     fun asAbortionDomainModel(): AbortionDomain {
         val abortionRecord = ancRecords.firstOrNull { it.isAborted && it.abortionDate != null }
         val activePwr = pwr.filter { it.active }.maxByOrNull { it.createdDate }
-        val registeredPwr = pwr.maxByOrNull { it.createdDate }
 
-        // Use LMP from registered PWR (even if inactive) or abortion record
-        val lmpDateToUse = registeredPwr?.lmpDate
-            ?: abortionRecord?.let { 
-                // If no PWR, try to get LMP from abortion record (if stored)
-                // For now, use 0L if not available
-                0L
-            } ?: 0L
+        val lmpDateToUse = resolveAbortionLmpDate(pwr, abortionRecord)
 
         val eddDateToUse = if (lmpDateToUse != 0L) {
             lmpDateToUse + TimeUnit.DAYS.toMillis(280)
         } else 0L
 
+        // Same current GA as ANC visit list (today vs LMP), not GA at abortion/visit date.
         val weekOfPregnancyToUse = if (lmpDateToUse != 0L) {
-            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
+            getCurrentWeeksOfPregnancy(lmpDateToUse).takeIf { it in 1..40 }
         } else null
 
         return AbortionDomain(

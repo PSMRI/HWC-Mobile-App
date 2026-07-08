@@ -173,7 +173,7 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:backgroundTint="@color/default_button"
+                android:backgroundTint="@color/button_danger"
                 android:text="@string/cancel"
                 android:textColor="@android:color/white" />
 
@@ -182,8 +182,8 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
-                android:backgroundTint="@color/default_button"
-                android:text="@string/next"
+                android:backgroundTint="@color/green"
+                android:text="@string/submit"
                 android:visibility="visible"
                 android:textColor="@android:color/white" />
 

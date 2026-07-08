@@ -3,8 +3,8 @@ package org.piramalswasthya.cho.configuration
 import android.content.Context
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.utils.ImgUtils
+import org.piramalswasthya.cho.helpers.getCurrentGestationalAgeFormatted
 import org.piramalswasthya.cho.helpers.Languages
-import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
@@ -154,8 +154,7 @@ class PregnantWomanAncAbortionDataset(
         dateOfSterilization.min = abortionAnc.abortionDate
 
         visitDate.value = abortionAnc.visitDate?.let { getDateFromLong(it) }
-        val week = getWeeksOfPregnancy(abortionAnc.ancDate, registration.lmpDate)
-        weekOfPregnancy.value = week.toString()
+        weekOfPregnancy.value = getCurrentGestationalAgeFormatted(registration.lmpDate)
         abortionType.value = abortionAnc.abortionType
         abortionFacility.value = abortionAnc.abortionFacility
         abortionDate.value = abortionAnc.abortionDate?.let { getDateFromLong(it) }
@@ -188,6 +187,8 @@ class PregnantWomanAncAbortionDataset(
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
+            visitDate.id -> -1
+
             isPaiucd.id -> {
                 isYesOrNo.value = null
                 triggerDependants(
