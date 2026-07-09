@@ -112,7 +112,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                     _benAgeGender.value = patientAge
                     _caseId.value = caseId
 
-                    if (saved != null) {
+                    if (saved != null && saved.dateOfDelivery != null) {
                         deliveryOutcome = saved
                         _deliveryOutcomeId.value = saved.id
                         _recordExists.value = true
@@ -126,13 +126,14 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                             caseId = caseId
                         )
                     } else {
-                        deliveryOutcome = DeliveryOutcomeCache(
+                        deliveryOutcome = saved ?: DeliveryOutcomeCache(
                             patientID = patientID,
                             isActive = true,
                             createdBy = userName,
                             updatedBy = userName,
                             syncState = SyncState.UNSYNCED
                         )
+                        _deliveryOutcomeId.value = deliveryOutcome.id
                         _recordExists.value = false
                         // Use full setUpPage method to show ALL fields (both delivery details and mother condition)
                         dataset.setUpPage(

@@ -181,7 +181,7 @@ class DeliveryOutcomeFormFragment : Fragment() {
 
     private fun onNextClicked() {
         val adapter = binding.form.rvInputForm.adapter as? FormInputAdapter ?: return
-        val invalidIndex = adapter.validateInput(resources)
+        val invalidIndex = adapter.validateInput(resources, binding.form.rvInputForm)
         if (invalidIndex == -1) {
             viewModel.saveForm()
         } else {

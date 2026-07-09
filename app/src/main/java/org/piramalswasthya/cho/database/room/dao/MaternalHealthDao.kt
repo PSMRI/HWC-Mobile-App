@@ -379,7 +379,7 @@ interface MaternalHealthDao {
     @Query("""
         SELECT DISTINCT do.patientID FROM DELIVERY_OUTCOME do
         INNER JOIN PATIENT p ON do.patientID = p.patientID
-        WHERE do.isActive = 1
+        WHERE do.isActive = 1 AND do.dateOfDelivery IS NOT NULL
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
         ORDER BY do.updatedDate DESC
@@ -392,7 +392,7 @@ interface MaternalHealthDao {
     @Query("""
         SELECT COUNT(DISTINCT do.patientID) FROM DELIVERY_OUTCOME do
         INNER JOIN PATIENT p ON do.patientID = p.patientID
-        WHERE do.isActive = 1
+        WHERE do.isActive = 1 AND do.dateOfDelivery IS NOT NULL
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
     """)
