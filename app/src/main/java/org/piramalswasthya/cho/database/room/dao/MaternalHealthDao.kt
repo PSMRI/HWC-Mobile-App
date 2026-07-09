@@ -42,6 +42,9 @@ interface MaternalHealthDao {
     @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
     suspend fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
 
+    @Query("select * from pregnancy_anc where patientID = :patientID")
+    suspend fun getAllAncRecords(patientID: String): List<PregnantWomanAncCache>
+
     @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID and weight IS NOT NULL order by visitNumber")
     suspend fun getCompletedActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
 

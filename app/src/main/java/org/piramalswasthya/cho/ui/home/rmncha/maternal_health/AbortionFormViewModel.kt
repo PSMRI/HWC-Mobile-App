@@ -104,8 +104,7 @@ class AbortionFormViewModel(
                     _benAgeGender.postValue("${patient.patient.age} ${patient.ageUnit?.name} | ${patient.gender?.genderName}")
                     Timber.d("AbortionForm load: patient ok")
 
-                    val allAnc = maternalHealthRepo.getAllActiveAncRecords(patientId) +
-                        listOfNotNull(maternalHealthRepo.getLastAnc(patientId))
+                    val allAnc = maternalHealthRepo.getAllAncRecords(patientId)
                     val aborted = allAnc
                         .distinctBy { it.id }
                         .filter { it.isAborted && it.abortionDate != null }
