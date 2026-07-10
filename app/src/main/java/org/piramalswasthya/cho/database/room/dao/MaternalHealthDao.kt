@@ -42,6 +42,9 @@ interface MaternalHealthDao {
     @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
     suspend fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
 
+    @Query("select * from pregnancy_anc where patientID = :patientID")
+    suspend fun getAllAncRecords(patientID: String): List<PregnantWomanAncCache>
+
     @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID and weight IS NOT NULL order by visitNumber")
     suspend fun getCompletedActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
 
@@ -376,7 +379,7 @@ interface MaternalHealthDao {
     @Query("""
         SELECT DISTINCT do.patientID FROM DELIVERY_OUTCOME do
         INNER JOIN PATIENT p ON do.patientID = p.patientID
-        WHERE do.isActive = 1
+        WHERE do.isActive = 1 AND do.dateOfDelivery IS NOT NULL
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
         ORDER BY do.updatedDate DESC
@@ -389,7 +392,7 @@ interface MaternalHealthDao {
     @Query("""
         SELECT COUNT(DISTINCT do.patientID) FROM DELIVERY_OUTCOME do
         INNER JOIN PATIENT p ON do.patientID = p.patientID
-        WHERE do.isActive = 1
+        WHERE do.isActive = 1 AND do.dateOfDelivery IS NOT NULL
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
     """)

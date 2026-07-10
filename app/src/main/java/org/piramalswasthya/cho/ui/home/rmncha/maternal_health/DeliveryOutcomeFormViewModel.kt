@@ -126,17 +126,18 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     }
 
     private suspend fun loadDeliveryOutcome(user: org.piramalswasthya.cho.model.UserDomain) {
-        deliveryOutcome = DeliveryOutcomeCache(
-            patientID = patientID,
-            syncState = SyncState.UNSYNCED,
-            createdBy = user.userName,
-            updatedBy = user.userName,
-            isActive = true
-        )
-        deliveryOutcomeRepo.getDeliveryOutcome(patientID)?.let {
-            deliveryOutcome = it
+        val saved = deliveryOutcomeRepo.getDeliveryOutcome(patientID)
+        if (saved != null && saved.dateOfDelivery != null) {
+            deliveryOutcome = saved
             _recordExists.value = true
-        } ?: run {
+        } else {
+            deliveryOutcome = saved ?: DeliveryOutcomeCache(
+                patientID = patientID,
+                syncState = SyncState.UNSYNCED,
+                createdBy = user.userName,
+                updatedBy = user.userName,
+                isActive = true
+            )
             _recordExists.value = false
         }
     }

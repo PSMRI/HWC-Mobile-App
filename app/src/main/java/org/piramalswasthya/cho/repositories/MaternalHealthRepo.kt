@@ -104,6 +104,10 @@ class MaternalHealthRepo @Inject constructor(
          return maternalHealthDao.getAllActiveAncRecords(benId)
     }
 
+    suspend fun getAllAncRecords(benId: String): List<PregnantWomanAncCache> {
+        return maternalHealthDao.getAllAncRecords(benId)
+    }
+
     suspend fun getCompletedActiveAncRecords(benId: String): List<PregnantWomanAncCache> {
         return maternalHealthDao.getCompletedActiveAncRecords(benId)
     }
