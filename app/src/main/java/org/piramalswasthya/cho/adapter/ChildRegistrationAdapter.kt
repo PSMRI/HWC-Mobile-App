@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -65,10 +66,10 @@ class ChildRegistrationAdapter(
             )
 
             // Set age
-            item.childPatient?.dob?.let {
+            item.motherPatient.dob?.let {
                 binding.tvAge.text = DateTimeUtil.calculateAgeString(it).ifBlank { "0 days" }
             } ?: run {
-                binding.tvAge.text = "NA"
+                binding.tvAge.text = "N/A"
             }
 
             binding.executePendingBindings()
