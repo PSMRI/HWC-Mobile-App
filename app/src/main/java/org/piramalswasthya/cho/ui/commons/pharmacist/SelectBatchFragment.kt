@@ -103,6 +103,27 @@ class SelectBatchFragment : Fragment(R.layout.fragment_select_batch), Navigation
 
         binding.prescribedValue.text = prescriptionItemDTO?.qtyPrescribed.toString()
 
+        // Restore previously entered selections and dispense quantities so that
+        // manually entered batch data persists when the user revisits this screen
+        // after submitting. The batch list is re-fetched fresh, so merge the saved
+        // values carried on the prescription item back onto the matching batches.
+        val savedBatches = prescriptionItemDTO?.batchList
+        if (!savedBatches.isNullOrEmpty()) {
+            batch = batch.map { fresh ->
+                val saved = savedBatches.firstOrNull {
+                    it.itemStockEntryID == fresh.itemStockEntryID && it.batchNo == fresh.batchNo
+                }
+                if (saved != null) {
+                    fresh.copy(
+                        isSelected = saved.isSelected,
+                        dispenseQuantity = saved.dispenseQuantity
+                    )
+                } else {
+                    fresh
+                }
+            }
+        }
+
         itemAdapter = context?.let { it ->
             SelectBatchAdapter(it)
         }

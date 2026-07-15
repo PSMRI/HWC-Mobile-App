@@ -680,7 +680,7 @@
     <string name="available_quantity">Total Available Quantity: </string>
     <string name="patient_details_label">Patient: </string>
     <string name="prescribed_label">Prescribed: </string>
-    <string name="prescribed_label_qt">Prescribed Quantity: </string>
+    <string name="prescribed_label_qt">No. of Prescribed Quantity: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name <font color="#FF0000">*</font></string>
     <string name="exit_application">Exit Application</string>
