@@ -1409,6 +1409,7 @@
     <string name="cphc_mental_suicide_hopelessness">Hopelessness</string>
     <string name="cphc_mental_referral_level">Referral Level</string>
     <string name="cphc_mental_reason_for_referral">Reason for Referral</string>
+    <string name="cphc_mental_referral_priority">Referral Priority</string>
     <string name="cphc_mental_referral_date">Referral Date</string>
     <string name="cphc_mental_follow_up_date">Follow-up Date</string>
     <string name="cphc_mental_improvement_noted">Improvement Noted</string>
@@ -1855,6 +1856,12 @@
     <string-array name="mh_reason_for_referral_options_under_11">
         <item>Mental health complaint</item>
         <item>Medical complication</item>
+    </string-array>
+    <string name="mh_referral_priority_title">Referral Priority</string>
+    <string-array name="mh_referral_priority_options">
+        <item>Routine</item>
+        <item>Urgent</item>
+        <item>Emergency</item>
     </string-array>
     <string name="mh_referral_date_title">Referral date</string>
 

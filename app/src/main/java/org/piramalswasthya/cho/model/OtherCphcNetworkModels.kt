@@ -648,6 +648,7 @@ data class MentalHealthNetwork(
     val referralRequired: Boolean? = null,
     val referralLevel: String? = null,
     val reasonForReferral: String? = null,
+    val referralPriority: String? = null,
     val referralDate: String? = null,
     val followUpRequired: Boolean? = null,
     val followUpDate: String? = null,
