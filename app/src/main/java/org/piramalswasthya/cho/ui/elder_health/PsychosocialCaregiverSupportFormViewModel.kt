@@ -88,4 +88,14 @@ class PsychosocialCaregiverSupportFormViewModel @Inject constructor(
             psychosocialRepo.saveAssessment(assessmentCache)
         }
     }
+
+    fun stagePendingSave(pendingStore: org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel) {
+        check(::assessmentCache.isInitialized) { "Assessment cache not initialized" }
+        dataset.mapValues(assessmentCache, 1)
+        val snapshot = assessmentCache.copy()
+        pendingStore.stage(
+            persist = { psychosocialRepo.saveAssessment(snapshot) },
+            enqueuePush = { org.piramalswasthya.cho.work.WorkerUtils.psychosocialCaregiverSupport(it) },
+        )
+    }
 }

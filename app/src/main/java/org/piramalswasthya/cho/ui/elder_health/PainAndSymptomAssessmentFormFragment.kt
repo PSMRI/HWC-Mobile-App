@@ -4,8 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
 import android.widget.TextView
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -13,8 +13,9 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentPainSymptomAssessmentFormBinding
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import org.piramalswasthya.cho.ui.commons.DropdownConst
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 import android.os.Bundle
-import org.piramalswasthya.cho.work.WorkerUtils
 
 @AndroidEntryPoint
 class PainAndSymptomAssessmentFormFragment :
@@ -24,6 +25,9 @@ class PainAndSymptomAssessmentFormFragment :
     private val binding get() = _binding!!
 
     override val viewModel: PainAndSymptomAssessmentFormViewModel by viewModels()
+    private val pendingCphcFormViewModel: PendingCphcFormViewModel by activityViewModels()
+
+    override val persistOnNext: Boolean = false
 
     // ── View references ───────────────────────────────────────────────────────
 
@@ -62,10 +66,8 @@ class PainAndSymptomAssessmentFormFragment :
     }
 
     // Stamp Pain & Symptom Assessment metadata onto MasterDb from arguments and navigate to the vitals screen.
-    override fun onSaveSuccess() {
-        WorkerUtils.painAssessmentPushWorker(requireContext())
-        navigateToCphcVitalsAfterSave(
-            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.persistentPain,
-        )
+    override fun onStageAndProceed() {
+        viewModel.stagePendingSave(pendingCphcFormViewModel)
+        navigateToCphcVitalsAfterSave(subCategory = DropdownConst.persistentPain)
     }
 }

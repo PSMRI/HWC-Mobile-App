@@ -9,23 +9,27 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import android.widget.ScrollView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOphthalmicScreeningBinding
 import org.piramalswasthya.cho.ui.commons.CphcFormNavigation
 import org.piramalswasthya.cho.ui.commons.DropdownConst
 import android.app.AlertDialog
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 
 @AndroidEntryPoint
 class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
     private val viewModel: OphthalmicScreeningViewModel by viewModels()
+    private val pendingCphcFormViewModel: PendingCphcFormViewModel by activityViewModels()
     private lateinit var binding: FragmentOphthalmicScreeningBinding
     private val args: OphthalmicScreeningFragmentArgs by navArgs()
 
@@ -239,15 +243,18 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
 
         binding.btnNext.isEnabled = false
-        viewModel.save {
-            Toast.makeText(requireContext(), getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show()
-            WorkerUtils.ophthalmicPushWorker(requireContext())
+        viewLifecycleOwner.lifecycleScope.launch {
+            val staged = viewModel.stagePendingSaveSuspending(pendingCphcFormViewModel)
+            if (!staged) {
+                binding.btnNext.isEnabled = true
+                return@launch
+            }
             val bundle = CphcFormNavigation.buildVitalsBundle(
                 arguments = arguments,
-                subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.ophthalmic,
+                subCategory = DropdownConst.ophthalmic,
                 reasonForVisit = args.reasonForVisit,
             )
-            findNavController().navigate(org.piramalswasthya.cho.R.id.customVitalsFragment, bundle)
+            findNavController().navigate(R.id.customVitalsFragment, bundle)
         }
     }
 
