@@ -18,11 +18,15 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentElderlyHealthAssessmentFormBinding
 import android.widget.TextView
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
-import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.ui.commons.DropdownConst
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 
 
 @AndroidEntryPoint
@@ -32,6 +36,9 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
     private val binding get() = _binding!!
 
     override val viewModel: ElderlyHealthAssessmentFormViewModel by viewModels()
+    private val pendingCphcFormViewModel: PendingCphcFormViewModel by activityViewModels()
+
+    override val persistOnNext: Boolean = false
 
     override val inputFormRecyclerView: RecyclerView get() = binding.form.rvInputForm
     override val contentLayout: View get() = binding.llContent
@@ -76,10 +83,8 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
     }
 
     // Stamp Elderly Health Assessment metadata onto MasterDb from arguments and navigate to the vitals screen.
-    override fun onSaveSuccess() {
-        WorkerUtils.elderlyPushWorker(requireContext())
-        navigateToCphcVitalsAfterSave(
-            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.elderlyHealthAssessment,
-        )
+    override fun onStageAndProceed() {
+        viewModel.stagePendingSave(pendingCphcFormViewModel)
+        navigateToCphcVitalsAfterSave(subCategory = DropdownConst.elderlyHealthAssessment)
     }
 }

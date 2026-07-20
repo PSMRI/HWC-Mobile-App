@@ -12,8 +12,10 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +36,7 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -62,6 +65,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
 
     val viewModel: FhirVitalsViewModel by viewModels()
+    private val pendingCphcFormViewModel: PendingCphcFormViewModel by activityViewModels()
 
     var fragment: Fragment = this;
     @Inject
@@ -658,6 +662,20 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         }
     }
 
+    private suspend fun persistPendingCphcFormSuspending() {
+        if (!pendingCphcFormViewModel.hasPending()) return
+        try {
+            pendingCphcFormViewModel.persistPending(requireContext())
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to persist pending CPHC assessment on visit submit")
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.form_save_failed),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     override fun getFragmentId(): Int {
         return R.id.fragment_vitals_info;
     }
@@ -686,9 +704,12 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }
                 if (emptyFields.isEmpty()) {
                     setVitalsMasterData()
-                    findNavController().navigate(
-                        R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
-                    )
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        persistPendingCphcFormSuspending()
+                        findNavController().navigate(
+                            R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
+                        )
+                    }
                 } else {
                     val message: String = if (emptyFields.size == 1) {
                         "Please fill the ${emptyFields[0]}"
@@ -730,8 +751,11 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                         viewModel.isDataSaved.observe(viewLifecycleOwner) {
                             when (it!!) {
                                 true -> {
-                                    WorkerUtils.clinicalPushWorker(requireContext())
-                                    requireActivity().finish()
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        persistPendingCphcFormSuspending()
+                                        WorkerUtils.clinicalPushWorker(requireContext())
+                                        requireActivity().finish()
+                                    }
                                 }
                                 else -> {}
                             }
