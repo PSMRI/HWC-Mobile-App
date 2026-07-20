@@ -200,6 +200,18 @@ class MentalHealthScreeningDataset(
         )
     }
 
+    private val mhReferralPriority: FormElement by lazy {
+        FormElement(
+            id = 118,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.mh_referral_priority_title),
+            entries = context.resources.getStringArray(R.array.mh_referral_priority_options),
+            required = true
+        )
+    }
+
+
+
     private var mhReferralDate = FormElement(
         id = 110,
         inputType = InputType.TEXT_VIEW,
@@ -798,6 +810,7 @@ class MentalHealthScreeningDataset(
                 mhReferralRequired.value = null
                 mhReferralLevel.value = null
                 mhReasonForReferral.value = null
+                mhReferralPriority.value = null
                 mhReferralDate.value = null
             }
             wasAutoReferralForced = false
@@ -816,6 +829,7 @@ class MentalHealthScreeningDataset(
             mhReferralRequired.value = null
             mhReferralLevel.value = null
             mhReasonForReferral.value = null
+            mhReferralPriority.value = null
             mhReferralDate.value = null
         }
         wasAutoReferralForced = isAutoReferralForced
@@ -940,6 +954,7 @@ class MentalHealthScreeningDataset(
                 if (mhReferralRequired.value != yesNoOptions[0]) {
                     mhReferralLevel.value = null
                     mhReasonForReferral.value = null
+                    mhReferralPriority.value = null
                     mhReferralDate.value = null
                 }
                 rebuildConditionalSections()
@@ -1149,6 +1164,7 @@ class MentalHealthScreeningDataset(
             if (mhReferralRequired.value == yesNoOptions[0]) {
                 list.add(mhReferralLevel)
                 list.add(mhReasonForReferral)
+                list.add(mhReferralPriority)
                 if (mhReferralDate.value.isNullOrEmpty()) {
                     mhReferralDate.value = todayDateString()
                 }
@@ -1172,6 +1188,7 @@ class MentalHealthScreeningDataset(
             mhReferralRequired.value = null
             mhReferralLevel.value = null
             mhReasonForReferral.value = null
+            mhReferralPriority.value = null
             mhReferralDate.value = null
 
             mhFollowUpRequired.value = null
@@ -1558,6 +1575,7 @@ class MentalHealthScreeningDataset(
             cache.referralRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhReferralLevel.value = cache.referralLevel
         mhReasonForReferral.value = cache.reasonForReferral
+        mhReferralPriority.value = cache.referralPriority
 
         if (cache.referralRequired == true) {
             mhReferralDate.value = cache.referralDate ?: todayDateString()
@@ -1837,10 +1855,12 @@ class MentalHealthScreeningDataset(
             if (it.referralRequired == true) {
                 it.referralLevel = mhReferralLevel.value
                 it.reasonForReferral = mhReasonForReferral.value
+                it.referralPriority = mhReferralPriority.value
                 it.referralDate = mhReferralDate.value ?: todayDateString()
             } else {
                 it.referralLevel = null
                 it.reasonForReferral = null
+                it.referralPriority = null
                 it.referralDate = null
             }
 

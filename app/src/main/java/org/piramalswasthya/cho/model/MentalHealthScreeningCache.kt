@@ -241,6 +241,9 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "reason_for_referral")
     var reasonForReferral: String? = null,
 
+    @ColumnInfo(name = "referral_priority")
+    var referralPriority: String? = null,
+
     @ColumnInfo(name = "referral_date")
     var referralDate: String? = null,
 

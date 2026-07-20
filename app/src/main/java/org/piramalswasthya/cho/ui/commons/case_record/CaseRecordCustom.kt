@@ -1396,6 +1396,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         append("- ").append(getString(R.string.cphc_mental_referral_required)).append(": ").append(boolLabel(mentalScreening.referralRequired)).append("\n")
                         append("- ").append(getString(R.string.cphc_mental_referral_level)).append(": ").append(valueLabel(mentalScreening.referralLevel)).append("\n")
                         append("- ").append(getString(R.string.cphc_mental_reason_for_referral)).append(": ").append(valueLabel(mentalScreening.reasonForReferral)).append("\n")
+                        append("- ").append(getString(R.string.cphc_mental_referral_priority)).append(": ").append(valueLabel(mentalScreening.referralPriority)).append("\n")
                         append("- ").append(getString(R.string.cphc_mental_referral_date)).append(": ").append(valueLabel(mentalScreening.referralDate)).append("\n")
                         append("- ").append(getString(R.string.cphc_mental_follow_up_required)).append(": ").append(boolLabel(mentalScreening.followUpRequired)).append("\n")
                         append("- ").append(getString(R.string.cphc_mental_follow_up_date)).append(": ").append(valueLabel(mentalScreening.followUpDate)).append("\n")

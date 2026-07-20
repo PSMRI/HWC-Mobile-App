@@ -268,7 +268,7 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 148, exportSchema = false
+    version = 149, exportSchema = false
 )
 
 
@@ -1190,6 +1190,14 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_148_149 = object : Migration(148, 149) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Mental Health Screening: new "Referral Priority" dropdown
+                // (Routine / Urgent / Emergency) captured alongside reason for referral.
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_priority", "TEXT")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1262,7 +1270,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_144_145,
                             MIGRATION_145_146,
                             MIGRATION_146_147,
-                            MIGRATION_147_148
+                            MIGRATION_147_148,
+                            MIGRATION_148_149
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
