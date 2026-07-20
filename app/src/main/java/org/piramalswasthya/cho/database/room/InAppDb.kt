@@ -166,7 +166,9 @@ import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
 import org.piramalswasthya.cho.database.room.dao.ElderlyHealthAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.SnomedDiagnosisDao
 import org.piramalswasthya.cho.model.ElderlyHealthAssessment
+import org.piramalswasthya.cho.model.SnomedDiagnosis
 
 
 @Database(
@@ -265,10 +267,11 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         OralHealth::class,
         MentalHealthScreeningCache::class,
         ThroatDiagnosisAssessment::class,
-        ElderlyHealthAssessment::class
+        ElderlyHealthAssessment::class,
+        SnomedDiagnosis::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 148, exportSchema = false
+    version = 150, exportSchema = false
 )
 
 
@@ -349,6 +352,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val mentalHealthScreeningDao: MentalHealthScreeningDao
     abstract val throatDiagnosisAssessmentDao: ThroatDiagnosisAssessmentDao
     abstract val elderlyHealthAssessmentDao: ElderlyHealthAssessmentDao
+    abstract val snomedDiagnosisDao: SnomedDiagnosisDao
 
     companion object {
         @Volatile
@@ -1190,6 +1194,12 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_149_150 = object : Migration(149, 150) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS SNOMED_DIAGNOSIS_MASTER (conceptID TEXT NOT NULL, term TEXT NOT NULL, PRIMARY KEY(conceptID))")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1262,7 +1272,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_144_145,
                             MIGRATION_145_146,
                             MIGRATION_146_147,
-                            MIGRATION_147_148
+                            MIGRATION_147_148,
+                            MIGRATION_149_150
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
