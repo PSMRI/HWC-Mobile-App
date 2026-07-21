@@ -852,7 +852,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         viewModel.snomedDiagnoses.observe(viewLifecycleOwner) { records ->
             snomedDiagnoses.clear()
             snomedDiagnoses.addAll(records)
-            if (::dAdapter.isInitialized) dAdapter.updateDiagnoses(snomedDiagnoses)
+            if (::dAdapter.isInitialized) dAdapter.updateDiagnosisSuggestions(snomedDiagnoses)
         }
         val layoutManager = LinearLayoutManager(requireContext())
         binding.diagnosisExtra.layoutManager = layoutManager

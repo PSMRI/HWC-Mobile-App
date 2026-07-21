@@ -8,6 +8,7 @@ import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.model.SnomedDiagnosis
 import org.piramalswasthya.cho.network.AmritApiService
 import okhttp3.RequestBody
+import kotlin.coroutines.cancellation.CancellationException
 import javax.inject.Inject
 
 class SnomedDiagnosisRepo @Inject constructor(
@@ -39,7 +40,8 @@ class SnomedDiagnosisRepo @Inject constructor(
             } else false
             else -> false
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
             false
         }
     }

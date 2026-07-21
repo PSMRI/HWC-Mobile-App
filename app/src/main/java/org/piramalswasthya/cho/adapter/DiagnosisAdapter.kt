@@ -32,6 +32,7 @@ class DiagnosisAdapter(
         val resetButton: FloatingActionButton = itemView.findViewById(R.id.resetButton)
         val cancelButton: FloatingActionButton = itemView.findViewById(R.id.deleteButton)
         var textWatcher: android.text.TextWatcher? = null
+        var diagnosisAdapter: ArrayAdapter<String>? = null
 
         init {
             cancelButton.setOnClickListener {
@@ -61,7 +62,9 @@ class DiagnosisAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val itemData = itemList[position]
-        holder.diagnosisInput.setAdapter(ArrayAdapter(mContext, android.R.layout.simple_dropdown_item_1line, diagnosisList.map { it.term }))
+        holder.diagnosisAdapter = ArrayAdapter(mContext, android.R.layout.simple_dropdown_item_1line, diagnosisList.map { it.term })
+        holder.diagnosisInput.setAdapter(holder.diagnosisAdapter)
+        holder.textWatcher?.let(holder.diagnosisInput::removeTextChangedListener)
         holder.diagnosisInput.setText(itemData.diagnosis, false)
         holder.diagnosisInput.setOnItemClickListener { parent, _, selectedPosition, _ ->
             itemData.diagnosis = parent.getItemAtPosition(selectedPosition).toString()
@@ -72,7 +75,6 @@ class DiagnosisAdapter(
             itemChangeListener.onItemChanged()
         }
         holder.diagnosisInput.setOnFocusChangeListener { _, hasFocus -> if (hasFocus && !holder.diagnosisInput.isReadOnly()) holder.diagnosisInput.showDropDown() }
-        holder.textWatcher?.let(holder.diagnosisInput::removeTextChangedListener)
         holder.textWatcher = object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -101,7 +103,17 @@ class DiagnosisAdapter(
     private fun AutoCompleteTextView.isReadOnly() = !isFocusable
     private fun updateDeleteButtonVisibility() { viewHolders.forEach { it.cancelButton.isEnabled = itemCount > 1 } }
     override fun getItemCount() = itemList.size
-    fun updateDiagnoses(records: List<SnomedDiagnosis>) { diagnosisList = records; notifyDataSetChanged() }
+    fun updateDiagnosisSuggestions(records: List<SnomedDiagnosis>) {
+        diagnosisList = records
+        val terms = records.map { it.term }
+        viewHolders.forEach { holder ->
+            holder.diagnosisAdapter?.apply {
+                clear()
+                addAll(terms)
+                notifyDataSetChanged()
+            }
+        }
+    }
     fun setError(): Int = itemList.indexOfFirst { it.diagnosis.isNullOrEmpty() }
 }
 
