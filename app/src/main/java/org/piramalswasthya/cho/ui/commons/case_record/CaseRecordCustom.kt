@@ -594,6 +594,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 navigatetoCaseCustomRecordSelf(true, benVisitInfo)
             }
         })
+        if (isDoctorWorkflowRole()) {
+            adapter.setSelectedBenVisitNo(benVisitInfo.benVisitNo)
+        }
         binding.patientList.adapter = adapter
 
         // Remove existing observer to prevent duplicates

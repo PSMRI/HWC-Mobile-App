@@ -71,5 +71,16 @@
                 android:textSize="16sp" />
 
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/visit_selected_icon"
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_24sdp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/ben_visit_num"
+            android:src="@drawable/tick_img"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
     </LinearLayout>
 </layout>

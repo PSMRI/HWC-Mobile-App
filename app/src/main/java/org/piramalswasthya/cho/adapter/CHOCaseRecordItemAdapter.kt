@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.adapter
 
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -20,6 +21,7 @@ class CHOCaseRecordItemAdapter(
 ) {
 
     private var benFlowMap: Map<Int, BenFlow> = emptyMap()
+    private var selectedBenVisitNo: Int? = null
 
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplayWithVisitInfo>() {
         override fun areItemsTheSame(
@@ -45,7 +47,8 @@ class CHOCaseRecordItemAdapter(
         fun bind(
             item: PatientDisplayWithVisitInfo,
             clickListener: BenClickListener?,
-            benFlow: BenFlow?
+            benFlow: BenFlow?,
+            selectedBenVisitNo: Int?
         ) {
             binding.benVisitInfo = item
             binding.clickListener = clickListener
@@ -65,6 +68,9 @@ class CHOCaseRecordItemAdapter(
             }
             binding.visitDate.text = visitDateText
 
+            val isSelected = item.benVisitNo != null && item.benVisitNo == selectedBenVisitNo
+            binding.visitSelectedIcon.visibility = if (isSelected) View.VISIBLE else View.GONE
+
             binding.executePendingBindings()
         }
     }
@@ -75,7 +81,14 @@ class CHOCaseRecordItemAdapter(
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
         val item = getItem(position)
         val benFlow = item.benVisitNo?.let { benFlowMap[it] }
-        holder.bind(item, clickListener, benFlow)
+        holder.bind(item, clickListener, benFlow, selectedBenVisitNo)
+    }
+
+    fun setSelectedBenVisitNo(visitNo: Int?) {
+        if (selectedBenVisitNo != visitNo) {
+            selectedBenVisitNo = visitNo
+            notifyDataSetChanged()
+        }
     }
 
     class BenClickListener(
