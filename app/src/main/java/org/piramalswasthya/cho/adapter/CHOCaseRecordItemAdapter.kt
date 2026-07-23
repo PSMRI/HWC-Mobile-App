@@ -48,7 +48,8 @@ class CHOCaseRecordItemAdapter(
             item: PatientDisplayWithVisitInfo,
             clickListener: BenClickListener?,
             benFlow: BenFlow?,
-            selectedBenVisitNo: Int?
+            selectedBenVisitNo: Int?,
+            isLastItem: Boolean
         ) {
             binding.benVisitInfo = item
             binding.clickListener = clickListener
@@ -59,6 +60,13 @@ class CHOCaseRecordItemAdapter(
                     if (adapterPosition % 2 == 0) R.color.referBackground else R.color.text_secondary
                 )
             )
+            val layoutParams = binding.itemll.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.bottomMargin = if (isLastItem) {
+                binding.root.resources.getDimensionPixelSize(R.dimen.visit_table_margin)
+            } else {
+                0
+            }
+            binding.itemll.layoutParams = layoutParams
 
             binding.visitNumber.text = item.benVisitNo?.toString() ?: ""
             val visitDateText = if (!benFlow?.visitDate.isNullOrBlank()) {
@@ -81,7 +89,7 @@ class CHOCaseRecordItemAdapter(
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
         val item = getItem(position)
         val benFlow = item.benVisitNo?.let { benFlowMap[it] }
-        holder.bind(item, clickListener, benFlow, selectedBenVisitNo)
+        holder.bind(item, clickListener, benFlow, selectedBenVisitNo, isLastItem = position == itemCount - 1)
     }
 
     fun setSelectedBenVisitNo(visitNo: Int?) {

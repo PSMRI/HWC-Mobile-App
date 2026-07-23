@@ -20,10 +20,10 @@
         android:layout_height="wrap_content"
         android:onClick="@{() -> clickListener.onClickedBen(benVisitInfo)}"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/_5sdp"
-        android:paddingTop="@dimen/_5sdp"
-        android:paddingEnd="@dimen/_5sdp"
-        android:layout_margin="@dimen/_5sdp">
+        android:padding="@dimen/_5sdp"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:layout_marginStart="@dimen/_5sdp"
+        android:layout_marginEnd="@dimen/_5sdp">
 
         <LinearLayout
             android:id="@+id/linear1"
@@ -74,8 +74,8 @@
 
         <ImageView
             android:id="@+id/visit_selected_icon"
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_24sdp"
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
             android:layout_gravity="center_vertical"
             android:contentDescription="@string/ben_visit_num"
             android:src="@drawable/tick_img"
