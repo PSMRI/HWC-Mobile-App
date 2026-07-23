@@ -95,12 +95,60 @@ class MentalHealthScreeningFormFragment :
         _binding = null
     }
 
-    // Stamp Mental Health Screening metadata onto MasterDb from arguments and navigate to the vitals screen.
+    // Tracks the single informational alert shown when referral is detected via general screening.
+    private var generalReferralAlertShown = false
+
+    // Show one informational alert before submission when a referral is prompted purely by the
+    // general screening questions. OK proceeds to save + navigate.
+    override fun shouldProceedWithSubmit(): Boolean {
+        if (!generalReferralAlertShown && viewModel.isGeneralReferralOnly() && isAdded) {
+            generalReferralAlertShown = true
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.form_alert_title))
+                .setMessage(getString(R.string.mh_referral_general_alert))
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    dialog.dismiss()
+                    submitForm() // Re-run; flag is now set so submission proceeds.
+                }
+                .setCancelable(false)
+                .show()
+            return false
+        }
+        return true
+    }
+
+    // Data is already saved by the time we get here. When a specific screening recommended a
+    // referral but the CHO chose "No", show the recheck alert and STAY on the page (block
+    // navigation). Otherwise stamp metadata and navigate to the vitals screen.
     override fun onSaveSuccess() {
+        val recommended = viewModel.specificScreeningsRecommendingReferralIfNoSelected()
+        if (recommended.isNotEmpty()) {
+            showReferralRecheckAlert(recommended)
+            return
+        }
         WorkerUtils.mentalPushWorker(requireContext())
         navigateToCphcVitalsAfterSave(
             subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.mentalHealth,
         )
+    }
+
+    private fun showReferralRecheckAlert(screenings: List<String>) {
+        if (!isAdded) return
+        val message = buildString {
+            append(getString(R.string.mh_referral_recheck_message))
+            screenings.forEachIndexed { index, name ->
+                append("\n")
+                append(index + 1)
+                append(". ")
+                append(name)
+            }
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.form_alert_title))
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+            .setCancelable(false)
+            .show()
     }
 
     private fun observePhq9Alert() {

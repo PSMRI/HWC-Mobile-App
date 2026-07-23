@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
@@ -75,11 +76,47 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
         _binding = null
     }
 
-    // Stamp Elderly Health Assessment metadata onto MasterDb from arguments and navigate to the vitals screen.
+    // Data is already saved by the time we get here. When a specific screening recommended a
+    // referral but the CHO chose "No", show the recheck alert so the CHO can decide whether to
+    // revisit the referral answer or continue. Otherwise proceed straight to the vitals screen.
     override fun onSaveSuccess() {
+        val recommended = viewModel.specificScreeningsRecommendingReferralIfNoSelected()
+        if (recommended.isNotEmpty()) {
+            showReferralRecheckAlert(recommended)
+            return
+        }
+        proceedAfterSave()
+    }
+
+    private fun proceedAfterSave() {
         WorkerUtils.elderlyPushWorker(requireContext())
         navigateToCphcVitalsAfterSave(
             subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.elderlyHealthAssessment,
         )
+    }
+
+    // Yes → dismiss and stay on the page so the CHO can change the referral answer.
+    // No  → keep referral = No and move on to the next screen.
+    private fun showReferralRecheckAlert(screenings: List<String>) {
+        if (!isAdded) return
+        val message = buildString {
+            append(getString(R.string.elderly_referral_recheck_message))
+            screenings.forEachIndexed { index, name ->
+                append("\n")
+                append(index + 1)
+                append(". ")
+                append(name)
+            }
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.form_alert_title))
+            .setMessage(message)
+            .setPositiveButton(getString(R.string.yes)) { dialog, _ -> dialog.dismiss() }
+            .setNegativeButton(getString(R.string.no)) { dialog, _ ->
+                dialog.dismiss()
+                proceedAfterSave()
+            }
+            .setCancelable(false)
+            .show()
     }
 }

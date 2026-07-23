@@ -192,7 +192,15 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
     }
 
 
+    /**
+     * Hook allowing subclasses to intercept submission (e.g. to show a confirmation
+     * dialog before saving). Return false to abort this pass; call [submitForm] again
+     * to resume once the subclass is ready to proceed. Default proceeds immediately.
+     */
+    protected open fun shouldProceedWithSubmit(): Boolean = true
+
     protected fun submitForm() {
+        if (!shouldProceedWithSubmit()) return
         val adapter = inputFormRecyclerView.adapter as? FormInputAdapter ?: return
         val result = adapter.validateInput(resources)
         if (result == -1) {

@@ -89,6 +89,8 @@ internal fun MentalHealthScreeningCache.toMentalHealthNetworkModelInternal(
         adherenceToAdvice = adherenceToAdvice,
         referralEscalationRequired = referralEscalationRequired,
         caseClosureReason = caseClosureReason,
+        caseStatus = caseStatus,
+        dateOfDeath = dateOfDeath,
         syncState = syncState
     )
 }
@@ -101,6 +103,8 @@ internal fun MentalHealthNetwork.toMentalHealthCacheModelInternal(
         patientId = patientID,
         syncState = syncState ?: SyncState.SYNCED.ordinal,
         caseClosureReason = caseClosureReason,
+        caseStatus = caseStatus,
+        dateOfDeath = dateOfDeath,
         referralEscalationRequired = referralEscalationRequired,
         adherenceToAdvice = adherenceToAdvice,
         improvementNoted = improvementNoted,

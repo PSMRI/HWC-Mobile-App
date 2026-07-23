@@ -1834,6 +1834,8 @@
     <string name="ed_remarks">Remarks</string>
     <!-- Mental Health Screening – Referral fields -->
     <string name="mh_referral_required_title">Referral required</string>
+    <string name="mh_referral_recheck_message">Please recheck, referral according to screening results recommended for:</string>
+    <string name="mh_referral_general_alert">A referral is recommended based on the screening results. Please review before submitting.</string>
     <string name="mh_referral_level_title">Referral level</string>
     <string-array name="mh_referral_level_options">
         <item>PHC</item>
@@ -1982,6 +1984,10 @@
     <string name="elderly_outcome_not_suspected">Not suspected</string>
     <string name="elderly_alert_functional_decline">Patient has functional decline. Please refer to higher facility if needed.</string>
     <string name="elderly_alert_memory_loss">Patient has memory loss. Please refer to higher facility if needed.</string>
+    <string name="elderly_referral_recheck_message">Please recheck, referral according to screening results recommended for:</string>
+    <string name="elderly_screening_name_functional_adl">Functional ADL</string>
+    <string name="elderly_screening_name_dementia">Dementia</string>
+    <string name="elderly_referral_priority_title">Referral priority</string>
 
     <!-- Psychosocial Caregiver Support Dataset -->
     <string name="psychosocial_counselling_provided">Psychosocial counselling provided</string>
