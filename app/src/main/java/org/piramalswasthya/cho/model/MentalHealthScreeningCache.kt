@@ -265,6 +265,12 @@ data class MentalHealthScreeningCache(
     @ColumnInfo(name = "case_closure_reason")
     var caseClosureReason: String? = null,
 
+    @ColumnInfo(name = "case_status")
+    var caseStatus: String? = null,
+
+    @ColumnInfo(name = "date_of_death")
+    var dateOfDeath: String? = null,
+
 
     @ColumnInfo(name = "syncState")
     var syncState: Int = 0,

@@ -149,6 +149,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private val procedureDropdown = ArrayList<ProceduresMasterData>()
     private val frequencyListVal = medicationFrequencyList
     private lateinit var tempDropdownAdapter: TempDropdownAdapter
+    private var templateNamesAdapter: ArrayAdapter<String>? = null
     private val referDropdownVal = medicalReferDropdownVal
     private val unitListVal = unitVal
     private val dosage = tabletDosageList
@@ -736,10 +737,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
 
 
-        val tempAdapter =
-            ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
         val uniqueTemplateNames = LinkedHashSet<String>()
-        binding.inputUseTempForFields.setAdapter(tempAdapter)
+        setTemplateDropdown(emptyList())
 
         // Remove existing observer to prevent duplicates
         viewModel.tempDB.removeObservers(viewLifecycleOwner)
@@ -750,9 +749,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             // Add "None" to the HashSet
             uniqueTemplateNames.add("None")
 
-            tempAdapter.clear()
-            tempAdapter.addAll(uniqueTemplateNames)
-            tempAdapter.notifyDataSetChanged()
+            setTemplateDropdown(uniqueTemplateNames.toList())
         }
 
         binding.inputUseTempForFields.setOnItemClickListener { parent, _, position, _ ->
@@ -817,9 +814,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             saveTemp(uniqueTemplateNames)
         }
         binding.deleteTemp.setOnClickListener {
-
-            tempAdapter.notifyDataSetChanged()
-            openBottomSheet(uniqueTemplateNames,tempAdapter)
+            openBottomSheet(uniqueTemplateNames)
         }
 
         val referAdapter =
@@ -1754,14 +1749,30 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
     }
 
+    // Rebuilds and re-attaches the template dropdown adapter so the exposed-dropdown popup
+    // discards any cached/filtered rows and reflects the current list immediately. Mutating
+    // the existing ArrayAdapter (clear/addAll) leaves the filter's materialised list stale,
+    // so a deleted template lingers until the page is reopened.
+    private fun setTemplateDropdown(names: List<String>) {
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            names.toMutableList()
+        )
+        templateNamesAdapter = adapter
+        binding.inputUseTempForFields.setAdapter(adapter)
+    }
+
     private lateinit var syncBottomSheet: TemplateListBottomSheetFragment
-    private fun openBottomSheet(str: HashSet<String?>, tempAdapter: ArrayAdapter<String>) {
+    private fun openBottomSheet(str: HashSet<String?>) {
         syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo,
             object : TemplateListBottomSheetFragment.OnTemplateDeletedListener {
                 override fun onTemplateDeleted(updatedList: List<String>, string: String?) {
-                    tempAdapter.clear()
-                    tempAdapter.addAll(updatedList)
-                    tempAdapter.notifyDataSetChanged()
+                    setTemplateDropdown(updatedList)
+                    // Clear the field if the just-deleted template was the selected one.
+                    if (binding.inputUseTempForFields.text?.toString() == string) {
+                        binding.inputUseTempForFields.setText("", false)
+                    }
                     string?.let {
                         viewModeltemplate.callMarkDel(it)
                     }
@@ -2703,6 +2714,13 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     }
                     binding.saveTemplate.isEnabled = false
                     binding.saveTemplate.alpha = 0.5f
+                    // Immediately reflect the newly saved template in the dropdown.
+                    // tempDB is keyed on userId (which doesn't change on insert), so we
+                    // rebuild the adapter here just like the delete path does.
+                    requireActivity().runOnUiThread {
+                        uniqueTemplateNames.add(tempNameVal)
+                        setTemplateDropdown(uniqueTemplateNames.filterNotNull())
+                    }
                 }
             }
         }

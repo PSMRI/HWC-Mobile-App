@@ -111,6 +111,18 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
         dataset.resetPhq9AlertMessageFlow()
     }
 
+    /**
+     * Specific screenings recommending referral, returned only when the CHO answered
+     * "No" to the overall referral question. Non-empty here means the "Please recheck…"
+     * alert should be shown and navigation blocked after save.
+     */
+    fun specificScreeningsRecommendingReferralIfNoSelected(): List<String> =
+        dataset.specificScreeningsRecommendingReferralIfNoSelected()
+
+    /** True when a referral is prompted only by the general screening questions. */
+    fun isGeneralReferralOnly(): Boolean =
+        dataset.isGeneralReferralOnly()
+
     // ── Save ──────────────────────────────────────────────────────────
 
     fun saveForm() {

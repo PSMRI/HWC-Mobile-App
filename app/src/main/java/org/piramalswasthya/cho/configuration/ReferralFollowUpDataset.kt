@@ -31,6 +31,22 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
     protected abstract val dateOfDeath: FormElement
     protected abstract val remarks: FormElement
 
+    /**
+     * When true, the Case Status (and its Date-of-death dependant) is shown only when the
+     * CHO answered "No" to referral; on the "Yes" path it is hidden and never persisted.
+     * Default keeps the always-visible behaviour for screens that opt out.
+     */
+    protected open val showCaseStatusOnlyWhenReferralNo: Boolean = false
+
+    protected fun isReferralYes(): Boolean = referralRequired.value == optionYes
+    protected fun isReferralNo(): Boolean = referralRequired.value == optionNo
+
+    /**
+     * Extra fields rendered on the referral = Yes path, after Reason for referral. Default is
+     * none; screens override to inject form-specific fields (e.g. Referral priority).
+     */
+    protected open fun additionalReferralYesFields(): List<FormElement> = emptyList()
+
 
 
     protected fun createReferralRequired(id: Int) = FormElement(
@@ -84,6 +100,7 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
             referralLevel.required = true
             list.add(referralLevel)
             list.add(reasonForReferral)
+            list.addAll(additionalReferralYesFields())
         }
         list.add(followUpRequired)
         if (followUpRequired.value == optionYes) {
@@ -92,10 +109,12 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
             followUpDate.max = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(365 * 10)
             list.add(followUpDate)
         }
-        // Case closure fields are always visible below follow-up
-        list.add(caseStatus)
-        if (caseStatus.value == optionDeath) {
-            list.add(dateOfDeath)
+        // Case closure fields. When opted-in, shown only on the referral = No path.
+        if (!showCaseStatusOnlyWhenReferralNo || referralRequired.value == optionNo) {
+            list.add(caseStatus)
+            if (caseStatus.value == optionDeath) {
+                list.add(dateOfDeath)
+            }
         }
         list.add(remarks)
     }
@@ -235,9 +254,15 @@ abstract class ReferralFollowUpDataset(context: Context, currentLanguage: Langua
         } else {
             cacheValue.followUpDate = null
         }
-        cacheValue.caseStatus = getEnglishValueInArray(R.array.case_status_options, caseStatus.value)
-        // caseStatus.value is local; optionDeath is local — same-locale compare.
-        cacheValue.dateOfDeath = if (caseStatus.value == optionDeath) dateOfDeath.value else null
+        if (showCaseStatusOnlyWhenReferralNo && isReferralYes()) {
+            // Case status does not apply on the referral = Yes path; never persist a stale value.
+            cacheValue.caseStatus = null
+            cacheValue.dateOfDeath = null
+        } else {
+            cacheValue.caseStatus = getEnglishValueInArray(R.array.case_status_options, caseStatus.value)
+            // caseStatus.value is local; optionDeath is local — same-locale compare.
+            cacheValue.dateOfDeath = if (caseStatus.value == optionDeath) dateOfDeath.value else null
+        }
         cacheValue.remarks = remarks.value
     }
 }
