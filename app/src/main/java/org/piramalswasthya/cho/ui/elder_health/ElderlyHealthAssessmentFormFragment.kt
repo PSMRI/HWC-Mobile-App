@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
-import org.piramalswasthya.cho.work.WorkerUtils
 import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 
@@ -83,23 +82,22 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
         _binding = null
     }
 
-    // Data is already saved by the time we get here. When a specific screening recommended a
-    // referral but the CHO chose "No", show the recheck alert so the CHO can decide whether to
-    // revisit the referral answer or continue. Otherwise proceed straight to the vitals screen.
-    override fun onSaveSuccess() {
-        val recommended = viewModel.specificScreeningsRecommendingReferralIfNoSelected()
-        if (recommended.isNotEmpty()) {
-            showReferralRecheckAlert(recommended)
-            return
-        }
-        onStageAndProceed()
-    }
+    // Set once the CHO has acknowledged the recheck alert with "No" (keep referral = No, proceed).
+    private var referralRecheckAcknowledged = false
 
-    private fun proceedAfterSave() {
-        WorkerUtils.elderlyPushWorker(requireContext())
-        navigateToCphcVitalsAfterSave(
-            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.elderlyHealthAssessment,
-        )
+    // Runs at the top of submitForm() before the persistOnNext branch, so it fires regardless of
+    // the deferred-save model. When a specific screening recommended a referral but the CHO chose
+    // "No", block submission and show the recheck alert so the CHO can decide whether to revisit
+    // the referral answer or continue.
+    override fun shouldProceedWithSubmit(): Boolean {
+        if (!referralRecheckAcknowledged && isAdded) {
+            val recommended = viewModel.specificScreeningsRecommendingReferralIfNoSelected()
+            if (recommended.isNotEmpty()) {
+                showReferralRecheckAlert(recommended)
+                return false
+            }
+        }
+        return true
     }
 
     override fun onStageAndProceed() {
@@ -126,7 +124,9 @@ class ElderlyHealthAssessmentFormFragment : BaseAssessmentFormFragment<ElderlyHe
             .setPositiveButton(getString(R.string.yes)) { dialog, _ -> dialog.dismiss() }
             .setNegativeButton(getString(R.string.no)) { dialog, _ ->
                 dialog.dismiss()
-                proceedAfterSave()
+                // Keep referral = No and proceed; flag now set so re-run passes the gate.
+                referralRecheckAcknowledged = true
+                submitForm()
             }
             .setCancelable(false)
             .show()

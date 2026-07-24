@@ -102,8 +102,14 @@ class MentalHealthScreeningFormFragment :
     // Tracks the single informational alert shown when referral is detected via general screening.
     private var generalReferralAlertShown = false
 
-    // Show one informational alert before submission when a referral is prompted purely by the
-    // general screening questions. OK proceeds to save + navigate.
+    // Set once the CHO has acknowledged the recheck alert with "No" (keep referral = No, proceed).
+    private var referralRecheckAcknowledged = false
+
+    // Runs at the top of submitForm() before the persistOnNext branch, so it fires regardless of the
+    // deferred-save model. Two pre-submit gates:
+    //  1) A one-off informational alert when a referral is prompted purely by the general screening
+    //     questions. OK re-runs submission.
+    //  2) The recheck alert when a specific screening recommended a referral but the CHO chose "No".
     override fun shouldProceedWithSubmit(): Boolean {
         if (!generalReferralAlertShown && viewModel.isGeneralReferralOnly() && isAdded) {
             generalReferralAlertShown = true
@@ -118,23 +124,14 @@ class MentalHealthScreeningFormFragment :
                 .show()
             return false
         }
-        return true
-    }
-
-    // Data is already saved by the time we get here. When a specific screening recommended a
-    // referral but the CHO chose "No", show the recheck alert and STAY on the page (block
-    // navigation). Otherwise stamp metadata and navigate to the vitals screen.
-    override fun onSaveSuccess() {
-        val recommended = viewModel.specificScreeningsRecommendingReferralIfNoSelected()
-        if (recommended.isNotEmpty()) {
-            showReferralRecheckAlert(recommended)
-            return
+        if (!referralRecheckAcknowledged && isAdded) {
+            val recommended = viewModel.specificScreeningsRecommendingReferralIfNoSelected()
+            if (recommended.isNotEmpty()) {
+                showReferralRecheckAlert(recommended)
+                return false
+            }
         }
-       /* WorkerUtils.mentalPushWorker(requireContext())
-        navigateToCphcVitalsAfterSave(
-            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.mentalHealth,
-        )*/
-        onStageAndProceed()
+        return true
     }
 
     override fun onStageAndProceed() {
@@ -142,6 +139,8 @@ class MentalHealthScreeningFormFragment :
         navigateToCphcVitalsAfterSave(subCategory = DropdownConst.mentalHealth)
     }
 
+    // Yes → dismiss and stay on the page so the CHO can change the referral answer.
+    // No  → keep referral = No and move on to the next screen.
     private fun showReferralRecheckAlert(screenings: List<String>) {
         if (!isAdded) return
         val message = buildString {
@@ -156,7 +155,13 @@ class MentalHealthScreeningFormFragment :
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.form_alert_title))
             .setMessage(message)
-            .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+            .setPositiveButton(getString(R.string.yes)) { dialog, _ -> dialog.dismiss() }
+            .setNegativeButton(getString(R.string.no)) { dialog, _ ->
+                dialog.dismiss()
+                // Keep referral = No and proceed; flag now set so re-run passes the gate.
+                referralRecheckAcknowledged = true
+                submitForm()
+            }
             .setCancelable(false)
             .show()
     }
