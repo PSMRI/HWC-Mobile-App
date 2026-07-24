@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,11 +14,9 @@ import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOralHealthFormBinding
 import org.piramalswasthya.cho.model.FormElement
-import org.piramalswasthya.cho.model.MasterDb
-import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
 import org.piramalswasthya.cho.ui.commons.DropdownConst
-import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 
 @AndroidEntryPoint
 class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewModel>() {
@@ -46,6 +44,10 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
     override fun onSaveForm() = viewModel.saveForm()
     override fun getFragmentId(): Int = R.id.fragment_oral_health_form
 
+    override val persistOnNext: Boolean = false
+
+    private val pendingCphcFormViewModel: PendingCphcFormViewModel by activityViewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,8 +63,8 @@ class OralHealthFormFragment : BaseAssessmentFormFragment<OralHealthFormViewMode
     }
 
     // Stamp Oral Health visit metadata onto MasterDb from arguments and navigate to vitals.
-    override fun onSaveSuccess() {
-        WorkerUtils.oralPushWorker(requireContext())
+    override fun onStageAndProceed() {
+        viewModel.stagePendingSave(pendingCphcFormViewModel)
         navigateToCphcVitalsAfterSave(
             subCategory = DropdownConst.oral,
             reasonForVisit = DropdownConst.dental,

@@ -134,4 +134,14 @@ class MentalHealthScreeningFormViewModel @Inject constructor(
             mentalHealthScreeningRepo.saveScreening(screeningCache)
         }
     }
+
+    fun stagePendingSave(pendingStore: org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel) {
+        check(::screeningCache.isInitialized) { "Screening cache not initialized" }
+        dataset.mapValues(screeningCache, 1)
+        val snapshot = screeningCache.copy()
+        pendingStore.stage(
+            persist = { mentalHealthScreeningRepo.saveScreening(snapshot) },
+            enqueuePush = { org.piramalswasthya.cho.work.WorkerUtils.mentalPushWorker(it) },
+        )
+    }
 }

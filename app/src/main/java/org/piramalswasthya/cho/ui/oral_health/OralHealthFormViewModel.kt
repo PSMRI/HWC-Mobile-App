@@ -77,5 +77,22 @@ class OralHealthFormViewModel @Inject constructor(
             oralHealthRepo.save(oralHealthCache)
         }
     }
+
+    fun stagePendingSave(pendingStore: org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel) {
+        check(::oralHealthCache.isInitialized) { "Oral health cache not initialized" }
+        dataset.mapValues(oralHealthCache, 1)
+        val snapshot = oralHealthCache.copy()
+        pendingStore.stage(
+            persist = {
+                if (snapshot.oralHealthId == 0L) {
+                    val user = userRepo.getLoggedInUser()
+                    snapshot.createdDate = System.currentTimeMillis()
+                    snapshot.createdBy = user?.userName
+                }
+                oralHealthRepo.save(snapshot)
+            },
+            enqueuePush = { org.piramalswasthya.cho.work.WorkerUtils.oralPushWorker(it) },
+        )
+    }
 }
 

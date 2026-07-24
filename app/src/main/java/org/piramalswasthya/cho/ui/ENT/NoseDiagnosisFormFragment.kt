@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -20,8 +21,9 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNoseDiagnosisFormBinding
 import org.piramalswasthya.cho.ui.commons.CphcFormNavigation
 import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
+import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 
 
 @AndroidEntryPoint
@@ -31,6 +33,7 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
     private val binding get() = _binding!!
 
     private val viewModel: NoseDiagnosisFormViewModel by viewModels()
+    private val pendingCphcFormViewModel: PendingCphcFormViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,18 +120,10 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
                 BaseFormViewModel.State.SAVE_SUCCESS -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
-                    WorkerUtils.nosePushWorker(requireContext())
                     Toast.makeText(context, getString(R.string.nose_diagnosis_saved), Toast.LENGTH_LONG).show()
                     // Prevent re-delivery of SAVE_SUCCESS when returning from Vitals via back/cancel.
                     viewModel.resetState()
-                    findNavController().navigate(
-                        org.piramalswasthya.cho.R.id.customVitalsFragment,
-                        CphcFormNavigation.buildVitalsBundle(
-                            arguments = arguments,
-                            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.nose,
-                            reasonForVisit = org.piramalswasthya.cho.ui.commons.DropdownConst.nose,
-                        ),
-                    )
+                    navigateToVitals()
                 }
 
                 BaseFormViewModel.State.SAVE_FAILED -> {
@@ -160,10 +155,22 @@ class NoseDiagnosisFormFragment : Fragment(), NavigationAdapter {
 
         val result = adapter.validateInput(resources)
         if (result == -1) {
-            viewModel.saveForm()
+            viewModel.stagePendingSave(pendingCphcFormViewModel)
+            navigateToVitals()
         } else {
             binding.form.rvInputForm.scrollToPosition(result)
         }
+    }
+
+    private fun navigateToVitals() {
+        findNavController().navigate(
+            R.id.customVitalsFragment,
+            CphcFormNavigation.buildVitalsBundle(
+                arguments = arguments,
+                subCategory = DropdownConst.nose,
+                reasonForVisit = DropdownConst.nose,
+            ),
+        )
     }
 
     override fun onSubmitAction() {

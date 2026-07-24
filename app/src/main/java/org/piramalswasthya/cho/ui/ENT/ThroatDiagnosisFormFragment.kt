@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -15,12 +15,9 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentThroatDiagnosisFormBinding
 import org.piramalswasthya.cho.model.FormElement
-import org.piramalswasthya.cho.model.MasterDb
-import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
 import org.piramalswasthya.cho.ui.commons.DropdownConst
-import org.piramalswasthya.cho.work.WorkerUtils
-import androidx.navigation.fragment.findNavController
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 
 @AndroidEntryPoint
 class ThroatDiagnosisFormFragment :
@@ -50,6 +47,10 @@ class ThroatDiagnosisFormFragment :
         viewModel.updateListOnValueChanged(formId, index)
     override fun onSaveForm() = viewModel.saveForm()
     override fun getFragmentId(): Int = R.id.throatDiagnosisFormFragment
+
+    override val persistOnNext: Boolean = false
+
+    private val pendingCphcFormViewModel: PendingCphcFormViewModel by activityViewModels()
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -104,10 +105,8 @@ class ThroatDiagnosisFormFragment :
     }
 
     // Stamp Throat visit metadata onto MasterDb from arguments and navigate to vitals; replaces fresh MasterDb construction that lost chief-complaint data.
-    override fun onSaveSuccess() {
-        WorkerUtils.throatPushWorker(requireContext())
-        navigateToCphcVitalsAfterSave(
-            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.throat,
-        )
+    override fun onStageAndProceed() {
+        viewModel.stagePendingSave(pendingCphcFormViewModel)
+        navigateToCphcVitalsAfterSave(subCategory = DropdownConst.throat)
     }
 }
