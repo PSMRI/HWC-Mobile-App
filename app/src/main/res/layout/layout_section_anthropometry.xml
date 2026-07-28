@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="10dp">
+
+    <TextView
+        android:id="@+id/anthroHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/_20sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:background="@color/default_button"
+        android:gravity="center|center_vertical"
+        android:padding="@dimen/_5sdp"
+        android:text="@string/anthropometry"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="normal|bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/heightEditTxt"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_marginEnd="10dp"
+        android:hint="@string/height_cm"
+        android:textSize="18sp"
+        app:helperText="@string/required"
+        app:layout_constraintEnd_toStartOf="@+id/anthroVerticalGuideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/anthroHeading">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivHeightBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/heightEditTxt"
+        app:layout_constraintEnd_toStartOf="@+id/heightEditTxt"
+        app:layout_constraintStart_toStartOf="@+id/heightEditTxt"
+        app:layout_constraintTop_toTopOf="@+id/heightEditTxt"
+        app:tint="@color/defaultInput" />
+
+    <ImageView
+        android:id="@+id/ivIconsHeight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_male_height"
+        app:layout_constraintBottom_toBottomOf="@+id/ivHeightBg"
+        app:layout_constraintEnd_toEndOf="@+id/ivHeightBg"
+        app:layout_constraintStart_toStartOf="@+id/ivHeightBg"
+        app:layout_constraintTop_toTopOf="@+id/ivHeightBg" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/weightEditTxt"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:hint="@string/weight_kg_text"
+        android:textSize="18sp"
+        app:helperText="@string/required"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/anthroVerticalGuideline"
+        app:layout_constraintTop_toTopOf="@+id/heightEditTxt">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivWeightBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/weightEditTxt"
+        app:layout_constraintEnd_toStartOf="@+id/weightEditTxt"
+        app:layout_constraintStart_toStartOf="@+id/weightEditTxt"
+        app:layout_constraintTop_toTopOf="@+id/weightEditTxt"
+        app:tint="@color/background_gradient_start" />
+
+    <ImageView
+        android:id="@+id/ivIconsWeight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/monitor_weight_24px"
+        app:layout_constraintBottom_toBottomOf="@+id/ivWeightBg"
+        app:layout_constraintEnd_toEndOf="@+id/ivWeightBg"
+        app:layout_constraintStart_toStartOf="@+id/ivWeightBg"
+        app:layout_constraintTop_toTopOf="@+id/ivWeightBg" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/bmill"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:layout_marginEnd="10dp"
+        android:hint="@string/bmi"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/heightEditTxt">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputBmi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:editable="false"
+            android:focusable="false"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivBmiBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/bmill"
+        app:layout_constraintEnd_toStartOf="@+id/bmill"
+        app:layout_constraintStart_toStartOf="@+id/bmill"
+        app:layout_constraintTop_toTopOf="@+id/bmill"
+        app:tint="@color/md_theme_light_onPrimary2" />
+
+    <ImageView
+        android:id="@+id/ivIconsBmi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bmi"
+        app:layout_constraintBottom_toBottomOf="@+id/ivBmiBg"
+        app:layout_constraintEnd_toEndOf="@+id/ivBmiBg"
+        app:layout_constraintStart_toStartOf="@+id/ivBmiBg"
+        app:layout_constraintTop_toTopOf="@+id/ivBmiBg" />
+
+    <TextView
+        android:id="@+id/bmiCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="18sp"
+        android:textStyle="normal|bold"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bmill" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/anthroVerticalGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
