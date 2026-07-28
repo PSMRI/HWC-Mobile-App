@@ -536,6 +536,19 @@
                         app:layout_constraintStart_toStartOf="@+id/ivBmiBg"
                         app:layout_constraintTop_toTopOf="@+id/ivBmiBg" />
 
+                    <TextView
+                        android:id="@+id/bmiCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:textSize="18sp"
+                        android:textStyle="normal|bold"
+                        android:visibility="gone"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/bmill" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/rbsEditTxt"
                         style="@style/TextInputLayoutStyle"

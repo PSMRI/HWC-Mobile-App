@@ -92,6 +92,7 @@ import org.piramalswasthya.cho.utils.HelperUtil
 import org.piramalswasthya.cho.utils.HelperUtil.disableDropdownField
 import org.piramalswasthya.cho.utils.HelperUtil.disableTextInputLayout
 import org.piramalswasthya.cho.utils.generateIntFromUuid
+import org.piramalswasthya.cho.utils.BmiUtils
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -1872,6 +1873,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.inputHeight.setText(vitals.height.orEmpty())
         binding.inputWeight.setText(vitals.weight.orEmpty())
         binding.inputBmi.setText(vitals.bmi.orEmpty())
+        BmiUtils.applyBmiCategoryFromAnthropometry(
+            requireContext(),
+            vitals.height,
+            vitals.weight,
+            vitals.bmi,
+            binding.bmiCategory,
+            binding.inputBmi
+        )
         binding.inputTemperature.setText(vitals.temperature.orEmpty())
         binding.inputPulseRate.setText(vitals.pulseRate.orEmpty())
         binding.inputSpo2.setText(vitals.spo2.orEmpty())
@@ -1913,6 +1922,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         if (itemB.isNullOrEmpty() || itemB.equals("null")) {
             binding.bmill.visibility = View.GONE
+            binding.bmiCategory.visibility = View.GONE
         } else {
             binding.bmill.visibility = View.VISIBLE
         }
