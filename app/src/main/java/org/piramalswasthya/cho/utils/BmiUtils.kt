@@ -27,17 +27,14 @@ object BmiUtils {
             bmi > 30f -> {
                 bmiCategoryView.text = context.getString(R.string.obese_txt)
                 bmiCategoryView.setTextColor(context.resources.getColor(R.color.red))
-//                bmiInputView.setTextColor(context.resources.getColor(R.color.red))
             }
             bmi > 25f -> {
                 bmiCategoryView.text = context.getString(R.string.overweight_txt)
                 bmiCategoryView.setTextColor(context.resources.getColor(R.color.red))
-//                bmiInputView.setTextColor(context.resources.getColor(R.color.red))
             }
             else -> {
                 bmiCategoryView.text = context.getString(R.string.normal_txt)
                 bmiCategoryView.setTextColor(context.resources.getColor(R.color.green))
-//                bmiInputView.setTextColor(context.resources.getColor(R.color.black))
             }
         }
     }
