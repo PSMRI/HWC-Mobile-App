@@ -166,7 +166,9 @@ import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
 import org.piramalswasthya.cho.database.room.dao.ElderlyHealthAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.SnomedDiagnosisDao
 import org.piramalswasthya.cho.model.ElderlyHealthAssessment
+import org.piramalswasthya.cho.model.SnomedDiagnosis
 
 
 @Database(
@@ -265,10 +267,11 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         OralHealth::class,
         MentalHealthScreeningCache::class,
         ThroatDiagnosisAssessment::class,
-        ElderlyHealthAssessment::class
+        ElderlyHealthAssessment::class,
+        SnomedDiagnosis::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 152, exportSchema = false
+    version = 153, exportSchema = false
 )
 
 
@@ -349,6 +352,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val mentalHealthScreeningDao: MentalHealthScreeningDao
     abstract val throatDiagnosisAssessmentDao: ThroatDiagnosisAssessmentDao
     abstract val elderlyHealthAssessmentDao: ElderlyHealthAssessmentDao
+    abstract val snomedDiagnosisDao: SnomedDiagnosisDao
 
     companion object {
         @Volatile
@@ -1228,6 +1232,12 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_152_153 = object : Migration(149, 150) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS SNOMED_DIAGNOSIS_MASTER (conceptID TEXT NOT NULL, term TEXT NOT NULL, PRIMARY KEY(conceptID))")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1245,7 +1255,6 @@ abstract class InAppDb : RoomDatabase() {
                 // Column already exists — safe to ignore
             }
         }
-
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -1305,7 +1314,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_148_149,
                             MIGRATION_149_150,
                             MIGRATION_150_151,
-                            MIGRATION_151_152
+                            MIGRATION_151_152,
+                            MIGRATION_152_153
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

@@ -146,6 +146,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private val formMListVal = ArrayList<ItemMasterList>()
     private var formForFilter = ArrayList<ItemMasterList>()
     private val counsellingTypes = ArrayList<CounsellingProvided>()
+    private val snomedDiagnoses = ArrayList<org.piramalswasthya.cho.model.SnomedDiagnosis>()
     private val procedureDropdown = ArrayList<ProceduresMasterData>()
     private val frequencyListVal = medicationFrequencyList
     private lateinit var tempDropdownAdapter: TempDropdownAdapter
@@ -838,6 +839,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             isCaseRecordReadOnly,
             isFollowupVisit,
             itemListD,
+            snomedDiagnoses,
             object : RecyclerViewItemChangeListenerD {
                 override fun onItemChanged() {
                     binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
@@ -845,6 +847,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
         )
         binding.diagnosisExtra.adapter = dAdapter
+        viewModel.snomedDiagnoses.observe(viewLifecycleOwner) { records ->
+            snomedDiagnoses.clear()
+            snomedDiagnoses.addAll(records)
+            if (::dAdapter.isInitialized) dAdapter.updateDiagnosisSuggestions(snomedDiagnoses)
+        }
         val layoutManager = LinearLayoutManager(requireContext())
         binding.diagnosisExtra.layoutManager = layoutManager
         dAdapter.notifyItemInserted(itemListD.size - 1)

@@ -45,6 +45,7 @@ import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
+import org.piramalswasthya.cho.model.SnomedDiagnosis
 import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.BenFlowRepo
@@ -62,6 +63,7 @@ import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.PainAndSymptomAssessmentRepo
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
+import org.piramalswasthya.cho.repositories.SnomedDiagnosisRepo
 import org.piramalswasthya.cho.repositories.PsychosocialCaregiverSupportRepo
 import org.piramalswasthya.cho.repositories.ThroatDiagnosisRepo
 import org.piramalswasthya.cho.repositories.UserRepo
@@ -100,8 +102,10 @@ class CaseRecordViewModel @Inject constructor(
     private val userRepo: UserRepo,
     private val templateRepo: PrescriptionTemplateRepo,
     private val benFlowRepo: BenFlowRepo,
-    private val caseClosureManager: org.piramalswasthya.cho.helpers.CaseClosureManager
+    private val caseClosureManager: org.piramalswasthya.cho.helpers.CaseClosureManager,
+    private val snomedDiagnosisRepo: SnomedDiagnosisRepo
 ): ViewModel() {
+    val snomedDiagnoses: LiveData<List<SnomedDiagnosis>> = snomedDiagnosisRepo.diagnoses
     val userId  = userRepo.getLoggedInUserAsFlow()
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
     val isDataDeleted: MutableLiveData<Boolean>
