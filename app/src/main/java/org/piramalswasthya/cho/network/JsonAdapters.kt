@@ -3,11 +3,11 @@ package org.piramalswasthya.cho.network
 import android.os.Parcelable
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
-import org.piramalswasthya.cho.ui.abha_id_activity.AbhaClientConstants
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.OutreachActivityNetworkModel
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.VillageLocationData
+import org.piramalswasthya.cho.utils.KeyUtils
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -97,9 +97,9 @@ data class BenAbhaResponse(
 
 @JsonClass(generateAdapter = true)
 data class AbhaTokenRequest(
-    val clientId: String = AbhaClientConstants.clientId,
-    val clientSecret: String = AbhaClientConstants.clientSecret,
-    val grantType: String = AbhaClientConstants.grantType
+    val clientId: String = KeyUtils.abhaClientID(),
+    val clientSecret: String = KeyUtils.abhaClientSecret(),
+    val grantType: String = KeyUtils.encryptedPassKey()
 )
 
 @JsonClass(generateAdapter = true)

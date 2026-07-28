@@ -13,6 +13,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.HiltAndroidApp
+import com.google.firebase.FirebaseApp
 import org.piramalswasthya.cho.network.TokenRefreshHolder
 import org.piramalswasthya.cho.network.TokenRefreshProvider
 import org.piramalswasthya.cho.ui.home_activity.DemoDataStore
@@ -27,10 +28,15 @@ class CHOApplication : Application(), Configuration.Provider {
 
     private val dataStore by lazy { DemoDataStore(this) }
 
-    override fun getWorkManagerConfiguration() =
-        Configuration.Builder()
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
+
+//    override fun getWorkManagerConfiguration() =
+//        Configuration.Builder()
+//            .setWorkerFactory(workerFactory)
+//            .build()
 
     val activityList = mutableListOf<Activity>()
 
@@ -48,9 +54,11 @@ class CHOApplication : Application(), Configuration.Provider {
 
 //        HttpLogger
         super.onCreate()
-//        if (BuildConfig.DEBUG) {
+        FirebaseApp.initializeApp(this)
+        if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
 
         // Global keyboard insets handler: ensures the layout resizes when the soft keyboard
         // opens on ALL activities. Required because targetSdk 35 enforces edge-to-edge,

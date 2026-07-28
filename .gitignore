@@ -9,8 +9,16 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+/release
 /captures
 .externalNativeBuild
 .cxx
 local.properties
 **.idea/**
+keystore.properties
+debug-keystore.properties
+keystore.jks
+debug-keystore.jks
+firebase_credentials.json
+google_play_service_account.json
+app/google-services.json

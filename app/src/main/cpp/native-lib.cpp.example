@@ -7,16 +7,16 @@
 
 // ================== Development Constants ================== //
 // #if IS_DEVELOPMENT
-const char* M_ENCRYPTED_PASS_KEY = "ENCRYPTED_PASS_KEY";
-const char* M_ABHA_CLIENT_SECRET = "ABHA_CLIENT_SECRET";
-const char* M_ABHA_CLIENT_ID = "ABHA_CLIENT_ID";
-const char* M_BASE_TMC_URL = "BASE_TMC_URL";
-const char* M_BASE_AMRIT_URL = "BASE_AMRIT_URL";
-const char* M_BASE_FLW_URL = "BASE_FLW_URL";
-const char* M_BASE_ABHA_URL = "BASE_ABHA_URL";
-const char* M_ABHA_TOKEN_URL = "ABHA_TOKEN_URL";
-const char* M_ABHA_AUTH_URL = "ABHA_AUTH_URL";
-const char* M_SANJEEVANI_API_URL = "SANJEEVANI_API_URL";
+const char* M_ENCRYPTED_PASS_KEY = "dummy_encrypted_pass";
+const char* M_ABHA_CLIENT_SECRET = "dummy_abha_secret";
+const char* M_ABHA_CLIENT_ID = "dummy_abha_id";
+const char* M_BASE_TMC_URL = "tmc_url";
+const char* M_BASE_AMRIT_URL = "amrit_url";
+const char* M_BASE_FLW_URL = "flw_url";
+const char* M_BASE_ABHA_URL = "abha_url";
+const char* M_ABHA_TOKEN_URL = "amrit_token_url";
+const char* M_ABHA_AUTH_URL = "amrit_auth_url";
+const char* M_SANJEEVANI_API_URL = "sanjeevani_url";
 // ================== Production Constants (from Environment) ================== //
 // #else
 // const char* M_ENCRYPTED_PASS_KEY = ENCRYPTED_PASS_KEY;
