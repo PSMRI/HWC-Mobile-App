@@ -1763,6 +1763,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.inputUseTempForFields.setAdapter(adapter)
     }
 
+    /** Resets the "Enter Template Name" input after a template is added or deleted. */
+    private fun clearTemplateNameField() {
+        binding.inputTestName.setText("")
+    }
+
     private lateinit var syncBottomSheet: TemplateListBottomSheetFragment
     private fun openBottomSheet(str: HashSet<String?>) {
         syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo,
@@ -1773,6 +1778,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     if (binding.inputUseTempForFields.text?.toString() == string) {
                         binding.inputUseTempForFields.setText("", false)
                     }
+                    clearTemplateNameField()
                     string?.let {
                         viewModeltemplate.callMarkDel(it)
                     }
@@ -2712,12 +2718,13 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                    binding.saveTemplate.isEnabled = false
-                    binding.saveTemplate.alpha = 0.5f
                     // Immediately reflect the newly saved template in the dropdown.
                     // tempDB is keyed on userId (which doesn't change on insert), so we
                     // rebuild the adapter here just like the delete path does.
                     requireActivity().runOnUiThread {
+                        clearTemplateNameField()
+                        binding.saveTemplate.isEnabled = true
+                        binding.saveTemplate.alpha = 1.0f
                         uniqueTemplateNames.add(tempNameVal)
                         setTemplateDropdown(uniqueTemplateNames.filterNotNull())
                     }
