@@ -499,6 +499,7 @@ data class ElderlyHealthNetwork(
     val dementiaSelfCareDecline: Boolean? = null,
     val dementiaScreeningOutcome: String? = null,
     val dementiaReferralRequired: Boolean? = null,
+    val referralPriority: String? = null,
     val syncState: Int? = null,
     val referralFollowUp: ReferralFollowUpFields? = null
 )
@@ -535,6 +536,7 @@ fun ElderlyHealthAssessment.toNetworkModel(
         dementiaSelfCareDecline = dementiaSelfCareDecline,
         dementiaScreeningOutcome = dementiaScreeningOutcome,
         dementiaReferralRequired = dementiaReferralRequired,
+        referralPriority = referralPriority,
         syncState = syncState,
         referralFollowUp = referralFollowUp
     )
@@ -567,6 +569,7 @@ fun ElderlyHealthNetwork.toCacheModel(patientID: String): ElderlyHealthAssessmen
         dementiaSelfCareDecline = dementiaSelfCareDecline,
         dementiaScreeningOutcome = dementiaScreeningOutcome,
         dementiaReferralRequired = dementiaReferralRequired,
+        referralPriority = referralPriority,
         syncState = syncState ?: 0,
         referralFollowUp = referralFollowUp ?: ReferralFollowUpFields()
     )
@@ -648,6 +651,7 @@ data class MentalHealthNetwork(
     val referralRequired: Boolean? = null,
     val referralLevel: String? = null,
     val reasonForReferral: String? = null,
+    val referralPriority: String? = null,
     val referralDate: String? = null,
     val followUpRequired: Boolean? = null,
     val followUpDate: String? = null,
@@ -655,6 +659,8 @@ data class MentalHealthNetwork(
     val adherenceToAdvice: String? = null,
     val referralEscalationRequired: Boolean? = null,
     val caseClosureReason: String? = null,
+    val caseStatus: String? = null,
+    val dateOfDeath: String? = null,
     val syncState: Int? = null
 )
 

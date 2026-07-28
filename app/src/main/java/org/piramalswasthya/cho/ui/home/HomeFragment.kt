@@ -1,12 +1,14 @@
 package org.piramalswasthya.cho.ui.home
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -180,6 +182,10 @@ class HomeFragment : Fragment() {
             val showReg = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
             binding.registration.visibility = if (showReg) View.VISIBLE else View.GONE
             binding.registration.isEnabled = showReg
+
+            val showReport = preferenceDao.isDoctorSelected()
+            binding.report.visibility = if (showReport) View.VISIBLE else View.GONE
+            binding.report.isEnabled = showReport
         }
 
         WorkerUtils.totalPercentageCompleted.observe(viewLifecycleOwner){
@@ -192,6 +198,20 @@ class HomeFragment : Fragment() {
         binding.registration.setOnClickListener {
             searchPrompt.show()
 
+        }
+        binding.report.setOnClickListener {
+            try {
+                val url = getString(R.string.url_dhis_report) + preferenceDao.getDhisToken()
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+
+                startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(
+                    context,
+                    "No browser found",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
         setUpWorkerProgress()

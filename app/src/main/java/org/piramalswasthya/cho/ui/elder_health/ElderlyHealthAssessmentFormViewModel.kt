@@ -95,8 +95,6 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
                 }
                 }
 
-                setupDatasetCallbacks()
-
                 dataset.setUpPage(
                     savedRecord = assessmentCache,
                     patientAge = patient.patient.age
@@ -108,13 +106,13 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
         }
     }
 
-
-    private fun setupDatasetCallbacks() {
-        dataset.onShowAlert = { message ->
-            Timber.d("Dataset requested alert: $message")
-            _showAlert.postValue(message)
-        }
-    }
+    /**
+     * Specific screenings recommending referral, returned only when the CHO answered "No"
+     * to the referral question. Non-empty means the recheck alert should be shown and
+     * navigation blocked after save.
+     */
+    fun specificScreeningsRecommendingReferralIfNoSelected(): List<String> =
+        dataset.specificScreeningsRecommendingReferralIfNoSelected()
 
 
     fun updateListOnValueChanged(formId: Int, index: Int) {
@@ -135,5 +133,15 @@ class ElderlyHealthAssessmentFormViewModel @Inject constructor(
 
             Timber.d("Elderly Health Assessment saved")
         }
+    }
+
+    fun stagePendingSave(pendingStore: org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel) {
+        check(::assessmentCache.isInitialized) { "Assessment cache not initialized" }
+        dataset.mapValues(assessmentCache, 1)
+        val snapshot = assessmentCache.copy()
+        pendingStore.stage(
+            persist = { elderlyHealthRepo.saveAssessment(snapshot) },
+            enqueuePush = { org.piramalswasthya.cho.work.WorkerUtils.elderlyPushWorker(it) },
+        )
     }
 }

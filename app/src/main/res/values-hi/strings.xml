@@ -1455,6 +1455,10 @@
     <string name="elderly_outcome_not_suspected">संदिग्ध नहीं</string>
     <string name="elderly_alert_functional_decline">रोगी में कार्यात्मक गिरावट है। आवश्यकता होने पर उच्च सुविधा में भेजें।</string>
     <string name="elderly_alert_memory_loss">रोगी में स्मृति हानि है। आवश्यकता होने पर उच्च सुविधा में भेजें।</string>
+    <string name="elderly_referral_recheck_message">कृपया पुनः जाँचें, स्क्रीनिंग परिणामों के अनुसार निम्न के लिए रेफरल की अनुशंसा की गई है:</string>
+    <string name="elderly_screening_name_functional_adl">कार्यात्मक ADL</string>
+    <string name="elderly_screening_name_dementia">मनोभ्रंश</string>
+    <string name="elderly_referral_priority_title">रेफरल प्राथमिकता</string>
 
     <!-- Psychosocial Caregiver Support Dataset -->
     <string name="psychosocial_counselling_provided">मनोसामाजिक परामर्श प्रदान किया गया</string>

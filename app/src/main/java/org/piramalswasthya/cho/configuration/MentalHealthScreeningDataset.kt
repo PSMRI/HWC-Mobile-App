@@ -21,6 +21,7 @@ class MentalHealthScreeningDataset(
     private lateinit var suicideRiskOptions: Array<String>
     private lateinit var epilepsyDurationOptions: Array<String>
     private lateinit var yesNoOptions: Array<String>
+    private lateinit var caseStatusOptions: Array<String>
     private lateinit var alcoholSystemActionOptions: Array<String>
 
     private lateinit var phq9SeverityOptions: Array<String>
@@ -47,7 +48,6 @@ class MentalHealthScreeningDataset(
     private var lastSuicideRiskLevel = ""
     private var genderID: Int? = null
     private var age: Int? = null
-    private var wasAutoReferralForced = false
     private val _phq9AlertMessageFlow = MutableStateFlow<CharSequence?>(null)
     val phq9AlertMessageFlow = _phq9AlertMessageFlow.asStateFlow()
 
@@ -66,6 +66,7 @@ class MentalHealthScreeningDataset(
             suicideRiskOptions = getStringArray(R.array.suicide_risk_options)
             epilepsyDurationOptions = getStringArray(R.array.epilepsy_duration_options)
             yesNoOptions = getStringArray(R.array.yes_no_options)
+            caseStatusOptions = getStringArray(R.array.case_status_options)
             alcoholSystemActionOptions = getStringArray(R.array.alcohol_system_action_options)
 
             phq9SeverityOptions = getStringArray(R.array.phq9_severity_options)
@@ -200,12 +201,47 @@ class MentalHealthScreeningDataset(
         )
     }
 
+    private val mhReferralPriority: FormElement by lazy {
+        FormElement(
+            id = 118,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.mh_referral_priority_title),
+            entries = context.resources.getStringArray(R.array.mh_referral_priority_options),
+            required = true
+        )
+    }
+
+
+
     private var mhReferralDate = FormElement(
         id = 110,
         inputType = InputType.TEXT_VIEW,
         title = context.getString(R.string.mh_referral_date_title),
         required = false
     )
+
+    // Case status shown when referral = No (Under care / Referred / Stable / Death)
+    private val mhCaseStatus: FormElement by lazy {
+        FormElement(
+            id = 119,
+            inputType = InputType.DROPDOWN,
+            title = context.getString(R.string.case_status_title),
+            entries = caseStatusOptions,
+            required = true,
+            hasDependants = true
+        )
+    }
+
+    // Date of death shown only when Case status = Death
+    private val mhDateOfDeath: FormElement by lazy {
+        FormElement(
+            id = 120,
+            inputType = InputType.DATE_PICKER,
+            title = context.getString(R.string.date_of_death_title),
+            required = true,
+            max = System.currentTimeMillis()
+        )
+    }
 
     // ── Follow-up & Closure fields ───────────────────────────────────
     private val mhFollowUpRequired: FormElement by lazy {
@@ -754,6 +790,76 @@ class MentalHealthScreeningDataset(
         return substanceAlcoholClassification.value == alcoholClassificationOptions.getOrNull(1)
     }
 
+    /**
+     * Labels of the specific screenings whose results recommend a referral.
+     * Used to build the "Please recheck…" alert and to decide when to block
+     * progression if the CHO selects "No" against the screening recommendation.
+     */
+    private fun specificScreeningsRecommendingReferral(): List<String> {
+        val result = mutableListOf<String>()
+        if (shouldAutoReferFromPhq9()) {
+            result.add(context.getString(R.string.phq9_section_title))
+        }
+        if (shouldAutoReferFromHighSuicideRisk()) {
+            result.add(context.getString(R.string.suicide_section_title))
+        }
+        if (shouldAutoReferFromProblematicAlcohol()) {
+            result.add(context.getString(R.string.substance_section_title))
+        }
+        if (shouldAutoReferFromEdSuspectedOutcome()) {
+            val suspectedEpilepsy = mhEdOutcomeOptions.getOrNull(0)
+            val suspectedDementia = mhEdOutcomeOptions.getOrNull(1)
+            when (edScreeningOutcome.value) {
+                suspectedEpilepsy -> result.add(context.getString(R.string.epilepsy_section_title))
+                suspectedDementia -> result.add(context.getString(R.string.dementia_section_title))
+                else -> result.add(context.getString(R.string.epilepsy_dementia_checklist_title))
+            }
+        }
+        return result
+    }
+
+    /**
+     * Specific screenings recommending referral, returned only when the CHO has
+     * answered "No" to the overall referral question. Empty otherwise. The UI
+     * uses this to show the recheck alert and stay on the page.
+     */
+    fun specificScreeningsRecommendingReferralIfNoSelected(): List<String> {
+        return if (isNo(mhReferralRequired.value)) {
+            specificScreeningsRecommendingReferral()
+        } else {
+            emptyList()
+        }
+    }
+
+    /**
+     * True when a referral is prompted purely by the general screening questions
+     * (no specific screening recommendation). Drives the single informational
+     * alert shown before submission.
+     */
+    fun isGeneralReferralOnly(): Boolean {
+        return shouldShowReferralRequiredField() &&
+                specificScreeningsRecommendingReferral().isEmpty()
+    }
+
+    private fun clearCaseStatusFields() {
+        mhCaseStatus.value = null
+        mhDateOfDeath.value = null
+    }
+
+    // Referral level/reason/priority and the follow-up block only apply on the "Yes"
+    // path; null them whenever referral is "No" or the referral question is hidden.
+    private fun clearReferralAndFollowUpFields() {
+        mhReferralLevel.value = null
+        mhReasonForReferral.value = null
+        mhReferralPriority.value = null
+        mhFollowUpRequired.value = null
+        mhFollowUpDate.value = null
+        mhImprovementNoted.value = null
+        mhAdherenceToAdvice.value = null
+        mhReferralEscalation.value = null
+        mhCaseClosureReason.value = null
+    }
+
     private fun isLowSuicideRisk(): Boolean {
         val lowRiskLabel = suicideRiskOptions.getOrNull(0)
         return isYes(selfHarmSuicideThoughts.value) &&
@@ -775,58 +881,11 @@ class MentalHealthScreeningDataset(
         return currentAge != null && currentAge <= 11 && isYes(selfHarmSuicideThoughts.value)
     }
 
-    private fun shouldForceAutoReferralRequired(): Boolean {
-        // For low suicide risk:
-        // - age <= 11: keep referral locked to Yes
-        // - age > 11: keep referral manual-select
-        if (isLowSuicideRisk() && !isAge11OrBelow() && !shouldAutoReferFromProblematicAlcohol()) {
-            return false
-        }
-
-        return shouldAutoReferUnder11() ||
-                shouldAutoReferFromPhq9() ||
-                shouldAutoReferFromHighSuicideRisk() ||
-                shouldAutoReferFromEdSuspectedOutcome() ||
-                shouldAutoReferFromProblematicAlcohol()
-    }
-
-    private fun applyAutoReferralRules() {
-        if (isLowSuicideRisk() && !isAge11OrBelow()) {
-            // Low suicide risk must remain manual. If the field was previously auto-forced,
-            // clear forced values so the user can re-select Yes/No.
-            if (wasAutoReferralForced || (mhReferralRequired.entries?.size ?: 0) == 1) {
-                mhReferralRequired.value = null
-                mhReferralLevel.value = null
-                mhReasonForReferral.value = null
-                mhReferralDate.value = null
-            }
-            wasAutoReferralForced = false
-            return
-        }
-
-        val isAutoReferralForced = shouldForceAutoReferralRequired()
-        if (isAutoReferralForced) {
-            mhReferralRequired.value = yesNoOptions[0]
-            if (mhReferralDate.value.isNullOrEmpty()) {
-                mhReferralDate.value = todayDateString()
-            }
-        } else if (wasAutoReferralForced) {
-            // Auto-force removed (e.g. suicide risk High -> Medium): clear stale forced values
-            // so UI updates immediately without requiring manual scroll/rebind.
-            mhReferralRequired.value = null
-            mhReferralLevel.value = null
-            mhReasonForReferral.value = null
-            mhReferralDate.value = null
-        }
-        wasAutoReferralForced = isAutoReferralForced
-    }
-
+    // The referral Yes/No radio is never locked: the CHO may choose "No" even when a
+    // specific screening recommends referral. Safety is enforced by the recheck alert
+    // and blocked navigation on submit, not by restricting the control.
     private fun updateReferralRequiredOptions() {
-        mhReferralRequired.entries = if (shouldForceAutoReferralRequired()) {
-            arrayOf(yesNoOptions[0])
-        } else {
-            yesNoOptions
-        }
+        mhReferralRequired.entries = yesNoOptions
     }
 
     private fun getReferralLevelOptionsByAge(): Array<String> {
@@ -937,10 +996,12 @@ class MentalHealthScreeningDataset(
                 formId
             }
             mhReferralRequired.id -> {
-                if (mhReferralRequired.value != yesNoOptions[0]) {
-                    mhReferralLevel.value = null
-                    mhReasonForReferral.value = null
-                    mhReferralDate.value = null
+                rebuildConditionalSections()
+                formId
+            }
+            mhCaseStatus.id -> {
+                if (mhCaseStatus.value != caseStatusOptions.last()) {
+                    mhDateOfDeath.value = null
                 }
                 rebuildConditionalSections()
                 formId
@@ -1017,7 +1078,6 @@ class MentalHealthScreeningDataset(
     private fun buildFormElementList(): MutableList<FormElement> {
         val list = mutableListOf<FormElement>()
         updateEdDerivedFields()
-        applyAutoReferralRules()
         updateReferralRequiredOptions()
         updateReferralLevelOptions()
         updateReferralReasonOptions()
@@ -1142,44 +1202,54 @@ class MentalHealthScreeningDataset(
         }
 
         if (shouldShowReferralRequiredField()) {
-            if (mhReferralRequired.value == null && shouldAutoSuggestReferral()) {
+            // Soft pre-select "Yes" when a screening recommends referral, but leave the
+            // control unlocked so the CHO can override to "No".
+            if (mhReferralRequired.value == null &&
+                (shouldAutoSuggestReferral() || specificScreeningsRecommendingReferral().isNotEmpty())
+            ) {
                 mhReferralRequired.value = yesNoOptions[0]
             }
             list.add(mhReferralRequired)
-            if (mhReferralRequired.value == yesNoOptions[0]) {
-                list.add(mhReferralLevel)
-                list.add(mhReasonForReferral)
-                if (mhReferralDate.value.isNullOrEmpty()) {
-                    mhReferralDate.value = todayDateString()
-                }
-                list.add(mhReferralDate)
+            when (mhReferralRequired.value) {
+                yesNoOptions[0] -> {
+                    // Referral = Yes → original referral + follow-up fields (unchanged)
+                    list.add(mhReferralLevel)
+                    list.add(mhReasonForReferral)
+                    list.add(mhReferralPriority)
+                    if (mhReferralDate.value.isNullOrEmpty()) {
+                        mhReferralDate.value = todayDateString()
+                    }
+                    list.add(mhReferralDate)
 
-                mhFollowUpDate.min = System.currentTimeMillis()
-                mhFollowUpDate.max = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(365)
-                list.add(mhFollowUpDate)
-                list.add(mhImprovementNoted)
-                list.add(mhAdherenceToAdvice)
-                list.add(mhReferralEscalation)
-            } else {
-                mhFollowUpRequired.value = null
-                mhFollowUpDate.value = null
-                mhImprovementNoted.value = null
-                mhAdherenceToAdvice.value = null
-                mhReferralEscalation.value = null
-                mhCaseClosureReason.value = null
+                    mhFollowUpDate.min = System.currentTimeMillis()
+                    mhFollowUpDate.max = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(365)
+                    list.add(mhFollowUpDate)
+                    list.add(mhImprovementNoted)
+                    list.add(mhAdherenceToAdvice)
+                    list.add(mhReferralEscalation)
+                    clearCaseStatusFields()
+                }
+                yesNoOptions[1] -> {
+                    // Referral = No → Case status (+ Date of death when "Death") only
+                    list.add(mhCaseStatus)
+                    if (mhCaseStatus.value == caseStatusOptions.last()) {
+                        mhDateOfDeath.max = System.currentTimeMillis()
+                        list.add(mhDateOfDeath)
+                    } else {
+                        mhDateOfDeath.value = null
+                    }
+                    mhReferralDate.value = null
+                    clearReferralAndFollowUpFields()
+                }
+                else -> {
+                    // Nothing selected yet
+                }
             }
         } else {
             mhReferralRequired.value = null
-            mhReferralLevel.value = null
-            mhReasonForReferral.value = null
             mhReferralDate.value = null
-
-            mhFollowUpRequired.value = null
-            mhFollowUpDate.value = null
-            mhImprovementNoted.value = null
-            mhAdherenceToAdvice.value = null
-            mhReferralEscalation.value = null
-            mhCaseClosureReason.value = null
+            clearCaseStatusFields()
+            clearReferralAndFollowUpFields()
         }
 //
 //        // Follow-up & Closure
@@ -1558,12 +1628,15 @@ class MentalHealthScreeningDataset(
             cache.referralRequired?.let { if (it) yesNoOptions[0] else yesNoOptions[1] }
         mhReferralLevel.value = cache.referralLevel
         mhReasonForReferral.value = cache.reasonForReferral
+        mhReferralPriority.value = cache.referralPriority
 
         if (cache.referralRequired == true) {
             mhReferralDate.value = cache.referralDate ?: todayDateString()
         } else {
             mhReferralDate.value = null
         }
+        mhCaseStatus.value = cache.caseStatus
+        mhDateOfDeath.value = cache.dateOfDeath
 
         // Follow-up & Closure
         mhFollowUpRequired.value =
@@ -1829,21 +1902,33 @@ class MentalHealthScreeningDataset(
             it.edSessionDate = if (it.edPsychosocialInterventionProvided == true) edSessionDate.value else null
             it.edDurationMinutes = if (it.edPsychosocialInterventionProvided == true) edDurationMinutes.value?.toIntOrNull() else null
             it.edRemarks = edRemarks.value
-            it.referralRequired = if (shouldForceAutoReferralRequired()) {
-                true
-            } else {
-                yesNoToBoolean(mhReferralRequired.value)
-            }
+            // Honor the CHO's Yes/No choice — the radio is no longer force-locked.
+            it.referralRequired = yesNoToBoolean(mhReferralRequired.value)
             if (it.referralRequired == true) {
+                // Referral = Yes → original referral fields
                 it.referralLevel = mhReferralLevel.value
                 it.reasonForReferral = mhReasonForReferral.value
+                it.referralPriority = mhReferralPriority.value
                 it.referralDate = mhReferralDate.value ?: todayDateString()
+                it.caseStatus = null
+                it.dateOfDeath = null
             } else {
                 it.referralLevel = null
                 it.reasonForReferral = null
+                it.referralPriority = null
                 it.referralDate = null
+                if (it.referralRequired == false) {
+                    // Referral = No → Case status (+ Date of death when Death)
+                    it.caseStatus = mhCaseStatus.value
+                    it.dateOfDeath =
+                        if (mhCaseStatus.value == caseStatusOptions.last()) mhDateOfDeath.value else null
+                } else {
+                    it.caseStatus = null
+                    it.dateOfDeath = null
+                }
             }
 
+            // Follow-up block — original behavior (only on the "Yes" path).
             it.followUpRequired = if (it.referralRequired == true) true else null
             if (it.referralRequired == true) {
                 it.followUpDate = mhFollowUpDate.value

@@ -81,6 +81,18 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
+    fun getDhisToken(): String? {
+        val prefKey = context.getString(R.string.PREF_primary_DHIS_TOKEN)
+        return encryptedPref.getString(prefKey, null)
+    }
+
+    fun saveDhisToken(token: String) {
+        val editor = encryptedPref.edit()
+        val prefKey = context.getString(R.string.PREF_primary_DHIS_TOKEN)
+        editor.putString(prefKey, token)
+        editor.apply()
+    }
+
     fun clearAmritTokens() {
         val editor = encryptedPref.edit()
         editor.remove(context.getString(R.string.PREF_primary_API_KEY))

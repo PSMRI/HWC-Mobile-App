@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +14,8 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentPsychosocialCaregiverSupportFormBinding
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
-import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.ui.commons.DropdownConst
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 
 @AndroidEntryPoint
 class PsychosocialCaregiverSupportFormFragment :
@@ -24,6 +25,9 @@ class PsychosocialCaregiverSupportFormFragment :
     private val binding get() = _binding!!
 
     override val viewModel: PsychosocialCaregiverSupportFormViewModel by viewModels()
+    private val pendingCphcFormViewModel: PendingCphcFormViewModel by activityViewModels()
+
+    override val persistOnNext: Boolean = false
 
     // ── View references ───────────────────────────────────────────────────────
 
@@ -86,10 +90,8 @@ class PsychosocialCaregiverSupportFormFragment :
     }
 
     // Stamp Psychosocial Caregiver Support metadata onto MasterDb from arguments and navigate to the vitals screen.
-    override fun onSaveSuccess() {
-        WorkerUtils.psychosocialCaregiverSupport(requireContext())
-        navigateToCphcVitalsAfterSave(
-            subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.psychosocialCaregiverSupport,
-        )
+    override fun onStageAndProceed() {
+        viewModel.stagePendingSave(pendingCphcFormViewModel)
+        navigateToCphcVitalsAfterSave(subCategory = DropdownConst.psychosocialCaregiverSupport)
     }
 }

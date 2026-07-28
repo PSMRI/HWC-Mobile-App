@@ -271,7 +271,7 @@ import org.piramalswasthya.cho.model.SnomedDiagnosis
         SnomedDiagnosis::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 150, exportSchema = false
+    version = 153, exportSchema = false
 )
 
 
@@ -1194,7 +1194,45 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_148_149 = object : Migration(148, 149) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Mental Health Screening: new "Referral Priority" dropdown
+                // (Routine / Urgent / Emergency) captured alongside reason for referral.
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_priority", "TEXT")
+            }
+        }
+
         val MIGRATION_149_150 = object : Migration(149, 150) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Mental Health Screening: Case status + Date of death, shown on the
+                // referral page when the CHO selects "No" for referral.
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "case_status", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "date_of_death", "TEXT")
+            }
+        }
+
+        val MIGRATION_150_151 = object : Migration(150, 151) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // A prior build shipped version 150 without these columns, so devices
+                // already on 150 skipped MIGRATION_149_150. Re-add them here (idempotent
+                // via safeAddColumn) so those devices pick up the schema change.
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "case_status", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "date_of_death", "TEXT")
+                // Some in-development builds left a stale "referral_remarks" column on the
+                // table that no longer exists in the entity. Drop it so Room's post-migration
+                // schema validation matches. No-op on devices that never had it.
+            }
+        }
+
+        val MIGRATION_151_152 = object : Migration(151, 152) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Elderly Health Assessment: new "Referral Priority" dropdown
+                // (Routine / Urgent / Emergency) captured on the referral = Yes path.
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_priority", "TEXT")
+            }
+        }
+
+        val MIGRATION_152_153 = object : Migration(149, 150) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE IF NOT EXISTS SNOMED_DIAGNOSIS_MASTER (conceptID TEXT NOT NULL, term TEXT NOT NULL, PRIMARY KEY(conceptID))")
             }
@@ -1273,7 +1311,11 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_145_146,
                             MIGRATION_146_147,
                             MIGRATION_147_148,
-                            MIGRATION_149_150
+                            MIGRATION_148_149,
+                            MIGRATION_149_150,
+                            MIGRATION_150_151,
+                            MIGRATION_151_152,
+                            MIGRATION_152_153
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

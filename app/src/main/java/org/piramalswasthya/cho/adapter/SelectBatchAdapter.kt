@@ -32,6 +32,9 @@ class SelectBatchAdapter(
 
     class BenViewHolder private constructor(private val binding: LayoutBatchBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        private var textWatcher: TextWatcher? = null
+
         companion object {
             fun from(parent: ViewGroup): BenViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
@@ -46,11 +49,18 @@ class SelectBatchAdapter(
             binding.tvExpiryDate.text = item.expiryDate
             binding.tvQuantityInHand.text = "In Hand Qty: ${item.qty.toString()}"
             binding.tvBatchNo.text = "Batch No: ${item.batchNo.toString()}"
+
+            // Detach listeners before restoring saved state so that setting the
+            // checkbox/quantity doesn't fire callbacks that mutate a recycled item.
             binding.checkboxSelect.setOnCheckedChangeListener(null)
+            textWatcher?.let { binding.etDispenseQuantity.removeTextChangedListener(it) }
+
             binding.checkboxSelect.isChecked = item.isSelected
+            binding.etDispenseQuantity.setText(
+                if (item.dispenseQuantity > 0) item.dispenseQuantity.toString() else ""
+            )
 
-
-            binding.etDispenseQuantity.doAfterTextChanged { text ->
+            textWatcher = binding.etDispenseQuantity.doAfterTextChanged { text ->
                 item.dispenseQuantity = text.toString().toIntOrNull() ?: 0
             }
 
