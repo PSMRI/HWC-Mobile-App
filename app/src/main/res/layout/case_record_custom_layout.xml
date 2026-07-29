@@ -10,18 +10,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/patient_list"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/visitDropdown"
+            style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:layout_margin="@dimen/_10sdp"
-            android:background="@drawable/ic_textview_rectangle"
+            android:hint="@string/select_visit"
             android:visibility="gone"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <AutoCompleteTextView
+                android:id="@+id/visitDropdownText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:editable="false"
+                android:inputType="none"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/investigationCard"
@@ -29,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/patient_list">
+            app:layout_constraintTop_toBottomOf="@+id/visitDropdown">
 
             <LinearLayout
                 android:id="@+id/genExamLayout"
