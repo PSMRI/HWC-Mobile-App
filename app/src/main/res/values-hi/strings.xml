@@ -1465,6 +1465,8 @@
     <string name="psychosocial_caregiver_counselling">देखभालकर्ता परामर्श प्रदान किया गया</string>
     <string name="psychosocial_caregiver_distress">देखभालकर्ता में तनाव पहचाना गया</string>
     <string name="psychosocial_counselling_remarks">परामर्श टिप्पणी</string>
+    <string name="psychosocial_referral_priority_title">रेफरल प्राथमिकता</string>
+    <string name="pain_referral_priority_title">रेफरल प्राथमिकता</string>
 
     <!-- Mental Health Screening – remaining hardcoded strings -->
     <string name="mh_depression_severity">अवसाद की गंभीरता</string>

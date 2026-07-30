@@ -1416,6 +1416,8 @@
     <string name="cphc_mental_referral_level">Referral Level</string>
     <string name="cphc_mental_reason_for_referral">Reason for Referral</string>
     <string name="cphc_mental_referral_priority">Referral Priority</string>
+    <string name="cphc_psychosocial_referral_priority">Referral Priority</string>
+    <string name="cphc_pain_referral_priority">Referral Priority</string>
     <string name="cphc_mental_referral_date">Referral Date</string>
     <string name="cphc_mental_follow_up_date">Follow-up Date</string>
     <string name="cphc_mental_improvement_noted">Improvement Noted</string>
@@ -2000,6 +2002,8 @@
     <string name="psychosocial_caregiver_counselling">Caregiver counselling provided</string>
     <string name="psychosocial_caregiver_distress">Caregiver distress identified</string>
     <string name="psychosocial_counselling_remarks">Counselling remarks</string>
+    <string name="psychosocial_referral_priority_title">Referral priority</string>
+    <string name="pain_referral_priority_title">Referral priority</string>
 
     <!-- Mental Health Screening – remaining hardcoded strings -->
     <string name="mh_depression_severity">Depression Severity</string>

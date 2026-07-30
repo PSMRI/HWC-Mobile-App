@@ -1501,6 +1501,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         append("- ").append(getString(R.string.basic_psychosocial_support_provided)).append(": ").append(boolLabel(painAssessment.basicPsychosocialSupportProvided)).append("\n")
                         append("- ").append(getString(R.string.basic_caregiver_counselling_provided)).append(": ").append(boolLabel(painAssessment.basicCaregiverCounsellingProvided)).append("\n")
                         append("- ").append(getString(R.string.basic_management_remarks)).append(": ").append(valueLabel(painAssessment.basicManagementRemarks)).append("\n")
+                        append("- ").append(getString(R.string.cphc_pain_referral_priority)).append(": ").append(valueLabel(painAssessment.referralPriority)).append("\n")
                         appendNestedObjectFields(
                             target = this,
                             header = getString(R.string.cphc_referral),
@@ -1517,6 +1518,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         append("- ").append(getString(R.string.psychosocial_caregiver_counselling)).append(": ").append(boolLabel(psychosocialSupport.caregiverCounsellingProvided)).append("\n")
                         append("- ").append(getString(R.string.psychosocial_caregiver_distress)).append(": ").append(boolLabel(psychosocialSupport.caregiverDistressIdentified)).append("\n")
                         append("- ").append(getString(R.string.psychosocial_counselling_remarks)).append(": ").append(valueLabel(psychosocialSupport.counsellingRemarks)).append("\n")
+                        append("- ").append(getString(R.string.cphc_psychosocial_referral_priority)).append(": ").append(valueLabel(psychosocialSupport.referralPriority)).append("\n")
                         appendNestedObjectFields(
                             target = this,
                             header = getString(R.string.cphc_referral),

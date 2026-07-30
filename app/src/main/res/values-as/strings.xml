@@ -1685,6 +1685,8 @@
     <string name="psychosocial_caregiver_counselling">যত্নকাৰীক পৰামৰ্শ প্ৰদান কৰা হৈছে</string>
     <string name="psychosocial_caregiver_distress">যত্নকাৰীৰ মানসিক চাপ চিনাক্ত কৰা হৈছে</string>
     <string name="psychosocial_counselling_remarks">পৰামৰ্শ মন্তব্য</string>
+    <string name="psychosocial_referral_priority_title">ৰেফাৰেল অগ্ৰাধিকাৰ</string>
+    <string name="pain_referral_priority_title">ৰেফাৰেল অগ্ৰাধিকাৰ</string>
 
     <!-- Mental Health Screening – remaining hardcoded strings -->
     <string name="mh_depression_severity">বিষণ্নতাৰ তীব্ৰতা</string>

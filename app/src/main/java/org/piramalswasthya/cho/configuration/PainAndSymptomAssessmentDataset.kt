@@ -16,6 +16,8 @@ class PainAndSymptomAssessmentDataset(
 
     var onShowAlert: ((String) -> Unit)? = null
 
+    override val showCaseStatusOnlyWhenReferralNo = true
+
     private val optionMild = context.getString(R.string.mild)
     private val optionModerate = context.getString(R.string.moderate)
     private val optionSevere = context.getString(R.string.severe)
@@ -198,11 +200,26 @@ class PainAndSymptomAssessmentDataset(
     override val dateOfDeath = createDateOfDeath(21)
     override val remarks = createRemarks(22)
 
+    // Referral priority (Routine / Urgent / Emergency), shown on the referral = Yes path.
+    private val referralPriority = FormElement(
+        id = 30,
+        inputType = InputType.DROPDOWN,
+        title = context.getString(R.string.pain_referral_priority_title),
+        entries = context.resources.getStringArray(R.array.mh_referral_priority_options),
+        required = true
+    )
+
+    override fun additionalReferralYesFields(): List<FormElement> = listOf(referralPriority)
+
     // ---------------- Setup Page ----------------
     suspend fun setUpPage(savedRecord: PainAndSymptomAssessment?) {
         cache = savedRecord ?: createDefaultCache()
         populateFromCache(cache)
 
+        setUpPage(buildPageList())
+    }
+
+    private fun buildPageList(): List<FormElement> {
         val list = mutableListOf<FormElement>()
         // Section C: Palliative Care Identification
         list.add(sectionCHeadline)
@@ -224,11 +241,32 @@ class PainAndSymptomAssessmentDataset(
         // Section F
         addReferralFollowUpElements(list)
 
-        setUpPage(list)
+        return list
+    }
+
+    private suspend fun rebuildPage() {
+        setUpPage(buildPageList())
     }
 
     // ---------------- Value Change Handler ----------------
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
+        // Referral answer toggles Case Status visibility → full rebuild instead of the
+        // base's incremental dependant handling.
+        if (formId == referralRequired.id) {
+            if (isReferralYes()) {
+                referralLevel.required = true
+                caseStatus.value = null
+                dateOfDeath.value = null
+            } else {
+                referralLevel.value = null
+                referralLevel.required = false
+                reasonForReferral.value = null
+                referralPriority.value = null
+            }
+            rebuildPage()
+            return referralRequired.id
+        }
+
         val referralFollowUpResult = handleReferralFollowUpChange(formId, index)
         if (referralFollowUpResult != -1) return referralFollowUpResult
 
@@ -346,6 +384,9 @@ class PainAndSymptomAssessmentDataset(
 
         // Section F
         populateReferralFollowUpFromCache(cache)
+        // Dropdown stored English-canonical in DB; re-localize for display.
+        referralPriority.value =
+            getLocalValueInArray(R.array.mh_referral_priority_options, cache.referralPriority)
     }
 
     private fun getPainAssessmentFields(): List<FormElement> {
@@ -446,6 +487,12 @@ class PainAndSymptomAssessmentDataset(
 
             // Section F
             mapReferralFollowUpValues(it)
+            // Persist referral priority English-canonical, only on the referral = Yes path.
+            it.referralPriority = if (isReferralYes()) {
+                getEnglishValueInArray(R.array.mh_referral_priority_options, referralPriority.value)
+            } else {
+                null
+            }
         }
     }
 }

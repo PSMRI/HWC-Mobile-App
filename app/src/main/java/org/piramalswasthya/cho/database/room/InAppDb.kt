@@ -271,7 +271,7 @@ import org.piramalswasthya.cho.model.SnomedDiagnosis
         SnomedDiagnosis::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 153, exportSchema = false
+    version = 155, exportSchema = false
 )
 
 
@@ -1238,6 +1238,22 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_153_154 = object : Migration(152, 153) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Psychosocial & Caregiver Support: new "Referral Priority" dropdown
+                // (Routine / Urgent / Emergency) captured on the referral = Yes path.
+                safeAddColumn(database, "PSYCHOSOCIAL_CAREGIVER_SUPPORT", "referral_priority", "TEXT")
+            }
+        }
+
+        val MIGRATION_154_155 = object : Migration(153, 154) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Pain & Symptom Assessment: new "Referral Priority" dropdown
+                // (Routine / Urgent / Emergency) captured on the referral = Yes path.
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "referral_priority", "TEXT")
+            }
+        }
+
         /**
          * Safely adds a column to a table, ignoring the error if the column already exists.
          * This handles cases where an older version of a CREATE TABLE migration already
@@ -1315,7 +1331,9 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_149_150,
                             MIGRATION_150_151,
                             MIGRATION_151_152,
-                            MIGRATION_152_153
+                            MIGRATION_152_153,
+                            MIGRATION_153_154,
+                            MIGRATION_154_155,
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
