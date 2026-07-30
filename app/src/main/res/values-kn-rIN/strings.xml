@@ -858,6 +858,8 @@
     <string name="elderly_screening_name_functional_adl">ಕಾರ್ಯಾತ್ಮಕ ADL</string>
     <string name="elderly_screening_name_dementia">ಬುದ್ಧಿಮಾಂದ್ಯ</string>
     <string name="elderly_referral_priority_title">ಉಲ್ಲೇಖ ಆದ್ಯತೆ</string>
+    <string name="psychosocial_referral_priority_title">ಉಲ್ಲೇಖ ಆದ್ಯತೆ</string>
+    <string name="pain_referral_priority_title">ಉಲ್ಲೇಖ ಆದ್ಯತೆ</string>
     <string name="yes_option">ಹೌದು</string>
     <string name="no_option">ಇಲ್ಲ</string>
 
