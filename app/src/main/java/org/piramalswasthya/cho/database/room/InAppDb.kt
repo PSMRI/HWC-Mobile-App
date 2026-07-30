@@ -166,7 +166,9 @@ import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
 import org.piramalswasthya.cho.model.MentalHealthScreeningCache
 import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
 import org.piramalswasthya.cho.database.room.dao.ElderlyHealthAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.SnomedDiagnosisDao
 import org.piramalswasthya.cho.model.ElderlyHealthAssessment
+import org.piramalswasthya.cho.model.SnomedDiagnosis
 
 
 @Database(
@@ -265,10 +267,11 @@ import org.piramalswasthya.cho.model.ElderlyHealthAssessment
         OralHealth::class,
         MentalHealthScreeningCache::class,
         ThroatDiagnosisAssessment::class,
-        ElderlyHealthAssessment::class
+        ElderlyHealthAssessment::class,
+        SnomedDiagnosis::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 154, exportSchema = false
+    version = 155, exportSchema = false
 )
 
 
@@ -349,6 +352,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val mentalHealthScreeningDao: MentalHealthScreeningDao
     abstract val throatDiagnosisAssessmentDao: ThroatDiagnosisAssessmentDao
     abstract val elderlyHealthAssessmentDao: ElderlyHealthAssessmentDao
+    abstract val snomedDiagnosisDao: SnomedDiagnosisDao
 
     companion object {
         @Volatile
@@ -1228,7 +1232,13 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_152_153 = object : Migration(152, 153) {
+        val MIGRATION_152_153 = object : Migration(149, 150) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS SNOMED_DIAGNOSIS_MASTER (conceptID TEXT NOT NULL, term TEXT NOT NULL, PRIMARY KEY(conceptID))")
+            }
+        }
+
+        val MIGRATION_153_154 = object : Migration(152, 153) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Psychosocial & Caregiver Support: new "Referral Priority" dropdown
                 // (Routine / Urgent / Emergency) captured on the referral = Yes path.
@@ -1236,7 +1246,7 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_153_154 = object : Migration(153, 154) {
+        val MIGRATION_154_155 = object : Migration(153, 154) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Pain & Symptom Assessment: new "Referral Priority" dropdown
                 // (Routine / Urgent / Emergency) captured on the referral = Yes path.
@@ -1261,7 +1271,6 @@ abstract class InAppDb : RoomDatabase() {
                 // Column already exists — safe to ignore
             }
         }
-
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -1323,7 +1332,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_150_151,
                             MIGRATION_151_152,
                             MIGRATION_152_153,
-                            MIGRATION_153_154
+                            MIGRATION_153_154,
+                            MIGRATION_154_155,
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

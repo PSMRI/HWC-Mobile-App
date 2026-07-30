@@ -618,12 +618,14 @@
     <string name="quantity_prescribed">Prescribed Quantity:</string>
     <string name="quantity_in_hand">Quantity In Hand:</string>
     <string name="quantity_dispensed">Dispensed Quantity:</string>
-    <string name="special_instructions">Special Instructions:</string>
+    <string name="special_instructions">Instructions:</string>
     <string name="dispensed_quantity">Dispensed Quantity:</string>
     <string name="expiry_date">Expiry Date:</string>
     <string name="ben_phone_no">Phone No:</string>
     <string name="ben_visit_date">Visit Date: </string>
     <string name="ben_visit_num">Visit No: </string>
+    <string name="select_visit">Select Visit</string>
+    <string name="visit_dropdown_item">Visit No: %1$s — %2$s</string>
     <string name="ben_gender">Gender:</string>
     <string name="abha">ABHA</string>
     <string name="view_batch">View Batch</string>
@@ -682,6 +684,7 @@
     <string name="form_label">Form: </string>
     <string name="available_quantity">Total Available Quantity: </string>
     <string name="patient_details_label">Patient: </string>
+    <string name="patient_detail_label">Name: </string>
     <string name="prescribed_label">Prescribed: </string>
     <string name="prescribed_label_qt">No. of Prescribed Quantity: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>

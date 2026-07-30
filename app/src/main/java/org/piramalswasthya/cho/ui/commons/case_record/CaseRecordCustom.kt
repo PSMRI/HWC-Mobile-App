@@ -46,7 +46,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.adapter.CHOCaseRecordItemAdapter
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.DiagnosisAdapter
 import org.piramalswasthya.cho.adapter.PrescriptionAdapter
@@ -88,10 +87,12 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.tabletDosageLi
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.utils.Constants.pattern
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil
 import org.piramalswasthya.cho.utils.HelperUtil.disableDropdownField
 import org.piramalswasthya.cho.utils.HelperUtil.disableTextInputLayout
 import org.piramalswasthya.cho.utils.generateIntFromUuid
+import org.piramalswasthya.cho.utils.BmiUtils
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -146,6 +147,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private val formMListVal = ArrayList<ItemMasterList>()
     private var formForFilter = ArrayList<ItemMasterList>()
     private val counsellingTypes = ArrayList<CounsellingProvided>()
+    private val snomedDiagnoses = ArrayList<org.piramalswasthya.cho.model.SnomedDiagnosis>()
     private val procedureDropdown = ArrayList<ProceduresMasterData>()
     private val frequencyListVal = medicationFrequencyList
     private lateinit var tempDropdownAdapter: TempDropdownAdapter
@@ -167,6 +169,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private val benFlowMap = mutableMapOf<Int, BenFlow>()
     private var benFlowListCache: List<BenFlow> = emptyList()
     private var patientVisitNosCache: List<Int> = emptyList()
+    private var visitListCache: List<PatientDisplayWithVisitInfo> = emptyList()
+    private var visitLabelToVisitMap: Map<String, PatientDisplayWithVisitInfo> = emptyMap()
+    private var shouldShowVisitDropdown: Boolean = false
     private var effectivePharmacistFlagForVisibility: Int? = null
     private var isAlreadyFilledReadOnlyForVisibility: Boolean = false
     private var dispensedLockedPrescriptionCount: Int = 0
@@ -347,9 +352,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             btnCancel?.visibility = View.VISIBLE
 
             if (isFlowComplete == true){
-                binding.patientList.visibility = View.VISIBLE
+                shouldShowVisitDropdown = true
+                binding.visitDropdown.visibility = View.VISIBLE
             }else{
-                binding.patientList.visibility = View.GONE
+                shouldShowVisitDropdown = false
+                binding.visitDropdown.visibility = View.GONE
             }
 
             setCaseEditorVisibility(false)
@@ -384,7 +391,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
 
         } else {
-            binding.patientList.visibility = View.VISIBLE
+            shouldShowVisitDropdown = true
+            binding.visitDropdown.visibility = View.VISIBLE
             updateShowCphcDetailsButtonVisibility(benVisitInfo)
 
             getVisitResObserver(benVisitInfo)
@@ -586,25 +594,19 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         }
 
-        val adapter = CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener { benVisitInfo ->
-            if (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && isDoctorWorkflowRole()) {
-                navigatetoCaseCustomRecordSelf(false, benVisitInfo)
-            } else if (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && isDoctorWorkflowRole()) {
-                navigatetoCaseCustomRecordSelf(false, benVisitInfo)
-            } else {
-                navigatetoCaseCustomRecordSelf(true, benVisitInfo)
-            }
-        })
-        if (isDoctorWorkflowRole()) {
-            adapter.setSelectedBenVisitNo(benVisitInfo.benVisitNo)
-        }
-        binding.patientList.adapter = adapter
+        setupVisitDropdown()
 
         // Remove existing observer to prevent duplicates
         viewModel.benFlows.removeObservers(viewLifecycleOwner)
         viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
             if (!benFlowList.isNullOrEmpty()) {
-                adapter.updateBenFlows(benFlowList.distinctBy { it.benVisitNo })
+                val distinctFlows = benFlowList.distinctBy { it.benVisitNo }
+                benFlowListCache = distinctFlows
+                benFlowMap.clear()
+                distinctFlows.forEach { flow ->
+                    flow.benVisitNo?.let { benFlowMap[it] = flow }
+                }
+                refreshVisitDropdownLabels()
             }
         }
 
@@ -633,11 +635,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         lifecycleScope.launch {
             viewModel.getPatientDisplayListForDoctorByPatient(benVisitInfo.patient.patientID).collect {
                 if (it.isNotEmpty()) {
-                    adapter.submitList(it)
+                    visitListCache = it
                     patientVisitNosCache = it.mapNotNull { visit -> visit.benVisitNo }.distinct().sortedDescending()
+                    refreshVisitDropdownLabels()
                 } else {
-                    binding.patientList.visibility = View.GONE
+                    visitListCache = emptyList()
+                    visitLabelToVisitMap = emptyMap()
                     patientVisitNosCache = emptyList()
+                    binding.visitDropdown.visibility = View.GONE
                 }
             }
         }
@@ -838,6 +843,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             isCaseRecordReadOnly,
             isFollowupVisit,
             itemListD,
+            snomedDiagnoses,
             object : RecyclerViewItemChangeListenerD {
                 override fun onItemChanged() {
                     binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
@@ -845,6 +851,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
         )
         binding.diagnosisExtra.adapter = dAdapter
+        viewModel.snomedDiagnoses.observe(viewLifecycleOwner) { records ->
+            snomedDiagnoses.clear()
+            snomedDiagnoses.addAll(records)
+            if (::dAdapter.isInitialized) dAdapter.updateDiagnosisSuggestions(snomedDiagnoses)
+        }
         val layoutManager = LinearLayoutManager(requireContext())
         binding.diagnosisExtra.layoutManager = layoutManager
         dAdapter.notifyItemInserted(itemListD.size - 1)
@@ -1001,6 +1012,74 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         benVisitInfo.patient.beneficiaryID?.let { beneficiaryID ->
             viewModel.getVisitReasonByBenFlowID(beneficiaryID)
         } ?: Timber.d("benFlowID is null, cannot get VisitReason")
+    }
+
+    private fun setupVisitDropdown() {
+        binding.visitDropdownText.setAdapter(
+            ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                mutableListOf<String>()
+            )
+        )
+        binding.visitDropdownText.setOnItemClickListener { parent, _, position, _ ->
+            val selectedLabel = parent.getItemAtPosition(position) as? String
+                ?: return@setOnItemClickListener
+            val selectedVisit = visitLabelToVisitMap[selectedLabel] ?: return@setOnItemClickListener
+            if (selectedVisit.benVisitNo == benVisitInfo.benVisitNo) return@setOnItemClickListener
+            onVisitDropdownSelected(selectedVisit)
+        }
+    }
+
+    private fun refreshVisitDropdownLabels() {
+        if (visitListCache.isEmpty()) return
+
+        val labels = mutableListOf<String>()
+        val labelMap = linkedMapOf<String, PatientDisplayWithVisitInfo>()
+        visitListCache.forEach { visit ->
+            val label = formatVisitDropdownLabel(visit)
+            labels.add(label)
+            labelMap[label] = visit
+        }
+        visitLabelToVisitMap = labelMap
+
+        binding.visitDropdownText.setAdapter(
+            ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                labels
+            )
+        )
+
+        val selectedLabel = visitListCache
+            .firstOrNull { it.benVisitNo == benVisitInfo.benVisitNo }
+            ?.let { formatVisitDropdownLabel(it) }
+            ?: labels.firstOrNull().orEmpty()
+        binding.visitDropdownText.setText(selectedLabel, false)
+
+        binding.visitDropdown.visibility =
+            if (shouldShowVisitDropdown && labels.isNotEmpty()) View.VISIBLE else View.GONE
+    }
+
+    private fun formatVisitDropdownLabel(visit: PatientDisplayWithVisitInfo): String {
+        val visitNo = visit.benVisitNo?.toString() ?: "-"
+        val benFlow = visit.benVisitNo?.let { benFlowMap[it] }
+        val visitDateText = if (!benFlow?.visitDate.isNullOrBlank()) {
+            DateTimeUtil.formatedDate(benFlow?.visitDate)
+        } else {
+            visit.visitDate?.let { DateTimeUtil.formatDate(it) } ?: "N/A"
+        }
+        return getString(R.string.visit_dropdown_item, visitNo, visitDateText)
+    }
+
+    private fun onVisitDropdownSelected(selectedVisit: PatientDisplayWithVisitInfo) {
+        if (selectedVisit.nurseFlag == 9 && selectedVisit.doctorFlag == 3 && isDoctorWorkflowRole()) {
+            navigatetoCaseCustomRecordSelf(false, selectedVisit)
+        } else if (selectedVisit.nurseFlag == 9 && selectedVisit.doctorFlag == 1 && isDoctorWorkflowRole()) {
+            navigatetoCaseCustomRecordSelf(false, selectedVisit)
+        } else {
+            navigatetoCaseCustomRecordSelf(true, selectedVisit)
+        }
     }
 
     private fun navigatetoCaseCustomRecordSelf(isVisible: Boolean, it: PatientDisplayWithVisitInfo) {
@@ -1867,6 +1946,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.inputHeight.setText(vitals.height.orEmpty())
         binding.inputWeight.setText(vitals.weight.orEmpty())
         binding.inputBmi.setText(vitals.bmi.orEmpty())
+        BmiUtils.applyBmiCategoryFromAnthropometry(
+            requireContext(),
+            vitals.height,
+            vitals.weight,
+            vitals.bmi,
+            binding.bmiCategory,
+            binding.inputBmi
+        )
         binding.inputTemperature.setText(vitals.temperature.orEmpty())
         binding.inputPulseRate.setText(vitals.pulseRate.orEmpty())
         binding.inputSpo2.setText(vitals.spo2.orEmpty())
@@ -1908,6 +1995,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         if (itemB.isNullOrEmpty() || itemB.equals("null")) {
             binding.bmill.visibility = View.GONE
+            binding.bmiCategory.visibility = View.GONE
         } else {
             binding.bmill.visibility = View.VISIBLE
         }

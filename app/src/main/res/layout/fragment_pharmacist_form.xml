@@ -31,6 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="10dp"
+                android:visibility="gone"
                 android:paddingLeft="10dp">
 
                 <TextView
@@ -59,7 +60,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="10dp"
-
                 android:paddingLeft="10dp">
 
                 <TextView
@@ -67,7 +67,7 @@
                     android:lines="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/patient_details_label"
+                    android:text="@string/patient_detail_label"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent" />
@@ -88,6 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="10dp"
+                android:visibility="gone"
                 android:paddingLeft="10dp">
 
                 <TextView

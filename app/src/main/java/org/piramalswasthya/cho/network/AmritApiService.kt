@@ -311,6 +311,9 @@ interface AmritApiService {
     @POST("/inventory-api/RX/getPrescribedMedicines?apiKey=undefined")
     suspend fun getPharmacistPrescriptionList(@Body prescribedMedicineDataRequest: PrescribedMedicineDataRequest) : Response<ResponseBody>
 
+    @POST("hwc-api/snomed/getMasterSnomedCTRecordList")
+    suspend fun getMasterSnomedCTRecordList(@Body request: RequestBody): Response<ResponseBody>
+
     @POST("/inventory-api/patientIssue?apiKey=undefined")
     suspend fun savePharmacistData(@Body patientIssue: PharmacistPatientIssueDataRequest) : Response<ResponseBody>
 

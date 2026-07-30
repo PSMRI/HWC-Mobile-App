@@ -1514,7 +1514,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             extractFormValues()
             if (viewModel.getIsFollowUp()) {
                 //            val chiefData = addChiefComplaintsData()
-                setVisitMasterDataForFollow()
+                setVisitMasterDataAndVitalsForFollow()
                 findNavController().navigate(
                     R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
                 )
