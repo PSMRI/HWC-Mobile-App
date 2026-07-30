@@ -366,7 +366,7 @@ class AbhaIdRepo @Inject constructor(
             } catch (e: IOException) {
                 NetworkResult.Error(-1, "Unable to connect to Internet!")
             } catch (e: JSONException) {
-                NetworkResult.Error(-2, "SMS Gateway is unavailable! Please try again!")
+                NetworkResult.Error(-2, "Creation/SMS Limit Reached! Please try again!")
             } catch (e: SocketTimeoutException) {
                 NetworkResult.Error(-3, "Request Timed out! Please try again!")
             } catch (e: java.lang.Exception) {
