@@ -13,6 +13,8 @@ import org.piramalswasthya.cho.repositories.EarDiagnosisRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -79,5 +81,16 @@ class EarDiagnosisFormViewModel @Inject constructor(
             dataset.mapValues(assessmentCache, 1)
             earDiagnosisRepo.saveAssessment(assessmentCache)
         }
+    }
+
+    /** Maps form values and stages them for persist on Submit to Doctor (no Room write yet). */
+    fun stagePendingSave(pendingStore: PendingCphcFormViewModel) {
+        check(::assessmentCache.isInitialized) { "Assessment cache not initialized" }
+        dataset.mapValues(assessmentCache, 1)
+        val snapshot = assessmentCache.copy()
+        pendingStore.stage(
+            persist = { earDiagnosisRepo.saveAssessment(snapshot) },
+            enqueuePush = { WorkerUtils.earPushWorker(it) },
+        )
     }
 }

@@ -317,6 +317,7 @@ class UserRepo @Inject constructor(
                     TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
                     preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
+                    val dhisToken = data.getString("dhistoken")
                     val userId = data.getInt("userID")
                     Timber.d("Token", token.toString())
                     val privilegesArray = data.getJSONArray("previlegeObj")
@@ -347,6 +348,7 @@ class UserRepo @Inject constructor(
                     user?.serviceMapId = serviceMapId
                     applyFacilityDataFromLoginResponse(data)
                     TokenInsertTmcInterceptor.setToken(token)
+                    preferenceDao.saveDhisToken(dhisToken)
                     preferenceDao.registerPrimaryApiToken(token)
                     getUserVanSpDetails(context)
                     getLocDetailsBasedOnSpIDAndPsmID()
@@ -549,7 +551,9 @@ class UserRepo @Inject constructor(
                     TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
                     preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
+                    val dhisToken = data.getString("dhistoken")
                     TokenInsertTmcInterceptor.setToken(token)
+                    preferenceDao.saveDhisToken(dhisToken)
                     preferenceDao.registerPrimaryApiToken(token)
                     return@withContext true
                 } else {

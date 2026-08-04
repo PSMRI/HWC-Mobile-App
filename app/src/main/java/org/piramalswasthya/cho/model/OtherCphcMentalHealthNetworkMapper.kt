@@ -81,6 +81,7 @@ internal fun MentalHealthScreeningCache.toMentalHealthNetworkModelInternal(
         referralRequired = referralRequired,
         referralLevel = referralLevel,
         reasonForReferral = reasonForReferral,
+        referralPriority = referralPriority,
         referralDate = referralDate,
         followUpRequired = followUpRequired,
         followUpDate = followUpDate,
@@ -88,6 +89,8 @@ internal fun MentalHealthScreeningCache.toMentalHealthNetworkModelInternal(
         adherenceToAdvice = adherenceToAdvice,
         referralEscalationRequired = referralEscalationRequired,
         caseClosureReason = caseClosureReason,
+        caseStatus = caseStatus,
+        dateOfDeath = dateOfDeath,
         syncState = syncState
     )
 }
@@ -100,6 +103,8 @@ internal fun MentalHealthNetwork.toMentalHealthCacheModelInternal(
         patientId = patientID,
         syncState = syncState ?: SyncState.SYNCED.ordinal,
         caseClosureReason = caseClosureReason,
+        caseStatus = caseStatus,
+        dateOfDeath = dateOfDeath,
         referralEscalationRequired = referralEscalationRequired,
         adherenceToAdvice = adherenceToAdvice,
         improvementNoted = improvementNoted,
@@ -107,6 +112,7 @@ internal fun MentalHealthNetwork.toMentalHealthCacheModelInternal(
         followUpRequired = followUpRequired,
         referralDate = referralDate,
         reasonForReferral = reasonForReferral,
+        referralPriority = referralPriority,
         referralLevel = referralLevel,
         referralRequired = referralRequired,
         edReason = edReason,

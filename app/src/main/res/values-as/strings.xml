@@ -445,7 +445,7 @@
     <string name="quantity_prescribed">নিৰ্ধাৰিত পৰিমাণ:</string>
     <string name="quantity_in_hand">হাতত থকা পৰিমাণ:</string>
     <string name="quantity_dispensed">বিতৰণ কৰা পৰিমাণ:</string>
-    <string name="special_instructions">বিশেষ নিৰ্দেশনা:</string>
+    <string name="special_instructions">নিৰ্দেশনা:</string>
     <string name="dispensed_quantity">বিতৰণ কৰা পৰিমাণ:</string>
     <string name="expiry_date">মেয়াদ উকলি যোৱাৰ তাৰিখ:</string>
     <string name="ben_phone_no">ফোন নং:</string>
@@ -1675,12 +1675,18 @@
     <string name="elderly_outcome_not_suspected">সন্দেহজনক নহয়</string>
     <string name="elderly_alert_functional_decline">ৰোগীৰ কাৰ্যক্ষমতাত অৱনতি আছে। প্ৰয়োজনত উচ্চ সুবিধালৈ প্ৰেৰণ কৰক।</string>
     <string name="elderly_alert_memory_loss">ৰোগীৰ স্মৃতিশক্তি হ্ৰাস আছে। প্ৰয়োজনত উচ্চ সুবিধালৈ প্ৰেৰণ কৰক।</string>
+    <string name="elderly_referral_recheck_message">অনুগ্ৰহ কৰি পুনৰ পৰীক্ষা কৰক, স্ক্ৰীনিং ফলাফল অনুসৰি নিম্নলিখিতৰ বাবে ৰেফাৰেল পৰামৰ্শ দিয়া হৈছে:</string>
+    <string name="elderly_screening_name_functional_adl">কাৰ্যক্ষম ADL</string>
+    <string name="elderly_screening_name_dementia">ডিমেনচিয়া</string>
+    <string name="elderly_referral_priority_title">ৰেফাৰেল অগ্ৰাধিকাৰ</string>
 
     <!-- Psychosocial Caregiver Support Dataset -->
     <string name="psychosocial_counselling_provided">মনোসামাজিক পৰামৰ্শ প্ৰদান কৰা হৈছে</string>
     <string name="psychosocial_caregiver_counselling">যত্নকাৰীক পৰামৰ্শ প্ৰদান কৰা হৈছে</string>
     <string name="psychosocial_caregiver_distress">যত্নকাৰীৰ মানসিক চাপ চিনাক্ত কৰা হৈছে</string>
     <string name="psychosocial_counselling_remarks">পৰামৰ্শ মন্তব্য</string>
+    <string name="psychosocial_referral_priority_title">ৰেফাৰেল অগ্ৰাধিকাৰ</string>
+    <string name="pain_referral_priority_title">ৰেফাৰেল অগ্ৰাধিকাৰ</string>
 
     <!-- Mental Health Screening – remaining hardcoded strings -->
     <string name="mh_depression_severity">বিষণ্নতাৰ তীব্ৰতা</string>

@@ -227,7 +227,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                 patientName,
                                 patientAge,
                                 benVisitInfo.genderName ?: ""
-                            ).filter { part -> part.isNotBlank() }.joinToString(", ")
+                            ).filter { part -> part.isNotBlank() }.joinToString(" / ")
                             binding.prescriptionIdValue.text = it.prescriptionID.toString()
 
                             visitCode = it.visitCode

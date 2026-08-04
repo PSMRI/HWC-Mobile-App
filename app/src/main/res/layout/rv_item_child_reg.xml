@@ -41,7 +41,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginEnd="8dp"
-                    android:src="@drawable/ic_new_born_baby"
+                    android:src="@drawable/ic__infant"
                     app:tint="@color/white" />
 
                 <TextView

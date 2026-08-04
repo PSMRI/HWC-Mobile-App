@@ -104,31 +104,32 @@
                 android:layout_marginStart="8dp" />
 
           </LinearLayout>
+        </LinearLayout>
 
           <LinearLayout
               android:id="@+id/duration_ll"
-              android:layout_width="0dp"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_weight="1"
-              android:orientation="horizontal">
+              android:orientation="horizontal"
+              android:paddingTop="@dimen/padding_big"
+              >
 
-            <TextView
-                android:id="@+id/duration_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/duration2"
-                android:textStyle="bold" />
+              <TextView
+                  android:id="@+id/duration_label"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/duration2"
+                  android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/duration_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:layout_marginStart="8dp" />
+              <TextView
+                  android:id="@+id/duration_value"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text=""
+                  android:layout_marginStart="8dp" />
 
           </LinearLayout>
-        </LinearLayout>
-
           <LinearLayout
             android:id="@+id/card_second_row"
             android:layout_width="match_parent"

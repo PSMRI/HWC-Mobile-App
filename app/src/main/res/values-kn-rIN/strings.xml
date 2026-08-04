@@ -380,7 +380,7 @@
     <string name="ben_age">ವಯಸ್ಸು:</string>
     <string name="quantity_prescribed">Quantity Prescribed:</string>
     <string name="quantity_dispensed">Quantity Dispensed:</string>
-    <string name="special_instructions">Special Instructions:</string>
+    <string name="special_instructions">Instructions:</string>
     <string name="ben_phone_no">ದೂರವಾಣಿ ಸಂಖ್ಯೆ:</string>
     <string name="ben_gender">ಲಿಂಗ:</string>
     <string name="abha">ಎ.ಬಿ.ಎಚ್.ಎ</string>
@@ -854,6 +854,12 @@
     <string name="elderly_outcome_not_suspected">ಶಂಕಿತವಲ್ಲ</string>
     <string name="elderly_alert_functional_decline">ರೋಗಿಯು ಕಾರ್ಯಾತ್ಮಕ ಅವನತಿಯನ್ನು ಹೊಂದಿದ್ದಾರೆ. ಅಗತ್ಯವಿದ್ದರೆ ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಉಲ್ಲೇಖಿಸಿ.</string>
     <string name="elderly_alert_memory_loss">ರೋಗಿಯು ನೆನಪಿನ ಶಕ್ತಿಯನ್ನು ಕಳೆದುಕೊಂಡಿದ್ದಾರೆ. ಅಗತ್ಯವಿದ್ದರೆ ಉನ್ನತ ಸೌಲಭ್ಯಕ್ಕೆ ಉಲ್ಲೇಖಿಸಿ.</string>
+    <string name="elderly_referral_recheck_message">ದಯವಿಟ್ಟು ಮರುಪರಿಶೀಲಿಸಿ, ಸ್ಕ್ರೀನಿಂಗ್ ಫಲಿತಾಂಶಗಳ ಪ್ರಕಾರ ಈ ಕೆಳಗಿನವುಗಳಿಗೆ ಉಲ್ಲೇಖವನ್ನು ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ:</string>
+    <string name="elderly_screening_name_functional_adl">ಕಾರ್ಯಾತ್ಮಕ ADL</string>
+    <string name="elderly_screening_name_dementia">ಬುದ್ಧಿಮಾಂದ್ಯ</string>
+    <string name="elderly_referral_priority_title">ಉಲ್ಲೇಖ ಆದ್ಯತೆ</string>
+    <string name="psychosocial_referral_priority_title">ಉಲ್ಲೇಖ ಆದ್ಯತೆ</string>
+    <string name="pain_referral_priority_title">ಉಲ್ಲೇಖ ಆದ್ಯತೆ</string>
     <string name="yes_option">ಹೌದು</string>
     <string name="no_option">ಇಲ್ಲ</string>
 

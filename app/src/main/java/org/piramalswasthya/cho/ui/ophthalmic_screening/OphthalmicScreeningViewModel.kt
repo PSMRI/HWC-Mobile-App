@@ -696,67 +696,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _saveError.value = false
         viewModelScope.launch {
             try {
-                val user = userRepo.getLoggedInUser()
-                val patientId = currentPatientId ?: run {
-                    Timber.e("Cannot save: patientId is null")
-                    return@launch
-                }
-                val benVisitNo = currentBenVisitNo ?: run {
-                    Timber.e("Cannot save: benVisitNo is null")
-                    return@launch
-                }
-
-                val currentVisit = _ophthalmicVisit.value ?: OphthalmicVisit(
-                    patientID = patientId,
-                    benVisitNo = benVisitNo,
-                    createdBy = user?.userName ?: "Unknown",
-                    createdDate = Date().time,
-                    updatedBy = user?.userName ?: "Unknown",
-                    updatedDate = Date().time,
-                    syncState = 0
-                )
-
-                var conditionsJson: String? = null
-                val conditions = _caseIdConditions.value
-                if (!conditions.isNullOrEmpty()) {
-                    try {
-                        conditionsJson = moshiAdapter.toJson(conditions)
-                    } catch (e: Exception) {
-                        Timber.e(e, "Error converting conditions to JSON")
-                    }
-                }
-
-                currentVisit.apply {
-                    isDiabetic = _isDiabetic.value
-                    screeningPerformed = _isScreeningPerformed.value
-                    visualAcuityChartUsed = _chartUsed.value
-                    distVARight = _distVARight.value
-                    distVALeft = _distVALeft.value
-                    nearVA = _nearVA.value
-                    caseIdConditions = conditionsJson
-                    cataractSymptoms = _cataractSymptoms.value
-                    glaucomaSymptoms = _glaucomaSymptoms.value
-                    diabeticRetinopathySymptoms = _drSymptoms.value
-                    presbyopiaSymptoms = _presbyopiaSymptoms.value
-                    trachomaStatus = _trachomaStatus.value
-                    cornealDiseaseType = _cornealDiseaseType.value
-                    vitaminADeficiency = _vitaminADeficiency.value
-
-                    val injuryTypesVal = _injuryTypes.value
-                    injuryType = if (!injuryTypesVal.isNullOrEmpty()) {
-                        try { moshiAdapter.toJson(injuryTypesVal) } catch (e: Exception) {
-                            Timber.e(e, "Error converting injuryTypes to JSON")
-                            null
-                        }
-                    } else null
-                    foreignBodyRemoval = _foreignBodyRemoval.value
-                    chemicalExposure = _chemicalExposure.value
-
-                    updatedBy = user?.userName ?: "Unknown"
-                    updatedDate = Date().time
-                    syncState = 0
-                }
-
+                val currentVisit = buildVisitForSave() ?: return@launch
                 ophthalmicRepository.saveOphthalmicVisit(currentVisit)
                 onSuccess()
             } catch (e: Exception) {
@@ -764,5 +704,90 @@ class OphthalmicScreeningViewModel @Inject constructor(
                 _saveError.value = true
             }
         }
+    }
+
+    /** Builds the visit from current UI state and stages it for persist on Submit to Doctor. */
+    suspend fun stagePendingSaveSuspending(
+        pendingStore: org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
+    ): Boolean {
+        return try {
+            val visit = buildVisitForSave() ?: return false
+            val snapshot = visit.copy()
+            pendingStore.stage(
+                persist = { ophthalmicRepository.saveOphthalmicVisit(snapshot) },
+                enqueuePush = { org.piramalswasthya.cho.work.WorkerUtils.ophthalmicPushWorker(it) },
+            )
+            true
+        } catch (e: Exception) {
+            Timber.e(e, "Error staging ophthalmic visit")
+            _saveError.value = true
+            false
+        }
+    }
+
+    private suspend fun buildVisitForSave(): OphthalmicVisit? {
+        val user = userRepo.getLoggedInUser()
+        val patientId = currentPatientId ?: run {
+            Timber.e("Cannot save: patientId is null")
+            return null
+        }
+        val benVisitNo = currentBenVisitNo ?: run {
+            Timber.e("Cannot save: benVisitNo is null")
+            return null
+        }
+
+        val currentVisit = _ophthalmicVisit.value ?: OphthalmicVisit(
+            patientID = patientId,
+            benVisitNo = benVisitNo,
+            createdBy = user?.userName ?: "Unknown",
+            createdDate = Date().time,
+            updatedBy = user?.userName ?: "Unknown",
+            updatedDate = Date().time,
+            syncState = 0
+        )
+
+        var conditionsJson: String? = null
+        val conditions = _caseIdConditions.value
+        if (!conditions.isNullOrEmpty()) {
+            try {
+                conditionsJson = moshiAdapter.toJson(conditions)
+            } catch (e: Exception) {
+                Timber.e(e, "Error converting conditions to JSON")
+            }
+        }
+
+        currentVisit.apply {
+            isDiabetic = _isDiabetic.value
+            screeningPerformed = _isScreeningPerformed.value
+            visualAcuityChartUsed = _chartUsed.value
+            distVARight = _distVARight.value
+            distVALeft = _distVALeft.value
+            nearVA = _nearVA.value
+            caseIdConditions = conditionsJson
+            cataractSymptoms = _cataractSymptoms.value
+            glaucomaSymptoms = _glaucomaSymptoms.value
+            diabeticRetinopathySymptoms = _drSymptoms.value
+            presbyopiaSymptoms = _presbyopiaSymptoms.value
+            trachomaStatus = _trachomaStatus.value
+            cornealDiseaseType = _cornealDiseaseType.value
+            vitaminADeficiency = _vitaminADeficiency.value
+
+            val injuryTypesVal = _injuryTypes.value
+            injuryType = if (!injuryTypesVal.isNullOrEmpty()) {
+                try {
+                    moshiAdapter.toJson(injuryTypesVal)
+                } catch (e: Exception) {
+                    Timber.e(e, "Error converting injuryTypes to JSON")
+                    null
+                }
+            } else null
+            foreignBodyRemoval = _foreignBodyRemoval.value
+            chemicalExposure = _chemicalExposure.value
+
+            updatedBy = user?.userName ?: "Unknown"
+            updatedDate = Date().time
+            syncState = 0
+        }
+        return currentVisit
     }
 }

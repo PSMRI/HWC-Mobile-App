@@ -101,8 +101,23 @@
         android:layout_margin="@dimen/custom_ui_margin"
         android:layout_marginBottom="@dimen/_5sdp"
         android:backgroundTint="@color/green"
-        android:contentDescription="floatingActionButton"
+        android:contentDescription="@string/registration"
         android:src="@drawable/ic_add_person"
+        app:layout_constraintBottom_toTopOf="@+id/ll_full_load_progress"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/report"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="@dimen/custom_ui_margin"
+        android:layout_marginBottom="@dimen/_5sdp"
+        android:backgroundTint="@color/blue"
+        android:visibility="gone"
+        android:contentDescription="@string/report_cho"
+        android:src="@drawable/ic__assignment"
         app:layout_constraintBottom_toTopOf="@+id/ll_full_load_progress"
         app:layout_constraintEnd_toEndOf="parent" />
 

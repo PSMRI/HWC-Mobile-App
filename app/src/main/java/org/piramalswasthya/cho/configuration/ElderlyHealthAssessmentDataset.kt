@@ -16,7 +16,7 @@ class ElderlyHealthAssessmentDataset(
 
     private var patientAge: Int? = null
 
-    var onShowAlert: ((String) -> Unit)? = null
+    override val showCaseStatusOnlyWhenReferralNo = true
 
     private val optionYes = context.getString(R.string.yes_option)
     private val optionNo = context.getString(R.string.no_option)
@@ -241,9 +241,17 @@ class ElderlyHealthAssessmentDataset(
         this.patientAge = patientAge
         cache = savedRecord ?: createDefaultCache()
 
-        val list = mutableListOf<FormElement>()
-
         populateFromCache(cache)
+
+        setUpPage(buildPageList())
+        runSectionComputations()
+    }
+
+    private fun isDementiaSectionVisible(): Boolean =
+        memoryLoss.value == optionYes && (patientAge ?: 0) >= 60
+
+    private fun buildPageList(): MutableList<FormElement> {
+        val list = mutableListOf<FormElement>()
 
         list.add(geriatricComplaints)
         list.add(multipleChronicConditions)
@@ -254,19 +262,32 @@ class ElderlyHealthAssessmentDataset(
 
         if (functionalDecline.value == optionYes) {
             list.addAll(getADLFields())
-            computeADLScore()
         }
 
         list.add(memoryLoss)
 
         // Section B: Dementia Screening – enabled only if Memory loss = Yes AND age >= 60
-        if (memoryLoss.value == optionYes && patientAge != null && patientAge >= 60) {
+        if (isDementiaSectionVisible()) {
             list.addAll(getDementiaSectionFields())
-            computeDementiaOutcome()
         }
         addReferralFollowUpElements(list)
 
-        setUpPage(list)
+        return list
+    }
+
+    private suspend fun runSectionComputations() {
+        if (functionalDecline.value == optionYes) {
+            computeADLScore()
+        }
+        if (isDementiaSectionVisible()) {
+            computeDementiaOutcome()
+        }
+    }
+
+    // Rebuilds the whole page so the referral-driven Case Status visibility stays correct.
+    private suspend fun rebuildPage() {
+        setUpPage(buildPageList())
+        runSectionComputations()
     }
 
     private fun getOptionalComplaintFields(): List<FormElement> {
@@ -332,6 +353,42 @@ class ElderlyHealthAssessmentDataset(
     override val caseStatus = createCaseStatus(29)
     override val dateOfDeath = createDateOfDeath(30)
     override val remarks = createRemarks(31)
+
+    // Referral priority (Routine / Urgent / Emergency), shown on the referral = Yes path.
+    private val referralPriority = FormElement(
+        id = 33,
+        inputType = InputType.DROPDOWN,
+        title = context.getString(R.string.elderly_referral_priority_title),
+        entries = context.resources.getStringArray(R.array.mh_referral_priority_options),
+        required = true
+    )
+
+    override fun additionalReferralYesFields(): List<FormElement> = listOf(referralPriority)
+
+    /**
+     * Labels of the specific screenings whose auto-computed results recommend a referral.
+     * Used to build the "Please recheck…" alert and to decide when to block progression
+     * if the CHO answered "No" against the screening recommendation.
+     */
+    private fun specificScreeningsRecommendingReferral(): List<String> {
+        val result = mutableListOf<String>()
+        if (functionalDeclineFlag.value == optionYes) {
+            result.add(context.getString(R.string.elderly_screening_name_functional_adl))
+        }
+        if (dementiaReferralRequired.value == optionYes) {
+            result.add(context.getString(R.string.elderly_screening_name_dementia))
+        }
+        return result
+    }
+
+    /**
+     * Specific screenings recommending referral, returned only when the CHO answered "No"
+     * to the overall referral question. Non-empty here means the recheck alert should be
+     * shown and navigation blocked after save.
+     */
+    fun specificScreeningsRecommendingReferralIfNoSelected(): List<String> {
+        return if (isReferralNo()) specificScreeningsRecommendingReferral() else emptyList()
+    }
 
     private suspend fun computeDementiaOutcome() {
         val anySelected = listOf(
@@ -420,14 +477,28 @@ class ElderlyHealthAssessmentDataset(
 
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
+        // Referral answer toggles Case Status visibility → full rebuild instead of the
+        // base's incremental dependant handling.
+        if (formId == referralRequired.id) {
+            if (isReferralYes()) {
+                referralLevel.required = true
+                caseStatus.value = null
+                dateOfDeath.value = null
+            } else {
+                referralLevel.value = null
+                referralLevel.required = false
+                reasonForReferral.value = null
+                referralPriority.value = null
+            }
+            rebuildPage()
+            return referralRequired.id
+        }
+
         val referralFollowUpResult = handleReferralFollowUpChange(formId, index)
         if (referralFollowUpResult != -1) return referralFollowUpResult
         return when (formId) {
 
             functionalDecline.id -> {
-                if (index == 0) {
-                    onShowAlert?.invoke(context.getString(R.string.elderly_alert_functional_decline))
-                }
                 handleFunctionalDeclineChange(index)
             }
 
@@ -453,10 +524,6 @@ class ElderlyHealthAssessmentDataset(
 
 
     private suspend fun handleMemoryLossChange(index: Int): Int {
-        if (index == 0) {
-            onShowAlert?.invoke(context.getString(R.string.elderly_alert_memory_loss))
-        }
-
         val isEligible = patientAge != null && patientAge!! >= 60
 
         return if (index == 0 && isEligible) {
@@ -630,6 +697,9 @@ class ElderlyHealthAssessmentDataset(
             else -> null
         }
         populateReferralFollowUpFromCache(cache)
+        // Dropdown stored English-canonical in DB; re-localize for display.
+        referralPriority.value =
+            getLocalValueInArray(R.array.mh_referral_priority_options, cache.referralPriority)
     }
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
@@ -719,6 +789,12 @@ class ElderlyHealthAssessmentDataset(
             it.dementiaReferralRequired =
                 dementiaReferralRequired.value == optionYes
             mapReferralFollowUpValues(it)
+            // Persist referral priority English-canonical, only on the referral = Yes path.
+            it.referralPriority = if (isReferralYes()) {
+                getEnglishValueInArray(R.array.mh_referral_priority_options, referralPriority.value)
+            } else {
+                null
+            }
         }
     }
 }

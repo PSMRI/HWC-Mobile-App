@@ -62,6 +62,20 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
     /** Triggers the ViewModel save. */
     protected abstract fun onSaveForm()
 
+    /**
+     * When false, Next validates and calls [onStageAndProceed] instead of persisting.
+     * CPHC forms defer Room/sync save until "Submit to Doctor" on vitals.
+     */
+    protected open val persistOnNext: Boolean = true
+
+    /**
+     * Called after successful validation when [persistOnNext] is false.
+     * Subclasses should stage form data and navigate without writing to Room.
+     */
+    protected open fun onStageAndProceed() {
+        error("Subclasses with persistOnNext=false must override onStageAndProceed()")
+    }
+
     // ── Back-press ────────────────────────────────────────────────────────────
 
     protected val onBackPressedCallback = object : OnBackPressedCallback(true) {
@@ -192,11 +206,23 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
     }
 
 
+    /**
+     * Hook allowing subclasses to intercept submission (e.g. to show a confirmation
+     * dialog before saving). Return false to abort this pass; call [submitForm] again
+     * to resume once the subclass is ready to proceed. Default proceeds immediately.
+     */
+    protected open fun shouldProceedWithSubmit(): Boolean = true
+
     protected fun submitForm() {
+        if (!shouldProceedWithSubmit()) return
         val adapter = inputFormRecyclerView.adapter as? FormInputAdapter ?: return
         val result = adapter.validateInput(resources)
         if (result == -1) {
-            onSaveForm()
+            if (persistOnNext) {
+                onSaveForm()
+            } else {
+                onStageAndProceed()
+            }
         } else {
             val fieldName = adapter.currentList.getOrNull(result)?.title ?: getString(R.string.form_input_empty_error)
             Toast.makeText(

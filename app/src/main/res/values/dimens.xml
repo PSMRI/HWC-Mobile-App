@@ -58,5 +58,5 @@
 
     <dimen name="password_toggle_size">30dp</dimen>
 
-
+    <dimen name="visit_table_margin">7dp</dimen>
 </resources>

@@ -19,6 +19,8 @@
     <color name="primaryTextColor">#000000</color>
     <color name="referBackground">#CCDDFF</color>
 
+    <color name="blue">#FF336cfb</color>
+
     <color name="color_orange_shade">#FF5722</color>
 
     <color name="secondaryColor">#ffffff</color>

@@ -163,7 +163,8 @@ object WorkerUtils {
                 networkWorker<PullNoseFromAmritWorker>(),
                 networkWorker<PullThroatFromAmritWorker>(),
                 networkWorker<PullElderlyFromAmritWorker>(),
-                networkWorker<PullMentalFromAmritWorker>()
+                networkWorker<PullMentalFromAmritWorker>(),
+                networkWorker<PullSnomedMasterWorker>()
             )
         )
     }

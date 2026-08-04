@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="10dp">
+
+    <TextView
+        android:id="@+id/vitalsHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/_20sdp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:background="@color/default_button"
+        android:gravity="center|center_vertical"
+        android:padding="@dimen/_5sdp"
+        android:text="@string/vitals_text"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="normal|bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/temperatureEditTxt"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:hint="@string/temperature_f"
+        android:textSize="18sp"
+        app:helperText="@string/required"
+        app:layout_constraintEnd_toStartOf="@+id/vitalsVerticalGuideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vitalsHeading">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputTemperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivTemparatureBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/temperatureEditTxt"
+        app:layout_constraintEnd_toStartOf="@+id/temperatureEditTxt"
+        app:layout_constraintStart_toStartOf="@+id/temperatureEditTxt"
+        app:layout_constraintTop_toTopOf="@+id/temperatureEditTxt"
+        app:tint="@color/background_primary" />
+
+    <ImageView
+        android:id="@+id/ivIconTemperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/thermometer_loss_24px"
+        app:layout_constraintBottom_toBottomOf="@+id/ivTemparatureBg"
+        app:layout_constraintEnd_toEndOf="@+id/ivTemparatureBg"
+        app:layout_constraintStart_toStartOf="@+id/ivTemparatureBg"
+        app:layout_constraintTop_toTopOf="@+id/ivTemparatureBg" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/pulseRateEditTxt"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:hint="@string/pulse_rate_min"
+        android:textSize="14sp"
+        app:helperText="@string/required"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/vitalsVerticalGuideline"
+        app:layout_constraintTop_toBottomOf="@+id/vitalsHeading">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputPulseRate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/backgroundImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/pulseRateEditTxt"
+        app:layout_constraintEnd_toStartOf="@+id/pulseRateEditTxt"
+        app:layout_constraintStart_toStartOf="@+id/pulseRateEditTxt"
+        app:layout_constraintTop_toTopOf="@+id/pulseRateEditTxt" />
+
+    <ImageView
+        android:id="@+id/ivIconPulseRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/pulse_alert_24px"
+        app:layout_constraintBottom_toBottomOf="@+id/backgroundImageView"
+        app:layout_constraintEnd_toEndOf="@+id/backgroundImageView"
+        app:layout_constraintStart_toStartOf="@+id/backgroundImageView"
+        app:layout_constraintTop_toTopOf="@+id/backgroundImageView" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/bpSystolicEditTxt"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_marginEnd="10dp"
+        android:hint="@string/bp_mmhg_systolic_text"
+        android:textSize="18sp"
+        app:helperText="@string/required"
+        app:layout_constraintEnd_toStartOf="@+id/vitalsVerticalGuideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/temperatureEditTxt">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputBpSystolic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivBpSystolicBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/bpSystolicEditTxt"
+        app:layout_constraintEnd_toStartOf="@+id/bpSystolicEditTxt"
+        app:layout_constraintStart_toStartOf="@+id/bpSystolicEditTxt"
+        app:layout_constraintTop_toTopOf="@+id/bpSystolicEditTxt"
+        app:tint="@color/default_button" />
+
+    <ImageView
+        android:id="@+id/ivIconBpSystolic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_blood_pressure"
+        app:layout_constraintBottom_toBottomOf="@+id/ivBpSystolicBg"
+        app:layout_constraintEnd_toEndOf="@+id/ivBpSystolicBg"
+        app:layout_constraintStart_toStartOf="@+id/ivBpSystolicBg"
+        app:layout_constraintTop_toTopOf="@+id/ivBpSystolicBg" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/bpDiastolicEditTxt"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_weight="1"
+        android:hint="@string/bp_mmhg_diastolic_text"
+        android:textSize="18sp"
+        app:helperText="@string/required"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/vitalsVerticalGuideline"
+        app:layout_constraintTop_toBottomOf="@+id/pulseRateEditTxt">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputBpDiastolic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivBpDiastolicBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/bpDiastolicEditTxt"
+        app:layout_constraintEnd_toStartOf="@+id/bpDiastolicEditTxt"
+        app:layout_constraintStart_toStartOf="@+id/bpDiastolicEditTxt"
+        app:layout_constraintTop_toTopOf="@+id/bpDiastolicEditTxt"
+        app:tint="@color/green" />
+
+    <ImageView
+        android:id="@+id/ivIconBpDiastolic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_blood_pressure"
+        app:layout_constraintBottom_toBottomOf="@+id/ivBpDiastolicBg"
+        app:layout_constraintEnd_toEndOf="@+id/ivBpDiastolicBg"
+        app:layout_constraintStart_toStartOf="@+id/ivBpDiastolicBg"
+        app:layout_constraintTop_toTopOf="@+id/ivBpDiastolicBg" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/respiratoryEditTxt"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_marginEnd="10dp"
+        android:hint="@string/respiratory_per_min"
+        android:textSize="18sp"
+        app:helperText="@string/required"
+        app:layout_constraintEnd_toStartOf="@+id/vitalsVerticalGuideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bpSystolicEditTxt">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputRespiratoryPerMin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivRespiratoryBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/respiratoryEditTxt"
+        app:layout_constraintEnd_toStartOf="@+id/respiratoryEditTxt"
+        app:layout_constraintStart_toStartOf="@+id/respiratoryEditTxt"
+        app:layout_constraintTop_toTopOf="@+id/respiratoryEditTxt"
+        app:tint="@color/background_secondary" />
+
+    <ImageView
+        android:id="@+id/ivIconRespiratory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/respiratory_rate_24px"
+        app:layout_constraintBottom_toBottomOf="@+id/ivRespiratoryBg"
+        app:layout_constraintEnd_toEndOf="@+id/ivRespiratoryBg"
+        app:layout_constraintStart_toStartOf="@+id/ivRespiratoryBg"
+        app:layout_constraintTop_toTopOf="@+id/ivRespiratoryBg" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/spo2EditTxt"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:hint="@string/spo2"
+        android:textSize="18sp"
+        app:helperText="@string/required"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/vitalsVerticalGuideline"
+        app:layout_constraintTop_toBottomOf="@+id/bpDiastolicEditTxt">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputSpo2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivspo2Bg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/spo2EditTxt"
+        app:layout_constraintEnd_toStartOf="@+id/spo2EditTxt"
+        app:layout_constraintStart_toStartOf="@+id/spo2EditTxt"
+        app:layout_constraintTop_toTopOf="@+id/spo2EditTxt"
+        app:tint="@color/green_heading" />
+
+    <ImageView
+        android:id="@+id/ivIconspo2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/spo2_24px"
+        app:layout_constraintBottom_toBottomOf="@+id/ivspo2Bg"
+        app:layout_constraintEnd_toEndOf="@+id/ivspo2Bg"
+        app:layout_constraintStart_toStartOf="@+id/ivspo2Bg"
+        app:layout_constraintTop_toTopOf="@+id/ivspo2Bg" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/rbsEditTxt"
+        style="@style/TextInputLayoutStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:hint="@string/rbs_mg_dl"
+        android:textSize="18sp"
+        app:helperText="@string/required"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/barrier_resp_spo2">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputRBS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:paddingStart="@dimen/_20sdp"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/ivRbsBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/rbsEditTxt"
+        app:layout_constraintEnd_toStartOf="@+id/rbsEditTxt"
+        app:layout_constraintStart_toStartOf="@+id/rbsEditTxt"
+        app:layout_constraintTop_toTopOf="@+id/rbsEditTxt"
+        app:tint="@color/background_gradient_end" />
+
+    <ImageView
+        android:id="@+id/ivIconsRbs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/glucose_24px"
+        app:layout_constraintBottom_toBottomOf="@+id/ivRbsBg"
+        app:layout_constraintEnd_toEndOf="@+id/ivRbsBg"
+        app:layout_constraintStart_toStartOf="@+id/ivRbsBg"
+        app:layout_constraintTop_toTopOf="@+id/ivRbsBg" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_resp_spo2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="respiratoryEditTxt,spo2EditTxt" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vitalsVerticalGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

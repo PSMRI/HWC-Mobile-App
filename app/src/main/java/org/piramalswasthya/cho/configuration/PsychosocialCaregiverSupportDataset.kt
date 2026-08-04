@@ -8,11 +8,13 @@ import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
 
 class PsychosocialCaregiverSupportDataset(
-    context: Context,
+    private val context: Context,
     currentLanguage: Languages
 ) : ReferralFollowUpDataset(context, currentLanguage) {
 
     private lateinit var cache: PsychosocialCaregiverSupport
+
+    override val showCaseStatusOnlyWhenReferralNo = true
 
     private val optionYes = context.getString(R.string.yes_option)
     private val optionNo = context.getString(R.string.no_option)
@@ -69,11 +71,26 @@ class PsychosocialCaregiverSupportDataset(
     override val dateOfDeath = createDateOfDeath(21)
     override val remarks = createRemarks(22)
 
+    // Referral priority (Routine / Urgent / Emergency), shown on the referral = Yes path.
+    private val referralPriority = FormElement(
+        id = 10,
+        inputType = InputType.DROPDOWN,
+        title = context.getString(R.string.psychosocial_referral_priority_title),
+        entries = context.resources.getStringArray(R.array.mh_referral_priority_options),
+        required = true
+    )
+
+    override fun additionalReferralYesFields(): List<FormElement> = listOf(referralPriority)
+
     // ---------------- Setup Page ----------------
     suspend fun setUpPage(savedRecord: PsychosocialCaregiverSupport?) {
         cache = savedRecord ?: createDefaultCache()
         populateFromCache(cache)
 
+        setUpPage(buildPageList())
+    }
+
+    private fun buildPageList(): List<FormElement> {
         val list = mutableListOf<FormElement>()
         list.add(psychosocialCounsellingProvided)
         list.add(caregiverCounsellingProvided)
@@ -83,11 +100,31 @@ class PsychosocialCaregiverSupportDataset(
         // Section F
         addReferralFollowUpElements(list)
 
-        setUpPage(list)
+        return list
+    }
+
+    private suspend fun rebuildPage() {
+        setUpPage(buildPageList())
     }
 
     // ---------------- Value Change Handler ----------------
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
+        // Referral answer toggles Case Status visibility → full rebuild instead of the
+        // base's incremental dependant handling.
+        if (formId == referralRequired.id) {
+            if (isReferralYes()) {
+                referralLevel.required = true
+                caseStatus.value = null
+                dateOfDeath.value = null
+            } else {
+                referralLevel.value = null
+                referralLevel.required = false
+                reasonForReferral.value = null
+                referralPriority.value = null
+            }
+            rebuildPage()
+            return referralRequired.id
+        }
         return handleReferralFollowUpChange(formId, index)
     }
 
@@ -113,6 +150,9 @@ class PsychosocialCaregiverSupportDataset(
 
         // Section F
         populateReferralFollowUpFromCache(cache)
+        // Dropdown stored English-canonical in DB; re-localize for display.
+        referralPriority.value =
+            getLocalValueInArray(R.array.mh_referral_priority_options, cache.referralPriority)
     }
 
     // ---------------- Map Values ----------------
@@ -132,6 +172,12 @@ class PsychosocialCaregiverSupportDataset(
 
             // Section F
             mapReferralFollowUpValues(it)
+            // Persist referral priority English-canonical, only on the referral = Yes path.
+            it.referralPriority = if (isReferralYes()) {
+                getEnglishValueInArray(R.array.mh_referral_priority_options, referralPriority.value)
+            } else {
+                null
+            }
         }
     }
 }

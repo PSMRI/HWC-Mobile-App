@@ -245,6 +245,7 @@ data class PainAssessmentNetwork(
     val basicPsychosocialSupportProvided: Boolean? = null,
     val basicCaregiverCounsellingProvided: Boolean? = null,
     val basicManagementRemarks: String? = null,
+    val referralPriority: String? = null,
     val syncState: Int? = null,
     val referralFollowUp: ReferralFollowUpFields? = null
 )
@@ -276,6 +277,7 @@ fun PainAndSymptomAssessment.toNetworkModel(
         basicPsychosocialSupportProvided = basicPsychosocialSupportProvided,
         basicCaregiverCounsellingProvided = basicCaregiverCounsellingProvided,
         basicManagementRemarks = basicManagementRemarks,
+        referralPriority = referralPriority,
         syncState = syncState,
         referralFollowUp = referralFollowUp
     )
@@ -303,6 +305,7 @@ fun PainAssessmentNetwork.toCacheModel(patientID: String): PainAndSymptomAssessm
         basicPsychosocialSupportProvided = basicPsychosocialSupportProvided,
         basicCaregiverCounsellingProvided = basicCaregiverCounsellingProvided,
         basicManagementRemarks = basicManagementRemarks,
+        referralPriority = referralPriority,
         syncState = syncState ?: 0,
         referralFollowUp = referralFollowUp ?: ReferralFollowUpFields()
     )
@@ -319,6 +322,7 @@ data class PsychosocialCaregiverSupportNetwork(
     val caregiverCounsellingProvided: Boolean? = null,
     val caregiverDistressIdentified: Boolean? = null,
     val counsellingRemarks: String? = null,
+    val referralPriority: String? = null,
     val syncState: Int? = null,
     val referralFollowUp: ReferralFollowUpFields? = null
 )
@@ -337,6 +341,7 @@ fun PsychosocialCaregiverSupport.toNetworkModel(
         caregiverCounsellingProvided = caregiverCounsellingProvided,
         caregiverDistressIdentified = caregiverDistressIdentified,
         counsellingRemarks = counsellingRemarks,
+        referralPriority = referralPriority,
         syncState = syncState,
         referralFollowUp = referralFollowUp
     )
@@ -351,6 +356,7 @@ fun PsychosocialCaregiverSupportNetwork.toCacheModel(patientID: String): Psychos
         caregiverCounsellingProvided = caregiverCounsellingProvided,
         caregiverDistressIdentified = caregiverDistressIdentified,
         counsellingRemarks = counsellingRemarks,
+        referralPriority = referralPriority,
         syncState = syncState ?: 0,
         referralFollowUp = referralFollowUp ?: ReferralFollowUpFields()
     )
@@ -499,6 +505,7 @@ data class ElderlyHealthNetwork(
     val dementiaSelfCareDecline: Boolean? = null,
     val dementiaScreeningOutcome: String? = null,
     val dementiaReferralRequired: Boolean? = null,
+    val referralPriority: String? = null,
     val syncState: Int? = null,
     val referralFollowUp: ReferralFollowUpFields? = null
 )
@@ -535,6 +542,7 @@ fun ElderlyHealthAssessment.toNetworkModel(
         dementiaSelfCareDecline = dementiaSelfCareDecline,
         dementiaScreeningOutcome = dementiaScreeningOutcome,
         dementiaReferralRequired = dementiaReferralRequired,
+        referralPriority = referralPriority,
         syncState = syncState,
         referralFollowUp = referralFollowUp
     )
@@ -567,6 +575,7 @@ fun ElderlyHealthNetwork.toCacheModel(patientID: String): ElderlyHealthAssessmen
         dementiaSelfCareDecline = dementiaSelfCareDecline,
         dementiaScreeningOutcome = dementiaScreeningOutcome,
         dementiaReferralRequired = dementiaReferralRequired,
+        referralPriority = referralPriority,
         syncState = syncState ?: 0,
         referralFollowUp = referralFollowUp ?: ReferralFollowUpFields()
     )
@@ -648,6 +657,7 @@ data class MentalHealthNetwork(
     val referralRequired: Boolean? = null,
     val referralLevel: String? = null,
     val reasonForReferral: String? = null,
+    val referralPriority: String? = null,
     val referralDate: String? = null,
     val followUpRequired: Boolean? = null,
     val followUpDate: String? = null,
@@ -655,6 +665,8 @@ data class MentalHealthNetwork(
     val adherenceToAdvice: String? = null,
     val referralEscalationRequired: Boolean? = null,
     val caseClosureReason: String? = null,
+    val caseStatus: String? = null,
+    val dateOfDeath: String? = null,
     val syncState: Int? = null
 )
 

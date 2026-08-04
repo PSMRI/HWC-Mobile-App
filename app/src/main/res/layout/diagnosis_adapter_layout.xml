@@ -7,7 +7,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/diagnosis"
-        style="@style/TextInputLayoutStyle"
+        style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="4dp"
@@ -17,17 +17,17 @@
         android:hint="@string/provisional_diagnosis"
         android:textSize="18sp"
         android:paddingBottom="10dp"
+        app:endIconMode="dropdown_menu"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <AutoCompleteTextView
             android:id="@+id/inputDignosis"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:inputType="text"
-            android:textSize="18sp"
-            android:textColorHint="#888888"
-            android:layout_height="wrap_content" />
+            android:textSize="18sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

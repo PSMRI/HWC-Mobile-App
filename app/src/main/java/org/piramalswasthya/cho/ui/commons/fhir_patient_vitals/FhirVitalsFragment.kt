@@ -12,8 +12,10 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +36,9 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
+import org.piramalswasthya.cho.utils.BmiUtils
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.utils.setBoxColor
@@ -56,12 +60,16 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             return _binding!!
         }
 
+    private val anthropometry get() = binding.sectionAnthropometry
+    private val vitals get() = binding.sectionVitals
+
     @Inject
     lateinit var userRepo: UserRepo
 
 
 
     val viewModel: FhirVitalsViewModel by viewModels()
+    private val pendingCphcFormViewModel: PendingCphcFormViewModel by activityViewModels()
 
     var fragment: Fragment = this;
     @Inject
@@ -93,8 +101,8 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentVitalsCustomBinding.inflate(layoutInflater, container, false)
-        binding.inputWeight.addTextChangedListener(textWatcher)
-        binding.inputHeight.addTextChangedListener(textWatcher)
+        anthropometry.inputWeight.addTextChangedListener(textWatcher)
+        anthropometry.inputHeight.addTextChangedListener(textWatcher)
         return binding.root
     }
     private val onBackPressedCallback by lazy {
@@ -124,26 +132,67 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             }
         }
         if (masterDb?.visitMasterDb?.chiefComplaint?.any { it.chiefComplaint?.equals("fever", ignoreCase = true) == true } == true) {
-            binding.temperatureEditTxt.helperText = "Temperature Required"
+            vitals.temperatureEditTxt.helperText = "Temperature Required"
             viewModel.boolTemp = true
         } else {
-            binding.temperatureEditTxt.helperText = null
+            vitals.temperatureEditTxt.helperText = null
             viewModel.boolTemp = false
         }
 
-        binding.bpSystolicEditTxt.helperText=null
-        binding.bpDiastolicEditTxt.helperText=null
-        binding.pulseRateEditTxt.helperText=null
-        binding.spo2EditTxt.helperText=null
-        binding.respiratoryEditTxt.helperText=null
-        binding.rbsEditTxt.helperText=null
-        binding.heightEditTxt.helperText=null
-        binding.weightEditTxt.helperText=null
+        vitals.bpSystolicEditTxt.helperText=null
+        vitals.bpDiastolicEditTxt.helperText=null
+        vitals.pulseRateEditTxt.helperText=null
+        vitals.spo2EditTxt.helperText=null
+        vitals.respiratoryEditTxt.helperText=null
+        vitals.rbsEditTxt.helperText=null
+        anthropometry.heightEditTxt.helperText=null
+        anthropometry.weightEditTxt.helperText=null
+        populateExistingVitals()
         textwatchers()
     }
 
+    private fun populateExistingVitals() {
+        val existingVitals = masterDb?.vitalsMasterDb ?: return
+        val hasVitals = listOf(
+            existingVitals.height,
+            existingVitals.weight,
+            existingVitals.bmi,
+            existingVitals.temperature,
+            existingVitals.pulseRate,
+            existingVitals.spo2,
+            existingVitals.bpSystolic,
+            existingVitals.bpDiastolic,
+            existingVitals.respiratoryRate,
+            existingVitals.rbs
+        ).any { !it.isNullOrBlank() && !it.equals("null", ignoreCase = true) }
+        if (!hasVitals) return
+
+        anthropometry.inputHeight.setText(existingVitals.height.orEmpty())
+        anthropometry.inputWeight.setText(existingVitals.weight.orEmpty())
+        anthropometry.inputBmi.setText(existingVitals.bmi.orEmpty())
+        vitals.inputTemperature.setText(existingVitals.temperature.orEmpty())
+        vitals.inputPulseRate.setText(existingVitals.pulseRate.orEmpty())
+        vitals.inputSpo2.setText(existingVitals.spo2.orEmpty())
+        vitals.inputBpSystolic.setText(existingVitals.bpSystolic.orEmpty())
+        vitals.inputBpDiastolic.setText(existingVitals.bpDiastolic.orEmpty())
+        vitals.inputRespiratoryPerMin.setText(existingVitals.respiratoryRate.orEmpty())
+        vitals.inputRBS.setText(existingVitals.rbs.orEmpty())
+
+        if (!existingVitals.bmi.isNullOrBlank()) {
+            BmiUtils.applyBmiCategoryFromAnthropometry(
+                requireContext(),
+                existingVitals.height,
+                existingVitals.weight,
+                existingVitals.bmi,
+                anthropometry.bmiCategory,
+                anthropometry.inputBmi
+            )
+        } else {
+            calculateAndDisplayBMI()
+        }
+    }
     private fun textwatchers() {
-        binding.inputTemperature.addTextChangedListener(object : TextWatcher {
+        vitals.inputTemperature.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
@@ -152,13 +201,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     validateTemperature(s.toString())
                 }else{
                     viewModel.tempNull = true
-                    binding.temperatureEditTxt.helperText=null
+                    vitals.temperatureEditTxt.helperText=null
                 }
                 updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-        binding.inputBpSystolic.addTextChangedListener(object : TextWatcher {
+        vitals.inputBpSystolic.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -166,98 +215,98 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 if(isTemp){
                     validateBPSystolic(s.toString())
                 }else{
-                    binding.bpSystolicEditTxt.helperText=null
+                    vitals.bpSystolicEditTxt.helperText=null
                 }
                 updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-        binding.inputBpDiastolic.addTextChangedListener(object : TextWatcher {
+        vitals.inputBpDiastolic.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
                 if(isTemp){
                     validateBPD(s.toString())
                 }else{
-                    binding.bpDiastolicEditTxt.helperText=null
+                    vitals.bpDiastolicEditTxt.helperText=null
                 }
                 updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-        binding.inputPulseRate.addTextChangedListener(object : TextWatcher {
+        vitals.inputPulseRate.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
                 if(isTemp){
                     validatePulse(s.toString())
                 }else{
-                    binding.pulseRateEditTxt.helperText=null
+                    vitals.pulseRateEditTxt.helperText=null
                 }
                 updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-        binding.inputSpo2.addTextChangedListener(object : TextWatcher {
+        vitals.inputSpo2.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
                 if(isTemp){
                     validateSpo2(s.toString())
                 }else{
-                    binding.spo2EditTxt.helperText=null
+                    vitals.spo2EditTxt.helperText=null
                 }
                 updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-        binding.inputRespiratoryPerMin.addTextChangedListener(object : TextWatcher {
+        vitals.inputRespiratoryPerMin.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
                 if(isTemp){
                     validateResp(s.toString())
                 }else{
-                    binding.respiratoryEditTxt.helperText=null
+                    vitals.respiratoryEditTxt.helperText=null
                 }
                 updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-        binding.inputRBS.addTextChangedListener(object : TextWatcher {
+        vitals.inputRBS.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
                 if(isTemp){
                     validateRBS(s.toString())
                 }else{
-                    binding.rbsEditTxt.helperText=null
+                    vitals.rbsEditTxt.helperText=null
                 }
                 updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-        binding.inputHeight.addTextChangedListener(object : TextWatcher {
+        anthropometry.inputHeight.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
                 if(isTemp){
                     validateHeight(s.toString())
                 }else{
-                    binding.heightEditTxt.helperText=null
+                    anthropometry.heightEditTxt.helperText=null
                 }
                 updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
-        binding.inputWeight.addTextChangedListener(object : TextWatcher {
+        anthropometry.inputWeight.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
                 if(isTemp){
                     validateWeight(s.toString())
                 }else{
-                    binding.weightEditTxt.helperText=null
+                    anthropometry.weightEditTxt.helperText=null
                 }
                 updateNextButtonState()
             }
@@ -271,15 +320,15 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
      * (indicating a validation error), the Next/Submit button is disabled.
      */
     private fun updateNextButtonState() {
-        val hasErrors = binding.temperatureEditTxt.helperText != null ||
-                binding.bpSystolicEditTxt.helperText != null ||
-                binding.bpDiastolicEditTxt.helperText != null ||
-                binding.pulseRateEditTxt.helperText != null ||
-                binding.spo2EditTxt.helperText != null ||
-                binding.respiratoryEditTxt.helperText != null ||
-                binding.rbsEditTxt.helperText != null ||
-                binding.heightEditTxt.helperText != null ||
-                binding.weightEditTxt.helperText != null
+        val hasErrors = vitals.temperatureEditTxt.helperText != null ||
+                vitals.bpSystolicEditTxt.helperText != null ||
+                vitals.bpDiastolicEditTxt.helperText != null ||
+                vitals.pulseRateEditTxt.helperText != null ||
+                vitals.spo2EditTxt.helperText != null ||
+                vitals.respiratoryEditTxt.helperText != null ||
+                vitals.rbsEditTxt.helperText != null ||
+                anthropometry.heightEditTxt.helperText != null ||
+                anthropometry.weightEditTxt.helperText != null
 
         editPatientViewModel?.setSubmitActive(!hasErrors)
     }
@@ -291,16 +340,16 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
             if (isValid) {
                 sbpValue = bpSystolic.toInt()
-                binding.bpSystolicEditTxt.helperText = null
+                vitals.bpSystolicEditTxt.helperText = null
             } else {
                 sbpValue = null
-                binding.bpSystolicEditTxt.helperText =
+                vitals.bpSystolicEditTxt.helperText =
                     "Please enter value between 40 and 320."
             }
             validateBPRelation(sbpValue, dbpValue)
         } catch (e: NumberFormatException) {
             sbpValue = null
-            binding.bpSystolicEditTxt.helperText =
+            vitals.bpSystolicEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
     }
@@ -311,16 +360,16 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     bpD.toInt() in 10..180
             if (isValid) {
                 dbpValue = bpD.toInt()
-                binding.bpDiastolicEditTxt.helperText = null
+                vitals.bpDiastolicEditTxt.helperText = null
             } else {
                 dbpValue = null
-                binding.bpDiastolicEditTxt.helperText =
+                vitals.bpDiastolicEditTxt.helperText =
                     "Please enter value between 10 and 180."
             }
             validateBPRelation(sbpValue, dbpValue)
         } catch (e: NumberFormatException) {
             dbpValue = null
-            binding.bpDiastolicEditTxt.helperText =
+            vitals.bpDiastolicEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
     }
@@ -328,13 +377,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
          try {
              val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
              if (isValid) {
-                 binding.temperatureEditTxt.helperText = null
+                 vitals.temperatureEditTxt.helperText = null
              } else {
-                 binding.temperatureEditTxt.helperText =
+                 vitals.temperatureEditTxt.helperText =
                      "Invalid temperature."
              }
          } catch (e: NumberFormatException) {
-             binding.temperatureEditTxt.helperText =
+             vitals.temperatureEditTxt.helperText =
                  "Please enter a valid numeric value."
          }
      }*/
@@ -343,30 +392,30 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         try {
             val isValidFormat = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
             if (!isValidFormat) {
-                binding.temperatureEditTxt.helperText = "Invalid format. Eg: 98.6"
+                vitals.temperatureEditTxt.helperText = "Invalid format. Eg: 98.6"
                 return
             }
 
             val tempValue = temperature.toFloat()
             if (tempValue < 90 || tempValue > 110) {
-                binding.temperatureEditTxt.helperText = "Temperature must be between 90°F and 110°F"
+                vitals.temperatureEditTxt.helperText = "Temperature must be between 90°F and 110°F"
             } else {
-                binding.temperatureEditTxt.helperText = null
+                vitals.temperatureEditTxt.helperText = null
             }
 
         } catch (e: NumberFormatException) {
-            binding.temperatureEditTxt.helperText = "Please enter a valid numeric value"
+            vitals.temperatureEditTxt.helperText = "Please enter a valid numeric value"
         }
     }
 
     private fun validateBPRelation(sbp: Int?, dbp: Int?) {
         if (sbp != null && dbp != null) {
             if (sbp <= dbp) {
-                binding.bpSystolicEditTxt.helperText = "Systolic BP must be greater than Diastolic BP"
-                binding.bpDiastolicEditTxt.helperText = "Diastolic BP must be less than Systolic BP"
+                vitals.bpSystolicEditTxt.helperText = "Systolic BP must be greater than Diastolic BP"
+                vitals.bpDiastolicEditTxt.helperText = "Diastolic BP must be less than Systolic BP"
             } else {
-                binding.bpSystolicEditTxt.helperText = null
-                binding.bpDiastolicEditTxt.helperText = null
+                vitals.bpSystolicEditTxt.helperText = null
+                vitals.bpDiastolicEditTxt.helperText = null
             }
         }
     }
@@ -374,13 +423,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
            try {
                val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
                if (isValid) {
-                   binding.heightEditTxt.helperText = null
+                   anthropometry.heightEditTxt.helperText = null
                } else {
-                   binding.heightEditTxt.helperText =
+                   anthropometry.heightEditTxt.helperText =
                        "Invalid Height."
                }
            } catch (e: NumberFormatException) {
-               binding.heightEditTxt.helperText =
+               anthropometry.heightEditTxt.helperText =
                    "Please enter a valid numeric value."
            }
        }*/
@@ -391,12 +440,12 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             val heightValue = hei.toFloatOrNull()
 
             if (isValidFormat && heightValue != null && heightValue in 35.0..200.0) {
-                binding.heightEditTxt.helperText = null
+                anthropometry.heightEditTxt.helperText = null
             } else {
-                binding.heightEditTxt.helperText = "Height must be between 35 cm and 200 cm."
+                anthropometry.heightEditTxt.helperText = "Height must be between 35 cm and 200 cm."
             }
         } catch (e: Exception) {
-            binding.heightEditTxt.helperText = "Please enter a valid numeric height."
+            anthropometry.heightEditTxt.helperText = "Please enter a valid numeric height."
         }
     }
 
@@ -404,13 +453,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
           try {
               val isValid = w.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
               if (isValid) {
-                  binding.weightEditTxt.helperText = null
+                  anthropometry.weightEditTxt.helperText = null
               } else {
-                  binding.weightEditTxt.helperText =
+                  anthropometry.weightEditTxt.helperText =
                       "Invalid Weight."
               }
           } catch (e: NumberFormatException) {
-              binding.weightEditTxt.helperText =
+              anthropometry.weightEditTxt.helperText =
                   "Please enter a valid numeric value."
           }
       }*/
@@ -420,19 +469,19 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             val isValidFormat = w.matches(Regex("^\\d{1,3}(\\.\\d{1,2})?$"))
 
             if (!isValidFormat) {
-                binding.weightEditTxt.helperText = "Invalid format. Example: 72 or 72.5"
+                anthropometry.weightEditTxt.helperText = "Invalid format. Example: 72 or 72.5"
                 return
             }
 
             val weightValue = w.toFloat()
             if (weightValue < 2 || weightValue > 150) {
-                binding.weightEditTxt.helperText = "Weight must be between 2 kg and 150 kg"
+                anthropometry.weightEditTxt.helperText = "Weight must be between 2 kg and 150 kg"
             } else {
-                binding.weightEditTxt.helperText = null
+                anthropometry.weightEditTxt.helperText = null
             }
 
         } catch (e: NumberFormatException) {
-            binding.weightEditTxt.helperText = "Please enter a valid numeric value"
+            anthropometry.weightEditTxt.helperText = "Please enter a valid numeric value"
         }
     }
 
@@ -440,13 +489,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         try {
             val isValid = pul.matches(Regex("^\\d{2,3}$"))
             if (isValid) {
-                binding.pulseRateEditTxt.helperText = null
+                vitals.pulseRateEditTxt.helperText = null
             } else {
-                binding.pulseRateEditTxt.helperText =
+                vitals.pulseRateEditTxt.helperText =
                     "Invalid Pulse Rate."
             }
         } catch (e: NumberFormatException) {
-            binding.pulseRateEditTxt.helperText =
+            vitals.pulseRateEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
     }*/
@@ -455,19 +504,19 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         try {
             val isValidFormat = pulse.matches(Regex("^\\d{2,3}$"))
             if (!isValidFormat) {
-                binding.pulseRateEditTxt.helperText = "Invalid format."
+                vitals.pulseRateEditTxt.helperText = "Invalid format."
                 return
             }
 
             val pulseValue = pulse.toInt()
             if (pulseValue < 50 || pulseValue > 200) {
-                binding.pulseRateEditTxt.helperText = "Pulse rate must be between 50 and 200 BPM"
+                vitals.pulseRateEditTxt.helperText = "Pulse rate must be between 50 and 200 BPM"
             } else {
-                binding.pulseRateEditTxt.helperText = null
+                vitals.pulseRateEditTxt.helperText = null
             }
 
         } catch (e: NumberFormatException) {
-            binding.pulseRateEditTxt.helperText = "Please enter a valid number"
+            vitals.pulseRateEditTxt.helperText = "Please enter a valid number"
         }
     }
     private fun validateSpo2(spo: String) {
@@ -476,13 +525,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     spo.toInt() in 30..100
 
             if (isValid) {
-                binding.spo2EditTxt.helperText = null
+                vitals.spo2EditTxt.helperText = null
             } else {
-                binding.spo2EditTxt.helperText =
+                vitals.spo2EditTxt.helperText =
                     "Please enter a numeric value between 30 and 100."
             }
         } catch (e: NumberFormatException) {
-            binding.spo2EditTxt.helperText =
+            vitals.spo2EditTxt.helperText =
                 "Please enter a valid numeric value."
         }
     }
@@ -491,13 +540,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         try {
             val isValid = rbs.matches(Regex("^\\d{2,3}$"))
             if (isValid) {
-                binding.rbsEditTxt.helperText = null
+                vitals.rbsEditTxt.helperText = null
             } else {
-                binding.rbsEditTxt.helperText =
+                vitals.rbsEditTxt.helperText =
                     "Invalid RBS."
             }
         } catch (e: NumberFormatException) {
-            binding.rbsEditTxt.helperText =
+            vitals.rbsEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
     }
@@ -508,13 +557,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     resp.toInt() in 10..40
 
             if (isValid) {
-                binding.respiratoryEditTxt.helperText = null
+                vitals.respiratoryEditTxt.helperText = null
             } else {
-                binding.respiratoryEditTxt.helperText =
+                vitals.respiratoryEditTxt.helperText =
                     "Please enter a numeric value between 10 and 40."
             }
         } catch (e: NumberFormatException) {
-            binding.respiratoryEditTxt.helperText =
+            vitals.respiratoryEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
     }
@@ -533,17 +582,17 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     private fun extractFormValues(){
-        heightValue = binding.inputHeight.text?.toString()?.trim()
-        weightValue = binding.inputWeight.text?.toString()?.trim()
-        bmiValue = binding.inputBmi.text?.toString()?.trim()
+        heightValue = anthropometry.inputHeight.text?.toString()?.trim()
+        weightValue = anthropometry.inputWeight.text?.toString()?.trim()
+        bmiValue = anthropometry.inputBmi.text?.toString()?.trim()
 //        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
-        temperatureValue = binding.inputTemperature.text?.toString()?.trim()
-        pulseRateValue = binding.inputPulseRate.text?.toString()?.trim()
-        spo2Value = binding.inputSpo2.text?.toString()?.trim()
-        bpSystolicValue = binding.inputBpSystolic.text?.toString()?.trim()
-        bpDiastolicValue = binding.inputBpDiastolic.text?.toString()?.trim()
-        respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim()
-        rbsValue = binding.inputRBS.text?.toString()?.trim()
+        temperatureValue = vitals.inputTemperature.text?.toString()?.trim()
+        pulseRateValue = vitals.inputPulseRate.text?.toString()?.trim()
+        spo2Value = vitals.inputSpo2.text?.toString()?.trim()
+        bpSystolicValue = vitals.inputBpSystolic.text?.toString()?.trim()
+        bpDiastolicValue = vitals.inputBpDiastolic.text?.toString()?.trim()
+        respiratoryValue = vitals.inputRespiratoryPerMin.text?.toString()?.trim()
+        rbsValue = vitals.inputRBS.text?.toString()?.trim()
     }
 
 
@@ -610,51 +659,37 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     private fun calculateAndDisplayBMI() {
-        val heightValue: Float? = binding.inputHeight.text.toString().trim().toFloatOrNull()
-        val weightValue : Float? = binding.inputWeight.text.toString().trim().toFloatOrNull()
+        val heightValue: Float? = anthropometry.inputHeight.text.toString().trim().toFloatOrNull()
+        val weightValue : Float? = anthropometry.inputWeight.text.toString().trim().toFloatOrNull()
 
         if (weightValue != null && heightValue != null && heightValue > 0 &&  weightValue > 0) {
             val bmi = weightValue / (heightValue / 100).pow(2)
             val formattedBMI = "%.2f".format(bmi)
-            //            var status : String
-            binding.inputBmi.text = Editable.Factory.getInstance().newEditable(formattedBMI)
-            if(bmi > 25 && bmi < 30){
-                binding.bmiCategory.isVisible = true
-                binding.bmiCategory.text = getString(R.string.overweight_txt)
-                //                status = getString(R.string.overweight_txt)
-                binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
-                binding.inputBmi.setTextColor(resources.getColor(R.color.red))
-            }
-            else if (bmi > 30){
-                binding.bmiCategory.isVisible = true
-                binding.bmiCategory.text = getString(R.string.obese_txt)
-                //                status = getString(R.string.obese_txt)
-                binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
-                binding.inputBmi.setTextColor(resources.getColor(R.color.red))
-            }
-            else{
-                binding.bmiCategory.isVisible = true
-                //                status = getString(R.string.normal_txt)
-                binding.bmiCategory.text = getString(R.string.normal_txt)
-                binding.bmiCategory.setTextColor(resources.getColor(R.color.green))
-                binding.inputBmi.setTextColor(resources.getColor(R.color.black))
-            }
-            //            val bmiText = "$formattedBMI                          Status: $status"
-            //
-            //            val spannable = SpannableString(bmiText)
-            //
-            //            // Color status text
-            //            val statusStart = bmiText.indexOf("Status:")
-            //            spannable.setSpan(ForegroundColorSpan(resources.getColor(R.color.red)), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            //
-            //            val indentation = resources.getDimensionPixelSize(R.dimen.bmi_status_indentation) // Define this dimension in resources
-            //            spannable.setSpan(LeadingMarginSpan.Standard(0, indentation), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-            //            binding.inputBmi.text = Editable.Factory.getInstance().newEditable(spannable)
+            anthropometry.inputBmi.text = Editable.Factory.getInstance().newEditable(formattedBMI)
+            BmiUtils.applyBmiCategory(
+                requireContext(),
+                formattedBMI,
+                anthropometry.bmiCategory,
+                anthropometry.inputBmi
+            )
         }
         else{
-            binding.inputBmi.text = null
-            binding.bmiCategory.isVisible = false
+            anthropometry.inputBmi.text = null
+            anthropometry.bmiCategory.isVisible = false
+        }
+    }
+
+    private suspend fun persistPendingCphcFormSuspending() {
+        if (!pendingCphcFormViewModel.hasPending()) return
+        try {
+            pendingCphcFormViewModel.persistPending(requireContext())
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to persist pending CPHC assessment on visit submit")
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.form_save_failed),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -686,9 +721,12 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }
                 if (emptyFields.isEmpty()) {
                     setVitalsMasterData()
-                    findNavController().navigate(
-                        R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
-                    )
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        persistPendingCphcFormSuspending()
+                        findNavController().navigate(
+                            R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
+                        )
+                    }
                 } else {
                     val message: String = if (emptyFields.size == 1) {
                         "Please fill the ${emptyFields[0]}"
@@ -730,8 +768,11 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                         viewModel.isDataSaved.observe(viewLifecycleOwner) {
                             when (it!!) {
                                 true -> {
-                                    WorkerUtils.clinicalPushWorker(requireContext())
-                                    requireActivity().finish()
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        persistPendingCphcFormSuspending()
+                                        WorkerUtils.clinicalPushWorker(requireContext())
+                                        requireActivity().finish()
+                                    }
                                 }
                                 else -> {}
                             }
@@ -763,31 +804,31 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     private fun isHelperTrue(): List<String> {
         val emptyFields = mutableListOf<String>()
 
-        if (binding.temperatureEditTxt.helperText != null) {
+        if (vitals.temperatureEditTxt.helperText != null) {
             emptyFields.add("Temperature")
         }
-        if (binding.bpDiastolicEditTxt.helperText != null) {
+        if (vitals.bpDiastolicEditTxt.helperText != null) {
             emptyFields.add("BP Diastolic")
         }
-        if (binding.bpSystolicEditTxt.helperText != null) {
+        if (vitals.bpSystolicEditTxt.helperText != null) {
             emptyFields.add("BP Systolic")
         }
-        if (binding.respiratoryEditTxt.helperText != null) {
+        if (vitals.respiratoryEditTxt.helperText != null) {
             emptyFields.add("Respiratory Rate")
         }
-        if (binding.pulseRateEditTxt.helperText != null) {
+        if (vitals.pulseRateEditTxt.helperText != null) {
             emptyFields.add("Pulse Rate")
         }
-        if (binding.spo2EditTxt.helperText != null) {
+        if (vitals.spo2EditTxt.helperText != null) {
             emptyFields.add("Spo2")
         }
-        if (binding.rbsEditTxt.helperText != null) {
+        if (vitals.rbsEditTxt.helperText != null) {
             emptyFields.add("RBS")
         }
-        if (binding.heightEditTxt.helperText != null) {
+        if (anthropometry.heightEditTxt.helperText != null) {
             emptyFields.add("Height")
         }
-        if (binding.weightEditTxt.helperText != null) {
+        if (anthropometry.weightEditTxt.helperText != null) {
             emptyFields.add("Weight")
         }
         extractFormValues()
