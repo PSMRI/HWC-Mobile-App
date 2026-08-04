@@ -7,10 +7,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
-import timber.log.Timber
-import java.net.SocketTimeoutException
 
 @HiltWorker
 class PushPWRToAmritWorker @AssistedInject constructor(
@@ -24,26 +21,14 @@ class PushPWRToAmritWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        init()
-        try {
-            val workerResult1 = maternalHealthRepo.processNewAncVisit()
-            return if (workerResult1) {
-                Timber.d("Worker completed")
-                Result.success()
-            } else {
-                Timber.d("Worker Failed as usual!")
-                Result.failure()
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.e("Caught Exception for push amrit worker $e")
-            return Result.retry()
+        WorkerExecutionUtils.initAuthTokens(preferenceDao)
+        return WorkerExecutionUtils.runBooleanWorker(
+            startLog = "PushPWRToAmritWorker started",
+            successLog = "Worker completed",
+            failureLog = "Worker Failed as usual!",
+            retryLog = "Caught Exception for push amrit worker"
+        ) {
+            maternalHealthRepo.processNewPWRRecords()
         }
-    }
-
-    private fun init() {
-        if (TokenInsertTmcInterceptor.getToken() == "")
-            preferenceDao.getPrimaryApiToken()?.let {
-                TokenInsertTmcInterceptor.setToken(it)
-            }
     }
 }

@@ -26,7 +26,7 @@
         <TextView
             android:id="@+id/tv_batch_no"
             android:layout_width="wrap_content"
-            android:layout_height="24dp"
+            android:layout_height="wrap_content"
             android:text="Batch No: 2345"
             android:textStyle="bold"
             android:textSize="14sp" />
@@ -34,7 +34,7 @@
         <TextView
             android:id="@+id/tv_quantity_in_hand"
             android:layout_width="wrap_content"
-            android:layout_height="24dp"
+            android:layout_height="wrap_content"
             android:text="In Hand: 999"
             android:textSize="14sp" />
 

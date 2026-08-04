@@ -984,7 +984,7 @@ data class CbacRequest(
     val sessionID: Int?,
     val parkingPlaceID: Int?,
     val createdBy: String,
-    val vanID: Int?,
+    val facilityID: Int?,
     val beneficiaryRegID: Long,
     val benVisitID: Long?,
     val providerServiceMapID: Int?
@@ -1011,7 +1011,7 @@ data class CbacVisitDetails(
     val healthFacilityLocation: String?=null,
     val reportFilePath: String?=null,
     val createdBy: String,
-    val vanID: Int,
+    val facilityID: Int?,
     val parkingPlaceID: Int,
     val fileIDs:String?=null
 )

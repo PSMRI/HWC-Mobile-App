@@ -35,6 +35,34 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_cbacFragment"
             app:destination="@id/cbacFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_ophthalmicScreeningFragment"
+            app:destination="@id/ophthalmicScreeningFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_earDiagnosisFormFragment"
+            app:destination="@id/earDiagnosisFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_painAndSymptomAssessmentFormFragment"
+            app:destination="@id/painAndSymptomAssessmentFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_psychosocialCaregiverSupportFormFragment"
+            app:destination="@id/psychosocialCaregiverSupportFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_oralHealthFormFragment"
+            app:destination="@id/oralHealthFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_noseDiagnosisFormFragment"
+            app:destination="@id/fragment_nose_diagnosis_form" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_mentalHealthScreeningFormFragment"
+            app:destination="@id/mentalHealthScreeningFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_throatDiagnosisFormFragment"
+            app:destination="@id/throatDiagnosisFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_fragment_elderly_health_assessment_form"
+            app:destination="@id/fragment_elderly_health_assessment_form" />
+
     </fragment>
 
     <fragment
@@ -140,6 +168,45 @@
     </fragment>
 
     <fragment
+        android:id="@+id/deliveryOutcomeFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormFragment"
+        android:label="@string/delivery_outcome">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="visitNumber"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_deliveryOutcomeFormFragment_to_neonatalOutcomeFormFragment"
+            app:destination="@id/neonatalOutcomeFormFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ophthalmicScreeningFragment"
+        android:name="org.piramalswasthya.cho.ui.ophthalmic_screening.OphthalmicScreeningFragment"
+        android:label="Ophthalmic Screening">
+        <argument
+            android:name="patientID"
+            app:argType="string"/>
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer"/>
+        <argument
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+        <argument
+            android:name="reasonForVisit"
+            app:argType="string"
+            android:defaultValue="Screening" />
+        <action
+            android:id="@+id/action_ophthalmicScreeningFragment_to_fhirVisitDetailsFragment"
+            app:destination="@id/fhirVisitDetailsFragment"
+            app:popUpTo="@id/fhirVisitDetailsFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
         android:id="@+id/pncFormFragment"
         android:name="org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form.PncFormFragment"
         android:label="PncFormFragment">
@@ -172,7 +239,15 @@
         <argument
             android:name="createdDate"
             app:argType="long" />
+        <action
+            android:id="@+id/action_eligibleCoupleTrackingFormFragment_to_maternalHealthNavHostFragment"
+            app:destination="@id/maternalHealthNavHostFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/maternalHealthNavHostFragment"
+        android:name="org.piramalswasthya.cho.ui.home.rmncha.maternal_health.MaternalHealthNavHostFragment"
+        android:label="MaternalHealthNavHostFragment" />
     <fragment
         android:id="@+id/cbacFragment"
         android:name="org.piramalswasthya.cho.ui.commons.cbac.CbacFragment"
@@ -192,5 +267,123 @@
         android:name="org.piramalswasthya.cho.ui.commons.pharmacist.SelectBatchFragment"
         android:label="SelectBatchFragment" />
 
+    <!-- Neonatal Outcome Form Fragment -->
+    <fragment
+        android:id="@+id/neonatalOutcomeFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.neonatal_outcome.form.NeonatalOutcomeFormFragment"
+        android:label="@string/neonatal_outcome"
+        tools:layout="@layout/fragment_neonatal_outcome">
+        <argument
+            android:name="deliveryOutcomeId"
+            app:argType="long" />
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="babyIndex"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/earDiagnosisFormFragment"
+        android:name="org.piramalswasthya.cho.ui.ENT.EarDiagnosisFormFragment"
+        android:label="Ear Diagnosis" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/painAndSymptomAssessmentFormFragment"
+        android:name="org.piramalswasthya.cho.ui.elder_health.PainAndSymptomAssessmentFormFragment"
+        android:label="Pain And Symptom Assessment" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/psychosocialCaregiverSupportFormFragment"
+        android:name="org.piramalswasthya.cho.ui.elder_health.PsychosocialCaregiverSupportFormFragment"
+        android:label="Psychosocial Caregiver Support" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer"/>
+    </fragment>
+    <fragment
+        android:id="@+id/oralHealthFormFragment"
+        android:name="org.piramalswasthya.cho.ui.oral_health.OralHealthFormFragment"
+        android:label="@string/title_oral_health">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer" />
+        <argument
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+        <action
+            android:id="@+id/action_oralHealthFormFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment"
+            app:popUpTo="@id/fhirVisitDetailsFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_nose_diagnosis_form"
+        android:name="org.piramalswasthya.cho.ui.ENT.NoseDiagnosisFormFragment"
+        android:label="Nose Diagnosis" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer"/>
+    </fragment>
+    <fragment
+        android:id="@+id/mentalHealthScreeningFormFragment"
+        android:name="org.piramalswasthya.cho.ui.mental_health.MentalHealthScreeningFormFragment"
+        android:label="Mental Health Screening" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer"/>
+    </fragment>
+    <fragment
+        android:id="@+id/throatDiagnosisFormFragment"
+        android:name="org.piramalswasthya.cho.ui.ENT.ThroatDiagnosisFormFragment"
+        android:label="Throat Diagnosis" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer"/>
+        <action
+            android:id="@+id/action_throatDiagnosisFormFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment"
+            app:popUpTo="@id/fhirVisitDetailsFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_elderly_health_assessment_form"
+        android:name="org.piramalswasthya.cho.ui.elder_health.ElderlyHealthAssessmentFormFragment"
+        android:label="Elderly Health Assessment" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer"/>
+    </fragment>
 
 </navigation>

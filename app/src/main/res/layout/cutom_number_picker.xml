@@ -7,7 +7,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/duration"
-        android:layout_width="110dp"
+        android:layout_width="100dp"
         android:layout_height="match_parent"
         app:hintAnimationEnabled="false"
         app:hintEnabled="false"
@@ -33,36 +33,38 @@
             android:textColorHint="@color/black"
             android:gravity="center"
             android:inputType="number"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/subtractButton"
-        android:layout_width="@dimen/_50sdp"
-        android:layout_height="0dp"
-        android:background="@color/default_button"
-        android:gravity="center|center_vertical"
-        android:text="-"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_30sdp"
-        app:layout_constraintBottom_toBottomOf="@+id/duration"
-        app:layout_constraintEnd_toStartOf="@+id/duration"
-        app:layout_constraintTop_toTopOf="@+id/duration"
-        app:layout_constraintVertical_bias="1.0" />
     <!--    app:icon="@drawable/baseline_remove_icon"-->
 
     <TextView
+        android:id="@+id/subtractButton"
+        android:layout_width="@dimen/_45sdp"
+        android:layout_height="0dp"
+        android:background="@color/default_button"
+        android:gravity="center"
+        android:text="-"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_30sdp"
+        android:includeFontPadding="false"
+        app:layout_constraintBottom_toBottomOf="@+id/duration"
+        app:layout_constraintEnd_toStartOf="@+id/duration"
+        app:layout_constraintTop_toTopOf="@+id/duration"/>
+
+    <TextView
         android:id="@+id/addButton"
-        android:layout_width="@dimen/_50sdp"
+        android:layout_width="@dimen/_45sdp"
         android:layout_height="0dp"
         android:background="@color/default_button"
         android:gravity="center"
         android:text="+"
         android:textColor="@color/white"
-        android:textSize="@dimen/_25sdp"
+        android:textSize="@dimen/_30sdp"
+        android:includeFontPadding="false"
         app:layout_constraintBottom_toBottomOf="@+id/duration"
         app:layout_constraintStart_toEndOf="@+id/duration"
-        app:layout_constraintTop_toTopOf="@+id/duration" />
+        app:layout_constraintTop_toTopOf="@+id/duration"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

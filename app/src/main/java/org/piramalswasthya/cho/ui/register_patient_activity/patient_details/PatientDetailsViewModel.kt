@@ -14,7 +14,10 @@ import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.MaritalStatusMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.VillageLocationData
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -24,6 +27,7 @@ import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.utils.AgeUnitEnum
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,12 +36,14 @@ class PatientDetailsViewModel @Inject constructor(
     private val prefDao: PreferenceDao,
     private val userRepo: UserRepo,
     private val userDao: UserDao,
-    private val patientRepo: PatientRepo,
+    val patientRepo: PatientRepo,
+    private val patientDao: PatientDao,
     private val registrarMasterDataRepo: RegistrarMasterDataRepo,
     private val languageRepo: LanguageRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
-    private val malMasterDataRepo: MaleMasterDataRepository
+    private val malMasterDataRepo: MaleMasterDataRepository,
+    private val statusOfWomanDao: StatusOfWomanDao
 ) : ViewModel() {
 
     enum class NetworkState {
@@ -105,6 +111,10 @@ class PatientDetailsViewModel @Inject constructor(
     val ageAtMarraigeVal: MutableLiveData<Boolean>
         get() = _ageAtMarraigeVal
 
+    private val _fatherNameVal = MutableLiveData<Boolean>(false)
+    val fatherNameVal: MutableLiveData<Boolean>
+        get() = _fatherNameVal
+
     private val _phoneN=MutableLiveData<PhoneNumberValidation>()
     val phoneN: MutableLiveData<PhoneNumberValidation>
         get() = _phoneN
@@ -147,10 +157,10 @@ class PatientDetailsViewModel @Inject constructor(
     var enteredAge: Int?  = null
     var maritalStatusId: Int?  = null
     var maritalStatusName: String?  = null
-    var enteredAgeYears: Int?  = 0
-    var enteredAgeMonths: Int?  = 0
-    var enteredAgeWeeks: Int?  = 0
-    var enteredAgeDays: Int?  = 0
+    var enteredAgeYears: Int?  = null
+    var enteredAgeMonths: Int?  = null
+    var enteredAgeWeeks: Int?  = null
+    var enteredAgeDays: Int?  = null
     var selectedDateOfBirth: Date?  = null
     var selectedAgeUnit : AgeUnit? = AgeUnit(3,"Years");
     var selectedMaritalStatus : MaritalStatusMaster? = null;
@@ -158,19 +168,36 @@ class PatientDetailsViewModel @Inject constructor(
     var selectedVillage : VillageLocationData? = null;
     lateinit var benVisitInfo: PatientDisplayWithVisitInfo
 
+    // Status of Woman
+    private val _statusOfWoman = MutableLiveData(NetworkState.IDLE)
+    val statusOfWoman: LiveData<NetworkState>
+        get() = _statusOfWoman
+
+    private val _statusOfWomanVal = MutableLiveData<Boolean>(false)
+    val statusOfWomanVal: MutableLiveData<Boolean>
+        get() = _statusOfWomanVal
+    var statusOfWomanList: List<StatusOfWomanMaster> = mutableListOf()
+    var filteredStatusOfWomanList: List<StatusOfWomanMaster> = mutableListOf()
+    var selectedStatusOfWoman: StatusOfWomanMaster? = null
+
     init {
         viewModelScope.launch {
             fetchAgeUnits()
             fetchMaritalStatus()
             fetchGenderMaster()
             fetchVillages()
+            fetchStatusOfWoman()
         }
     }
-   fun setDob(boolean: Boolean){
-       _dobVal.value = boolean
-   }
+    fun setDob(boolean: Boolean){
+        _dobVal.value = boolean
+    }
     fun setFirstName(boolean: Boolean){
         _firstNameVal.value = boolean
+    }
+
+    fun setIsDataSaved(value: Boolean?) {
+        _isDataSaved.value = value ?: false
     }
 
     fun setDataSaved(value: Boolean) {
@@ -187,7 +214,7 @@ class PatientDetailsViewModel @Inject constructor(
     }
     fun setPhoneN(boolean: Boolean, string: String){
         val phoneNumberValidation = PhoneNumberValidation(boolean, string)
-         _phoneN.value = phoneNumberValidation
+        _phoneN.value = phoneNumberValidation
     }
     fun setGender(boolean: Boolean){
         _genderVal.value = boolean
@@ -201,12 +228,15 @@ class PatientDetailsViewModel @Inject constructor(
     }   fun setSpouse(boolean: Boolean){
         _spouseNameVal.value = boolean
     }
-       fun setAgeGreaterThan11(boolean: Boolean){
-           _ageGreaterThan11.value = boolean
-       }
-     fun setIsClickedSS(boolean: Boolean){
-         _isClickedSS.value = boolean
-     }
+    fun setFatherName(boolean: Boolean){
+        _fatherNameVal.value = boolean
+    }
+    fun setAgeGreaterThan11(boolean: Boolean){
+        _ageGreaterThan11.value = boolean
+    }
+    fun setIsClickedSS(boolean: Boolean){
+        _isClickedSS.value = boolean
+    }
 
 
     suspend fun fetchAgeUnits(){
@@ -284,5 +314,92 @@ class PatientDetailsViewModel @Inject constructor(
             _isDataSaved.value = true
         }
     }
+
+    fun updatePatient(patient: Patient) {
+        viewModelScope.launch {
+            patientRepo.updateRecord(patient)
+            benVisitInfo = patientRepo.getPatientDisplayListForNurseByPatient(patient.patientID)
+            _isDataSaved.value = true
+        }
+    }
+
+    fun setStatusOfWoman(boolean: Boolean) {
+        _statusOfWomanVal.value = boolean
+    }
+
+
+    private suspend fun fetchStatusOfWoman() {
+        _statusOfWoman.value = NetworkState.LOADING
+        try {
+            statusOfWomanList = statusOfWomanDao.getAllStatusOfWoman()
+            _statusOfWoman.value = NetworkState.SUCCESS
+        } catch (_: Exception) {
+            _statusOfWoman.value = NetworkState.FAILURE
+        }
+    }
+
+    fun getFilteredStatusOfWomanOptions(
+        genderId: Int?,
+        ageInYears: Int?,
+        maritalStatusId: Int?,
+        maritalStatusName: String?
+    ): List<StatusOfWomanMaster> {
+        if (genderId != 2 || ageInYears == null || ageInYears < 15) return emptyList()
+
+        // Age >= 50: always Elderly Woman regardless of marital status
+        if (ageInYears >= 50) return filterStatusOfWomanByCodes("EL")
+
+        val status = maritalStatusName?.trim()?.lowercase()
+
+        return when {
+            // Age 15-19, Unmarried -> Adolescent Girl
+            status == "unmarried" && ageInYears in 15..19 -> filterStatusOfWomanByCodes("AD")
+            // Age 20-49, Unmarried -> Not Applicable
+            status == "unmarried" -> filterStatusOfWomanByCodes("NA")
+            // Age 15-49, Married -> Eligible Couple, Pregnant Woman, Postnatal, Permanent Sterilization
+            status == "married" -> filterStatusOfWomanByCodes("EC", "PW", "PN", "ST")
+            else -> emptyList()
+        }
+    }
+
+    private fun filterStatusOfWomanByCodes(vararg codes: String): List<StatusOfWomanMaster> {
+        val codeSet = codes.map { it.uppercase(Locale.ROOT) }.toSet()
+        return statusOfWomanList.filter { it.statusCode.uppercase(Locale.ROOT) in codeSet }
+    }
+
+
+    fun shouldShowStatusOfWoman(genderId: Int?, ageInYears: Int?, maritalStatusName: String?): Boolean {
+        if (genderId != 2 || ageInYears == null || ageInYears < 15) return false
+        // Age >= 50: show regardless of marital status
+        if (ageInYears >= 50) return true
+        val status = maritalStatusName?.trim()?.lowercase() ?: return false
+        return status == "married" || status == "unmarried"
+    }
+
+    
+    fun shouldShowMaritalStatus(genderId: Int?, ageInYears: Int?): Boolean {
+        // Show only if gender is selected and age >= 15 years
+        return genderId != null && ageInYears != null && ageInYears >= 15
+    }
+
+    /**
+     * Returns filtered Marital Status options based on gender.
+     * Widow/Widower logic.
+     */
+    fun getFilteredMaritalStatusOptions(genderId: Int?): List<MaritalStatusMaster> {
+        val list = maritalStatusList
+        return when (genderId) {
+            1 -> list.filter { it.status.lowercase() != "widow" } // Male: No "Widow" (Show Widower)
+            2 -> list.filter { it.status.lowercase() != "widower" } // Female: No "Widower" (Show Widow)
+            else -> list
+        }
+    }
+
+    /**
+     * Get all patients for face comparison.
+     */
+    suspend fun getAllPatientsForFaceComparison(): List<Patient> {
+        return patientDao.getAllPatients()
+        }
 
 }

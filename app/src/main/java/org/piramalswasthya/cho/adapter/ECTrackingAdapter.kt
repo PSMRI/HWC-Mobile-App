@@ -39,6 +39,11 @@ class ECTrackingAdapter(private val clickListener: ECTrackViewClickListener) :
             binding.visit = item
             binding.filledOnString = EligibleCoupleTrackingCache.getECTFilledDateFromLong(item.visitDate)
             binding.clickListener = clickListener
+            binding.llAntraDetails.visibility = if (item.antraInjectionDate != null || item.antraDueDate != null) {
+                android.view.View.VISIBLE
+            } else {
+                android.view.View.GONE
+            }
             binding.executePendingBindings()
 
         }

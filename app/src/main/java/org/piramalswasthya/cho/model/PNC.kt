@@ -33,17 +33,25 @@ data class PNCVisitCache(
     var isActive: Boolean,
     var pncDate: Long = System.currentTimeMillis(),
     var ifaTabsGiven: Int? = 0,
+    var calciumSupplementation: Int? = 0,
     var anyContraceptionMethod: Boolean? = null,
     var contraceptionMethod: String? = null,
+    var sterilisationDate: Long? = System.currentTimeMillis(),
     var otherPpcMethod: String? = null,
+    var anyDangerSign: String? = null,
     var motherDangerSign: String? = null,
     var otherDangerSign: String? = null,
+    var maternalSymptoms: String? = null,
+    var otherMaternalSymptoms: String? = null,
+    var pallor: String? = null,
+    var vaginalBleeding: String? = null,
     var referralFacility: String? = null,
     var motherDeath: Boolean = false,
     var deathDate: Long? = System.currentTimeMillis(),
     var causeOfDeath: String? = null,
     var otherDeathCause: String? = null,
     var placeOfDeath: String? = null,
+    var otherPlaceOfDeath: String? = null,
     var remarks: String? = null,
     var processed: String? = "N",
     var createdBy: String,
@@ -68,17 +76,25 @@ data class PNCVisitCache(
             isActive = isActive,
             pncDate = getDateTimeStringFromLong(pncDate)!!,
             ifaTabsGiven = ifaTabsGiven,
+            calciumSupplementation = calciumSupplementation,
             anyContraceptionMethod = anyContraceptionMethod,
             contraceptionMethod = contraceptionMethod,
+            sterilisationDate = sterilisationDate?.let { getDateTimeStringFromLong(it) },
             otherPpcMethod = otherPpcMethod,
+            anyDangerSign = anyDangerSign,
             motherDangerSign = motherDangerSign,
             otherDangerSign = otherDangerSign,
+            maternalSymptoms = maternalSymptoms,
+            otherMaternalSymptoms = otherMaternalSymptoms,
+            pallor = pallor,
+            vaginalBleeding = vaginalBleeding,
             referralFacility = referralFacility,
             motherDeath = motherDeath,
             deathDate = deathDate?.let { getDateTimeStringFromLong(it) },
             causeOfDeath = causeOfDeath,
             otherDeathCause = otherDeathCause,
             placeOfDeath = placeOfDeath,
+            otherPlaceOfDeath = otherPlaceOfDeath,
             remarks = remarks,
             createdBy = createdBy,
             createdDate = getDateTimeStringFromLong(createdDate)!!,
@@ -96,18 +112,30 @@ data class PNCNetwork(
     var isActive: Boolean,
     var pncDate: String,
     var ifaTabsGiven: Int?,
+    var calciumSupplementation: Int?,
     var anyContraceptionMethod: Boolean?,
     var contraceptionMethod: String?,
+    var sterilisationDate: String?,
     var otherPpcMethod: String?,
+    var anyDangerSign: String?,
     var motherDangerSign: String?,
     var otherDangerSign: String?,
+    var maternalSymptoms: String?,
+    var otherMaternalSymptoms: String?,
+    var pallor: String?,
+    var vaginalBleeding: String?,
     var referralFacility: String?,
     var motherDeath: Boolean,
     var deathDate: String?,
     var causeOfDeath: String?,
     var otherDeathCause: String?,
     var placeOfDeath: String?,
+    var otherPlaceOfDeath: String?,
     var remarks: String?,
+    var deliveryDischargeSummary1: String? = null,
+    var deliveryDischargeSummary2: String? = null,
+    var deliveryDischargeSummary3: String? = null,
+    var deliveryDischargeSummary4: String? = null,
     var createdBy: String,
     val createdDate: String,
     var updatedBy: String,
@@ -214,3 +242,87 @@ data class PncDomain(
     val visitNumber: Int,
     val syncState: SyncState? = null
 )
+
+/**
+ * Patient with Delivery Outcome and PNC data
+ */
+data class PatientWithDeliveryOutcomeAndPncCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val deliveryOutcome: List<DeliveryOutcomeCache>?,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pncRecords: List<PNCVisitCache>
+) {
+    fun asDomainModel(): PatientWithPncDomain {
+        val activeDo = deliveryOutcome?.firstOrNull { it.isActive }
+        val latestPnc = pncRecords.maxByOrNull { it.pncPeriod }
+        
+        return PatientWithPncDomain(
+            patient = patient,
+            deliveryOutcome = activeDo,
+            latestPnc = latestPnc,
+            allPncRecords = pncRecords
+        )
+    }
+}
+
+/**
+ * Domain model for displaying patient with PNC data
+ */
+data class PatientWithPncDomain(
+    val patient: Patient,
+    val deliveryOutcome: DeliveryOutcomeCache?,
+    val latestPnc: PNCVisitCache?,
+    val allPncRecords: List<PNCVisitCache>,
+    val syncState: SyncState? = resolvePncSyncState(allPncRecords)
+) {
+    /**
+     * Get formatted delivery date string
+     */
+    fun getFormattedDeliveryDate(): String {
+        return deliveryOutcome?.dateOfDelivery?.let {
+            org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong(it) ?: "NA"
+        } ?: "NA"
+    }
+
+    /**
+     * Get days since delivery
+     * Returns null if deliveryOutcome or dateOfDelivery is missing
+     */
+    fun getDaysSinceDelivery(): Long? {
+        return deliveryOutcome?.dateOfDelivery?.let {
+            TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - it)
+        }
+    }
+
+    /**
+     * Check if eligible for PNC (within 42 days or not completed all visits)
+     */
+    fun isEligibleForPNC(): Boolean {
+        // Return false if there is no delivery date
+        val dateOfDelivery = deliveryOutcome?.dateOfDelivery ?: return false
+        
+        val daysSinceDelivery = getDaysSinceDelivery() ?: return false
+        val lastPncPeriod = latestPnc?.pncPeriod ?: 0
+        
+        // Eligible if within 42 days OR haven't completed all PNC visits
+        return daysSinceDelivery <= 42 || lastPncPeriod < 42
+    }
+}
+
+private fun resolvePncSyncState(records: List<PNCVisitCache>): SyncState? {
+    if (records.isEmpty()) return null
+    return when {
+        records.any { it.syncState == SyncState.SYNCING } -> SyncState.SYNCING
+        records.any { it.syncState == SyncState.UNSYNCED } -> SyncState.UNSYNCED
+        records.all { it.syncState == SyncState.SYNCED } -> SyncState.SYNCED
+        else -> SyncState.UNSYNCED
+    }
+}

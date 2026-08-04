@@ -9,22 +9,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.coroutines.DispatcherProvider
 import org.piramalswasthya.cho.configuration.EligibleCoupleTrackingDataset
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
-//import org.piramalswasthya.sakhi.configuration.EligibleCoupleTrackingDataset
-//import org.piramalswasthya.sakhi.database.room.SyncState
-//import org.piramalswasthya.sakhi.database.shared_preferences.PreferenceDao
-//import org.piramalswasthya.sakhi.model.EligibleCoupleTrackingCache
-//import org.piramalswasthya.sakhi.repositories.BenRepo
-//import org.piramalswasthya.sakhi.repositories.EcrRepo
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -36,7 +31,15 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     private val ecrRepo: EcrRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
+    private val patientDao: PatientDao,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
+
+    companion object {
+        // Status of Woman IDs
+        const val STATUS_PREGNANT_WOMAN = 2
+        const val STATUS_PERMANENT_STERILIZATION = 6
+    }
 
     val patientID =
         EligibleCoupleTrackingFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
@@ -46,6 +49,11 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
+    }
+
+    // Alert types for incentives
+    enum class AlertType {
+        NONE, ANTRA_INCENTIVE, STERILIZATION_INCENTIVE
     }
 
     private val _state = MutableLiveData(State.IDLE)
@@ -63,18 +71,40 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     val recordExists: LiveData<Boolean>
         get() = _recordExists
 
-    //    private lateinit var user: UserDomain
+    // Alert LiveData for showing incentive dialogs
+    private val _showAlert = MutableLiveData<AlertType>(AlertType.NONE)
+    val showAlert: LiveData<AlertType>
+        get() = _showAlert
+
+    // Flag to track if status was updated to sterilization
+    private val _statusUpdatedToSterilization = MutableLiveData(false)
+    val statusUpdatedToSterilization: LiveData<Boolean>
+        get() = _statusUpdatedToSterilization
+
+    private val _allEctRecords = MutableLiveData<List<EligibleCoupleTrackingCache>?>()
+    val allEctRecords: LiveData<List<EligibleCoupleTrackingCache>?>
+        get() = _allEctRecords
+
+    private val _triggerBeneficiarySync = MutableLiveData(false)
+    val triggerBeneficiarySync: LiveData<Boolean>
+        get() = _triggerBeneficiarySync
+
     private val dataset =
         EligibleCoupleTrackingDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
 
     var isPregnant: Boolean = false
+    var shouldOpenPregnantWomanRegistration: Boolean = false
+    var isSterilized: Boolean = false
+    var isAntraSelectedAfterSave: Boolean = false
+
+    fun isAntraSelected() = dataset.isAntraSelected()
 
     private lateinit var eligibleCoupleTracking: EligibleCoupleTrackingCache
 
     init {
         viewModelScope.launch {
-            val asha = userRepo.getLoggedInUser()!!
+            val asha = userRepo.getLoggedInUser()
             val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${if (ben.patient.lastName == null) "" else ben.patient.lastName}"
@@ -82,15 +112,18 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                 eligibleCoupleTracking = EligibleCoupleTrackingCache(
                     patientID = patientID,
                     syncState = SyncState.UNSYNCED,
-                    createdBy = asha.userName,
-                    updatedBy = asha.userName,
+                    createdBy = asha?.userName ?: "",
+                    updatedBy = asha?.userName ?: "",
                 )
             }
 
             val pastTrack = ecrRepo.getLatestEctByBenId(patientID)
+            val ecr = ecrRepo.getSavedECR(patientID)
 
             Log.d("patient Id is ", patientID)
             Log.d("createdDate is ", createdDate.toString())
+
+            _allEctRecords.value = ecrRepo.getAllECT(patientID)
 
             ecrRepo.getEct(patientID, createdDate)?.let {
                 eligibleCoupleTracking = it
@@ -100,6 +133,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
             }
 
 
+            dataset.setNumberOfChildren(ecr?.noOfChildren ?: 0)
             dataset.setUpPage(
                 ben,
                 pastTrack?.visitDate ?: 0,
@@ -115,37 +149,122 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     fun updateListOnValueChanged(formId: Int, index: Int) {
         viewModelScope.launch {
             dataset.updateList(formId, index)
-        }
 
+            // Trigger alerts immediately on selection (Requirement Phase 2)
+            if (formId == dataset.getContraceptionMethodId()) {
+                if (dataset.isAntraSelected()) {
+                    _showAlert.value = AlertType.ANTRA_INCENTIVE
+                } else if (dataset.isSterilizationSelected()) {
+                    _showAlert.value = AlertType.STERILIZATION_INCENTIVE
+                } else {
+                    _showAlert.value = AlertType.NONE
+                }
+            }
+        }
     }
 
 
 
     fun saveForm() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    _state.postValue(State.SAVING)
+            try {
+                // Ensure eligibleCoupleTracking is initialized
+                if (!::eligibleCoupleTracking.isInitialized) {
+                    val asha = userRepo.getLoggedInUser()
+                    eligibleCoupleTracking = EligibleCoupleTrackingCache(
+                        patientID = patientID,
+                        syncState = SyncState.UNSYNCED,
+                        createdBy = asha?.userName ?: "",
+                        updatedBy = asha?.userName ?: "",
+                    )
+                }
 
+                _state.value = State.SAVING
+
+                withContext(dispatcherProvider.io) {
                     dataset.mapValues(eligibleCoupleTracking, 1)
+                    eligibleCoupleTracking.syncState = SyncState.UNSYNCED
+                    eligibleCoupleTracking.processed =
+                        if (eligibleCoupleTracking.processed == "N") "N" else "U"
                     ecrRepo.saveEct(eligibleCoupleTracking)
-                    isPregnant = (eligibleCoupleTracking.isPregnant == "Yes") ||
-                            (eligibleCoupleTracking.pregnancyTestResult == "Positive")
-                    if (isPregnant) {
+                    Timber.d("ECT data saved successfully for patient: $patientID")
 
+                    // Update LMP Date in ECR Cache so it reflects on the Tracking List Card
+                    eligibleCoupleTracking.lmpDate?.let { newLmpDate ->
+                        ecrRepo.getSavedECR(patientID)?.let { ecr ->
+                            ecr.lmpDate = newLmpDate
+                            ecr.syncState = SyncState.UNSYNCED
+                            ecrRepo.updateECR(ecr)
+                        }
                     }
 
-                    _state.postValue(State.SAVE_SUCCESS)
-                } catch (e: Exception) {
-                    Timber.d("saving ECT data failed due to $e")
-                    _state.postValue(State.SAVE_FAILED)
+                    // Check statuses in background
+                    isPregnant = dataset.isPregnancyPositive()
+                    shouldOpenPregnantWomanRegistration = dataset.shouldOpenPregnantWomanRegistration()
+                    isSterilized = dataset.isSterilizationSelected()
+                    isAntraSelectedAfterSave = dataset.isAntraSelected()
                 }
+
+                // Update patient status if pregnant
+                if (isPregnant) {
+                    updatePatientStatusToPregnant()
+                    _triggerBeneficiarySync.value = true
+                }
+
+                // Update patient status if sterilization selected
+                if (isSterilized) {
+                    updatePatientStatusToSterilized()
+                    _statusUpdatedToSterilization.value = true
+                    _showAlert.value = AlertType.STERILIZATION_INCENTIVE
+                } else if (isAntraSelectedAfterSave) {
+                    _showAlert.value = AlertType.ANTRA_INCENTIVE
+                } else {
+                    // Explicitly clear alert if neither selected
+                    _showAlert.value = AlertType.NONE
+                }
+
+                // Set SAVE_SUCCESS last so observers see alert changes first
+                _state.value = State.SAVE_SUCCESS
+            } catch (e: Exception) {
+                Timber.e(e, "saving ECT data failed")
+                _state.value = State.SAVE_FAILED
             }
+        }
+    }
+
+    private suspend fun updatePatientStatusToPregnant() {
+        try {
+            val patient = patientDao.getPatient(patientID)
+            patient.statusOfWomanID = STATUS_PREGNANT_WOMAN
+            patient.syncState = SyncState.UNSYNCED
+            patientDao.updatePatient(patient)
+            Timber.d("Patient status updated to Pregnant Woman and marked UNSYNCED")
+        } catch (e: Exception) {
+            Timber.e("Failed to update patient status to pregnant: $e")
+        }
+    }
+
+    private suspend fun updatePatientStatusToSterilized() {
+        try {
+            val patient = patientDao.getPatient(patientID)
+            patient.statusOfWomanID = STATUS_PERMANENT_STERILIZATION
+            patientDao.updatePatient(patient)
+            Timber.d("Patient status updated to Permanent Sterilization")
+        } catch (e: Exception) {
+            Timber.e("Failed to update patient status to sterilized: $e")
         }
     }
 
     fun resetState() {
         _state.value = State.IDLE
+    }
+
+    fun resetAlert() {
+        _showAlert.value = AlertType.NONE
+    }
+
+    fun onBeneficiarySyncTriggered() {
+        _triggerBeneficiarySync.value = false
     }
 
 

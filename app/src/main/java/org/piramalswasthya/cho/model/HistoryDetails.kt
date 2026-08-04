@@ -53,7 +53,7 @@ data class ChildVaccineDetails(
     val createdBy: String?,
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //benVisitID: null
 //beneficiaryRegID: "33195"
 //childOptionalVaccineList:[{vaccineName: null, sctCode: null, sctTerm: null, otherVaccineName: null, ageUnitID: null,…}]
@@ -69,7 +69,7 @@ data class ChildVaccineDetails(
         user?.userName,
         user?.parkingPlaceId,
         user?.serviceMapId.toString(),
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -100,7 +100,7 @@ data class ComorbidConditions(
     val createdBy: String?,
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
-    val vanID: Int?
+    val facilityID: Int?
 //    benVisitID: null
 //    beneficiaryRegID: "33195"
 //comorbidityConcurrentConditionsList:[{comorbidConditions: null, otherComorbidCondition: null}]
@@ -116,7 +116,7 @@ data class ComorbidConditions(
         user?.userName,
         user?.parkingPlaceId,
         user?.serviceMapId.toString(),
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -149,7 +149,7 @@ data class DevelopmentHistory(
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
     val socialMilestones: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    benVisitID: null
 //    beneficiaryRegID: "33195"
 //    createdBy:"Pranathi"
@@ -181,7 +181,7 @@ data class DevelopmentHistory(
         user?.parkingPlaceId,
         user?.serviceMapId.toString(),
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -196,7 +196,7 @@ data class FamilyHistory(
     val isGeneticDisorder: String?,
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
-    val vanID: Int?
+    val facilityID: Int?
 //    benVisitID: null
 //    beneficiaryRegID: "33195"
 //    createdBy:"Pranathi"
@@ -218,7 +218,7 @@ data class FamilyHistory(
         null,
         user?.parkingPlaceId,
         user?.serviceMapId.toString(),
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -257,7 +257,7 @@ data class FeedingHistory(
     val providerServiceMapID: String?,
     val typeOfFeed: String?,
     val typeOfFoodIntolerances: String?,
-    val vanID: Int?
+    val facilityID: Int?
 //    benVisitID: null
 //    beneficiaryRegID: "33195"
 //    compFeedStartAge:null
@@ -283,7 +283,7 @@ data class FeedingHistory(
         user?.serviceMapId.toString(),
         null,
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -297,7 +297,7 @@ data class FemaleObstetricHistory(
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
     val totalNoOfPreg: Int?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    benVisitID: null
 //    beneficiaryRegID: "33211"
 //    complicationPregList:[]
@@ -317,7 +317,7 @@ data class FemaleObstetricHistory(
         user?.parkingPlaceId,
         user?.serviceMapId.toString(),
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -391,7 +391,7 @@ data class MedicationHistoryNetwork(
     val medicationHistoryList: List<MedicationHistoryList>?,
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    benVisitID: null
 //    beneficiaryRegID: "33212"
 //    createdBy:"Pranathi"
@@ -407,7 +407,7 @@ data class MedicationHistoryNetwork(
         arrayListOf(MedicationHistoryList()),
         user?.parkingPlaceId,
         user?.serviceMapId.toString(),
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -435,7 +435,7 @@ data class MenstrualHistory(
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
     val regularity: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //        benVisitID:null
 //        beneficiaryRegID:"33212"
 //        bloodFlowDuration:null
@@ -465,7 +465,7 @@ data class MenstrualHistory(
         user?.parkingPlaceId,
         user?.serviceMapId.toString(),
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -478,7 +478,7 @@ data class PastHistory(
     val pastIllness: List<PastIllness>?,
     val pastSurgery: List<PastSurgery>?,
     val providerServiceMapID: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    benVisitID: null
 //    beneficiaryRegID: "33212"
 //    createdBy:"Pranathi"
@@ -496,7 +496,7 @@ data class PastHistory(
         arrayListOf(PastIllness()),
         arrayListOf(PastSurgery()),
         user?.serviceMapId.toString(),
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -549,7 +549,7 @@ data class PerinatalHistroy(
     val placeOfDelivery: String?,
     val providerServiceMapID: String?,
     val typeOfDelivery: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    benVisitID: null
 //    beneficiaryRegID: "33212"
 //    birthWeightG:null
@@ -583,7 +583,7 @@ data class PerinatalHistroy(
         null,
         user?.serviceMapId.toString(),
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -603,7 +603,7 @@ data class PersonalHistory(
     val riskySexualPracticesStatus: String?,
     val tobaccoList: List<Tobacco>?,
     val tobaccoUseStatus: String?,
-    val vanID: Int?
+    val facilityID: Int?
 //    alcoholIntakeStatus: null
 //    alcoholList: [{alcoholTypeID: null, typeOfAlcohol: null, otherAlcoholType: null, alcoholIntakeFrequency: null,…}]
 //    allergicList:[{allergyType: null, allergyName: null, snomedTerm: null, snomedCode: null,…}]
@@ -635,7 +635,7 @@ data class PersonalHistory(
         null,
         arrayListOf(Tobacco()),
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 

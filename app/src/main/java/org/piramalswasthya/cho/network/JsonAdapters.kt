@@ -761,9 +761,45 @@ data class LabProceduresDataRequest(
     val visitCode: Long,
 )
 
+
 fun getLongFromDate(dateString: String?): Long {
-    val f = SimpleDateFormat("MMM d, yyyy h:mm:ss a", Locale.ENGLISH)
-    val date = dateString?.let { f.parse(it) }
-    return date?.time ?: 0L
+    if (dateString.isNullOrBlank()) return 0L
+
+    val normalized = dateString.trim()
+    val patterns = listOf(
+        "MMM d, yyyy h:mm:ss a",
+        "dd/MM/yyyy HH:mm:ss",
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        "yyyy-MM-dd'T'HH:mm:ssXXX",
+        "yyyy-MM-dd HH:mm:ss",
+        "dd-MM-yyyy",
+        "yyyy-MM-dd"
+    )
+
+    for (pattern in patterns) {
+        try {
+            val format = SimpleDateFormat(pattern, Locale.ENGLISH).apply {
+                isLenient = false
+                if (pattern.contains("'Z'")) {
+                    timeZone = java.util.TimeZone.getTimeZone("UTC")
+                }
+            }
+            val date = format.parse(normalized)
+            if (date != null) return date.time
+        } catch (_: Exception) {
+            // Try next known format.
+        }
+    }
+
+    return 0L
 }
 
+fun getDateFromLong(dateLong: Long): String? {
+    if (dateLong == 0L) return null
+    val cal = java.util.Calendar.getInstance()
+    cal.timeInMillis = dateLong
+    val f = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+    return f.format(cal.time)
+}

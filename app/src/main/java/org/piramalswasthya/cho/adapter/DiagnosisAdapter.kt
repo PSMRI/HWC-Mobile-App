@@ -107,7 +107,13 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         itemChangeListener.onItemChanged()
     }
 
-    if (isVisitDetail == true && isFollowupVisit == false){
+    // When already filled (read-only): only show rows that have data; when editable show all rows
+    val isCaseReadOnly = isVisitDetail == true && isFollowupVisit == false
+    val isRowReadOnly = isCaseReadOnly || itemData.isPreFilled
+    val hasData = itemData.diagnosis.isNotBlank()
+    holder.itemView.visibility = if (isCaseReadOnly && !hasData) View.GONE else View.VISIBLE
+
+    if (isRowReadOnly) {
         holder.resetButton.isVisible = false
         holder.cancelButton.isVisible = false
         holder.diagnosisInput.isClickable = false
@@ -117,6 +123,16 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             ContextCompat.getColor(mContext, R.color.disable_field_color)
         holder.diagnosisInpuTextt.defaultHintTextColor = ColorStateList.valueOf(
             ContextCompat.getColor(mContext, R.color.disable_field_hint_color)
+        )
+    } else {
+        holder.resetButton.isVisible = true
+        holder.cancelButton.isVisible = true
+        holder.diagnosisInput.isClickable = true
+        holder.diagnosisInput.isFocusable = true
+        holder.diagnosisInpuTextt.boxBackgroundColor =
+            ContextCompat.getColor(mContext, R.color.white)
+        holder.diagnosisInpuTextt.defaultHintTextColor = ColorStateList.valueOf(
+            ContextCompat.getColor(mContext, R.color.primaryTextColor)
         )
     }
 

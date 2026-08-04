@@ -58,7 +58,12 @@ class CHOCaseRecordItemAdapter(
             )
 
             binding.visitNumber.text = item.benVisitNo?.toString() ?: ""
-            binding.visitDate.text = DateTimeUtil.formatedDate(benFlow?.visitDate)
+            val visitDateText = if (!benFlow?.visitDate.isNullOrBlank()) {
+                DateTimeUtil.formatedDate(benFlow?.visitDate)
+            } else {
+                item.visitDate?.let { DateTimeUtil.formatDate(it) } ?: "N/A"
+            }
+            binding.visitDate.text = visitDateText
 
             binding.executePendingBindings()
         }

@@ -26,6 +26,11 @@ class TokenInsertTmcInterceptor : Interceptor{
             return JWT
         }
 
+        fun clearTokens() {
+            TOKEN = ""
+            JWT = ""
+        }
+
     }
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -33,7 +38,7 @@ class TokenInsertTmcInterceptor : Interceptor{
         if (request.header("No-Auth") == null) {
             request = request
                 .newBuilder()
-                .addHeader("Authorization", TOKEN)
+                //.addHeader("Authorization", TOKEN)
                 .addHeader("Jwttoken" , JWT)
                 .build()
         }

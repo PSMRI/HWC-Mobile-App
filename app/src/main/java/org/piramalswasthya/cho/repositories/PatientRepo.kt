@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
@@ -85,10 +86,35 @@ class PatientRepo @Inject constructor(
     private val blockMasterDao: BlockMasterDao,
     private val villageMasterDao: VillageMasterDao,
     private val procedureDao: ProcedureDao,
+    private val procedureMasterDao: ProcedureMasterDao,
     private val prescriptionDao: PrescriptionDao,
     private val registrarMasterDataDao: RegistrarMasterDataDao,
     private val batchDao: BatchDao,
+    private val maternalHealthRepo: MaternalHealthRepo,
+    private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
 ) {
+
+    companion object {
+        private const val STATUS_POST_NATAL_MOTHER = 3
+    }
+
+    private fun mapReproductiveStatusId(status: String?): Int? {
+        return when (status?.trim()?.lowercase()) {
+            "eligible couple" -> 1
+            "pregnant woman", "antenatal mother" -> 2
+            "postnatal",
+            "post natal",
+            "postnatal mother-lactating mother",
+            "post natal mother-lactating mother",
+            "postnatal mother",
+            "post natal mother" -> 3
+            "elderly" -> 4
+            "adolescent", "teenager" -> 5
+            "permanent sterilization", "permanently sterilised", "permanently sterilized" -> 6
+            "not applicable" -> 7
+            else -> null
+        }
+    }
 
     private var abdmFacilityId: String = ""
     private var abdmFacilityName: String = ""
@@ -97,6 +123,7 @@ class PatientRepo @Inject constructor(
         // Ensure master data exists before inserting patient
         ensureMasterDataExists(patient)
         patientDao.insertPatient(patient)
+        routePostNatalPatientIfNeeded(patient)
     }
 
     /**
@@ -175,7 +202,14 @@ class PatientRepo @Inject constructor(
     suspend fun updateRecord(it: Patient) {
         withContext(Dispatchers.IO) {
             patientDao.updatePatient(it)
+            routePostNatalPatientIfNeeded(it)
         }
+    }
+
+    private suspend fun routePostNatalPatientIfNeeded(patient: Patient) {
+        if (patient.statusOfWomanID != STATUS_POST_NATAL_MOTHER || patient.genderID != 2) return
+        maternalHealthRepo.retirePregnancyLifecycleForPostNatal(patient.patientID)
+        deliveryOutcomeRepo.ensureActiveDeliveryOutcomeForPnc(patient)
     }
 
     suspend fun updatePatientSyncing(patient: Patient) {
@@ -213,6 +247,56 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientListFlowForLab()
     }
 
+    /**
+     * Get all infants (0–365 days inclusive).
+     * Matches DAO day-based range; WHO RMNCHA+ infant definition.
+     */
+    fun getInfantList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllInfantList()
+    }
+
+    /**
+     * Get count of infants (0–365 days inclusive).
+     * Matches DAO day-based range; WHO RMNCHA+ infant definition.
+     */
+    fun getInfantListCount(): Flow<Int> {
+        return patientDao.getInfantListCount()
+    }
+
+    /**
+     * Get all children (365–3285 days inclusive, i.e. 1–9 years).
+     * Matches DAO day-based range; WHO RMNCHA+ child definition.
+     */
+    fun getChildList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllChildList()
+    }
+
+    /**
+     * Get count of children (365–3285 days inclusive, i.e. 1–9 years).
+     * Matches DAO day-based range; WHO RMNCHA+ child definition.
+     */
+    fun getChildListCount(): Flow<Int> {
+        return patientDao.getChildListCount()
+    }
+
+    /**
+     * Get all adolescents (3650–6935 days inclusive, i.e. 10–19 years).
+     * Matches DAO day-based range; WHO RMNCHA+ adolescent definition.
+     */
+    fun getAdolescentList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllAdolescentList()
+    }
+
+    /**
+     * Get count of adolescents (3650–6935 days inclusive, i.e. 10–19 years).
+     * Matches DAO day-based range; WHO RMNCHA+ adolescent definition.
+     */
+    fun getAdolescentListCount(): Flow<Int> {
+        return patientDao.getAdolescentListCount()
+    }
+
+
+
 //    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
 //        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
 //        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){
@@ -246,6 +330,10 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientByBenRegId(beneficiaryRegID)
     }
 
+    suspend fun getPatientByAnyBeneficiaryId(id: Long): Patient? {
+        return patientDao.getPatientByAnyBeneficiaryId(id)
+    }
+
     suspend fun registerNewPatient(patient : PatientDisplay, user: UserDomain?): NetworkResult<NetworkResponse> {
 
         val p = patient.patient
@@ -257,9 +345,21 @@ class PatientRepo @Inject constructor(
         }
 
         return networkResultInterceptor {
-            val patNet = PatientNetwork(patient, user)
-//            Timber.d("patient register is ", patNet.toString())
-            val response = apiService.saveBenificiaryDetails(patNet)
+            val basePayload = PatientNetwork(patient, user)
+            val isUpdateRequest = p.beneficiaryID != null && p.beneficiaryRegID != null
+            val payload = if (isUpdateRequest) {
+                basePayload
+            } else {
+                basePayload.copy(
+                    beneficiaryID = null,
+                    beneficiaryRegID = null
+                )
+            }
+            val response = if (isUpdateRequest) {
+                apiService.updateBenificiaryDetails(payload)
+            } else {
+                apiService.saveBenificiaryDetails(payload)
+            }
             
             // Check if response is successful
             if (!response.isSuccessful) {
@@ -346,10 +446,25 @@ class PatientRepo @Inject constructor(
     suspend fun downloadAndSyncPatientRecords(): Boolean {
 
         val user = userRepo.getLoggedInUser()
+        val parsedVillageIds = convertStringToIntList(user?.assignVillageIds ?: "")
+        val effectiveVillageIds = if (parsedVillageIds.isNotEmpty()) {
+            parsedVillageIds
+        } else {
+            user?.masterVillageID?.let { listOf(it) } ?: emptyList()
+        }
+        val lastSyncDate = preferenceDao.getLastPatientSyncTime()
+//        if (effectiveVillageIds.isEmpty() || lastSyncDate.isBlank()) {
+//            Timber.w(
+//                "downloadAndSyncPatientRecords skipped: incomplete payload villageIDs=%s lastSyncDate=%s",
+//                effectiveVillageIds,
+//                lastSyncDate
+//            )
+//            return false
+//        }
 
         val villageList = VillageIdList(
-            convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastPatientSyncTime()
+            effectiveVillageIds,
+            lastSyncDate
         )
 
         when(val response = getPatientsCountToDownload(villageList)){
@@ -385,8 +500,8 @@ class PatientRepo @Inject constructor(
         if(villageIds.trim().nullIfEmpty() == null){
             return emptyList();
         }
-        return villageIds.split(",").map {
-            it.trim().toInt()
+        return villageIds.split(",").mapNotNull {
+            it.trim().toIntOrNull()
         }
     }
 
@@ -483,13 +598,17 @@ class PatientRepo @Inject constructor(
                         var isSuccess = true
 
                         var totalDownloaded = 0
+                        val patientsToInsert = mutableListOf<Patient>()
+                        var lastReportedProgress = -1
 
                         for(beneficiary in beneficiariesDTO){
 
                             totalDownloaded++
                             if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
-                                withContext(Dispatchers.Main) {
-                                    WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                                val progressPercent = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble()) * 100).toInt()
+                                if (progressPercent != lastReportedProgress) {
+                                    lastReportedProgress = progressPercent
+                                    WorkerUtils.totalPercentageCompleted.postValue(progressPercent)
                                 }
                             }
 
@@ -524,8 +643,11 @@ class PatientRepo @Inject constructor(
                                     syncState = SyncState.SYNCED,
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
+                                    statusOfWomanID = beneficiary.reproductiveStatusId
+                                        ?: mapReproductiveStatusId(beneficiary.reproductiveStatus),
                                     healthIdDetails = benHealthIdDetails ,
-                                    faceEmbedding = beneficiary.faceEmbedding
+                                    faceEmbedding = beneficiary.faceEmbedding,
+                                    benImage = beneficiary.benImage
                                 )
 
                                 setPatientAge(patient)
@@ -544,11 +666,19 @@ class PatientRepo @Inject constructor(
                                     if (patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0) {
                                         patientDao.updatePatient(patient)
                                     } else {
+                                        patientsToInsert.add(patient)
                                         patientDao.insertPatient(patient)
                                     }
                                 }
                             } catch (e: Exception){
                                 isSuccess = false
+                            }
+                        }
+
+                        // Batch insert all new patients in a single transaction
+                        if (patientsToInsert.isNotEmpty()) {
+                            withContext(Dispatchers.IO) {
+                                patientDao.insertAllPatients(patientsToInsert)
                             }
                         }
 
@@ -634,6 +764,30 @@ class PatientRepo @Inject constructor(
 
         return true;
 
+    }
+
+    suspend fun processPatientById(patientID: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val patient = runCatching { patientDao.getPatientById(patientID) }.getOrNull()
+                ?: return@withContext false
+            val user = userRepo.getLoggedInUser()
+            updatePatientSyncing(patient.patient)
+            when (val response = registerNewPatient(patient, user)) {
+                is NetworkResult.Success -> {
+                    val benificiarySaveResponse = response.data as BenificiarySaveResponse
+                    updatePatientSyncSuccess(patient.patient, benificiarySaveResponse)
+                    true
+                }
+                is NetworkResult.Error -> {
+                    updatePatientSyncingFailed(patient.patient)
+                    false
+                }
+                else -> {
+                    updatePatientSyncingFailed(patient.patient)
+                    false
+                }
+            }
+        }
     }
 
     suspend fun getWorkLocationMappedAbdmFacility(visitCode: Long? = 0L, benId: Long? = 0L, benRegId: Long? = 0L): NetworkResult<NetworkResponse> {
@@ -785,6 +939,10 @@ class PatientRepo @Inject constructor(
                 val procedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
                 procedures?.forEach { procedure ->
                     val compListDetails: MutableList<ComponentDetailDTO> = mutableListOf()
+                    val procedureMaster = procedureMasterDao.getMasterProcedureById(procedure.procedureID)
+                    val masterComponents = procedureMaster
+                        ?.let { procedureMasterDao.getComponentDetails(it.id) }
+                        .orEmpty()
                     val procedureDTO = ProcedureDTO(
                         benRegId = benVisitInfo.patient.beneficiaryRegID!!,
                         procedureDesc = procedure.procedureDesc,
@@ -796,32 +954,59 @@ class PatientRepo @Inject constructor(
                         isMandatory = procedure.isMandatory
                     )
 
-                    val components = procedureDao.getComponentDetails(procedure.id)
-                    components?.forEach { componentDetails ->
+                    val visitComponents = procedureDao.getComponentDetails(procedure.id).orEmpty()
+                    val visitComponentByTestId = visitComponents.associateBy { it.testComponentID }
+
+                    // Render fields from component_details_master matched by procedure.procedure_id.
+                    masterComponents.forEach { masterComponent ->
+                        val visitComponent = visitComponentByTestId[masterComponent.testComponentID]
+                        val componentId = visitComponent?.id ?: procedureDao.insert(
+                            ComponentDetails(
+                                testComponentID = masterComponent.testComponentID,
+                                procedureID = procedure.id,
+                                rangeNormalMin = masterComponent.rangeNormalMin,
+                                rangeNormalMax = masterComponent.rangeNormalMax,
+                                rangeMin = masterComponent.rangeMin,
+                                rangeMax = masterComponent.rangeMax,
+                                isDecimal = masterComponent.isDecimal,
+                                inputType = masterComponent.inputType,
+                                measurementUnit = masterComponent.measurementUnit,
+                                testComponentName = masterComponent.testComponentName,
+                                testComponentDesc = masterComponent.testComponentDesc,
+                                testResultValue = null,
+                                remarks = null
+                            )
+                        )
                         val componentOptionDTOs: MutableList<ComponentOptionDTO> = mutableListOf()
                         val componentDetailDTO = ComponentDetailDTO(
-                            id = componentDetails.id,
-                            range_normal_min = componentDetails.rangeNormalMin,
-                            range_normal_max = componentDetails.rangeNormalMax,
-                            range_min = componentDetails.rangeMin,
-                            range_max = componentDetails.rangeMax,
-                            isDecimal = componentDetails.isDecimal,
-                            inputType = componentDetails.inputType,
-                            testComponentID = componentDetails.testComponentID,
-                            measurementUnit = componentDetails.measurementUnit,
-                            testComponentName = componentDetails.testComponentName,
-                            testComponentDesc = componentDetails.testComponentDesc,
-                            testResultValue = componentDetails.testResultValue,
-                            remarks = componentDetails.remarks,
+                            id = componentId,
+                            range_normal_min = masterComponent.rangeNormalMin,
+                            range_normal_max = masterComponent.rangeNormalMax,
+                            range_min = masterComponent.rangeMin,
+                            range_max = masterComponent.rangeMax,
+                            isDecimal = masterComponent.isDecimal,
+                            inputType = masterComponent.inputType,
+                            testComponentID = masterComponent.testComponentID,
+                            measurementUnit = masterComponent.measurementUnit,
+                            testComponentName = masterComponent.testComponentName,
+                            testComponentDesc = masterComponent.testComponentDesc,
+                            testResultValue = visitComponent?.testResultValue,
+                            remarks = visitComponent?.remarks,
                             compOpt = componentOptionDTOs
                         )
 
-                        val componentOptions = procedureDao.getComponentOptions(componentDetails.id)
+                        val componentOptions = procedureDao.getComponentOptions(componentId)
                         componentOptions?.forEach { option ->
                             val componentOptionDTO = ComponentOptionDTO(
                                 name = option.name
                             )
                             componentOptionDTOs += componentOptionDTO
+                        }
+
+                        if (componentOptionDTOs.isEmpty() && (componentDetailDTO.inputType == "RadioButton" || componentDetailDTO.inputType == "DropDown")) {
+                            procedureMasterDao.getComponentOptions(masterComponent.id)?.forEach { opt ->
+                                    componentOptionDTOs += ComponentOptionDTO(name = opt.name)
+                            }
                         }
                         componentDetailDTO.compOpt = componentOptionDTOs
                         compListDetails += componentDetailDTO
@@ -855,9 +1040,10 @@ class PatientRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val componentDetailsId = componentDetails.id
 
+            val savedOptions = procedureDao.getComponentOptions(componentDetailsId).orEmpty()
             val updatedId = procedureDao.insert(componentDetails)
 
-            procedureDao.getComponentOptions(componentDetailsId)?.forEach { componentOption ->
+            savedOptions.forEach { componentOption ->
                 componentOption.componentDetailsId = updatedId
                 procedureDao.insert(componentOption)
             }
@@ -946,18 +1132,19 @@ class PatientRepo @Inject constructor(
                             prescriptionDao.updatePrescribedDrugsBatch(updatedBatch)
                         }
 
-
-                        updatedPrescribedDrugsBatches?.forEach { prescribedDrugsBatch ->
-                            val prescriptionBatchDTO = PrescriptionBatchDTO(
-                                expiresIn = prescribedDrugsBatch.expiresIn,
-                                batchNo = prescribedDrugsBatch.batchNo,
-                                expiryDate = prescribedDrugsBatch.expiryDate,
-                                itemStockEntryID = prescribedDrugsBatch.itemStockEntryID,
-                                qty = prescribedDrugsBatch.qty,
+                        // Use live stock from batchDao so Total Available Quantity reflects actual inventory
+                        batches.filter { batch ->
+                            DateTimeUtil.calculateExpiryInDays(batch.expiryDate) > 0 && batch.quantityInHand > 0
+                        }.forEach { batch ->
+                            batchList += PrescriptionBatchDTO(
+                                expiresIn = DateTimeUtil.calculateExpiryInDays(batch.expiryDate),
+                                batchNo = batch.batchNo,
+                                expiryDate = DateTimeUtil.convertDateFormat(batch.expiryDate),
+                                itemStockEntryID = batch.stockEntityId.toInt(),
+                                qty = batch.quantityInHand,
                                 isSelected = false,
                                 dispenseQuantity = 0
                             )
-                            batchList += prescriptionBatchDTO
                         }
                         prescriptionItemDTO.batchList = batchList
                         prescriptionItemList += prescriptionItemDTO
@@ -977,6 +1164,12 @@ class PatientRepo @Inject constructor(
     suspend fun getPrescription(patientID: String, benVisitNo:Int, prescriptionID: Long): Prescription {
         return withContext(Dispatchers.IO) {
             prescriptionDao.getPrescription(patientID, benVisitNo, prescriptionID)
+        }
+    }
+
+    suspend fun getLatestPrescription(patientID: String, benVisitNo: Int): Prescription? {
+        return withContext(Dispatchers.IO) {
+            prescriptionDao.getLatestPrescriptionByPatientIdAndBenVisitNo(patientID, benVisitNo)
         }
     }
 }

@@ -3,8 +3,10 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import org.json.JSONArray
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
@@ -95,6 +97,18 @@ class BenFlowRepo @Inject constructor(
     private val caseRecordeDao: CaseRecordeDao,
 ) {
 
+    companion object {
+        // Max beneficiaries pulled concurrently in the per-record nurse/doctor case-data pass.
+        // Kept small so the server isn't hammered while still cutting wall-clock time dramatically.
+        private const val CLINICAL_PULL_CONCURRENCY = 3
+    }
+
+    private fun buildDrugStrength(strength: String?, unitOfMeasurement: String?): String? {
+        val cleanStrength = strength?.trim().orEmpty()
+        val cleanUnit = unitOfMeasurement?.trim().orEmpty()
+        return (cleanStrength + cleanUnit).trim().ifBlank { null }
+    }
+
 
     suspend fun getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : BenFlow?{
         return benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
@@ -171,14 +185,58 @@ class BenFlowRepo @Inject constructor(
 
     }
 
-    suspend fun downloadAndSyncFlowRecords(): Boolean {
+    suspend fun downloadAndSyncFlowRecords(pullClinical: Boolean = true, ignoreWatermark: Boolean = false): Boolean {
 
         val user = userRepo.getLoggedInUser()
+        val loggedInFacilityID = user?.facilityID
+        val parsedVillageIds = convertStringToIntList(user?.assignVillageIds ?: "")
+        val prefVillageIds = preferenceDao.getUserLocationData()
+            ?.villageList
+            ?.mapNotNull { it.districtBranchID.toIntOrNull() }
+            ?.distinct()
+            ?: emptyList()
+        val effectiveVillageIds: List<Int> = when {
+            parsedVillageIds.isNotEmpty() -> parsedVillageIds
+            prefVillageIds.isNotEmpty() -> prefVillageIds
+            user?.masterVillageID != null -> listOf(user.masterVillageID!!)
+            else -> emptyList()
+        }
+        // Upsync/form-save re-pull passes ignoreWatermark=true so a JUST-created benflow (whose
+        // server timestamp the incremental hour-truncated watermark would exclude) is reliably
+        // returned by the server. Safe because this pass runs pullClinical=false and does NOT
+        // advance the watermark (only PullClinicalRecordsWorker does), so incremental downsync is
+        // unaffected.
+        val lastSyncDate = if (ignoreWatermark) {
+            preferenceDao.getEpochBenflowSyncTime()
+        } else {
+            preferenceDao.getLastBenflowSyncTime()
+        }
+
+//        if (effectiveVillageIds.isEmpty() || lastSyncDate.isBlank()) {
+//            Log.w(
+//                "BenFlowFacilityDebug",
+//                "downloadAndSyncFlowRecords: skipped due to incomplete payload villageIDs=$effectiveVillageIds lastSyncDate='$lastSyncDate' assignVillageIds='${user?.assignVillageIds}' masterVillageID=${user?.masterVillageID}"
+//            )
+//            return false
+//        }
 
         val villageList = VillageIdList(
-            convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastBenflowSyncTime()
+            effectiveVillageIds,
+            lastSyncDate
         )
+        Log.i(
+            "BenFlowFacilityDebug",
+            "downloadAndSyncFlowRecords: userFacility=${user?.facilityID}, userVan=${user?.vanId}, assignVillageIds='${user?.assignVillageIds}', prefVillageCount=${prefVillageIds.size}, finalVillageCount=${villageList.villageID.size}, lastSyncDate='${villageList.lastSyncDate}'"
+        )
+        if (loggedInFacilityID != null) {
+            val updatedRows = benFlowDao.backfillNullFacilityID(loggedInFacilityID)
+            Log.i(
+                "BenFlowFacilityDebug",
+                "downloadAndSyncFlowRecords: backfillNullFacilityID applied facilityID=$loggedInFacilityID updatedRows=$updatedRows"
+            )
+        } else {
+            Log.w("BenFlowFacilityDebug", "downloadAndSyncFlowRecords: loggedIn user facilityID is null; backfill skipped")
+        }
 
         when(val response = getBenFlowCountToDownload(villageList)){
             is NetworkResult.Success -> {
@@ -192,10 +250,13 @@ class BenFlowRepo @Inject constructor(
             else -> {}
         }
 
-        when(val response = syncFlowIds(villageList)){
+        when(val response = syncFlowIds(villageList, pullClinical)){
             is NetworkResult.Success -> {
-                return true
-//                return (response.data as DownsyncSuccess).isSuccess
+                // Only report success (which lets PullBenFlowFromAmritWorker advance
+                // lastBenflowSyncTime) when EVERY benflow row matched a local patient. A partial run
+                // must not move the hour-truncated watermark, otherwise the server returns 0 rows on
+                // the next pull and the unmatched rows' module data is lost until data is cleared.
+                return (response.data as DownsyncSuccess).isSuccess
             }
             is NetworkResult.Error -> {
                 Log.d("error code is", response.code.toString())
@@ -208,22 +269,29 @@ class BenFlowRepo @Inject constructor(
             else -> {}
         }
         return true
+
     }
 
     @Transaction
     suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : List<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow, patientVisitInfoSync: PatientVisitInfoSync,docData:DoctorDataDownSync){
+        // Do not overwrite local case record while case is pending in pharmacist queue.
+        // Doctor edits before dispense are local-authoritative and must not be replaced by downsync payload.
+        val preserveLocalDoctorData = patientVisitInfoSync.pharmacist_flag == 1
+        if (!preserveLocalDoctorData) {
+            prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+            prescriptionCaseRecord?.let {
+                prescriptionDao.insertAll(it)
+            }
 
-        prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
-        prescriptionCaseRecord?.let {
-            prescriptionDao.insertAll(it)
-        }
+            investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+            investigationDao.insertInvestigation(investigationCaseRecord)
 
-        investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
-        investigationDao.insertInvestigation(investigationCaseRecord)
-
-        caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
-        diagnosisCaseRecords.let {
-            caseRecordeDao.insertAll(it)
+            caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+            diagnosisCaseRecords.let {
+                caseRecordeDao.insertAll(it)
+            }
+        } else {
+            Timber.d("Preserving local doctor data for pending pharmacist case %s/%s", patient.patientID, patientVisitInfoSync.benVisitNo)
         }
 
         patientVisitInfoSyncDao.updateAfterDoctorDataDownSync(patientVisitInfoSync.doctorFlag!!, patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo)
@@ -255,7 +323,7 @@ class BenFlowRepo @Inject constructor(
             }
 
         }
-        
+
     }
 
 
@@ -350,20 +418,31 @@ class BenFlowRepo @Inject constructor(
 
     }
 
-    suspend fun checkAndDownsyncNurseData(benFlow: BenFlow, patient: Patient){
+    // Returns true when there is nothing to pull or the sub-pull succeeded; false when an
+    // attempted nurse-data pull failed. The local sync-state gate protects locally edited rows
+    // from overwrite, while the local nurseFlag is intentionally not used as a server-side
+    // eligibility gate because fresh first-sync rows need to pass through here.
+    suspend fun checkAndDownsyncNurseData(benFlow: BenFlow, patient: Patient): Boolean {
         val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patient.patientID, benVisitNo = benFlow.benVisitNo!!)
-        if(patientVisitInfoSync != null && benFlow.nurseFlag!! == 9 && patientVisitInfoSync.nurseFlag!! == 1){
+        if (patientVisitInfoSync != null && patientVisitInfoSync.nurseDataSynced != SyncState.UNSYNCED) {
             patientVisitInfoSync.nurseFlag = 9
             patientVisitInfoSync.doctorFlag = 1
-            getAndSaveNurseDataToDb(benFlow, patient, patientVisitInfoSync)
+            return getAndSaveNurseDataToDb(benFlow, patient, patientVisitInfoSync) is NetworkResult.Success
         }
+        return true
     }
 
-    suspend fun checkAndDownsyncDoctorData(benFlow: BenFlow, patient: Patient){
+    // See checkAndDownsyncNurseData: returns false only when an attempted doctor-data pull failed.
+    suspend fun checkAndDownsyncDoctorData(benFlow: BenFlow, patient: Patient): Boolean {
         val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patient.patientID, benVisitNo = benFlow.benVisitNo!!)
-        if(patientVisitInfoSync != null && benFlow.doctorFlag!! > 1 && patientVisitInfoSync.doctorDataSynced != SyncState.UNSYNCED && patientVisitInfoSync.labDataSynced != SyncState.UNSYNCED){
+        if (
+            patientVisitInfoSync != null &&
+            patientVisitInfoSync.nurseFlag == 9 &&
+            patientVisitInfoSync.doctorDataSynced != SyncState.UNSYNCED &&
+            patientVisitInfoSync.labDataSynced != SyncState.UNSYNCED
+        ) {
             patientVisitInfoSync.doctorFlag = benFlow.doctorFlag
-            getAndSaveDoctorDataToDb(benFlow, patient, patientVisitInfoSync)
+            return getAndSaveDoctorDataToDb(benFlow, patient, patientVisitInfoSync) is NetworkResult.Success
         }
 //        if(patientVisitInfoSync != null && benFlow.doctorFlag!! > 1 &&
 //            ((benFlow.doctorFlag > patientVisitInfoSync.doctorFlag!!) ||
@@ -371,6 +450,7 @@ class BenFlowRepo @Inject constructor(
 //            patientVisitInfoSync.doctorFlag = benFlow.doctorFlag
 //            getAndSaveDoctorDataToDb(benFlow, patient, patientVisitInfoSync)
 //        }
+        return true
     }
 
     suspend fun checkAndAddNewVisitInfo(benFlow: BenFlow, patient: Patient){
@@ -387,93 +467,237 @@ class BenFlowRepo @Inject constructor(
             patientID = patient.patientID,
             benVisitNo = benFlow.benVisitNo!!,
             pharmacistFlag = benFlow.pharmacist_flag!!,
-            visitCategory = benFlow.VisitCategory ?: ""
+            visitCategory = benFlow.VisitCategory?.takeIf { it.isNotBlank() } ?: "General OPD"
         )
     }
 
     suspend fun insertBenFlow(benFlow: BenFlow) {
+        Log.d(
+            "BenFlowFacilityDebug",
+            "insertBenFlow(): benFlowID=${benFlow.benFlowID}, benRegID=${benFlow.beneficiaryRegID}, vanID=${benFlow.vanID}, facilityID=${benFlow.facilityID}"
+        )
         benFlowDao.insertBenFlow(benFlow = benFlow)
     }
 
-    suspend fun syncFlowIds(villageList: VillageIdList): NetworkResult<NetworkResponse> {
+    suspend fun syncFlowIds(villageList: VillageIdList, pullClinical: Boolean = true): NetworkResult<NetworkResponse> {
+        val loggedInUser = userRepo.getLoggedInUser()
 
         return networkResultInterceptor {
             val response = apiService.getBenFlowRecords(villageList)
             val responseBody = response.body()?.string()
+            // Always log here: refreshTokenInterceptor only runs onSuccess when JSON statusCode==200.
+            try {
+                val jo = responseBody?.let { JSONObject(it) }
+                val sc = jo?.optInt("statusCode", -1) ?: -1
+                val dataNode = jo?.opt("data")
+                val dataLen = when (dataNode) {
+                    is JSONArray -> dataNode.length()
+                    else -> -1
+                }
+                Log.i(
+                    "BenFlowFacilityDebug",
+                    "syncFlowIds: httpCode=${response.code()} jsonStatusCode=$sc dataArrayLength=$dataLen bodyLen=${responseBody?.length ?: 0}"
+                )
+                Timber.i(
+                    "BenFlowFacilityDebug syncFlowIds: httpCode=%s jsonStatusCode=%s dataArrayLength=%s",
+                    response.code(),
+                    sc,
+                    dataLen
+                )
+                if (sc != 200) {
+                    Log.w("BenFlowFacilityDebug", "syncFlowIds: skipping insert loop — JSON statusCode!=200 (see refreshTokenInterceptor). body snippet: ${responseBody?.take(400)}")
+                }
+            } catch (e: Exception) {
+                Log.e("BenFlowFacilityDebug", "syncFlowIds: failed to parse response for debug log", e)
+            }
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
                     val benflowArray = responseBody.let { JSONObject(it).getJSONArray("data") }
+                    Log.i(
+                        "BenFlowFacilityDebug",
+                        "syncFlowIds onSuccess: processing ${benflowArray.length()} benflow row(s)"
+                    )
                     var isSuccess = true
 
                     var totalDownloaded = 0
+                    var lastReportedProgress = -1
+
+                    // Beneficiaries whose per-record nurse/doctor case data still needs pulling.
+                    // Collected during the (fast, DB-only) worklist pass below and pulled AFTER the
+                    // loop with bounded concurrency, so the ~2 sequential API calls per beneficiary
+                    // no longer run one beneficiary at a time.
+                    val clinicalTargets = mutableListOf<Pair<BenFlow, Patient>>()
 
                     for (i in 0 until benflowArray.length()) {
 
                         totalDownloaded++
                         if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
-                            withContext(Dispatchers.Main) {
-                                WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                            val progressPercent = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble()) * 100).toInt()
+                            if (progressPercent != lastReportedProgress) {
+                                lastReportedProgress = progressPercent
+                                WorkerUtils.totalPercentageCompleted.postValue(progressPercent)
                             }
                         }
 
                         try {
-                            val data = benflowArray.getString(i)
+                            val data = benflowArray.getJSONObject(i).toString()
+                            val benFlowJson = benflowArray.getJSONObject(i)
+                            Log.i(
+                                "BenFlowFacilityDebug",
+                                "syncFlowIds row: raw benflowID=${benFlowJson.optLong("benFlowID")}, hasFacilityID=${benFlowJson.has("facilityID")}, facilityID=${benFlowJson.opt("facilityID")}, vanID=${benFlowJson.opt("vanID")}"
+                            )
                             val benFlow = Gson().fromJson(data, BenFlow::class.java)
-                            val patient = patientRepo.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
-                            benFlowDao.insertBenFlow(benFlow)
-                            if(patient != null){
-                                checkAndAddNewVisitInfo(benFlow, patient)
-                                updateBenFlowId(benFlow, patient)
-                                checkAndDownsyncNurseData(benFlow, patient)
-                                checkAndDownsyncDoctorData(benFlow, patient)
-                            }
-                            val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(patient!!.patientID, SyncState.SHARED_OFFLINE)
-                            if(pvis!=null){
-                                val chiefComplaints = visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patient.patientID, pvis.benVisitNo)
-                                // Iterate through each chief complaint and update the benFlowID
-                                if (chiefComplaints.isNotEmpty()) {
-                                    // Iterate through each chief complaint and update the benFlowID
-                                    chiefComplaints.forEach { complaint ->
-                                        // Update the benFlowID
-                                        val updatedComplaint = complaint.copy(benFlowID = pvis.benFlowID)
-                                        // Save the updated complaint back to the database
-                                        visitReasonsAndCategoriesDao.updateChiefComplaint(updatedComplaint)
+                            val benFlowToInsert =
+                                if (benFlow.facilityID == null || benFlow.facilityID == 0) {
+                                    val fallbackFacilityId = loggedInUser?.facilityID
+                                    if (fallbackFacilityId != null) {
+                                        Log.w(
+                                            "BenFlowFacilityDebug",
+                                            "syncFlowIds row: facilityID missing in benflow payload; applying fallback from logged-in user facilityID=$fallbackFacilityId for benFlowID=${benFlow.benFlowID}"
+                                        )
+                                        benFlow.copy(facilityID = fallbackFacilityId)
+                                    } else {
+                                        benFlow
                                     }
                                 } else {
-                                    // Handle the case when chiefComplaints is empty or null
-                                    println("No chief complaints found for patientID: ${patient.patientID} and benVisitNo: ${pvis.benVisitNo}")
+                                    benFlow
                                 }
-                                // Fetch visitDb and update if not null
-                                val visitDb = visitReasonsAndCategoriesDao.getVisitDbByPatientId(pvis.patientID)
-                                if (visitDb != null) {
-                                    val updatedVisitDb = visitDb.copy(benFlowID = pvis.benFlowID)
-                                    visitReasonsAndCategoriesDao.updateVisitDB(updatedVisitDb)
-                                } else {
-                                    // Handle the case when visitDb is null
-                                    println("No visitDb found for patientID: ${pvis.patientID}")
+                            Log.i(
+                                "BenFlowFacilityDebug",
+                                "syncFlowIds row: parsed benFlowID=${benFlow.benFlowID}, benRegID=${benFlow.beneficiaryRegID}, vanID=${benFlow.vanID}, facilityID=${benFlow.facilityID}, facilityIDToInsert=${benFlowToInsert.facilityID}"
+                            )
+                            val benRegId = benFlowToInsert.beneficiaryRegID
+                            if (benRegId == null) {
+                                Log.w(
+                                    "BenFlowFacilityDebug",
+                                    "syncFlowIds row: benflow has null beneficiaryRegID; skipping unmatchable row (benFlowID=${benFlowToInsert.benFlowID})"
+                                )
+                                insertBenFlow(benFlowToInsert)
+                                continue
+                            }
+                            val patient = patientRepo.getPatientByBenRegId(benRegId)
+                            insertBenFlow(benFlowToInsert)
+                            if(patient != null){
+                                if (benFlowToInsert.reproductiveStatusId != null &&
+                                    patient.statusOfWomanID != benFlowToInsert.reproductiveStatusId
+                                ) {
+                                    patient.statusOfWomanID = benFlowToInsert.reproductiveStatusId
+                                    patientRepo.updateRecord(patient)
                                 }
-                                // Fetch vitals and update if not null
-                                val vitals = vitalsDao.getPatientVitalsByPatientID(pvis.patientID)
-                                if (vitals != null) {
-                                    val updatedVitals = vitals.copy(benFlowID = pvis.benFlowID)
-                                    vitalsDao.updateVitals(updatedVitals)
-                                } else {
-                                    // Handle the case when vitals is null
-                                    println("No vitals found for patientID: ${pvis.patientID}")
+                                checkAndAddNewVisitInfo(benFlowToInsert, patient)
+                                updateBenFlowId(benFlowToInsert, patient)
+                                // The per-beneficiary nurse/doctor case-record pull (2 API calls each)
+                                // is the slow part of the benflow downsync. It runs ONLY in the clinical
+                                // pass (PullClinicalRecordsWorker) so the role worklists built above appear
+                                // early. Defer the actual pulls until after this loop and run them with
+                                // bounded concurrency instead of one beneficiary at a time.
+                                if (pullClinical) {
+                                    clinicalTargets.add(benFlowToInsert to patient)
                                 }
-                                patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = pvis.patientID, benVisitNo =  pvis.benVisitNo)
+                                val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(
+                                    patient.patientID,
+                                    SyncState.SHARED_OFFLINE
+                                )
+                                if(pvis!=null){
+                                    val chiefComplaints = visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patient.patientID, pvis.benVisitNo)
+                                    // Iterate through each chief complaint and update the benFlowID
+                                    if (chiefComplaints.isNotEmpty()) {
+                                        // Iterate through each chief complaint and update the benFlowID
+                                        chiefComplaints.forEach { complaint ->
+                                            // Update the benFlowID
+                                            val updatedComplaint = complaint.copy(benFlowID = pvis.benFlowID)
+                                            // Save the updated complaint back to the database
+                                            visitReasonsAndCategoriesDao.updateChiefComplaint(updatedComplaint)
+                                        }
+                                    } else {
+                                        // Handle the case when chiefComplaints is empty or null
+                                        println("No chief complaints found for patientID: ${patient.patientID} and benVisitNo: ${pvis.benVisitNo}")
+                                    }
+                                    // Fetch visitDb and update if not null
+                                    val visitDb = visitReasonsAndCategoriesDao.getVisitDbByPatientId(pvis.patientID)
+                                    if (visitDb != null) {
+                                        val updatedVisitDb = visitDb.copy(benFlowID = pvis.benFlowID)
+                                        visitReasonsAndCategoriesDao.updateVisitDB(updatedVisitDb)
+                                    } else {
+                                        // Handle the case when visitDb is null
+                                        println("No visitDb found for patientID: ${pvis.patientID}")
+                                    }
+                                    // Fetch vitals and update if not null
+                                    val vitals = vitalsDao.getPatientVitalsByPatientID(pvis.patientID)
+                                    if (vitals != null) {
+                                        val updatedVitals = vitals.copy(benFlowID = pvis.benFlowID)
+                                        vitalsDao.updateVitals(updatedVitals)
+                                    } else {
+                                        // Handle the case when vitals is null
+                                        println("No vitals found for patientID: ${pvis.patientID}")
+                                    }
+                                    patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = pvis.patientID, benVisitNo =  pvis.benVisitNo)
+                                }
+                            } else {
+                                // No local patient yet for this benRegID. The role worklists
+                                // (Nurse/Doctor/Lab/Pharmacist) are built from PatientVisitInfoSync rows
+                                // that are ONLY created inside the patient != null branch above, so skipping
+                                // here leaves those modules empty for this beneficiary. This happens when the
+                                // patient down-sync that inserts this benRegID hasn't finished yet (the two
+                                // pulls run on concurrent worker chains). Mark the run incomplete so the
+                                // caller does NOT advance the benflow watermark — the next pull re-downloads
+                                // the full payload and matches the patient once it has landed.
+                                isSuccess = false
+                                Log.w(
+                                    "BenFlowFacilityDebug",
+                                    "syncFlowIds row: no local patient for benRegID=${benFlowToInsert.beneficiaryRegID} (benFlowID=${benFlowToInsert.benFlowID}); marking run incomplete to retry next sync"
+                                )
                             }
                         } catch (e : Exception){
                             isSuccess = false
+                            Log.e("BenFlowFacilityDebug", "syncFlowIds(): failed to parse/insert benflow", e)
                         }
+                    }
+
+                    // Bounded-concurrency per-beneficiary nurse/doctor pull. Nurse and doctor for the
+                    // SAME beneficiary stay sequential (the doctor check reads flags the nurse pull may
+                    // touch), but up to CLINICAL_PULL_CONCURRENCY beneficiaries are pulled in parallel,
+                    // turning ~2*N serial round-trips into ~2*N/CONCURRENCY. A failed sub-pull does NOT
+                    // throw (networkResultInterceptor swallows it into NetworkResult.Error), so mark the
+                    // run incomplete here; otherwise the watermark advances while visit data is missing
+                    // and the next pull never re-fetches it.
+                    if (pullClinical && clinicalTargets.isNotEmpty()) {
+                        Log.i(
+                            "BenFlowFacilityDebug",
+                            "syncFlowIds clinical pull: targetCount=${clinicalTargets.size}, concurrency=$CLINICAL_PULL_CONCURRENCY"
+                        )
+                        val clinicalPullStartedAt = System.currentTimeMillis()
+                        clinicalTargets.chunked(CLINICAL_PULL_CONCURRENCY).forEach { batch ->
+                            coroutineScope {
+                                batch.map { (bf, p) ->
+                                    async {
+                                        val nurseOk = checkAndDownsyncNurseData(bf, p)
+                                        val doctorOk = checkAndDownsyncDoctorData(bf, p)
+                                        Triple(bf, nurseOk, doctorOk)
+                                    }
+                                }.awaitAll()
+                            }.forEach { (bf, nurseOk, doctorOk) ->
+                                if (!nurseOk || !doctorOk) {
+                                    isSuccess = false
+                                    Log.w(
+                                        "BenFlowFacilityDebug",
+                                        "syncFlowIds row: sub-pull failed (nurseOk=$nurseOk, doctorOk=$doctorOk) for benRegID=${bf.beneficiaryRegID} (benFlowID=${bf.benFlowID}); marking run incomplete to retry next sync"
+                                    )
+                                }
+                            }
+                        }
+                        Log.i(
+                            "BenFlowFacilityDebug",
+                            "syncFlowIds clinical pull completed in ${System.currentTimeMillis() - clinicalPullStartedAt}ms"
+                        )
                     }
                     NetworkResult.Success(DownsyncSuccess(isSuccess))
                 },
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
-                    syncFlowIds(villageList)
+                    syncFlowIds(villageList, pullClinical)
                 },
             )
         }
@@ -482,7 +706,7 @@ class BenFlowRepo @Inject constructor(
 
     private suspend fun getBenFlowCountToDownload(villageList: VillageIdList): NetworkResult<NetworkResponse>{
         return networkResultInterceptor {
-            val response = apiService.getBeneficiariesCount(villageList)
+            val response = apiService.getBenFlowRecordCount(villageList)
             val responseBody = response.body()?.string()
             refreshTokenInterceptor(
                 responseBody = responseBody,
@@ -490,6 +714,10 @@ class BenFlowRepo @Inject constructor(
                     val data = responseBody.let { JSONObject(it).getString("data") }
                     val result = Gson().fromJson(data, CountDownSync::class.java)
                     WorkerUtils.totalRecordsToDownload = result.response.toInt()
+                    Log.i(
+                        "BenFlowFacilityDebug",
+                        "getBenFlowCountToDownload: serverCount=${result.response}, villageCount=${villageList.villageID.size}, lastSyncDate='${villageList.lastSyncDate}'"
+                    )
                     NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {
@@ -599,48 +827,50 @@ class BenFlowRepo @Inject constructor(
 
 
 
-        suspend fun getAllocationItemForPharmacist(prescriptionDTO: PrescriptionDTO): NetworkResult<NetworkResponse> {
-            return networkResultInterceptor {
-                val listAllocation: MutableList<AllocationItemDataRequest> = mutableListOf()
-                prescriptionDTO.itemList.forEach { prescriptionItemDTO ->
-                    val allocationItemDataRequest = AllocationItemDataRequest(
-                        itemID = prescriptionItemDTO.drugID,
-                        quantity = prescriptionItemDTO.qtyPrescribed
-                    )
-                    listAllocation.add(allocationItemDataRequest)
-                }
-                Timber.d("******************* prescriptionBatchDTO Item DTO************** ",listAllocation)
-                val facilityID = userDao.getLoggedInUserFacilityID()
-                val response = apiService.getPharmacistAllocationItemList(listAllocation, facilityID)
-                val responseBody = response.body()?.string()
-
-                refreshTokenInterceptor(
-                    responseBody = responseBody,
-                    onSuccess = {
-                        val jsonObj = JSONObject(responseBody)
-                        val data = jsonObj.getJSONObject("data").toString()
-                        val prescriptionBatchApiDTO = Gson().fromJson(data, PrescriptionBatchApiDTO::class.java)
-                        Timber.d("******************* prescriptionBatchDTO Item DTO************** ",prescriptionBatchApiDTO)
-
-                        NetworkResult.Success(NetworkResponse())
-                    },
-                    onTokenExpired = {
-                        val user = userRepo.getLoggedInUser()!!
-                        userRepo.refreshTokenTmc(user.userName, user.password)
-                        getAllocationItemForPharmacist(prescriptionDTO)
-                    },
+    suspend fun getAllocationItemForPharmacist(prescriptionDTO: PrescriptionDTO): NetworkResult<NetworkResponse> {
+        return networkResultInterceptor {
+            val listAllocation: MutableList<AllocationItemDataRequest> = mutableListOf()
+            prescriptionDTO.itemList.forEach { prescriptionItemDTO ->
+                val allocationItemDataRequest = AllocationItemDataRequest(
+                    itemID = prescriptionItemDTO.drugID,
+                    quantity = prescriptionItemDTO.qtyPrescribed
                 )
+                listAllocation.add(allocationItemDataRequest)
             }
+            Timber.d("******************* prescriptionBatchDTO Item DTO************** ",listAllocation)
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            val response = apiService.getPharmacistAllocationItemList(listAllocation, facilityID)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").toString()
+                    val prescriptionBatchApiDTO = Gson().fromJson(data, PrescriptionBatchApiDTO::class.java)
+                    Timber.d("******************* prescriptionBatchDTO Item DTO************** ",prescriptionBatchApiDTO)
+
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getAllocationItemForPharmacist(prescriptionDTO)
+                },
+            )
+        }
     }
 
-     suspend fun getStockDetailsOfSubStore(facilityID: Int): NetworkResult<NetworkResponse>{
+    suspend fun getStockDetailsOfSubStore(facilityID: Int): NetworkResult<NetworkResponse>{
         return networkResultInterceptor {
             val request = StockItemRequest(
                 itemName = "%%",
                 facilityID = facilityID.toString()
             )
+
             val response = apiService.getPharmacistStockItemList(request)
             val responseBody = response.body()?.string()
+
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
@@ -648,6 +878,9 @@ class BenFlowRepo @Inject constructor(
                         val jsonObj = JSONObject(responseBody)
                         val dataArray = jsonObj.getJSONArray("data")
                         val batchList = mutableListOf<Batch>()
+                        var successCount = 0
+                        var failedCount = 0
+
                         for (i in 0 until dataArray.length()) {
                             val item = dataArray.getJSONObject(i).toString()
                             val apiItemStockEntry = Gson().fromJson(item, ApiItemStockEntry::class.java)
@@ -661,19 +894,22 @@ class BenFlowRepo @Inject constructor(
                                 quantityInHand = apiItemStockEntry.quantityInHand
                             )
 
-                            batchList.add(batch)
+                            // Try to insert each batch individually to handle foreign key constraints
+                            try {
+                                batchDao.insertBatch(batch)
+                                successCount++
+                            } catch (e: Exception) {
+                                failedCount++
+                                Log.w("BatchAPI", "Failed to insert batch for itemID ${apiItemStockEntry.itemID}: ${e.message}. Item may not exist in ItemMasterList.")
+                            }
                         }
-                        batchDao.insertAllBatches(batchList)
 
-                        Log.d("Medicine list", "$batchList")
                         NetworkResult.Success(NetworkResponse())
                     } catch (e: Exception) {
-                        Log.e("Medicine list", "Error during parsing or deserialization", e)
+                        NetworkResult.Error(0, e.message ?: "Failed to process batch data")
                     }
-                    NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {
-                    Log.d("Token Expired", "Token Expired")
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
                     getStockDetailsOfSubStore(facilityID)
@@ -711,22 +947,55 @@ class BenFlowRepo @Inject constructor(
         patient: Patient,
         facilityID: Int,
         patientDoctorBundle: PatientDoctorBundle,
-        patientVisitInfoSync: PatientVisitInfoSync
+        patientVisitInfoSync: PatientVisitInfoSync,
+        replaceLatestPending: Boolean = false
     ) {
         try {
-            Log.d("Pharmacist","Deleting existing prescriptions for patientID: ${patient.patientID}, visitNo: ${patientVisitInfoSync.benVisitNo}")
-            prescriptionDao.deletePrescriptionByPatientIDAndBenVisitNo(
-                patient.patientID,
-                patientVisitInfoSync.benVisitNo
-            )
+            val existingPrescriptions =
+                prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(
+                    patient.patientID,
+                    patientVisitInfoSync.benVisitNo
+                ).orEmpty()
+            val existingPrimary = existingPrescriptions.firstOrNull {
+                (it.prescriptionID > 0L) || (it.visitCode > 0L)
+            } ?: existingPrescriptions.firstOrNull()
+            val benFlowForVisit = patientVisitInfoSync.benFlowID?.let { benFlowId ->
+                try {
+                    benFlowDao.getBenFlowByBenFlowID(benFlowId)
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            if (replaceLatestPending && existingPrescriptions.isNotEmpty()) {
+                // Doctor is editing an already-pending pharmacist cycle:
+                // replace only latest pending draft and preserve older dispensed history.
+                Log.d(
+                    "Pharmacist",
+                    "Replacing latest pending prescription for patientID=${patient.patientID}, visitNo=${patientVisitInfoSync.benVisitNo}"
+                )
+                prescriptionDao.deleteLatestPrescriptionByPatientIDAndBenVisitNo(
+                    patient.patientID,
+                    patientVisitInfoSync.benVisitNo
+                )
+            } else {
+                // New cycle (or first local copy): append current medicines to preserve previous dispensed cycles.
+                Log.d(
+                    "Pharmacist",
+                    "Preserving existing prescription history for patientID=${patient.patientID}, visitNo=${patientVisitInfoSync.benVisitNo}"
+                )
+            }
             Log.d("Pharmacist", "patient:in benflowrepo ${patient}")
 
 
             val prescription = Prescription(
-                prescriptionID = 0, // Placeholder
-                beneficiaryRegID = 0, // Placeholder, adjust as needed
-                visitCode = 0, // Placeholder, adjust as needed
-                consultantName = null, // Or a placeholder name
+                prescriptionID = existingPrimary?.prescriptionID
+                    ?: patientVisitInfoSync.prescriptionID?.toLong()
+                    ?: 0,
+                beneficiaryRegID = existingPrimary?.beneficiaryRegID ?: 0,
+                visitCode = existingPrimary?.visitCode
+                    ?: benFlowForVisit?.visitCode
+                    ?: 0,
+                consultantName = existingPrimary?.consultantName,
                 patientID = patient.patientID,
                 benFlowID = null,
                 benVisitNo = patientVisitInfoSync.benVisitNo
@@ -742,7 +1011,7 @@ class BenFlowRepo @Inject constructor(
                     prescriptionID = prescriptionID,
                     dose = it.strength,
                     drugForm = it.itemFormName,
-                    drugStrength = it.strength,
+                    drugStrength = buildDrugStrength(it.strength, it.unitOfMeasurement),
                     duration = it.duration,
                     durationUnit = it.unit,
                     frequency = it.frequency,
@@ -776,12 +1045,12 @@ class BenFlowRepo @Inject constructor(
                     }
                 }
             }
-            } catch (e: Exception){
-                e.printStackTrace()
-                Log.d("Pharmacist",e.toString())
-            }
-
+        } catch (e: Exception){
+            e.printStackTrace()
+            Log.d("Pharmacist",e.toString())
         }
+
+    }
 
     fun parseDate(dateString: String): Date {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
@@ -882,6 +1151,91 @@ class BenFlowRepo @Inject constructor(
             true
         } catch (e: Exception) {
             e.printStackTrace()
+            false
+        }
+    }
+
+    /**
+     * Refresh only header fields (consultantName, visitCode, prescriptionID) without touching local item list.
+     * This preserves local doctor edits while ensuring header data is visible.
+     */
+    suspend fun refreshPrescriptionHeaderOnly(benVisitInfo: PatientDisplayWithVisitInfo): NetworkResult<NetworkResponse> {
+        return networkResultInterceptor {
+            val benRegId = benVisitInfo.patient.beneficiaryRegID ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing beneficiaryRegID")
+            val benVisitNo = benVisitInfo.benVisitNo ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing benVisitNo")
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benRegId, benVisitNo)
+                ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing benFlow")
+
+            val visitCode = benFlow.visitCode
+                ?: return@networkResultInterceptor NetworkResult.Error(0, "Missing visitCode")
+            val request = PrescribedMedicineDataRequest(
+                beneficiaryRegID = benFlow.beneficiaryRegID!!,
+                facilityID = facilityID,
+                visitCode = visitCode
+            )
+
+            val response = apiService.getPharmacistPrescriptionList(request)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").toString()
+                    val prescriptionDTO = Gson().fromJson(data, PrescriptionDTO::class.java)
+                    prescriptionDao.updatePrescriptionHeader(
+                        patientID = benVisitInfo.patient.patientID,
+                        benVisitNo = benVisitNo,
+                        prescriptionID = prescriptionDTO.prescriptionID,
+                        visitCode = prescriptionDTO.visitCode,
+                        consultantName = prescriptionDTO.consultantName
+                    )
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    refreshPrescriptionHeaderOnly(benVisitInfo)
+                },
+            )
+        }
+    }
+
+    /**
+     * When doctor has submitted prescription locally (saved in Prescription_Cases_Recorde) but API
+     * has not synced yet, copy that data to the Prescription table so pharmacist module can show medicines.
+     */
+    suspend fun copyPrescriptionFromCaseRecordToPharmacistTable(
+        benVisitInfo: PatientDisplayWithVisitInfo,
+        replaceLatestPending: Boolean? = null
+    ): Boolean {
+        return try {
+            val prescriptionCaseRecordVal = caseRecordeDao.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
+                benVisitInfo.patient.patientID,
+                benVisitInfo.benVisitNo!!
+            )
+            if (prescriptionCaseRecordVal.isNullOrEmpty()) return false
+            val sync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                benVisitInfo.patient.patientID,
+                benVisitInfo.benVisitNo!!
+            ) ?: return false
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            val bundle = PatientDoctorBundle(
+                patient = benVisitInfo.patient,
+                patientVisitInfoSync = sync,
+                prescriptionCaseRecordVal = prescriptionCaseRecordVal
+            )
+            savePrescriptionListForPharmacist(
+                patient = benVisitInfo.patient,
+                facilityID = facilityID,
+                patientDoctorBundle = bundle,
+                patientVisitInfoSync = sync,
+                replaceLatestPending = replaceLatestPending ?: ((benVisitInfo.pharmacist_flag ?: 0) == 1)
+            )
+            true
+        } catch (e: Exception) {
+            Timber.e(e, "copyPrescriptionFromCaseRecordToPharmacistTable")
             false
         }
     }

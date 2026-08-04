@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="visit_date">Visit Date</string>
+    <string name="abortion_type">Abortion Type</string>
+    <string name="facility_place_of_abortion">Facility/Place of Abortion</string>
+    <string name="serial_no_as_per_admission_evacuation_register">Serial No. as per admission/evacuation register</string>
+    <string name="method_of_termination">Method of termination</string>
+    <string name="termination_done_by">Termination done by</string>
+    <string name="date_of_sterilisation">Date of Sterilisation</string>
+    <string name="cac_form">CAC Form</string>
+    <string name="what_family_planning_method_has_been_chosen_after_the_abortion">What family planning method has been chosen after the abortion?</string>
+    <string name="abortion_discharge_summary_1">Abortion Discharge\n Summary 1</string>
+    <string name="abortion_discharge_summary_2">Abortion Discharge\n Summary 2</string>
+    <string name="select_image_source">Select image source</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera_permission_denied">Camera permission denied</string>
+    <string name="pick_pdf">Pick a PDF</string>
+
+    <string-array name="anc_termination_done_by">
+        <item>Doctor</item>
+        <item>Nurse</item>
+    </string-array>
+
+    <string-array name="anc_method_of_termination">
+        <item>MVA</item>
+        <item>EVA</item>
+        <item>MMA</item>
+        <item>Others</item>
+    </string-array>
+
+    <string-array name="anc_confirmation_array">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+
+    <string-array name="abortion_isplaning_array">
+        <item>Has a PAIUCD been inserted?(Copper-T) or</item>
+        <item>Has the woman opted for permanent sterilization (Tubectomy)?</item>
+    </string-array>
+</resources>

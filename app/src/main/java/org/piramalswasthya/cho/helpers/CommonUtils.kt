@@ -12,6 +12,34 @@ import java.util.concurrent.TimeUnit
 fun getWeeksOfPregnancy(regLong: Long, lmpLong: Long) =
     (TimeUnit.MILLISECONDS.toDays(regLong - lmpLong) / 7).toInt()
 
+/** Current gestational age in whole weeks — matches ANC visit list display. */
+fun getCurrentWeeksOfPregnancy(lmpLong: Long): Int {
+    if (lmpLong <= 0L) return 0
+    return getWeeksOfPregnancy(getTodayMillis(), lmpLong).coerceAtLeast(0)
+}
+
+/** Current gestational age formatted — matches ANC visit list, used on read-only form fields. */
+fun getCurrentGestationalAgeFormatted(lmpLong: Long): String {
+    if (lmpLong <= 0L) return "NA"
+    return getGestationalAgeFormatted(getTodayMillis(), lmpLong)
+}
+
+/**
+ * Formats gestational age as "X weeks Y days"
+ * @param regLong Current date in milliseconds
+ * @param lmpLong LMP date in milliseconds
+ * @return Formatted string like "12 weeks 3 days" or "0 weeks" if regLong < lmpLong
+ */
+fun getGestationalAgeFormatted(regLong: Long, lmpLong: Long): String {
+    val diff = regLong - lmpLong
+    if (diff <= 0) {
+        return "0 weeks"
+    }
+    val totalDays = TimeUnit.MILLISECONDS.toDays(diff).toInt().coerceAtLeast(0)
+    val weeks = totalDays / 7
+    return "$weeks weeks"
+}
+
 
 fun getTodayMillis() = Calendar.getInstance().setToStartOfTheDay().timeInMillis
 

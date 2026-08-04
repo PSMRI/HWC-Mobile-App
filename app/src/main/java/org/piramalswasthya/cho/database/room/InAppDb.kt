@@ -29,16 +29,20 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.CbacDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
+import org.piramalswasthya.cho.database.room.dao.NeonatalOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.EcrDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
+import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
+import org.piramalswasthya.cho.database.room.dao.OphthalmicDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
@@ -51,6 +55,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -58,8 +63,14 @@ import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
-import org.piramalswasthya.cho.moddel.OccupationMaster
+import org.piramalswasthya.cho.model.OccupationMaster
+import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.NoseDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.OralHealthDao
+import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
 import org.piramalswasthya.cho.model.AgeUnit
+import org.piramalswasthya.cho.model.AshaDueListCache
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.AllergicReactionDropdown
 import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
@@ -85,7 +96,10 @@ import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.DrugFormMaster
 import org.piramalswasthya.cho.model.DrugFrequencyMaster
+import org.piramalswasthya.cho.model.EligibleCoupleRegCache
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
+import org.piramalswasthya.cho.model.InfantRegCache
+import org.piramalswasthya.cho.model.NeonatalOutcomeCache
 import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.GenderMaster
@@ -104,6 +118,7 @@ import org.piramalswasthya.cho.model.MasterLocation
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
 import org.piramalswasthya.cho.model.OutreachDropdownList
+import org.piramalswasthya.cho.model.OphthalmicVisit
 import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PastSurgeryHistory
@@ -127,6 +142,7 @@ import org.piramalswasthya.cho.model.ReferRevisitModel
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
@@ -140,6 +156,18 @@ import org.piramalswasthya.cho.model.VisitCategory
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.model.EarDiagnosisAssessment
+import org.piramalswasthya.cho.model.NoseDiagnosisAssessment
+import org.piramalswasthya.cho.model.PainAndSymptomAssessment
+import org.piramalswasthya.cho.model.OralHealth
+import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
+import org.piramalswasthya.cho.database.room.dao.MentalHealthScreeningDao
+import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
+import org.piramalswasthya.cho.model.MentalHealthScreeningCache
+import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
+import org.piramalswasthya.cho.database.room.dao.ElderlyHealthAssessmentDao
+import org.piramalswasthya.cho.model.ElderlyHealthAssessment
+
 
 @Database(
     entities = [
@@ -218,16 +246,29 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         Vaccine::class,
         ImmunizationCache::class,
         DeliveryOutcomeCache::class,
+        NeonatalOutcomeCache::class,
+        EligibleCoupleRegCache::class,
         EligibleCoupleTrackingCache::class,
+        InfantRegCache::class,
         PrescriptionTemplateDB::class,
         CbacCache::class,
         ProcedureMaster::class,
         ComponentDetailsMaster::class,
-        ComponentOptionsMaster::class
-
+        ComponentOptionsMaster::class,
+        AshaDueListCache::class,
+        StatusOfWomanMaster::class,
+        OphthalmicVisit::class,
+        EarDiagnosisAssessment::class,
+        NoseDiagnosisAssessment::class,
+        PainAndSymptomAssessment::class,
+        PsychosocialCaregiverSupport::class,
+        OralHealth::class,
+        MentalHealthScreeningCache::class,
+        ThroatDiagnosisAssessment::class,
+        ElderlyHealthAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 110, exportSchema = false
+    version = 148, exportSchema = false
 )
 
 
@@ -286,12 +327,28 @@ abstract class InAppDb : RoomDatabase() {
     abstract val procedureDao: ProcedureDao
     abstract val prescriptionTemplateDao:PrescriptionTemplateDao
     abstract val maternalHealthDao: MaternalHealthDao
+    abstract val ashaDueListDao: AshaDueListDao
     abstract val immunizationDao: ImmunizationDao
     abstract val deliveryOutcomeDao: DeliveryOutcomeDao
+    abstract val neonatalOutcomeDao: NeonatalOutcomeDao
     abstract val pncDao: PncDao
     abstract val ecrDao: EcrDao
+    abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
+    abstract val painAndSymptomAssessmentDao: PainAndSymptomAssessmentDao
+    abstract val psychosocialCaregiverSupportDao: PsychosocialCaregiverSupportDao
+
+
+    // This comment is for Github glitch
+    abstract val statusOfWomanDao: StatusOfWomanDao
+    abstract val ophthalmicDao: OphthalmicDao
+    abstract val earDiagnosisAssessmentDao: EarDiagnosisAssessmentDao
+    abstract val oralHealthDao: OralHealthDao
+    abstract val noseDiagnosisAssessmentDao: NoseDiagnosisAssessmentDao
+    abstract val mentalHealthScreeningDao: MentalHealthScreeningDao
+    abstract val throatDiagnosisAssessmentDao: ThroatDiagnosisAssessmentDao
+    abstract val elderlyHealthAssessmentDao: ElderlyHealthAssessmentDao
 
     companion object {
         @Volatile
@@ -320,6 +377,838 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE BenFlow ADD COLUMN externalInvestigation TEXT")
             }
         }
+
+        val MIGRATION_110_111 = object : Migration(110, 111) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Lab procedure master seed is now applied via ProcedureRepo.ensureLabProcedureMasterSeed() (DAO) when user opens lab technician
+            }
+        }
+
+        val MIGRATION_111_112 = object : Migration(111, 112) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Remove duplicate radio options (keep one Negative, one Positive per component)
+                database.execSQL(
+                    "DELETE FROM component_options_master WHERE id NOT IN (SELECT MIN(id) FROM component_options_master GROUP BY component_details_id, name)"
+                )
+            }
+        }
+
+        //        There was conflict i have fixed and inform to Abhilash and shiva to verify
+        val MIGRATION_112_113 = object : Migration(112, 113) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patientID TEXT NOT NULL,
+                        dateOfReg INTEGER NOT NULL,
+                        lmpDate INTEGER,
+                        noOfChildren INTEGER NOT NULL,
+                        noOfLiveChildren INTEGER NOT NULL,
+                        noOfMaleChildren INTEGER NOT NULL,
+                        noOfFemaleChildren INTEGER NOT NULL,
+                        isRegistered INTEGER NOT NULL,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
+            }
+        }
+
+        val MIGRATION_113_114 = object : Migration(113, 114) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS INFANT_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        childPatientID TEXT,
+                        motherPatientID TEXT NOT NULL,
+                        isActive INTEGER NOT NULL,
+                        babyName TEXT,
+                        babyIndex INTEGER NOT NULL,
+                        infantTerm TEXT,
+                        corticosteroidGiven TEXT,
+                        genderID INTEGER,
+                        babyCriedAtBirth INTEGER,
+                        resuscitation INTEGER,
+                        referred TEXT,
+                        hadBirthDefect TEXT,
+                        birthDefect TEXT,
+                        otherDefect TEXT,
+                        weight REAL,
+                        breastFeedingStarted INTEGER,
+                        opv0Dose INTEGER,
+                        bcgDose INTEGER,
+                        hepBDose INTEGER,
+                        vitkDose INTEGER,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(motherPatientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
+            }
+        }
+
+        val MIGRATION_114_115 = object : Migration(114, 115) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Recreate component_details_master so FK references procedure_master(id) instead of procedure(id).
+                database.execSQL("PRAGMA foreign_keys=OFF")
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS component_details_master_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        test_component_id INTEGER NOT NULL,
+                        procedure_id INTEGER NOT NULL,
+                        range_normal_min INTEGER,
+                        range_normal_max INTEGER,
+                        range_min INTEGER,
+                        range_max INTEGER,
+                        isDecimal INTEGER,
+                        inputType TEXT NOT NULL,
+                        measurement_nit TEXT,
+                        test_component_name TEXT NOT NULL,
+                        test_component_desc TEXT NOT NULL,
+                        FOREIGN KEY(procedure_id) REFERENCES procedure_master(id) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("""
+                    INSERT INTO component_details_master_new (
+                        id, test_component_id, procedure_id, range_normal_min, range_normal_max,
+                        range_min, range_max, isDecimal, inputType, measurement_nit,
+                        test_component_name, test_component_desc
+                    ) SELECT
+                        id, test_component_id, procedure_id, range_normal_min, range_normal_max,
+                        range_min, range_max, isDecimal, inputType, measurement_nit,
+                        test_component_name, test_component_desc
+                    FROM component_details_master
+                """.trimIndent())
+                database.execSQL("DROP TABLE component_details_master")
+                database.execSQL("ALTER TABLE component_details_master_new RENAME TO component_details_master")
+                database.execSQL("PRAGMA foreign_keys=ON")
+            }
+        }
+
+        val MIGRATION_115_116 = object : Migration(115, 116) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns to ELIGIBLE_COUPLE_TRACKING table
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN financialYear TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN visitMonth TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN lmpDate INTEGER")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN anyOtherMethod TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDose TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraInjectionDate INTEGER")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDueDate INTEGER")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN dateOfSterilization INTEGER")
+            }
+        }
+
+        val MIGRATION_116_117 = object : Migration(116, 117) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS ASHA_DUE_LIST (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patientID TEXT NOT NULL,
+                        beneficiaryID INTEGER,
+                        listType TEXT NOT NULL DEFAULT 'ANC',
+                        addedDate INTEGER NOT NULL,
+                        ashaId INTEGER NOT NULL DEFAULT 0,
+                        createdBy TEXT NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS ind_asha_due ON ASHA_DUE_LIST(patientID, listType)")
+            }
+        }
+
+        val MIGRATION_117_118 = object : Migration(117, 118) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DROP INDEX IF EXISTS ind_asha_due")
+                database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS ind_asha_due ON ASHA_DUE_LIST(patientID, listType)")
+            }
+        }
+
+        val MIGRATION_118_119 = object : Migration(118, 119) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN motherCondition TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN maternalComplications TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN motherCurrentlyAdmitted INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeath INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeathValue TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN dateOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeathId INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN otherPlaceOfDeath TEXT")
+            }
+        }
+
+        val MIGRATION_119_120 = object : Migration(119, 120) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns to PATIENT table
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN statusOfWomanID INTEGER")
+
+                // Create STATUS_OF_WOMAN_MASTER table
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS STATUS_OF_WOMAN_MASTER (
+                        statusID INTEGER PRIMARY KEY NOT NULL,
+                        statusName TEXT NOT NULL,
+                        statusCode TEXT NOT NULL
+                    )
+                """)
+
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
+                database.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
+            }
+        }
+
+        val MIGRATION_120_121 = object : Migration(120, 121) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add missing ANC tracking fields from FLW app
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN lmpDate INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN visitDate INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN weekOfPregnancy INTEGER")
+
+                // Abortion extended fields
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN serialNo TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN methodOfTermination TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN methodOfTerminationId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN terminationDoneBy TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN terminationDoneById INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN isPaiucdId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN isYesOrNo INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN isPaiucd TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN dateSterilisation INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN remarks TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN abortionImg1 TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN abortionImg2 TEXT")
+
+                // Maternal death extended fields
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN placeOfDeath TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN placeOfDeathId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN otherPlaceOfDeath TEXT")
+
+                // MCP card image paths
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN frontFilePath TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN backFilePath TEXT")
+            }
+        }
+
+        val MIGRATION_121_122 = object : Migration(121, 122) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add JIRA validation requirement fields
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN bloodSugarFasting INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN urineSugar TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN urineSugarId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN fetalHeartRate REAL")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN calciumGiven INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN dangerSigns TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN dangerSignsId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN counsellingProvided INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN counsellingTopics TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN counsellingTopicsId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN nextAncVisitDate INTEGER")
+            }
+        }
+
+        val MIGRATION_122_123 = object : Migration(122, 123) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN gestationalAgeAtDelivery TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN deliveryConductedBy TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN modeOfDelivery TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN indicationForLSCS TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN indicationForLSCSOther TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN privateHospitalName TEXT")
+            }
+        }
+
+        val MIGRATION_123_124 = object : Migration(123, 124) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN isFirstAncSubmitted INTEGER NOT NULL DEFAULT 0"
+                )
+                db.execSQL(
+                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN historyOfAbortions INTEGER"
+                )
+                db.execSQL(
+                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN previousLSCS INTEGER"
+                )
+            }
+        }
+
+
+        val MIGRATION_124_125 = object : Migration(124, 125) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Create NEONATAL_OUTCOME table for tracking detailed newborn health information
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS NEONATAL_OUTCOME (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        deliveryOutcomeId INTEGER NOT NULL,
+                        neonateIndex INTEGER NOT NULL,
+                        neonateUniqueId TEXT,
+                        outcomeAtBirth TEXT,
+                        outcomeAtBirthId INTEGER,
+                        sex TEXT,
+                        sexId INTEGER,
+                        criedImmediately TEXT,
+                        criedImmediatelyId INTEGER,
+                        typeOfResuscitation TEXT,
+                        birthWeight INTEGER,
+                        congenitalAnomalyDetected TEXT,
+                        congenitalAnomalyDetectedId INTEGER,
+                        typeOfCongenitalAnomaly TEXT,
+                        otherCongenitalAnomaly TEXT,
+                        newbornComplications TEXT,
+                        currentStatusOfBaby TEXT,
+                        currentStatusOfBabyId INTEGER,
+                        causeOfDeath TEXT,
+                        otherCauseOfDeath TEXT,
+                        birthDoseVaccinesGiven TEXT,
+                        reasonForNoVaccines TEXT,
+                        vitaminKInjectionGiven INTEGER,
+                        reasonForNoVitaminK TEXT,
+                        birthCertificateIssued TEXT,
+                        birthCertificateIssuedId INTEGER,
+                        isStillbirth INTEGER,
+                        isNeonatalDeath INTEGER,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(deliveryOutcomeId) REFERENCES DELIVERY_OUTCOME(id) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS neonatalOutcomeInd ON NEONATAL_OUTCOME(deliveryOutcomeId)")
+            }
+        }
+
+        val MIGRATION_125_126 = object : Migration(125, 126) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add BRD Neonatal Outcome fields to INFANT_REG table
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN outcomeAtBirth TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN typeOfResuscitation TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN newbornComplications TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN currentStatusOfBaby TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN causeOfDeath TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN otherCauseOfDeath TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN birthDoseVaccinesGiven TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN reasonForNoVaccines TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN vitaminKInjectionGiven INTEGER")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN reasonForNoVitaminK TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN birthCertificateIssued TEXT")
+            }
+        }
+
+        val MIGRATION_126_127 = object : Migration(126, 127) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `OPHTHALMIC_VISIT` (" +
+                            "`visitId` TEXT NOT NULL, " +
+                            "`patientID` TEXT NOT NULL, " +
+                            "`benVisitNo` INTEGER NOT NULL, " +
+                            "`isDiabetic` INTEGER, " +
+                            "`screeningPerformed` INTEGER, " +
+                            "`visualAcuityChartUsed` TEXT, " +
+                            "`distVARight` TEXT, " +
+                            "`distVALeft` TEXT, " +
+                            "`nearVA` TEXT, " +
+                            "`caseIdConditions` TEXT, " +
+                            "`cataractSymptoms` INTEGER, " +
+                            "`glaucomaSymptoms` INTEGER, " +
+                            "`diabeticRetinopathySymptoms` INTEGER, " +
+                            "`presbyopiaSymptoms` INTEGER, " +
+                            "`trachomaStatus` TEXT, " +
+                            "`cornealDiseaseType` TEXT, " +
+                            "`vitaminADeficiency` INTEGER, " +
+                            "`injuryType` TEXT, " +
+                            "`foreignBodyRemoval` TEXT, " +
+                            "`chemicalExposure` INTEGER, " +
+                            "`createdBy` TEXT NOT NULL, " +
+                            "`createdDate` INTEGER NOT NULL, " +
+                            "`updatedBy` TEXT NOT NULL, " +
+                            "`updatedDate` INTEGER NOT NULL, " +
+                            "`syncState` INTEGER NOT NULL, " +
+                            "PRIMARY KEY(`visitId`), " +
+                            "FOREIGN KEY(`patientID`) REFERENCES `PATIENT`(`patientID`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ophthalmic_visit_patientID` ON `OPHTHALMIC_VISIT` (`patientID`)")
+            }
+        }
+        val MIGRATION_127_128 = object : Migration(127, 128) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS EAR_DIAGNOSIS_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                difficulty_hearing INTEGER,
+                whisper_test_response TEXT,
+                hearing_test_outcome TEXT,
+                ear_pain INTEGER,
+                ear_discharge_present INTEGER,
+                foreign_body_in_ear TEXT,
+                ear_condition_type TEXT,
+                congenital_ear_malformation INTEGER
+            )
+        """.trimIndent()
+                )
+            }
+        }
+        val MIGRATION_128_129 = object : Migration(128, 129) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS PAIN_SYMPTOM_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                pain_severity TEXT,
+                pain_duration TEXT,
+                symptoms_present INTEGER,
+                other_symptoms_severity TEXT,
+                immediate_relief_provided INTEGER
+            )
+            """.trimIndent()
+                )
+            }
+        }
+        val MIGRATION_129_130 = object : Migration(129, 130) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS PSYCHOSOCIAL_CAREGIVER_SUPPORT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                psychosocial_counselling_provided INTEGER,
+                caregiver_counselling_provided INTEGER,
+                caregiver_distress_identified INTEGER,
+                counselling_remarks TEXT
+            )
+            """.trimIndent()
+                )
+            }
+        }
+        val MIGRATION_130_131 = object : Migration(130, 131) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS ORAL_HEALTH (
+                oral_health_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                tooth_decay_present INTEGER,
+                tooth_decay_symptoms TEXT,
+                gum_disease_present INTEGER,
+                gum_disease_symptoms TEXT,
+                irregular_teeth_jaws INTEGER,
+                abnormal_growth_ulcer INTEGER,
+                cleft_lip_palate INTEGER,
+                dental_fluorosis INTEGER,
+                dental_emergency TEXT,
+                created_date INTEGER,
+                created_by TEXT
+            )
+            """.trimIndent()
+                )
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_oral_health_patient_id " +
+                            "ON ORAL_HEALTH(patient_id)"
+                )
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_oral_health_patient_visit " +
+                            "ON ORAL_HEALTH(patient_id, ben_visit_no)"
+                )
+            }
+        }
+
+        val MIGRATION_131_132 = object : Migration(131, 132) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN referral_required INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN referral_level TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN reason_for_referral TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN follow_up_required INTEGER")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN follow_up_date TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN referral_required INTEGER")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN referral_level TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN reason_for_referral TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN follow_up_required INTEGER")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN follow_up_date TEXT")
+            }
+        }
+
+        val MIGRATION_132_133 = object : Migration(132, 133) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS NOSE_DIAGNOSIS_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                difficulty_breathing INTEGER,
+                open_mouth_breathing INTEGER
+            )
+            """.trimIndent()
+                )
+            }
+        }
+        val MIGRATION_133_134 = object : Migration(133, 134) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS MENTAL_HEALTH_SCREENING (
+                        screening_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patient_id TEXT NOT NULL,
+                        ben_visit_no INTEGER,
+                        emotional_behavioural_concerns INTEGER,
+                        substance_use_concerns INTEGER,
+                        self_harm_suicide_thoughts INTEGER,
+                        memory_loss_confusion INTEGER,
+                        seizures_fits_loc INTEGER,
+                        is_postpartum INTEGER,
+                        phq9_little_interest INTEGER,
+                        phq9_feeling_down INTEGER,
+                        phq9_sleep_trouble INTEGER,
+                        phq9_feeling_tired INTEGER,
+                        phq9_appetite INTEGER,
+                        phq9_feeling_bad INTEGER,
+                        phq9_concentration INTEGER,
+                        phq9_moving_slowly INTEGER,
+                        phq9_self_harm_thoughts INTEGER,
+                        phq9_total_score INTEGER,
+                        substance_alcohol_use INTEGER,
+                        substance_tobacco_use INTEGER,
+                        substance_other_use INTEGER,
+                        substance_other_specify TEXT,
+                        substance_frequency TEXT,
+                        brief_intervention_given INTEGER,
+                        suicide_current_thoughts INTEGER,
+                        suicide_plan INTEGER,
+                        suicide_previous_attempt INTEGER,
+                        suicide_hopelessness INTEGER,
+                        suicide_risk_level TEXT,
+                        dementia_progressive_memory_loss INTEGER,
+                        dementia_forgetting_recent INTEGER,
+                        dementia_disorientation INTEGER,
+                        dementia_daily_activities INTEGER,
+                        dementia_behavioural_changes INTEGER,
+                        epilepsy_recurrent_seizures INTEGER,
+                        epilepsy_jerky_movements INTEGER,
+                        epilepsy_tongue_bite INTEGER,
+                        epilepsy_confusion_after INTEGER,
+                        epilepsy_loc_duration TEXT,
+                        referral_required INTEGER,
+                        referral_level TEXT,
+                        reason_for_referral TEXT,
+                        follow_up_required INTEGER,
+                        follow_up_date TEXT,
+                        phq9_depression_severity TEXT,
+                        phq9_system_action TEXT,
+                        substance_current_tobacco_use INTEGER,
+                        substance_tobacco_type TEXT,
+                        substance_tobacco_frequency TEXT,
+                        substance_tobacco_outcome TEXT,
+                        substance_system_action TEXT
+                    )
+                """.trimIndent())
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_mhs_patient_id ON MENTAL_HEALTH_SCREENING(patient_id)"
+                )
+                database.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_mhs_patient_visit ON MENTAL_HEALTH_SCREENING(patient_id, ben_visit_no)"
+                )
+            }
+        }
+        val MIGRATION_134_135 = object : Migration(134, 135) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS THROAT_DIAGNOSIS_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                symptoms TEXT,
+                neck_swelling INTEGER,
+                difficulty_swallowing INTEGER,
+                tonsillitis INTEGER,
+                pharyngitis INTEGER,
+                laryngitis INTEGER,
+                sinusitis INTEGER,
+                cleft_lip INTEGER,
+                cleft_palate INTEGER
+            )
+            """.trimIndent()
+                )
+            }
+        }
+
+        val MIGRATION_135_136 = object : Migration(135, 136) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add missing columns to NOSE_DIAGNOSIS_ASSESSMENT
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "nose_bleed", "INTEGER")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "systolic_bp", "INTEGER")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "diastolic_bp", "INTEGER")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "foreign_body_nose", "TEXT")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "sinusitis", "INTEGER")
+
+                // Add missing column to MENTAL_HEALTH_SCREENING
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "suicide_immediate_assess", "INTEGER")
+            }
+        }
+
+        val MIGRATION_136_137 = object : Migration(136, 137) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS ELDERLY_HEALTH_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER NOT NULL,
+                geriatric_complaints INTEGER,
+                multiple_chronic_conditions INTEGER,
+                recent_falls INTEGER,
+                difficulty_walking_balance INTEGER,
+                visual_hearing_difficulty INTEGER,
+                functional_decline INTEGER,
+                memory_loss INTEGER,
+                dementia_memory_loss INTEGER,
+                dementia_disorientation INTEGER,
+                dementia_behavioural_changes INTEGER,
+                dementia_self_care_decline INTEGER,
+                dementia_screening_outcome TEXT,
+                dementia_referral_required INTEGER
+            )
+            """.trimIndent()
+                )
+                database.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_elderly_health_assessment_patient_visit " +
+                            "ON ELDERLY_HEALTH_ASSESSMENT(patient_id, ben_visit_no)"
+                )
+            }
+        }
+
+        val MIGRATION_137_138 = object : Migration(137, 138) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_impact INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_withdrawal INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_problematic INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_classification TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_system_action TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_frequency TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN substance_alcohol_loss INTEGER"
+                )
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN edRecurrentEpisodeloss INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_recurrent_jerky_movements INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_progressive_memory_loss INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_confusion_disorientation INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_functional_decline INTEGER"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_screening_outcome TEXT"
+                )
+
+                database.execSQL(
+                    "ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_referral_required TEXT"
+                )
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_psychosocial_intervention_provided INTEGER")
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_intervention_type TEXT")
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_session_date TEXT")
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_duration_minutes INTEGER")
+                database.execSQL("ALTER TABLE MENTAL_HEALTH_SCREENING ADD COLUMN ed_remarks TEXT")
+            }
+        }
+        val MIGRATION_138_139 = object : Migration(138, 139) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "BENFLOW", "reproductiveStatusId", "INTEGER")
+                safeAddColumn(database, "BENFLOW", "reproductiveStatus", "TEXT")
+            }
+        }
+        val MIGRATION_139_140 = object : Migration(139, 140) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "improvement_noted", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_escalation_required", "INTEGER")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "case_closure_reason", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "referral_date", "TEXT")
+            }
+        }
+        val MIGRATION_140_141 = object : Migration(140, 141) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // ELDERLY_HEALTH_ASSESSMENT
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_required", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "referral_level", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "reason_for_referral", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "follow_up_required", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "follow_up_date", "TEXT")
+                database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN case_status TEXT")
+                database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN date_of_death TEXT")
+                database.execSQL("ALTER TABLE ELDERLY_HEALTH_ASSESSMENT ADD COLUMN remarks TEXT")
+
+                // PAIN_SYMPTOM_ASSESSMENT
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN case_status TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN date_of_death TEXT")
+                database.execSQL("ALTER TABLE PAIN_SYMPTOM_ASSESSMENT ADD COLUMN remarks TEXT")
+
+                // PSYCHOSOCIAL_CAREGIVER_SUPPORT
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN case_status TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN date_of_death TEXT")
+                database.execSQL("ALTER TABLE PSYCHOSOCIAL_CAREGIVER_SUPPORT ADD COLUMN remarks TEXT")
+            }
+        }
+        val MIGRATION_141_142 = object : Migration(141, 142) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add palliative care identification columns to PAIN_SYMPTOM_ASSESSMENT
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "persistent_pain_present", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "pain_assessment_enabled", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "distressing_symptoms_present", "TEXT")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "bedridden_or_severely_dependent", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "life_limiting_illness_known", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "caregiver_support_required", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "palliative_care_eligible", "INTEGER")
+            }
+        }
+
+        val MIGRATION_142_143 = object : Migration(142, 143) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add ADL assessment columns to ELDERLY_HEALTH_ASSESSMENT
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "bathing", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "dressing", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "toileting", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "transferring", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "continence", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "feeding", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "total_score", "INTEGER")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "functional_status", "TEXT")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "functional_decline_flag", "INTEGER")
+            }
+        }
+        val MIGRATION_143_144 = object : Migration(143, 144) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_reason", "TEXT")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "ed_confusion_ordrowsiness", "INTEGER")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "adherence_to_advice", "TEXT")
+            }
+        }
+
+        val MIGRATION_144_145 = object : Migration(144, 145) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_symptoms_selected", "TEXT")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_symptom_relief_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_psychosocial_support_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_caregiver_counselling_provided", "INTEGER")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "basic_management_remarks", "TEXT")
+            }
+        }
+        val MIGRATION_145_146 = object : Migration(145, 146) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                safeAddColumn(database, "EAR_DIAGNOSIS_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "NOSE_DIAGNOSIS_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "THROAT_DIAGNOSIS_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "ORAL_HEALTH", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "ELDERLY_HEALTH_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "MENTAL_HEALTH_SCREENING", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "PAIN_SYMPTOM_ASSESSMENT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+                safeAddColumn(database, "PSYCHOSOCIAL_CAREGIVER_SUPPORT", "syncState", "INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        // Scrub abortionImg1/2 values that the new save path can't handle:
+        //   1. Inline base64 (LENGTH > 1024) — pre-fix bloat that overflows
+        //      SQLite's 2 MB CursorWindow.
+        //   2. Raw gallery `content://` URIs — these carry only transient
+        //      permission from the picker activity; once that dies the URI
+        //      can never be reloaded by Glide / contentResolver and the
+        //      "view" path throws SecurityException.
+        // Going forward, abortionImg1/2 hold an internal-storage file path;
+        // base64 encoding happens lazily at upload time. Affected records
+        // never successfully uploaded, so no server-side state is lost.
+        val MIGRATION_146_147 = object : Migration(146, 147) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg1 = NULL WHERE LENGTH(abortionImg1) > 1024")
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg2 = NULL WHERE LENGTH(abortionImg2) > 1024")
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg1 = NULL WHERE abortionImg1 LIKE 'content://%'")
+                database.execSQL("UPDATE PREGNANCY_ANC SET abortionImg2 = NULL WHERE abortionImg2 LIKE 'content://%'")
+            }
+        }
+
+        val MIGRATION_147_148 = object : Migration(147, 148) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // HWC API now sends/uses facilityID for benflow-linked operations.
+                safeAddColumn(database, "BENFLOW", "facilityID", "INTEGER")
+                safeAddColumn(database, "USER", "facilityID", "INTEGER")
+                safeAddColumn(database, "USER", "facilityType", "TEXT")
+                safeAddColumn(database, "USER", "facilityName", "TEXT")
+                safeAddColumn(database, "USER", "employeeId", "TEXT")
+                safeAddColumn(database, "USER", "locationType", "TEXT")
+            }
+        }
+
+        /**
+         * Safely adds a column to a table, ignoring the error if the column already exists.
+         * This handles cases where an older version of a CREATE TABLE migration already
+         * included the column.
+         */
+        private fun safeAddColumn(
+            database: SupportSQLiteDatabase,
+            table: String,
+            column: String,
+            type: String
+        ) {
+            try {
+                database.execSQL("ALTER TABLE $table ADD COLUMN $column $type")
+            } catch (_: Exception) {
+                // Column already exists — safe to ignore
+            }
+        }
+
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -334,7 +1223,46 @@ abstract class InAppDb : RoomDatabase() {
                         .addMigrations(
                             MIGRATION_106_107,
                             MIGRATION_107_108,
-                            MIGRATION_108_109,MIGRATION_109_110
+                            MIGRATION_108_109,
+                            MIGRATION_109_110,
+                            MIGRATION_110_111,
+                            MIGRATION_111_112,
+                            MIGRATION_112_113,
+                            MIGRATION_113_114,
+                            MIGRATION_114_115,
+                            MIGRATION_115_116,
+                            MIGRATION_116_117,
+                            MIGRATION_117_118,
+                            MIGRATION_118_119,
+                            MIGRATION_119_120,
+                            MIGRATION_120_121,
+                            MIGRATION_121_122,
+                            MIGRATION_122_123,
+                            MIGRATION_123_124,
+                            MIGRATION_124_125,
+                            MIGRATION_125_126,
+                            MIGRATION_126_127,
+                            MIGRATION_127_128,
+                            MIGRATION_128_129,
+                            MIGRATION_129_130,
+                            MIGRATION_130_131,
+                            MIGRATION_131_132,
+                            MIGRATION_132_133,
+                            MIGRATION_133_134,
+                            MIGRATION_134_135,
+                            MIGRATION_135_136,
+                            MIGRATION_136_137,
+                            MIGRATION_137_138,
+                            MIGRATION_138_139,
+                            MIGRATION_139_140,
+                            MIGRATION_140_141,
+                            MIGRATION_141_142,
+                            MIGRATION_142_143,
+                            MIGRATION_143_144,
+                            MIGRATION_144_145,
+                            MIGRATION_145_146,
+                            MIGRATION_146_147,
+                            MIGRATION_147_148
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

@@ -11,6 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.piramalswasthya.cho.BuildConfig
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
@@ -19,20 +20,24 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.CbacDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
+import org.piramalswasthya.cho.database.room.dao.NeonatalOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.EcrDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
+import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
+import org.piramalswasthya.cho.database.room.dao.OphthalmicDao
 import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
@@ -41,6 +46,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -53,6 +59,7 @@ import org.piramalswasthya.cho.network.AbhaApiService
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.FlwApiService
+import org.piramalswasthya.cho.network.interceptors.AuthRefreshInterceptor
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
@@ -63,6 +70,14 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
+import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.NoseDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.OralHealthDao
+import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
+import org.piramalswasthya.cho.database.room.dao.MentalHealthScreeningDao
+import org.piramalswasthya.cho.database.room.dao.ThroatDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.ElderlyHealthAssessmentDao
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -72,7 +87,12 @@ object AppModule {
 
     private val baseClient =
         OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            .addInterceptor(
+                HttpLoggingInterceptor().setLevel(
+                    if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
+                    else HttpLoggingInterceptor.Level.NONE
+                )
+            )
             .addInterceptor(ContentTypeInterceptor())
             .build()
 
@@ -96,6 +116,7 @@ object AppModule {
             .readTimeout(600, TimeUnit.SECONDS)
             .writeTimeout(600, TimeUnit.SECONDS)
             .addInterceptor(TokenInsertTmcInterceptor())
+            .addInterceptor(AuthRefreshInterceptor())
             .build()
     }
     @Singleton
@@ -295,6 +316,10 @@ fun provideESanjeevaniApiService(
 
     @Singleton
     @Provides
+    fun provideAshaDueListDao(database: InAppDb): AshaDueListDao = database.ashaDueListDao
+
+    @Singleton
+    @Provides
     fun provideImmunizationDao(database: InAppDb): ImmunizationDao = database.immunizationDao
 
     @Singleton
@@ -303,11 +328,19 @@ fun provideESanjeevaniApiService(
 
     @Singleton
     @Provides
+    fun provideNeonatalOutcomeDao(database: InAppDb): NeonatalOutcomeDao = database.neonatalOutcomeDao
+
+    @Singleton
+    @Provides
     fun providePncDao(database: InAppDb): PncDao = database.pncDao
 
     @Singleton
     @Provides
     fun provideEcrDao(database: InAppDb): EcrDao = database.ecrDao
+
+    @Singleton
+    @Provides
+    fun provideInfantRegDao(database: InAppDb): InfantRegDao = database.infantRegDao
 
     @Singleton
     @Provides
@@ -336,4 +369,47 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideCbacDao(database: InAppDb): CbacDao = database.cbacDao
+
+    @Singleton
+    @Provides
+    fun provideStatusOfWomanDao(database: InAppDb): StatusOfWomanDao = database.statusOfWomanDao
+
+    @Singleton
+    @Provides
+    fun provideOphthalmicDao(database: InAppDb): OphthalmicDao = database.ophthalmicDao
+
+    @Singleton
+    @Provides
+    fun provideEarDiagnosisAssessmentDao(database: InAppDb): EarDiagnosisAssessmentDao = database.earDiagnosisAssessmentDao
+
+    @Singleton
+    @Provides
+    fun provideNoseDiagnosisAssessmentDao(database: InAppDb): NoseDiagnosisAssessmentDao = database.noseDiagnosisAssessmentDao
+
+    @Singleton
+    @Provides
+    fun providePainAndSymptomAssessmentDao(database: InAppDb): PainAndSymptomAssessmentDao = database.painAndSymptomAssessmentDao
+
+    @Singleton
+    @Provides
+    fun provideOralHealthDao(database: InAppDb): OralHealthDao =
+        database.oralHealthDao
+
+    @Singleton
+    @Provides
+    fun providePsychosocialCaregiverSupportDao(database: InAppDb): PsychosocialCaregiverSupportDao = database.psychosocialCaregiverSupportDao
+    @Singleton
+    @Provides
+    fun provideMentalHealthScreeningDao(database: InAppDb): MentalHealthScreeningDao = database.mentalHealthScreeningDao
+
+    @Singleton
+    @Provides
+    fun provideThroatDiagnosisAssessmentDao(database: InAppDb): ThroatDiagnosisAssessmentDao =
+        database.throatDiagnosisAssessmentDao
+
+    @Singleton
+    @Provides
+    fun provideElderlyHealthAssessmentDao(database: InAppDb): ElderlyHealthAssessmentDao = database.elderlyHealthAssessmentDao
+
+
 }

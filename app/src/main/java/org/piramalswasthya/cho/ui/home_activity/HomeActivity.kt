@@ -16,6 +16,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -102,10 +103,10 @@ class HomeActivity : AppCompatActivity() {
         ).preferenceDao
         super.attachBaseContext(
             MyContextWrapper.wrap(
-            newBase,
-            newBase.applicationContext,
-            pref.getCurrentLanguage().symbol
-        ))
+                newBase,
+                newBase.applicationContext,
+                pref.getCurrentLanguage().symbol
+            ))
     }
 
     private lateinit var drawerLayout: DrawerLayout
@@ -144,7 +145,7 @@ class HomeActivity : AppCompatActivity() {
 
     var handler: Handler = Handler()
     var runnable: Runnable? = null
-    var delay = 30000
+    var delay = 15 * 60 * 1000
 
     private val REQUEST_CODE_PERMISSION = 123
 
@@ -169,7 +170,7 @@ class HomeActivity : AppCompatActivity() {
             Log.v("resuming activitiy", "resume")
             if( !amritSyncInProgress && !downloadSyncInProgress ){
 //                downloadSyncInProgress = true
-                viewModel.triggerDownSyncWorker(this, WorkerUtils.syncPeriodicDownSyncWorker)
+                WorkerUtils.enqueuePeriodicDownsync(this)
             }
         }.also { runnable = it }, delay.toLong())
         super.onResume()
@@ -304,17 +305,20 @@ class HomeActivity : AppCompatActivity() {
 
         val dashboardBool = intent.extras?.getBoolean("dashboardBool", false)
         // Initializing the ViewPagerAdapter
-            homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
-            tab.addTab(tab.newTab().setText("Home")) // Add "Dashboard" tab second
-            tab.addTab(tab.newTab().setText("Dashboard"))      // Add "Home" tab first
+        homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
+        tab.addTab(tab.newTab().setText(getString(R.string.menu_home)))
+        tab.addTab(tab.newTab().setText(getString(R.string.tab_dashboard)))
+        tab.addTab(tab.newTab().setText(getString(R.string.tab_rmnch)))
 
-// Adding the Adapter to the ViewPager
+        // Adding the Adapter to the ViewPager
         pager.adapter = homeAdapter
         if(!showDashboard && (dashboardBool == null || !dashboardBool)) {
             pager.post {
                 pager.setCurrentItem(0, false)
+                updateRefreshButtonVisibility()
             }
         }
+        updateRefreshButtonVisibility()
 
         // Adding the Adapter to the ViewPager
         pager.adapter = homeAdapter
@@ -322,6 +326,7 @@ class HomeActivity : AppCompatActivity() {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if (tab != null) {
                     pager.currentItem = tab.position
+                    updateRefreshButtonVisibility()
                 }
             }
 
@@ -338,6 +343,7 @@ class HomeActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 tab.selectTab(tab.getTabAt(position))
+                updateRefreshButtonVisibility()
             }
         })
 
@@ -401,6 +407,24 @@ class HomeActivity : AppCompatActivity() {
 
         setObservers()
 
+        supportFragmentManager.addOnBackStackChangedListener {
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                binding.fragmentContainer.visibility = android.view.View.VISIBLE
+                binding.viewPager.visibility = android.view.View.GONE
+                binding.tabsId.visibility = android.view.View.GONE
+            } else {
+                binding.fragmentContainer.visibility = android.view.View.GONE
+                binding.viewPager.visibility = android.view.View.VISIBLE
+                binding.tabsId.visibility = android.view.View.VISIBLE
+            }
+            updateRefreshButtonVisibility()
+        }
+    }
+
+    private fun updateRefreshButtonVisibility() {
+        val isChoTabSelected = prefDao.isNurseSelected() || prefDao.isUserCHO()
+        val isHomeFirstTab = binding.viewPager.visibility == View.VISIBLE && binding.viewPager.currentItem == 0
+        binding.refreshButton.visibility = if (isChoTabSelected && isHomeFirstTab) View.VISIBLE else View.GONE
     }
 
     private fun setObservers() {
@@ -419,8 +443,8 @@ class HomeActivity : AppCompatActivity() {
             AdvertisingOptions.Builder().setStrategy(Strategy.P2P_STAR).build()
         connectionsClient.startAdvertising(
             buildString { append(userRole)
-            append("-")
-            append(userName)},
+                append("-")
+                append(userName)},
             Constants.serviceId,
             connectionLifecycleCallback,
             advertisingOptions
@@ -545,40 +569,44 @@ class HomeActivity : AppCompatActivity() {
 
                 dialog.dismiss()
             }.create()
-        }
-private fun triggerAlarmManager(){
-    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val alarmIntent = Intent(this, AutoLogoutReceiver::class.java)
-    alarmIntent.putExtra("alarmMgrLatitude", myLocation?.latitude)
-    alarmIntent.putExtra("alarmMgrLongitude", myLocation?.longitude)
-    alarmIntent.action = "com.yourapp.ACTION_AUTO_LOGOUT"
-    val pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
-
-    // Set the alarm to trigger at 5 PM
-    val calendar = Calendar.getInstance()
-    calendar.set(Calendar.HOUR_OF_DAY, 17) // 5 PM
-    calendar.set(Calendar.MINUTE, 0)
-    calendar.set(Calendar.SECOND, 0)
-
-    // Schedule the alarm to repeat daily
-    alarmManager.setRepeating(
-        AlarmManager.RTC,
-        calendar.timeInMillis,
-        AlarmManager.INTERVAL_DAY,
-        pendingIntent
-    )
-}
-    override fun onBackPressed() {
-//        super.onBackPressed()
-        if (!exitAlert.isShowing)
-            exitAlert.show()
     }
+    private fun triggerAlarmManager(){
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmIntent = Intent(this, AutoLogoutReceiver::class.java)
+        alarmIntent.putExtra("alarmMgrLatitude", myLocation?.latitude)
+        alarmIntent.putExtra("alarmMgrLongitude", myLocation?.longitude)
+        alarmIntent.action = "com.yourapp.ACTION_AUTO_LOGOUT"
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
+
+        // Set the alarm to trigger at 5 PM
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 17) // 5 PM
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+
+        // Schedule the alarm to repeat daily
+        alarmManager.setRepeating(
+            AlarmManager.RTC,
+            calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
+    }
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+        } else {
+            if (!exitAlert.isShowing)
+                exitAlert.show()
+        }
+    }
+
     private val exitAlert by lazy {
         MaterialAlertDialogBuilder(this)
             .setTitle(resources.getString(R.string.exit_application))
             .setMessage(resources.getString(R.string.do_you_want_to_exit_application))
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-                this.finish()
+                this.finishAffinity()
             }
             .setNegativeButton(resources.getString(R.string.no)) { d, _ ->
                 d.dismiss()
@@ -590,36 +618,40 @@ private fun triggerAlarmManager(){
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_radio_btns, null)
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
-            .setTitle("Choose Application Language")
+            .setTitle(getString(R.string.choose_application_language))
 
-            .setPositiveButton("Apply") { dialog, which ->
+            .setPositiveButton(getString(R.string.applytxt)) { dialog, which ->
                 prefDao.saveSetLanguage(currentLanguage)
                 Locale.setDefault(Locale(currentLanguage.symbol))
 
-                val refresh = Intent(this, HomeActivity::class.java)
-                finish()
-                startActivity(refresh)
-                this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                recreate()
 
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
         val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_lang_select_dialog)
         val englishRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_eng_dialog)
         val kannadaRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_kannada_dialog)
-        if (radioGroup != null && englishRadioButton != null && kannadaRadioButton != null) {
+        val hindiRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_hindi_dialog)
+        val assamRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_assam_dialog)
+        if (radioGroup != null && englishRadioButton != null && kannadaRadioButton != null
+            && hindiRadioButton != null && assamRadioButton != null) {
 
             when (prefDao.getCurrentLanguage()) {
                 Languages.ENGLISH -> radioGroup.check(englishRadioButton.id)
                 Languages.KANNADA -> radioGroup.check(kannadaRadioButton.id)
+                Languages.ASSAMESE -> radioGroup.check(assamRadioButton.id)
+                Languages.HINDI -> radioGroup.check(hindiRadioButton.id)
             }
 
             radioGroup.setOnCheckedChangeListener { _, i ->
                 currentLanguage = when (i) {
                     englishRadioButton.id -> Languages.ENGLISH
                     kannadaRadioButton.id -> Languages.KANNADA
+                    hindiRadioButton.id -> Languages.HINDI
+                    assamRadioButton.id -> Languages.ASSAMESE
                     else -> Languages.ENGLISH
                 }
             }
@@ -639,12 +671,19 @@ private fun triggerAlarmManager(){
         CoroutineScope(Dispatchers.IO).launch {
             val user = userRepo.getLoggedInUser()
             val headerView = binding.navView.getHeaderView(0)
-                headerView.findViewById<TextView>(R.id.tv_nav_name).text =
-                    getString(R.string.nav_item_1_text, user?.name)
-                headerView.findViewById<TextView>(R.id.tv_nav_role).text =
-                    getString(R.string.nav_item_2_text, user?.userName)
-                headerView.findViewById<TextView>(R.id.tv_nav_id).text =
-                    getString(R.string.nav_item_3_text, user?.userId)
+            headerView.findViewById<TextView>(R.id.tv_nav_name).text = getString(R.string.nav_item_1_text, user?.name)
+            headerView.findViewById<TextView>(R.id.tv_nav_facilityName).text = getString(R.string.nav_item_5_text, user?.facilityName)
+            headerView.findViewById<TextView>(R.id.tv_nav_id).text = getString(R.string.nav_item_3_text, user?.userId)
+            headerView.findViewById<TextView>(R.id.tv_nav_employeeId).text = getString(R.string.nav_item_6_text, user?.employeeId)
+            headerView.findViewById<TextView>(R.id.tv_nav_facilityId).text = getString(
+                R.string.nav_item_7_text,
+                user?.facilityID?.toString() ?: getString(R.string.not_available)
+            )
+            headerView.findViewById<TextView>(R.id.tv_nav_location_type).text = getString(R.string.nav_item_8_text, user?.locationType)
+//            headerView.findViewById<TextView>(R.id.tv_nav_role).text = getString(R.string.nav_item_2_text, user?.userName)
+            headerView.findViewById<TextView>(R.id.tv_nav_contact_no).text = getString(R.string.nav_item_4_text, user?.contactNo)
+            headerView.findViewById<TextView>(R.id.tv_nav_contact_no).visibility =
+                if (user?.contactNo.isNullOrEmpty()) View.GONE else View.VISIBLE
             userName = user?.name.toString()
             userRole = user?.roles.toString()
         }
@@ -720,27 +759,35 @@ private fun triggerAlarmManager(){
         }
     }
 
-private fun calculateDelayMillis(currentHour: Int, currentMinute: Int, desiredHour: Int, desiredMinute: Int): Long {
-    val calendar = Calendar.getInstance()
-    calendar.set(Calendar.HOUR_OF_DAY, desiredHour)
-    calendar.set(Calendar.MINUTE, desiredMinute)
-    calendar.set(Calendar.SECOND, 0)
-    calendar.set(Calendar.MILLISECOND, 0)
+    private fun calculateDelayMillis(currentHour: Int, currentMinute: Int, desiredHour: Int, desiredMinute: Int): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, desiredHour)
+        calendar.set(Calendar.MINUTE, desiredMinute)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
 
-    val desiredTimeMillis = calendar.timeInMillis
-    val currentTimeMillis = Calendar.getInstance().timeInMillis
+        val desiredTimeMillis = calendar.timeInMillis
+        val currentTimeMillis = Calendar.getInstance().timeInMillis
 
-    if (currentTimeMillis > desiredTimeMillis) {
-        // The desired time is already in the past, schedule it for the next day
-        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        if (currentTimeMillis > desiredTimeMillis) {
+            // The desired time is already in the past, schedule it for the next day
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        // Calculate the delay in milliseconds
+        return calendar.timeInMillis - currentTimeMillis
     }
 
-    // Calculate the delay in milliseconds
-    return calendar.timeInMillis - currentTimeMillis
-}
-
-private fun myMethodToRunAtSpecificTime() {
-    // Your method code here
+    private fun myMethodToRunAtSpecificTime() {
+        // Your method code here
 //    viewModel.logout(myLocation,"By System")
-}
+    }
+
+    /**
+     * Switch to the Home tab (index 0) from RMNCHA dashboard
+     * Used when "All Beneficiaries" is clicked from RMNCHA tab
+     */
+    fun switchToHomeTab() {
+        pager.setCurrentItem(0, true) // true for smooth scroll animation
+    }
 }

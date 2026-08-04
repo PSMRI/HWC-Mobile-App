@@ -149,6 +149,9 @@ data class Patient (
     @ColumnInfo(name="benImageString")
     var benImage: String? = null,
 
+    @ColumnInfo(name = "statusOfWomanID")
+    var statusOfWomanID: Int? = null,
+
     @ColumnInfo(name="isNewAbha")
     var isNewAbha: Boolean? = false,
 
@@ -160,6 +163,7 @@ data class Patient (
 
     @ColumnInfo(name = "faceEmbedding")
     var faceEmbedding: List<Float>? = null,
+
 
 //    @ColumnInfo(name = "referDate")
 //    var referDate: String? = null,
@@ -229,6 +233,11 @@ data class PatientDisplay(
         entityColumn = "religionID"
     )
     val religion: ReligionMaster?,
+    @Relation(
+        parentColumn = "statusOfWomanID",
+        entityColumn = "statusID"
+    )
+    val statusOfWoman: StatusOfWomanMaster?,
 )
 
 data class PatientDisplayWithVisitInfo(
@@ -313,6 +322,8 @@ data class PatientNetwork(
     val ageAtMarriage: Int?,
     val bankName: String?,
     val benImage: String?,
+    val beneficiaryID: String?,
+    val beneficiaryRegID: Long?,
     val benPhoneMaps: List<BenPhone>?,
     val beneficiaryConsent: Boolean?,
     val beneficiaryIdentities: List<String>?,
@@ -338,9 +349,11 @@ data class PatientNetwork(
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
     val providerServiceMapId: String?,
+    val reproductiveStatusId: Int?,
+    val reproductiveStatus: String?,
     val spouseName: String?,
     val titleId: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
     val faceEmbedding: List<Float>?
 ){
 
@@ -385,6 +398,8 @@ data class PatientNetwork(
         patientDisplay.patient.ageAtMarriage,
         null,
         patientDisplay.patient.benImage,
+        patientDisplay.patient.beneficiaryID?.toString(),
+        patientDisplay.patient.beneficiaryRegID,
         arrayListOf(BenPhone(patientDisplay.patient, user)),
         true,
         emptyList(),
@@ -410,12 +425,27 @@ data class PatientNetwork(
         user?.parkingPlaceId,
         user?.serviceMapId.toString(),
         user?.serviceMapId.toString(),
+        patientDisplay.patient.statusOfWomanID,
+        mapReproductiveStatusName(patientDisplay.patient.statusOfWomanID) ?: patientDisplay.statusOfWoman?.statusName,
         patientDisplay.patient.spouseName,
         null,
-        user?.vanId,
+        user?.facilityID,
         patientDisplay.patient.faceEmbedding
     )
 
+}
+
+private fun mapReproductiveStatusName(statusOfWomanID: Int?): String? {
+    return when (statusOfWomanID) {
+        1 -> "Eligible Couple"
+        2 -> "Pregnant Woman"
+        3 -> "Post Natal Mother"
+        4 -> "Elderly"
+        5 -> "Adolescent"
+        6 -> "Permanent Sterilization"
+        7 -> "Not Applicable"
+        else -> null
+    }
 }
 
 @JsonClass(generateAdapter = true)
@@ -427,16 +457,16 @@ data class BenPhone(
     val parkingPlaceID: Int?,
     val phoneNo: String?,
     val phoneTypeID: Int?,
-    val vanID: Int?
+    val facilityID: Int?
 ){
-//    alternateContactNumber:null
+    //    alternateContactNumber:null
 //    benRelationshipID:11
 //    createdBy:"Pranathi"
 //    parentBenRegID:877
 //    parkingPlaceID:10
 //    phoneNo:"8989898989"
 //    phoneTypeID:1
-//    vanID:61
+//    facilityID:61
     constructor(patient: Patient, user: UserDomain?) : this(
         null,
         11,
@@ -445,7 +475,7 @@ data class BenPhone(
         user?.parkingPlaceId,
         patient.phoneNo,
         1,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -477,7 +507,8 @@ data class Bendemographics(
     val religionName: String?,
     val servicePointID: String?,
     val servicePointName: String?,
-    val stateID: Int?
+    val stateID: Int?,
+    val stateName: String?
 ){
     constructor(patientDisplay: PatientDisplay, user: UserDomain?) : this(
         null,
@@ -513,6 +544,7 @@ data class Bendemographics(
         user?.servicePointId.toString(),
         user?.servicePointName,
         stateID = patientDisplay.state?.stateID,
+        stateName = patientDisplay.state?.stateName,
 //        patientDisplay.patient.stateID
     )
 //    addressLine1:null
@@ -665,7 +697,10 @@ data class BeneficiariesDTO(
     val beneficiaryAge: Int?,
     val sourceOfInformation: String?,
     val isHIVPos: String?,
-    val faceEmbedding: List<Float>?
+    val faceEmbedding: List<Float>?,
+    val benImage: String?,
+    val reproductiveStatusId: Int?,
+    val reproductiveStatus: String?
 
 
 )
@@ -756,7 +791,8 @@ data class BenDetailDTO(
     val familyId: String?,
     val other: String?,
     val headOfFamily_Relation: String?,
-    val faceEmbedding: List<Float>?
+    val faceEmbedding: List<Float>?,
+    val benImage: String?
 
 )
 
@@ -848,4 +884,3 @@ data class PatientAadhaarDetails(
     val mobileNumber: String?,
     val dateOfBirth: String?,
 )
-

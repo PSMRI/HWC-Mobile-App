@@ -37,7 +37,7 @@ data class Adherence(
     val referralReason: String?,
     val toDrugs: String?,
     val toReferral: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    benVisitID: null
 //    beneficiaryRegID: "33140"
 //    createdBy:"Pranathi"
@@ -61,7 +61,7 @@ data class Adherence(
         null,
         null,
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -77,7 +77,7 @@ data class ChiefComplaintsNetwork(
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
     val unitOfDuration: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    benVisitID: null
 //    beneficiaryRegID: "33140"
 //    chiefComplaint:null
@@ -98,7 +98,7 @@ data class ChiefComplaintsNetwork(
         parkingPlaceID = user?.parkingPlaceId,
         providerServiceMapID = user?.serviceMapId?.toString(),
         unitOfDuration = chiefComplaint.durationUnit,
-        vanID = user?.vanId,
+        facilityID = user?.facilityID,
     )
 }
 
@@ -120,7 +120,7 @@ data class VisitDetailsNetwork(
     val reportFilePath: String?,
     val sideEffects: String?,
     val subVisitCategory: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
     val visitCategory: String?,
     val visitNo: String?,
     val visitReason: String?,
@@ -162,7 +162,7 @@ data class VisitDetailsNetwork(
         null,
         null,
         visit?.subCategory,
-        user?.vanId,
+        user?.facilityID,
         visit?.category,
         null,
         visit?.reasonForVisit,

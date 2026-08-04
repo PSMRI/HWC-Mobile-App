@@ -11,7 +11,6 @@
         android:id="@+id/first"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
         tools:background="@color/white"
         android:orientation="horizontal">
 
@@ -19,7 +18,6 @@
             android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/view_pager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -40,6 +38,7 @@
                     android:layout_marginRight="10dp"
                     android:contentDescription="Refresh"
                     android:src="@drawable/share_icon"
+                    android:visibility="gone"
                     android:background="?attr/colorPrimary"/>
 
                 <ImageButton
@@ -49,7 +48,7 @@
                     android:layout_gravity="end"
                     android:layout_marginRight="15dp"
                     android:contentDescription="Translate"
-                    android:src="@drawable/ic_translate"
+                    android:src="@drawable/ic_icon_language"
                     android:background="@color/default_button"/>
 
                 <ImageButton
@@ -70,6 +69,7 @@
                     android:layout_marginRight="10dp"
                     android:contentDescription="Refresh"
                     android:src="@drawable/baseline_refresh_icon"
+                    android:visibility="gone"
                     android:background="@color/default_button"/>
 
             </androidx.appcompat.widget.Toolbar>
@@ -98,6 +98,19 @@
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:background="@color/white"
+            app:defaultNavHost="false"
+            app:navGraph="@navigation/register_nav"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

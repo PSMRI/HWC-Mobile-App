@@ -90,7 +90,7 @@ class AadhaarOtpFragment : Fragment() {
         }
 
         if (parentViewModel.abhaMode.value == AadhaarIdViewModel.Abha.SEARCH) {
-            binding.textView6.text = "Verify ABHA OTP"
+            binding.textView6.text = getString(R.string.verify_abha_otp)
         }
 
 

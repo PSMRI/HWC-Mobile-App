@@ -122,6 +122,7 @@ class BenVisitRepo @Inject constructor(
 
     }
 
+
     private suspend fun registerLabData(labResultDTO: LabResultDTO): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
@@ -165,13 +166,25 @@ class BenVisitRepo @Inject constructor(
 
     }
 
+    // Returns true when every unsynced nurse record was resolved (pushed, or genuinely had nothing
+    // to do). Returns false when at least one record was SKIPPED because a transient precondition
+    // had not landed yet — the beneficiary is not yet registered on the server (beneficiaryRegID
+    // null) or the server BenFlow (nurseFlag==1) has not been pulled into the local DB. The caller
+    // (PushBenVisitInfoToAmrit) maps false to a bounded Result.retry() so the push re-runs once the
+    // prerequisite registration/benflow pull catches up, instead of leaving the visit UNSYNCED until
+    // the next periodic down-sync.
     suspend fun processUnsyncedNurseData() : Boolean{
 
         val patientNurseDataUnSyncList = patientVisitInfoSyncRepo.getPatientNurseDataUnsynced()
         val user = userRepo.getLoggedInUser()
+        var anyPending = false
 
         patientNurseDataUnSyncList.forEach {
 
+            if(it.patient.beneficiaryRegID == null){
+                anyPending = true
+                Timber.w("Nurse data upsync SKIPPED: beneficiaryRegID is null for patientID=${it.patient.patientID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo}. Beneficiary not yet registered on server; clinical data stays UNSYNCED.")
+            }
             if(it.patient.beneficiaryRegID != null){
 
                 withContext(Dispatchers.IO){
@@ -217,12 +230,15 @@ class BenVisitRepo @Inject constructor(
                             else -> { }
                         }
 
-                    } else { }
+                    } else {
+                        anyPending = true
+                        Timber.w("Nurse data upsync SKIPPED: no matching BenFlow with nurseFlag==1 for patientID=${it.patient.patientID}, benRegID=${it.patient.beneficiaryRegID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo} (benFlow=$benFlow). Clinical data stays UNSYNCED.")
+                    }
                 }
             }
         }
 
-        return true
+        return !anyPending
 
     }
 
@@ -234,6 +250,9 @@ class BenVisitRepo @Inject constructor(
 
         patientDoctorDataUnSyncList.forEach {
 
+            if(it.patient.beneficiaryRegID == null){
+                Timber.w("Doctor data (pending test) upsync SKIPPED: beneficiaryRegID is null for patientID=${it.patient.patientID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo}. Beneficiary not yet registered on server; clinical data stays UNSYNCED.")
+            }
             if(it.patient.beneficiaryRegID != null){
                 withContext(Dispatchers.IO){
 
@@ -288,6 +307,9 @@ class BenVisitRepo @Inject constructor(
 
         patientDoctorDataUnSyncList.forEach {
 
+            if(it.patient.beneficiaryRegID == null){
+                Timber.w("Doctor data (without test) upsync SKIPPED: beneficiaryRegID is null for patientID=${it.patient.patientID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo}. Beneficiary not yet registered on server; clinical data stays UNSYNCED.")
+            }
             if(it.patient.beneficiaryRegID != null){
                 withContext(Dispatchers.IO){
 
@@ -342,6 +364,9 @@ class BenVisitRepo @Inject constructor(
 
         patientDoctorDataUnSyncList.forEach {
 
+            if(it.patient.beneficiaryRegID == null){
+                Timber.w("Doctor data (after test) upsync SKIPPED: beneficiaryRegID is null for patientID=${it.patient.patientID}, benVisitNo=${it.patientVisitInfoSync.benVisitNo}. Beneficiary not yet registered on server; clinical data stays UNSYNCED.")
+            }
             if(it.patient.beneficiaryRegID != null){
                 withContext(Dispatchers.IO){
 
@@ -441,7 +466,7 @@ class BenVisitRepo @Inject constructor(
                              visitCode = benFlow.visitCode,
                              providerServiceMapID = benFlow.providerServiceMapId,
                              specialist_flag = null,
-                             vanID = benFlow.vanID,
+                             facilityID = benFlow.facilityID ?: user.facilityID,
                              parkingPlaceID = benFlow.parkingPlaceID
                         )
 
@@ -566,11 +591,13 @@ class BenVisitRepo @Inject constructor(
                                     val pharmacistPatientIssueDataRequest = PharmacistItemStockExitDataRequest(
                                         itemID = prescriptionItemDTO.drugID,
                                         itemStockEntryID = item.itemStockEntryID,
-                                        quantity = prescriptionItemDTO.qtyPrescribed,
+                                        quantity = item.qty,
                                         createdBy = user?.userName!!
                                     )
 
-                                    itemStockExitList+=pharmacistPatientIssueDataRequest
+                                    if (item.qty > 0) {
+                                        itemStockExitList+=pharmacistPatientIssueDataRequest
+                                    }
                                 }
                             }
 
@@ -578,7 +605,6 @@ class BenVisitRepo @Inject constructor(
                             val pharmacistPatientIssueDataRequest = PharmacistPatientIssueDataRequest(
                                 issuedBy = "MMU",
                                 visitCode = benFlow.visitCode,
-                                facilityID = userDao.getLoggedInUserFacilityID(),
                                 age = it.patient.age,
                                 beneficiaryID = it.patient.beneficiaryID,
                                 benRegID = it.patient.beneficiaryRegID!!,
@@ -593,7 +619,7 @@ class BenVisitRepo @Inject constructor(
                                 visitID = benFlow.benVisitID,
                                 visitDate = benFlow.visitDate,
                                 parkingPlaceID = benFlow.parkingPlaceID,
-                                vanID = benFlow.vanID,
+                                facilityID = benFlow.facilityID ?: user?.facilityID,
                                 itemStockExit = itemStockExitList
                             )
                             if (pharmacistPatientIssueDataRequest.itemStockExit.isNotEmpty()) {
@@ -648,11 +674,13 @@ class BenVisitRepo @Inject constructor(
                             val pharmacistPatientIssueDataRequest = PharmacistItemStockExitDataRequest(
                                 itemID = prescriptionItemDTO.drugID,
                                 itemStockEntryID = item.itemStockEntryID,
-                                quantity = prescriptionItemDTO.qtyPrescribed,
+                                quantity = item.qty,
                                 createdBy = user?.userName!!
                             )
 
-                            itemStockExitList+=pharmacistPatientIssueDataRequest
+                            if (item.qty > 0) {
+                                itemStockExitList+=pharmacistPatientIssueDataRequest
+                            }
                         }
                     }
 
@@ -660,7 +688,6 @@ class BenVisitRepo @Inject constructor(
                     val pharmacistPatientIssueDataRequest = PharmacistPatientIssueDataRequest(
                         issuedBy = "MMU",
                         visitCode = benFlow.visitCode,
-                        facilityID = userDao.getLoggedInUserFacilityID(),
                         age = benVisitInfo.patient.age,
                         beneficiaryID = benVisitInfo.patient.beneficiaryID,
                         benRegID = benVisitInfo.patient.beneficiaryRegID!!,
@@ -675,7 +702,7 @@ class BenVisitRepo @Inject constructor(
                         visitID = benFlow.benVisitID,
                         visitDate = benFlow.visitDate,
                         parkingPlaceID = benFlow.parkingPlaceID,
-                        vanID = benFlow.vanID,
+                        facilityID = benFlow.facilityID ?: user?.facilityID,
                         itemStockExit = itemStockExitList
                     )
 

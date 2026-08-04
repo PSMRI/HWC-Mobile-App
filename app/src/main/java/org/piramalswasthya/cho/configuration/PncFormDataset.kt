@@ -20,6 +20,8 @@ class PncFormDataset(
 
     private var visit: Int = 0
     private var dateOfDelivery: Long = 0L
+    private var previousPncVisitDate: Long? = null
+    private var previousPncPeriod: Int = 0
 
     private val pncPeriod = FormElement(
         id = 1,
@@ -37,6 +39,7 @@ class PncFormDataset(
         title = resources.getString(R.string.pnc_visit_date),
         arrayId = -1,
         required = true,
+        isEnabled = false,
         hasDependants = false
     )
 
@@ -44,6 +47,18 @@ class PncFormDataset(
         id = 3,
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.pnc_ifa_tabs_given),
+        required = false,
+        hasDependants = false,
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 3,
+        max = 400,
+        min = 0,
+    )
+
+    private val calciumSupplementation = FormElement(
+        id = 17,
+        inputType = InputType.EDIT_TEXT,
+        title = resources.getString(R.string.pnc_calcium_supplementation),
         required = false,
         hasDependants = false,
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
@@ -75,6 +90,61 @@ class PncFormDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.pnc_other_ppc_method),
         required = true,
+        hasDependants = false
+    )
+
+    private val dateOfSterilisation = FormElement(
+        id = 18,
+        inputType = InputType.DATE_PICKER,
+        title = resources.getString(R.string.pnc_date_of_sterilization),
+        arrayId = -1,
+        max = System.currentTimeMillis(),
+        required = true,
+        hasDependants = false
+    )
+
+    private val anyDangerSign = FormElement(
+        id = 19,
+        inputType = InputType.RADIO,
+        title = resources.getString(R.string.pnc_any_danger_sign),
+        entries = resources.getStringArray(R.array.pnc_confirmation_array),
+        required = false,
+        hasDependants = true
+    )
+
+    private val maternalSymptoms = FormElement(
+        id = 20,
+        inputType = InputType.CHECKBOXES,
+        title = resources.getString(R.string.pnc_maternal_symptoms),
+        entries = resources.getStringArray(R.array.pnc_maternal_symptoms_array),
+        required = true,
+        hasDependants = true
+    )
+
+    private val otherMaternalSymptoms = FormElement(
+        id = 21,
+        inputType = InputType.EDIT_TEXT,
+        title = resources.getString(R.string.pnc_other_maternal_symptoms),
+        required = true,
+        hasDependants = false,
+        etMaxLength = 50
+    )
+
+    private val pallor = FormElement(
+        id = 22,
+        inputType = InputType.DROPDOWN,
+        title = resources.getString(R.string.pnc_pallor),
+        entries = resources.getStringArray(R.array.pnc_pallor_array),
+        required = false,
+        hasDependants = false
+    )
+
+    private val vaginalBleeding = FormElement(
+        id = 23,
+        inputType = InputType.DROPDOWN,
+        title = resources.getString(R.string.pnc_vaginal_bleeding),
+        entries = resources.getStringArray(R.array.pnc_vaginal_bleeding_array),
+        required = false,
         hasDependants = false
     )
 
@@ -137,7 +207,8 @@ class PncFormDataset(
         inputType = InputType.EDIT_TEXT,
         title = resources.getString(R.string.pnc_other_death_cause),
         required = true,
-        hasDependants = false
+        hasDependants = false,
+        etMaxLength = 300
     )
 
     private val placeOfDeath = FormElement(
@@ -146,7 +217,15 @@ class PncFormDataset(
         title = resources.getString(R.string.pnc_death_place),
         entries = resources.getStringArray(R.array.pnc_death_place_array),
         required = true,
-        hasDependants = false,
+        hasDependants = true,
+    )
+
+    private val otherPlaceOfDeath = FormElement(
+        id = 24,
+        inputType = InputType.EDIT_TEXT,
+        title = resources.getString(R.string.other_place_of_death),
+        required = true,
+        hasDependants = false
     )
 
     private val remarks = FormElement(
@@ -160,61 +239,127 @@ class PncFormDataset(
     private val deliveryDate = FormElement(
         id = 16,
         inputType = InputType.TEXT_VIEW,
-        title = "Delivery Date",
+        title = resources.getString(R.string.delivery_date),
         required = false,
         hasDependants = false
     )
+
+    companion object {
+        fun getMinDeliveryDate(): Long {
+            val cal = Calendar.getInstance()
+            cal.add(Calendar.YEAR, -1)
+            return cal.timeInMillis
+        }
+
+        private fun getTodayStartMillis(): Long =
+            Calendar.getInstance().setToStartOfTheDay().timeInMillis
+    }
+
+    private val sterilisation: Array<String> by lazy {
+        resources.getStringArray(R.array.sterilization_methods_array)
+    }
+
+    // English-side reference used when comparing values that were just loaded
+    // from the DB (which are now stored in English). The locale-aware variant
+    // above is still used for runtime comparisons against form-element values.
+    private val englishSterilisation: Array<String> by lazy {
+        englishResources.getStringArray(R.array.sterilization_methods_array)
+    }
+
+    private val englishContraceptionLast: String by lazy {
+        englishResources.getStringArray(R.array.pnc_contraception_method_array).last()
+    }
 
     suspend fun setUpPage(
         visitNumber: Int,
         ben: PatientDisplay?,
         deliveryOutcomeCache: DeliveryOutcomeCache,
         previousPnc: PNCVisitCache?,
-        saved: PNCVisitCache?
+        saved: PNCVisitCache?,
+        hasPreviousPermanentSterilization: Boolean = false,
+        lastSterilizationVisit: PNCVisitCache? = null
     ) {
         val list = mutableListOf(
             deliveryDate,
             pncPeriod,
             visitDate,
-            ifaTabsGiven,
-            anyContraceptionMethod,
-            motherDangerSign,
-            referralFacility,
             motherDeath,
+            ifaTabsGiven,
+            calciumSupplementation,
+            anyContraceptionMethod,
+            anyDangerSign,
+            maternalSymptoms,
+            pallor,
+            vaginalBleeding,
+            referralFacility,
             remarks
         )
-        dateOfDelivery = deliveryOutcomeCache.dateOfDelivery!!
-        deliveryDate.value = deliveryOutcomeCache.getDateStringFromLong(dateOfDelivery)
-        deathDate.min = dateOfDelivery
-        deathDate.max = System.currentTimeMillis()
-        motherDeath.value = motherDeath.entries!!.last()
-        val daysSinceDeliveryMillis = Calendar.getInstance()
-            .setToStartOfTheDay().timeInMillis - deliveryOutcomeCache.dateOfDelivery!!.let {
-            val cal = Calendar.getInstance()
-            cal.timeInMillis = it
-            cal.setToStartOfTheDay()
-            cal.timeInMillis
+        dateOfDelivery = deliveryOutcomeCache.dateOfDelivery ?: 0L
+        previousPncVisitDate = previousPnc?.pncDate
+        previousPncPeriod = previousPnc?.pncPeriod ?: 0
+
+        configureDeliveryDateField()
+        resetVisitDateToDisabled()
+
+        if (dateOfDelivery != 0L) {
+            deathDate.min = dateOfDelivery
+            dateOfSterilisation.min = dateOfDelivery
         }
-        val daysSinceDelivery = TimeUnit.MILLISECONDS.toDays(daysSinceDeliveryMillis)
-        pncPeriod.entries =
-            listOf(
-                1,
-                3,
-                7,
-                14,
-                21,
-                28,
-                42
-            ).filter { if (daysSinceDelivery == 0L) it <= 1 else it <= daysSinceDelivery }
-                .filter { it > (previousPnc?.pncPeriod ?: 0) }
-                .map { "Day $it" }.toTypedArray()
+        deathDate.max = System.currentTimeMillis()
+        dateOfSterilisation.max = System.currentTimeMillis()
+        anyDangerSign.value = anyDangerSign.entries!!.last()
+        motherDeath.value = motherDeath.entries!!.last()
+
+        // Set default value for motherDeath to "No"
+        motherDeath.value = motherDeath.entries!!.last()
+
+        updatePncPeriodEntries()
+
+        // Handle permanent sterilization - disable contraception fields if already selected.
+        // lastSterilizationVisit.contraceptionMethod is stored in English (canonical); re-localize
+        // for display and compare against the English-side references so conditional rendering
+        // (dateOfSterilisation / otherPpcMethod) works in every locale.
+        if (hasPreviousPermanentSterilization && lastSterilizationVisit != null) {
+            anyContraceptionMethod.isEnabled = false
+            contraceptionMethod.isEnabled = false
+            dateOfSterilisation.isEnabled = false
+            otherPpcMethod.isEnabled = false
+
+            anyContraceptionMethod.value = if (lastSterilizationVisit.anyContraceptionMethod == true)
+                anyContraceptionMethod.entries!!.first() else anyContraceptionMethod.entries!!.last()
+
+            contraceptionMethod.value = getLocalValueInArray(R.array.pnc_contraception_method_array, lastSterilizationVisit.contraceptionMethod)
+            dateOfSterilisation.value = getDateFromLong(lastSterilizationVisit.sterilisationDate ?: System.currentTimeMillis())
+            otherPpcMethod.value = lastSterilizationVisit.otherPpcMethod
+
+            if (lastSterilizationVisit.anyContraceptionMethod == true) {
+                list.add(list.indexOf(anyContraceptionMethod) + 1, contraceptionMethod)
+
+                if (lastSterilizationVisit.contraceptionMethod?.let { it in englishSterilisation } == true) {
+                    list.add(list.indexOf(contraceptionMethod) + 1, dateOfSterilisation)
+                }
+
+                if (lastSterilizationVisit.contraceptionMethod == englishContraceptionLast) {
+                    list.add(list.indexOf(contraceptionMethod) + 1, otherPpcMethod)
+                }
+            }
+        }
 
         saved?.let {
+            // saved.* dropdown fields are stored in English; re-localize for display
+            // so the user always sees the form in their current UI language. Conditional
+            // rendering compares against the English side since saved values are English.
+            val englishMotherDangerSignLast = englishResources.getStringArray(R.array.pnc_mother_danger_sign_array).last()
+            val englishPlaceOfDeath = englishResources.getStringArray(R.array.pnc_death_place_array)
+            val englishMaternalSymptomsLast = englishResources.getStringArray(R.array.pnc_maternal_symptoms_array).last()
+
             pncPeriod.value = "Day ${it.pncPeriod}"
             visitDate.value = getDateFromLong(it.pncDate)
+            enableVisitDateForSelection()
             ifaTabsGiven.value = it.ifaTabsGiven?.toString()
-            anyContraceptionMethod.value = it.anyContraceptionMethod?.let {
-                if (it)
+            calciumSupplementation.value = it.calciumSupplementation?.toString()
+            anyContraceptionMethod.value = it.anyContraceptionMethod?.let { yes ->
+                if (yes)
                     anyContraceptionMethod.entries!!.first()
                 else
                     anyContraceptionMethod.entries!!.last()
@@ -222,30 +367,75 @@ class PncFormDataset(
             if (it.anyContraceptionMethod == true) {
                 list.add(list.indexOf(anyContraceptionMethod) + 1, contraceptionMethod)
             }
-            contraceptionMethod.value = it.contraceptionMethod
-            if (it.contraceptionMethod == contraceptionMethod.entries!!.last()) {
+            contraceptionMethod.value = getLocalValueInArray(R.array.pnc_contraception_method_array, it.contraceptionMethod)
+            dateOfSterilisation.value = getDateFromLong(it.sterilisationDate ?: System.currentTimeMillis())
+            if (it.contraceptionMethod == englishContraceptionLast) {
                 list.add(list.indexOf(contraceptionMethod) + 1, otherPpcMethod)
             }
+            if (it.contraceptionMethod?.let { method -> method in englishSterilisation } == true) {
+                list.add(list.indexOf(contraceptionMethod) + 1, dateOfSterilisation)
+            }
             otherPpcMethod.value = it.otherPpcMethod
-            motherDangerSign.value = it.motherDangerSign
-            if (it.motherDangerSign == motherDangerSign.entries!!.last()) {
+            anyDangerSign.value = getLocalValueInArray(R.array.pnc_confirmation_array, it.anyDangerSign)
+            anyDangerSign.value?.let { dangerSignValue ->
+                // anyDangerSign.value is now local; entries.first() is also local — compare same-locale.
+                val isDangerSignYes = dangerSignValue == anyDangerSign.entries!!.first()
+                referralFacility.required = isDangerSignYes
+                if (isDangerSignYes) {
+                    list.add(list.indexOf(anyDangerSign) + 1, motherDangerSign)
+                }
+            }
+            maternalSymptoms.value = getLocalValuesInArray(R.array.pnc_maternal_symptoms_array, it.maternalSymptoms)
+            if (it.maternalSymptoms?.contains("Other") == true || it.maternalSymptoms?.contains(englishMaternalSymptomsLast) == true) {
+                list.add(list.indexOf(maternalSymptoms) + 1, otherMaternalSymptoms)
+            }
+            otherMaternalSymptoms.value = it.otherMaternalSymptoms
+            pallor.value = getLocalValueInArray(R.array.pnc_pallor_array, it.pallor)
+            // Severe pallor → referral alert. it.pallor is English so the literal compare is correct.
+            if (it.pallor?.equals("Severe", ignoreCase = true) == true) {
+                referralFacility.required = true
+                if (it.referralFacility.isNullOrBlank()) {
+                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
+                }
+            }
+
+            vaginalBleeding.value = getLocalValueInArray(R.array.pnc_vaginal_bleeding_array, it.vaginalBleeding)
+            // Heavy / foul smell → referral alert. it.vaginalBleeding is English so literal compare is correct.
+            val vaginalBleedingValue = it.vaginalBleeding?.lowercase() ?: ""
+            if (vaginalBleedingValue.contains("heavy", ignoreCase = true) ||
+                vaginalBleedingValue.contains("foul smell", ignoreCase = true)) {
+                referralFacility.required = true
+                if (it.referralFacility.isNullOrBlank()) {
+                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
+                }
+            }
+            motherDangerSign.value = getLocalValueInArray(R.array.pnc_mother_danger_sign_array, it.motherDangerSign)
+            if (it.motherDangerSign == englishMotherDangerSignLast) {
                 list.add(list.indexOf(motherDangerSign) + 1, otherDangerSign)
             }
             otherDangerSign.value = it.otherDangerSign
-            referralFacility.value = it.referralFacility
+            referralFacility.value = getLocalValueInArray(R.array.pnc_referral_facility_array, it.referralFacility)
             motherDeath.value =
                 if (it.motherDeath) motherDeath.entries!!.first() else motherDeath.entries!!.last()
             if (it.motherDeath) {
                 deathDate.value = getDateStrFromLong(it.deathDate)
-                causeOfDeath.value = it.causeOfDeath
+                causeOfDeath.value = getLocalValueInArray(R.array.pnc_death_cause_array, it.causeOfDeath)
                 otherDeathCause.value = it.otherDeathCause
-                placeOfDeath.value = it.placeOfDeath
+                placeOfDeath.value = getLocalValueInArray(R.array.pnc_death_place_array, it.placeOfDeath)
+                otherPlaceOfDeath.value = it.otherPlaceOfDeath
                 list.addAll(
                     list.indexOf(motherDeath) + 1,
                     listOf(deathDate, causeOfDeath, placeOfDeath)
                 )
+                // causeOfDeath.value is now local; entries.last() is local — compare same-locale.
                 if (causeOfDeath.value == causeOfDeath.entries!!.last())
                     list.add(list.indexOf(causeOfDeath) + 1, otherDeathCause)
+                // it.placeOfDeath is English; look it up in the English array to find the index.
+                englishPlaceOfDeath.indexOf(it.placeOfDeath).takeIf { index -> index >= 0 }?.let { index ->
+                    if (index == 8) { // "Other" is at index 8
+                        list.add(list.indexOf(placeOfDeath) + 1, otherPlaceOfDeath)
+                    }
+                }
             }
             remarks.value = it.remarks
         }
@@ -295,134 +485,355 @@ class PncFormDataset(
 
     }
 
+    private fun configureDeliveryDateField() {
+        val today = getTodayStartMillis()
+        if (dateOfDelivery != 0L) {
+            deliveryDate.inputType = InputType.TEXT_VIEW
+            deliveryDate.isEnabled = false
+            deliveryDate.required = false
+            deliveryDate.hasDependants = false
+            deliveryDate.value = getDateFromLong(dateOfDelivery)
+        } else {
+            deliveryDate.inputType = InputType.DATE_PICKER
+            deliveryDate.isEnabled = true
+            deliveryDate.required = true
+            deliveryDate.hasDependants = true
+            deliveryDate.min = getMinDeliveryDate()
+            deliveryDate.max = today
+            deliveryDate.value = null
+        }
+    }
+
+    private fun resetVisitDateToDisabled() {
+        visitDate.inputType = InputType.TEXT_VIEW
+        visitDate.isEnabled = false
+        visitDate.min = null
+        visitDate.max = null
+        visitDate.value = null
+    }
+
+    private fun enableVisitDateForSelection() {
+        visitDate.inputType = InputType.DATE_PICKER
+        visitDate.isEnabled = true
+        visitDate.min = null
+        visitDate.max = null
+    }
+
+    private fun updatePncPeriodEntries() {
+        val daysSinceDeliveryMillis = if (dateOfDelivery != 0L) {
+            val deliveryCal = Calendar.getInstance()
+            deliveryCal.timeInMillis = dateOfDelivery
+            deliveryCal.setToStartOfTheDay()
+            val deliveryMillis = deliveryCal.timeInMillis
+            getTodayStartMillis() - deliveryMillis
+        } else {
+            0L
+        }
+        val daysSinceDelivery = if (daysSinceDeliveryMillis > 0) {
+            TimeUnit.MILLISECONDS.toDays(daysSinceDeliveryMillis)
+        } else 0L
+
+        pncPeriod.entries = listOf(1, 3, 7, 14, 21, 28, 42)
+            .filter { if (daysSinceDelivery == 0L) it <= 1 else it <= daysSinceDelivery }
+            .filter { it > previousPncPeriod }
+            .map { "Day $it" }
+            .toTypedArray()
+    }
+
+    fun getSelectedDeliveryDateMillis(): Long? {
+        val fromField = deliveryDate.value?.let { getLongFromDate(it) }?.takeIf { it > 0L }
+        return fromField ?: dateOfDelivery.takeIf { it > 0L }
+    }
+
+    /**
+     * Evaluates all referral conditions and updates referralFacility.required and errorText accordingly.
+     * Checks: anyDangerSign, maternalSymptoms (≥2 symptoms), pallor (Severe), vaginalBleeding (Heavy/Foul smell).
+     * Priority: anyDangerSign > multiple symptoms > severe pallor > vaginal bleeding
+     */
+    private fun updateReferralRequirement() {
+        // anyDangerSign.value and entries.first() are both in the current UI locale — compare same-locale.
+        val hasAnyDangerSign = anyDangerSign.value?.equals(anyDangerSign.entries!!.first(), ignoreCase = true) == true
+
+        if (hasAnyDangerSign) {
+            referralFacility.required = true
+            referralFacility.errorText = null
+            return
+        }
+
+        // The remaining checks key off canonical English literals ("None", "Severe", "heavy",
+        // "foul smell"). Since FormElement.value is in the current UI locale, canonicalize each
+        // value to English first so the predicates fire in Hindi / Assamese sessions too.
+
+        // maternalSymptoms - ≥2 actual symptoms (excluding "None")
+        val maternalSymptomsEnglish = getEnglishValuesInArray(
+            R.array.pnc_maternal_symptoms_array, maternalSymptoms.value
+        )?.split(",")?.map { it.trim() } ?: emptyList()
+        val actualSymptoms = maternalSymptomsEnglish.filter {
+            it.isNotBlank() && !it.equals("None", ignoreCase = true)
+        }
+
+        if (actualSymptoms.size >= 2) {
+            referralFacility.required = true
+            // Only show alert if no facility selected yet; clear once selected so it doesn't block submission
+            if (referralFacility.value.isNullOrBlank()) {
+                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_multiple_symptoms)
+            } else {
+                referralFacility.errorText = null
+            }
+            return
+        }
+
+        // pallor - Severe
+        val pallorEnglish = getEnglishValueInArray(R.array.pnc_pallor_array, pallor.value)?.trim() ?: ""
+        if (pallorEnglish.equals("Severe", ignoreCase = true)) {
+            referralFacility.required = true
+            if (referralFacility.value.isNullOrBlank()) {
+                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
+            } else {
+                referralFacility.errorText = null
+            }
+            return
+        }
+
+        // vaginalBleeding - Heavy or Foul smell (substring match on the canonical English entry)
+        val vaginalBleedingEnglish = getEnglishValueInArray(
+            R.array.pnc_vaginal_bleeding_array, vaginalBleeding.value
+        )?.trim()?.lowercase() ?: ""
+        if (vaginalBleedingEnglish.contains("heavy") ||
+            vaginalBleedingEnglish.contains("foul smell")) {
+            referralFacility.required = true
+            if (referralFacility.value.isNullOrBlank()) {
+                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
+            } else {
+                referralFacility.errorText = null
+            }
+            return
+        }
+
+        // No referral conditions met - clear requirement
+        referralFacility.required = false
+        referralFacility.errorText = null
+    }
+
+    // ─── Helper: handle PNC period selection and compute visit date range ─
+    private fun handlePncPeriodChange(): Int {
+        visitDate.value = null
+        enableVisitDateForSelection()
+        return getIndexById(visitDate.id)
+    }
+
+    private fun handleDeliveryDateChange(): Int {
+        dateOfDelivery = deliveryDate.value?.let { getLongFromDate(it) } ?: 0L
+        if (dateOfDelivery != 0L) {
+            deathDate.min = dateOfDelivery
+            dateOfSterilisation.min = dateOfDelivery
+        }
+        updatePncPeriodEntries()
+        return getIndexById(pncPeriod.id)
+    }
+
+    // ─── Helper: handle contraception method selection ─────────────────
+    private fun handleContraceptionMethodChange(index: Int): Int {
+        val selected = contraceptionMethod.entries?.getOrNull(index)?.trim() ?: ""
+        val anyOtherValue = contraceptionMethod.entries!!.last().trim()
+        val result1 = if (selected.equals(anyOtherValue, ignoreCase = true)) {
+            triggerDependants(
+                source = contraceptionMethod,
+                passedIndex = index,
+                triggerIndex = contraceptionMethod.entries!!.lastIndex,
+                target = otherPpcMethod
+            )
+        } else {
+            triggerDependants(
+                source = contraceptionMethod,
+                passedIndex = -1,
+                triggerIndex = contraceptionMethod.entries!!.lastIndex,
+                target = otherPpcMethod
+            )
+        }
+
+        val isSterilisation = sterilisation.any { it.equals(selected, ignoreCase = true) }
+        val result2 = if (isSterilisation) {
+            dateOfSterilisation.min = dateOfDelivery
+            dateOfSterilisation.max = System.currentTimeMillis()
+            triggerDependants(
+                source = contraceptionMethod,
+                passedIndex = index,
+                triggerIndex = index,
+                target = dateOfSterilisation
+            )
+        } else {
+            dateOfSterilisation.value = null
+            triggerDependants(
+                source = contraceptionMethod,
+                passedIndex = -1,
+                triggerIndex = index,
+                target = dateOfSterilisation
+            )
+        }
+
+        return if (result1 != -1) result1 else result2
+    }
+
+    // ─── Helper: handle danger sign toggle and referral requirement ────
+    private fun handleDangerSignChange(index: Int): Int {
+        val result = triggerDependants(
+            source = anyDangerSign,
+            passedIndex = index,
+            triggerIndex = 0,
+            target = motherDangerSign,
+            targetSideEffect = listOf(otherDangerSign)
+        )
+
+        val oldRequiredState = referralFacility.required
+        if (index == 0) {
+            referralFacility.required = true
+        } else {
+            referralFacility.required = false
+            referralFacility.errorText = null
+        }
+        val referralFacilityIndex = getIndexById(referralFacility.id)
+        return if (oldRequiredState != referralFacility.required && referralFacilityIndex != -1) {
+            referralFacilityIndex
+        } else {
+            result
+        }
+    }
+
+    // ─── Helper: handle mother death toggle ───────────────────────────
+    private fun handleMotherDeathChange(index: Int): Int {
+        return if (index == 0) {
+            triggerDependants(
+                source = motherDeath,
+                removeItems = listOf(
+                    ifaTabsGiven,
+                    calciumSupplementation,
+                    anyContraceptionMethod,
+                    anyDangerSign,
+                    maternalSymptoms,
+                    pallor,
+                    vaginalBleeding,
+                    referralFacility,
+                    remarks
+                ),
+                addItems = listOf(
+                    deathDate,
+                    causeOfDeath,
+                    placeOfDeath,
+                    otherDeathCause,
+                    otherPlaceOfDeath
+                )
+            )
+        } else {
+            triggerDependants(
+                source = motherDeath,
+                removeItems = listOf(
+                    deathDate,
+                    causeOfDeath,
+                    placeOfDeath,
+                    otherDeathCause,
+                    otherPlaceOfDeath
+                ),
+                addItems = listOf(
+                    ifaTabsGiven,
+                    calciumSupplementation,
+                    anyContraceptionMethod,
+                    anyDangerSign,
+                    maternalSymptoms,
+                    pallor,
+                    vaginalBleeding,
+                    referralFacility,
+                    remarks
+                )
+            )
+        }
+    }
+
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
-            pncPeriod.id -> {
-                visitDate.inputType = InputType.DATE_PICKER
-                visitDate.value = null
-                val today = Calendar.getInstance().setToStartOfTheDay().timeInMillis
-                when (val visitNumber = pncPeriod.value!!.substring(4).toInt()) {
-                    1 -> {
-                        visitDate.min = minOf(today, dateOfDelivery)
-                        visitDate.max = minOf(
-                            today,
-                            dateOfDelivery + TimeUnit.DAYS.toMillis(1)
-                        )
-                    }
+            deliveryDate.id -> handleDeliveryDateChange()
 
-                    3 -> {
-                        visitDate.min = minOf(today, dateOfDelivery + TimeUnit.DAYS.toMillis(3))
-                        visitDate.max = minOf(
-                            today,
-                            dateOfDelivery + TimeUnit.DAYS.toMillis(3)
-                        )
-                    }
+            pncPeriod.id -> handlePncPeriodChange()
 
-                    7 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(7) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(7) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
+            ifaTabsGiven.id -> {
+                // IFA Tablets: >0 and ≤400, supports 180-day postpartum supplementation
+                val result = validateIntMinMax(ifaTabsGiven)
+                ifaTabsGiven.value?.toIntOrNull()?.let { value ->
+                    if (value > 400) {
+                        ifaTabsGiven.errorText = resources.getString(R.string.pnc_ifa_max_error)
+                        return getIndexById(ifaTabsGiven.id)
                     }
-
-                    14 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(14) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(14) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                    }
-
-                    21 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(21) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(21) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                    }
-
-                    28 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(28) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(28) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                    }
-
-                    42 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(42) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(42) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                    }
-
-                    else -> throw IllegalStateException("Illegal PNC Date $visitNumber")
                 }
-                return -1
+                result
             }
-
-            ifaTabsGiven.id -> validateIntMinMax(ifaTabsGiven)
+            
+            calciumSupplementation.id -> {
+                // Calcium: ≤400
+                val result = validateIntMinMax(calciumSupplementation)
+                calciumSupplementation.value?.toIntOrNull()?.let { value ->
+                    if (value > 400) {
+                        calciumSupplementation.errorText = resources.getString(R.string.pnc_calcium_max_error)
+                        return getIndexById(calciumSupplementation.id)
+                    }
+                }
+                result
+            }
+            
             anyContraceptionMethod.id -> triggerDependants(
                 source = anyContraceptionMethod,
                 passedIndex = index,
                 triggerIndex = 0,
                 target = contraceptionMethod,
-                targetSideEffect = listOf(otherPpcMethod)
+                targetSideEffect = listOf(otherPpcMethod, dateOfSterilisation)
             )
 
-            contraceptionMethod.id -> triggerDependants(
-                source = contraceptionMethod,
-                passedIndex = index,
-                triggerIndex = contraceptionMethod.entries!!.lastIndex,
-                target = otherPpcMethod,
-            )
+            contraceptionMethod.id -> handleContraceptionMethodChange(index)
+
+            anyDangerSign.id -> handleDangerSignChange(index)
+
+            maternalSymptoms.id -> {
+                val realIndex = (if (index < 0) -index else index) - 1
+                val clickedOption = maternalSymptoms.entries?.getOrNull(realIndex) ?: return -1
+                val currentValue = maternalSymptoms.value ?: ""
+
+                if (clickedOption.equals("None", ignoreCase = true)) {
+                    if (currentValue.contains("None", ignoreCase = true)) {
+                        maternalSymptoms.value = "None"
+                    }
+                } else {
+                    val selections = mutableSetOf<String>()
+                    if (currentValue.isNotEmpty()) {
+                        selections.addAll(currentValue.split(",").map { it.trim() }.filter { it.isNotEmpty() })
+                    }
+                    if (selections.contains(clickedOption)) {
+                        val noneEntry = maternalSymptoms.entries?.find { it.equals("None", ignoreCase = true) }
+                        if (noneEntry != null && selections.contains(noneEntry)) {
+                            selections.remove(noneEntry)
+                        }
+                        maternalSymptoms.value = selections.joinToString(", ")
+                    }
+                }
+
+                // Handle "Other" field visibility
+                val selectedValues = maternalSymptoms.value?.split(",")?.map { it.trim() } ?: emptyList()
+                val hasOther = selectedValues.any { it.equals(maternalSymptoms.entries!!.last(), ignoreCase = true) }
+
+                // Update referral logic
+                updateReferralRequirement()
+
+                triggerDependants(
+                    source = maternalSymptoms,
+                    passedIndex = if (hasOther) maternalSymptoms.entries!!.lastIndex else -1,
+                    triggerIndex = maternalSymptoms.entries!!.lastIndex,
+                    target = otherMaternalSymptoms
+                )
+                
+                return getIndexById(maternalSymptoms.id)
+            }
+
+            otherMaternalSymptoms.id -> {
+                validateAllAlphabetsSpaceOnEditText(otherMaternalSymptoms)
+            }
 
             motherDangerSign.id ->
                 triggerDependants(
@@ -431,16 +842,27 @@ class PncFormDataset(
                     triggerIndex = motherDangerSign.entries!!.lastIndex,
                     target = otherDangerSign
                 )
-
-            motherDeath.id -> {
-                triggerDependants(
-                    source = motherDeath,
-                    passedIndex = index,
-                    triggerIndex = 0,
-                    target = listOf(deathDate, causeOfDeath, placeOfDeath),
-                    targetSideEffect = listOf(otherDeathCause)
-                )
+            
+            pallor.id -> {
+                // Update referral requirement based on all conditions
+                updateReferralRequirement()
+                val referralFacilityIndex = getIndexById(referralFacility.id)
+                return if (referralFacility.required && referralFacilityIndex != -1) referralFacilityIndex else -1
             }
+            
+            vaginalBleeding.id -> {
+                // Update referral requirement based on all conditions
+                updateReferralRequirement()
+                val referralFacilityIndex = getIndexById(referralFacility.id)
+                return if (referralFacility.required && referralFacilityIndex != -1) referralFacilityIndex else -1
+            }
+
+            referralFacility.id -> {
+                updateReferralRequirement()
+                getIndexById(referralFacility.id)
+            }
+
+            motherDeath.id -> handleMotherDeathChange(index)
 
             causeOfDeath.id -> {
                 triggerDependants(
@@ -448,6 +870,24 @@ class PncFormDataset(
                     passedIndex = index,
                     triggerIndex = causeOfDeath.entries!!.lastIndex,
                     target = otherDeathCause
+                )
+            }
+
+            otherPpcMethod.id -> {
+                validateAllAlphabetsSpaceOnEditText(otherPpcMethod)
+            }
+
+            otherDeathCause.id -> {
+                validateAllAlphabetsSpaceOnEditText(otherDeathCause)
+            }
+
+            placeOfDeath.id -> {
+                val triggerIndex = 8 // "Other" is at index 8
+                return triggerDependants(
+                    source = placeOfDeath,
+                    passedIndex = index,
+                    triggerIndex = triggerIndex,
+                    target = otherPlaceOfDeath
                 )
             }
 
@@ -471,19 +911,29 @@ class PncFormDataset(
             form.pncPeriod = pncPeriod.value!!.substring(4).toInt()
             form.pncDate = getLongFromDate(visitDate.value!!)
             form.ifaTabsGiven = ifaTabsGiven.value?.takeIf { it.isNotEmpty() }?.toInt()
+            form.calciumSupplementation = calciumSupplementation.value?.takeIf { it.isNotEmpty() }?.toInt()
             form.anyContraceptionMethod =
                 anyContraceptionMethod.value?.let { it == anyContraceptionMethod.entries!!.first() }
-            form.contraceptionMethod = contraceptionMethod.value?.takeIf { it.isNotEmpty() }
+            // Persist every dropdown value in its English canonical form so the
+            // DB stays locale-neutral. Display-time localization happens in setUpPage.
+            form.contraceptionMethod = getEnglishValueInArray(R.array.pnc_contraception_method_array, contraceptionMethod.value)?.takeIf { it.isNotEmpty() }
+            form.sterilisationDate = dateOfSterilisation.value?.let { getLongFromDate(it) }
             form.otherPpcMethod = otherPpcMethod.value?.takeIf { it.isNotEmpty() }
-            form.motherDangerSign = motherDangerSign.value?.takeIf { it.isNotEmpty() }
+            form.anyDangerSign = getEnglishValueInArray(R.array.pnc_confirmation_array, anyDangerSign.value)?.takeIf { it.isNotEmpty() }
+            form.maternalSymptoms = getEnglishValuesInArray(R.array.pnc_maternal_symptoms_array, maternalSymptoms.value)?.takeIf { it.isNotEmpty() }
+            form.otherMaternalSymptoms = otherMaternalSymptoms.value?.takeIf { it.isNotEmpty() }
+            form.pallor = getEnglishValueInArray(R.array.pnc_pallor_array, pallor.value)?.takeIf { it.isNotEmpty() }
+            form.vaginalBleeding = getEnglishValueInArray(R.array.pnc_vaginal_bleeding_array, vaginalBleeding.value)?.takeIf { it.isNotEmpty() }
+            form.motherDangerSign = getEnglishValueInArray(R.array.pnc_mother_danger_sign_array, motherDangerSign.value)?.takeIf { it.isNotEmpty() }
             form.otherDangerSign = otherDangerSign.value?.takeIf { it.isNotEmpty() }
-            form.referralFacility = referralFacility.value?.takeIf { it.isNotEmpty() }
+            form.referralFacility = getEnglishValueInArray(R.array.pnc_referral_facility_array, referralFacility.value)?.takeIf { it.isNotEmpty() }
             form.motherDeath =
                 motherDeath.value?.let { it == motherDeath.entries!!.first() } ?: false
             form.deathDate = deathDate.value?.let { getLongFromDate(it) }
-            form.causeOfDeath = causeOfDeath.value?.takeIf { it.isNotEmpty() }
+            form.causeOfDeath = getEnglishValueInArray(R.array.pnc_death_cause_array, causeOfDeath.value)?.takeIf { it.isNotEmpty() }
             form.otherDeathCause = otherDeathCause.value?.takeIf { it.isNotEmpty() }
-            form.placeOfDeath = placeOfDeath.value?.takeIf { it.isNotEmpty() }
+            form.placeOfDeath = getEnglishValueInArray(R.array.pnc_death_place_array, placeOfDeath.value)?.takeIf { it.isNotEmpty() }
+            form.otherPlaceOfDeath = otherPlaceOfDeath.value?.takeIf { it.isNotEmpty() }
             form.remarks = remarks.value?.takeIf { it.isNotEmpty() }
         }
     }

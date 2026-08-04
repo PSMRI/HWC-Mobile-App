@@ -3,7 +3,6 @@ package org.piramalswasthya.cho.ui.commons.cbac
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,7 +22,7 @@ import org.piramalswasthya.cho.databinding.FragmentCbacBinding
 import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.Gender
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -128,7 +127,7 @@ class CbacFragment : Fragment() , NavigationAdapter  {
                 CbacViewModel.State.SAVE_SUCCESS -> {
                     Timber.d("CBAC form saved successfully!")
                     viewModel.resetState()
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    WorkerUtils.enqueueUpsync(requireContext(), WorkerUtils.UpsyncScope.CBAC)
                     findNavController().navigateUp()
                 }
 
@@ -1061,8 +1060,6 @@ class CbacFragment : Fragment() , NavigationAdapter  {
     }
 
     fun navigateNext() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
         requireActivity().finish()
     }
 

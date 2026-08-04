@@ -11,8 +11,8 @@ data class FormElement(
     @ArrayRes var arrayId : Int = -1,
     var entries: Array<String>? = null,
     var doubleStar: Boolean = false,
-    val hasDependants: Boolean = false,
-    val hasAlertError: Boolean = false,
+    var hasDependants: Boolean = false,
+    var hasAlertError: Boolean = false,
     var value: String? = null,
     val regex: String? = null,
     val allCaps: Boolean = false,
@@ -32,4 +32,18 @@ data class FormElement(
     var isEnabled: Boolean = true,
     var headingLine: Boolean = true,
     val showYearFirstInDatePicker : Boolean = false,
+    /** Date format for DATE_PICKER (e.g. "dd/MM/yyyy"). Null = use default dd-MM-yyyy. */
+    var dateFormat: String? = null,
+    var booleanValue: Boolean? = null,
+    var trueIndex: Int? = null,
+    var falseIndex: Int? = null,
+    /**
+     * When true, editing this field rebinds the consecutive sibling rows that share a
+     * cross-field validation rule (e.g. Delivery Outcome = Live Birth + Still Birth) so
+     * their error states refresh together. Opt-in per field: do NOT key this off the
+     * element id, because ids are reused across datasets (id 15/16/17 are height/weight/bmi
+     * in the PW registration form) and rebinding the focused EditText on every keystroke
+     * steals focus mid-typing.
+     */
+    val refreshSiblingsOnChange: Boolean = false,
 )
