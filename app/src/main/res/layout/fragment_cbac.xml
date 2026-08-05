@@ -1360,24 +1360,33 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_save"
+                <LinearLayout
+                    android:id="@+id/ll_bottom_navigation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_normal"
-                    android:text="@string/save"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColor="?attr/colorOnPrimary" />
+                    android:layout_margin="@dimen/margin_small"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_cancel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_normal"
-                    android:text="@string/cancel"
-                    android:backgroundTint="@color/red"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColor="?attr/colorOnPrimary" />
+                    <Button
+                        android:id="@+id/btn_cancel"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/btn_height"
+                        android:layout_marginEnd="@dimen/padding_normal"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/button_danger"
+                        android:text="@string/cancel"
+                        android:textColor="@android:color/white" />
+
+                    <Button
+                        android:id="@+id/btn_save"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/btn_height"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/default_button"
+                        android:text="@string/next"
+                        android:textColor="@android:color/white" />
+                </LinearLayout>
 
 
             </LinearLayout>
