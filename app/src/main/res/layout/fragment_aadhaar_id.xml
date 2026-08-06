@@ -10,16 +10,16 @@
     </data>
 
     <FrameLayout
-        tools:background="@color/green"
         android:id="@+id/fl_aadhaar_id"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        tools:background="@color/md_theme_dark_onTertiary"
         tools:context=".ui.abha_id_activity.aadhaar_id.AadhaarIdFragment">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="4dp">
+            android:paddingTop="@dimen/padding_normal">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_content_aadhar_id"
@@ -29,13 +29,61 @@
 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHeight_percent=".75"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/cvHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_margin="18dp"
+                        android:background="@drawable/background_rectangle_lighter_grey_30"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/searchToggle"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:backgroundTint="?attr/colorPrimary"
+                            android:fontFamily="@font/roboto_bold"
+                            android:gravity="center"
+                            android:padding="@dimen/_5sdp"
+                            android:text="@string/str_search_abha"
+                            android:textColor="@color/md_theme_dark_shadow"
+                            android:textSize="@dimen/_14sdp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toEndOf="@+id/createToggle"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/createToggle"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:background="@drawable/background_rectangle_lightest_grey_20"
+                            android:backgroundTint="?attr/colorPrimary"
+                            android:fontFamily="@font/roboto_bold"
+                            android:gravity="center"
+                            android:padding="@dimen/_5sdp"
+                            android:text="@string/str_create_abha"
+                            android:textColor="@color/md_theme_light_onSecondary"
+                            android:textSize="@dimen/_14sdp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/searchToggle"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_aadhaar_verify_dropdown"
@@ -43,7 +91,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:hint="Aadhaar"
+                        android:hint="@string/aadhaar"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="@id/cl_content_aadhar_id">
@@ -54,7 +102,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:inputType="none" />
+                            android:inputType="none"
+                            android:text="@{viewModel.aadhaarVerificationTypeValues[0]}" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <RadioGroup
@@ -63,7 +112,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:textAppearance="?attr/textAppearanceHeadline6"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/til_aadhaar_verify_dropdown">
@@ -74,14 +123,14 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:checked="true"
-                            android:text="With OTP" />
+                            android:text="@string/asha" />
 
                         <RadioButton
                             android:id="@+id/rb_gov"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Without OTP" />
+                            android:text="@string/gov" />
                     </RadioGroup>
 
                     <androidx.fragment.app.FragmentContainerView
@@ -90,12 +139,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Hello World!"
+                        android:visibility="visible"
                         app:defaultNavHost="true"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/rg_gov_asha"
+                        app:layout_constraintTop_toBottomOf="@+id/til_aadhaar_verify_dropdown"
                         app:navGraph="@navigation/nav_aadhaar_id"
                         tools:layout="@layout/fragment_aadhaar_number_asha" />
+
+                    <androidx.fragment.app.FragmentContainerView
+                        android:id="@+id/nav_host_fragment_find_abha"
+                        android:name="androidx.navigation.fragment.NavHostFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Hello World!"
+                        android:visibility="gone"
+                        app:defaultNavHost="true"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/til_aadhaar_verify_dropdown"
+                        app:navGraph="@navigation/nav_find_abha"
+                        tools:layout="@layout/fragment_find_abha" />
+
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -118,6 +183,7 @@
                     android:id="@+id/iv_offline"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
+                    android:contentDescription="@string/offline"
                     android:src="@drawable/ic_offline"
                     app:layout_constraintBottom_toTopOf="@+id/textView5"
                     app:layout_constraintDimensionRatio="1:1"
@@ -130,7 +196,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:padding="@dimen/padding_normal"
-                    android:text="Something went wrong !\nUnable to connect to server !\nTry again later!"
+                    android:text="@string/something_went_wrong_nunable_to_connect_to_server_ntry_again_later"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                     app:layout_constraintBottom_toBottomOf="parent"

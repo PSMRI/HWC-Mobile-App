@@ -37,7 +37,6 @@ class AadhaarNumberGovViewModel @Inject constructor(
     var fullName: String = ""
 
     var gender: String = ""
-    var hidResponse = MutableLiveData<CreateHIDResponse?>(null)
 
     var dateOfBirth: String = ""
 
@@ -48,15 +47,13 @@ class AadhaarNumberGovViewModel @Inject constructor(
     var abha = MutableLiveData<CreateAbhaIdResponse?>(null)
 
     init {
-        viewModelScope.launch {
-            getStates()
-        }
+        getStates()
     }
 
     /**
      * getting state and district codes from api's
      */
-     suspend fun getStates() {
+    private fun getStates() {
         _state.value = AadhaarIdViewModel.State.LOADING
         viewModelScope.launch {
             when (val result =
@@ -65,10 +62,12 @@ class AadhaarNumberGovViewModel @Inject constructor(
                     _stateCodes.value = result.data
                     _state.value = AadhaarIdViewModel.State.STATE_DETAILS_SUCCESS
                 }
+
                 is NetworkResult.Error -> {
                     _errorMessage.value = result.message
                     _state.value = AadhaarIdViewModel.State.ERROR_SERVER
                 }
+
                 is NetworkResult.NetworkError -> {
                     Timber.i(result.toString())
                     _state.value = AadhaarIdViewModel.State.ERROR_NETWORK
@@ -78,7 +77,12 @@ class AadhaarNumberGovViewModel @Inject constructor(
 
     }
 
-    fun generateAbhaCard(aadhaarNumber: String, fullName: String, dateOfBirth: String, gender: String): String {
+    fun generateAbhaCard(
+        aadhaarNumber: String,
+        fullName: String,
+        dateOfBirth: String,
+        gender: String
+    ): String {
         _state.value = AadhaarIdViewModel.State.LOADING
         viewModelScope.launch {
 
@@ -86,13 +90,13 @@ class AadhaarNumberGovViewModel @Inject constructor(
 
             val createRequest = CreateAbhaIdGovRequest(
                 aadhaarNumber.toLong(),
-                "GoK HWC",
+                "healthid api",
                 true,
                 dateOfBirth,
                 gender,
                 fullName,
-                activeState?.code?.toInt()?: 0,
-                activeDistrict?.code?.toInt()?: 0
+                activeState?.code?.toInt() ?: 0,
+                activeDistrict?.code?.toInt() ?: 0
             )
             result = abhaIdRepo.generateAbhaIdGov(createRequest)
 
@@ -103,10 +107,12 @@ class AadhaarNumberGovViewModel @Inject constructor(
                     abha.value = result.data
                     _state.value = AadhaarIdViewModel.State.ABHA_GENERATED_SUCCESS
                 }
+
                 is NetworkResult.Error -> {
                     _errorMessage.value = result.message
                     _state.value = AadhaarIdViewModel.State.ERROR_SERVER
                 }
+
                 is NetworkResult.NetworkError -> {
                     _state.value = AadhaarIdViewModel.State.ERROR_NETWORK
                 }

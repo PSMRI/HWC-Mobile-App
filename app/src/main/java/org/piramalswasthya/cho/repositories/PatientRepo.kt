@@ -8,7 +8,10 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.json.JSONException
 import org.json.JSONObject
+import org.piramalswasthya.cho.network.exception
+import org.piramalswasthya.cho.network.jsonException
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
@@ -16,6 +19,7 @@ import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
@@ -47,9 +51,14 @@ import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
 import org.piramalswasthya.cho.network.CountDownSync
 import org.piramalswasthya.cho.network.DownsyncSuccess
+import org.piramalswasthya.cho.network.GenerateOTPForCareContext
+import org.piramalswasthya.cho.network.GenerateOTPForCareContextRequest
 import org.piramalswasthya.cho.network.GetBenHealthIdRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
+import org.piramalswasthya.cho.network.SaveAbdmFacilityId
+import org.piramalswasthya.cho.network.ValidateOTPAndCreateCareContextRequest
+import org.piramalswasthya.cho.network.ValidateOTPAndCreateCareContextResponse
 import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
@@ -77,13 +86,113 @@ class PatientRepo @Inject constructor(
     private val blockMasterDao: BlockMasterDao,
     private val villageMasterDao: VillageMasterDao,
     private val procedureDao: ProcedureDao,
+    private val procedureMasterDao: ProcedureMasterDao,
     private val prescriptionDao: PrescriptionDao,
     private val registrarMasterDataDao: RegistrarMasterDataDao,
     private val batchDao: BatchDao,
+    private val maternalHealthRepo: MaternalHealthRepo,
+    private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
 ) {
 
+    companion object {
+        private const val STATUS_POST_NATAL_MOTHER = 3
+    }
+
+    private fun mapReproductiveStatusId(status: String?): Int? {
+        return when (status?.trim()?.lowercase()) {
+            "eligible couple" -> 1
+            "pregnant woman", "antenatal mother" -> 2
+            "postnatal",
+            "post natal",
+            "postnatal mother-lactating mother",
+            "post natal mother-lactating mother",
+            "postnatal mother",
+            "post natal mother" -> 3
+            "elderly" -> 4
+            "adolescent", "teenager" -> 5
+            "permanent sterilization", "permanently sterilised", "permanently sterilized" -> 6
+            "not applicable" -> 7
+            else -> null
+        }
+    }
+
+    private var abdmFacilityId: String = ""
+    private var abdmFacilityName: String = ""
+
     suspend fun insertPatient(patient: Patient) {
+        // Ensure master data exists before inserting patient
+        ensureMasterDataExists(patient)
         patientDao.insertPatient(patient)
+        routePostNatalPatientIfNeeded(patient)
+    }
+
+    /**
+     * Ensures all master data (State, District, Block, Village, Gender) exists before inserting patient
+     */
+    private suspend fun ensureMasterDataExists(patient: Patient) {
+        // Cache IDs in local vals to satisfy smart-cast requirements
+        val stateId = patient.stateID
+        val districtId = patient.districtID
+        val blockId = patient.blockID
+        val villageId = patient.districtBranchID
+
+        // Ensure State exists
+        if (stateId != null) {
+            if (stateMasterDao.getStateById(stateId) == null) {
+                stateMasterDao.insertStates(
+                    StateMaster(
+                        stateID = stateId,
+                        stateName = "", // Name not available from patient data
+                        govtLGDStateID = null
+                    )
+                )
+            }
+        }
+
+        // Ensure District exists
+        if (districtId != null && stateId != null) {
+            if (districtMasterDao.getDistrictById(districtId) == null) {
+                districtMasterDao.insertDistrict(
+                    DistrictMaster(
+                        districtID = districtId,
+                        stateID = stateId,
+                        govtLGDStateID = null,
+                        govtLGDDistrictID = null,
+                        districtName = ""
+                    )
+                )
+            }
+        }
+
+        // Ensure Block exists
+        if (blockId != null && districtId != null) {
+            if (blockMasterDao.getBlockById(blockId) == null) {
+                blockMasterDao.insertBlock(
+                    BlockMaster(
+                        blockID = blockId,
+                        districtID = districtId,
+                        govtLGDDistrictID = null,
+                        govLGDSubDistrictID = null,
+                        blockName = ""
+                    )
+                )
+            }
+        }
+
+        // Ensure Village exists
+        if (villageId != null && blockId != null) {
+            if (villageMasterDao.getVillageById(villageId) == null) {
+                villageMasterDao.insertVillage(
+                    VillageMaster(
+                        districtBranchID = villageId,
+                        blockID = blockId,
+                        govtLGDVillageID = null,
+                        govtLGDSubDistrictID = null,
+                        villageName = ""
+                    )
+                )
+            }
+        }
     }
 
     suspend fun getBenFromId(benId: Long): Patient? {
@@ -93,7 +202,14 @@ class PatientRepo @Inject constructor(
     suspend fun updateRecord(it: Patient) {
         withContext(Dispatchers.IO) {
             patientDao.updatePatient(it)
+            routePostNatalPatientIfNeeded(it)
         }
+    }
+
+    private suspend fun routePostNatalPatientIfNeeded(patient: Patient) {
+        if (patient.statusOfWomanID != STATUS_POST_NATAL_MOTHER || patient.genderID != 2) return
+        maternalHealthRepo.retirePregnancyLifecycleForPostNatal(patient.patientID)
+        deliveryOutcomeRepo.ensureActiveDeliveryOutcomeForPnc(patient)
     }
 
     suspend fun updatePatientSyncing(patient: Patient) {
@@ -131,6 +247,56 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientListFlowForLab()
     }
 
+    /**
+     * Get all infants (0–365 days inclusive).
+     * Matches DAO day-based range; WHO RMNCHA+ infant definition.
+     */
+    fun getInfantList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllInfantList()
+    }
+
+    /**
+     * Get count of infants (0–365 days inclusive).
+     * Matches DAO day-based range; WHO RMNCHA+ infant definition.
+     */
+    fun getInfantListCount(): Flow<Int> {
+        return patientDao.getInfantListCount()
+    }
+
+    /**
+     * Get all children (365–3285 days inclusive, i.e. 1–9 years).
+     * Matches DAO day-based range; WHO RMNCHA+ child definition.
+     */
+    fun getChildList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllChildList()
+    }
+
+    /**
+     * Get count of children (365–3285 days inclusive, i.e. 1–9 years).
+     * Matches DAO day-based range; WHO RMNCHA+ child definition.
+     */
+    fun getChildListCount(): Flow<Int> {
+        return patientDao.getChildListCount()
+    }
+
+    /**
+     * Get all adolescents (3650–6935 days inclusive, i.e. 10–19 years).
+     * Matches DAO day-based range; WHO RMNCHA+ adolescent definition.
+     */
+    fun getAdolescentList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllAdolescentList()
+    }
+
+    /**
+     * Get count of adolescents (3650–6935 days inclusive, i.e. 10–19 years).
+     * Matches DAO day-based range; WHO RMNCHA+ adolescent definition.
+     */
+    fun getAdolescentListCount(): Flow<Int> {
+        return patientDao.getAdolescentListCount()
+    }
+
+
+
 //    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
 //        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
 //        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){
@@ -164,19 +330,108 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientByBenRegId(beneficiaryRegID)
     }
 
+    suspend fun getPatientByAnyBeneficiaryId(id: Long): Patient? {
+        return patientDao.getPatientByAnyBeneficiaryId(id)
+    }
+
     suspend fun registerNewPatient(patient : PatientDisplay, user: UserDomain?): NetworkResult<NetworkResponse> {
 
+        val p = patient.patient
+        if (p.dob == null || p.genderID == null || p.districtBranchID == null) {
+            return NetworkResult.Error(
+                0,
+                "Cannot register – missing mandatory data (DOB / gender / village). Please complete registration form first."
+            )
+        }
+
         return networkResultInterceptor {
-            val patNet = PatientNetwork(patient, user)
-            Timber.d("patient register is ", patNet.toString())
-            val response = apiService.saveBenificiaryDetails(patNet)
+            val basePayload = PatientNetwork(patient, user)
+            val isUpdateRequest = p.beneficiaryID != null && p.beneficiaryRegID != null
+            val payload = if (isUpdateRequest) {
+                basePayload
+            } else {
+                basePayload.copy(
+                    beneficiaryID = null,
+                    beneficiaryRegID = null
+                )
+            }
+            val response = if (isUpdateRequest) {
+                apiService.updateBenificiaryDetails(payload)
+            } else {
+                apiService.saveBenificiaryDetails(payload)
+            }
+            
+            // Check if response is successful
+            if (!response.isSuccessful) {
+                val errorBody = response.errorBody()?.string()
+                Timber.e("Registration failed - HTTP ${response.code()}: $errorBody")
+                
+                // Try to parse error message from response
+                val errorMessage = try {
+                    if (errorBody != null) {
+                        val errorJson = JSONObject(errorBody)
+                        if (errorJson.has("errorMessage")) {
+                            errorJson.getString("errorMessage")
+                        } else if (errorJson.has("message")) {
+                            errorJson.getString("message")
+                        } else {
+                            "Registration failed with status code ${response.code()}"
+                        }
+                    } else {
+                        "Registration failed with status code ${response.code()}"
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "Error parsing error response")
+                    errorBody ?: "Registration failed with status code ${response.code()}"
+                }
+                
+                return@networkResultInterceptor NetworkResult.Error(response.code(), errorMessage)
+            }
+            
             val responseBody = response.body()?.string()
+            
+            if (responseBody == null) {
+                Timber.e("Registration failed - Response body is null")
+                return@networkResultInterceptor NetworkResult.Error(0, "Server returned empty response")
+            }
+            
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
-                    val data = responseBody.let { JSONObject(it).getString("data") }
-                    val result = Gson().fromJson(data, BenificiarySaveResponse::class.java)
-                    NetworkResult.Success(result)
+                    try {
+                        val jsonResponse = JSONObject(responseBody)
+                        
+                        // Check statusCode in response
+                        if (jsonResponse.has("statusCode")) {
+                            val statusCode = jsonResponse.getInt("statusCode")
+                            if (statusCode != 200) {
+                                val errorMessage = if (jsonResponse.has("errorMessage")) {
+                                    jsonResponse.getString("errorMessage")
+                                } else if (jsonResponse.has("message")) {
+                                    jsonResponse.getString("message")
+                                } else {
+                                    "Registration failed with status code $statusCode"
+                                }
+                                Timber.e("Registration failed - Status code: $statusCode, Message: $errorMessage")
+                                NetworkResult.Error(statusCode, errorMessage)
+                            } else {
+                                val data = jsonResponse.getString("data")
+                                val result = Gson().fromJson(data, BenificiarySaveResponse::class.java)
+                                NetworkResult.Success(result)
+                            }
+                        } else {
+                            // No statusCode field, try to parse data directly
+                            val data = jsonResponse.getString("data")
+                            val result = Gson().fromJson(data, BenificiarySaveResponse::class.java)
+                            NetworkResult.Success(result)
+                        }
+                    } catch (e: JSONException) {
+                        Timber.e(e, "Error parsing registration response: $responseBody")
+                        NetworkResult.Error(jsonException, "Invalid response format from server")
+                    } catch (e: Exception) {
+                        Timber.e(e, "Unexpected error parsing registration response")
+                        NetworkResult.Error(exception, "Error processing server response: ${e.message}")
+                    }
                 },
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!
@@ -187,13 +442,29 @@ class PatientRepo @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun downloadAndSyncPatientRecords(): Boolean {
 
         val user = userRepo.getLoggedInUser()
+        val parsedVillageIds = convertStringToIntList(user?.assignVillageIds ?: "")
+        val effectiveVillageIds = if (parsedVillageIds.isNotEmpty()) {
+            parsedVillageIds
+        } else {
+            user?.masterVillageID?.let { listOf(it) } ?: emptyList()
+        }
+        val lastSyncDate = preferenceDao.getLastPatientSyncTime()
+//        if (effectiveVillageIds.isEmpty() || lastSyncDate.isBlank()) {
+//            Timber.w(
+//                "downloadAndSyncPatientRecords skipped: incomplete payload villageIDs=%s lastSyncDate=%s",
+//                effectiveVillageIds,
+//                lastSyncDate
+//            )
+//            return false
+//        }
 
         val villageList = VillageIdList(
-            convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastPatientSyncTime()
+            effectiveVillageIds,
+            lastSyncDate
         )
 
         when(val response = getPatientsCountToDownload(villageList)){
@@ -229,8 +500,8 @@ class PatientRepo @Inject constructor(
         if(villageIds.trim().nullIfEmpty() == null){
             return emptyList();
         }
-        return villageIds.split(",").map {
-            it.trim().toInt()
+        return villageIds.split(",").mapNotNull {
+            it.trim().toIntOrNull()
         }
     }
 
@@ -327,13 +598,17 @@ class PatientRepo @Inject constructor(
                         var isSuccess = true
 
                         var totalDownloaded = 0
+                        val patientsToInsert = mutableListOf<Patient>()
+                        var lastReportedProgress = -1
 
                         for(beneficiary in beneficiariesDTO){
 
                             totalDownloaded++
                             if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
-                                withContext(Dispatchers.Main) {
-                                    WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                                val progressPercent = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble()) * 100).toInt()
+                                if (progressPercent != lastReportedProgress) {
+                                    lastReportedProgress = progressPercent
+                                    WorkerUtils.totalPercentageCompleted.postValue(progressPercent)
                                 }
                             }
 
@@ -341,8 +616,8 @@ class PatientRepo @Inject constructor(
                                 var benHealthIdDetails: BenHealthIdDetails? = null
                                 if(beneficiary.abhaDetails != null){
                                     benHealthIdDetails = BenHealthIdDetails(
-                                        healthId = beneficiary.abhaDetails[0].HealthID,
-                                        healthIdNumber = beneficiary.abhaDetails[0].HealthIDNumber
+                                        healthId = beneficiary.abhaDetails[0].HealthID!!,
+                                        healthIdNumber = beneficiary.abhaDetails[0].HealthIDNumber!!
                                     )
                                 }
 
@@ -368,8 +643,11 @@ class PatientRepo @Inject constructor(
                                     syncState = SyncState.SYNCED,
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
+                                    statusOfWomanID = beneficiary.reproductiveStatusId
+                                        ?: mapReproductiveStatusId(beneficiary.reproductiveStatus),
                                     healthIdDetails = benHealthIdDetails ,
-                                    faceEmbedding = beneficiary.faceEmbedding
+                                    faceEmbedding = beneficiary.faceEmbedding,
+                                    benImage = beneficiary.benImage
                                 )
 
                                 setPatientAge(patient)
@@ -388,11 +666,19 @@ class PatientRepo @Inject constructor(
                                     if (patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0) {
                                         patientDao.updatePatient(patient)
                                     } else {
+                                        patientsToInsert.add(patient)
                                         patientDao.insertPatient(patient)
                                     }
                                 }
                             } catch (e: Exception){
                                 isSuccess = false
+                            }
+                        }
+
+                        // Batch insert all new patients in a single transaction
+                        if (patientsToInsert.isNotEmpty()) {
+                            withContext(Dispatchers.IO) {
+                                patientDao.insertAllPatients(patientsToInsert)
                             }
                         }
 
@@ -480,49 +766,161 @@ class PatientRepo @Inject constructor(
 
     }
 
-    suspend fun getBeneficiaryWithId(benRegId: Long): BenHealthDetails? {
-        try {
-            val response = apiService
-                .getBenHealthID(GetBenHealthIdRequest(benRegId, null))
-            if (response.isSuccessful) {
-                val responseBody = response.body()?.string()
-
-                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
-                    200 -> {
-                        val jsonObj = JSONObject(responseBody)
-                        val data = jsonObj.getJSONObject("data").getJSONArray("BenHealthDetails")
-                            .toString()
-                        val bens = Gson().fromJson(data, Array<BenHealthDetails>::class.java)
-                        return if (bens.isNotEmpty()) {
-                            bens.last()
-                        } else {
-                            null
-                        }
-                    }
-
-                    5000, 5002 -> {
-                        if (JSONObject(responseBody).getString("errorMessage")
-                                .contentEquals("Invalid login key or session is expired")
-                        ) {
-                            val user = userRepo.getLoggedInUser()!!
-                            userRepo.refreshTokenTmc(user.userName, user.password)
-                            return getBeneficiaryWithId(benRegId)
-                        } else {
-                            NetworkResult.Error(
-                                0,
-                                JSONObject(responseBody).getString("errorMessage")
-                            )
-                        }
-                    }
-
-                    else -> {
-                        NetworkResult.Error(0, responseBody.toString())
-                    }
+    suspend fun processPatientById(patientID: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val patient = runCatching { patientDao.getPatientById(patientID) }.getOrNull()
+                ?: return@withContext false
+            val user = userRepo.getLoggedInUser()
+            updatePatientSyncing(patient.patient)
+            when (val response = registerNewPatient(patient, user)) {
+                is NetworkResult.Success -> {
+                    val benificiarySaveResponse = response.data as BenificiarySaveResponse
+                    updatePatientSyncSuccess(patient.patient, benificiarySaveResponse)
+                    true
+                }
+                is NetworkResult.Error -> {
+                    updatePatientSyncingFailed(patient.patient)
+                    false
+                }
+                else -> {
+                    updatePatientSyncingFailed(patient.patient)
+                    false
                 }
             }
-        } catch (_: java.lang.Exception) {
         }
-        return null
+    }
+
+    suspend fun getWorkLocationMappedAbdmFacility(visitCode: Long? = 0L, benId: Long? = 0L, benRegId: Long? = 0L): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService
+                .getWorkLocationMappedAbdmFacility(preferenceDao.getWorkingLocationID().toString())
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data")
+                    abdmFacilityId = data.getString("abdmFacilityID")
+                    abdmFacilityName = data.getString("abdmFacilityName")
+//                    val result = Gson().fromJson(data, BenificiarySaveResponse::class.java)
+//                    NetworkResult.Success(result)
+                    saveAbdmFacilityId(visitCode, abdmFacilityId, benId, benRegId)
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getWorkLocationMappedAbdmFacility(visitCode = visitCode, benId = benId, benRegId = benRegId)
+                },
+            )
+        }
+
+    }
+
+    suspend fun saveAbdmFacilityId(visitCode: Long? = 0L, abdmFacilityId: String? = "", benId: Long? = 0L, benRegId: Long? = 0L): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService
+                .saveAbdmFacilityId(SaveAbdmFacilityId(visitCode, abdmFacilityId))
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    getBeneficiaryHealthId(benId, benRegId)
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    saveAbdmFacilityId(visitCode, abdmFacilityId, benId, benRegId)
+                },
+            )
+        }
+
+    }
+
+    suspend fun getBeneficiaryHealthId(benId: Long? = 0L, benRegId: Long? = 0L): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService
+                .getBenHealthID(GetBenHealthIdRequest(benRegId, benId))
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").getJSONArray("BenHealthDetails")
+                        .toString()
+                    val bens = Gson().fromJson(data, Array<BenHealthDetails>::class.java)
+                    if (bens.isNotEmpty()) {
+                        NetworkResult.Success(bens.last())
+                    } else {
+                        NetworkResult.Error(0, "No data")
+                    }
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getBeneficiaryHealthId(benId = benId, benRegId = benRegId)
+                },
+            )
+        }
+
+    }
+
+    suspend fun generateOTPForCareContext(healthID: String, healthIdNumber: String): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService
+                .generateOTPForCareContext(GenerateOTPForCareContextRequest(healthID, healthIdNumber, abdmFacilityId, abdmFacilityName))
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").toString()
+                    val data2 = Gson().fromJson(data, GenerateOTPForCareContext::class.java)
+                    if (!data2.txnId.isNullOrEmpty()) {
+                        NetworkResult.Success(data2)
+                    } else {
+                        NetworkResult.Error(0, "No data")
+                    }
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    generateOTPForCareContext(healthID, healthIdNumber)
+                },
+            )
+        }
+
+    }
+
+    suspend fun validateOTPAndCreateCareContext(otp: String, txnId: String, beneficiaryID: Long, healthID: String, healthIdNumber: String, visitCode: Long, visitCategory: String): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService
+                .validateOTPAndCreateCareContext(ValidateOTPAndCreateCareContextRequest(otp, txnId, beneficiaryID, healthID, healthIdNumber, visitCode, visitCategory, abdmFacilityId, abdmFacilityName))
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").toString()
+                    val data2 = Gson().fromJson(data, ValidateOTPAndCreateCareContextResponse::class.java)
+                    if (!data2.response.isNullOrEmpty()) {
+                        NetworkResult.Success(data2)
+                    } else {
+                        NetworkResult.Error(0, "No data")
+                    }
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    generateOTPForCareContext(healthID, healthIdNumber)
+                },
+            )
+        }
+
     }
 
     fun getPatientDisplayListForNurse() : Flow<List<PatientDisplayWithVisitInfo>> {
@@ -541,6 +939,10 @@ class PatientRepo @Inject constructor(
                 val procedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
                 procedures?.forEach { procedure ->
                     val compListDetails: MutableList<ComponentDetailDTO> = mutableListOf()
+                    val procedureMaster = procedureMasterDao.getMasterProcedureById(procedure.procedureID)
+                    val masterComponents = procedureMaster
+                        ?.let { procedureMasterDao.getComponentDetails(it.id) }
+                        .orEmpty()
                     val procedureDTO = ProcedureDTO(
                         benRegId = benVisitInfo.patient.beneficiaryRegID!!,
                         procedureDesc = procedure.procedureDesc,
@@ -552,32 +954,59 @@ class PatientRepo @Inject constructor(
                         isMandatory = procedure.isMandatory
                     )
 
-                    val components = procedureDao.getComponentDetails(procedure.id)
-                    components?.forEach { componentDetails ->
+                    val visitComponents = procedureDao.getComponentDetails(procedure.id).orEmpty()
+                    val visitComponentByTestId = visitComponents.associateBy { it.testComponentID }
+
+                    // Render fields from component_details_master matched by procedure.procedure_id.
+                    masterComponents.forEach { masterComponent ->
+                        val visitComponent = visitComponentByTestId[masterComponent.testComponentID]
+                        val componentId = visitComponent?.id ?: procedureDao.insert(
+                            ComponentDetails(
+                                testComponentID = masterComponent.testComponentID,
+                                procedureID = procedure.id,
+                                rangeNormalMin = masterComponent.rangeNormalMin,
+                                rangeNormalMax = masterComponent.rangeNormalMax,
+                                rangeMin = masterComponent.rangeMin,
+                                rangeMax = masterComponent.rangeMax,
+                                isDecimal = masterComponent.isDecimal,
+                                inputType = masterComponent.inputType,
+                                measurementUnit = masterComponent.measurementUnit,
+                                testComponentName = masterComponent.testComponentName,
+                                testComponentDesc = masterComponent.testComponentDesc,
+                                testResultValue = null,
+                                remarks = null
+                            )
+                        )
                         val componentOptionDTOs: MutableList<ComponentOptionDTO> = mutableListOf()
                         val componentDetailDTO = ComponentDetailDTO(
-                            id = componentDetails.id,
-                            range_normal_min = componentDetails.rangeNormalMin,
-                            range_normal_max = componentDetails.rangeNormalMax,
-                            range_min = componentDetails.rangeMin,
-                            range_max = componentDetails.rangeMax,
-                            isDecimal = componentDetails.isDecimal,
-                            inputType = componentDetails.inputType,
-                            testComponentID = componentDetails.testComponentID,
-                            measurementUnit = componentDetails.measurementUnit,
-                            testComponentName = componentDetails.testComponentName,
-                            testComponentDesc = componentDetails.testComponentDesc,
-                            testResultValue = componentDetails.testResultValue,
-                            remarks = componentDetails.remarks,
+                            id = componentId,
+                            range_normal_min = masterComponent.rangeNormalMin,
+                            range_normal_max = masterComponent.rangeNormalMax,
+                            range_min = masterComponent.rangeMin,
+                            range_max = masterComponent.rangeMax,
+                            isDecimal = masterComponent.isDecimal,
+                            inputType = masterComponent.inputType,
+                            testComponentID = masterComponent.testComponentID,
+                            measurementUnit = masterComponent.measurementUnit,
+                            testComponentName = masterComponent.testComponentName,
+                            testComponentDesc = masterComponent.testComponentDesc,
+                            testResultValue = visitComponent?.testResultValue,
+                            remarks = visitComponent?.remarks,
                             compOpt = componentOptionDTOs
                         )
 
-                        val componentOptions = procedureDao.getComponentOptions(componentDetails.id)
+                        val componentOptions = procedureDao.getComponentOptions(componentId)
                         componentOptions?.forEach { option ->
                             val componentOptionDTO = ComponentOptionDTO(
                                 name = option.name
                             )
                             componentOptionDTOs += componentOptionDTO
+                        }
+
+                        if (componentOptionDTOs.isEmpty() && (componentDetailDTO.inputType == "RadioButton" || componentDetailDTO.inputType == "DropDown")) {
+                            procedureMasterDao.getComponentOptions(masterComponent.id)?.forEach { opt ->
+                                    componentOptionDTOs += ComponentOptionDTO(name = opt.name)
+                            }
                         }
                         componentDetailDTO.compOpt = componentOptionDTOs
                         compListDetails += componentDetailDTO
@@ -611,9 +1040,10 @@ class PatientRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val componentDetailsId = componentDetails.id
 
+            val savedOptions = procedureDao.getComponentOptions(componentDetailsId).orEmpty()
             val updatedId = procedureDao.insert(componentDetails)
 
-            procedureDao.getComponentOptions(componentDetailsId)?.forEach { componentOption ->
+            savedOptions.forEach { componentOption ->
                 componentOption.componentDetailsId = updatedId
                 procedureDao.insert(componentOption)
             }
@@ -702,16 +1132,19 @@ class PatientRepo @Inject constructor(
                             prescriptionDao.updatePrescribedDrugsBatch(updatedBatch)
                         }
 
-
-                        updatedPrescribedDrugsBatches?.forEach { prescribedDrugsBatch ->
-                            val prescriptionBatchDTO = PrescriptionBatchDTO(
-                                expiresIn = prescribedDrugsBatch.expiresIn,
-                                batchNo = prescribedDrugsBatch.batchNo,
-                                expiryDate = prescribedDrugsBatch.expiryDate,
-                                itemStockEntryID = prescribedDrugsBatch.itemStockEntryID,
-                                qty = prescribedDrugsBatch.qty,
+                        // Use live stock from batchDao so Total Available Quantity reflects actual inventory
+                        batches.filter { batch ->
+                            DateTimeUtil.calculateExpiryInDays(batch.expiryDate) > 0 && batch.quantityInHand > 0
+                        }.forEach { batch ->
+                            batchList += PrescriptionBatchDTO(
+                                expiresIn = DateTimeUtil.calculateExpiryInDays(batch.expiryDate),
+                                batchNo = batch.batchNo,
+                                expiryDate = DateTimeUtil.convertDateFormat(batch.expiryDate),
+                                itemStockEntryID = batch.stockEntityId.toInt(),
+                                qty = batch.quantityInHand,
+                                isSelected = false,
+                                dispenseQuantity = 0
                             )
-                            batchList += prescriptionBatchDTO
                         }
                         prescriptionItemDTO.batchList = batchList
                         prescriptionItemList += prescriptionItemDTO
@@ -731,6 +1164,12 @@ class PatientRepo @Inject constructor(
     suspend fun getPrescription(patientID: String, benVisitNo:Int, prescriptionID: Long): Prescription {
         return withContext(Dispatchers.IO) {
             prescriptionDao.getPrescription(patientID, benVisitNo, prescriptionID)
+        }
+    }
+
+    suspend fun getLatestPrescription(patientID: String, benVisitNo: Int): Prescription? {
+        return withContext(Dispatchers.IO) {
+            prescriptionDao.getLatestPrescriptionByPatientIdAndBenVisitNo(patientID, benVisitNo)
         }
     }
 }

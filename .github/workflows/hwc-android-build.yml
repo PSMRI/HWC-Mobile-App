@@ -1,0 +1,87 @@
+name: HWC Android Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Project to build"
+        required: true
+        type: choice
+        options:
+          - niramayStag
+          - niramayUat
+          - niramay
+
+      branch:
+        description: "Git branch to build"
+        required: true
+        default: main
+        type: string
+
+      version:
+        description: "Version name (example: 2.5.0)"
+        required: true
+        type: string
+
+      versionCode:
+        description: "Version code (example: 16)"
+        required: true
+        type: string
+
+jobs:
+  resolve-config:
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      flavor: ${{ steps.resolve.outputs.flavor }}
+      environment: ${{ steps.resolve.outputs.environment }}
+      build_type: ${{ steps.resolve.outputs.build_type }}
+    steps:
+      - name: Resolve project configuration
+        id: resolve
+        run: |
+          case "${{ inputs.project }}" in
+            niramayStag)
+              echo "flavor=NiramayStag" >> $GITHUB_OUTPUT
+              echo "environment=NIRAMAY_STAG" >> $GITHUB_OUTPUT
+              echo "build_type=debug" >> $GITHUB_OUTPUT
+              ;;
+            niramayUat)
+              echo "flavor=NiramayUat" >> $GITHUB_OUTPUT
+              echo "environment=NIRAMAY_UAT" >> $GITHUB_OUTPUT
+              echo "build_type=debug" >> $GITHUB_OUTPUT
+              ;;
+            niramay)
+              echo "flavor=Niramay" >> $GITHUB_OUTPUT
+              echo "environment=NIRAMAY_PRODUCTION" >> $GITHUB_OUTPUT
+              echo "build_type=release" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "::error::Unknown project: ${{ inputs.project }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Display resolved configuration
+        run: |
+          echo "Project: ${{ inputs.project }}"
+          echo "Flavor: ${{ steps.resolve.outputs.flavor }}"
+          echo "Environment: ${{ steps.resolve.outputs.environment }}"
+          echo "Build Type: ${{ steps.resolve.outputs.build_type }}"
+          echo "Branch: ${{ inputs.branch }}"
+          echo "Version: ${{ inputs.version }}"
+          echo "Version Code: ${{ inputs.versionCode }}"
+
+  hwc-build:
+    needs: resolve-config
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-distribute.yml
+    with:
+      branch: ${{ inputs.branch }}
+      environment: ${{ needs.resolve-config.outputs.environment }}
+      flavor: ${{ needs.resolve-config.outputs.flavor }}
+      build_type: ${{ needs.resolve-config.outputs.build_type }}
+      version: ${{ inputs.version }}
+      version_code: ${{ inputs.versionCode }}
+    secrets: inherit

@@ -21,12 +21,17 @@
         <item name="android:padding">@dimen/padding_small</item>
         <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
         <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
     </style>
 
 
     <style name="WindowAnimationTransition">
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <style name="Theme.Sakhi.ActionBar" parent="Theme.Material3.Dark">
+        <item name="colorSurface">@color/seed</item>
     </style>
 
     <style name="cbac_rl_risk_assessment">
@@ -98,6 +103,16 @@
     </style>
     <style name="BottomNavigationTextStyle2">
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="PinWidget.PinView" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@null</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textCursorDrawable">@drawable/pv_invisible_image</item>
+        <item name="android:textSelectHandle">@drawable/pv_invisible_image</item>
+        <item name="android:textSelectHandleLeft">@drawable/pv_invisible_image</item>
+        <item name="android:textSelectHandleRight">@drawable/pv_invisible_image</item>
     </style>
 
 </resources>

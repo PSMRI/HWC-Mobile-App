@@ -34,9 +34,9 @@ class ProgressDialogFragment : DialogFragment() {
 
     fun updateProgress(filesSent: Int, totalFiles: Int, progress: Int) {
        binding.apply{
-            tvRecordsTransferred.text = "Records Transferred: $filesSent/$totalFiles"
+            tvRecordsTransferred.text = getString(R.string.records_transferred_format, filesSent, totalFiles)
             progressBar.progress = progress
-            tvProgressPercentage.text = "$progress%"
+            tvProgressPercentage.text = getString(R.string.progress_percentage_format, progress)
         }
     }
 

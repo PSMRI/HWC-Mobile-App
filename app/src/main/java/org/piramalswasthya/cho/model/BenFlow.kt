@@ -2,8 +2,8 @@ package org.piramalswasthya.cho.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.JsonClass
 
 @Entity(tableName = "BENFLOW")
@@ -108,6 +108,10 @@ data class BenFlow(
     @ColumnInfo(name = "vanID")
     val vanID: Int?,
 
+    @ColumnInfo(name = "facilityID")
+    @SerializedName(value = "facilityID", alternate = ["facilityId", "FacilityID"])
+    val facilityID: Int?,
+
 //    val masterVan: {
 //
 //            "vanID": 4,
@@ -129,11 +133,20 @@ data class BenFlow(
     @ColumnInfo(name = "beneficiaryID")
     val beneficiaryID: Long?,
 
+    @ColumnInfo(name = "reproductiveStatusId")
+    val reproductiveStatusId: Int?,
+
+    @ColumnInfo(name = "reproductiveStatus")
+    val reproductiveStatus: String?,
+
     @ColumnInfo(name = "parkingPlaceID")
     val parkingPlaceID: Int? = null,
 
     @ColumnInfo(name = "processed")
     val processed: String?,
+
+    @ColumnInfo(name = "externalInvestigation")
+    val externalInvestigation: String?,
 
     @ColumnInfo(name = "benArrivedFlag")
     val benArrivedFlag: Boolean?,

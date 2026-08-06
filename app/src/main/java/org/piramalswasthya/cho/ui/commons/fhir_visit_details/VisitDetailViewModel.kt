@@ -10,8 +10,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
@@ -25,6 +30,8 @@ import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.CbacRepo
+import org.piramalswasthya.cho.repositories.CphcDetailsRepository
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
@@ -36,6 +43,7 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import timber.log.Timber
+import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 
@@ -52,6 +60,9 @@ class VisitDetailViewModel @Inject constructor(
     private val pncRepo: PncRepo,
     private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
     private val ecrRepo: EcrRepo,
+    private val cbacRepo: CbacRepo,
+    private val cphcDetailsRepo: CphcDetailsRepository,
+
     @ApplicationContext private val application: Context
 ) : ViewModel() {
     private var _subCatVisitList: LiveData<List<SubVisitCategory>>
@@ -82,6 +93,8 @@ class VisitDetailViewModel @Inject constructor(
 
     var selectedReasonForVisit = ""
 
+    var cbacId = 0
+    private lateinit var cbac: CbacCache
 
     private val _idPatientId = MutableLiveData<String?>(null)
 
@@ -114,6 +127,8 @@ class VisitDetailViewModel @Inject constructor(
 
     var allActiveAncRecords = MutableLiveData<List<PregnantWomanAncCache>?>()
 
+    var completedAncRecords = MutableLiveData<List<PregnantWomanAncCache>?>()
+
     var activePwrRecord : PregnantWomanRegistrationCache? = null
 
     var lastPncVisitNumber = MutableLiveData<Int?>(null)
@@ -126,6 +141,8 @@ class VisitDetailViewModel @Inject constructor(
 
     var lastAnc: PregnantWomanAncCache? = null
 
+    var lastCompletedAnc: PregnantWomanAncCache? = null
+
     var lastEct = MutableLiveData<EligibleCoupleTrackingCache?>()
 
     init {
@@ -135,10 +152,11 @@ class VisitDetailViewModel @Inject constructor(
         getChiefMasterComplaintList()
     }
 
-    fun init(patientID: String){
+    fun init(patientID: String,benId: String){
         viewModelScope.launch {
             lastAncVisitNumber.value = getLastAncVisitNumber(patientID)
             allActiveAncRecords.value = getAllActiveAncRecords(patientID)
+            completedAncRecords.value = getCompletedActiveAncRecords(patientID)
             activePwrRecord = getSavedActiveRecordObserve(patientID)
 
             lastPncVisitNumber.value = getLastPncVisitNumber(patientID)
@@ -147,7 +165,19 @@ class VisitDetailViewModel @Inject constructor(
 
             allEctRecords.value = getAllECT(patientID)
             lastAnc = getLastAnc(patientID)
+            lastCompletedAnc = getLastCompletedAnc(patientID)
             lastEct.value = getLastEct(patientID)
+
+
+            val cachedCbac = cbacRepo.getLastFilledCbac(benId)
+
+            cbac = cachedCbac?.also {
+                cbacId = it.id
+            } ?: CbacCache(
+                patId = patientID,
+                syncState = SyncState.UNSYNCED,
+                createdDate = System.currentTimeMillis()
+            )
         }
     }
 
@@ -159,10 +189,12 @@ class VisitDetailViewModel @Inject constructor(
                           patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
             try {
-                saveVisitDbToCatche(visitDB)
-                chiefComplaints.forEach {
-                    saveChiefComplaintDbToCatche(it)
-                }
+                cphcDetailsRepo.replaceVisitAndChiefComplaints(
+                    visitDB = visitDB,
+                    chiefComplaints = chiefComplaints,
+                    patientID = visitDB.patientID,
+                    benVisitNo = visitDB.benVisitNo ?: patientVisitInfoSync.benVisitNo,
+                )
                 savePatientVitalInfoToCache(patientVitals)
                 savePatientVisitInfoSync(patientVisitInfoSync)
                 _isDataSaved.value = true
@@ -188,19 +220,37 @@ class VisitDetailViewModel @Inject constructor(
         return maternalHealthRepo.getSavedRegistrationRecord(benId)
     }
 
-    fun savePregnantWomanRegistration(benId: String, lmpDate: Date) {
+    fun savePregnantWomanRegistration(benId: String, lmpDate: Date, isHighRisk: Boolean = false) {
         viewModelScope.launch {
-            val user = userRepo.getLoggedInUser()!!
+            val user = userRepo.getLoggedInUser() ?: return@launch
+            val lmpStartOfDayMillis = Calendar.getInstance().apply {
+                timeInMillis = lmpDate.time
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
             val pwr = PregnantWomanRegistrationCache(
                 patientID = benId,
-                lmpDate = lmpDate.time,
+                lmpDate = lmpStartOfDayMillis,
+                isHrp = isHighRisk,
                 createdBy = user.userName,
                 syncState = SyncState.UNSYNCED,
                 updatedBy = user.userName
             )
-            maternalHealthRepo.persistRegisterRecord(pwr)
-            activePwrRecord = pwr
-            _isLMPDateSaved.value = true
+            val ashaId = user.userId
+            val registrationId = maternalHealthRepo.registerPregnancyWithAncAndAshaDueList(
+                pwr = pwr,
+                benId = benId,
+                ashaId = ashaId
+            )
+            if (registrationId > 0) {
+                activePwrRecord = pwr.copy(id = registrationId)
+                _isLMPDateSaved.value = true
+                refreshAncData(benId)
+            } else {
+                _isLMPDateSaved.value = false
+            }
         }
     }
 
@@ -214,6 +264,19 @@ class VisitDetailViewModel @Inject constructor(
 
     suspend fun getLastAnc(benId: String): PregnantWomanAncCache? {
         return maternalHealthRepo.getLastAnc(benId)
+    }
+
+    suspend fun isPatientDelivered(patientID: String): Boolean {
+        val lastAnc = getLastAnc(patientID)
+        return lastAnc?.pregnantWomanDelivered == true
+    }
+
+    suspend fun getLastCompletedAnc(benId: String): PregnantWomanAncCache? {
+        return maternalHealthRepo.getLastCompletedAnc(benId)
+    }
+
+    suspend fun getCompletedActiveAncRecords(benId: String): List<PregnantWomanAncCache> {
+        return maternalHealthRepo.getCompletedActiveAncRecords(benId)
     }
 
     suspend fun getLastEct(benId: String): EligibleCoupleTrackingCache? {
@@ -238,6 +301,17 @@ class VisitDetailViewModel @Inject constructor(
 
     suspend fun getAllActiveAncRecords(benId: String): List<PregnantWomanAncCache> {
         return maternalHealthRepo.getAllActiveAncRecords(benId)
+    }
+
+
+    fun refreshAncData(patientID: String) {
+        viewModelScope.launch {
+            allActiveAncRecords.value = getAllActiveAncRecords(patientID)
+            completedAncRecords.value = getCompletedActiveAncRecords(patientID)
+            lastAnc = getLastAnc(patientID)
+            lastCompletedAnc = getLastCompletedAnc(patientID)
+            lastAncVisitNumber.value = getLastAncVisitNumber(patientID)
+        }
     }
 
     suspend fun getAllPNCsByPatId(benId: String): List<PNCVisitCache> {
@@ -309,7 +383,41 @@ class VisitDetailViewModel @Inject constructor(
 
     private fun getChiefMasterComplaintList() {
         try {
-            _chiefComplaintMaster = maleMasterDataRepository.getChiefMasterComplaint()
+            _chiefComplaintMaster = maleMasterDataRepository.getChiefMasterComplaint().map { list ->
+                val canonicalEyeComplaints = listOf(
+                    DropdownConst.CONDITION_CATARACT,
+                    DropdownConst.CONDITION_GLAUCOMA,
+                    DropdownConst.CONDITION_DIABETIC_RETINOPATHY,
+                    DropdownConst.CONDITION_PRESBYOPIA,
+                    DropdownConst.CONDITION_TRACHOMA,
+                    DropdownConst.CONDITION_CORNEAL_DISEASE,
+                    DropdownConst.CONDITION_CONJUNCTIVITIS,
+                    DropdownConst.CONDITION_DRY_EYE,
+                    DropdownConst.CONDITION_EYE_ALLERGY,
+                    DropdownConst.CONDITION_EYE_INJURY_BLUNT_PENETRATING,
+                    DropdownConst.CONDITION_CHEMICAL_EXPOSURE,
+                    DropdownConst.CONDITION_FOREIGN_BODY_EYE
+                )
+                val canonicalOralComplaints = DropdownConst.oralChiefComplaints.toList()
+                val canonicalEntComplaints = DropdownConst.entChiefComplaints.toList()
+
+                fun normalize(v: String) = v.lowercase().replace("[^a-z0-9]".toRegex(), "")
+                val existingNormalized = list.map { normalize(it.chiefComplaint) }.toSet()
+
+                val missingEye = canonicalEyeComplaints
+                    .filter { normalize(it) !in existingNormalized }
+                    .mapIndexed { index, complaint -> ChiefComplaintMaster(-(100 + index), complaint) }
+
+                val missingOral = canonicalOralComplaints
+                    .filter { normalize(it) !in existingNormalized }
+                    .mapIndexed { index, complaint -> ChiefComplaintMaster(-(200 + index), complaint) }
+
+                val missingEnt = canonicalEntComplaints
+                    .filter { normalize(it) !in existingNormalized }
+                    .mapIndexed { index, complaint -> ChiefComplaintMaster(-(300 + index), complaint) }
+
+                list + missingEye + missingOral + missingEnt
+            }
         } catch (e: Exception) {
             Timber.d("error in getChiefMasterComplaintList() $e")
         }

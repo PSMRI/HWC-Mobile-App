@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_find_abha"
+    app:startDestination="@id/findAbhaFragment">
+
+    <fragment
+        android:id="@+id/findAbhaFragment"
+        android:name="org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_id.find_abha.FindAbhaFragment"
+        android:label="FindAbhaFragment">
+
+        <action
+            android:id="@+id/action_findAbhaFragment_to_aadhaarConsentFragment"
+            app:destination="@id/aadhaarConsentFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/aadhaarConsentFragment"
+        android:name="org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_id.aadhaar_consent.AbhaConsentFragment"
+        android:label="AbhaConsentFragment" />
+</navigation>

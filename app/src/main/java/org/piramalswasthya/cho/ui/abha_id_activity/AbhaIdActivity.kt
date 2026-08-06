@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.ui.abha_id_activity
 
-import android.content.Intent
 import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -15,36 +14,17 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
-import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityAbhaIdBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdViewModel.State
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 import timber.log.Timber
 
 @AndroidEntryPoint
 class AbhaIdActivity : AppCompatActivity() {
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface WrapperEntryPoint {
-        val preferenceDao: PreferenceDao
-    }
-    override fun attachBaseContext(newBase: Context) {
-        val pref = EntryPointAccessors.fromApplication(
-            newBase,
-            WrapperEntryPoint::class.java
-        ).preferenceDao
-        super.attachBaseContext(
-            MyContextWrapper.wrap(
-                newBase,
-                newBase.applicationContext,
-                pref.getCurrentLanguage().symbol
-            ))
-    }
 
     private var _binding: ActivityAbhaIdBinding? = null
     private val binding: ActivityAbhaIdBinding
@@ -56,16 +36,14 @@ class AbhaIdActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_abha_id) as NavHostFragment
         navHostFragment.navController
     }
+
     private var countDownTimer: CountDownTimer? = null
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.d("onCreate Called")
         _binding = ActivityAbhaIdBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setUpActionBar()
-        (application as CHOApplication).addActivity(this)
 
         mainViewModel.state.observe(this) { state ->
             when (state) {
@@ -76,16 +54,19 @@ class AbhaIdActivity : AppCompatActivity() {
                     binding.navHostFragmentAbhaId.visibility = View.GONE
                     binding.clError.visibility = View.GONE
                 }
+
                 State.SUCCESS -> {
                     binding.progressBarAbhaActivity.visibility = View.GONE
                     binding.clError.visibility = View.GONE
                     binding.navHostFragmentAbhaId.visibility = View.VISIBLE
                 }
+
                 State.ERROR_NETWORK -> {
                     binding.clError.visibility = View.VISIBLE
                     binding.progressBarAbhaActivity.visibility = View.GONE
                     binding.navHostFragmentAbhaId.visibility = View.GONE
                 }
+
                 State.ERROR_SERVER -> {
                     binding.clError.visibility = View.VISIBLE
                     binding.progressBarAbhaActivity.visibility = View.GONE
@@ -99,10 +80,11 @@ class AbhaIdActivity : AppCompatActivity() {
         binding.btnTryAgain.setOnClickListener {
             mainViewModel.generateAccessToken()
         }
-        binding.homeButton.setOnClickListener {
-            this.finish()
+
+        binding.toolbarMenuHome.setOnClickListener {
+            finish()
         }
-        countDownTimer = object : CountDownTimer(30*60*1000, 1000) {
+        countDownTimer = object : CountDownTimer(30 * 60 * 1000, 1000) {
 
             override fun onTick(millisUntilFinished: Long) {
                 binding.sessionTimer.text = formatMilliseconds(millisUntilFinished)
@@ -120,10 +102,12 @@ class AbhaIdActivity : AppCompatActivity() {
                 exitAlert.show()
                 true
             }
+
             R.id.createAbhaFragment -> {
                 exitActivityAlert.show()
                 true
             }
+
             else -> {
                 navController.popBackStack()
                 navController.navigateUp() || super.onSupportNavigateUp()
@@ -131,15 +115,24 @@ class AbhaIdActivity : AppCompatActivity() {
         }
     }
 
+    fun updateActionBar(logoResource: Int, title: String? = null) {
+//        binding.ivToolbarAbha.setImageResource(logoResource)
+//        binding.toolbar.setLogo(logoResource)
+        title?.let {
+            binding.toolbar.title = null
+            binding.tvToolbarAbha.text = it
+        }
+    }
+
     private val exitAlert by lazy {
         MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.exit))
-            .setMessage(getString(R.string.confirm_go_back))
-            .setPositiveButton(getString(R.string.yes)) { _, _ ->
+            .setTitle(resources.getString(R.string.exit))
+            .setMessage(resources.getString(R.string.do_you_want_to_go_back))
+            .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
                 navController.popBackStack()
                 navController.navigate(R.id.aadhaarIdFragment)
             }
-            .setNegativeButton(getString(R.string.no)) { d, _ ->
+            .setNegativeButton(resources.getString(R.string.no)) { d, _ ->
                 d.dismiss()
             }
             .create()
@@ -147,20 +140,26 @@ class AbhaIdActivity : AppCompatActivity() {
 
     private val exitActivityAlert by lazy {
         MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.exit))
-            .setMessage(getString(R.string.confirm_go_back))
-            .setPositiveButton(getString(R.string.yes)) { _, _ ->
+            .setTitle(resources.getString(R.string.exit))
+            .setMessage(resources.getString(R.string.do_you_want_to_go_back))
+            .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
                 finish()
             }
-            .setNegativeButton(getString(R.string.no)) { d, _ ->
+            .setNegativeButton(resources.getString(R.string.no)) { d, _ ->
                 d.dismiss()
             }
             .create()
     }
 
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface WrapperEntryPoint {
+        val preferenceDao: PreferenceDao
+    }
+
     private fun setUpActionBar() {
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
 //        NavigationUI.setupWithNavController(binding.toolbar, navController)
         NavigationUI.setupActionBarWithNavController(this, navController)
     }
@@ -168,16 +167,31 @@ class AbhaIdActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         TokenInsertAbhaInterceptor.setToken("")
+        TokenInsertAbhaInterceptor.setXToken("")
         intent.removeExtra("benId")
         intent.removeExtra("benRegId")
         countDownTimer?.cancel()
-        (application as CHOApplication).activityList.remove(this)
     }
+
     fun formatMilliseconds(milliseconds: Long): String {
         val seconds = milliseconds / 1000
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
 
         return String.format("%02d:%02d", minutes, remainingSeconds)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val pref = EntryPointAccessors.fromApplication(
+            newBase,
+            WrapperEntryPoint::class.java
+        ).preferenceDao
+        super.attachBaseContext(
+            MyContextWrapper.wrap(
+                newBase,
+                newBase.applicationContext,
+                pref.getCurrentLanguage().symbol
+            )
+        )
     }
 }

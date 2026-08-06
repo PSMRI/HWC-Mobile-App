@@ -5,8 +5,14 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.database.room.SyncModuleIds
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.PNCVisitCache
+import org.piramalswasthya.cho.model.PatientWithDeliveryOutcomeAndPncCache
+import org.piramalswasthya.cho.model.SyncStatusCache
 
 @Dao
 interface PncDao {
@@ -21,7 +27,7 @@ interface PncDao {
     suspend fun getLastSavedRecord(patientID: String): PNCVisitCache?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(pncCache: PNCVisitCache)
+    suspend fun insert(pncCache: PNCVisitCache): Long
 
     @Query("SELECT * FROM pnc_visit WHERE processed in ('N', 'U')")
     suspend fun getAllUnprocessedPncVisits(): List<PNCVisitCache>
@@ -35,5 +41,90 @@ interface PncDao {
     @Query("select * from pnc_visit where patientID = :patientID and isActive = 1")
     suspend fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>
 
+    @Query(
+        """
+        SELECT
+            ${SyncModuleIds.PNC} AS id,
+            'PNC' AS name,
+            COUNT(CASE WHEN pnc.syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN pnc.syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN pnc.syncState = :syncingState THEN 1 END) AS syncing
+        FROM PNC_VISIT pnc
+        WHERE pnc.isActive = 1
+        """
+    )
+    fun getPncSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
+
+    /**
+     * Get patientIDs of women eligible for PNC mothers list.
+     * Source: Patient status postnatal (same pattern as EC/PWR lists), excluding completed 42-day PNC.
+     */
+    @Query("""
+        SELECT p.patientID
+        FROM PATIENT p
+        WHERE p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+          AND p.maritalStatusID = 2
+          AND p.statusOfWomanID = 3
+          AND NOT EXISTS (
+              SELECT 1 FROM PNC_VISIT p42
+              WHERE p42.patientID = p.patientID
+                AND p42.isActive = 1
+                AND p42.pncPeriod = 42
+          )
+    """)
+    fun getPNCMothersPatientIDs(): Flow<List<String>>
+
+    /**
+     * Get count of women eligible for PNC mothers list.
+     */
+    @Query("""
+        SELECT COUNT(*)
+        FROM PATIENT p
+        WHERE p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+          AND p.maritalStatusID = 2
+          AND p.statusOfWomanID = 3
+          AND NOT EXISTS (
+              SELECT 1 FROM PNC_VISIT p42
+              WHERE p42.patientID = p.patientID
+                AND p42.isActive = 1
+                AND p42.pncPeriod = 42
+          )
+    """)
+    fun getPNCMothersCount(): Flow<Int>
+
+    /**
+     * Get patient with delivery outcome and PNC by patientID
+     */
+    @Transaction
+    @Query("SELECT * FROM PATIENT WHERE patientID = :patientID")
+    suspend fun getPatientWithDeliveryOutcomeAndPncByID(patientID: String): PatientWithDeliveryOutcomeAndPncCache?
+
+    /**
+     * Get all PNC mothers with their delivery outcome and PNC data.
+     * Source of truth: Patient status postnatal (delivery outcome joined via Room relation).
+     */
+    @Transaction
+    @Query("""
+        SELECT p.*
+        FROM PATIENT p
+        WHERE p.genderID = 2
+          AND p.age BETWEEN 15 AND 49
+          AND p.maritalStatusID = 2
+          AND p.statusOfWomanID = 3
+          AND NOT EXISTS (
+              SELECT 1 FROM PNC_VISIT p42
+              WHERE p42.patientID = p.patientID
+                AND p42.isActive = 1
+                AND p42.pncPeriod = 42
+          )
+        ORDER BY p.registrationDate DESC
+    """)
+    fun getAllPNCMothersWithData(): Flow<List<PatientWithDeliveryOutcomeAndPncCache>>
 
 }

@@ -1,9 +1,23 @@
 <resources>
-    <string name="app_name">HWC</string>
+    <string name="app_name">AAM</string>
+    <string name="all_td_doses_message"> All TD doses have been given</string>
+    <string name="anc_alert_bradycardia">Bradycardia detected — High Risk Pregnancy</string>
+    <string name="anc_alert_tachycardia">Tachycardia detected — High Risk Pregnancy</string>
+    <string name="anc_alert_blood_sugar_high">Blood Sugar (Fasting) - High Risk Pregnancy</string>
+    <string name="anc_alert_urine_sugar_hrp">Urine Sugar positive — High Risk Pregnancy</string>
+    <string name="anc_alert_urine_albumin_hrp">Urine Albumin positive — High Risk Pregnancy</string>
+    <string name="anc_alert_hb_severe_anemia">Severe Anaemia — High Risk Pregnancy</string>
+    <string name="anc_alert_bp_hrp">Abnormal Blood Pressure detected — High Risk Pregnancy</string>
+    <string name="anc_alert_danger_signs_hrp">Alert: Danger Sign(s) selected — High Risk Pregnancy</string>
+    <string name="form_session_expired">Your session has expired. Please log out and log in again to continue.</string>
+    <string name="form_patient_not_found">Patient record not found. Please reopen this form from the beneficiary list.</string>
+    <string name="form_load_failed">Could not load this form. Please try again, and if the problem persists, log out and log in again.</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
+    <string name="PREF_primary_JWT_API_KEY" translatable="false">JWT-Token_N</string>
     <string name="USER_ROLES" translatable="false">User_Roles</string>
+    <string name="WORK_LOCATION_ID" translatable="false">Working_Location_Id</string>
     <string name="SECOND_USER_ROLES" translatable="false">Second_User_Roles</string>
     <string name="SWITCH_USER_ROLES" translatable="false">Switch_User_Roles</string>
     <string name="title_activity_login">LoginActivity</string>
@@ -17,7 +31,7 @@
     <string name="PREF_current_saved_language" translatable="false">Locale.Helper.Selected.Language</string>
     <string name="til_username_hint_text">Username</string>
     <string name="login_failed">"Login failed"</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="next">Next</string>
     <string name="til_password_hint_text">Password</string>
@@ -28,6 +42,23 @@
     <string name="outreach">Outreach</string>
     <string name="system_issue">System Issue</string>
     <string name="manual_issue">Manual Issue</string>
+    <string name="no_batch_selected">Please select a batch before submitting</string>
+    <string name="refresh_batch_data">Refresh Batch Data</string>
+    <string name="batch_data_refreshed">Batch data refreshed successfully</string>
+    <string name="batch_refresh_failed">Failed to refresh batch data. Please check your connection.</string>
+    <string name="no_batches_available">No batches available for this medicine</string>
+    <string name="batch_data_loading">Loading batch data...</string>
+    <string name="medicine_dispensed_successfully">Medicine dispensed successfully</string>
+    <string name="dispensing_failed">Failed to dispense medicine. Please try again.</string>
+    <string name="network_required_manual_batch">Network connection required for manual batch selection</string>
+    <string name="network_required_refresh">Network connection required to refresh batch data. Please connect to internet.</string>
+    <string name="view_batch_disabled_system">View Batch is disabled in System Issue mode</string>
+    <string name="system_issue_auto_allocation">System Issue mode: Automatic batch allocation enabled</string>
+    <string name="batch_selection_required">Please select batch for all medicines in Manual Issue mode</string>
+    <string name="batch_selection_required_for">Please select batch for: %s</string>
+    <string name="refreshing">Refreshing...</string>
+    <string name="last_refreshed_never">Last refreshed: Never</string>
+    <string name="error_refreshing_batch_data">Error refreshing batch data</string>
     <string name="wellness_activity">Wellness Activity</string>
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
@@ -39,6 +70,7 @@
     <string name="last_sync_time">last_sync_time</string>
     <string name="last_patient_sync_time">last_patient_sync_time</string>
     <string name="last_benflow_sync_time">last_benflow_sync_time</string>
+    <string name="last_cbac_sync_time">last_benflow_sync_time</string>
     <string name="personal_details">Personal Details</string>
     <string name="first_name">First Name <font color="#FF0000">*</font></string>
     <string name="village_hint">Village <font color="#FF0000">*</font></string>
@@ -75,6 +107,15 @@
     <string name="phone_no">Phone No</string>
     <string name="registration">Registration</string>
     <string name="advance_search">Advance Search</string>
+    <string name="household_search">Search</string>
+
+    <string name="do_you_want_to_go_back">Do you want to go back?</string>
+    <string name="offline">offline</string>
+    <string name="something_went_wrong_nunable_to_connect_to_server_ntry_again_later">Something went wrong !\nUnable to connect to server !\nTry again later!</string>
+    <string name="try_again">Try Again!</string>
+    <string name="go_to_home">Go to Home</string>
+    <string name="tv_ben_name_ph">Beneficiary Name</string>
+    <string name="otp_resent">OTP Resent</string>
 
     <string name="medication_form">Form</string>
     <string name="medicine_text">Medicine</string>
@@ -87,13 +128,12 @@
     <string name="revisit_details_text">Revisit Details</string>
     <string name="case_record_text">Case Record</string>
     <string name="lab_record_text">Lab Record</string>
-    <string name="pharmacist_record_text">Pharmacist Record</string>
+    <string name="pharmacist_record_text">Pharmacy</string>
 
-    <!--    <string name="cbac">CBAC</string>-->
+
     <string name="anc">ANC</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>
-    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
 
     <string name="weight_kg_text">Weight(kg)</string>
     <string name="temperature_f_text">Temperature(F)</string>
@@ -104,6 +144,13 @@
     <string name="investigation">Investigation</string>
     <string name="examination_text">Examination</string>
     <string name="other_info">Other Information</string>
+    <string name="info">Info</string>
+    <string name="want_care_context">Data saved successfully. Do you want to link Care Context?</string>
+    <string name="cancel_care_context">Do you want to cancel Care Context?</string>
+    <string name="abha_care_context">ABHA Care Context Mapping</string>
+    <string name="generate_abha_otp">Generate OTP</string>
+    <string name="created_date">Created Date</string>
+    <string name="otp_sent">OTP sent to your registered mobile number</string>
     <string name="add_text">Add</string>
     <string name="stock_warning_text">Stock Unavailable</string>
     <string name="view_prescription_text">View Prescription</string>
@@ -119,6 +166,164 @@
     <string name="title_activity_visit_details">VisitDetailsActivity</string>
     <string name="esanjeevni">eSanjeevani</string>
     <string name="title_activity_web_view">WebViewActivity</string>
+    <string name="ophthalmic_screening_title">Ophthalmic Screening</string>
+    <string name="ophthalmic_symptomatic_title">Ophthalmology Symptomatic</string>
+    <string name="ophthalmic_screening_section_title">Screening for Blindness and Refractive Errors</string>
+    <string name="ophthalmic_is_diabetic">Is the patient diabetic? <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_screening_performed">Screening Performed for Diabetic Patient <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_right">Distance Visual Acuity \u2013 Right Eye <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_left">Distance Visual Acuity \u2013 Left Eye <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_visual_impairment_alert">Suspected visual impairment</string>
+    <string name="ophthalmic_reason_for_visit">Reason for Visit <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_near_va">Near Visual Acuity <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_chart_used">Visual Acuity Chart Used <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_case_identification_title">Case Identification</string>
+    <string name="ophthalmic_case_id_alert">Suspected visual impairment identified. Please complete the case identification below.</string>
+    <string name="ophthalmic_case_id_conditions">Case Identification and Condition(s)</string>
+    <string name="ophthalmic_case_id_conditions_mandatory">Case Identification and Condition(s) <font color="#FF0000">*</font></string>
+    <string name="select_conditions">Select Condition(s)</string>
+    <string name="referral_required_title">Referral required</string>
+    <string-array name="referral_required_options">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <string name="referral_level_title">Referral level</string>
+    <string-array name="referral_level_options">
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>District Hospital</item>
+        <item>Palliative Care Unit</item>
+    </string-array>
+    <string name="reason_for_referral_title">Reason for referral</string>
+    <string-array name="reason_for_referral_options">
+        <item>Severe pain</item>
+        <item>Functional dependence</item>
+        <item>Dementia suspected</item>
+        <item>End-of-life care</item>
+    </string-array>
+    <string name="follow_up_required_title">Follow-up required</string>
+    <string-array name="follow_up_required_options">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <string name="follow_up_date_title">Follow-up date</string>
+    <string name="difficulty_in_breathing">Difficulty in Breathing</string>
+    <string name="open_mouth_breathing">Open Mouth Breathing</string>
+    <string name="difficulty_in_breathing_alert">Difficulty in breathing detected. Diagnose URI / Rhinitis / Sinusitis. Refer if not manageable at HWC.</string>
+    <string name="open_mouth_breathing_alert">Open mouth breathing detected. Diagnose URI / Rhinitis / Sinusitis. Refer if not manageable at HWC.</string>
+    <string name="pain_severity">Pain severity</string>
+    <string name="pain_duration">Pain duration</string>
+    <string name="pain_duration_less_than_one_month">&lt; 1 month</string>
+    <string name="pain_duration_one_to_six_months">1–6 months</string>
+    <string name="pain_duration_more_than_six_months">&gt; 6 months</string>
+    <string name="other_symptoms_present">Other symptoms present</string>
+    <string name="other_symptoms_severity">Other symptoms severity</string>
+    <string name="immediate_relief_provided">Immediate relief provided</string>
+    <string name="palliative_care_identification_headline">Palliative Care Identification</string>
+    <string name="pain_symptom_assessment_palliative">Pain and Symptom Assessment (Palliative)</string>
+    <string name="persistent_pain_present">Persistent pain present</string>
+    <string name="symptom_assessment_basic_title">Symptom Assessment</string>
+    <string name="symptom_assessment_basic_field_title">Symptoms</string>
+    <string name="symptom_nausea_vomiting">Nausea / vomiting</string>
+    <string name="symptom_constipation">Constipation</string>
+    <string name="symptom_anxiety_restlessness">Anxiety / restlessness</string>
+    <string name="symptom_sleep_disturbance">Sleep disturbance</string>
+    <string name="basic_management_cho_level_title">Basic Management</string>
+    <string name="basic_symptom_relief_provided">Basic symptom relief provided</string>
+    <string name="basic_psychosocial_support_provided">Psychosocial support provided</string>
+    <string name="basic_caregiver_counselling_provided">Caregiver counselling provided</string>
+    <string name="basic_management_remarks">Remarks</string>
+    <string name="distressing_symptoms_present">Distressing symptoms present</string>
+    <string name="bedridden_or_severely_dependent">Bedridden or severely dependent</string>
+    <string name="life_limiting_illness_known">Life-limiting illness known</string>
+    <string name="caregiver_support_required">Caregiver support required</string>
+    <string name="palliative_care_eligible">Palliative care eligible</string>
+    <string name="breathlessness">Breathlessness</string>
+    <string name="nausea">Nausea</string>
+    <string name="fatigue">Fatigue</string>
+    <string name="weakness">Weakness</string>
+    <string name="other">Other</string>
+    <string name="mild">Mild</string>
+    <string name="moderate">Moderate</string>
+    <string name="severe">Severe</string>
+    <string name="severe_pain_referral_alert">Severe pain detected. Referral to higher facility is recommended.</string>
+    <string name="severe_symptoms_referral_alert">Severe symptoms detected. Referral to higher facility is recommended.</string>
+
+    <string name="ophthalmic_vitamin_a_deficiency">Vitamin A Deficiency / Xerophthalmia</string>
+
+    <!-- Condition sub-field labels -->
+    <string name="ophthalmic_cataract_symptoms">Cataract Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_glaucoma_symptoms">Glaucoma Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dr_symptoms">Diabetic Retinopathy Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_presbyopia_symptoms">Presbyopia Symptoms <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_trachoma_status">Trachoma Status <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_corneal_disease_type">Corneal Disease Type <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_vitamin_a_deficiency_label">Vitamin A Deficiency Symptoms / Bitot\'s Spot Identified <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_select_trachoma_status">Select Trachoma Status</string>
+    <string name="ophthalmic_select_corneal_disease_type">Select Corneal Disease Type</string>
+
+    <!-- Condition sub-field alert texts -->
+    <string name="ophthalmic_alert_ophthalmologist_referral"> Refer to ophthalmologist at the secondary level.</string>
+    <string name="ophthalmic_alert_presbyopia_management"> Patient may qualify for presbyopia management (e.g., reading glasses) as per CHO service scope.</string>
+    <string name="ophthalmic_alert_vitamin_a"> Vitamin A prophylaxis to be given. Refer to ophthalmologist at the secondary level.</string>
+    <!-- Injury and Trauma module strings -->
+    <string name="ophthalmic_injury_trauma_title">Injury and Trauma Form</string>
+    <string name="ophthalmic_injury_type_label">Injury Type <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_select_injury_type">Select Injury Type(s)</string>
+    <string name="ophthalmic_foreign_body_removal_attempted">Foreign Body Removal Attempted</string>
+    <string name="ophthalmic_chemical_exposure_wash_performed">Chemical Exposure \u2013 Thorough Wash Performed</string>
+
+    <string-array name="ophthalmic_reason_for_visit_options">
+        <item>Screening</item>
+        <item>Symptomatic</item>
+        <item>First aid for eye injury/ trauma</item>
+    </string-array>
+
+    <string-array name="ophthalmic_chart_options">
+        <item>Snellen\'s distance chart</item>
+        <item>Near vision chart</item>
+    </string-array>
+
+    <string-array name="ophthalmic_case_id_options">
+        <item>Cataract</item>
+        <item>Glaucoma</item>
+        <item>Diabetic retinopathy</item>
+        <item>Presbyopia</item>
+        <item>Trachoma</item>
+        <item>Corneal disease</item>
+        <item>Conjunctivitis/Acute red eye</item>
+        <item>Dry eye / xerophthalmia</item>
+        <item>Eye allergy</item>
+    </string-array>
+
+    <string-array name="ophthalmic_injury_type_options">
+        <item>Mechanical foreign body</item>
+        <item>Blunt trauma</item>
+        <item>Penetrating injury suspected</item>
+        <item>Chemical (acid/alkali/other)</item>
+    </string-array>
+
+    <string-array name="ophthalmic_foreign_body_options">
+        <item>Not attempted</item>
+        <item>Attempted from conjunctival sac</item>
+        <item>Foreign body lodged in cornea</item>
+    </string-array>
+
+    <string-array name="ophthalmic_trachoma_options">
+        <item>Suspected active trachoma</item>
+        <item>Suspected TT/TI</item>
+        <item>No trachoma</item>
+    </string-array>
+
+    <string-array name="ophthalmic_corneal_disease_options">
+        <item>Corneal opacity</item>
+        <item>Corneal ulcer suspected</item>
+        <item>Other corneal pathology</item>
+    </string-array>
+    <string name="saved_successfully">Saved successfully</string>
+    <string name="save_failed_retry">Save failed. Please retry.</string>
+    <string name="please_complete_field">Please complete: %s</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -129,7 +334,7 @@
     <string name="generate_abha_id">Create ABHA Number</string>
 
     <string name="aadhar_consent_text">I hereby confirm that I have explained the below mentioned consent process to the individual for the creation of the ABHA Number using he individual\'s aadhar number</string>
-    <string name="PREF_rem_me_uname">user-name-local-saved</string>
+    <string name="PREF_rem_me_uname" translatable="false">user-name-local-saved</string>
     <string name="title_activity_nav">NavActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -139,6 +344,8 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Home</string>
+    <string name="tab_dashboard">Dashboard</string>
+    <string name="tab_rmnch">RMNCH</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="error_while_logging_in">Error while logging in!!</string>
@@ -283,6 +490,9 @@
     <string name="registration_date">Registration Date</string>
     <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
     <string name="spouse_name">Spouse Name <font color="#FF0000">*</font></string>
+    <string name="wife_name">Wife Name <font color="#FF0000">*</font></string>
+    <string name="husband_s_name">Husband\'s Name <font color="#FF0000">*</font></string>
+    <string name="wife_s_name">Wife\'s Name <font color="#FF0000">*</font></string>
     <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
 
     <string name="revisit_date">Revisit Date</string>
@@ -295,17 +505,27 @@
     <string name="toast_upload_file">Please Upload the Selected File</string>
     <string name="toast_sub_cat_select">Please Select Sub Category</string>
     <string name="toast_cat_select">Please Select Category</string>
+    <string name="toast_visit_reason_select">Please Select Reason for Visit</string>
     <string name="toast_file_uploaded">You have uploaded the file</string>
     <string name="toast_file_size_max">Please select file less than 5MB</string>
     <string name="nav_item_1_text">Name : <b>%s</b></string>
+    <string name="nav_item_5_text">Facility Name : <b>%s</b></string>
+    <string name="nav_item_6_text">Employee Id : <b>%s</b></string>
+    <string name="nav_item_7_text">Facility Id : <b>%s</b></string>
+    <string name="nav_item_8_text">Location Type : <b>%s</b></string>
+    <string name="nav_item_4_text">Mobile No. : <b>%s</b></string>
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
-    <string name="PREF_user_entry">logged-in-user</string>
+    <string name="PREF_user_entry" translatable="false">logged-in-user</string>
+    <string name="PREF_user_name" translatable="false">user name</string>
     <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>
     <string name="exit">Exit</string>
     <string name="timer">timer</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="death">Death</string>
+    <string name="case_status_title">Case status</string>
+    <string name="date_of_death_title">Date of death</string>
     <string name="fp_tv">Please Place your Finger on the fingerprint sensor to proceed</string>
     <string name="fp_try_again">Finger Not Recognised Try Again!</string>
     <string name="fingerprint_captured">FingerPrint Captured!</string>
@@ -326,9 +546,12 @@
     <string name="route2">Route: </string>
     <string name="external_investigation">External Investigation</string>
     <string name="save_successful">Save Successful\n</string>
+    <string name="success">Success</string>
     <string name="something_wend_wong">Something Went Wrong</string>
     <string name="loading_form">Loading Form</string>
     <string name="loading">Loading Please Wait....</string>
+    <string name="initial_setup_title">Initial Setup</string>
+    <string name="initial_setup_subtitle">Downloading required data. This may take a few minutes on first login.</string>
     <string name="personal_information">Patient Registration</string>
     <string name="location_information">Location Information</string>
     <string name="other_information">Other Information</string>
@@ -339,11 +562,18 @@
     <string name="fill_dob">Fill Your Date Of Birth</string>
     <string name="enter_your_age">Enter Your Age</string>
     <string name="select_age_in_unit">Select Age in Unit</string>
-    <string name="select_mariital_status">Select Marital Status</string>
+    <string name="select_marital_status">Select Marital Status</string>
     <string name="enter_spouse_name">Enter Spouse Name</string>
+    <string name="enter_husband_name">Enter Husband Name</string>
+    <string name="enter_wife_name">Enter Wife Name</string>
     <string name="enter_age_at_marriage">Enter age at Marriage</string>
     <string name="select_gender">Select Gender</string>
     <string name="select_village">Select Village</string>
+    <string name="enter_father_s_name_error">Enter a valid Father\'s Name</string>
+    <string name="are_you_sure">Are you Sure?</string>
+    <string name="cancel_confirmation_message">Do you want to cancel? Any unsaved data will be lost.</string>
+    <string name="patient_registered_successfully_title">Patient Registered successfully</string>
+    <string name="patient_edited_successfully_title">Patient details edited successfully</string>
     <string name="network_error">Network Error!!</string>
     <string name="linked_to_beneficiary">Linked to Beneficiary</string>
     <string name="duration_tv">Duration</string>
@@ -351,6 +581,7 @@
     <string name="something_went_wrong">Something went wrong !</string>
     <string name="beneficiary_abha_number">Beneficiary ABHA Number.</string>
     <string name="no_records_found">No Records Found!!</string>
+    <string name="no_record_found">No record found</string>
     <string name="patients_cnt_display">" Patients"</string>
     <string name="subtractSign">-</string>
     <string name="addSign">+</string>
@@ -365,36 +596,45 @@
     <string name="nurseDataNotSaved">Nurse data is not saved for this record</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
     <string name="pendingForLabtech">Pending For Lab Result</string>
+    <string name="pending_for_pharmacist_dispense">Pending For Pharmacist Dispense</string>
+    <string name="case_close_confirmation">This case is being closed. Do you want to proceed?</string>
+    <string name="case_closed_successfully">Case closed successfully</string>
+    <string name="close_case_btn">Close Case</string>
     <string name="flowCompleted">Flow Completed</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
     <string name="diagnosisCannotBeEmpty">Please Enter Provisional</string>
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
     <string name="no_patient_found">No matching patient found. Please choose an option from below.</string>
-    <string name="pref_location_data">pref_location_data</string>
+    <string name="pref_location_data" translatable="false">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">Beneficiary Name:</string>
     <string name="abha_no">Abha No:</string>
     <string name="ben_id">Ben Id:</string>
     <string name="ben_age">Age:</string>
-    <string name="quantity_prescribed">Quantity Prescribed:</string>
+    <string name="quantity_prescribed">Prescribed Quantity:</string>
     <string name="quantity_in_hand">Quantity In Hand:</string>
-    <string name="quantity_dispensed">Quantity Dispensed:</string>
+    <string name="quantity_dispensed">Dispensed Quantity:</string>
     <string name="special_instructions">Special Instructions:</string>
     <string name="dispensed_quantity">Dispensed Quantity:</string>
     <string name="expiry_date">Expiry Date:</string>
     <string name="ben_phone_no">Phone No:</string>
+    <string name="ben_visit_date">Visit Date: </string>
+    <string name="ben_visit_num">Visit No: </string>
     <string name="ben_gender">Gender:</string>
     <string name="abha">ABHA</string>
     <string name="view_batch">View Batch</string>
     <string name="ok_button">Ok</string>
     <string name="change_role">Change Role</string>
-    <string name="password_local_saved">password-local-saved</string>
+    <string name="password_local_saved" translatable="false">password-local-saved</string>
     <string name="remember_me">Remember Me</string>
     <string name="other_cphc_services">Other CPHC Services</string>
+    <string name="other_cphc_category_key" translatable="false">Other CPHC Services</string>
     <string name="reason_for_visit">Reason For Visit</string>
     <string name="ben_card_name">Name:</string>
     <string name="beneficiary_id">Beneficiary ID:</string>
+    <string name="beneficiary_id_format">Beneficiary ID: %s</string>
+    <string name="beneficiary_id_label">Beneficiary ID: </string>
     <string name="master_longitude">Master Longitude</string>
     <string name="get_location">Get Location</string>
     <string name="master_latitude">Master Latitude</string>
@@ -406,11 +646,14 @@
     <string name="english_lang">English</string>
     <string name="kannada_lang">ಕನ್ನಡ</string>
     <string name="hindi_lang">हिंदी</string>
+    <string name="assamese">অসমীয়া</string>
     <string name="registrar_role">Registrar</string>
     <string name="nurse_role">Nurse</string>
     <string name="doctor_role">Doctor</string>
     <string name="pharmacist_role">Pharmacist</string>
     <string name="lab_technician_role">Lab Technician</string>
+    <string name="cho_role">CHO</string>
+    <string name="proceed_with_registration">Proceed with Registration</string>
     <string name="patient_successfully_registered">Patient Registered Successfully.</string>
     <string name="tap_to_take_photo">Tap to take photo</string>
     <string name="photo">Photo</string>
@@ -434,9 +677,12 @@
     <string name="visit_code">Visit Code:</string>
     <string name="prescription_id">Prescription ID:</string>
     <string name="form_label">Form: </string>
+    <string name="available_quantity">Total Available Quantity: </string>
+    <string name="patient_details_label">Patient: </string>
     <string name="prescribed_label">Prescribed: </string>
+    <string name="prescribed_label_qt">Prescribed Quantity: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
-    <string name="father_s_name">Father\'s Name</string>
+    <string name="father_s_name">Father\'s Name <font color="#FF0000">*</font></string>
     <string name="exit_application">Exit Application</string>
     <string name="do_you_want_to_exit_application">Do you want to exit application</string>
     <string name="patient_cnt_display">" Patient"</string>
@@ -485,11 +731,16 @@
     <string name="form_input_max_limit_error">%1s should be lesser than or equal to %2d</string>
     <string name="form_input_max_limit_error_decimal">%1s should be lesser than or equal to %2.1f</string>
     <string name="form_input_error_invalid_mobile">Invalid Mobile Number !</string>
+    <string name="form_fill_field_error">Please fill: %1$s</string>
+    <string name="form_alert_title">Alert</string>
     <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
     <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
     <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
+    <string name="add_file">add file</string>
 
     <string name="view">VIEW</string>
+    <string name="image_unavailable">Image unavailable</string>
+    <string name="back">Back</string>
     <string name="something_wend_wong_contact_testing">Something wend wong! Contact testing!</string>
     <string name="iv_sync_state_tv">SYNC STATE</string>
     <string name="high_risk">High Risk</string>
@@ -499,26 +750,51 @@
     <string name="radio_title_ds">%s<span> **</span></string>
     <string name="radio_title">%s<span> *</span></string>
     <string name="anc_visit_number">ANC Visit %1d</string>
+    <string name="anc_visits">ANC Visits</string>
     <string name="pnc_visit_number">PNC Visit on Day %1d</string>
+    <string name="pnc_visits">PNC Visits</string>
+    <string name="view_visits">View Visits</string>
 
+    <string name="icon_title_pmr">Pregnant Women Registration</string>
+    <string name="title_register_pregnancy">Pregnant Women Registration</string>
+    <string name="title_view_pregnancy_registration">View Pregnancy Registration</string>
+    <string name="pwr_eligibility_error">Pregnancy Registration form is not available </string>
     <!--  Post Natal Care  -->
     <string name="pnc_period">PNC Period</string>
     <string name="pnc_visit_date">PNC Visit Date</string>
     <string name="pnc_ifa_tabs_given">No. of IFA Tablets given</string>
     <string name="pnc_contraception_method">Method of Contraception</string>
-    <string name="pnc_any_contraception_method">Any Method of Contraception</string>
-    <string name="pnc_other_ppc_method">Other PPC Method</string>
+    <string name="pnc_any_contraception_method">Family planning method used by the couple after delivery to avoid pregnancy?</string>
+    <string name="pnc_other_ppc_method">Other Contraception Method</string>
     <string name="pnc_mother_danger_sign">Mother Danger Sign</string>
     <string name="pnc_other_danger_sign">Other Danger Sign</string>
     <string name="pnc_referral_facility">Referral Facility</string>
     <string name="pnc_mother_death">Mother Death</string>
     <string name="pnc_death_date">Date of Death</string>
-    <string name="pnc_death_cause">Probable Cause of Mother Death</string>
+    <string name="pnc_death_cause">Cause of Maternal Death</string>
     <string name="pnc_other_death_cause">Other Death Cause</string>
     <string name="pnc_death_place">Place of Death</string>
     <string name="pnc_remarks">Remarks</string>
+    <string name="pnc_calcium_supplementation">Calcium supplementation</string>
+    <string name="pnc_maternal_symptoms">Maternal Symptoms</string>
+    <string name="pnc_other_maternal_symptoms">Other maternal symptoms</string>
+    <string name="pnc_pallor">Pallor (Anemia check)</string>
+    <string name="pnc_vaginal_bleeding">Vaginal Bleeding</string>
+    <string name="pnc_date_of_sterilization">Date of Sterilization</string>
+    <string name="pnc_any_danger_sign">Any Danger Signs?\nAny High-risk identified?</string>
+    <string name="other_place_of_death">Other Place of Death</string>
+    <string name="pnc_ifa_max_error">IFA Tablets cannot exceed 400</string>
+    <string name="pnc_calcium_max_error">Calcium supplementation cannot exceed 400</string>
+    <string name="pnc_referral_alert_multiple_symptoms">Referral required: 2 or more maternal symptoms detected</string>
+    <string name="pnc_referral_alert_severe_pallor">Referral required: Severe pallor detected</string>
+    <string name="pnc_referral_alert_vaginal_bleeding">Referral required: Heavy bleeding or foul-smelling discharge detected</string>
     <string name="tracking_form_filled_successfully">Tracking form filled successfully</string>
+    <string name="form_save_failed">Failed to save form. Please try again.</string>
     <string name="tracking_date">Date of Visit</string>
+    <string name="visit_history_title">Visit History</string>
+    <string name="no_visits_found">No visits found</string>
+    <string name="visit_count_icon">Visit count icon</string>
+    <string name="error_loading_visits">Error loading visits. Please try again.</string>
     <string name="long_to_string">%d</string>
     <string-array name="pnc_period_array">
         <item>1st Day</item>
@@ -538,8 +814,10 @@
         <item>CONDOM</item>
         <item>MALE STERILIZATION</item>
         <item>FEMALE STERILIZATION</item>
-        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
-        <item>ANY OTHER (SPECIFY)</item>
+        <item>POST PARTUM STERILIZATION (PPS)</item>
+        <item>Minilap</item>
+        <item>None</item>
+        <item>OTHER</item>
     </string-array>
     <string-array name="pnc_mother_danger_sign_array">
         <item>PPH</item>
@@ -558,16 +836,64 @@
         <item>Any Other (Specify)</item>
     </string-array>
     <string-array name="pnc_death_cause_array">
-        <item>ECLAMPSIA</item>
-        <item>HAEMORRHAGE (PPH)</item>
-        <item>ANAEMIA</item>
-        <item>HIGH FEVER</item>
-        <item>Any Other</item>
+        <item>Eclampsia</item>
+        <item>Hemorrhage (PPH)</item>
+        <item>Anaemia</item>
+        <item>High fever</item>
+        <item>Sepsis</item>
+        <item>Accident</item>
+        <item>Other</item>
     </string-array>
     <string-array name="pnc_death_place_array">
         <item>Home</item>
-        <item>Hospital</item>
-        <item>Transit</item>
+        <item>Subcenter</item>
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>District Hospital</item>
+        <item>Medical College Hospital</item>
+        <item>Private Hospital</item>
+        <item>In Transit</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="pnc_maternal_symptoms_array">
+        <item>Excessive bleeding</item>
+        <item>Foul-smelling discharge</item>
+        <item>Fever</item>
+        <item>Severe abdominal pain</item>
+        <item>Breast pain</item>
+        <item>Painful urination</item>
+        <item>Severe headache</item>
+        <item>Dizziness</item>
+        <item>Difficulty breathing</item>
+        <item>Swelling</item>
+        <item>Wound pain</item>
+        <item>Mood changes</item>
+        <item>None</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="pnc_pallor_array">
+        <item>None</item>
+        <item>Mild</item>
+        <item>Moderate</item>
+        <item>Severe</item>
+    </string-array>
+    <string-array name="pnc_vaginal_bleeding_array">
+        <item>Normal</item>
+        <item>Heavy bleeding</item>
+        <item>Foul-smelling discharge</item>
+        <item>Scanty</item>
+        <item>Stopped</item>
+    </string-array>
+    <string-array name="sterilization_methods_array">
+        <item>MALE STERILIZATION</item>
+        <item>FEMALE STERILIZATION</item>
+        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>Minilap</item>
+    </string-array>
+    <string-array name="female_sterilization_methods_array">
+        <item>FEMALE STERILIZATION</item>
+        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>Minilap</item>
     </string-array>
     <string-array name="visit_months">
         <item>Jan</item>
@@ -591,7 +917,23 @@
         <item>Mala N</item>
         <item>Chaya</item>
         <item>ECP</item>
+        <item>Male Sterilization</item>
+        <item>Female Sterilization</item>
+        <item>MiniLap</item>
         <item>Any Other Method</item>
+    </string-array>
+
+    <string-array name="antra_doses">
+        <item>1st Dose</item>
+        <item>2nd Dose</item>
+        <item>3rd Dose</item>
+        <item>4th Dose</item>
+        <item>5th Dose</item>
+        <item>6th Dose</item>
+        <item>7th Dose</item>
+        <item>8th Dose</item>
+        <item>9th Dose</item>
+        <item>10th Dose</item>
     </string-array>
 
     <string name="template_null">Enter Template Name</string>
@@ -602,5 +944,1277 @@
     <string name="required">Required</string>
     <string name="version">Version 6.0.0</string>
     <string name="str_duration">Duration:</string>
+    <string name="edd_date">EDD Date</string>
+    <string name="update_btn">Update</string>
+
+
+    <!-- EC Tracking Form -->
+    <string name="ec_tracking_title">Eligible Couple Tracking</string>
+    <string name="status_of_woman_eligible_couple_name">Eligible Couple</string>
+    <string name="status_of_woman_eligible_couple_code">EC</string>
+    <string name="status_of_woman_pregnant_woman_name">Pregnant Woman</string>
+    <string name="status_of_woman_pregnant_woman_code">PW</string>
+    <string name="status_of_woman_postnatal_name">Postnatal</string>
+    <string name="status_of_woman_postnatal_code">PN</string>
+    <string name="status_of_woman_elderly_name">Elderly</string>
+    <string name="status_of_woman_elderly_code">EL</string>
+    <string name="status_of_woman_adolescent_name">Adolescent</string>
+    <string name="status_of_woman_adolescent_code">AD</string>
+    <string name="status_of_woman_permanent_sterilization_name">Permanent Sterilization</string>
+    <string name="status_of_woman_permanent_sterilization_code">ST</string>
+    <string name="status_of_woman_not_applicable_name">Not Applicable</string>
+    <string name="status_of_woman_not_applicable_code">NA</string>
+    <string name="is_pregnancy_test_done">Is Pregnancy Test Done?</string>
+    <string name="pregnancy_test_result">Pregnancy Test Result</string>
+    <string name="is_woman_pregnant">Is the Woman Pregnant?</string>
+    <string name="using_family_planning">Are you using / Do you want to use any Family Planning Method?</string>
+    <string name="method_of_contraception_label">Method of Contraception</string>
+    <string name="any_other_method">Any Other Method</string>
+    <string name="antra_dose">ANTRA Dose</string>
+    <string name="antra_injection_date">Date of ANTRA Injection</string>
+    <string name="antra_due_date">Due Date of Next Injection</string>
+    <string name="date_of_sterilization">Date of Sterilization</string>
+    <string name="incentive_alert_title">Incentive Information</string>
+    <string name="antra_incentive_alert">Please upload MCA Card photo to claim your Incentive</string>
+    <string name="sterilization_incentive_alert">Please upload Discharge Summary photo to claim your Incentive</string>
+    <string name="one_visit_per_month_error">Only one visit is allowed per month</string>
+    <string name="visit_date_before_registration_error">Visit date cannot be before EC Registration date</string>
+    <string name="lmp_backdated_limit_error">LMP date can only be backdated up to 6 months</string>
+    <string name="sterilization_backdated_limit_error">Date of sterilization can only be backdated up to 2 months</string>
+    <string name="antra_backdated_limit_error">Date of ANTRA injection can only be backdated up to 2 months</string>
+    <string name="antra_dose_restart_alert">Gap is more than 120 days. Restarting from Dose 1.</string>
+    <string name="not_available">not available</string>
+
+
+    <!-- RMNCHA+ Dashboard Module Strings -->
+    <string name="all_beneficiaries">All Beneficiaries</string>
+    <string name="eligible_couple_list">Eligible Couple List</string>
+    <string name="maternal_health">Maternal Health</string>
+    <string name="child_care">Child Care</string>
+    <string name="disease_control">Disease Control</string>
+    <string name="communicable_diseases">Communicable Diseases</string>
+    <string name="routine_immunization">Routine Immunization</string>
+    <string name="high_risk_assessment">High Risk Assessment</string>
+    <string name="general_opd_care_list">General OPD Care List</string>
+    <string name="death_reports">Death Reports</string>
+    <string name="village_level_forms">Village Level Forms</string>
+    <string name="cd_icon_grid_icon">Icon Grid Item</string>
+
+    <!-- Maternal Health Sub-modules -->
+    <string name="pregnant_women_registration">Pregnant Women Registration</string>
+    <string name="delivery_outcome">Delivery Outcome</string>
+    <string name="pnc_mother_list">PNC Mother List</string>
+    <string name="e_pmsma_list" translatable="false">e-PMSMA List</string>
+    <string name="add_e_pmsma_visit">Add e-PMSMA Visit</string>
+    <string name="view_e_pmsma" >View e-PMSMA</string>
+    <string name="infant_registration">Infant Registration</string>
+    <string name="child_registration">Child Registration</string>
+    <string name="abortion_list">Abortion List</string>
+
+    <!-- Child Care Sub-modules -->
+    <string name="infant_list">Infant Registration List</string>
+    <string name="child_list">Child List</string>
+    <string name="adolescent_list">Adolescent List</string>
+    <string name="children_under_5_years">Children under 5 Years</string>
+
+    <!-- Eligible Couple Sub-modules -->
+    <string name="eligible_couple_registration">Eligible Couple Registration</string>
+    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
+
+    <!-- Eligible Couple List Strings -->
+    <string name="husband_name">Husband Name </string>
+    <string name="lmp_date">LMP Date</string>
+    <string name="missed_period">Missed Period</string>
+    <string name="under_review">Under Review</string>
+    <string name="register">Register</string>
+    <string name="no_eligible_couples_found">No Eligible Couples Found</string>
+    <string name="no_registered_couples_found">No Registered Couples Found</string>
+    <string name="call">Call</string>
+    <string name="mobile_number_not_present">Mobile number not present</string>
+    <string name="no_data">N/A</string>
+    <string name="search">Search</string>
+    <string name="status">Status</string>
+    <string name="age_ben">Age</string>
+    <string name="tv_mob_no_ph">Mobile Number</string>
+    <string name="tv_rch_id">RCH ID</string>
+
+
+    <!-- Pregnant Women Registration Strings -->
+    <string name="no_pregnant_women_found">No Pregnant Women Found</string>
+
+    <!-- ANC Visits Strings -->
+    <string name="weeks_of_pregnancy">Weeks Of Pregnancy</string>
+    <string name="edd">EDD</string>
+    <string name="last_visit_date">Last Visit Date</string>
+    <string name="add_anc_visit">ADD ANC VISIT</string>
+    <string name="add_pmsma">ADD PMSMA</string>
+    <string name="no_anc_eligible_women_found">No ANC Eligible Women Found</string>
+
+    <!-- Delivery Outcome Strings -->
+    <string name="no_delivered_women_found">No Delivered Women Found</string>
+    <string name="do_mother_condition">Mother\'s Condition Immediately Post-Delivery</string>
+    <string name="do_maternal_complications">Maternal Complications</string>
+    <string name="do_mother_currently_admitted">Mother Currently Admitted?</string>
+    <string name="do_discharge_date">Date of Discharge</string>
+    <string name="do_discharge_time">Time of Discharge</string>
+    <string name="do_delivery_outcome">Outcomes of Delivery</string>
+    <string name="do_live_birth">Live Birth</string>
+    <string name="do_still_birth">Still Birth</string>
+    <string name="do_next">Next</string>
+    <string name="do_inform_district_nodal_officer">Inform District Nodal Officer</string>
+    <string name="do_alert_intensive_pnc">Intensive PNC monitoring recommended for this mother.</string>
+    <string name="do_hysterectomy_note">Family planning status and eligible couple tracking will be updated for hysterectomy.</string>
+    <string name="do_maternal_death_audit">Maternal death audit form will be opened.</string>
+    <string name="do_discharge_date_before_delivery">Discharge date cannot be before delivery date.</string>
+    <string name="do_vitals_and_prescription">Vitals &amp; Prescription</string>
+    <string-array name="do_mother_condition_array">
+        <item>Healthy / Stable</item>
+        <item>Complication (specify)</item>
+        <item>Critical / ICU admission</item>
+        <item>Maternal Death</item>
+    </string-array>
+    <string-array name="do_maternal_complications_array">
+        <item>Post-Partum Hemorrhage (PPH)</item>
+        <item>Retained placenta</item>
+        <item>Perineal tear (1st/2nd degree)</item>
+        <item>Perineal tear (3rd/4th degree)</item>
+        <item>Uterine rupture</item>
+        <item>Sepsis/ Infection</item>
+        <item>Pre-eclampsia/Eclampsia</item>
+        <item>Blood transfusion required</item>
+        <item>Hysterectomy performed</item>
+        <item>Anesthesia complication</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="do_mother_admitted_array">
+        <item>Yes (Still in hospital)</item>
+        <item>No (Discharged)</item>
+    </string-array>
+
+    <string name="do_woman_name">Name of the woman</string>
+    <string name="do_woman_age">Age</string>
+    <string name="do_case_id">Case ID:</string>
+    <string name="do_view_anc_history">View ANC History</string>
+    <string name="do_delivery_date">Date of Delivery</string>
+    <string name="do_delivery_time">Time of Delivery</string>
+    <string name="do_gestational_age_at_delivery">Gestational Age at Delivery</string>
+    <string name="do_place_of_delivery">Place of Delivery</string>
+    <string name="do_private_hospital_name">If Private Hospital, specify name</string>
+    <string name="do_delivery_conducted_by">Delivery conducted by</string>
+    <string name="do_mode_of_delivery">Mode of Delivery</string>
+    <string name="do_indication_for_lscs">Indication for LSCS/Emergency LSCS/Assisted</string>
+    <string name="do_indication_for_lscs_other">Other (specify)</string>
+    <string name="do_error_future_date">Cannot be a future date</string>
+    <string name="do_error_date_range">Date must be between %1$s and %2$s</string>
+    <string name="do_alert_post_term_delivery">Post-term delivery</string>
+    <string name="do_alert_preterm_delivery">Preterm delivery</string>
+    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure immediate PNC visit within 24 hours.</string>
+    <string name="do_alert_on_the_way">Urgent PNC home visit within 24 hours required.</string>
+    <string name="do_alert_unskilled_delivery">Unskilled delivery. High-risk PNC needed.</string>
+    <string name="do_alert_extremely_preterm">Extremely Preterm (&lt;28 weeks)</string>
+    <string name="do_alert_very_preterm">Very Preterm (28–32 weeks)</string>
+    <string name="do_alert_moderate_preterm">Moderate to Late Preterm (32–37 weeks)</string>
+    <string name="do_alert_term">Term (37–42 weeks)</string>
+    <string name="do_alert_post_term">Post-term (&gt;42 weeks)</string>
+    <string name="do_error_indication_required">Please select at least one indication</string>
+    <string name="do_error_indication_other_required">Please specify the indication</string>
+
+    <string-array name="do_place_of_delivery_array">
+        <item>Sub-Centre</item>
+        <item>Primary Health Centre (PHC)</item>
+        <item>Community Health Centre (CHC)</item>
+        <item>District Hospital (DH)</item>
+        <item>Medical College Hospital</item>
+        <item>Referral/Tertiary Hospital</item>
+        <item>Private Hospital</item>
+        <item>Home delivery</item>
+        <item>On the way to facility</item>
+    </string-array>
+    <string-array name="do_delivery_conducted_by_array">
+        <item>Doctor (MBBS/Specialist)</item>
+        <item>Nurse/ANM</item>
+        <item>CHO</item>
+        <item>Skilled Birth Attendant (SBA)</item>
+        <item>Dai/TBA (Traditional Birth Attendant)</item>
+        <item>Family member</item>
+        <item>Self/Unassisted</item>
+    </string-array>
+    <string-array name="do_mode_of_delivery_array">
+        <item>Normal Vaginal Delivery (NVD)</item>
+        <item>Vacuum/ Forceps Assisted</item>
+        <item>Lower Segment Cesarean Section (LSCS)</item>
+        <item>Emergency LSCS</item>
+        <item>Vaginal Birth After Cesarean (VBAC)</item>
+    </string-array>
+    <string-array name="do_indication_for_lscs_array">
+        <item>Fetal distress</item>
+        <item>Cephalopelvic disproportion (CPD)</item>
+        <item>Previous LSCS</item>
+        <item>Malpresentation (Breech/Transverse)</item>
+        <item>Prolonged/Obstructed labor</item>
+        <item>Antepartum hemorrhage (APH)</item>
+        <item>Pre-eclampsia/Eclampsia</item>
+        <item>Cord prolapse</item>
+        <item>Failed induction</item>
+        <item>Multiple pregnancies</item>
+        <item>Maternal request</item>
+        <item>Other (specify)</item>
+    </string-array>
+
+
+    <!-- PNC Mother List Strings -->
+    <string name="delivery_date">Date of Delivery</string>
+    <string name="days_since_delivery">Days Since Delivery</string>
+    <string name="no_pnc_mothers_found">No PNC Mothers Found</string>
+    <string name="no_e_pmsma_women_found">No e-PMSMA Women Found</string>
+
+    <!-- Infant Registration Strings -->
+    <string name="infant_reg_list">Infant Reg List</string>
+    <string name="mother_name">Mother\'s Name</string>
+    <string name="no_infants_found">No Infants Found</string>
+
+    <!-- Child Registration Strings -->
+    <string name="child_reg_list">Child Registration List</string>
+    <string name="no_children_found">No Children Found</string>
+    <string name="name_of_child">Name of Child</string>
+    <string name="child_registration_saved">Child registration saved successfully</string>
+
+    <!-- Abortion List Strings -->
+    <string name="abortion_date">Abortion Date</string>
+    <string name="no_abortion_records_found">No Abortion Records Found</string>
+
+    <!-- e-PMSMA List Strings -->
+    <string name="no_pmsma_women_found">No PMSMA Women Found</string>
+
+    <!-- Adolescent List Strings -->
+    <string name="no_adolescents_found">No Adolescents Found</string>
+
+    <!-- Children under 5 Years List Strings -->
+    <string name="no_children_under_5_found">No Children under 5 Years Found</string>
+    <string name="check_sam">Check SAM</string>
+    <string name="ors">ORS</string>
+    <string name="ifa">IFA</string>
+    <string name="add_visit">Add Visit</string>
+    <string name="view_visit">View Visit</string>
+    <string name="visit_history">Visit History</string>
+    <string name="no_of_children">No. of Children</string>
+    <string name="select_mariital_status">Select Marital Status</string>
+    <string name="select_status_of_woman">Select Status of Woman</string>
+    <string name="duplicate_face_detected">Duplicate face detected</string>
+    <string name="duplicate_face_message">A similar face was found in the system. Do you want to use the existing record or continue with new registration?</string>
+    <string name="use_existing">Use Existing</string>
+    <string name="continue_new">Continue New</string>
+
+    <!-- Status of Woman -->
+    <string name="status_of_woman">Status of Woman <font color="#FF0000">*</font></string>
+    <string name="does_beneficiary_have_abha">Does beneficiary have ABHA ID?</string>
+    <string name="abha_id_number">ABHA ID Number (14 digits)</string>
+    <string name="abha_enrollment_alert">Please counsel the beneficiary to enroll for ABHA ID</string>
+    <string name="patient_details_edited_successfully">Patient details edited successfully</string>
+    <string name="invalid_abha_format">ABHA ID must be 14 digits</string>
+
+    <!-- Beneficiary Card -->
+    <string name="beneficiary_card_title">Beneficiary Card</string>
+    <string name="age_gender_label">Age / Gender</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="village_name_label">Village Name</string>
+    <string name="abha_id_label">ABHA ID</string>
+    <string name="generate_abha_id_btn">Generate ABHA ID</string>
+    <string name="continue_btn">Continue</string>
+    <string name="view_beneficiary_card">View Card</string>
+
+    <!-- Edit Beneficiary Details -->
+    <string name="edit_beneficiary_details">Edit Beneficiary Details</string>
+    <string name="last_name_optional">Last Name (Optional)</string>
+    <string name="phone_number_optional">Phone Number (Optional)</string>
+    <string name="age_mandatory">Age <font color="#FF0000">*</font></string>
+    <string name="years_mandatory">Years <font color="#FF0000">*</font></string>
+    <string name="months_optional">Months</string>
+    <string name="days_optional">Days</string>
+    <string name="save_btn">Save</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="title_mental_health_screening">Mental Health Screening</string>
+    <string name="mental_health_screening_saved">Mental Health Screening saved successfully</string>
+    <string name="edit_btn">Edit</string>
+    <string name="age_years_required">Age in years is required</string>
+    <string name="beneficiary_updated_successfully">Beneficiary details updated successfully</string>
+    <string name="status_of_woman_required">Status of Woman is required</string>
+    <string name="speak_now">Speak now...</string>
+    <string name="speech_recognition_error">Speech recognition not available</string>
+    <string name="beneficiary_photo_content_description">Photo of %s</string>
+    <string name="desc_patient_photo">Patient photo</string>
+
+    <!-- Neonatal Outcome Strings -->
+    <string name="neonatal_outcome">Neonatal Outcome</string>
+    <string name="baby_number">Baby %1d</string>
+    <string name="no_outcome_at_birth">Outcome at Birth</string>
+    <string name="no_sex">Sex</string>
+    <string name="no_cried_immediately">Cried immediately after birth?</string>
+    <string name="no_type_of_resuscitation">Type of Resuscitation</string>
+    <string name="no_birth_weight">Birth Weight (in grams)</string>
+    <string name="no_congenital_anomaly_detected">Any congenital anomaly detected?</string>
+    <string name="no_type_of_congenital_anomaly">Type of congenital anomaly</string>
+    <string name="no_other_congenital_anomaly">Other congenital anomaly (specify)</string>
+    <string name="no_newborn_complications">Newborn Complications</string>
+    <string name="no_current_status_of_baby">Current Status of Baby</string>
+    <string name="no_cause_of_death">Cause of Death</string>
+    <string name="no_other_cause_of_death">Other cause of death (specify)</string>
+    <string name="no_birth_dose_vaccines_given">Birth dose vaccines given</string>
+    <string name="no_reason_for_no_vaccines">Reason for not giving birth dose vaccines</string>
+    <string name="no_vitamin_k_injection_given">Vitamin K injection given?</string>
+    <string name="no_reason_for_no_vitamin_k">Reason for not giving Vitamin K injection</string>
+    <string name="no_birth_certificate_issued">Birth Certificate issued?</string>
+
+    <!-- Alerts -->
+    <string name="no_alert_lbw">Low Birth Weight (LBW): 1500-2499g. Close monitoring required.</string>
+    <string name="no_alert_vlbw">Very Low Birth Weight (VLBW): 1000-1499g. Immediate SNCU referral recommended.</string>
+    <string name="no_alert_elbw">Extremely Low Birth Weight (ELBW): \u003c1000g. Critical - NICU care required.</string>
+    <string name="no_alert_macrosomia">Macrosomia (flag for maternal GDM screening)</string>
+    <string name="no_alert_ambiguous_sex">Ambiguous genitalia detected. Pediatric specialist referral required.</string>
+    <string name="no_alert_stillbirth">Stillbirth recorded. Stillbirth audit form will be triggered.</string>
+    <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
+    <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
+    <string name="no_alert_pnc_counseling">Ensure proper PNC counseling for mother on newborn care.</string>
+    <string name="no_alert_birth_certificate_legal">Birth registration is a legal requirement.</string>
+
+    <!-- Validation -->
+    <string name="no_error_birth_weight_range">Birth weight must be between 500g and 6000g</string>
+    <string name="no_error_birth_weight_required">Please enter birth weight</string>
+    <string name="no_error_outcome_required">Please select outcome at birth</string>
+    <string name="no_error_sex_required">Please select sex</string>
+    <string name="no_error_crying_status_required">Please select crying status</string>
+    <string name="no_error_resuscitation_required">Please select type of resuscitation</string>
+    <string name="no_error_current_status_required">Please select current status of baby</string>
+    <string name="no_error_cause_of_death_required">Please select cause of death</string>
+    <string name="no_error_vaccines_required">Please select vaccines given</string>
+    <string name="no_error_vitamin_k_required">Please select if Vitamin K was given</string>
+    <!-- Ear Diagnosis Form -->
+    <string name="title_ear_diagnosis">Ear Diagnosis Form</string>
+    <string name="pain_symptom_assessment_saved">Pain and Symptom Assessment Saved</string>
+    <string name="title_pain_symptom_assessment">Palliative Care Identification Form</string>
+    <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
+    <string name="title_nose_diagnosis">Nose Diagnosis Form</string>
+    <string name="nose_diagnosis_saved">Nose Diagnosis Saved</string>
+    <string name="title_throat_diagnosis">Throat Diagnosis Form</string>
+    <string name="throat_diagnosis_saved">Throat Diagnosis Saved</string>
+
+    <!-- Throat Diagnosis Dataset -->
+    <string name="throat_diagnosis_symptoms">Symptoms</string>
+    <string name="throat_diagnosis_neck_swelling">Swelling in the neck (Thyroid)</string>
+    <string name="throat_diagnosis_difficulty_swallowing">Difficulty in Swallowing</string>
+    <string name="throat_diagnosis_tonsillitis">Tonsillitis</string>
+    <string name="throat_diagnosis_pharyngitis">Pharyngitis</string>
+    <string name="throat_diagnosis_laryngitis">Laryngitis</string>
+    <string name="throat_diagnosis_sinusitis">Sinusitis</string>
+    <string name="throat_diagnosis_cleft_lip">Cleft Lip</string>
+    <string name="throat_diagnosis_cleft_palate">Cleft Palate</string>
+
+    <string name="throat_symptom_pain">Pain</string>
+    <string name="throat_symptom_soreness">Soreness</string>
+    <string name="throat_symptom_cold">Cold</string>
+    <string name="throat_symptom_itching">Itching</string>
+    <string name="throat_symptom_hoarseness">Hoarseness</string>
+    <string name="show_cphc_details">Show CPHC Details</string>
+    <string name="cphc_details_title">CPHC Details</string>
+    <string name="no_previous_cphc_details">No CPHC data found.</string>
+    <string name="cphc_visit_current_format">Visit No: %1$d</string>
+    <string name="cphc_reported_concerns">Reported Concerns:</string>
+    <string name="cphc_show_unavailable_details">Show unavailable details (%1$d)</string>
+    <string name="cphc_hide_unavailable_details">Hide unavailable details</string>
+    <string name="cphc_referral_follow_up">Referral and Follow-up</string>
+    <string name="cphc_referral">Referral</string>
+    <string name="cphc_case_status">Case Status</string>
+    <string name="cphc_date_of_death">Date of Death</string>
+    <string name="cphc_follow_up_required">Follow-up Required</string>
+    <string name="cphc_referral_required">Referral Required</string>
+    <string name="cphc_referral_level">Referral Level</string>
+    <string name="cphc_reason_for_referral">Reason for Referral</string>
+    <string name="cphc_remarks">Remarks</string>
+    <string name="cphc_ear_diagnosis">Ear Diagnosis</string>
+    <string name="cphc_ear_foreign_body">Foreign Body In Ear</string>
+    <string name="cphc_ear_condition_type">Ear Condition Type</string>
+    <string name="cphc_nose_diagnosis">Nose Diagnosis</string>
+    <string name="cphc_throat_diagnosis">Throat Diagnosis</string>
+    <string name="cphc_oral_health">Oral Health</string>
+    <string name="cphc_ophthalmic">Ophthalmic</string>
+    <string name="cphc_elderly">Elderly Health</string>
+    <string name="cphc_mental">Mental Health</string>
+    <string name="cphc_nose_difficulty_breathing">Difficulty Breathing</string>
+    <string name="cphc_nose_open_mouth_breathing">Open Mouth Breathing</string>
+    <string name="cphc_nose_bleed">Nose Bleed</string>
+    <string name="cphc_nose_systolic_bp">Systolic BP</string>
+    <string name="cphc_nose_diastolic_bp">Diastolic BP</string>
+    <string name="cphc_nose_foreign_body">Foreign Body Nose</string>
+    <string name="cphc_nose_sinusitis">Sinusitis</string>
+    <string name="cphc_throat_symptoms">Symptoms</string>
+    <string name="cphc_throat_neck_swelling">Neck Swelling</string>
+    <string name="cphc_throat_difficulty_swallowing">Difficulty Swallowing</string>
+    <string name="cphc_throat_tonsillitis">Tonsillitis</string>
+    <string name="cphc_throat_pharyngitis">Pharyngitis</string>
+    <string name="cphc_throat_laryngitis">Laryngitis</string>
+    <string name="cphc_throat_sinusitis">Sinusitis</string>
+    <string name="cphc_throat_cleft_lip">Cleft Lip</string>
+    <string name="cphc_throat_cleft_palate">Cleft Palate</string>
+    <string name="cphc_oral_tooth_decay_present">Tooth Decay Present</string>
+    <string name="cphc_oral_tooth_decay_symptoms">Tooth Decay Symptoms</string>
+    <string name="cphc_oral_gum_disease_present">Gum Disease Present</string>
+    <string name="cphc_oral_gum_disease_symptoms">Gum Disease Symptoms</string>
+    <string name="cphc_oral_irregular_teeth_jaws">Irregular Teeth/Jaws</string>
+    <string name="cphc_oral_abnormal_growth_ulcer">Abnormal Growth/Ulcer</string>
+    <string name="cphc_oral_cleft_lip_palate">Cleft Lip/Palate</string>
+    <string name="cphc_oral_dental_fluorosis">Dental Fluorosis</string>
+    <string name="cphc_oral_dental_emergency">Dental Emergency</string>
+    <string name="cphc_oph_is_diabetic">Is Diabetic</string>
+    <string name="cphc_oph_screening_performed">Screening Performed</string>
+    <string name="cphc_oph_visual_acuity_chart_used">Visual Acuity Chart Used</string>
+    <string name="cphc_oph_dist_va_right">Distance VA Right</string>
+    <string name="cphc_oph_dist_va_left">Distance VA Left</string>
+    <string name="cphc_oph_near_va">Near VA</string>
+    <string name="cphc_oph_case_id_conditions">Case ID Conditions</string>
+    <string name="cphc_oph_injury_type">Injury Type</string>
+    <string name="cphc_elderly_geriatric_complaints">Geriatric Complaints</string>
+    <string name="cphc_elderly_multiple_chronic_conditions">Multiple Chronic Conditions</string>
+    <string name="cphc_elderly_recent_falls">Recent Falls</string>
+    <string name="cphc_elderly_difficulty_walking_balance">Difficulty Walking/Balance</string>
+    <string name="cphc_elderly_visual_hearing_difficulty">Visual/Hearing Difficulty</string>
+    <string name="cphc_elderly_functional_decline">Functional Decline</string>
+    <string name="cphc_elderly_total_score">Total Score</string>
+    <string name="cphc_elderly_functional_status">Functional Status</string>
+    <string name="cphc_elderly_memory_loss">Memory Loss</string>
+    <string name="cphc_elderly_dementia_outcome">Dementia Screening Outcome</string>
+    <string name="cphc_mental_emotional_behavioural_concerns">Emotional/Behavioural Concerns</string>
+    <string name="cphc_mental_substance_use_concerns">Substance Use Concerns</string>
+    <string name="cphc_mental_self_harm_suicide_thoughts">Self Harm/Suicide Thoughts</string>
+    <string name="cphc_mental_memory_loss_confusion">Memory Loss/Confusion</string>
+    <string name="cphc_mental_seizures_fits_loc">Seizures/Fits (LOC)</string>
+    <string name="cphc_mental_phq9_total_score">PHQ-9 Total Score</string>
+    <string name="cphc_mental_phq9_depression_severity">PHQ-9 Depression Severity</string>
+    <string name="cphc_mental_phq9_system_action">PHQ-9 System Action</string>
+    <string name="cphc_mental_suicide_risk_level">Suicide Risk Level</string>
+    <string name="cphc_mental_referral_required">Referral Required</string>
+    <string name="cphc_mental_follow_up_required">Follow-up Required</string>
+    <string name="cphc_mental_is_postpartum">Is Postpartum</string>
+    <string name="cphc_mental_substance_current_tobacco_use">Current Tobacco Use</string>
+    <string name="cphc_mental_substance_tobacco_type">Tobacco Type</string>
+    <string name="cphc_mental_substance_tobacco_frequency">Tobacco Frequency</string>
+    <string name="cphc_mental_substance_alcohol_use">Alcohol Use</string>
+    <string name="cphc_mental_substance_other_use">Other Substance Use</string>
+    <string name="cphc_mental_substance_other_specify">Other Substance Specify</string>
+    <string name="cphc_mental_substance_frequency">Substance Frequency</string>
+    <string name="cphc_mental_substance_system_action">Substance System Action</string>
+    <string name="cphc_mental_brief_intervention_given">Brief Intervention Given</string>
+    <string name="cphc_mental_suicide_current_thoughts">Current Self-harm Thoughts</string>
+    <string name="cphc_mental_suicide_plan">Suicide Plan</string>
+    <string name="cphc_mental_suicide_previous_attempt">Previous Attempt</string>
+    <string name="cphc_mental_suicide_hopelessness">Hopelessness</string>
+    <string name="cphc_mental_referral_level">Referral Level</string>
+    <string name="cphc_mental_reason_for_referral">Reason for Referral</string>
+    <string name="cphc_mental_referral_date">Referral Date</string>
+    <string name="cphc_mental_follow_up_date">Follow-up Date</string>
+    <string name="cphc_mental_improvement_noted">Improvement Noted</string>
+    <string name="cphc_mental_adherence_to_advice">Adherence to Advice</string>
+    <string name="cphc_oph_cataract_symptoms">Cataract Symptoms</string>
+    <string name="cphc_oph_glaucoma_symptoms">Glaucoma Symptoms</string>
+    <string name="cphc_oph_diabetic_retinopathy_symptoms">Diabetic Retinopathy Symptoms</string>
+    <string name="cphc_oph_presbyopia_symptoms">Presbyopia Symptoms</string>
+    <string name="cphc_oph_trachoma_status">Trachoma Status</string>
+    <string name="cphc_oph_corneal_disease_type">Corneal Disease Type</string>
+    <string name="cphc_oph_vitamin_a_deficiency">Vitamin A Deficiency</string>
+    <string name="cphc_oph_foreign_body_removal">Foreign Body Removal</string>
+    <string name="cphc_oph_chemical_exposure">Chemical Exposure</string>
+    <string name="cphc_elderly_bathing">Bathing</string>
+    <string name="cphc_elderly_dressing">Dressing</string>
+    <string name="cphc_elderly_toileting">Toileting</string>
+    <string name="cphc_elderly_transferring">Transferring</string>
+    <string name="cphc_elderly_continence">Continence</string>
+    <string name="cphc_elderly_feeding">Feeding</string>
+    <string name="cphc_elderly_functional_decline_flag">Functional Decline Flag</string>
+    <string name="cphc_elderly_dementia_memory_loss">Dementia Memory Loss</string>
+    <string name="cphc_elderly_dementia_disorientation">Dementia Disorientation</string>
+    <string name="cphc_elderly_dementia_behavioural_changes">Dementia Behavioural Changes</string>
+    <string name="cphc_elderly_dementia_self_care_decline">Dementia Self-care Decline</string>
+    <string name="cphc_elderly_dementia_referral_required">Dementia Referral Required</string>
+    <string name="cphc_mental_substance_tobacco_outcome">Tobacco Outcome</string>
+    <string name="cphc_mental_substance_tobacco_use">Tobacco Use</string>
+    <string name="cphc_mental_suicide_immediate_assess">Immediate Suicide Risk Assessment</string>
+    <string name="cphc_mental_dementia_progressive_memory_loss">Dementia Progressive Memory Loss</string>
+    <string name="cphc_mental_dementia_forgetting_recent">Dementia Forgetting Recent Events</string>
+    <string name="cphc_mental_dementia_disorientation">Dementia Disorientation</string>
+    <string name="cphc_mental_dementia_daily_activities">Dementia Daily Activities Impact</string>
+    <string name="cphc_mental_dementia_behavioural_changes">Dementia Behavioural Changes</string>
+    <string name="cphc_mental_epilepsy_recurrent_seizures">Epilepsy Recurrent Seizures</string>
+    <string name="cphc_mental_epilepsy_jerky_movements">Epilepsy Jerky Movements</string>
+    <string name="cphc_mental_epilepsy_tongue_bite">Epilepsy Tongue Bite</string>
+    <string name="cphc_mental_epilepsy_confusion_after">Epilepsy Post-episode Confusion</string>
+    <string name="cphc_mental_epilepsy_loc_duration">Epilepsy Loss of Consciousness Duration</string>
+    <string name="cphc_mental_substance_alcohol_loss">Alcohol Loss of Control</string>
+    <string name="cphc_mental_substance_alcohol_impact">Alcohol Impact on Responsibilities</string>
+    <string name="cphc_mental_substance_alcohol_withdrawal">Alcohol Withdrawal Symptoms</string>
+    <string name="cphc_mental_substance_alcohol_problematic">Problematic Alcohol Use</string>
+    <string name="cphc_mental_substance_alcohol_classification">Alcohol Use Classification</string>
+    <string name="cphc_mental_substance_alcohol_system_action">Alcohol System Action</string>
+    <string name="cphc_mental_substance_alcohol_frequency">Alcohol Use Frequency</string>
+    <string name="cphc_mental_ed_recurrent_episode_loss">ED Recurrent Episode with Loss</string>
+    <string name="cphc_mental_ed_recurrent_jerky_movements">ED Recurrent Jerky Movements</string>
+    <string name="cphc_mental_ed_confusion_drowsiness">ED Confusion or Drowsiness</string>
+    <string name="cphc_mental_ed_progressive_memory_loss">ED Progressive Memory Loss</string>
+    <string name="cphc_mental_ed_confusion_disorientation">ED Confusion or Disorientation</string>
+    <string name="cphc_mental_ed_functional_decline">ED Functional Decline</string>
+    <string name="cphc_mental_ed_screening_outcome">ED Screening Outcome</string>
+    <string name="cphc_mental_ed_psychosocial_intervention_provided">ED Psychosocial Intervention Provided</string>
+    <string name="cphc_mental_ed_intervention_type">ED Intervention Type</string>
+    <string name="cphc_mental_ed_session_date">ED Session Date</string>
+    <string name="cphc_mental_ed_duration_minutes">ED Session Duration (minutes)</string>
+    <string name="cphc_mental_ed_remarks">ED Remarks</string>
+    <string name="cphc_mental_ed_referral_required">ED Referral Required</string>
+    <string name="cphc_mental_ed_reason">ED Reason</string>
+    <string name="cphc_mental_referral_escalation_required">Referral Escalation Required</string>
+    <string name="cphc_mental_case_closure_reason">Case Closure Reason</string>
+
+    <string name="throat_alert_neck_swelling">Neck swelling detected. Refer patient to specialist at secondary level.</string>
+    <string name="throat_alert_difficulty_swallowing">Difficulty in swallowing detected. Refer patient to specialist at secondary level.</string>
+    <string name="throat_alert_cleft_lip">Cleft lip detected. Refer patient to specialist at secondary level.</string>
+    <string name="throat_alert_cleft_palate">Cleft palate detected. Refer patient to specialist at secondary level.</string>
+    <!-- Nose Diagnosis Form Strings -->
+    <string name="nose_bleed_title">Nose Bleed (Epistaxis)</string>
+    <string name="systolic_bp_title">Systolic BP (mmHg)</string>
+    <string name="diastolic_bp_title">Diastolic BP (mmHg)</string>
+    <string name="foreign_body_nose_title">Foreign Body Nose</string>
+    <string name="foreign_body_anterior">Yes (anterior visible)</string>
+    <string name="foreign_body_posterior">Yes (posterior visible)</string>
+    <string name="sinusitis_title">Sinusitis</string>
+    <string name="sinusitis_with_pain">Yes (Facial pain / tenderness)</string>
+
+    <!-- Nose Diagnosis Alert Messages -->
+    <string name="nose_bleed_alert_systolic_bp">Systolic BP &gt; 120 mmHg. Refer patient to specialist at secondary level.</string>
+    <string name="nose_bleed_alert_diastolic_bp">Diastolic BP &gt; 80 mmHg. Refer patient to specialist at secondary level.</string>
+    <string name="foreign_body_posterior_alert">Posterior visible detected. Refer patient to specialist at secondary level.</string>
+    <string name="sinusitis_alert">Chronic sinusitis suspected. Refer patient to specialist at secondary level.</string>
+
+    <!-- Nose Diagnosis Dropdown/Radio Options -->
+    <string-array name="nose_foreign_body_options">
+        <item>Yes (anterior visible)</item>
+        <item>Yes (posterior visible)</item>
+        <item>No</item>
+    </string-array>
+
+    <string name="title_oral_health">Dental Form</string>
+    <string name="oral_health_saved">Oral Health details saved</string>
+    <string name="oral_health_referral_alert">Refer patient to Dentist at the secondary level.</string>
+    <string name="title_psychosocial_caregiver_support">Psychosocial and Caregiver Support</string>
+    <string name="psychosocial_caregiver_support_saved">Psychosocial and Caregiver Support Saved</string>
+    <string-array name="no_outcome_at_birth_array">
+        <item>Live Birth</item>
+        <item>Still Birth (Macerated)</item>
+        <item>Still Birth (Fresh)</item>
+        <item>Died during delivery</item>
+    </string-array>
+
+    <string-array name="no_sex_array">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Ambiguous</item>
+    </string-array>
+
+    <string-array name="no_cried_immediately_array">
+        <item>Immediate cry</item>
+        <item>Cried after resuscitation</item>
+        <item>Not applicable (Stillbirth)</item>
+    </string-array>
+
+    <string-array name="no_type_of_resuscitation_array">
+        <item>Stimulation</item>
+        <item>Suctioning</item>
+        <item>Bag and mask ventilation</item>
+        <item>Oxygen</item>
+        <item>Intubation</item>
+        <item>Chest compressions</item>
+        <item>Medications</item>
+    </string-array>
+
+    <string-array name="no_congenital_anomaly_array">
+        <item>Yes</item>
+        <item>No</item>
+        <item>Suspected (under evaluation)</item>
+    </string-array>
+
+    <string-array name="no_type_of_congenital_anomaly_array">
+        <item>Neural tube defect (Spina bifida/Anencephaly)</item>
+        <item>Cleft lip/palate</item>
+        <item>Club foot</item>
+        <item>Down syndrome (suspected)</item>
+        <item>Congenital heart defect (suspected)</item>
+        <item>Limb defects</item>
+        <item>Abdominal wall defect</item>
+        <item>Genital abnormality</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="no_newborn_complications_array">
+        <item>Birth asphyxia</item>
+        <item>Respiratory distress</item>
+        <item>Neonatal jaundice (visible at birth)</item>
+        <item>Sepsis (suspected)</item>
+        <item>Hypothermia</item>
+        <item>Hypoglycemia</item>
+        <item>Bleeding</item>
+        <item>Convulsions</item>
+        <item>None</item>
+    </string-array>
+
+    <string-array name="no_current_status_array">
+        <item>Healthy and with mother</item>
+        <item>Admitted (SNCU/NICU)</item>
+        <item>Admitted (General ward)</item>
+        <item>Died</item>
+    </string-array>
+
+    <string-array name="no_cause_of_death_array">
+        <item>Birth asphyxia</item>
+        <item>Prematurity</item>
+        <item>Low birth weight complications</item>
+        <item>Sepsis</item>
+        <item>Congenital anomaly</item>
+        <item>Respiratory distress</item>
+        <item>Unknown</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="no_birth_dose_vaccines_array">
+        <item>BCG</item>
+        <item>Hepatitis B (Birth dose)</item>
+        <item>OPV-0</item>
+        <item>None</item>
+    </string-array>
+
+    <string-array name="no_birth_certificate_array">
+        <item>Yes</item>
+        <item>In process</item>
+        <item>No (Not applied)</item>
+    </string-array>
+
+    <!-- Extracted from Kotlin - user facing strings -->
+    <string name="today">Today</string>
+    <string name="month_january">January</string>
+    <string name="month_february">February</string>
+    <string name="month_march">March</string>
+    <string name="month_april">April</string>
+    <string name="month_may">May</string>
+    <string name="month_june">June</string>
+    <string name="month_july">July</string>
+    <string name="month_august">August</string>
+    <string name="month_september">September</string>
+    <string name="month_october">October</string>
+    <string name="month_november">November</string>
+    <string name="month_december">December</string>
+    <string name="no_face_detected">No face detected</string>
+    <string name="multiple_faces_detected">Multiple faces detected</string>
+    <string name="invalid_face_detection">Invalid face detection</string>
+    <string name="failed_to_generate_face_embeddings">Failed to generate face embeddings</string>
+    <string name="face_embeddings_generated">Face Embeddings Generated</string>
+    <string name="face_detection_failed">Face detection failed: %1$s</string>
+    <string name="unable_to_fetch_details">Unable to fetch details</string>
+    <string name="age_years_format">%1$d years</string>
+    <string name="anc_visit_number_format">ANC Visit %1$d</string>
+    <string name="completed_with_date">Completed: %1$s</string>
+    <string name="completed_status">✓ Completed</string>
+    <string name="scheduled_ga_format">Scheduled: %1$s (GA: %2$d weeks)</string>
+    <string name="due_status">⚠ Due</string>
+    <string name="pending_status">○ Pending</string>
+    <string name="na">NA</string>
+    <string name="previous_activity">Previous Activity</string>
+    <string name="activity_details">Activity Details</string>
+    <string name="activity_form">Activity Form</string>
+    <string name="medicine_not_available">Medicine not available</string>
+    <string name="login_failed_toast">Login Failed</string>
+    <string name="processing">Processing…</string>
+    <string name="invalid_input">Invalid input</string>
+    <string name="delivery_record_not_found">Delivery record not found</string>
+    <string name="save_successful_toast">Save Successful</string>
+    <string name="invalid_data_entered">Invalid data entered</string>
+    <string name="please_wait_master_location">Please wait while master location coordinates are fetched.</string>
+    <string name="data_saved">Data is Saved!</string>
+    <string name="error_saving_master_location">Error while saving the master location</string>
+    <string name="please_fill_all_details">Please fill all the details</string>
+    <string name="all_pnc_visits_completed">All PNC visits completed</string>
+    <string name="all_4_anc_visits_completed">All 4 ANC visits completed</string>
+    <string name="verify_abha_otp">Verify ABHA OTP</string>
+    <string name="events_for_date_already_exist">Events for this Date already exist</string>
+    <string name="proceed_to_home">Proceed to Home</string>
+    <string name="invalid_image_try_again">Invalid Image! Try Again</string>
+    <string name="exception_image_processing_failed">Exception! Image Processing Failed</string>
+    <string name="eyes_closed_try_again">Eyes Closed! Try Again</string>
+    <string name="home_visit">Home Visit</string>
+    <string name="please_capture_image_to_continue">Please capture the image to continue.</string>
+    <string name="loading_patient_data_please_wait">Loading patient data, please wait…</string>
+    <string name="nav_error">Nav Error: %1$s</string>
+    <string name="records_transferred_format">Records Transferred: %1$d/%2$d</string>
+    <string name="progress_percentage_format">%1$d%%</string>
+    <string name="please_enter_beneficiary_name">Please Enter Beneficiary Name</string>
+    <string name="batch_selection">Batch Selection</string>
+    <string name="template_deleted">Template deleted</string>
+    <string name="max_duration_allowed_6">Maximum value allowed for Duration is 6.</string>
+    <string name="medicine_number_format">Medicine - %1$d</string>
+    <string name="location_update_message">You have moved more than 2 meters from the fixed point. Do you want to update your location?</string>
+    <string name="beneficiary_abha_mapping">Beneficiary ABHA mapping.</string>
+    <string name="alert_title">Alert</string>
+    <string name="please_confirm_logout_exit">Please confirm to logout and exit.</string>
+    <string name="login_away_from_facility">You are trying to Log-in away from your facility. Do you want to retry?</string>
+    <string name="patient_already_exists">Patient Already Exists</string>
+    <string name="error_saving_patient">Error Saving Patient</string>
+    <string name="esanjeevani_login">eSanjeevani Login</string>
+    <string name="update_ready_to_install">An update is ready to install.</string>
+    <string name="restart">Restart</string>
+    <string name="applytxt">Apply</string>
+    <string name="choose_application_language">Choose Application Language</string>
+    <string name="update_canceled_or_failed">Update was canceled or failed.</string>
+    <string name="try_again_btn">Try Again</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="not_scheduled">Not scheduled</string>
+    <string name="location_provider_gps_disabled">Location Provider/GPS disabled</string>
+    <string name="invalid_image_multiple_faces">Invalid Image! Multiple Faces Detected</string>
+    <string name="linking_abha_to_beneficiary">Linking ABHA to beneficiary</string>
+    <string name="patient_already_exists_message">A patient with Beneficiary ID %1$s already exists in the system.</string>
+    <string name="error_saving_patient_message">Failed to save patient due to missing data. Please ensure all data is synced.</string>
+    <string name="stock_label">In Stock: %1$d</string>
+    <string name="out_of_stock">Out of Stock</string>
+
+    <!-- Case Closure Strings -->
+    <string name="case_closure_confirmation_title">Close Case</string>
+    <string name="case_closure_confirmation_message">This case is being closed. Do you want to proceed?</string>
+    <string name="case_closure_yes">Yes</string>
+    <string name="case_closure_no">No</string>
+    <string name="case_closure_error_pending_lab">Cannot close case: Lab test is pending</string>
+    <string name="case_closure_error_undispensed_medicine">Cannot close case: Medicine has not been dispensed</string>
+    <string name="case_closure_success">Case closed successfully</string>
+    <string name="case_closure_error">Error closing case</string>
+    <string name="antra_next_due_date">ANTRA Next Due Date</string>
+
+    <string name="refer_date">Refer Date:</string>
+    <string name="referred_from">Referred From:</string>
+    <string name="referred_to">Referred To:</string>
+
+    <!-- Mental Health Screening Strings -->
+    <!-- Response Options -->
+    <string name="yes_option">Yes</string>
+    <string name="no_option">No</string>
+
+    <!-- Initial Screening Questions -->
+    <string name="emotional_behavioural_concerns">Emotional or behavioural concerns present</string>
+    <string name="substance_use_concerns">Substance use related concerns present</string>
+    <string name="self_harm_suicide_thoughts">Thoughts of self-harm or suicide present</string>
+    <string name="memory_loss_confusion">Memory loss or confusion present</string>
+    <string name="seizures_fits_loc">Seizures, fits, or loss of consciousness present</string>
+    <string name="postpartum_woman">Post-partum woman (≤12 months after delivery)</string>
+
+    <!-- PHQ-9 Depression Screening -->
+    <string name="phq9_section_title">PHQ-9 Depression Screening</string>
+    <string name="phq9_little_interest">Little interest or pleasure in doing things</string>
+    <string name="phq9_feeling_down">Feeling down, depressed, or hopeless</string>
+    <string name="phq9_sleep_trouble">Trouble falling/staying asleep, or sleeping too much</string>
+    <string name="phq9_feeling_tired">Feeling tired or having little energy</string>
+    <string name="phq9_appetite">Poor appetite or overeating</string>
+    <string name="phq9_feeling_bad">Feeling bad about yourself — or that you are a failure</string>
+    <string name="phq9_concentration">Trouble concentrating on things</string>
+    <string name="phq9_moving_slowly">Moving or speaking slowly, or being fidgety/restless</string>
+    <string name="phq9_self_harm_thoughts">Thoughts that you would be better off dead or of hurting yourself</string>
+    <string name="phq9_total_score">PHQ-9 Total Score</string>
+
+    <string-array name="phq9_options">
+        <item>0 - Not at all</item>
+        <item>1 - Several days</item>
+        <item>2 - More than half the days</item>
+        <item>3 - Nearly every day</item>
+    </string-array>
+
+    <!-- Substance Use Screening & Brief Intervention -->
+    <string name="substance_section_title">Substance Use Screening and Brief Intervention</string>
+    <string name="substance_tobacco_title">Tobacco Use Identification</string>
+    <string name="substance_alcohol_title">Alcohol Use Identification </string>
+    <string name="substance_alcohol_use">Current alcohol use</string>
+    <string name="substance_tobacco_use">Tobacco use</string>
+    <string name="substance_alcohol_loss">Loss of control over drinking</string>
+    <string name="substance_alcohol_impact">Impact on daily functioning (health, family, work)</string>
+    <string name="substance_alcohol_withdrawal">Symptoms suggestive of withdrawal</string>
+    <string name="substance_alcohol_problematic">CHO assessment of problematic alcohol use</string>
+    <string name="substance_alcohol_classification">Alcohol use classification</string>
+    <string name="substance_alcohol_system_action">System action</string>
+    <string name="substance_other_specify">Specify other substance</string>
+    <string name="substance_alcohol_frequency">Frequency of Alcohol use</string>
+    <string name="brief_intervention_given">Brief intervention given</string>
+
+    <string-array name="substance_frequency_options">
+        <item>Occasionally</item>
+        <item>Regular</item>
+        <item>Daily</item>
+    </string-array>
+
+    <!-- Suicide Risk Screening -->
+    <string name="suicide_section_title">Suicide Risk Screening</string>
+    <string name="suicide_current_thoughts">Current thoughts of self-harm or ending life</string>
+    <string name="suicide_plan">Current intent or plan</string>
+    <string name="suicide_immediate_assess">CHO assesses immediate risk</string>
+    <string name="suicide_previous_attempt">Previous suicide attempt</string>
+    <string name="suicide_risk_alert_moderate">Moderate Suicide Risk: Immediate counselling required. Consider referral.</string>
+    <string name="suicide_risk_alert_high">High Suicide Risk: Emergency intervention required. Refer immediately.</string>
+    <string name="suicide_hopelessness">Access to means</string>
+    <string name="suicide_risk_level">Suicide risk level</string>
+
+    <string-array name="suicide_risk_options">
+        <item>Low</item>
+        <item>Moderate</item>
+        <item>High</item>
+    </string-array>
+    <string-array name="alcohol_system_action_options">
+        <item>Brief intervention</item>
+        <item>Referral</item>
+    </string-array>
+
+    <!-- Dementia Screening Checklist -->
+    <string name="dementia_section_title">Dementia Screening Checklist</string>
+    <string name="dementia_progressive_memory_loss">Progressive memory loss</string>
+    <string name="dementia_forgetting_recent">Forgetting recent events</string>
+    <string name="dementia_disorientation">Disorientation to time/place</string>
+    <string name="dementia_daily_activities">Difficulty managing daily activities</string>
+    <string name="dementia_behavioural_changes">Behavioural changes</string>
+
+    <!-- Epilepsy Screening Checklist -->
+    <string name="epilepsy_section_title">Epilepsy Screening Checklist</string>
+    <string name="epilepsy_recurrent_seizures">Recurrent seizures/fits</string>
+    <string name="epilepsy_jerky_movements">Jerky movements during episode</string>
+    <string name="epilepsy_tongue_bite">Tongue bite or incontinence during episode</string>
+    <string name="epilepsy_confusion_after">Confusion after episode</string>
+    <string name="epilepsy_loc_duration">Duration of loss of consciousness</string>
+
+    <string-array name="epilepsy_duration_options">
+        <item>Less than 5 minutes</item>
+        <item>5–15 minutes</item>
+        <item>More than 15 minutes</item>
+    </string-array>
+
+    <!-- Mental Health Referral Reasons -->
+    <string name="mental_health_reason_for_referral">Reason for referral</string>
+    <string-array name="mental_health_referral_reasons">
+        <item>Depression (PHQ-9 score ≥10)</item>
+        <item>Suicide risk identified</item>
+        <item>Substance use disorder</item>
+        <item>Dementia suspected</item>
+        <item>Epilepsy suspected</item>
+        <item>Post-partum depression</item>
+        <item>Severe mental disorder suspected</item>
+        <item>Other</item>
+    </string-array>
+
+    <!-- Yes/No Options Array -->
+    <string-array name="yes_no_options">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <!-- PHQ-9 Alert Strings -->
+    <string name="phq9_alert_referral_mo_phc"><font color="#FF0000">Refer to MO/PHC (PHQ-9 score ≥ 10)</font></string>
+    <string name="phq9_alert_urgent"><font color="#FF0000">Urgent referral (PHQ-9 score ≥ 15)</font></string>
+    <string name="phq9_alert_emergency"><font color="#FF0000">Emergency referral (PHQ-9 score ≥ 20)</font></string>
+    <string name="title_elderly_health_assessment">Elderly Health Assessment</string>
+    <string name="epilepsy_dementia_checklist_title">Epilepsy &amp; Dementia Screening Checklist</string>
+    <string name="ed_edRecurrentEpisodeloss">Episodes of loss of consciousness</string>
+    <string name="ed_edConfusionordrowsiness">Confusion or drowsiness after episode</string>
+    <string name="ed_recurrent_jerky_movements">Recurrent jerky movements / fits</string>
+    <string name="ed_progressive_memory_loss">Progressive memory loss</string>
+    <string name="ed_confusion_disorientation">Disorientation or confusion </string>
+    <string name="ed_functional_decline">Decline in daily functioning (self-care, routine activities)</string>
+    <string name="ed_age_60_years">Age ≥ 60 years</string>
+    <string name="ed_screening_outcome">Screening Outcome</string>
+    <string name="ed_referral_required">Referral Required</string>
+    <string name="ed_reason">Reason</string>
+    <string name="ed_psychosocial_intervention_provided">Psychosocial intervention provided</string>
+    <string name="ed_intervention_type">Type of intervention</string>
+    <string name="ed_session_date">Session date</string>
+    <string name="ed_duration_minutes">Duration (minutes)</string>
+    <string name="ed_remarks">Remarks</string>
+    <!-- Mental Health Screening – Referral fields -->
+    <string name="mh_referral_required_title">Referral required</string>
+    <string name="mh_referral_level_title">Referral level</string>
+    <string-array name="mh_referral_level_options">
+        <item>PHC</item>
+        <item>DMHP</item>
+        <item>De-addiction centre</item>
+    </string-array>
+    <string name="mh_reason_for_referral_title">Reason for referral</string>
+    <string-array name="mh_reason_for_referral_options">
+        <item>Suicide risk / self-harm</item>
+        <item>Moderate to severe depression</item>
+        <item>Severe mental disorder suspected</item>
+        <item>Substance dependence / withdrawal</item>
+        <item>Functional impairment</item>
+        <item>Neurological condition suspected</item>
+        <item>Child behavioural concern</item>
+        <item>Risk to self or others</item>
+        <item>No improvement / worsening</item>
+        <item>Requires specialist care</item>
+    </string-array>
+    <string-array name="mh_reason_for_referral_options_under_11">
+        <item>Mental health complaint</item>
+        <item>Medical complication</item>
+    </string-array>
+    <string name="mh_referral_date_title">Referral date</string>
+
+    <!-- Mental Health Screening – Follow-up & Closure fields -->
+    <string name="mh_follow_up_required_title">Follow-up required</string>
+    <string name="mh_follow_up_date_title">Follow-up date</string>
+    <string name="mh_improvement_noted_title">Improvement noted</string>
+    <string name="mh_adherence_to_advice_title">Adherence to advice</string>
+    <string-array name="mh_improvement_noted_options">
+        <item>Improved</item>
+        <item>Same</item>
+        <item>Worse</item>
+    </string-array>
+    <string name="mh_repeat_phq9_title">Repeat PHQ-9</string>
+    <string name="mh_referral_escalation_title">Escalation required</string>
+    <string name="mh_case_closure_reason_title">Case closure reason</string>
+    <string-array name="mh_case_closure_reason_options">
+        <item>Recovered</item>
+        <item>Referred</item>
+        <item>Lost to follow-up</item>
+        <item>Death</item>
+    </string-array>
+    <string name="cd_camera_search">Open camera</string>
+
+    <!-- Ear Diagnosis Dataset -->
+    <string name="ear_difficulty_hearing">Difficulty Hearing</string>
+    <string name="ear_whisper_test_response">Whisper Test Response</string>
+    <string name="ear_whisper_correct">Correct</string>
+    <string name="ear_whisper_incorrect">Incorrect</string>
+    <string name="ear_hearing_test_outcome">Hearing Test Outcome</string>
+    <string name="ear_hearing_normal">Normal</string>
+    <string name="ear_hearing_slight_loss">Slight Loss</string>
+    <string name="ear_hearing_moderate">Moderate</string>
+    <string name="ear_hearing_severe">Severe</string>
+    <string name="ear_hearing_deaf">Deaf</string>
+    <string name="ear_pain">Earache / Ear Pain</string>
+    <string name="ear_discharge_present">Ear Discharge Present</string>
+    <string name="ear_foreign_body">Foreign Body Present in Ear</string>
+    <string name="ear_foreign_body_superficial">Yes (Superficial)</string>
+    <string name="ear_foreign_body_deep">Yes (Deep)</string>
+    <string name="ear_condition_type">Type of Ear Condition</string>
+    <string name="ear_otomycosis">Otomycosis</string>
+    <string name="ear_otitis_externa">Otitis Externa</string>
+    <string name="ear_acute_discharge">Acute Ear Discharge</string>
+    <string name="ear_chronic_discharge">Chronic Ear Discharge</string>
+    <string name="ear_wax">Ear Wax</string>
+    <string name="ear_congenital_malformation">Congenital Ear Malformation</string>
+    <string name="ear_alert_abnormal_hearing">Abnormal hearing detected. Refer patient to specialist at secondary level.</string>
+    <string name="ear_alert_deep_foreign_body">Deep foreign body detected. Refer patient to specialist at secondary level.</string>
+    <string name="ear_alert_congenital_malformation">Congenital ear malformation detected. Refer patient to specialist at secondary level.</string>
+
+    <!-- Oral Health Dataset -->
+    <string name="oral_tooth_decay_present">Tooth Decay Present</string>
+    <string name="oral_tooth_decay_symptoms">Symptoms of Tooth Decay</string>
+    <string name="oral_symptom_black_spot">Black spot</string>
+    <string name="oral_symptom_discoloration">Discoloration of tooth Cavity</string>
+    <string name="oral_symptom_hole">Hole in the tooth</string>
+    <string name="oral_symptom_sensitivity">Sensitivity to hot and cold, sweet and sour</string>
+    <string name="oral_symptom_food_lodgment">Food lodgment in the cavity/ between teeth</string>
+    <string name="oral_symptom_pain">Pain</string>
+    <string name="oral_symptom_swelling">Swelling</string>
+    <string name="oral_symptom_pus_discharge">Pus discharge</string>
+    <string name="oral_gum_disease_present">Gum Diseases Present</string>
+    <string name="oral_gum_disease_symptoms">Symptoms of Gum Diseases</string>
+    <string name="oral_gum_foul_smell">Foul smell</string>
+    <string name="oral_gum_bleeding">Bleeding gums</string>
+    <string name="oral_gum_deposits">Deposits and discoloration of tooth</string>
+    <string name="oral_gum_loose_teeth">Loose teeth</string>
+    <string name="oral_gum_widening_gap">Widening gap between teeth</string>
+    <string name="oral_gum_swollen">Swollen gums</string>
+    <string name="oral_irregular_teeth_jaws">Irregular Teeth/Jaws</string>
+    <string name="oral_abnormal_growth_ulcer">Abnormal Growth/Ulcer</string>
+    <string name="oral_cleft_lip_palate">Cleft Lip/Palate</string>
+    <string name="oral_dental_fluorosis">Dental Fluorosis</string>
+    <string name="oral_dental_emergency">Dental Emergency</string>
+    <string name="oral_emergency_pain">Pain</string>
+    <string name="oral_emergency_abscess">Abscess</string>
+    <string name="oral_emergency_swelling">Swelling</string>
+    <string name="oral_emergency_tooth_injury">Tooth Injury</string>
+    <string name="oral_emergency_avulsion">Avulsion</string>
+    <string name="oral_emergency_non_healing_ulcer">Non-Healing Ulcer</string>
+    <string name="oral_emergency_uncontrolled_bleeding">Uncontrolled Bleeding</string>
+    <string name="oral_emergency_trauma">Trauma (Fractured jaw/mobile teeth)</string>
+
+    <!-- Elderly Health Assessment Dataset -->
+    <string name="elderly_geriatric_complaints">General geriatric complaints present?</string>
+    <string name="elderly_multiple_chronic">Multiple chronic conditions</string>
+    <string name="elderly_recent_falls">Recent falls</string>
+    <string name="elderly_difficulty_walking">Difficulty in walking or balance</string>
+    <string name="elderly_visual_hearing">Visual or hearing difficulty</string>
+    <string name="elderly_functional_decline">Functional decline / difficulty in daily activities (ADL)</string>
+    <string name="elderly_functional_assessment_headline">Functional Assessment section</string>
+    <string name="elderly_bathing">Bathing</string>
+    <string name="elderly_dressing">Dressing</string>
+    <string name="elderly_toileting">Toileting</string>
+    <string name="elderly_transferring">Transferring</string>
+    <string name="elderly_continence">Continence</string>
+    <string name="elderly_feeding">Feeding</string>
+    <string name="elderly_independent">Independent (1)</string>
+    <string name="elderly_dependent">Dependent (0)</string>
+    <string name="elderly_total_score">Total Score</string>
+    <string name="elderly_functional_status">Functional Status</string>
+    <string name="elderly_functional_decline_flag">Functional Decline Flag</string>
+    <string name="elderly_status_no_decline">No decline</string>
+    <string name="elderly_status_partial_dependence">Partial Dependence</string>
+    <string name="elderly_status_functional_dependence">Functional Dependence</string>
+    <string name="elderly_status_highly_dependent">Highly Dependent</string>
+    <string name="elderly_status_unknown">Unknown</string>
+    <string name="elderly_memory_loss">Memory loss or confusion</string>
+    <string name="elderly_dementia_headline">Dementia Screening Checklist</string>
+    <string name="elderly_dementia_memory_loss">Progressive memory loss</string>
+    <string name="elderly_dementia_disorientation">Disorientation (time/place/person)</string>
+    <string name="elderly_dementia_behavioural">Behavioural changes</string>
+    <string name="elderly_dementia_self_care">Decline in self-care / routine activities</string>
+    <string name="elderly_screening_outcome">Screening Outcome</string>
+    <string name="elderly_referral_required">Referral Required</string>
+    <string name="elderly_outcome_suspected">Suspected</string>
+    <string name="elderly_outcome_not_suspected">Not suspected</string>
+    <string name="elderly_alert_functional_decline">Patient has functional decline. Please refer to higher facility if needed.</string>
+    <string name="elderly_alert_memory_loss">Patient has memory loss. Please refer to higher facility if needed.</string>
+
+    <!-- Psychosocial Caregiver Support Dataset -->
+    <string name="psychosocial_counselling_provided">Psychosocial counselling provided</string>
+    <string name="psychosocial_caregiver_counselling">Caregiver counselling provided</string>
+    <string name="psychosocial_caregiver_distress">Caregiver distress identified</string>
+    <string name="psychosocial_counselling_remarks">Counselling remarks</string>
+
+    <!-- Mental Health Screening – remaining hardcoded strings -->
+    <string name="mh_depression_severity">Depression Severity</string>
+    <string name="mh_system_action">System Action</string>
+    <string name="mh_current_tobacco_use">Current tobacco use</string>
+    <string name="mh_tobacco_type">Type of tobacco use</string>
+    <string name="mh_tobacco_smoking">Smoking</string>
+    <string name="mh_tobacco_smokeless">Smokeless</string>
+    <string name="mh_tobacco_both">Both</string>
+    <string name="mh_tobacco_frequency">Frequency of tobacco use</string>
+    <string name="mh_tobacco_occasional">Occasional</string>
+    <string name="mh_tobacco_daily">Daily</string>
+    <string name="mh_tobacco_outcome">Tobacco use outcome</string>
+    <string name="mh_tobacco_system_action">System action</string>
+    <string name="mh_intervention_psychoeducation">Psychoeducation</string>
+    <string name="mh_intervention_counselling">Counselling</string>
+    <string name="mh_intervention_stress_mgmt">Stress management</string>
+    <string name="mh_intervention_family_counselling">Family counselling</string>
+    <string name="mh_suicide_immediate_assess">CHO assesses immediate risk</string>
+    <string name="mh_suicide_risk_alert_moderate">Moderate Suicide Risk: Immediate counselling required. Consider referral.</string>
+    <string name="mh_suicide_risk_alert_high">High Suicide Risk: Emergency intervention required. Refer immediately.</string>
+    <string name="mh_date_format_pattern">dd/MM/yyyy</string>
+    <string name="mh_suspected">Suspected</string>
+    <string name="mh_de_addiction">De-addiction</string>
+    <string name="mh_de_addiction_centre">De-addiction centre</string>
+
+    <!-- PHQ-9 Severity -->
+    <string-array name="phq9_severity_options">
+        <item>Minimal</item>
+        <item>Mild</item>
+        <item>Moderate</item>
+        <item>Moderately Severe</item>
+        <item>Severe</item>
+    </string-array>
+
+    <!-- PHQ-9 System Actions -->
+    <string-array name="phq9_system_action_options">
+        <item>Psychoeducation</item>
+        <item>Counselling - Refer to MO/PHC</item>
+        <item>Referral - Urgent referral</item>
+        <item>Referral - Emergency referral</item>
+    </string-array>
+
+    <!-- Tobacco Outcomes -->
+    <string-array name="mh_tobacco_outcome_options">
+        <item>Use identified</item>
+        <item>No use identified</item>
+    </string-array>
+
+    <!-- Tobacco System Actions -->
+    <string-array name="mh_tobacco_system_action_options">
+        <item>Brief counselling</item>
+        <item>Referral</item>
+    </string-array>
+
+    <!-- Alcohol Classification -->
+    <string-array name="mh_alcohol_classification_options">
+        <item>No problematic alcohol use identified</item>
+        <item>Problematic alcohol use suspected</item>
+    </string-array>
+
+    <!-- ED Screening Outcomes -->
+    <string-array name="mh_ed_outcome_options">
+        <item>Suspected Epilepsy</item>
+        <item>Suspected Dementia</item>
+        <item>Suspected</item>
+        <item>Not suspected</item>
+    </string-array>
+
+    <string name="mh_ed_reason_neurological">Neurological condition suspected</string>
+
+    <!-- Contextual Referral Levels -->
+    <string-array name="mh_referral_level_dmhp_options">
+        <item>Primary Health Centre (PHC)</item>
+        <item>CHC</item>
+        <item>District Hospital</item>
+        <item>District Mental Health Programme (DMHP)</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_alcohol_options">
+        <item>PHC</item>
+        <item>De-addiction</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_rbsk_options">
+        <item>RBSK DEIC</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_child_options">
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>DH</item>
+    </string-array>
+
+    <string-array name="mh_referral_level_adult_options">
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>DH</item>
+        <item>DMHP</item>
+        <item>De-addiction</item>
+    </string-array>
+    
+    <string-array name="mh_referral_level_standard_mh_options">
+        <item>PHC</item>
+        <item>DMHP</item>
+    </string-array>
+    
+    <string name="elderly_health_assessment_saved">Elderly Health Assessment Saved</string>
+
+    <!--
+      MasterDataLocalizer mapping arrays. The _en_keys array holds the canonical
+      English values that are used as keys for lookup and for persistence to the
+      DB and server. The _localized array (defined per-locale) holds the
+      locale-specific display label at the same index. Index alignment is
+      load-bearing — do not reorder one without the other.
+    -->
+    <string-array name="chief_complaint_en_keys" translatable="false">
+        <item>Fever</item>
+        <item>Cough</item>
+        <item>Headache</item>
+        <item>Cold</item>
+        <item>Vomiting</item>
+        <item>Diarrhea</item>
+        <item>Body pain</item>
+        <item>Stomach pain</item>
+        <item>Chest pain</item>
+        <item>Shortness of breath</item>
+        <item>Fatigue</item>
+        <item>Loss of appetite</item>
+        <item>Cataract</item>
+        <item>Glaucoma</item>
+        <item>Diabetic retinopathy</item>
+        <item>Presbyopia</item>
+        <item>Trachoma</item>
+        <item>Corneal disease</item>
+        <item>Conjunctivitis/Acute red eye</item>
+        <item>Dry eye / xerophthalmia</item>
+        <item>Dry eye/ xerophthalmia</item>
+        <item>Eye allergy</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye,</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye</item>
+        <item>Chemical exposure (acid/ alkali/other),</item>
+        <item>Chemical exposure (acid/ alkali/other)</item>
+        <item>Foreign body lodged in the eye</item>
+        <item>Dental Decay</item>
+        <item>Gum diseases</item>
+        <item>Irregular arrangement of teeth and jaws</item>
+        <item>Abnormal growth, patch or ulcers</item>
+        <item>Cleft lip/ palate</item>
+        <item>Dental Fluorosis</item>
+        <item>Dental Emergencies</item>
+        <item>Neck swelling</item>
+        <item>Dysphagia</item>
+        <item>Cleft lip</item>
+        <item>Cleft palate</item>
+        <item>Tonsillitis</item>
+        <item>Pharyngitis</item>
+        <item>Laryngitis</item>
+        <item>Sinusitis</item>
+        <item>Difficulty in hearing</item>
+        <item>Ear wax</item>
+        <item>Congenital Ear Malformation</item>
+        <item>Foreign body in ear</item>
+        <item>open mouth breathing</item>
+        <item>Nosebleed</item>
+        <item>Foreign body in nose</item>
+    </string-array>
+
+    <string-array name="chief_complaint_localized">
+        <item>Fever</item>
+        <item>Cough</item>
+        <item>Headache</item>
+        <item>Cold</item>
+        <item>Vomiting</item>
+        <item>Diarrhea</item>
+        <item>Body pain</item>
+        <item>Stomach pain</item>
+        <item>Chest pain</item>
+        <item>Shortness of breath</item>
+        <item>Fatigue</item>
+        <item>Loss of appetite</item>
+        <item>Cataract</item>
+        <item>Glaucoma</item>
+        <item>Diabetic retinopathy</item>
+        <item>Presbyopia</item>
+        <item>Trachoma</item>
+        <item>Corneal disease</item>
+        <item>Conjunctivitis/Acute red eye</item>
+        <item>Dry eye / xerophthalmia</item>
+        <item>Dry eye/ xerophthalmia</item>
+        <item>Eye allergy</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye,</item>
+        <item>Eye injuries from blunt trauma, penetrating injury to eye</item>
+        <item>Chemical exposure (acid/ alkali/other),</item>
+        <item>Chemical exposure (acid/ alkali/other)</item>
+        <item>Foreign body lodged in the eye</item>
+        <item>Dental Decay</item>
+        <item>Gum diseases</item>
+        <item>Irregular arrangement of teeth and jaws</item>
+        <item>Abnormal growth, patch or ulcers</item>
+        <item>Cleft lip/ palate</item>
+        <item>Dental Fluorosis</item>
+        <item>Dental Emergencies</item>
+        <item>Neck swelling</item>
+        <item>Dysphagia</item>
+        <item>Cleft lip</item>
+        <item>Cleft palate</item>
+        <item>Tonsillitis</item>
+        <item>Pharyngitis</item>
+        <item>Laryngitis</item>
+        <item>Sinusitis</item>
+        <item>Difficulty in hearing</item>
+        <item>Ear wax</item>
+        <item>Congenital Ear Malformation</item>
+        <item>Foreign body in ear</item>
+        <item>open mouth breathing</item>
+        <item>Nosebleed</item>
+        <item>Foreign body in nose</item>
+    </string-array>
+
+    <string-array name="duration_units_en_keys" translatable="false">
+        <item>Hour(s)</item>
+        <item>Day(s)</item>
+        <item>Week(s)</item>
+        <item>Month(s)</item>
+        <item>Year(s)</item>
+    </string-array>
+
+    <string-array name="duration_units_localized">
+        <item>Hour(s)</item>
+        <item>Day(s)</item>
+        <item>Week(s)</item>
+        <item>Month(s)</item>
+        <item>Year(s)</item>
+    </string-array>
 
 </resources>

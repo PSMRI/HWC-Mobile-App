@@ -18,6 +18,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import timber.log.Timber
 
 class DateTimeUtil {
 
@@ -77,6 +78,8 @@ class DateTimeUtil {
 
     companion object {
 
+        private const val ZERO_DAYS_AGE_TEXT = "0 days"
+
         val ageUnitMap = mapOf(
             AgeUnitEnum.YEARS to "y",
             AgeUnitEnum.MONTHS to "m",
@@ -86,6 +89,17 @@ class DateTimeUtil {
 
         const val format = "yyyy-MM-dd HH:mm:ss"
 
+        fun formatDateStr(input: String): String {
+            val inputFormat = SimpleDateFormat("MMM d, yyyy, hh:mm:ss a", Locale.ENGLISH)
+            val outputFormat = SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH)
+
+            return try {
+                val date = inputFormat.parse(input)
+                outputFormat.format(date!!)
+            } catch (e: Exception) {
+                "Invalid Date"
+            }
+        }
         fun formatDate(date: Date): String {
             val pattern = "dd-MM-yyyy"
             val sdf = SimpleDateFormat(pattern, Locale.getDefault())
@@ -209,6 +223,19 @@ class DateTimeUtil {
             return Age(AgeUnitEnum.DAYS, period.days)
         }
 
+        @JvmStatic
+        fun String?.toMillisOrNull(pattern: String = "MMM dd, yyyy, h:mm:ss a"): Long? {
+            if (this.isNullOrBlank()) return null
+            return try {
+                val format = SimpleDateFormat(pattern, Locale.getDefault())
+                format.timeZone = TimeZone.getTimeZone("UTC")
+                format.parse(this)?.time
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+
         @RequiresApi(Build.VERSION_CODES.O)
         fun calculateAgePicker(dateOfBirth: Date): AgePicker {
             val birthLocalDate =
@@ -279,9 +306,44 @@ class DateTimeUtil {
 
         @RequiresApi(Build.VERSION_CODES.O)
         fun formatUTCToDate(dateString: String): Date? {
-            val instant = Instant.parse(dateString)
-            val date = Date.from(instant)
-            return date
+            return try {
+                // Try parsing with Instant.parse first (handles ISO 8601 formats)
+                val instant = Instant.parse(dateString)
+                Date.from(instant)
+            } catch (e: Exception) {
+                // Fallback: Try parsing with SimpleDateFormat for various formats
+                try {
+                    val formats = listOf(
+                        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",  // 1994-09-10T00:00:00.000+00:00
+                        "yyyy-MM-dd'T'HH:mm:ss.SSSZ",     // 1994-09-10T00:00:00.000+0000
+                        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",   // 1994-09-10T00:00:00.000Z
+                        "yyyy-MM-dd'T'HH:mm:ssXXX",       // 1994-09-10T00:00:00+00:00
+                        "yyyy-MM-dd'T'HH:mm:ssZ",         // 1994-09-10T00:00:00+0000
+                        "yyyy-MM-dd'T'HH:mm:ss'Z'",       // 1994-09-10T00:00:00Z
+                        "yyyy-MM-dd"                      // 1994-09-10
+                    )
+                    
+                    for (format in formats) {
+                        try {
+                            val sdf = SimpleDateFormat(format, Locale.US)
+                            sdf.timeZone = TimeZone.getTimeZone("UTC")
+                            val date = sdf.parse(dateString)
+                            if (date != null) {
+                                Timber.d("Successfully parsed date with format $format: $dateString -> $date")
+                                return date
+                            }
+                        } catch (e2: Exception) {
+                            // Try next format
+                            continue
+                        }
+                    }
+                    Timber.e("Failed to parse date string with any format: $dateString")
+                    null
+                } catch (e2: Exception) {
+                    Timber.e(e2, "Error in fallback date parsing: $dateString")
+                    null
+                }
+            }
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
@@ -318,8 +380,16 @@ class DateTimeUtil {
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun calculateAgeString(dateOfBirth: Date): String {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                calculateAgeStringModern(dateOfBirth)
+            } else {
+                calculateAgeStringLegacy(dateOfBirth)
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        private fun calculateAgeStringModern(dateOfBirth: Date): String {
             val birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             val currentDate = LocalDate.now()
 
@@ -344,7 +414,61 @@ class DateTimeUtil {
 
             }
 
-            return ageString
+            return ageString.ifBlank { ZERO_DAYS_AGE_TEXT }
+        }
+
+        private fun calculateAgeStringLegacy(dateOfBirth: Date): String {
+            val birthCalendar = Calendar.getInstance()
+            birthCalendar.time = dateOfBirth
+            val currentCalendar = Calendar.getInstance()
+
+            var years = currentCalendar.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR)
+            var months = currentCalendar.get(Calendar.MONTH) - birthCalendar.get(Calendar.MONTH)
+            var days = currentCalendar.get(Calendar.DAY_OF_MONTH) - birthCalendar.get(Calendar.DAY_OF_MONTH)
+
+            // Adjust for negative days
+            if (days < 0) {
+                months--
+                // Get the actual number of days in the previous month
+                val tempCalendar = Calendar.getInstance()
+                tempCalendar.set(Calendar.YEAR, currentCalendar.get(Calendar.YEAR))
+                tempCalendar.set(Calendar.MONTH, currentCalendar.get(Calendar.MONTH))
+                tempCalendar.set(Calendar.DAY_OF_MONTH, 1)
+                tempCalendar.add(Calendar.DAY_OF_MONTH, -1)
+                val daysInPreviousMonth = tempCalendar.get(Calendar.DAY_OF_MONTH)
+                days += daysInPreviousMonth
+            }
+
+            // Adjust for negative months
+            if (months < 0) {
+                years--
+                months += 12
+            }
+
+            // Adjust for negative years (shouldn't happen, but safety check)
+            if (years < 0) {
+                return ZERO_DAYS_AGE_TEXT
+            }
+
+            // Match the modern implementation's logic: use modulo for months and days
+            months = months % 12
+            days = days % 30
+
+            var ageString = ""
+            if (years > 0) {
+                ageString += "$years years"
+            } else {
+                if (months > 0) {
+                    if (ageString.isNotEmpty()) ageString += ", "
+                    ageString += "$months months"
+                }
+                if (days > 0) {
+                    if (ageString.isNotEmpty()) ageString += ", "
+                    ageString += "$days days"
+                }
+            }
+
+            return ageString.ifBlank { ZERO_DAYS_AGE_TEXT }
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
@@ -380,8 +504,40 @@ class DateTimeUtil {
             return type
         }
 
+        fun formatedDate(dateStr: String?): String {
+            if (dateStr.isNullOrBlank()) return "N/A"
+
+            return try {
+                val inputFormat = SimpleDateFormat("MMM d, yyyy, h:mm:ss a", Locale.ENGLISH)
+                val date = inputFormat.parse(dateStr)
+
+                val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                outputFormat.format(date!!)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                "N/A"
+            }
+        }
     }
 
+
+
+}
+
+/**
+ * Applies min/max date bounds only when provided. Using 0 as a fallback when null
+ * restricts the picker to epoch (1970-01-01) and crashes if the initial date is later.
+ * max must never be less than min — that also crashes the platform DatePicker.
+ */
+fun DatePicker.applySafeDateConstraints(min: Long?, max: Long?) {
+    when {
+        min != null && max != null -> {
+            minDate = min
+            maxDate = maxOf(min, max)
+        }
+        min != null -> minDate = min
+        max != null -> maxDate = max
+    }
 }
 
 data class AgePicker(val years: Int, val months: Int, val weeks: Int, val days: Int)
@@ -398,4 +554,3 @@ enum class AgeUnitEnum {
     WEEKS,
     DAYS
 }
-

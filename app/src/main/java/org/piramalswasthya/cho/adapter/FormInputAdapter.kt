@@ -2,8 +2,8 @@ package org.piramalswasthya.cho.adapter
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.res.ColorStateList
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
@@ -18,7 +18,6 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -40,8 +39,14 @@ import org.piramalswasthya.cho.databinding.RvItemFormRadioV2Binding
 import org.piramalswasthya.cho.databinding.RvItemFormTextViewV2Binding
 import org.piramalswasthya.cho.databinding.RvItemFormTimepickerV2Binding
 import org.piramalswasthya.cho.helpers.Konstants
+import org.piramalswasthya.cho.configuration.Dataset
+import org.piramalswasthya.cho.databinding.LayoutUploadFormBinding
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.model.InputType
+import org.piramalswasthya.cho.utils.KeyboardUtils
+import org.piramalswasthya.cho.utils.applySafeDateConstraints
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.model.InputType.AGE_PICKER
 import org.piramalswasthya.cho.model.InputType.CHECKBOXES
 import org.piramalswasthya.cho.model.InputType.DATE_PICKER
@@ -61,8 +66,12 @@ class FormInputAdapter(
     private val imageClickListener: ImageClickListener? = null,
     private val ageClickListener: AgeClickListener? = null,
     private val formValueListener: FormValueListener? = null,
-    private val isEnabled: Boolean = true
-) : ListAdapter<FormElement, ViewHolder>(FormInputDiffCallBack) {
+    private val isEnabled: Boolean = true,
+    private val selectImageClickListener: SelectUploadImageClickListener? = null,
+    private val viewDocumentListner: ViewDocumentOnClick? = null,
+
+    ) : ListAdapter<FormElement, ViewHolder>(FormInputDiffCallBack) {
+    var disableUpload = false
 
     //    @Inject
 //    lateinit var preferenceDao: PreferenceDao
@@ -73,8 +82,9 @@ class FormInputAdapter(
             oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: FormElement, newItem: FormElement): Boolean {
-            Timber.d("${oldItem.id}   ${oldItem.errorText} ${newItem.errorText}")
-            return oldItem.errorText == newItem.errorText
+            val contentsSame = oldItem.errorText == newItem.errorText && oldItem.value == newItem.value
+            Timber.d("${oldItem.id} errorText: ${oldItem.errorText}==${newItem.errorText}, value: '${oldItem.value}'=='${newItem.value}', same=$contentsSame")
+            return contentsSame
         }
     }
 
@@ -89,19 +99,32 @@ class FormInputAdapter(
             }
         }
 
-        fun bind(item: FormElement, isEnabled: Boolean, formValueListener: FormValueListener?) {
+        fun bind(
+            item: FormElement,
+            isEnabled: Boolean,
+            formValueListener: FormValueListener?,
+            refreshDeliveryOutcomeFields: (() -> Unit)? = null
+        ) {
             Timber.d("binding triggered!!! $isEnabled ${item.id}")
             if (!isEnabled) {
+                binding.et.isEnabled = false
                 binding.et.isClickable = false
                 binding.et.isFocusable = false
+                binding.et.isFocusableInTouchMode = false
+                binding.et.isLongClickable = false
+                binding.et.isCursorVisible = false
                 handleHintLength(item)
                 binding.form = item
                 binding.et.setText(item.value)
                 binding.executePendingBindings()
                 return
             } else {
+                binding.et.isEnabled = true
                 binding.et.isClickable = true
                 binding.et.isFocusable = true
+                binding.et.isFocusableInTouchMode = true
+                binding.et.isLongClickable = true
+                binding.et.isCursorVisible = true
             }
             binding.form = item
             if (item.errorText == null) binding.tilEditText.isErrorEnabled = false
@@ -119,8 +142,14 @@ class FormInputAdapter(
                 binding.tilEditText.setEndIconOnClickListener(null)
             }
 
+            if (!binding.et.hasFocus()) {
+                val currentText = binding.et.text?.toString() ?: ""
+                val itemValue = item.value ?: ""
+                if (currentText != itemValue) {
+                    binding.et.setText(itemValue)
+                }
+            }
 
-            //binding.et.setText(item.value.value)
             val textWatcher = object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence?, start: Int, count: Int, after: Int
@@ -131,23 +160,32 @@ class FormInputAdapter(
                 }
 
                 override fun afterTextChanged(editable: Editable?) {
-//                    editable?.length?.let {
-//                        if (it > item.etMaxLength) {
-////                            editable.delete(item.etMaxLength + 1, it)
-//                            "This field cannot have more than ${item.etMaxLength} characters".let {
-//                                item.errorText = it
-//                                binding.tilEditText.error = it
-//                            }
-//                            return
-//                        } else
-//                            item.errorText = null
-//                    }
-                    item.value = editable?.toString()
-                    Timber.d("editable : $editable Current value : ${item.value}  isNull: ${item.value == null} isEmpty: ${item.value == ""}")
+                    val textValue = editable?.toString() ?: ""
+                    item.value = textValue
+
+                    val trimmedValue = textValue.trim()
+                    if (trimmedValue.isNotBlank() && item.errorText != null) {
+                        item.errorText = null
+                        binding.tilEditText.isErrorEnabled = false
+                        binding.tilEditText.error = null
+                    }
+
                     formValueListener?.onValueChanged(item, -1)
                     if (item.errorText != binding.tilEditText.error) {
                         binding.tilEditText.isErrorEnabled = item.errorText != null
                         binding.tilEditText.error = item.errorText
+                    }
+
+                    // Delivery outcome fields share a cross-field validation rule.
+                    // Rebind the whole trio so sibling error states refresh when the
+                    // last field in the sum is edited. Gated by an explicit opt-in flag
+                    // (NOT the element id) because ids are reused across datasets — id
+                    // 15/16/17 are height/weight/bmi in the PW registration form, and
+                    // rebinding the focused EditText on every keystroke steals focus.
+                    if (item.refreshSiblingsOnChange) {
+                        binding.root.post {
+                            refreshDeliveryOutcomeFields?.invoke()
+                        }
                     }
 //                        binding.tilEditText.error = null
 //                    else if(item.errorText!= null && binding.tilEditText.error==null)
@@ -237,9 +275,15 @@ class FormInputAdapter(
                 if (hasFocus) binding.et.addTextChangedListener(textWatcher)
                 else {
                     binding.et.removeTextChangedListener(textWatcher)
-                    val imm =
-                        binding.root.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?
-                    imm!!.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+                    // Use a deterministic hide here. The previous toggleSoftInput()
+                    // call *toggled* the IME, so when a field lost focus while the
+                    // keyboard was already closed (e.g. as the RecyclerView recycles
+                    // EditText rows during a scroll) it would re-open the keyboard
+                    // even though no field was tapped.
+                    KeyboardUtils.hideKeyboard(binding.et)
+//                     val imm =
+//                         binding.root.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?
+//                     imm?.hideSoftInputFromWindow(binding.et.windowToken, 0)
                 }
             }
             binding.et.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
@@ -301,8 +345,15 @@ class FormInputAdapter(
                 return
             }
 
+            binding.actvRvDropdown.setupDropdownKeyboardHandling()
+
             binding.actvRvDropdown.setOnItemClickListener { _, _, index, _ ->
                 item.value = item.entries?.get(index)
+                item.booleanValue = when (index) {
+                    item.trueIndex -> true
+                    item.falseIndex -> false
+                    else -> null
+                }
                 Timber.d("Item DD : $item")
 //                if (item.hasDependants || item.hasAlertError) {
                 formValueListener?.onValueChanged(item, index)
@@ -330,10 +381,8 @@ class FormInputAdapter(
         fun bind(
             item: FormElement, isEnabled: Boolean, formValueListener: FormValueListener?
         ) {
-            if (!isEnabled) {
-                binding.rg.isClickable = false
-                binding.rg.isFocusable = false
-            }
+            binding.rg.isClickable = isEnabled
+            binding.rg.isFocusable = isEnabled
 //            binding.rg.isEnabled = isEnabled
             binding.invalidateAll()
             binding.form = item
@@ -344,49 +393,37 @@ class FormInputAdapter(
                 item.entries?.let { items ->
                     orientation = item.orientation ?: LinearLayout.HORIZONTAL
                     weightSum = items.size.toFloat()
+                    val isHorizontal = orientation == LinearLayout.HORIZONTAL
                     items.forEach {
                         val rdBtn = RadioButton(this.context)
                         rdBtn.layoutParams = RadioGroup.LayoutParams(
-                            RadioGroup.LayoutParams.WRAP_CONTENT,
+                            if (isHorizontal) 0 else RadioGroup.LayoutParams.MATCH_PARENT,
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
                         ).apply {
                             gravity = Gravity.CENTER_HORIZONTAL
                         }
                         rdBtn.id = View.generateViewId()
-                        val colorStateList = ColorStateList(
-                            arrayOf<IntArray>(
-                                intArrayOf(-android.R.attr.state_checked),
-                                intArrayOf(android.R.attr.state_checked)
-                            ), intArrayOf(
-                                binding.root.resources.getColor(
-                                    android.R.color.darker_gray,
-                                    binding.root.context.theme
-                                ),  // disabled
-                                binding.root.resources.getColor(
-                                    android.R.color.darker_gray,
-                                    binding.root.context.theme
-                                ) // enabled
-                            )
-                        )
-
-                        if (!isEnabled) rdBtn.buttonTintList = colorStateList
                         rdBtn.text = it
                         addView(rdBtn)
                         if (item.value == it) rdBtn.isChecked = true
+                        rdBtn.setOnClickListener {
+                            KeyboardUtils.hideKeyboard(binding.root)
+                            KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                            binding.rg.clearFocus()
+                        }
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
                                 item.value = it
+                                val index = item.entries!!.indexOf(it)
+                                item.booleanValue = when (index) {
+                                    item.trueIndex -> true
+                                    item.falseIndex -> false
+                                    else -> null
+                                }
                                 if (item.hasDependants || item.hasAlertError) {
-                                    Timber.d(
-                                        "listener trigger : ${item.id} ${
-                                            item.entries!!.indexOf(
-                                                it
-                                            )
-                                        } $it"
-                                    )
                                     formValueListener?.onValueChanged(
-                                        item, item.entries!!.indexOf(it)
+                                        item, index
                                     )
                                 }
                             }
@@ -408,7 +445,11 @@ class FormInputAdapter(
             if (!isEnabled) {
                 binding.rg.children.forEach {
                     it.isClickable = false
+                    it.isFocusable = false
+                    it.isEnabled = true
                 }
+            } else {
+                binding.rg.isEnabled = true
             }
             if (item.errorText != null) binding.llContent.setBackgroundResource(R.drawable.state_errored)
             else binding.llContent.setBackgroundResource(0)
@@ -464,6 +505,11 @@ class FormInputAdapter(
 
             if (item.errorText != null) binding.clRi.setBackgroundResource(R.drawable.state_errored)
             else binding.clRi.setBackgroundResource(0)
+            // Clear listeners before removing views to prevent false unchecked callbacks
+            // that would strip values from item.value during rebind
+            for (i in 0 until binding.llChecks.childCount) {
+                (binding.llChecks.getChildAt(i) as? CheckBox)?.setOnCheckedChangeListener(null)
+            }
             binding.llChecks.removeAllViews()
             binding.llChecks.apply {
                 item.entries?.let { items ->
@@ -476,10 +522,6 @@ class FormInputAdapter(
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
                         )
-                        if (!isEnabled) {
-                            cbx.isClickable = false
-                            cbx.isFocusable = false
-                        }
                         cbx.id = View.generateViewId()
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) cbx.setTextAppearance(
                             context, android.R.style.TextAppearance_Material_Medium
@@ -487,10 +529,20 @@ class FormInputAdapter(
                         else cbx.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
                         cbx.text = it
                         addView(cbx)
-                        if (item.value?.contains(it) == true) cbx.isChecked = true
+                        if (item.value?.split(",")?.any { s -> s.trim() == it } == true) cbx.isChecked = true
+                        cbx.setOnClickListener {
+                            KeyboardUtils.hideKeyboard(binding.root)
+                            KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                            binding.llChecks.clearFocus()
+                        }
+                        if (!isEnabled) {
+                            cbx.isClickable = false
+                            cbx.isFocusable = false
+                            cbx.isEnabled = true
+                        }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
-                                if (item.value != null) item.value = item.value + it
+                                if (item.value != null && item.value!!.isNotEmpty()) item.value = item.value + "," + it
                                 else item.value = it
                                 if (item.hasDependants || item.hasAlertError) {
                                     Timber.d(
@@ -506,11 +558,11 @@ class FormInputAdapter(
                                 }
                             } else {
                                 if (item.value?.contains(it) == true) {
-                                    item.value = item.value?.replace(it, "")
+                                    item.value = item.value!!.split(",").filter { s -> s.trim() != it }.joinToString(",").trim().takeIf { str -> str.isNotEmpty() } ?: null
                                 }
                             }
                             formValueListener?.onValueChanged(
-                                item, index * (if (b) 1 else -1)
+                                item, (index + 1) * (if (b) 1 else -1)
                             )
                             if (item.value.isNullOrBlank()) {
                                 item.value = null
@@ -546,8 +598,11 @@ class FormInputAdapter(
             binding.form = item
             binding.invalidateAll()
             if (!isEnabled) {
+                binding.et.isEnabled = false
                 binding.et.isFocusable = false
                 binding.et.isClickable = false
+                binding.et.isFocusableInTouchMode = false
+                binding.et.isLongClickable = false
                 binding.executePendingBindings()
                 return
             }
@@ -559,10 +614,19 @@ class FormInputAdapter(
             item.errorText?.also { binding.tilEditText.error = it }
                 ?: run { binding.tilEditText.error = null }
             binding.et.setOnClickListener {
+                KeyboardUtils.hideKeyboard(binding.et)
+                KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+
                 item.value?.let { value ->
-                    thisYear = value.substring(6).toInt()
-                    thisMonth = value.substring(3, 5).trim().toInt() - 1
-                    thisDay = value.substring(0, 2).trim().toInt()
+                    val parts = value.split("[-/]".toRegex())
+                    if (parts.size >= 3) {
+                        thisDay = parts[0].trim().toIntOrNull() ?: thisDay
+                        thisMonth = (parts[1].trim().toIntOrNull() ?: (thisMonth + 1)) - 1
+                        thisYear = parts[2].trim().toIntOrNull() ?: thisYear
+                    }
+                }
+                val formatDate: (Long) -> String? = { millis ->
+                    item.dateFormat?.let { Dataset.getDateFromLong(millis, it) } ?: getDateString(millis)
                 }
                 val datePickerDialog = DatePickerDialog(
                     it.context, { _, year, month, day ->
@@ -571,21 +635,18 @@ class FormInputAdapter(
                             set(Calendar.MONTH, month)
                             set(Calendar.DAY_OF_MONTH, day)
                         }.timeInMillis
-                        if (item.min != null && millis < item.min!!) {
-                            item.value = getDateString(item.min)
-                        } else if (item.max != null && millis > item.max!!)
-                            item.value = getDateString(item.max)
-                        else
-                            item.value = getDateString(millis)
-//                            "${if (day > 9) day else "0$day"}-${if (month > 8) month + 1 else "0${month + 1}"}-$year"
+                        item.value = when {
+                            item.min != null && millis < item.min!! -> formatDate(item.min!!)
+                            item.max != null && millis > item.max!! -> formatDate(item.max!!)
+                            else -> formatDate(millis)
+                        }
                         binding.invalidateAll()
                         if (item.hasDependants) formValueListener?.onValueChanged(item, -1)
                     }, thisYear, thisMonth, thisDay
                 )
                 item.errorText = null
                 binding.tilEditText.error = null
-                datePickerDialog.datePicker.maxDate = item.max ?: 0
-                datePickerDialog.datePicker.minDate = item.min ?: 0
+                datePickerDialog.datePicker.applySafeDateConstraints(item.min, item.max)
                 if (item.showYearFirstInDatePicker)
                     datePickerDialog.datePicker.touchables[0].performClick()
                 datePickerDialog.show()
@@ -611,22 +672,69 @@ class FormInputAdapter(
             binding.form = item
             binding.et.isEnabled = isEnabled
             binding.et.setOnClickListener {
+                KeyboardUtils.hideKeyboard(binding.et)
+                KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+
                 val hour: Int
+                val hourOfDay: Int  // 24-hour format (0-23) for TimePickerDialog
                 val minute: Int
                 if (item.value == null) {
                     val currentTime = Calendar.getInstance()
-                    hour = currentTime.get(Calendar.HOUR_OF_DAY)
+                    hourOfDay = currentTime.get(Calendar.HOUR_OF_DAY)
                     minute = currentTime.get(Calendar.MINUTE)
                 } else {
-                    hour = item.value!!.substringBefore(":").toInt()
-                    minute = item.value!!.substringAfter(":").toInt()
-                    Timber.d("Time picker hour min : $hour $minute")
+                    // Parse existing time value (handle both 12-hour with AM/PM and 24-hour formats)
+                    val timeValue = item.value!!
+                    val timeParts = timeValue.split(":")
+                    if (timeParts.size >= 2) {
+                        val hourStr = timeParts[0].trim()
+                        val minuteAndAmPm = timeParts[1].trim()
+                        val minuteStr = minuteAndAmPm.substringBefore(" ").trim()
+
+                        val parsedHour = hourStr.toIntOrNull() ?: 0
+                        val hasAmPm = timeValue.contains("AM", ignoreCase = true) ||
+                                timeValue.contains("PM", ignoreCase = true) ||
+                                timeValue.contains("am", ignoreCase = true) ||
+                                timeValue.contains("pm", ignoreCase = true)
+
+                        if (hasAmPm) {
+                            // Already in 12-hour format with AM/PM - convert to 24-hour format
+                            val isPM = timeValue.contains("PM", ignoreCase = true) ||
+                                    timeValue.contains("pm", ignoreCase = true)
+                            hourOfDay = when {
+                                parsedHour == 12 && !isPM -> 0   // 12 AM = 0:00
+                                parsedHour == 12 && isPM -> 12   // 12 PM = 12:00
+                                isPM -> parsedHour + 12            // PM: add 12
+                                else -> parsedHour                // AM: keep as is (except 12 AM handled above)
+                            }
+                        } else {
+                            // Already in 24-hour format
+                            hourOfDay = parsedHour
+                        }
+                        minute = minuteStr.toIntOrNull() ?: 0
+                        Timber.d("Time picker parsed hourOfDay: $hourOfDay, minute: $minute from value: $timeValue")
+                    } else {
+                        // Fallback to current time if parsing fails
+                        val currentTime = Calendar.getInstance()
+                        hourOfDay = currentTime.get(Calendar.HOUR_OF_DAY)
+                        minute = currentTime.get(Calendar.MINUTE)
+                    }
                 }
-                val mTimePicker = TimePickerDialog(it.context, { _, hourOfDay, minuteOfHour ->
-                    item.value = "$hourOfDay:$minuteOfHour"
+
+                val mTimePicker = TimePickerDialog(it.context, { _, selectedHourOfDay, selectedMinute ->
+                    // Format time in 12-hour format with AM/PM
+                    // selectedHourOfDay is in 24-hour format (0-23) even when dialog is in 12-hour mode
+                    val amPm = if (selectedHourOfDay < 12) "AM" else "PM"
+                    val displayHour = when {
+                        selectedHourOfDay == 0 -> 12
+                        selectedHourOfDay > 12 -> selectedHourOfDay - 12
+                        else -> selectedHourOfDay
+                    }
+                    val formattedMinute = String.format("%02d", selectedMinute)
+                    item.value = "$displayHour:$formattedMinute $amPm"
                     binding.invalidateAll()
 
-                }, hour, minute, false)
+                }, hourOfDay, minute, false)
                 mTimePicker.setTitle("Select Time")
                 mTimePicker.show()
             }
@@ -692,6 +800,11 @@ class FormInputAdapter(
             binding.form = item
             if (isEnabled) {
                 binding.clickListener = clickListener
+                binding.et.setOnClickListener {
+                    KeyboardUtils.hideKeyboard(binding.et)
+                    KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                    clickListener?.onAgeClick(item)
+                }
 //                if (item.errorText == null) binding.tilEditText.isErrorEnabled = false
 //                Timber.d("Bound EditText item ${item.title} with ${item.required}")
 //                binding.tilEditText.error = item.errorText
@@ -759,6 +872,7 @@ class FormInputAdapter(
             TIME_PICKER -> TimePickerInputViewHolder.from(parent)
             HEADLINE -> HeadlineViewHolder.from(parent)
             AGE_PICKER -> AgePickerViewInputViewHolder.from(parent)
+            InputType.FILE_UPLOAD -> FileUploadInputViewHolder.from(parent)
         }
     }
 
@@ -767,7 +881,7 @@ class FormInputAdapter(
         val isEnabled = if (isEnabled) item.isEnabled else false
         when (item.inputType) {
             EDIT_TEXT -> (holder as EditTextInputViewHolder).bind(
-                item, isEnabled, formValueListener
+                item, isEnabled, formValueListener, ::refreshDeliveryOutcomeFields
             )
 
             DROPDOWN -> (holder as DropDownInputViewHolder).bind(item, isEnabled, formValueListener)
@@ -786,7 +900,12 @@ class FormInputAdapter(
                 isEnabled,
                 formValueListener
             )
-
+            InputType.FILE_UPLOAD -> (holder as FileUploadInputViewHolder).bind(
+                item,
+                selectImageClickListener,
+                viewDocumentListner,
+                isEnabled = isEnabled && !disableUpload
+            )
             TIME_PICKER -> (holder as TimePickerInputViewHolder).bind(item, isEnabled)
             HEADLINE -> (holder as HeadlineViewHolder).bind(item, formValueListener)
             AGE_PICKER -> (holder as AgePickerViewInputViewHolder).bind(
@@ -797,38 +916,135 @@ class FormInputAdapter(
         }
     }
 
+    class FileUploadInputViewHolder private constructor(private val binding: LayoutUploadFormBinding) :
+        ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = LayoutUploadFormBinding.inflate(layoutInflater, parent, false)
+                return FileUploadInputViewHolder(binding)
+            }
+        }
+
+
+        fun bind(
+            item: FormElement,
+            clickListener: SelectUploadImageClickListener?,
+            documentOnClick: ViewDocumentOnClick?,
+            isEnabled: Boolean
+        ) {
+            binding.form = item
+            binding.tvTitle.text = item.title
+            binding.clickListener = clickListener
+            binding.documentclickListener = documentOnClick
+            binding.btnView.visibility =
+                if (item.value != null && documentOnClick != null) View.VISIBLE else View.GONE
+
+            if (isEnabled) {
+                binding.addFile.visibility = View.VISIBLE
+//                binding.addFile.isEnabled = true
+//                binding.addFile.alpha = 1f
+            } else {
+                binding.addFile.visibility = View.GONE
+//                binding.addFile.isEnabled = false
+//                binding.addFile.alpha = 0.5f
+            }
+        }
+
+    }
+
     override fun getItemViewType(position: Int) = getItem(position).inputType.ordinal
+
+    fun refreshDeliveryOutcomeFields() {
+        val startIndex = currentList.indexOfFirst { it.refreshSiblingsOnChange }
+        if (startIndex != -1) {
+            notifyItemRangeChanged(startIndex, 3)
+        }
+    }
 
     /**
      * Validation Result : -1 -> all good
      * else index of element creating trouble
+     * @param recyclerView Optional RecyclerView to sync EditText values before validation
      */
-    fun validateInput(resources: Resources): Int {
-        var retVal = -1
-        if (!isEnabled) return retVal
-        currentList.forEachIndexed { index, it ->
-            Timber.d("Error text for ${it.title} ${it.errorText}")
-            if (it.inputType != TEXT_VIEW && it.errorText != null) {
-                retVal = index
-                return@forEachIndexed
-            }
-        }
-        Timber.d("Validation : $retVal")
-        if (retVal != -1) return retVal
+    fun validateInput(resources: Resources, recyclerView: androidx.recyclerview.widget.RecyclerView? = null): Int {
+        if (!isEnabled) return -1
+
+        recyclerView?.let { syncAllEditTextValues(it) }
+
+        clearErrorsForValidFields(resources)
+
+        val firstErrorIndex = findFirstFieldWithError()
+        if (firstErrorIndex != -1) return firstErrorIndex
+
+        return validateRequiredFields(resources)
+    }
+
+    private fun clearErrorsForValidFields(resources: Resources) {
+        val requiredError = resources.getString(R.string.form_input_empty_error)
         currentList.forEachIndexed { index, it ->
             if (it.inputType != TEXT_VIEW && it.required) {
-                if (it.value.isNullOrBlank()) {
-                    Timber.d("validateInput called for item $it, with index ${index}")
+                val trimmedValue = it.value?.trim()
+                if (!trimmedValue.isNullOrBlank() && it.errorText == requiredError) {
+                    it.errorText = null
+                    notifyItemChanged(index)
+                }
+            }
+        }
+    }
+
+    private fun findFirstFieldWithError(): Int {
+        currentList.forEachIndexed { index, it ->
+            if (it.inputType != TEXT_VIEW && it.errorText != null) {
+                return index
+            }
+        }
+        return -1
+    }
+
+    private fun validateRequiredFields(resources: Resources): Int {
+        var retVal = -1
+        currentList.forEachIndexed { index, it ->
+            if (it.inputType != TEXT_VIEW && it.required) {
+                val trimmedValue = it.value?.trim()
+                if (trimmedValue.isNullOrBlank()) {
                     it.errorText = resources.getString(R.string.form_input_empty_error)
                     notifyItemChanged(index)
                     if (retVal == -1) retVal = index
                 }
             }
-            /*            if(it.regex!=null){
-                            Timber.d("Regex not null")
-                            retVal= false
-                        }*/
         }
         return retVal
+    }
+
+    class SelectUploadImageClickListener(private val selectImageClick: (formId: Int) -> Unit) {
+
+        fun onSelectImageClick(form: FormElement) = selectImageClick(form.id)
+
+    }
+
+    class ViewDocumentOnClick(private val viewDocument: (formId: Int) -> Unit) {
+
+        fun onViewDocumentClick(form: FormElement) = viewDocument(form.id)
+
+    }
+
+    fun syncAllEditTextValues(recyclerView: androidx.recyclerview.widget.RecyclerView) {
+        for (i in 0 until recyclerView.childCount) {
+            val child = recyclerView.getChildAt(i)
+            val position = recyclerView.getChildAdapterPosition(child)
+            if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
+                val formElement = getItem(position)
+                if (formElement.inputType == EDIT_TEXT) {
+                    val editText = child.findViewById<android.widget.EditText>(R.id.et)
+                    if (editText != null) {
+                        val currentText = editText.text?.toString() ?: ""
+                        if (currentText != formElement.value) {
+                            formElement.value = currentText
+                        }
+                    }
+                }
+            }
+        }
     }
 }

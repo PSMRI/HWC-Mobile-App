@@ -1,12 +1,14 @@
 package org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -27,7 +29,7 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.OtherCPHCServicesViewModel
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form.PncFormViewModel.State
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -48,7 +50,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
 
     val viewModel: PncFormViewModel by viewModels()
 
-    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
+    private var benVisitInfo: PatientDisplayWithVisitInfo? = null
 
     val CPHCviewModel: OtherCPHCServicesViewModel by viewModels()
 
@@ -68,10 +70,17 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         return binding.root
     }
 
+    private val pallorFormId = 22
+    private val severePallorIndex = 3
+    private val vaginalBleedingFormId = 23
+    private val heavyBleedingIndex = 1
+    private val foulSmellingDischargeIndex = 2
+    private val maternalSymptomsFormId = 20
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
 
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
@@ -85,6 +94,41 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                         viewModel.updateListOnValueChanged(formId, index)
                         hardCodedListUpdate(formId)
+                        if (formId == pallorFormId && index == severePallorIndex) {
+                            showReferralAlertToFacility(R.string.pnc_referral_alert_severe_pallor)
+                        }
+                        if (formId == vaginalBleedingFormId &&
+                            (index == heavyBleedingIndex || index == foulSmellingDischargeIndex)
+                        ) {
+                            showReferralAlertToFacility(R.string.pnc_referral_alert_vaginal_bleeding)
+                        }
+                        if (formId == maternalSymptomsFormId) {
+                            val pncAdapter = binding.form.rvInputForm.adapter as? FormInputAdapter
+                            val rowPosition = pncAdapter?.currentList?.indexOfFirst { it.id == maternalSymptomsFormId } ?: -1
+                            if (rowPosition >= 0) {
+                                pncAdapter?.notifyItemChanged(rowPosition)
+                            }
+
+                            // Count actual symptoms selected (exclude "None") for referral alert
+                            val maternalSymptomsItem = pncAdapter?.currentList?.find { it.id == maternalSymptomsFormId }
+                            val currentValue = maternalSymptomsItem?.value
+                            val selectedSymptoms = currentValue
+                                ?.split(",")
+                                ?.map { it.trim() }
+                                ?.filter { it.isNotBlank() && !it.equals("None", ignoreCase = true) }
+                                ?: emptyList()
+                            if (selectedSymptoms.size >= 2) {
+                                showReferralAlertToFacility(R.string.pnc_referral_alert_multiple_symptoms)
+                            }
+                        }
+
+                        if (formId == pallorFormId || formId == vaginalBleedingFormId || formId == maternalSymptomsFormId || formId == 19 /* anyDangerSign */) {
+                            val pncAdapter = binding.form.rvInputForm.adapter as? FormInputAdapter
+                            val referralIndex = pncAdapter?.currentList?.indexOfFirst { it.id == 9 /* referralFacility */ } ?: -1
+                            if (referralIndex >= 0) {
+                                pncAdapter?.notifyItemChanged(referralIndex)
+                            }
+                        }
                     }, isEnabled = !recordExists
                 )
                 binding.form.rvInputForm.adapter = adapter
@@ -108,6 +152,20 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         binding.fabEdit.setOnClickListener {
             viewModel.setRecordExist(false)
         }
+        viewModel.initErrorMessage.observe(viewLifecycleOwner) { message ->
+            message?.let { errorMessage ->
+                AlertDialog.Builder(requireContext())
+                    .setTitle(getString(R.string.alert_popup))
+                    .setMessage(errorMessage)
+                    .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
+                        dialog.dismiss()
+                        viewModel.clearInitError()
+                        findNavController().navigateUp()
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
+        }
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 State.IDLE -> {
@@ -121,8 +179,11 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                 State.SAVE_SUCCESS -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
-                    Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
-                    saveNurseData()
+                    Toast.makeText(context, getString(R.string.save_successful_toast), Toast.LENGTH_LONG).show()
+                    WorkerUtils.triggerPncSync(requireContext())
+                    
+                    // Finish activity to return to PNC list
+                    requireActivity().finish()
                 }
 
                 State.SAVE_FAILED -> {
@@ -140,8 +201,9 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         CoroutineScope(Dispatchers.Main).launch {
             var benVisitNo = 0;
             var createNewBenflow = false;
-            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
-                if(it == null){
+            benVisitInfo?.let { visitInfo ->
+                CPHCviewModel.getLastVisitInfoSync(visitInfo.patient.patientID).let {
+                    if(it == null){
                     benVisitNo = 1;
                 }
                 else if(it.nurseFlag == 1) {
@@ -149,7 +211,8 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                 }
                 else {
                     benVisitNo = it.benVisitNo + 1
-                    createNewBenflow = true;
+                        createNewBenflow = true;
+                    }
                 }
             }
 
@@ -160,9 +223,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
             CPHCviewModel.isDataSaved.observe(viewLifecycleOwner){
                 when(it!!){
                     true ->{
-                        WorkerUtils.triggerAmritSyncWorker(requireContext())
-                        val intent = Intent(context, HomeActivity::class.java)
-                        startActivity(intent)
+                        WorkerUtils.triggerPncSync(requireContext())
                         requireActivity().finish()
                     }
                     else ->{
@@ -175,25 +236,24 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
     }
 
     fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
-
         val visitDB = VisitDB(
             visitId = generateUuid(),
             category = "PNC",
             reasonForVisit = "New Chief Complaint",
             subCategory = "PNC",
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: "",
             benVisitNo = benVisitNo,
             benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
             createdBy = user?.userName
         )
 
         val patientVitals = PatientVitalsModel(
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: "",
             benVisitNo = benVisitNo,
         )
 
         val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: "",
             benVisitNo = benVisitNo,
             createNewBenFlow = false,
             nurseDataSynced = SyncState.SYNCED,
@@ -231,9 +291,14 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
     private fun hardCodedListUpdate(formId: Int) {
         binding.form.rvInputForm.adapter?.apply {
             when (formId) {
-
-                1 -> notifyItemChanged(1)
-
+                1 -> {
+                    notifyItemChanged(1)
+                    val visitDateIndex = (binding.form.rvInputForm.adapter as? FormInputAdapter)
+                        ?.currentList?.indexOfFirst { it.id == 2 } ?: -1
+                    if (visitDateIndex >= 0) {
+                        notifyItemChanged(visitDateIndex)
+                    }
+                }
             }
         }
     }
@@ -255,7 +320,16 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
     }
 
     override fun onCancelAction() {
-        findNavController().navigateUp()
+        requireActivity().finish()
+    }
+
+    private fun showReferralAlertToFacility(@StringRes messageResId: Int) {
+        if (!isAdded || context == null) return
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.alert_title))
+            .setMessage(getString(messageResId))
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
 }

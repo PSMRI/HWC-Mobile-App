@@ -141,7 +141,7 @@ class LoginSettingsFragment : Fragment() {
                 requireActivity().finish()
             }
             else
-                Toast.makeText(activity,"Please wait while master location coordinates are fetched.",Toast.LENGTH_LONG).show()
+                Toast.makeText(activity, getString(R.string.please_wait_master_location), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -238,13 +238,13 @@ class LoginSettingsFragment : Fragment() {
                             viewModel.userInfo?.userId
                         )
                     )
-                    Toast.makeText(activity, "Data is Saved!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, getString(R.string.data_saved), Toast.LENGTH_SHORT).show()
                 }catch(e:Exception){
-                    Toast.makeText(requireContext(), "Error while saving the master location", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.error_saving_master_location), Toast.LENGTH_SHORT).show()
                 }
             }
         } else {
-            Toast.makeText(activity,"Please fill all the details",Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, getString(R.string.please_fill_all_details), Toast.LENGTH_SHORT).show()
         }
     }
 

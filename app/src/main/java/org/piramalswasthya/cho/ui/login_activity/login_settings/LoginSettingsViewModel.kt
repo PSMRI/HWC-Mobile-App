@@ -1,24 +1,17 @@
 package org.piramalswasthya.cho.ui.login_activity.login_settings
 
 import android.util.Log
-import android.widget.ArrayAdapter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.adapter.dropdown_adapters.StatesAdapter
-import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
-import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VillageLocationData
@@ -30,22 +23,21 @@ import org.piramalswasthya.cho.network.DistrictBlock
 import org.piramalswasthya.cho.network.DistrictList
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.State
-import org.piramalswasthya.cho.network.StateList
 import org.piramalswasthya.cho.network.Village
 import org.piramalswasthya.cho.network.VillageList
 import org.piramalswasthya.cho.repositories.BlockMasterRepo
 import org.piramalswasthya.cho.repositories.DistrictMasterRepo
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
 import org.piramalswasthya.cho.repositories.StateMasterRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VillageMasterRepo
-import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
-import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
 
 @HiltViewModel
 class LoginSettingsViewModel@Inject constructor(
+    private val userRepo: UserRepo,
     private val loginSettingsDataRepository: LoginSettingsDataRepository,
     private val stateMasterRepo: StateMasterRepo,
     private val districtMasterRepo: DistrictMasterRepo,
@@ -147,6 +139,18 @@ class LoginSettingsViewModel@Inject constructor(
             if(result > 0 && userInfo != null){
                 userInfo!!.districtBranchID = districtBranchId
             }
+        }
+    }
+
+    suspend fun saveMasterLatLong(
+        lat: Double?,
+        long: Double?
+    ) {
+        viewModelScope.launch {
+            userRepo.saveMasterLatLong(
+                lat,
+                long
+            )
         }
     }
 

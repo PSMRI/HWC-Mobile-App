@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:padding="@dimen/padding_normal"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -12,9 +12,9 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Aadhaar Number"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
+        android:hint="@string/aadhaar_number"
+        android:paddingTop="@dimen/padding_normal"
+        android:paddingBottom="@dimen/padding_normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -34,8 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_small"
             android:layout_weight="1"
-            android:text="TextView"
-            android:textColor="@color/red"
+            android:text="@string/textview"
+            android:textColor="@android:color/holo_red_light"
             android:visibility="gone" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -44,9 +44,9 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Full Name"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
+        android:hint="@string/full_name"
+        android:paddingTop="@dimen/padding_normal"
+        android:paddingBottom="@dimen/padding_normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/til_aadhaar_number">
@@ -65,8 +65,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_small"
             android:layout_weight="1"
-            android:text="TextView"
-            android:textColor="@color/red"
+            android:text="@string/textview"
+            android:textColor="@android:color/holo_red_light"
             android:visibility="gone" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,7 +78,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/til_full_name"
-        android:hint="D.O.B">
+        android:hint="@string/d_o_b">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/date_et"
@@ -103,20 +103,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="4dp">
+            android:padding="@dimen/padding_normal">
             <RadioButton
                 android:id="@+id/rb_male"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Male">
+                android:text="@string/male">
             </RadioButton>
             <RadioButton
                 android:id="@+id/rb_female"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Female">
+                android:text="@string/female">
             </RadioButton>
         </RadioGroup>
     </LinearLayout>
@@ -129,7 +129,7 @@
         app:layout_constraintTop_toBottomOf="@id/ll_gender"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="State"
+        android:hint="@string/state"
         android:labelFor="@id/actv_state_dn"
         android:orientation="horizontal">
 
@@ -152,7 +152,7 @@
         app:layout_constraintTop_toBottomOf="@id/til_state_dn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="District"
+        android:hint="@string/district"
         android:labelFor="@id/actv_district_dn"
         android:orientation="horizontal">
 
@@ -171,19 +171,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:padding="@dimen/padding_normal"
-        android:text="Generate ABHA"
+        android:text="@string/generate_abha"
         android:textAllCaps="false"
         android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-        android:textColor="@color/secondaryColor"
+        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/til_district_dn"/>
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/bottom_space_height"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_generate_abha" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

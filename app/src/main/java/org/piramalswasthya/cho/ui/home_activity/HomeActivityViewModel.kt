@@ -11,8 +11,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
@@ -27,8 +31,10 @@ import org.piramalswasthya.cho.model.PatientVisitDataBundle
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
@@ -75,9 +81,55 @@ class HomeActivityViewModel @Inject constructor (application: Application,
 
     fun init(context: Context){
         viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                seedStatusOfWomanMaster()
+            }
             extracted(context)
 //            getStockDetailsOfSubStore()
         }
+    }
+
+    private suspend fun seedStatusOfWomanMaster() {
+        val appContext = getApplication<Application>()
+        database.statusOfWomanDao.insertAll(
+            listOf(
+                StatusOfWomanMaster(
+                    1,
+                    appContext.getString(R.string.status_of_woman_eligible_couple_name),
+                    appContext.getString(R.string.status_of_woman_eligible_couple_code)
+                ),
+                StatusOfWomanMaster(
+                    2,
+                    appContext.getString(R.string.status_of_woman_pregnant_woman_name),
+                    appContext.getString(R.string.status_of_woman_pregnant_woman_code)
+                ),
+                StatusOfWomanMaster(
+                    3,
+                    appContext.getString(R.string.status_of_woman_postnatal_name),
+                    appContext.getString(R.string.status_of_woman_postnatal_code)
+                ),
+                StatusOfWomanMaster(
+                    4,
+                    appContext.getString(R.string.status_of_woman_elderly_name),
+                    appContext.getString(R.string.status_of_woman_elderly_code)
+                ),
+                StatusOfWomanMaster(
+                    5,
+                    appContext.getString(R.string.status_of_woman_adolescent_name),
+                    appContext.getString(R.string.status_of_woman_adolescent_code)
+                ),
+                StatusOfWomanMaster(
+                    6,
+                    appContext.getString(R.string.status_of_woman_permanent_sterilization_name),
+                    appContext.getString(R.string.status_of_woman_permanent_sterilization_code)
+                ),
+                StatusOfWomanMaster(
+                    7,
+                    appContext.getString(R.string.status_of_woman_not_applicable_name),
+                    appContext.getString(R.string.status_of_woman_not_applicable_code)
+                )
+            )
+        )
     }
 
     fun triggerDownSyncWorker(context: Context, syncName: String){
@@ -90,39 +142,36 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     private suspend fun extracted(context: Context) {
         try {
             _state.postValue(State.SAVING)
-            if (dataLoadFlagManager.isDataLoaded()){
-                Log.d("syncing started first", "syncing started")
-                WorkerUtils.triggerAmritSyncWorker(context)
-            }
             WorkerUtils.pushAuditDetailsWorker(context)
-            registrarMasterDataRepo.saveGenderMasterResponseToCache()
-            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
-            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
-            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
-            registrarMasterDataRepo.saveReligionMasterResponseToCache()
-            languageRepo.saveResponseToCacheLang()
-            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
-            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
-            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
-            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
-            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
-            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
 
-            prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId)
-            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-            vaccineAndDoseTypeRepo.getVaccineDetailsFromServer()
-            doctorMaleMasterDataRepo.getDoctorMasterMaleData()
-
-            malMasterDataRepo.getMasterDataForNurse()
-            getStockDetailsOfSubStore()
-            if (!dataLoadFlagManager.isDataLoaded()){
-                Log.d("syncing started second", "syncing started")
-                WorkerUtils.triggerAmritSyncWorker(context)
+            if (dataLoadFlagManager.isDataLoaded()) {
+                // Master data is fresh — kick off background sync and return immediately
+                // so the UI is not kept waiting by network calls the user can't see.
+                Log.d("syncing started first", "syncing started")
+                WorkerUtils.enqueueFullSync(context)
+                _state.postValue(State.SAVE_SUCCESS)
+                return
             }
+
+            // First login or stale data (>10 days): download all master data.
+            // registrarMasterData is included in the same parallel batch as the
+            // other calls so nothing runs serially before them.
+            coroutineScope {
+                val j0 = async { registrarMasterDataRepo.saveAllMasterDataToCache() }
+                val j1 = async { languageRepo.saveResponseToCacheLang() }
+                val j2 = async { visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache() }
+                val j3 = async { visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache() }
+                val j4 = async { vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache() }
+                val j5 = async { vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache() }
+                val j6 = async { vaccineAndDoseTypeRepo.getVaccineDetailsFromServer() }
+                val j7 = async { prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId) }
+                val j8 = async { doctorMaleMasterDataRepo.getDoctorMasterMaleData() }
+                val j9 = async { malMasterDataRepo.getMasterDataForNurse() }
+                val j10 = async { getStockDetailsOfSubStore() }
+                awaitAll(j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10)
+            }
+
+            WorkerUtils.enqueueFullSync(context)
             dataLoadFlagManager.setDataLoaded(true)
             _state.postValue(State.SAVE_SUCCESS)
         } catch (_e: Exception) {
@@ -137,32 +186,43 @@ class HomeActivityViewModel @Inject constructor (application: Application,
 
     fun logout(myLocation:Location?,logoutType: String) {
         viewModelScope.launch {
-            val user = userDao.getLoggedInUser()
-            val lat = myLocation?.latitude
-            val long = myLocation?.longitude
-            val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
-            val timeZone = TimeZone.getTimeZone("GMT+0530")
-            val formatter = SimpleDateFormat(pattern, Locale.getDefault())
-            formatter.timeZone = timeZone
+            withContext(Dispatchers.IO) {
+                val user = userDao.getLoggedInUser()
+                val lat = myLocation?.latitude
+                val long = myLocation?.longitude
+                val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
+                val timeZone = TimeZone.getTimeZone("GMT+0530")
+                val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+                formatter.timeZone = timeZone
 
-            val logoutTimestamp = formatter.format(Date())
+                val logoutTimestamp = formatter.format(Date())
 
-            val selectedOutreachProgram = SelectedOutreachProgram(0,
-                user?.userId,
-                user?.userName,
-                null,
-                null,
-                logoutTimestamp,
-                null,
-                lat,
-                long,
-                logoutType,
-            null)
-            userDao.insertOutreachProgram(selectedOutreachProgram)
-            userDao.resetAllUsersLoggedInState()
-            if (user != null) {
-                userDao.updateLogoutTime(user.userId,Date())
+                val selectedOutreachProgram = SelectedOutreachProgram(0,
+                    // USER row is removed by clearAllTables(), so keep FK nullable for logout audit.
+                    null,
+                    user?.userName,
+                    null,
+                    null,
+                    logoutTimestamp,
+                    null,
+                    lat,
+                    long,
+                    logoutType,
+                null)
+                // Cancel any in-flight sync workers BEFORE wiping the DB. Otherwise a
+                // chain still running from this session survives the logout (logout
+                // does not stop WorkManager) and, on relogin, races the fresh login
+                // sync chain — its benflow pull can run while the patient table is
+                // being repopulated, leaving the Nurse/Doctor/Lab/Pharmacist worklists
+                // empty until the next sync cycle.
+                WorkerUtils.cancelAllWork(getApplication())
+                // Reset all local persisted records so next login starts clean.
+                database.clearAllTables()
+                // Preserve logout audit trail for later sync after local reset.
+                userDao.insertOutreachProgram(selectedOutreachProgram)
+                dataLoadFlagManager.setDataLoaded(false)
             }
+            pref.clearSyncTimestamps()
             pref.deleteEsanjeevaniCreds()
             _navigateToLoginPage.value = true
         }
@@ -238,6 +298,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     fun processPatientDoctorBundle(dummyPatientDoctorBundle: PatientDoctorBundle){
         viewModelScope.launch {
             withContext(Dispatchers.IO){
+                var replaceLatestPending = false
                 try {
                     dummyPatientDoctorBundle.patient.syncState = SyncState.SHARED_OFFLINE
                     patientRepo.insertPatient(dummyPatientDoctorBundle.patient)
@@ -256,6 +317,13 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                         dummyPatientDoctorBundle.patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
                         dummyPatientDoctorBundle.patientVisitInfoSync.pharmacistDataSynced = SyncState.SYNCED
                         patientVisitInfoSyncDao.insertPatientVisitInfoSync( dummyPatientDoctorBundle.patientVisitInfoSync)
+                    } else {
+                        // When both test and prescription are selected, move card to pharmacist module
+                        patientVisitInfoSyncDao.updatePharmacistFlagToPending(
+                            dummyPatientDoctorBundle.patientVisitInfoSync.patientID,
+                            dummyPatientDoctorBundle.patientVisitInfoSync.benVisitNo!!
+                        )
+                        replaceLatestPending = (existingPatientVisitInfoSync.pharmacist_flag ?: 0) == 1
                     }
                 }catch (e:Exception){
                     e.printStackTrace()
@@ -267,7 +335,8 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                         dummyPatientDoctorBundle.patient,
                         facilityID,
                         dummyPatientDoctorBundle,
-                        dummyPatientDoctorBundle.patientVisitInfoSync
+                        dummyPatientDoctorBundle.patientVisitInfoSync,
+                        replaceLatestPending = replaceLatestPending
                     )
                 }catch (e:Exception){
                     e.printStackTrace()
@@ -286,6 +355,24 @@ class HomeActivityViewModel @Inject constructor (application: Application,
 
     fun navigateToLoginPageComplete() {
         _navigateToLoginPage.value = false
+    }
+
+    private val _currentRole = MutableLiveData<String>(
+        (pref.getSwitchRole() ?: resolveDefaultRole()).also { pref.setSwitchRoles(it) }
+    )
+    val currentRole: LiveData<String> get() = _currentRole
+
+    fun switchRole(role: String) {
+        pref.setSwitchRoles(role)
+        _currentRole.value = role
+    }
+
+    private fun resolveDefaultRole(): String = when {
+        pref.isUserCHO() || pref.isUserStaffNurseOrNurse() -> "Nurse"
+        pref.isUserDoctorOrMO() -> "Doctor"
+        pref.isUserLabTechnician() -> "Lab Technician"
+        pref.isUserPharmacist() -> "Pharmacist"
+        else -> "Nurse"
     }
 
     companion object {

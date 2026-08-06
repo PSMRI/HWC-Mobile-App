@@ -18,7 +18,7 @@ data class PrescriptionUpsync(
     val sctCode: String?,
     val sctTerm: String?,
     val createdBy: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
     val parkingPlaceID: Int?,
     val isEDL: Boolean?,
 ){
@@ -49,11 +49,11 @@ data class PrescriptionUpsync(
 //        "Oral", // hard coded
 //        "${prescription.prescription.duration?.toInt()} ${prescription.prescription.unit}",
 //        prescription.prescription.unit,
-        null,
+        prescription.instructions,
         null,
         null,
         user?.userName,
-        user?.vanId,
+        user?.facilityID,
         user?.parkingPlaceId,
         true
     )

@@ -1,13 +1,25 @@
 ext {
     buildVersionCode = {
-        def versionName = buildVersionName()
+
+        def props = new Properties()
+        rootProject.file("version/version.properties").withInputStream { props.load(it) }
+        return props.getProperty("VERSIONCODE").toInteger()
+
+
+        /*def versionName = buildVersionName()
         def (major, minor, patch) = versionName.toLowerCase().tokenize('.')
 //        (major, minor, patch) = [major, minor, patch].collect { it.toInteger() }
 //        (major * 10000) + (minor * 100) + patch
-        major.toInteger()
+        major.toInteger()*/
     }
     buildVersionName = {
+
         def props = new Properties()
+        rootProject.file("version/version.properties").withInputStream { props.load(it) }
+        return props.getProperty("VERSION")
+
+
+        /*def props = new Properties()
         def versionFile = rootProject.file("version/version.properties")
         if (!versionFile.exists()) {
             throw new GradleException("version.properties file not found")
@@ -20,7 +32,7 @@ ext {
         if (!version.matches(/^\d+\.\d+\.\d+$/)) {
             throw new GradleException("Invalid version format. Expected: major.minor.patch")
         }
-        return version
+        return version*/
     }
 
 }

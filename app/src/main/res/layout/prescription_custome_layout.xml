@@ -6,7 +6,7 @@
 
     <TextView
         android:id="@+id/textPrescriptionHeading"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="4dp"
         android:layout_marginTop="10dp"
@@ -15,6 +15,18 @@
         android:textSize="18sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textStock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="4dp"
+        android:text=""
+        android:textSize="16sp"
+        android:textStyle="normal|bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -26,6 +38,7 @@
         android:layout_marginRight="4dp"
         android:hint="@string/form_medicine_dosage"
         android:textSize="18sp"
+        app:endIconMode="clear_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textPrescriptionHeading"> <!-- Set text color hint to black -->
 
@@ -45,8 +58,10 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
+        android:layout_marginTop="@dimen/_3sdp"
         android:hint="@string/Frequency"
         android:textSize="18sp"
+        app:endIconMode="dropdown_menu"
         app:layout_constraintTop_toBottomOf="@+id/dosagesDropDown">
 
         <AutoCompleteTextView
@@ -64,7 +79,7 @@
         layout="@layout/cutom_number_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_5sdp"
+        android:layout_marginTop="@dimen/_8sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/frequencyDropDown" />
@@ -124,8 +139,9 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:hint="@string/Unit"
-        android:paddingTop="4dp"
+        android:layout_marginTop="@dimen/_3sdp"
         android:textSize="18sp"
+        app:endIconMode="dropdown_menu"
         app:layout_constraintTop_toBottomOf="@+id/duration"> <!-- Set text color hint to black -->
 
         <AutoCompleteTextView
@@ -145,9 +161,10 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:hint="@string/instruction"
-        android:paddingTop="4dp"
         android:paddingBottom="10dp"
+        android:layout_marginTop="@dimen/_3sdp"
         android:textSize="18sp"
+        app:endIconMode="dropdown_menu"
         app:layout_constraintTop_toBottomOf="@+id/unitDropDown">
 
         <AutoCompleteTextView
@@ -155,7 +172,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:inputType="text"
+            android:inputType="none"
             android:textSize="18sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -181,7 +198,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/custom_ui_margin"
-        android:backgroundTint="@color/status_error"
+        android:backgroundTint="@color/button_danger"
         android:src="@drawable/baseline_cross_line"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/resetButton"

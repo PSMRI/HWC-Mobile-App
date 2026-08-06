@@ -1,16 +1,12 @@
 package org.piramalswasthya.cho.repositories
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -18,6 +14,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.crypt.CryptoUtil
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
@@ -28,7 +26,6 @@ import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
-import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLocationModel
@@ -43,13 +40,13 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
-import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
-import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.network.TmcAuthUserRequest
 import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
+import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
+import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import retrofit2.HttpException
 import timber.log.Timber
@@ -69,19 +66,14 @@ class UserRepo @Inject constructor(
     private val tmcNetworkApiService: AmritApiService
 ) {
 
-
     private var user: UserNetwork? = null
-
-//    @SuppressLint("StaticFieldLeak")
-//    val context: Context = application.applicationContext
-
 
     suspend fun getLoggedInUser(): UserDomain? {
         return withContext(Dispatchers.IO) {
             userDao.getLoggedInUser()?.asDomainModel()
         }
     }
-     fun getLoggedInUserAsFlow(): Flow<Int?> {
+    fun getLoggedInUserAsFlow(): Flow<Int?> {
         return userDao.getLoggedInUserAsFlow().map { it?.asDomainModel()?.userId }
     }
     suspend fun isUserLoggedIn(): Int {
@@ -90,19 +82,19 @@ class UserRepo @Inject constructor(
         }
     }
 
-     suspend fun setOutreachProgram(loginType: String?,
-                                      selectedOption: String?,
-                                      loginTimeStamp: String?,
-                                      logoutTimeStamp: String?,
-                                      lat: Double?,
-                                      long: Double?,
-                                      logoutType: String?,
-                                    userImage: String?,
-                                    isOutOfReach:Boolean?
-     ) {
-         var user = userDao.getLoggedInUser()
-         var userName = user?.userName
-         var userId = user?.userId
+    suspend fun setOutreachProgram(loginType: String?,
+                                   selectedOption: String?,
+                                   loginTimeStamp: String?,
+                                   logoutTimeStamp: String?,
+                                   lat: Double?,
+                                   long: Double?,
+                                   logoutType: String?,
+                                   userImage: String?,
+                                   isOutOfReach:Boolean?
+    ) {
+        var user = userDao.getLoggedInUser()
+        var userName = user?.userName
+        var userId = user?.userId
         val selectedOutreachProgram = SelectedOutreachProgram(
             userId = userId,
             userName = userName,
@@ -119,18 +111,24 @@ class UserRepo @Inject constructor(
         userDao.insertOutreachProgram(selectedOutreachProgram)
     }
 
+    suspend fun saveMasterLatLong(lat: Double?, long: Double?) {
+        withContext(Dispatchers.IO) {
+            val loggedInUser = userDao.getLoggedInUser()
+            Timber.d("user", loggedInUser.toString())
+            loggedInUser?.let {
+                it.masterLatitude = lat
+                it.masterLongitude = long
+                userDao.update(it)
+            }
+        }
+    }
+
     suspend fun authenticateUser(
         userName: String,
         password: String,
         loginType: String?,
-        selectedOption: String?,
-        loginTimeStamp: String?,
-        logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        userImage: String?,
-        logoutType: String?,
-        isBiometric: Boolean? = false,
         context: Context
     ): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
@@ -142,6 +140,7 @@ class UserRepo @Inject constructor(
                 if (it.userName.lowercase() == userName.lowercase() && it.password == password) {
                     preferenceDao.setUserRoles(loggedInUser.roles);
                     preferenceDao.setUserLoginType(loginType);
+                    preferenceDao.setUsername(loggedInUser.userName)
                     val tokenB = preferenceDao.getPrimaryApiToken()
                     TokenInsertTmcInterceptor.setToken(
                         tokenB
@@ -154,18 +153,7 @@ class UserRepo @Inject constructor(
                     it.masterLongitude = long
                     it.loginDistance = 1000
                     userDao.update(it)
-//                    if(!isBiometric!!) {
-//                        setOutreachProgram(
-//                            loginType,
-//                            selectedOption,
-//                            loginTimeStamp,
-//                            logoutTimeStamp,
-//                            lat,
-//                            long,
-//                            logoutType,
-//                            userImage
-//                        )
-//                    }
+
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -188,24 +176,10 @@ class UserRepo @Inject constructor(
                         userDao.resetAllUsersLoggedInState()
                         userDao.insert(user!!.asCacheModel())
                     }
-//                    if(!isBiometric!!) {
-//                        setOutreachProgram(
-//                            loginType,
-//                            selectedOption,
-//                            loginTimeStamp,
-//                            logoutTimeStamp,
-//                            lat,
-//                            long,
-//                            logoutType,
-//                            userImage
-//                        )
-//                    }
+
                     return@withContext OutreachViewModel.State.SUCCESS
-//                        }
                 }
                 return@withContext OutreachViewModel.State.ERROR_SERVER
-//                }
-//                return@withContext OutreachViewModel.State.ERROR_INPUT
             } catch (se: SocketTimeoutException) {
                 return@withContext OutreachViewModel.State.ERROR_SERVER
             } catch (ce: ConnectException) {
@@ -215,7 +189,7 @@ class UserRepo @Inject constructor(
             }
         }
     }
-    fun isInternetAvailable(context: Context): Boolean {
+    private fun isInternetAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -248,13 +222,14 @@ class UserRepo @Inject constructor(
 
                 for (i in 0 until vanSpDetailsArray.length()) {
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
-                    val vanId = vanSp.getInt("vanID")
-                    user?.vanId = vanId
-                    //val name = vanSp.getString("vanNoAndType")
-                    val servicePointId = vanSp.getInt("servicePointID")
-                    user?.servicePointId = servicePointId
-                    val servicePointName = vanSp.getString("servicePointName")
-                    user?.servicePointName = servicePointName
+                    val serviceProviderMapId = vanSp.getInt("providerServiceMapID")
+                    user?.serviceMapId = serviceProviderMapId
+//                    val vanId = vanSp.getInt("vanID")
+//                    user?.vanId = vanId
+//                    val servicePointId = vanSp.getInt("servicePointID")
+//                    user?.servicePointId = servicePointId
+//                    val servicePointName = vanSp.getString("servicePointName")
+//                    user?.servicePointName = servicePointName
                     if (!vanSp.has("facilityID")) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
@@ -323,7 +298,7 @@ class UserRepo @Inject constructor(
             }
         }
 
-        }
+    }
 
 
     private suspend fun getTokenTmc(userName: String, password: String, context: Context) {
@@ -350,14 +325,30 @@ class UserRepo @Inject constructor(
                 val responseStatusCode = responseBody.getInt("statusCode")
                 if (responseStatusCode == 200) {
                     val data = responseBody.getJSONObject("data")
+                    TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
+                    preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
                     val userId = data.getInt("userID")
                     Timber.d("Token", token.toString())
                     val privilegesArray = data.getJSONArray("previlegeObj")
                     val privilegesObject = privilegesArray.getJSONObject(0)
+                    val rolesObjectArray = privilegesObject.getJSONArray("roles")
+                    val workingLocationId = if (rolesObjectArray.length() > 0) {
+                        val firstRole = rolesObjectArray.getJSONObject(0)
+                        when {
+                            firstRole.has("workingLocationID") -> firstRole.optInt("workingLocationID", -1)
+                            firstRole.has("workingLocationId") -> firstRole.optInt("workingLocationId", -1)
+                            else -> -1
+                        }
+                    } else {
+                        -1
+                    }
+                    if (workingLocationId != -1) {
+                        preferenceDao.setWorkingLocationID(workingLocationId)
+                    } else {
+                        Timber.w("getTokenTmc: workingLocationID missing in role payload")
+                    }
                     val rolesArray = extractRoles(privilegesObject);
-//                    val roles = rolesArray;
-//                    Log.i("roles are ", roles);
                     val name = data.getString("fullName")
                     user = UserNetwork(userId, userName, password, name, rolesArray)
                     val serviceId = privilegesObject.getInt("serviceID")
@@ -365,12 +356,13 @@ class UserRepo @Inject constructor(
                     val serviceMapId =
                         privilegesObject.getInt("providerServiceMapID")
                     user?.serviceMapId = serviceMapId
+                    applyFacilityDataFromLoginResponse(data)
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
                     getUserVanSpDetails(context)
                     getLocDetailsBasedOnSpIDAndPsmID()
                     getUserMasterVillage()
-//                    getUserAssignedVillageIds()
+                    preferenceDao.registerUser(user!!)
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
                     GlobalScope.launch(Dispatchers.Main) {
@@ -389,7 +381,7 @@ class UserRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val response = tmcNetworkApiService.getLocDetailsBasedOnSpIDAndPsmID(
                 LocationRequest(
-                    user!!.vanId,
+                    user!!.facilityID,
                     user!!.serviceMapId.toString(),
                     user!!.userId
                 )
@@ -403,23 +395,40 @@ class UserRepo @Inject constructor(
                     ?: throw IllegalStateException("Response success but data missing @ $response")
             )
 
-//            user!!.assignVillageIds = "24286,24326,24250,24334,24351,24294"
 
             val responseStatusCode = responseBody.getInt("statusCode")
             if (responseStatusCode == 200) {
                 val data = responseBody.getJSONObject("data")
                 val otherLoc = data.getJSONObject("otherLoc")
-                val stateId = otherLoc.getString("stateID")
-                val districtList = otherLoc.getJSONArray("districtList")
-                val districtObject = districtList.getJSONObject(0)
-                val districtId = districtObject.getString("districtID")
-                val districtName = districtObject.getString("districtName")
-                val blockId = districtObject.getString("blockId")
-                val blockName = districtObject.getString("blockName")
-                val villageList = districtObject.getJSONArray("villageList")
+                val stateId = otherLoc.optString("stateID", "")
+                val districtList = otherLoc.optJSONArray("districtList")
+                if (districtList == null || districtList.length() == 0) {
+                    Timber.w("getLocDetailsBasedOnSpIDAndPsmID: districtList empty, skipping location seed")
+                    return@withContext
+                }
+                val districtObject = districtList.optJSONObject(0)
+                if (districtObject == null) {
+                    Timber.w("getLocDetailsBasedOnSpIDAndPsmID: district object missing, skipping location seed")
+                    return@withContext
+                }
+                val districtId = districtObject.optString("districtID", "")
+                val districtName = districtObject.optString("districtName", "")
+                val blockId = districtObject.optString("blockId", "")
+                val blockName = districtObject.optString("blockName", "")
+                val villageList = districtObject.optJSONArray("villageList") ?: JSONArray()
+
+                if (districtId.isBlank() || blockId.isBlank() || stateId.isBlank()) {
+                    Timber.w(
+                        "getLocDetailsBasedOnSpIDAndPsmID: incomplete location payload stateId=%s districtId=%s blockId=%s, skipping DB seed",
+                        stateId,
+                        districtId,
+                        blockId
+                    )
+                    return@withContext
+                }
 
                 val itemType = object : TypeToken<List<VillageLocationData>>() {}.type
-                var villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType)
+                var villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType) ?: emptyList()
                 villageLocationDataList = villageLocationDataList.toSet().toList()
 
                 val stateMaster = data.getJSONArray("stateMaster")
@@ -429,10 +438,10 @@ class UserRepo @Inject constructor(
                     val jsonObject = stateMaster.getJSONObject(i)
                     val id = jsonObject.getInt("stateID").toString()
                     val stateName = jsonObject.getString("stateName")
-                    val lgdStateId = jsonObject.getString("govtLGDStateID")
+                    val lgdStateId = jsonObject.optString("govtLGDStateID", "")
                     if (id == stateId) {
-                         stateMasterName = stateName
-                        govtLGDStateID = lgdStateId.toInt()
+                        stateMasterName = stateName
+                        govtLGDStateID = lgdStateId.toIntOrNull()
                     }
                 }
                 if(stateMasterDao.getStateById(stateId.toInt()) == null ){
@@ -476,18 +485,44 @@ class UserRepo @Inject constructor(
         }
     }
 
-//    private suspend fun getUserAssignedVillageIds(){
-//        user!!.assignVillageIds = "54151,54676,463267"
-////        val response = tmcNetworkApiService.getUserDetail(user!!.userId)
-////        val responseBody = JSONObject(response.body()?.string() ?: "")
-////        if(responseBody.has("data")){
-////            val data = responseBody.getJSONObject("data")
-////            user!!.assignVillageIds = data.getString("villageId")
-////            user!!.assignVillageNames = data.getString("villageName")
-////        }
-//    }
+    private fun applyFacilityDataFromLoginResponse(data: JSONObject) {
+        if (!data.has("facilityData")) return
+        try {
+            val facilityData = data.getJSONObject("facilityData")
+            val facilityUser = facilityData.optJSONObject("user")
+            val facilityLocation = facilityData.optJSONObject("location")
+            if (facilityUser != null) {
+                user?.employeeId = when {
+                    facilityUser.has("employeeId") -> facilityUser.getString("employeeId")
+                    facilityUser.has("employeeID") -> facilityUser.getString("employeeID")
+                    else -> null
+                }?.nullIfEmpty()
+            }
+            if (facilityLocation != null) {
+                user?.locationType = when {
+                    facilityLocation.has("locationType") -> facilityLocation.getString("locationType")
+                    else -> null
+                }?.nullIfEmpty()
+            }
+            val facilities = facilityData.optJSONArray("facilities") ?: return
+            if (facilities.length() == 0) return
+            val facility = facilities.getJSONObject(0)
+            val facilityId = when {
+                facility.has("facilityId") -> facility.getInt("facilityId")
+                facility.has("facilityID") -> facility.getInt("facilityID")
+                else -> -1
+            }
+            if (facilityId != -1) {
+                user?.facilityID = facilityId
+            }
+            user?.facilityType = facility.optString("facilityType", "").nullIfEmpty()
+            user?.facilityName = facility.optString("facilityName", "").nullIfEmpty()
+        } catch (e: JSONException) {
+            Timber.w(e, "applyFacilityDataFromLoginResponse: failed to parse facilityData")
+        }
+    }
 
-    fun extractRoles(privilegesObject : JSONObject) : String{
+    private fun extractRoles(privilegesObject : JSONObject) : String{
 //        return "Lab Technician,MO,Pharmacist,Registrar,Staff Nurse"
 //        return "Lab Technician,MO,Pharmacist"
 
@@ -500,7 +535,7 @@ class UserRepo @Inject constructor(
         return roles.substring(0, roles.length - 1)
     }
 
-     fun encrypt(password: String): String {
+    private fun encrypt(password: String): String {
         val util = CryptoUtil()
         return util.encrypt(password)
     }
@@ -522,6 +557,8 @@ class UserRepo @Inject constructor(
                 val responseStatusCode = responseBody.getInt("statusCode")
                 if (responseStatusCode == 200) {
                     val data = responseBody.getJSONObject("data")
+                    TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
+                    preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
@@ -551,22 +588,6 @@ class UserRepo @Inject constructor(
                 return@withContext null
             }
         }
-    }
-
-    suspend fun insertFPDataToLocalDB(fpList: List<FingerPrint>){
-        return withContext(Dispatchers.IO){
-            try{
-                for(item in fpList){
-                    userDao.insertFpData(item)
-                }
-            } catch (e: Exception){
-                Timber.d("Error in inserting Finger Print Data $e")
-            }
-        }
-    }
-
-    fun getFPDataFromLocalDB(): LiveData<List<FingerPrint>>{
-        return  userDao.getAllFpData()
     }
 
     suspend fun updateLoginStatus(userName: String){
@@ -603,59 +624,61 @@ class UserRepo @Inject constructor(
     }
 
     suspend fun setUserMasterVillageIdAndName(user: UserCache, masterVillageId: Int?, masterVillageName: String?){
-        user?.masterVillageID = masterVillageId
-        user?.masterVillageName = masterVillageName
+        user.masterVillageID = masterVillageId
+        user.masterVillageName = masterVillageName
         userDao.update(user)
     }
-     suspend fun setUserMasterVillage(user:UserCache, userMasterVillage: UserMasterVillage) {
-         val response = tmcNetworkApiService.setUserMasterVillage(userMasterVillage)
-         val statusCode = response.code()
-         if (statusCode == 200) {
-             val responseString = response.body()?.string()
-             val responseJson = JSONObject(responseString!!)
-             val responseStatusCode = responseJson.getInt("statusCode")
-             if (responseStatusCode == 200) {
-                 val data = responseJson.getJSONObject("data")
-                 val masterVillageName = data.getString("villageName")
-                 user?.masterVillageName = masterVillageName
-                 val masterVillageId = data.getInt("districtBranchID")
-                 user?.masterVillageID = masterVillageId
-                 val masterLocAddress = data.getString("address")
-                 user?.masterLocationAddress = masterLocAddress
-                 val loginDistance = data.getInt("loginDistance")
-                 user?.loginDistance = loginDistance
-                 val blockId = data.getInt("blockID")
-                 user?.masterBlockID = blockId
-                 val masterLatitude = data.getDouble("latitude")
-                 user?.masterLatitude = masterLatitude
-                 val masterLongitude = data.getDouble("longitude")
-                 user?.masterLongitude = masterLongitude
+    suspend fun setUserMasterVillage(user:UserCache, userMasterVillage: UserMasterVillage) {
+        val response = tmcNetworkApiService.setUserMasterVillage(userMasterVillage)
+        val statusCode = response.code()
+        if (statusCode == 200) {
+            val responseString = response.body()?.string()
+            val responseJson = JSONObject(responseString!!)
+            val responseStatusCode = responseJson.getInt("statusCode")
+            if (responseStatusCode == 200) {
+                val data = responseJson.getJSONObject("data")
+                val masterVillageName = data.getString("villageName")
+                user.masterVillageName = masterVillageName
+                val masterVillageId = data.getInt("districtBranchID")
+                user.masterVillageID = masterVillageId
+                val masterLocAddress = data.getString("address")
+                user.masterLocationAddress = masterLocAddress
+                val loginDistance = data.getInt("loginDistance")
+                user.loginDistance = loginDistance
+                val blockId = data.getInt("blockID")
+                user.masterBlockID = blockId
+                val masterLatitude = data.getDouble("latitude")
+                user.masterLatitude = masterLatitude
+                val masterLongitude = data.getDouble("longitude")
+                user.masterLongitude = masterLongitude
 
-                 val use = user
-                 use?.masterVillageName
+                val use = user
+                use.masterVillageName
 
-                 userDao.update(user)
+                userDao.update(user)
 
-             }
-         }
-     }
+            }
+        }
+    }
     suspend fun processUnsyncedAuditData(): Boolean{
         val loginAuditDataListUnsynced: List<SelectedOutreachProgram> = userDao.getLoginAuditDataListUnsynced()
         if(loginAuditDataListUnsynced.isNotEmpty()){
             when(val response = saveLoginAuditDataToServer(loginAuditDataListUnsynced)){
                 is NetworkResult.Success ->{
                     //TODO UPDATE SYNCED FLAG
-                    loginAuditDataListUnsynced.forEach { it ->
+                    loginAuditDataListUnsynced.forEach {
                         userDao.updateAuditDataFlag(it.id)
                     }
                 }
                 is NetworkResult.Error -> {
                     if(response.code == socketTimeoutException){
-                    throw SocketTimeoutException("caught exception")
-                }
+                        throw SocketTimeoutException("caught exception")
+                    }
                     return false
                 }
-                else ->{}
+                else ->{
+                    // No-op for now.
+                }
             }
         }
         return true

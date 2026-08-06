@@ -8,11 +8,13 @@ import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.SyncStateValue
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.SyncStatusCache
 import java.util.Date
 
 @Dao
@@ -20,6 +22,12 @@ interface PatientDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPatient(patient: Patient)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllPatients(patients: List<Patient>)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM patient WHERE beneficiaryRegID = :benRegId)")
+    suspend fun existsByBeneficiaryRegId(benRegId: Long?): Boolean
 
     @Query("SELECT * FROM PATIENT WHERE patientID = :patientID")
     suspend fun getPatient(patientID : String) : Patient
@@ -82,7 +90,8 @@ interface PatientDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE latestVisit.patientID IS NULL")
+            "WHERE latestVisit.patientID IS NULL " +
+            "ORDER BY pat.registrationDate DESC, vis.benVisitNo DESC")
     fun getPatientDisplayListForNurse(): Flow<List<PatientDisplayWithVisitInfo>>
 
 
@@ -96,7 +105,9 @@ interface PatientDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9 AND latestVisit.patientID IS NULL")
+            "WHERE vis.nurseFlag = 9 AND latestVisit.patientID IS NULL " +
+            "AND NOT (vis.doctorFlag = 9 AND IFNULL(vis.pharmacist_flag, 0) IN (0, 9)) " +
+            "ORDER BY pat.registrationDate DESC, vis.benVisitNo DESC")
     fun getPatientDisplayListForDoctor(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +
@@ -159,6 +170,9 @@ interface PatientDao {
     @Query("SELECT * FROM PATIENT WHERE beneficiaryId =:benId LIMIT 1")
     suspend fun getBen(benId: Long): Patient?
 
+    @Query("SELECT * FROM PATIENT WHERE beneficiaryID = :id OR beneficiaryRegID = :id LIMIT 1")
+    suspend fun getPatientByAnyBeneficiaryId(id: Long): Patient?
+
 //    @Transaction
 //    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 1 WHERE beneficiaryRegID = :beneficiaryRegID")
 //    suspend fun updateNurseCompleted(beneficiaryRegID: Long)
@@ -172,4 +186,99 @@ interface PatientDao {
 
     @Query("SELECT COUNT(*) FROM Patient WHERE registrationDate = :registrationDate")
     suspend fun countPatientsByRegistrationDate(registrationDate: Date): Int
+
+    /**
+     * Get all infants (0–365 days).
+     * Calculates age in days from DOB (stored as milliseconds since epoch).
+     * WHO RMNCHA+ standard: infant = 0–365 days inclusive.
+     */
+    @Transaction
+    @Query("""
+        SELECT * FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 0 AND 365
+        ORDER BY dob DESC
+    """)
+    fun getAllInfantList(): Flow<List<PatientDisplay>>
+
+    /**
+     * Get count of infants (0–365 days).
+     * WHO RMNCHA+ standard: infant = 0–365 days inclusive.
+     */
+    @Query("""
+        SELECT COUNT(*) FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 0 AND 365
+    """)
+    fun getInfantListCount(): Flow<Int>
+
+    /**
+     * Get all children (365–3285 days, i.e. 1–9 years).
+     * Calculates age in days from DOB (stored as milliseconds since epoch).
+     * WHO RMNCHA+ standard: child = 365–3285 days inclusive (1–9 years).
+     */
+    @Transaction
+    @Query("""
+        SELECT * FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 365 AND 3285
+        ORDER BY dob DESC
+    """)
+    fun getAllChildList(): Flow<List<PatientDisplay>>
+
+    /**
+     * Get count of children (365–3285 days, i.e. 1–9 years).
+     * WHO RMNCHA+ standard: child = 365–3285 days inclusive (1–9 years).
+     */
+    @Query("""
+        SELECT COUNT(*) FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 365 AND 3285
+    """)
+    fun getChildListCount(): Flow<Int>
+
+    /**
+     * Get all adolescents (age between 10-19 years, i.e., 3650-6935 days)
+     * Calculates age in days from DOB (stored as milliseconds since epoch)
+     * Aligned with RMNCHA+ guidelines (10-19 years)
+     */
+    @Transaction
+    @Query("""
+        SELECT * FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 3650 AND 6935
+        ORDER BY dob DESC
+    """)
+    fun getAllAdolescentList(): Flow<List<PatientDisplay>>
+
+    /**
+     * Get count of adolescents (age between 10-19 years)
+     * Aligned with RMNCHA+ guidelines (10-19 years)
+     */
+    @Query("""
+        SELECT COUNT(*) FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 3650 AND 6935
+    """)
+    fun getAdolescentListCount(): Flow<Int>
+
+    @Query(
+        """
+        SELECT
+            14 AS id,
+            'Adolescent List' AS name,
+            COUNT(CASE WHEN syncState = :syncedState THEN 1 END) AS synced,
+            COUNT(CASE WHEN syncState = :unsyncedState THEN 1 END) AS notSynced,
+            COUNT(CASE WHEN syncState = :syncingState THEN 1 END) AS syncing
+        FROM PATIENT
+        WHERE dob IS NOT NULL
+          AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 3650 AND 6935
+        """
+    )
+    fun getAdolescentSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
+
 }

@@ -74,7 +74,8 @@ class HwcFragment constructor(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        getCurrentLocation()
+        ////Cpmment this Below method as per discussion with madhav
+//        getCurrentLocation()
         viewModel = ViewModelProvider(this).get(HwcViewModel::class.java)
 
         _binding = FragmentHwcBinding.inflate(layoutInflater, container, false)
@@ -104,7 +105,10 @@ class HwcFragment constructor(
         timestamp = formatter.format(Date())
 
         binding.btnHwcLogin.setOnClickListener {
-            getCurrentLocation()
+            //Cpmment this Below method as per discussion with madhav
+//            getCurrentLocation()
+            tryAuthUser = true
+            loginUser()
 
             if (!isBiometric) {
                 tryAuthUser = true
@@ -127,12 +131,13 @@ class HwcFragment constructor(
                                 else {
                                     viewModel.forgetUser()
                                 }
-
+                            //Cpmment this Below code as per discussion with madhav
                                 userLatitude = user?.masterLatitude
                                 userLongitude = user?.masterLongitude
                                 userLoginDistance = user?.loginDistance
                                 currentLatitude = currentLocation?.latitude
                                 currentLongitude = currentLocation?.longitude
+                                //Cpmment this above code as per discussion with madhav
 
                                 if (user?.masterVillageID != null && userLatitude != null && userLongitude != null) {
                                     if (currentLatitude != null && currentLongitude != null) {
@@ -204,13 +209,20 @@ class HwcFragment constructor(
                                         null,
                                         false
                                     )
-                                    // OPEN SETTINGS PAGE
-                                    startActivity(
-                                        Intent(
-                                            context,
-                                            MasterLocationSettingsActivity::class.java
+
+                                    findNavController().navigate(
+                                        ChoLoginFragmentDirections.actionSignInToHomeFromCho(
+                                            true
                                         )
                                     )
+
+                                    // OPEN SETTINGS PAGE
+//                                    startActivity(
+//                                        Intent(
+//                                            context,
+//                                            MasterLocationSettingsActivity::class.java
+//                                        )
+//                                    )
                                     viewModel.resetState()
                                     activity?.finish()
                                 }
@@ -316,7 +328,7 @@ class HwcFragment constructor(
                     findNavController().navigateUp()
                 else {
                     MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.logout))
-                        .setMessage("Please confirm to logout and exit.")
+                        .setMessage(getString(R.string.please_confirm_logout_exit))
                         .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
                             lifecycleScope.launch {
                                 val user = userDao.getLoggedInUser()
@@ -409,6 +421,28 @@ class HwcFragment constructor(
         }
     }
 
+    private fun loginUser() {
+        currentLatitude = 24.43
+        currentLongitude = 67.87
+        if (tryAuthUser) {
+            lifecycleScope.launch {
+                viewModel.authUser(
+                    userName,
+                    binding.etPasswordHwc.text.toString(),
+                    "HWC",
+                    null,
+                    timestamp,
+                    null,
+                    24.43,
+                    67.87,
+                    null,
+                    requireContext()
+                )
+                tryAuthUser = false
+            }
+        }
+    }
+
     private fun showDialog() {
         val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
         val timeZone = TimeZone.getTimeZone("GMT+0530")
@@ -417,10 +451,10 @@ class HwcFragment constructor(
         timestamp = formatter.format(Date())
 
         val alertDialogBuilder = AlertDialog.Builder(activity)
-        alertDialogBuilder.setMessage("You are trying to Log-in away from your facility. Do you want to retry?")
-            .setTitle("Alert!")
+        alertDialogBuilder.setMessage(getString(R.string.login_away_from_facility))
+            .setTitle(getString(R.string.alert_popup))
             .setCancelable(false)
-            .setPositiveButton("Yes") { d, _ ->
+            .setPositiveButton(getString(R.string.yes)) { d, _ ->
                 lifecycleScope.launch {
                     val user = userDao.getLoggedInUser()
                     userDao.resetAllUsersLoggedInState()
@@ -431,7 +465,7 @@ class HwcFragment constructor(
                 d.dismiss()
                 findNavController().navigateUp()
             }
-            .setNegativeButton("No") { d, _ ->
+            .setNegativeButton(getString(R.string.no)) { d, _ ->
                 lifecycleScope.launch {
                     viewModel.setOutreachDetails(
                         "HWC",

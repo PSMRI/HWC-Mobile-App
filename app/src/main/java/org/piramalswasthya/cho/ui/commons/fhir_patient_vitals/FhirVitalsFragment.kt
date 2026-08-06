@@ -1,6 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,7 +13,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +34,7 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.utils.setBoxColor
@@ -82,8 +84,10 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     var respiratoryValue :String?=null
     var rbsValue :String?=null
     private val bundle = Bundle()
-
+    private var sbpValue: Int? = null
+    private var dbpValue: Int? = null
     private var masterDb: MasterDb? = null
+    private var editPatientViewModel: EditPatientDetailsViewModel? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -103,6 +107,12 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
+
+        try {
+            editPatientViewModel = ViewModelProvider(requireActivity())[EditPatientDetailsViewModel::class.java]
+        } catch (_: Exception) {
+            // Fragment may not be hosted by EditPatientDetailsActivity
+        }
 
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
         Log.d("aryan","category --  ${masterDb?.visitMasterDb?.subCategory}")
@@ -144,6 +154,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     viewModel.tempNull = true
                     binding.temperatureEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -157,6 +168,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.bpSystolicEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -169,6 +181,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.bpDiastolicEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -181,6 +194,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.pulseRateEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -193,6 +207,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.spo2EditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -205,6 +220,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.respiratoryEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -217,6 +233,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.rbsEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -229,6 +246,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.heightEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -241,23 +259,47 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 }else{
                     binding.weightEditTxt.helperText=null
                 }
+                updateNextButtonState()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
 
     }
+
+    /**
+     * Checks all TextInputLayout helper texts. If any has a non-null helperText
+     * (indicating a validation error), the Next/Submit button is disabled.
+     */
+    private fun updateNextButtonState() {
+        val hasErrors = binding.temperatureEditTxt.helperText != null ||
+                binding.bpSystolicEditTxt.helperText != null ||
+                binding.bpDiastolicEditTxt.helperText != null ||
+                binding.pulseRateEditTxt.helperText != null ||
+                binding.spo2EditTxt.helperText != null ||
+                binding.respiratoryEditTxt.helperText != null ||
+                binding.rbsEditTxt.helperText != null ||
+                binding.heightEditTxt.helperText != null ||
+                binding.weightEditTxt.helperText != null
+
+        editPatientViewModel?.setSubmitActive(!hasErrors)
+    }
+
     private fun validateBPSystolic(bpSystolic: String) {
         try {
             val isValid = bpSystolic.matches(Regex("^\\d{2,3}$")) &&
-                    bpSystolic.toInt() in 50..300
+                    bpSystolic.toInt() in 40..320
 
             if (isValid) {
+                sbpValue = bpSystolic.toInt()
                 binding.bpSystolicEditTxt.helperText = null
             } else {
+                sbpValue = null
                 binding.bpSystolicEditTxt.helperText =
-                    "Please enter value between 50 and 300."
+                    "Please enter value between 40 and 320."
             }
+            validateBPRelation(sbpValue, dbpValue)
         } catch (e: NumberFormatException) {
+            sbpValue = null
             binding.bpSystolicEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
@@ -266,64 +308,135 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     private fun validateBPD(bpD: String) {
         try {
             val isValid = bpD.matches(Regex("^\\d{2,3}$")) &&
-                    bpD.toInt() in 30..200
+                    bpD.toInt() in 10..180
             if (isValid) {
+                dbpValue = bpD.toInt()
                 binding.bpDiastolicEditTxt.helperText = null
             } else {
+                dbpValue = null
                 binding.bpDiastolicEditTxt.helperText =
-                    "Please enter value between 30 and 200."
+                    "Please enter value between 10 and 180."
             }
+            validateBPRelation(sbpValue, dbpValue)
         } catch (e: NumberFormatException) {
+            dbpValue = null
             binding.bpDiastolicEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
     }
+    /* private fun validateTemperature(temperature: String) {
+         try {
+             val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+             if (isValid) {
+                 binding.temperatureEditTxt.helperText = null
+             } else {
+                 binding.temperatureEditTxt.helperText =
+                     "Invalid temperature."
+             }
+         } catch (e: NumberFormatException) {
+             binding.temperatureEditTxt.helperText =
+                 "Please enter a valid numeric value."
+         }
+     }*/
+
     private fun validateTemperature(temperature: String) {
         try {
-            val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
-            if (isValid) {
-                binding.temperatureEditTxt.helperText = null
-            } else {
-                binding.temperatureEditTxt.helperText =
-                    "Invalid temperature."
+            val isValidFormat = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            if (!isValidFormat) {
+                binding.temperatureEditTxt.helperText = "Invalid format. Eg: 98.6"
+                return
             }
+
+            val tempValue = temperature.toFloat()
+            if (tempValue < 90 || tempValue > 110) {
+                binding.temperatureEditTxt.helperText = "Temperature must be between 90°F and 110°F"
+            } else {
+                binding.temperatureEditTxt.helperText = null
+            }
+
         } catch (e: NumberFormatException) {
-            binding.temperatureEditTxt.helperText =
-                "Please enter a valid numeric value."
+            binding.temperatureEditTxt.helperText = "Please enter a valid numeric value"
         }
     }
+
+    private fun validateBPRelation(sbp: Int?, dbp: Int?) {
+        if (sbp != null && dbp != null) {
+            if (sbp <= dbp) {
+                binding.bpSystolicEditTxt.helperText = "Systolic BP must be greater than Diastolic BP"
+                binding.bpDiastolicEditTxt.helperText = "Diastolic BP must be less than Systolic BP"
+            } else {
+                binding.bpSystolicEditTxt.helperText = null
+                binding.bpDiastolicEditTxt.helperText = null
+            }
+        }
+    }
+    /*   private fun validateHeight(hei: String) {
+           try {
+               val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+               if (isValid) {
+                   binding.heightEditTxt.helperText = null
+               } else {
+                   binding.heightEditTxt.helperText =
+                       "Invalid Height."
+               }
+           } catch (e: NumberFormatException) {
+               binding.heightEditTxt.helperText =
+                   "Please enter a valid numeric value."
+           }
+       }*/
 
     private fun validateHeight(hei: String) {
         try {
-            val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
-            if (isValid) {
+            val isValidFormat = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            val heightValue = hei.toFloatOrNull()
+
+            if (isValidFormat && heightValue != null && heightValue in 35.0..200.0) {
                 binding.heightEditTxt.helperText = null
             } else {
-                binding.heightEditTxt.helperText =
-                    "Invalid Height."
+                binding.heightEditTxt.helperText = "Height must be between 35 cm and 200 cm."
             }
-        } catch (e: NumberFormatException) {
-            binding.heightEditTxt.helperText =
-                "Please enter a valid numeric value."
+        } catch (e: Exception) {
+            binding.heightEditTxt.helperText = "Please enter a valid numeric height."
         }
     }
+
+    /*  private fun validateWeight(w: String) {
+          try {
+              val isValid = w.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+              if (isValid) {
+                  binding.weightEditTxt.helperText = null
+              } else {
+                  binding.weightEditTxt.helperText =
+                      "Invalid Weight."
+              }
+          } catch (e: NumberFormatException) {
+              binding.weightEditTxt.helperText =
+                  "Please enter a valid numeric value."
+          }
+      }*/
 
     private fun validateWeight(w: String) {
         try {
-            val isValid = w.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
-            if (isValid) {
-                binding.weightEditTxt.helperText = null
-            } else {
-                binding.weightEditTxt.helperText =
-                    "Invalid Weight."
+            val isValidFormat = w.matches(Regex("^\\d{1,3}(\\.\\d{1,2})?$"))
+
+            if (!isValidFormat) {
+                binding.weightEditTxt.helperText = "Invalid format. Example: 72 or 72.5"
+                return
             }
+
+            val weightValue = w.toFloat()
+            if (weightValue < 2 || weightValue > 150) {
+                binding.weightEditTxt.helperText = "Weight must be between 2 kg and 150 kg"
+            } else {
+                binding.weightEditTxt.helperText = null
+            }
+
         } catch (e: NumberFormatException) {
-            binding.weightEditTxt.helperText =
-                "Please enter a valid numeric value."
+            binding.weightEditTxt.helperText = "Please enter a valid numeric value"
         }
     }
 
-    private fun validatePulse(pul: String) {
+    /*private fun validatePulse(pul: String) {
         try {
             val isValid = pul.matches(Regex("^\\d{2,3}$"))
             if (isValid) {
@@ -336,8 +449,27 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             binding.pulseRateEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
-    }
+    }*/
 
+    private fun validatePulse(pulse: String) {
+        try {
+            val isValidFormat = pulse.matches(Regex("^\\d{2,3}$"))
+            if (!isValidFormat) {
+                binding.pulseRateEditTxt.helperText = "Invalid format."
+                return
+            }
+
+            val pulseValue = pulse.toInt()
+            if (pulseValue < 50 || pulseValue > 200) {
+                binding.pulseRateEditTxt.helperText = "Pulse rate must be between 50 and 200 BPM"
+            } else {
+                binding.pulseRateEditTxt.helperText = null
+            }
+
+        } catch (e: NumberFormatException) {
+            binding.pulseRateEditTxt.helperText = "Please enter a valid number"
+        }
+    }
     private fun validateSpo2(spo: String) {
         try {
             val isValid = spo.matches(Regex("^\\d+$")) &&
@@ -400,7 +532,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         override fun afterTextChanged(s: Editable?) {}
     }
 
-   private fun extractFormValues(){
+    private fun extractFormValues(){
         heightValue = binding.inputHeight.text?.toString()?.trim()
         weightValue = binding.inputWeight.text?.toString()?.trim()
         bmiValue = binding.inputBmi.text?.toString()?.trim()
@@ -484,41 +616,41 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         if (weightValue != null && heightValue != null && heightValue > 0 &&  weightValue > 0) {
             val bmi = weightValue / (heightValue / 100).pow(2)
             val formattedBMI = "%.2f".format(bmi)
-    //            var status : String
+            //            var status : String
             binding.inputBmi.text = Editable.Factory.getInstance().newEditable(formattedBMI)
             if(bmi > 25 && bmi < 30){
                 binding.bmiCategory.isVisible = true
                 binding.bmiCategory.text = getString(R.string.overweight_txt)
-    //                status = getString(R.string.overweight_txt)
+                //                status = getString(R.string.overweight_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.red))
             }
             else if (bmi > 30){
                 binding.bmiCategory.isVisible = true
                 binding.bmiCategory.text = getString(R.string.obese_txt)
-    //                status = getString(R.string.obese_txt)
+                //                status = getString(R.string.obese_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.red))
             }
             else{
                 binding.bmiCategory.isVisible = true
-    //                status = getString(R.string.normal_txt)
+                //                status = getString(R.string.normal_txt)
                 binding.bmiCategory.text = getString(R.string.normal_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.green))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.black))
             }
-    //            val bmiText = "$formattedBMI                          Status: $status"
-    //
-    //            val spannable = SpannableString(bmiText)
-    //
-    //            // Color status text
-    //            val statusStart = bmiText.indexOf("Status:")
-    //            spannable.setSpan(ForegroundColorSpan(resources.getColor(R.color.red)), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-    //
-    //            val indentation = resources.getDimensionPixelSize(R.dimen.bmi_status_indentation) // Define this dimension in resources
-    //            spannable.setSpan(LeadingMarginSpan.Standard(0, indentation), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            //            val bmiText = "$formattedBMI                          Status: $status"
+            //
+            //            val spannable = SpannableString(bmiText)
+            //
+            //            // Color status text
+            //            val statusStart = bmiText.indexOf("Status:")
+            //            spannable.setSpan(ForegroundColorSpan(resources.getColor(R.color.red)), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            //
+            //            val indentation = resources.getDimensionPixelSize(R.dimen.bmi_status_indentation) // Define this dimension in resources
+            //            spannable.setSpan(LeadingMarginSpan.Standard(0, indentation), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-    //            binding.inputBmi.text = Editable.Factory.getInstance().newEditable(spannable)
+            //            binding.inputBmi.text = Editable.Factory.getInstance().newEditable(spannable)
         }
         else{
             binding.inputBmi.text = null
@@ -531,14 +663,14 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     override fun onSubmitAction() {
-    //        saveEntity()
+        //        saveEntity()
         navigateNext()
     }
 
     override fun onCancelAction() {
-    //        findNavController().navigate(
-    //            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
-    //        )
+        //        findNavController().navigate(
+        //            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
+        //        )
         findNavController().navigateUp()
     }
 
@@ -570,22 +702,26 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
                     var benVisitNo = 0;
                     var createNewBenflow = false;
-                    viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
-                        if (it == null) {
-                            benVisitNo = 1;
-                        } else if (it.nurseFlag == 1) {
-                            benVisitNo = it.benVisitNo
-                        } else {
-                            benVisitNo = it.benVisitNo + 1
-                            createNewBenflow = true;
+
+                    // Use benVisitNo from bundle if a specialized form passed it; otherwise derive from DB to avoid a split-visit mismatch.
+                    val passedBenVisitNo = arguments?.getInt("benVisitNo", -1) ?: -1
+                    if (passedBenVisitNo > 0) {
+                        benVisitNo = passedBenVisitNo
+                    } else {
+                        viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
+                            if (it == null) {
+                                benVisitNo = 1;
+                            } else if (it.nurseFlag == 1) {
+                                benVisitNo = it.benVisitNo
+                            } else {
+                                benVisitNo = it.benVisitNo + 1
+                                createNewBenflow = true;
+                            }
                         }
                     }
                     if (emptyFields.isEmpty()) {
                         extractFormValues()
                         setVitalsMasterData()
-//                addVisitRecordDataToCache(benVisitNo)
-//                addVitalsDataToCache(benVisitNo)
-//                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
 
                         val user = userRepo.getLoggedInUser()
 
@@ -594,17 +730,10 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                         viewModel.isDataSaved.observe(viewLifecycleOwner) {
                             when (it!!) {
                                 true -> {
-                                    WorkerUtils.triggerAmritSyncWorker(requireContext())
-                                    val intent = Intent(context, HomeActivity::class.java)
-                                    startActivity(intent)
+                                    WorkerUtils.clinicalPushWorker(requireContext())
                                     requireActivity().finish()
                                 }
-
-                                else -> {
-//                            requireActivity().runOnUiThread {
-//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-//                            }
-                                }
+                                else -> {}
                             }
                         }
 
@@ -625,9 +754,9 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     private fun isTempFieldFilledForFever(): Boolean {
-       if (viewModel.boolTemp && viewModel.tempNull){
-           return false
-       }
+        if (viewModel.boolTemp && viewModel.tempNull){
+            return false
+        }
         return true
     }
 
@@ -687,6 +816,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         )
         masterDb?.vitalsMasterDb = vitalDb
         bundle.putSerializable("MasterDb", masterDb)
+        arguments?.getInt("benVisitNo", -1)?.takeIf { it > 0 }?.let { bundle.putInt("benVisitNo", it) }
     }
 
 }

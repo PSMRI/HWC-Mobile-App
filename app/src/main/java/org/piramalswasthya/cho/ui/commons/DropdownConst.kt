@@ -4,20 +4,197 @@ class DropdownConst {
     companion object {
 
         val careAndPreg: String = "Care in Pregnancy & Childbirth"
+        val pwr: String = "Pregnant Women Registration"
+        val pregnancyRegistration: String = "Pregnancy Registration"
         val anc: String = "ANC"
         val pnc: String = "PNC"
+        val deliveryOutcome: String = "Delivery Outcome"
 
         val fpAndOtherRep: String = "Family Planning, Contraceptives Services & other Reproductive Health Care Services"
         val fpAndCs: String = "Eligible couple tracking"
+        val ncd: String = "Non-Communicable Diseases (NCD)"
         val ncdScreening: String = "NCD screening"
 
         val neonatalAndInfant: String = "Neonatal & Infant Health"
         val immunization: String = "Immunization Services"
+        val ophthalmic: String = "Ophthalmic"
+        val screening: String = "Screening"
+        val ent: String = "ENT"
+        val oral: String = "Oral"
+        val ear: String = "Ear (E)"
+        val nose: String = "Nose (N)"
+        val throat: String = "Throat (T)"
+        val dental: String = "Dental"
+        val entReasons: List<String> = listOf(ear, nose, throat)
+        val oralReasons: List<String> = listOf(dental)
+        val oralChiefComplaints: Set<String> = setOf(
+            "Dental Decay",
+            "Gum diseases",
+            "Irregular arrangement of teeth and jaws",
+            "Abnormal growth, patch or ulcers",
+            "Cleft lip/ palate",
+            "Dental Fluorosis",
+            "Dental Emergencies"
+        )
+        val entChiefComplaints: Set<String> = setOf(
+            "Neck swelling",
+            "Dysphagia",
+            "Cleft lip",
+            "Cleft palate",
+            "Tonsillitis",
+            "Pharyngitis",
+            "Laryngitis",
+            "Sinusitis",
+            "Difficulty in hearing",
+            "Ear wax",
+            "Congenital Ear Malformation",
+            "Foreign body in ear",
+            "open mouth breathing",
+            "Nosebleed",
+            "Foreign body in nose"
+        )
 
-        val male_ncd: List<String> = listOf(ncdScreening)
-        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep)
-        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening)
-        val age_0_to_1: List<String> = listOf(neonatalAndInfant)
+        val elderlyAndPalliative: String = "Elderly & Palliative"
+        val persistentPain: String = "Persistent pain"
+        val caregiverSupportCounselling: String = "Caregiver support / counselling"
+        val psychosocialCaregiverSupport: String = caregiverSupportCounselling
+        val functionalDeclineOrDependency: String = "Functional decline or dependency"
+        val distressingSymptoms: String = "Distressing symptoms"
+        val mentalHealth: String = "Mental Health"
+        val mentalHealthScreening: String = "Mental Health Screening"
+        val elderlyHealthAssessment: String = "General geriatric complaints"
+
+        val emotionalBehaviouralConcerns: String = "Emotional or behavioural concerns"
+        val substanceUseConcerns: String = "Substance use related concerns"
+        val selfHarmSuicideThoughts: String = "Thoughts of self-harm or suicide"
+        val memoryLossConfusion: String = "Memory loss or confusion"
+        val seizuresFitsLoc: String = "Seizures / fits or loss of consciousness"
+
+        val mentalHealthReasons: List<String> = listOf(
+            emotionalBehaviouralConcerns,
+            substanceUseConcerns,
+            selfHarmSuicideThoughts,
+            memoryLossConfusion,
+            seizuresFitsLoc
+        )
+
+        val elderlyAndPalliativeReasons: List<String> = listOf(
+            elderlyHealthAssessment,
+            functionalDeclineOrDependency,
+            persistentPain,
+            distressingSymptoms,
+            caregiverSupportCounselling
+        )
+
+        /** Sub categories available for all genders and age groups. */
+        val cphcSubCategoriesAllAges: List<String> = listOf(ent, ophthalmic, oral)
+
+        val visualAcuityList = listOf("6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60", "<6/60")
+        val visualImpairmentList = listOf("6/18", "6/24", "6/36", "6/60", "<6/60")
+        val nearVisualAcuityList = listOf("N6", "N8", "N10", "N12")
+        val nearVAReducedList = listOf("N8", "N10", "N12")
+
+        const val CHART_SNELLENS = "Snellen's distance chart"
+        const val CHART_NEAR_VISION = "Near vision chart"
+        val visualAcuityChartList = listOf(CHART_SNELLENS, CHART_NEAR_VISION)
+
+        const val REASON_SYMPTOMATIC = "Symptomatic"
+        const val REASON_FIRST_AID_INJURY_TRAUMA = "First aid for eye injury, trauma"
+        const val REASON_FIRST_AID_EYE_INJURY = REASON_FIRST_AID_INJURY_TRAUMA
+        val ophthalmicReasonForVisitList = listOf(
+            screening,
+            REASON_SYMPTOMATIC,
+            REASON_FIRST_AID_INJURY_TRAUMA
+        )
+
+        val reasonForVisitBySubCategory: Map<String, List<String>> = mapOf(
+            ncd to listOf(ncdScreening),
+            ncdScreening to listOf(ncdScreening),
+            ophthalmic to ophthalmicReasonForVisitList,
+            ent to entReasons,
+            oral to oralReasons,
+            elderlyAndPalliative to elderlyAndPalliativeReasons,
+            mentalHealth to mentalHealthReasons,
+        )
+
+        const val CONDITION_CATARACT = "Cataract"
+        const val CONDITION_GLAUCOMA = "Glaucoma"
+        const val CONDITION_DIABETIC_RETINOPATHY = "Diabetic retinopathy"
+        const val CONDITION_PRESBYOPIA = "Presbyopia"
+        const val CONDITION_TRACHOMA = "Trachoma"
+        const val CONDITION_CORNEAL_DISEASE = "Corneal disease"
+        const val CONDITION_CONJUNCTIVITIS = "Conjunctivitis/Acute red eye"
+        const val CONDITION_DRY_EYE = "Dry eye / xerophthalmia"
+        const val CONDITION_DRY_EYE_ALT = "Dry eye/ xerophthalmia"
+        const val CONDITION_EYE_ALLERGY = "Eye allergy"
+
+        val caseIdConditionsList = listOf(
+            CONDITION_CATARACT,
+            CONDITION_GLAUCOMA,
+            CONDITION_DIABETIC_RETINOPATHY,
+            CONDITION_PRESBYOPIA,
+            CONDITION_TRACHOMA,
+            CONDITION_CORNEAL_DISEASE,
+            CONDITION_CONJUNCTIVITIS,
+            CONDITION_DRY_EYE,
+            CONDITION_EYE_ALLERGY
+        )
+
+        const val CONDITION_EYE_INJURY_BLUNT_PENETRATING =
+            "Eye injuries from blunt trauma, penetrating injury to eye,"
+        const val CONDITION_EYE_INJURY_BLUNT_PENETRATING_ALT =
+            "Eye injuries from blunt trauma, penetrating injury to eye"
+        const val CONDITION_CHEMICAL_EXPOSURE = "Chemical exposure (acid/ alkali/other),"
+        const val CONDITION_CHEMICAL_EXPOSURE_ALT = "Chemical exposure (acid/ alkali/other)"
+        const val CONDITION_FOREIGN_BODY_EYE = "Foreign body lodged in the eye"
+
+        val ophthalmicChiefComplaints: Set<String> = setOf(
+            CONDITION_DIABETIC_RETINOPATHY,
+            CONDITION_GLAUCOMA,
+            CONDITION_CATARACT,
+            CONDITION_PRESBYOPIA,
+            CONDITION_TRACHOMA,
+            CONDITION_CORNEAL_DISEASE,
+            CONDITION_CONJUNCTIVITIS,
+            CONDITION_DRY_EYE,
+            CONDITION_DRY_EYE_ALT,
+            CONDITION_EYE_ALLERGY,
+            CONDITION_EYE_INJURY_BLUNT_PENETRATING,
+            CONDITION_EYE_INJURY_BLUNT_PENETRATING_ALT,
+            CONDITION_CHEMICAL_EXPOSURE,
+            CONDITION_CHEMICAL_EXPOSURE_ALT,
+            CONDITION_FOREIGN_BODY_EYE
+        )
+
+        const val INJURY_MECHANICAL_FOREIGN_BODY = "Mechanical foreign body"
+        const val INJURY_BLUNT_TRAUMA = "Blunt trauma"
+        const val INJURY_PENETRATING = "Penetrating injury suspected"
+        const val INJURY_CHEMICAL = "Chemical (acid/alkali/other)"
+        val injuryTypeList = listOf(
+            INJURY_MECHANICAL_FOREIGN_BODY,
+            INJURY_BLUNT_TRAUMA,
+            INJURY_PENETRATING,
+            INJURY_CHEMICAL
+        )
+
+        const val FOREIGN_BODY_NOT_ATTEMPTED = "Not attempted"
+        const val FOREIGN_BODY_ATTEMPTED_CONJUNCTIVAL_SAC = "Attempted from conjunctival sac"
+        const val FOREIGN_BODY_LODGED_IN_CORNEA = "Foreign body lodged in cornea"
+        val foreignBodyRemovalOptions = listOf(
+            FOREIGN_BODY_NOT_ATTEMPTED,
+            FOREIGN_BODY_ATTEMPTED_CONJUNCTIVAL_SAC,
+            FOREIGN_BODY_LODGED_IN_CORNEA
+        )
+
+        const val TRACHOMA_SUSPECTED_ACTIVE = "Suspected active trachoma"
+        const val TRACHOMA_SUSPECTED_TT = "Suspected TT/TI"
+        const val TRACHOMA_NONE = "No trachoma"
+        val trachomaStatusList = listOf(TRACHOMA_SUSPECTED_ACTIVE, TRACHOMA_SUSPECTED_TT, TRACHOMA_NONE)
+
+        const val CORNEAL_OPACITY = "Corneal opacity"
+        const val CORNEAL_ULCER = "Corneal ulcer suspected"
+        const val CORNEAL_OTHER = "Other corneal pathology"
+        val cornealDiseaseTypeList = listOf(CORNEAL_OPACITY, CORNEAL_ULCER, CORNEAL_OTHER)
 
         val consciousnessList = mutableListOf("Conscious", "Semi Conscious", "Unconscious")
         val dangerSignList = mutableListOf("Fast Breathing", "Chest Indrawing", "Stridor", "Grunt", "Respiratory Distress", "Cold and Calm Peripheral Pulses", "Convulsions", "Hypothermia", "Delirium", "Drowsy", "Uncontrolled Bleeding", "Hematemesis", "Refusal of Fits")
@@ -33,7 +210,6 @@ class DropdownConst {
         val jointsList = mutableListOf("Ankle", "Elbow", "Hip", "Knee", "Shoulder", "Small Joints", "Temporo-mandibular", "Wrist")
         val lateralityList = mutableListOf("Left", "Right", "Bilateral")
         val abnormalityList = mutableListOf("Swelling", "Tenderness", "Deformity", "Restriction")
-        val fingerList = mutableListOf("Right Thumb","Right Index Finger","Left Thumb","Left Index Finger")
         val medicalTestList = mutableListOf("Blood Glucose", "Chikungunya", "Cholesterol", "Dengue", "HBA1C",
             "Haemoglobin", "Hepatitis B", "Hepatitis C", "HIV", "Malaria Test", "RBC", "RBS", "SPo2 Test", "Syphillis", "TB", "Typhoid Test Check",
             "Uric Acid", "Urine Albumin Test", "Urine Pregnancy Rapid Test", "Urine Sugar Test", "Visual Acuty Test")

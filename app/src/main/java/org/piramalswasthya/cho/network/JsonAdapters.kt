@@ -1,11 +1,13 @@
 package org.piramalswasthya.cho.network
 
+import android.os.Parcelable
 import com.squareup.moshi.JsonClass
-import org.piramalswasthya.cho.ui.abha_id_activity.AbhaClientConstants
+import kotlinx.parcelize.Parcelize
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.OutreachActivityNetworkModel
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.VillageLocationData
+import org.piramalswasthya.cho.utils.KeyUtils
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -95,9 +97,9 @@ data class BenAbhaResponse(
 
 @JsonClass(generateAdapter = true)
 data class AbhaTokenRequest(
-    val clientId: String = AbhaClientConstants.clientId,
-    val clientSecret: String = AbhaClientConstants.clientSecret,
-    val grantType: String = AbhaClientConstants.grantType
+    val clientId: String = KeyUtils.abhaClientID(),
+    val clientSecret: String = KeyUtils.abhaClientSecret(),
+    val grantType: String = KeyUtils.encryptedPassKey()
 )
 
 @JsonClass(generateAdapter = true)
@@ -109,9 +111,21 @@ data class AbhaTokenResponse(
     val tokenType: String
 )
 
+// ABHA v1/v2 request
+//@JsonClass(generateAdapter = true)
+//data class AbhaGenerateAadhaarOtpRequest(
+//    var aadhaar: String
+//)
+
+// ABHA v3 request
 @JsonClass(generateAdapter = true)
 data class AbhaGenerateAadhaarOtpRequest(
-    var aadhaar: String
+//    var aadhaar: String
+    val txnId: String,
+    val scope: List<String>,
+    val loginHint: String,
+    var loginId: String,
+    var otpSystem: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -129,7 +143,8 @@ data class AbhaGenerateAadhaarOtpResponse(
 @JsonClass(generateAdapter = true)
 data class AbhaGenerateAadhaarOtpResponseV2(
     val txnId: String,
-    val mobileNumber: String
+    val mobileNumber: String,
+    val message:String
 )
 
 @JsonClass(generateAdapter = true)
@@ -138,18 +153,163 @@ data class AbhaResendAadhaarOtpRequest(
 )
 
 
+// ABHA v1/v2 request
+//@JsonClass(generateAdapter = true)
+//data class AbhaVerifyAadhaarOtpRequest(
+//    val otp: String,
+//    val txnId: String
+//)
+
+// ABHA v3 request
 @JsonClass(generateAdapter = true)
 data class AbhaVerifyAadhaarOtpRequest(
-    val otp: String,
-    val txnId: String
+    val authData: AuthData,
+    val consent: Consent
 )
-
 
 @JsonClass(generateAdapter = true)
-data class AbhaVerifyAadhaarOtpResponse(
+data class SearchAbhaRequest(
+    val scope: List<String>,
+    var mobile: String
+)
+
+@JsonClass(generateAdapter = true)
+data class SearchAbhaResponse(
+    val txnId: String,
+    val ABHA: List<Abha>
+)
+
+@JsonClass(generateAdapter = true)
+data class Abha(
+    val index: Int,
+    val ABHANumber: String,
+    val name: String,
+    val gender: String
+)
+
+@JsonClass(generateAdapter = true)
+data class LoginGenerateOtpRequest(
+    val scope: List<String>,
+    val loginHint: String,
+    var loginId: String,
+    val otpSystem: String,
     val txnId: String
 )
 
+@JsonClass(generateAdapter = true)
+data class LoginGenerateOtpResponse(
+    val txnId: String,
+    val message: String
+)
+
+@JsonClass(generateAdapter = true)
+data class LoginVerifyOtpRequest(
+    val scope: List<String>,
+    val authData: AuthData3
+)
+
+@JsonClass(generateAdapter = true)
+data class AuthData3(
+    val authMethods: List<String>,
+    val otp: Otp3
+)
+
+@JsonClass(generateAdapter = true)
+data class Otp3(
+    val txnId: String,
+    var otpValue: String
+)
+
+@JsonClass(generateAdapter = true)
+data class LoginVerifyOtpResponse(
+    val txnId: String,
+    val authResult: String,
+    val message: String,
+    val token: String,
+    val expiresIn: Long,
+    val refreshToken: String,
+    val refreshExpiresIn: Long,
+    val accounts: List<Accounts>
+)
+
+@JsonClass(generateAdapter = true)
+data class Accounts(
+    val ABHANumber: String,
+    val preferredAbhaAddress: String,
+    val name: String,
+    val status: String,
+    val profilePhoto: String,
+    val mobileVerified: Boolean
+)
+
+@JsonClass(generateAdapter = true)
+data class AuthData(
+    val authMethods: List<String>,
+    val otp: Otp
+)
+
+@JsonClass(generateAdapter = true)
+data class Consent(
+    val code: String,
+    val version: String
+)
+
+@JsonClass(generateAdapter = true)
+data class Otp(
+    var timeStamp: String,
+    val txnId: String,
+    var otpValue: String,
+    var mobile: String
+)
+
+// ABHA v1/v2 request
+//@JsonClass(generateAdapter = true)
+//data class AbhaVerifyAadhaarOtpResponse(
+//    val txnId: String
+//)
+
+// ABHA v3 request
+@Parcelize
+@JsonClass(generateAdapter = true)
+data class AbhaVerifyAadhaarOtpResponse(
+    val message: String="",
+    val txnId: String="",
+    val tokens: Tokens = Tokens(),
+    val ABHAProfile: ABHAProfile=ABHAProfile(),
+    val isNew: Boolean=false
+) : Parcelable
+
+@Parcelize
+@JsonClass(generateAdapter = true)
+data class Tokens(
+    val token: String="",
+    val expiresIn: Int=0,
+    val refreshToken: String="",
+    val refreshExpiresIn: Int=0
+) : Parcelable
+
+@Parcelize
+@JsonClass(generateAdapter = true)
+data class ABHAProfile(
+    val firstName: String="",
+    val middleName: String="",
+    val lastName: String="",
+    val dob: String="",
+    val gender: String="",
+    val photo: String="",
+    val mobile: String="",
+    val email: String="",
+    val phrAddress:List<String>?= listOf<String>(),
+    val address: String="",
+    val districtCode: String="",
+    val stateCode: String="",
+    val pinCode: String="",
+    val abhaType: String="",
+    val stateName: String="",
+    val districtName: String="",
+    val ABHANumber: String="",
+    val abhaStatus: String=""
+) : Parcelable
 
 @JsonClass(generateAdapter = true)
 data class AbhaGenerateMobileOtpRequest(
@@ -168,16 +328,42 @@ data class AbhaCheckAndGenerateMobileOtpResponse(
 )
 
 
+// ABHA v1/v2 request
+//@JsonClass(generateAdapter = true)
+//data class AbhaVerifyMobileOtpRequest(
+//    val otp: String,
+//    val txnId: String
+//)
+
+// ABHA v3 request
 @JsonClass(generateAdapter = true)
 data class AbhaVerifyMobileOtpRequest(
-    val otp: String,
-    val txnId: String
+    val scope: List<String>,
+    val authData: AuthData2
 )
 
+@JsonClass(generateAdapter = true)
+data class AuthData2(
+    val authMethods: List<String>,
+    val otp: Otp2
+)
+
+@JsonClass(generateAdapter = true)
+data class Otp2(
+    var timeStamp: String,
+    val txnId: String,
+    var otpValue: String
+)
 
 @JsonClass(generateAdapter = true)
 data class AbhaVerifyMobileOtpResponse(
     val txnId: String
+)
+
+@JsonClass(generateAdapter = true)
+data class AbhaPublicCertificateResponse(
+    val publicKey: String,
+    val encryptionAlgorithm: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -284,6 +470,12 @@ data class GenerateOtpHid(
 )
 
 @JsonClass(generateAdapter = true)
+data class SaveAbdmFacilityId(
+    val visitCode: Long?,
+    val abdmFacilityId: String?
+)
+
+@JsonClass(generateAdapter = true)
 data class ValidateOtpHid(
     val otp: String?,
     val txnId: String?,
@@ -317,19 +509,70 @@ data class GetBenHealthIdRequest(
     val beneficiaryID: Long?,
 )
 @JsonClass(generateAdapter = true)
+data class GenerateOTPForCareContextRequest(
+    val healthID: String,
+    val healthIdNumber: String,
+    val abdmFacilityId: String,
+    val abdmFacilityName: String
+)
+@JsonClass(generateAdapter = true)
+data class ValidateOTPAndCreateCareContextRequest(
+    val otp: String,
+    val txnId: String,
+    val beneficiaryID: Long,
+    val healthID: String,
+    val healthIdNumber: String,
+    val visitCode: Long,
+    val visitCategory: String,
+    val abdmFacilityId: String,
+    val abdmFacilityName: String
+)
+@JsonClass(generateAdapter = true)
 data class BenHealthDetails(
     val benHealthID: Int,
     val healthIdNumber: String,
+    val providerServiceMapId: Int,
     val beneficiaryRegID: Long,
-    val healthId: String
-)
+    val healthId: String,
+    val deleted: Boolean,
+    val processed: String,
+    val createdBy: String,
+    val createdDate: String,
+    val lastModDate: String,
+    val isNewAbha: Boolean
+): NetworkResponse()
+@JsonClass(generateAdapter = true)
+data class GenerateOTPForCareContext(
+    val txnId: String?
+): NetworkResponse()
+@JsonClass(generateAdapter = true)
+data class ValidateOTPAndCreateCareContextResponse(
+    val response: String
+): NetworkResponse()
+@JsonClass(generateAdapter = true)
 data class MapHIDtoBeneficiary(
     val beneficiaryRegID: Long?,
     val beneficiaryID: Long?,
     val healthId: String?,
     val healthIdNumber: String?,
     var providerServiceMapId: Int?,
-    var createdBy: String?
+    var createdBy: String?,
+    var message: String?,
+    var txnId: String?,
+    var ABHAProfile: ABHAProfile?,
+    var isNew: Boolean?
+)
+
+@JsonClass(generateAdapter = true)
+data class AddHealthIdRecord(
+    val healthId: String?,
+    val healthIdNumber: String?,
+    var providerServiceMapId: Int?,
+    var createdBy: String?,
+    var message: String?,
+    var txnId: String?,
+    var ABHAProfile: ABHAProfile?,
+    var isNew: Boolean?
 )
 
 //  For getting VanSpDetails
@@ -498,6 +741,19 @@ data class NurseDataRequest(
     val visitCode: Long,
 )
 
+
+@JsonClass(generateAdapter = true)
+data class GetCBACRequest(
+    val createdBy: String,
+)
+
+
+@JsonClass(generateAdapter = true)
+data class CBACDataRequest(
+    val beneficiaryRegId: Long,
+    val visitCode: Long,
+)
+
 @JsonClass(generateAdapter = true)
 data class LabProceduresDataRequest(
     val beneficiaryRegID: Long,
@@ -505,9 +761,45 @@ data class LabProceduresDataRequest(
     val visitCode: Long,
 )
 
+
 fun getLongFromDate(dateString: String?): Long {
-    val f = SimpleDateFormat("MMM d, yyyy h:mm:ss a", Locale.ENGLISH)
-    val date = dateString?.let { f.parse(it) }
-    return date?.time ?: 0L
+    if (dateString.isNullOrBlank()) return 0L
+
+    val normalized = dateString.trim()
+    val patterns = listOf(
+        "MMM d, yyyy h:mm:ss a",
+        "dd/MM/yyyy HH:mm:ss",
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        "yyyy-MM-dd'T'HH:mm:ssXXX",
+        "yyyy-MM-dd HH:mm:ss",
+        "dd-MM-yyyy",
+        "yyyy-MM-dd"
+    )
+
+    for (pattern in patterns) {
+        try {
+            val format = SimpleDateFormat(pattern, Locale.ENGLISH).apply {
+                isLenient = false
+                if (pattern.contains("'Z'")) {
+                    timeZone = java.util.TimeZone.getTimeZone("UTC")
+                }
+            }
+            val date = format.parse(normalized)
+            if (date != null) return date.time
+        } catch (_: Exception) {
+            // Try next known format.
+        }
+    }
+
+    return 0L
 }
 
+fun getDateFromLong(dateLong: Long): String? {
+    if (dateLong == 0L) return null
+    val cal = java.util.Calendar.getInstance()
+    cal.timeInMillis = dateLong
+    val f = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+    return f.format(cal.time)
+}

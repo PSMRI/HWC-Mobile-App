@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class DiagnosisUpsync(
     val prescriptionID: Int?,
-    val vanID: Int?,
+    val facilityID: Int?,
     val parkingPlaceID: Int?,
     val provisionalDiagnosisList: List<ProvisionalDiagnosisUpsync>?,
     val beneficiaryRegID: String?,
@@ -13,11 +13,12 @@ data class DiagnosisUpsync(
     val visitCode: String?,
     val providerServiceMapID: String?,
     val createdBy: String?,
-    val isSpecialist: Boolean
+    val isSpecialist: Boolean,
+    val externalInvestigation : String?
 ) {
     constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?,prescriptionID:Int?) : this(
         prescriptionID = prescriptionID,
-        user?.vanId,
+        user?.facilityID,
         user?.parkingPlaceId,
         provisionalDiagnosisList = diagnosisList?.map {
             ProvisionalDiagnosisUpsync(term = it.diagnosis)
@@ -27,7 +28,9 @@ data class DiagnosisUpsync(
         benFlow?.visitCode.toString(),
         user?.serviceMapId.toString(),
         user?.userName,
-        false
+        false,
+        benFlow?.externalInvestigation
+
     )
 }
 

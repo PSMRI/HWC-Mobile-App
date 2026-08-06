@@ -3,7 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
-    <dimen name="nav_header_height">176dp</dimen>
+    <dimen name="nav_header_height">220dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="padding_tiny">2dp</dimen>
@@ -29,7 +29,7 @@
     <dimen name="btn_height">48dp</dimen>
     <dimen name="login_btn_height">56dp</dimen>
     <dimen name="bottom_nav_height">56dp</dimen>
-    <dimen name="bottom_space_height">64dp</dimen>
+    <dimen name="bottom_space_height">16dp</dimen>
 
     <dimen name="text_huge">32sp</dimen>
     <dimen name="text_big">24sp</dimen>
@@ -49,6 +49,14 @@
     <dimen name="header_height">170dp</dimen>
     <dimen name="custom_ui_margin">10dp</dimen>
     <dimen name="bmi_status_indentation">200dp</dimen>
+
+    <dimen name="pv_pin_view_item_size">48dp</dimen>
+    <dimen name="pv_pin_view_item_radius">5dp</dimen>
+    <dimen name="pv_pin_view_item_spacing">5dp</dimen>
+    <dimen name="pv_pin_view_item_line_width">2dp</dimen>
+    <dimen name="pv_pin_view_cursor_width">2dp</dimen>
+
+    <dimen name="password_toggle_size">30dp</dimen>
 
 
 </resources>

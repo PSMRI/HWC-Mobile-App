@@ -66,10 +66,12 @@ class GenerateMobileOtpViewModel @Inject constructor(
                     _apiResponse = result.data
                     _state.value = State.SUCCESS
                 }
+
                 is NetworkResult.Error -> {
                     _errorMessage.value = result.message
                     _state.value = State.ERROR_SERVER
                 }
+
                 is NetworkResult.NetworkError -> {
                     _state.value = State.ERROR_NETWORK
                 }
@@ -95,10 +97,12 @@ class GenerateMobileOtpViewModel @Inject constructor(
                     abha.value = result.data
                     _state.value = State.ABHA_GENERATED_SUCCESS
                 }
+
                 is NetworkResult.Error -> {
                     _errorMessage.value = result.message
                     _state.value = State.ERROR_SERVER
                 }
+
                 is NetworkResult.NetworkError -> {
                     _state.value = State.ERROR_NETWORK
                 }

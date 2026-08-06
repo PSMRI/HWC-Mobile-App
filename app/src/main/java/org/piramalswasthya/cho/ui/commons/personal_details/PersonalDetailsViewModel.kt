@@ -8,16 +8,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-
-import org.piramalswasthya.cho.model.BenHealthIdDetails
-import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
-import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.utils.filterBenList
@@ -32,24 +31,56 @@ import javax.inject.Inject
 class PersonalDetailsViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
     private val pref: PreferenceDao,
-    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo
 ) : ViewModel() {
     private val filter = MutableStateFlow("")
+    private val listUpdateDebounceMs = 250L
 
-    var patientListForNurse : Flow<List<PatientDisplayWithVisitInfo>>? =patientRepo.getPatientDisplayListForNurse().combine(filter){
-        list, filter -> filterBenList(list, filter)
+    private fun buildPatientListFlow(
+        source: Flow<List<PatientDisplayWithVisitInfo>>,
+        transform: (List<PatientDisplayWithVisitInfo>) -> List<PatientDisplayWithVisitInfo>
+    ): Flow<List<PatientDisplayWithVisitInfo>> {
+        return source
+            .map(transform)
+            .combine(filter) { list, query ->
+                filterBenList(list, query)
+            }
+            .debounce(listUpdateDebounceMs)
+            .distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
     }
 
-    var patientListForDoctor : Flow<List<PatientDisplayWithVisitInfo>>? = patientRepo.getPatientDisplayListForDoctor().combine(filter){
-            list, filter -> filterBenList(list, filter)
-    }
+    // One card per patient/beneficiary (latest visit only); no duplicate cards with same beneficiary key.
+    val patientListForPharmacist: Flow<List<PatientDisplayWithVisitInfo>> =
+        buildPatientListFlow(
+            source = patientVisitInfoSyncRepo.getPatientListFlowForPharmacist(),
+            transform = { list ->
+                val key: (PatientDisplayWithVisitInfo) -> String = { info ->
+                    info.patient.beneficiaryRegID?.toString() ?: info.patient.patientID
+                }
+                // Source query is already ordered by latest medicine assignment first.
+                // Keep the first card per beneficiary to avoid duplicates while preserving order.
+                list.distinctBy(key)
+            }
+        )
 
-    var patientListForLab : Flow<List<PatientDisplayWithVisitInfo>>? = patientVisitInfoSyncRepo.getPatientDisplayListForLab().combine(filter){
-            list, filter -> filterBenList(list, filter)
-    }
-    var patientListForPharmacist : Flow<List<PatientDisplayWithVisitInfo>>? =patientVisitInfoSyncRepo.getPatientListFlowForPharmacist().combine(filter){
-            list, filter -> filterBenList(list, filter)
-    }
+    val patientListForNurse: Flow<List<PatientDisplayWithVisitInfo>> =
+        buildPatientListFlow(
+            source = patientRepo.getPatientDisplayListForNurse(),
+            transform = { list -> list }
+        )
+
+    val patientListForDoctor: Flow<List<PatientDisplayWithVisitInfo>> =
+        buildPatientListFlow(
+            source = patientRepo.getPatientDisplayListForDoctor(),
+            transform = { list -> list }
+        )
+
+    val patientListForLab: Flow<List<PatientDisplayWithVisitInfo>> =
+        buildPatientListFlow(
+            source = patientVisitInfoSyncRepo.getPatientDisplayListForLab(),
+            transform = { list -> list }
+        )
 
     var count : Int = 0
     private val _abha = MutableLiveData<String?>()
@@ -63,7 +94,6 @@ class PersonalDetailsViewModel @Inject constructor(
     private val _benRegId = MutableLiveData<Long?>()
     val benRegId: LiveData<Long?>
         get() = _benRegId
-
 
 
     enum class NetworkState {
@@ -88,10 +118,7 @@ class PersonalDetailsViewModel @Inject constructor(
     }
 
     fun filterText(text: String) {
-        viewModelScope.launch {
-            filter.emit(text)
-        }
-
+        filter.value = text
     }
 
     fun fetchAbha(benId: Long) {
@@ -100,14 +127,15 @@ class PersonalDetailsViewModel @Inject constructor(
         _benId.value = benId
         viewModelScope.launch {
             patientRepo.getBenFromId(benId)?.let {
-                val result = it.beneficiaryRegID?.let { it1 -> patientRepo.getBeneficiaryWithId(it1) }
-                if (result != null) {
-                    _abha.value = result.healthIdNumber
-                    it.healthIdDetails = BenHealthIdDetails(result.healthId, result.healthIdNumber)
-                    patientRepo.updateRecord(it)
-                } else {
-                    _benRegId.value = it.beneficiaryRegID
-                }
+                _benRegId.value = it.beneficiaryRegID
+//                val result = it.beneficiaryRegID?.let { it1 -> patientRepo.getBeneficiaryWithId(it1) }
+//                if (result != null) {
+//                    _abha.value = result.healthIdNumber
+//                    it.healthIdDetails = BenHealthIdDetails(result.healthId, result.healthIdNumber)
+//                    patientRepo.updateRecord(it)
+//                } else {
+//                    _benRegId.value = it.beneficiaryRegID
+//                }
             }
         }
     }
@@ -133,4 +161,5 @@ class PersonalDetailsViewModel @Inject constructor(
         pref.getEsanjeevaniPassword()
     fun fetchRememberedUsername(): String? =
         pref.getEsanjeevaniUserName()
+
 }

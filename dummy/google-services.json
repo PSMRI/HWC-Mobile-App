@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1439539386",
+    "project_id": "hwc-dummy",
+    "storage_bucket": "hwc-dummy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1439539386:android:b6ede54eb9c8ad3584a283",
+        "android_client_info": {
+          "package_name": "org.piramalswasthya.cho.niramay.uat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH0akaaC6rTBQCkOOM1reF5R5TRdcEkTY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

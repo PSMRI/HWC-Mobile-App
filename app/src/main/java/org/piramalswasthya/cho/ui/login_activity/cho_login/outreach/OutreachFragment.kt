@@ -2,7 +2,6 @@ package org.piramalswasthya.cho.ui.login_activity.cho_login.outreach
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,11 +10,9 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +21,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -40,14 +39,10 @@ import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
 import org.piramalswasthya.cho.model.OutreachDropdownList
-import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import org.piramalswasthya.cho.utils.ImgUtils
-import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
-import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
-import java.util.Base64
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -147,7 +142,7 @@ class OutreachFragment(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(OutreachViewModel::class.java)
+        viewModel = ViewModelProvider(this)[OutreachViewModel::class.java]
         _binding = FragmentOutreachBinding.inflate(layoutInflater, container, false)
         val options = FirebaseVisionFaceDetectorOptions.Builder()
             .setPerformanceMode(FirebaseVisionFaceDetectorOptions.ACCURATE)
@@ -159,7 +154,7 @@ class OutreachFragment(
 //        getCurrentLocation()
         if (isBiometric) {
             binding.tilPassword.visibility = View.GONE
-            binding.btnOutreachLogin.text = "Proceed to Home"
+            binding.btnOutreachLogin.text = getString(R.string.proceed_to_home)
         }else {
             binding.tilPassword.visibility = View.VISIBLE
             if (!viewModel.fetchRememberedPassword().isNullOrBlank()) {
@@ -177,10 +172,10 @@ class OutreachFragment(
 
         faceDetector.detectInImage(firebaseImage)
             .addOnSuccessListener { faces ->
-                if (faces.size == 0) {
+                if (faces.isEmpty()) {
                     Timber.d("Invalid Image!")
                     validImage = false
-                    Toast.makeText(requireContext(), "Invalid Image! Try Again", Toast.LENGTH_SHORT)
+                    Toast.makeText(requireContext(), getString(R.string.invalid_image_try_again), Toast.LENGTH_SHORT)
                         .show()
                 }
                 if (faces.size > 1) {
@@ -189,7 +184,7 @@ class OutreachFragment(
                     binding.imageView.setImageResource(R.drawable.placeholder_image)
                     Toast.makeText(
                         requireContext(),
-                        "Invalid Image! Multiple Faces Detected",
+                        getString(R.string.invalid_image_multiple_faces),
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
@@ -200,7 +195,7 @@ class OutreachFragment(
                 // Handle any errors
                 validImage = false
                 binding.imageView.setImageResource(R.drawable.placeholder_image)
-                Toast.makeText(context, "Exception! Image Processing Failed", Toast.LENGTH_SHORT)
+                Toast.makeText(context, getString(R.string.exception_image_processing_failed), Toast.LENGTH_SHORT)
                     .show()
             }
     }
@@ -211,8 +206,8 @@ class OutreachFragment(
             val bounds = face.boundingBox
 
             // Check if both eyes are open
-            val leftEyeOpen = face.leftEyeOpenProbability ?: 0f
-            val rightEyeOpen = face.rightEyeOpenProbability ?: 0f
+            val leftEyeOpen = face.leftEyeOpenProbability
+            val rightEyeOpen = face.rightEyeOpenProbability
 
             if (leftEyeOpen > 0.5 && rightEyeOpen > 0.5) {
                 Timber.d("Eyes Are Open")
@@ -225,7 +220,7 @@ class OutreachFragment(
                 Timber.d("Eyes Are Closed")
                 validImage = false
                 binding.imageView.setImageResource(R.drawable.placeholder_image)
-                Toast.makeText(requireContext(), "Eyes Closed! Try Again", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), getString(R.string.eyes_closed_try_again), Toast.LENGTH_SHORT)
                     .show()
                 // At least one eye is closed, possibly not live face
                 // Implement your logic for an inactive or spoofed face
@@ -242,7 +237,7 @@ class OutreachFragment(
         }
         outreachAdapter = OutreachDropdownAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, outreachList.map { it.outreachType })
         binding.outreachText.setAdapter(outreachAdapter)
-        binding.outreachText.setText("Home Visit",false)
+        binding.outreachText.setText(getString(R.string.home_visit), false)
         viewModel.outreachList.observe(viewLifecycleOwner){ c->
             outreachList.clear()
             outreachList.addAll(c)
@@ -317,11 +312,12 @@ class OutreachFragment(
                         OutreachViewModel.State.ERROR_NETWORK -> {
                             binding.patientListFragment.visibility = View.VISIBLE
                             binding.rlSaving.visibility = View.GONE
-//                        viewModel.forgetUser()
                             viewModel.resetState()
                         }
 
-                        else -> {}
+                        else -> {
+                            //Not needed
+                        }
                     }
 
                 }
@@ -347,7 +343,7 @@ class OutreachFragment(
             }
         }
             else{
-                Toast.makeText(context, "Please capture the image to continue.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.please_capture_image_to_continue), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -360,7 +356,7 @@ class OutreachFragment(
                     findNavController().navigateUp()
                 else {
                     MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.logout))
-                        .setMessage("Please confirm to logout and exit.")
+                        .setMessage(getString(R.string.please_confirm_logout_exit))
                         .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
                             lifecycleScope.launch {
                                 val user = userDao.getLoggedInUser()
@@ -405,22 +401,21 @@ class OutreachFragment(
                             userName,
                             binding.etPassword.text.toString(),
                             "OUTREACH",
-                            outreachVal,
-                            timestamp,
-                            null,
                             latitude,
                             longitude,
-                            null,
-                            imageString,
                             requireContext()
                         )
                     }
 
                 }
 
-                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
+                    // Not needed in this case
+                }
 
-                override fun onProviderEnabled(provider: String) {}
+                override fun onProviderEnabled(provider: String) {
+                    // Not needed in this case
+                }
 
                 override fun onProviderDisabled(provider: String) {
                     Toast.makeText(

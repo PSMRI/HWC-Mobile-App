@@ -4,29 +4,28 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.PharmacistListItemViewBinding
-import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import timber.log.Timber
 
 
 class PharmacistItemAdapter(
     private val context: Context,
+    private var issueType: String,
     private val clickListener: PharmacistClickListener,
+    private val networkAvailabilityCheck: () -> Boolean
 ) : ListAdapter<PrescriptionItemDTO,PharmacistItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
 
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PrescriptionItemDTO>() {
         override fun areItemsTheSame(
             oldItem: PrescriptionItemDTO, newItem: PrescriptionItemDTO
-        ) = oldItem.drugID == newItem.drugID
+        ) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
             oldItem: PrescriptionItemDTO, newItem: PrescriptionItemDTO
@@ -48,14 +47,19 @@ class PharmacistItemAdapter(
         }
 
         fun bind(
-            item:PrescriptionItemDTO,
-            clickListener: PharmacistClickListener
+            item: PrescriptionItemDTO,
+            issueType:String,
+            clickListener: PharmacistClickListener,
+            networkAvailabilityCheck: () -> Boolean
         ) {
             Timber.d("*******************DAta Prescription DTO************** ",clickListener)
             binding.prescription = item
             binding.clickListener = clickListener
 
-            binding.medicationName.text = (item.genericDrugName + " "+ item.drugStrength)
+            binding.medicationName.text = listOf(
+                item.genericDrugName.trim(),
+                item.drugStrength?.trim().orEmpty()
+            ).filter { it.isNotBlank() }.joinToString(" ")
             binding.formValue.text = (item.drugForm ?: "")
             if(item.duration!=null){
                 binding.durationValue.text = (item.duration ?:"") + " " + (item.durationUnit ?: "")
@@ -64,9 +68,54 @@ class PharmacistItemAdapter(
             binding.doseValue.text = item.dose ?: ""
             binding.quantityPrescribedValue.text = item.qtyPrescribed.toString() ?: ""
             binding.routeValue.text = item.route ?: ""
-            binding.quantityDispensedValue.text = item.qtyPrescribed.toString() ?: ""
-            binding.specialInstructionValue.text = item.dose ?: ""
+            val dispensedQty = if (issueType == "Manual Issue") {
+                item.batchList.filter { it.isSelected }.sumOf { it.dispenseQuantity }
+            } else {
+//                item.batchList.sumOf { it.qty }
+                item.qtyPrescribed.toString()
+            }
+            binding.quantityValue.text = item.batchList.sumOf { it.qty }.toString()
 
+            binding.quantityDispensedValue.text = dispensedQty.toString()
+            binding.specialInstructionValue.text = item.instructions ?: ""
+
+            // Handle button visibility and text based on issue type and network availability
+            when (issueType) {
+                "Manual Issue" -> {
+                    val isNetworkAvailable = networkAvailabilityCheck()
+                    val hasSelectedBatch = item.batchList.any { it.isSelected && it.dispenseQuantity > 0 }
+                    binding.btnViewBatch.text = if (hasSelectedBatch) "Edit Batch" else "Select Batch"
+                    binding.btnViewBatch.visibility = android.view.View.VISIBLE
+                    binding.btnViewBatch.isEnabled = isNetworkAvailable
+                    binding.btnViewBatch.setOnClickListener {
+                        if (isNetworkAvailable) {
+                            clickListener.onClickSelectBatch(item)
+                        } else {
+                            android.widget.Toast.makeText(
+                                binding.root.context,
+                                binding.root.context.getString(R.string.network_required_manual_batch),
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+                "System Issue" -> {
+                    // Hide/comment the view batch button for system issue
+                    binding.btnViewBatch.visibility = android.view.View.GONE
+                    // Alternatively, you can comment out the button functionality:
+                    /*
+                    binding.btnViewBatch.text = "View Batch"
+                    binding.btnViewBatch.visibility = android.view.View.VISIBLE
+                    binding.btnViewBatch.isEnabled = false
+                    binding.btnViewBatch.setOnClickListener {
+                        clickListener.onClickViewBatch(item)
+                    }
+                    */
+                }
+                else -> {
+                    binding.btnViewBatch.visibility = android.view.View.GONE
+                }
+            }
             binding.executePendingBindings()
 
         }
@@ -78,7 +127,7 @@ class PharmacistItemAdapter(
 
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
         drugID = getItem(position).drugID.toString()
-        holder.bind(getItem(position), clickListener)
+        holder.bind(getItem(position), issueType, clickListener, networkAvailabilityCheck)
 
 //        holder.itemView.findViewById<MaterialButton>(R.id.submit_btn).setOnClickListener { // When submit button is clicked
 //            network = isInternetAvailable(context)
@@ -93,10 +142,18 @@ class PharmacistItemAdapter(
 
     class PharmacistClickListener(
         private val clickedViewBatch: (benVisitInfo: PrescriptionItemDTO) -> Unit,
+        private val clickedSelectBatch: (item: PrescriptionItemDTO) -> Unit,
     ) {
         fun onClickViewBatch(item: PrescriptionItemDTO) = clickedViewBatch(
             item,
         )
+
+        fun onClickSelectBatch(item: PrescriptionItemDTO) = clickedSelectBatch(
+            item,
+        )
+
+
+
 //        fun onClickABHA(item: PrescriptionItemDTO) {
 //            Log.i("View batch Button", "")
 ////            Log.d("ABHA Item Click", "ABHA item clicked")
@@ -118,4 +175,10 @@ class PharmacistItemAdapter(
             return networkInfo != null && networkInfo.isConnected
         }
     }
+
+    fun updateIssueType(newIssueType: String) {
+        issueType = newIssueType
+        notifyDataSetChanged()  // Refresh UI with updated label
+    }
+
 }

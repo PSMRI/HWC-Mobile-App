@@ -14,4 +14,11 @@
         <item>One</item>
         <item>Half</item>
     </string-array>
+
+    <string-array name="case_status_options">
+        <item>Under care</item>
+        <item>Referred</item>
+        <item>Stable</item>
+        <item>Death</item>
+    </string-array>
 </resources>

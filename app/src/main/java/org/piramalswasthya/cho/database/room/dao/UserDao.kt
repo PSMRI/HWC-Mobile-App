@@ -1,10 +1,13 @@
 package org.piramalswasthya.cho.database.room.dao
 
-import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.database.room.SyncState
-import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.UserAuth
 import org.piramalswasthya.cho.model.UserCache
@@ -57,8 +60,6 @@ interface UserDao {
 
     @Query("SELECT service_map_id FROM USER WHERE logged_in = 1 LIMIT 1")
     suspend fun getLoggedInUserProviderServiceMapId(): Int
-//    @Delete
-//    suspend fun logout(loggedInUser: UserCache)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOutreachProgram(outreachProgram: SelectedOutreachProgram)
@@ -79,11 +80,6 @@ interface UserDao {
     @Query("UPDATE USER SET districtBranchID = :districtBranchID")
     suspend fun updateUserVillageId(districtBranchID : Int) : Int
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertFpData(fpVal:FingerPrint)
-
-    @Query("select * from FP_DATA")
-    fun getAllFpData(): LiveData<List<FingerPrint>>
     @Query("select * from user where username = :username")
     suspend fun getUserByName(username: String): UserCache?
     @Query("update user set logged_in = 1 where username = :username")

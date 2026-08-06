@@ -6,11 +6,12 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
-import org.piramalswasthya.cho.model.Patient
-import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.SyncStateValue
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 import org.piramalswasthya.cho.model.SyncStatusCache
 import java.util.Date
@@ -57,8 +58,25 @@ interface PatientVisitInfoSyncDao {
     suspend fun getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): PatientVisitInfoSync?
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET benFlowId = :benFlowId, pharmacist_flag= :pharmacistFlag, visitCategory = :visitCategory WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
-    suspend fun updateBenFlowIdByPatientIdAndBenVisitNo(benFlowId: Long, pharmacistFlag:Int, patientID: String, benVisitNo: Int, visitCategory: String)
+    @Query(
+        "UPDATE PATIENT_VISIT_INFO_SYNC " +
+                "SET benFlowId = :benFlowId, " +
+                "pharmacist_flag = CASE " +
+                "WHEN pharmacist_flag = 9 AND :pharmacistFlag <> 9 THEN pharmacist_flag " +
+                "WHEN pharmacistDataSynced IN (:unSynced, :syncing) THEN pharmacist_flag " +
+                "ELSE :pharmacistFlag END, " +
+                "visitCategory = :visitCategory " +
+                "WHERE patientID = :patientID AND benVisitNo = :benVisitNo"
+    )
+    suspend fun updateBenFlowIdByPatientIdAndBenVisitNo(
+        benFlowId: Long,
+        pharmacistFlag: Int,
+        patientID: String,
+        benVisitNo: Int,
+        visitCategory: String,
+        unSynced: SyncState? = SyncState.UNSYNCED,
+        syncing: SyncState? = SyncState.SYNCING
+    )
 
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE createNewBenFlow = :createNewBenFlow AND benVisitNo > 1 ORDER BY benVisitNo ASC")
     suspend fun getUnsyncedRevisitRecords(createNewBenFlow: Boolean? = true): List<PatientVisitInfoSync>
@@ -76,8 +94,17 @@ interface PatientVisitInfoSyncDao {
     suspend fun getPatientDoctorDataUnsyncedForOfflineTransfer(unSynced: SyncState? = SyncState.UNSYNCED) : List<PatientVisitInfoSyncWithPatient>
 
 
-    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND nurseDataSynced = :synced AND labtechFlag = 1 ORDER BY benVisitNo ASC")
-    suspend fun getPatientDoctorDataAfterTestUnsynced(unSynced: SyncState? = SyncState.UNSYNCED, synced: SyncState? = SyncState.SYNCED, ) : List<PatientVisitInfoSyncWithPatient>
+    @Query(
+        "SELECT * FROM PATIENT_VISIT_INFO_SYNC " +
+                "WHERE doctorDataSynced = :unSynced " +
+                "AND nurseDataSynced = :synced " +
+                "AND labtechFlag IN (1, 9) " +
+                "ORDER BY benVisitNo ASC"
+    )
+    suspend fun getPatientDoctorDataAfterTestUnsynced(
+        unSynced: SyncState? = SyncState.UNSYNCED,
+        synced: SyncState? = SyncState.SYNCED,
+    ) : List<PatientVisitInfoSyncWithPatient>
 
 //    @Transaction
 //    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
@@ -138,6 +165,32 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePharmacistFlag(patientID: String, benVisitNo: Int)
 
     @Transaction
+    @Query(
+        "UPDATE PATIENT_VISIT_INFO_SYNC " +
+                "SET pharmacist_flag = 9, pharmacistDataSynced = :unSynced " +
+                "WHERE patientID = :patientID AND benVisitNo = :benVisitNo"
+    )
+    suspend fun markPharmacistDispensedLocally(
+        patientID: String,
+        benVisitNo: Int,
+        unSynced: SyncState? = SyncState.UNSYNCED
+    )
+
+    @Transaction
+    @Query(
+        "UPDATE PATIENT_VISIT_INFO_SYNC " +
+                "SET pharmacist_flag = 1, " +
+                "pharmacistDataSynced = :unSynced, " +
+                "visitCategory = 'General OPD' " +
+                "WHERE patientID = :patientID AND benVisitNo = :benVisitNo"
+    )
+    suspend fun updatePharmacistFlagToPending(
+        patientID: String,
+        benVisitNo: Int,
+        unSynced: SyncState? = SyncState.UNSYNCED
+    )
+
+    @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncing WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePatientDoctorDataSyncSyncing(syncing: SyncState? = SyncState.SYNCING, patientID: String, benVisitNo: Int)
 
@@ -177,7 +230,10 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9 AND vis.visitCategory = 'General OPD' ORDER BY pat.registrationDate DESC")
+            "WHERE vis.nurseFlag = 9 " +
+            "AND vis.visitCategory = 'General OPD' " +
+            "AND NOT (vis.doctorFlag = 9 AND IFNULL(vis.pharmacist_flag, 0) IN (0, 9)) " +
+            "ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForDoctor(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
@@ -199,37 +255,43 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.doctorFlag = 9 AND vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1")
+            "WHERE vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1 AND (vis.doctorFlag = 9 OR vis.doctorFlag = 2 OR vis.doctorFlag = 3) " +
+            "ORDER BY IFNULL((SELECT MAX(p.id) FROM Prescription p WHERE p.patientID = vis.patientID AND p.benVisitNo = vis.benVisitNo), 0) DESC, " +
+            "IFNULL(vis.benVisitNo, 0) DESC")
     fun getPatientDisplayListForPharmacist(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
     @Query("SELECT " +
         "1 as id,'Patient' as name," +
-        "COUNT(CASE WHEN syncState = 2 THEN 1 END) AS synced," +
-        "COUNT(CASE WHEN syncState = 1 THEN 1 END) AS syncing," +
-        "COUNT(CASE WHEN syncState = 0 THEN 1 END) AS notSynced" +
+        "COUNT(CASE WHEN syncState = :syncedState THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN syncState = :syncingState THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN syncState = :unsyncedState THEN 1 END) AS notSynced" +
         " FROM PATIENT UNION SELECT " +
         "2 as id,'Nurse' as name," +
-        "COUNT(CASE WHEN nurseDataSynced = 2 THEN 1 END) AS synced," +
-        "COUNT(CASE WHEN nurseDataSynced = 1 THEN 1 END) AS syncing," +
-        "COUNT(CASE WHEN nurseDataSynced = 0 THEN 1 END) AS notSynced" +
+        "COUNT(CASE WHEN nurseDataSynced = :syncedState THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN nurseDataSynced = :syncingState THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN nurseDataSynced = :unsyncedState THEN 1 END) AS notSynced" +
         " FROM PATIENT_VISIT_INFO_SYNC WHERE nurseFlag = 9 UNION SELECT " +
         "3 as id,'Doctor' as name," +
-        "COUNT(CASE WHEN doctorDataSynced = 2 THEN 1 END) AS synced," +
-        "COUNT(CASE WHEN doctorDataSynced = 1 THEN 1 END) AS syncing," +
-        "COUNT(CASE WHEN doctorDataSynced = 0 THEN 1 END) AS notSynced" +
+        "COUNT(CASE WHEN doctorDataSynced = :syncedState THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN doctorDataSynced = :syncingState THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN doctorDataSynced = :unsyncedState THEN 1 END) AS notSynced" +
         " FROM PATIENT_VISIT_INFO_SYNC WHERE doctorFlag > 1 UNION SELECT " +
         "4 as id,'Lab Technician' as name," +
-        "COUNT(CASE WHEN labDataSynced = 2 THEN 1 END) AS synced," +
-        "COUNT(CASE WHEN labDataSynced = 1 THEN 1 END) AS syncing," +
-        "COUNT(CASE WHEN labDataSynced = 0 THEN 1 END) AS notSynced" +
+        "COUNT(CASE WHEN labDataSynced = :syncedState THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN labDataSynced = :syncingState THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN labDataSynced = :unsyncedState THEN 1 END) AS notSynced" +
         " FROM PATIENT_VISIT_INFO_SYNC WHERE doctorFlag = 3 UNION SELECT " +
         "5 as id,'Pharmacist' as name," +
-        "COUNT(CASE WHEN pharmacistDataSynced = 2 THEN 1 END) AS synced," +
-        "COUNT(CASE WHEN pharmacistDataSynced = 1 THEN 1 END) AS syncing," +
-        "COUNT(CASE WHEN pharmacistDataSynced = 0 THEN 1 END) AS notSynced" +
+        "COUNT(CASE WHEN pharmacistDataSynced = :syncedState THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN pharmacistDataSynced = :syncingState THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN pharmacistDataSynced = :unsyncedState THEN 1 END) AS notSynced" +
         " FROM PATIENT_VISIT_INFO_SYNC WHERE doctorFlag = 9 AND pharmacist_flag = 9 ORDER BY id")
-    fun getSyncStatus(): Flow<List<SyncStatusCache>>
+    fun getSyncStatus(
+        syncedState: Int = SyncStateValue.SYNCED,
+        syncingState: Int = SyncStateValue.SYNCING,
+        unsyncedState: Int = SyncStateValue.UNSYNCED
+    ): Flow<List<SyncStatusCache>>
 
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET referDate = :referDate, referTo = :referTo, referralReason = :referralReason WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
