@@ -10,6 +10,7 @@ enum class CphcFormType {
     MENTAL,
     PAIN,
     PSYCHOSOCIAL,
+    NCD,
     UNKNOWN,
 }
 
@@ -45,6 +46,8 @@ object CphcFormTypeResolver {
             DropdownConst.REASON_FIRST_AID_EYE_INJURY.lowercase(),
             DropdownConst.REASON_FIRST_AID_INJURY_TRAUMA.lowercase(),
             DropdownConst.ophthalmic.lowercase() -> CphcFormType.OPHTHALMIC
+            DropdownConst.ncd.lowercase(),
+            DropdownConst.ncdScreening.lowercase() -> CphcFormType.NCD
             else -> CphcFormType.UNKNOWN
         }
     }

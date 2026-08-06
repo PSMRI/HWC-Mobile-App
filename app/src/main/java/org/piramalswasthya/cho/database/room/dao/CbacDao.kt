@@ -23,6 +23,12 @@ interface CbacDao {
     @Query("SELECT * FROM CBAC WHERE patId = :benId  order by fillDate desc LIMIT 1")
     suspend fun getLastFilledCbacFromBenId(benId: String): CbacCache?
 
+    @Query(
+        "SELECT * FROM CBAC WHERE patId = :lookupId OR patientId = :lookupId " +
+            "ORDER BY fillDate DESC LIMIT 1"
+    )
+    suspend fun getLastFilledCbacByPatientOrBeneficiary(lookupId: String): CbacCache?
+
 
     @Query("SELECT * FROM CBAC WHERE  syncState = :syncState ")
     suspend fun getAllUnprocessedCbac(syncState: SyncState): List<CbacCache>
