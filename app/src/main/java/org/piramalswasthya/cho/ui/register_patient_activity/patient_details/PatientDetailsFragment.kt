@@ -980,6 +980,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 binding.maritalStatusText.isEndIconVisible = true
             }
 
+            // Field is required when visible — keep validation in sync with selection
+            val isMaritalStatusFilled =
+                viewModel.selectedMaritalStatus != null &&
+                    !binding.maritalStatusDropdown.text.isNullOrBlank()
+            viewModel.setMarital(isMaritalStatusFilled)
+
             val status = viewModel.selectedMaritalStatus?.status?.lowercase()?.trim()
             when {
                 status?.contains("married") == true && !status.contains("unmarried") && !status.contains("never") -> {
@@ -1023,6 +1029,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             if (!isProgrammaticChange) {
                 hideMarriedFields()
                 viewModel.selectedMaritalStatus = null
+                viewModel.maritalStatusId = null
+                viewModel.maritalStatusName = null
                 binding.maritalStatusDropdown.setText("", false)
                 viewModel.setMarital(true) // Hidden, so not mandatory
                 viewModel.setSpouse(true)
@@ -1776,9 +1784,19 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             return false
         }
 
-        // Check Marital Status if visible
-        if (binding.maritalStatusText.visibility == View.VISIBLE && !viewModel.maritalStatusVal.value!!) {
-            return false
+        // Check Marital Status if visible (required for age >= 15)
+        if (binding.maritalStatusText.visibility == View.VISIBLE) {
+            val isMaritalStatusFilled =
+                viewModel.selectedMaritalStatus != null &&
+                    !binding.maritalStatusDropdown.text.isNullOrBlank()
+            viewModel.setMarital(isMaritalStatusFilled)
+            if (!isMaritalStatusFilled) {
+                binding.maritalStatusText.setBoxColor(
+                    false,
+                    resources.getString(R.string.select_marital_status)
+                )
+                return false
+            }
         }
 
         if (binding.spouseNameText.visibility == View.VISIBLE && !viewModel.spouseNameVal.value!!) {
@@ -2073,7 +2091,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         // If current selection is no longer in filtered list, clear it
         if (!isProgrammaticChange && viewModel.selectedMaritalStatus != null && filteredList.none { it.maritalStatusID == viewModel.selectedMaritalStatus!!.maritalStatusID }) {
             viewModel.selectedMaritalStatus = null
+            viewModel.maritalStatusId = null
+            viewModel.maritalStatusName = null
             binding.maritalStatusDropdown.setText("", false)
+            if (binding.maritalStatusText.visibility == View.VISIBLE) {
+                viewModel.setMarital(false)
+            }
         }
     }
 }
