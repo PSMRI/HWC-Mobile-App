@@ -1431,12 +1431,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 checkAndNavigateEct()
             }
             else if(reasonForVisit == DropdownConst.ncdScreening){
-
-                findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCbacFragment(
-                        patId = benVisitInfo.patient.patientID, cbacId = 0 , benId = benVisitInfo.patient.beneficiaryID.toString()
-                    )
-                )
+                isNavigationInProgress = true
+                proceedToSpecializedForm(skipChiefComplaintValidation = true) { bundle ->
+                    bundle.putString("patId", benVisitInfo.patient.patientID)
+                    bundle.putString("benId", benVisitInfo.patient.beneficiaryID.toString())
+                    bundle.putInt("cbacId", 0)
+                    findNavController().navigate(R.id.cbacFragment, bundle)
+                }
             }
             else if(
                 reasonForVisit == DropdownConst.screening ||

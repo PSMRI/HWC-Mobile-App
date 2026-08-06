@@ -35,6 +35,7 @@ import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.PendingCphcFormViewModel
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
@@ -693,6 +694,12 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         }
     }
 
+    private fun isNcdScreeningVisit(): Boolean {
+        val visit = masterDb?.visitMasterDb ?: return false
+        return visit.subCategory == DropdownConst.ncd ||
+            visit.reason == DropdownConst.ncdScreening
+    }
+
     override fun getFragmentId(): Int {
         return R.id.fragment_vitals_info;
     }
@@ -770,6 +777,12 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                                 true -> {
                                     viewLifecycleOwner.lifecycleScope.launch {
                                         persistPendingCphcFormSuspending()
+                                        if (isNcdScreeningVisit()) {
+                                            WorkerUtils.enqueueUpsync(
+                                                requireContext(),
+                                                WorkerUtils.UpsyncScope.CBAC,
+                                            )
+                                        }
                                         WorkerUtils.clinicalPushWorker(requireContext())
                                         requireActivity().finish()
                                     }

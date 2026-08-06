@@ -1262,6 +1262,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     val psychosocialSupport = loadCphcSectionIfNeeded(formType, CphcFormType.PSYCHOSOCIAL) {
                         viewModel.getPsychosocialByPatientAndVisit(popupPatientId, currentVisitNo)
                     }
+                    val cbacAssessment = loadCphcSectionIfNeeded(formType, CphcFormType.NCD) {
+                        viewModel.getCbacForPatient(
+                            popupPatientId,
+                            benVisitInfo.patient.beneficiaryID,
+                        )
+                    }
                     val hasAnyCphcData =
                         chiefComplaints.isNotEmpty() ||
                                 earDiagnosis != null ||
@@ -1272,7 +1278,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                 elderlyAssessment != null ||
                                 mentalScreening != null ||
                                 painAssessment != null ||
-                                psychosocialSupport != null
+                                psychosocialSupport != null ||
+                                cbacAssessment != null
                     if (!hasAnyCphcData) return@buildString
 
                     append(getString(R.string.cphc_visit_current_format, currentVisitNo)).append("\n")
@@ -1527,6 +1534,18 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                             boolFormatter = ::boolLabel,
                             valueFormatter = ::valueLabel
                         )
+                    }
+
+                    if (cbacAssessment != null) {
+                        val isMale = benVisitInfo.genderName
+                            ?.equals("male", ignoreCase = true) == true
+                        append(
+                            CphcCbacDetailsFormatter.format(
+                                resources = resources,
+                                cbac = cbacAssessment,
+                                isMale = isMale,
+                            )
+                        ).append("\n")
                     }
                 }.trim()
             }

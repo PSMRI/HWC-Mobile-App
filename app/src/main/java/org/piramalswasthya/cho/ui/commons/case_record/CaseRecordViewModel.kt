@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.EarDiagnosisAssessment
@@ -50,6 +51,7 @@ import org.piramalswasthya.cho.model.ThroatDiagnosisAssessment
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
+import org.piramalswasthya.cho.repositories.CbacRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.EarDiagnosisRepo
 import org.piramalswasthya.cho.repositories.ElderlyHealthRepo
@@ -91,6 +93,7 @@ class CaseRecordViewModel @Inject constructor(
     private val mentalHealthScreeningRepo: MentalHealthScreeningRepo,
     private val painAndSymptomAssessmentRepo: PainAndSymptomAssessmentRepo,
     private val psychosocialCaregiverSupportRepo: PsychosocialCaregiverSupportRepo,
+    private val cbacRepo: CbacRepo,
     preferenceDao: PreferenceDao,
     private val procedureRepo: ProcedureRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
@@ -394,8 +397,18 @@ class CaseRecordViewModel @Inject constructor(
             if (getMentalByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.MENTAL)
             if (getPainAssessmentByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.PAIN)
             if (getPsychosocialByPatientAndVisit(patientID, benVisitNo) != null) add(CphcFormType.PSYCHOSOCIAL)
+            if (getCbacForPatient(patientID, null) != null) add(CphcFormType.NCD)
         }
         return existingTypes.singleOrNull() ?: CphcFormType.UNKNOWN
+    }
+
+    suspend fun getCbacForPatient(patientID: String, beneficiaryId: Long?): CbacCache? {
+        return try {
+            cbacRepo.getLastFilledCbacForPatient(patientID, beneficiaryId)
+        } catch (e: Exception) {
+            Timber.d("Error in getCbacForPatient $e")
+            null
+        }
     }
 
     suspend fun getNoseDiagnosisByPatientAndVisit(patientID: String, benVisitNo: Int): NoseDiagnosisAssessment? {

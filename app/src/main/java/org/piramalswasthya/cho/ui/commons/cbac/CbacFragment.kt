@@ -21,9 +21,9 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentCbacBinding
 import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.Gender
+import org.piramalswasthya.cho.ui.commons.CphcFormNavigation
+import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-
-import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -127,8 +127,7 @@ class CbacFragment : Fragment() , NavigationAdapter  {
                 CbacViewModel.State.SAVE_SUCCESS -> {
                     Timber.d("CBAC form saved successfully!")
                     viewModel.resetState()
-                    WorkerUtils.enqueueUpsync(requireContext(), WorkerUtils.UpsyncScope.CBAC)
-                    findNavController().navigateUp()
+                    navigateToVitalsAfterSave()
                 }
 
                 CbacViewModel.State.MISSING_FIELD -> {
@@ -1057,6 +1056,18 @@ class CbacFragment : Fragment() , NavigationAdapter  {
                 "%s%s%s", resources.getString(R.string.total_score_wihout_semi_colon),
                 ": ", cbac.cbac_little_interest_score + cbac.cbac_feeling_down_score
             )
+    }
+
+    private fun navigateToVitalsAfterSave() {
+        findNavController().navigate(
+            R.id.customVitalsFragment,
+            CphcFormNavigation.buildVitalsBundle(
+                arguments = arguments,
+                subCategory = DropdownConst.ncd,
+                reasonForVisit = DropdownConst.ncdScreening,
+                requireMasterDb = true,
+            ),
+        )
     }
 
     fun navigateNext() {

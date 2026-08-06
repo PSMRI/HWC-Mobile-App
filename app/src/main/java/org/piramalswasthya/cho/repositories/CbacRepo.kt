@@ -96,6 +96,17 @@ class CbacRepo @Inject constructor(
             database.cbacDao.getLastFilledCbacFromBenId(benId = benId)
         }
     }
+
+    suspend fun getLastFilledCbacForPatient(patientId: String, beneficiaryId: Long?): CbacCache? {
+        return withContext(Dispatchers.IO) {
+            val lookupIds = buildList {
+                if (patientId.isNotBlank()) add(patientId)
+                beneficiaryId?.takeIf { it > 0 }?.let { add(it.toString()) }
+            }.distinct()
+            if (lookupIds.isEmpty()) return@withContext null
+            database.cbacDao.getLastFilledCbacByLookupIds(lookupIds)
+        }
+    }
     enum class Gender(val id: Int) {
         MALE(1),
         FEMALE(2),

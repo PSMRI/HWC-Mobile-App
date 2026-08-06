@@ -1345,6 +1345,17 @@
     <string name="cphc_ophthalmic">Ophthalmic</string>
     <string name="cphc_elderly">Elderly Health</string>
     <string name="cphc_mental">Mental Health</string>
+    <string name="cphc_ncd_screening">NCD Screening (CBAC)</string>
+    <string name="cphc_cbac_total_score">CBAC Total Score</string>
+    <string name="cphc_cbac_ncd_suspected">NCD Suspected</string>
+    <string name="cphc_cbac_suspected_ncd">Suspected NCD</string>
+    <string name="cphc_cbac_suspected_ncd_diseases">Suspected NCD Diseases</string>
+    <string name="cphc_cbac_confirmed_ncd">Confirmed NCD</string>
+    <string name="cphc_cbac_confirmed_ncd_diseases">Confirmed NCD Diseases</string>
+    <string name="cphc_cbac_suspected_tb">Suspected TB</string>
+    <string name="cphc_cbac_confirmed_tb">Confirmed TB</string>
+    <string name="cphc_cbac_suspected_hrp">Suspected HRP</string>
+    <string name="cphc_cbac_diagnosis_status">Diagnosis Status</string>
     <string name="cphc_nose_difficulty_breathing">Difficulty Breathing</string>
     <string name="cphc_nose_open_mouth_breathing">Open Mouth Breathing</string>
     <string name="cphc_nose_bleed">Nose Bleed</string>
