@@ -981,10 +981,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
 
             // Field is required when visible — keep validation in sync with selection
-            val isMaritalStatusFilled =
-                viewModel.selectedMaritalStatus != null &&
-                    !binding.maritalStatusDropdown.text.isNullOrBlank()
-            viewModel.setMarital(isMaritalStatusFilled)
+            viewModel.setMarital(isValidMaritalStatusSelection())
 
             val status = viewModel.selectedMaritalStatus?.status?.lowercase()?.trim()
             when {
@@ -1026,15 +1023,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 }
             }
         } else {
-            if (!isProgrammaticChange) {
-                hideMarriedFields()
-                viewModel.selectedMaritalStatus = null
-                viewModel.maritalStatusId = null
-                viewModel.maritalStatusName = null
-                binding.maritalStatusDropdown.setText("", false)
-                viewModel.setMarital(true) // Hidden, so not mandatory
-                viewModel.setSpouse(true)
-            }
+            hideMarriedFields()
+            viewModel.selectedMaritalStatus = null
+            viewModel.maritalStatusId = null
+            viewModel.maritalStatusName = null
+            binding.maritalStatusDropdown.setText("", false)
+            viewModel.setMarital(true) // Hidden, so not mandatory
+            viewModel.setSpouse(true)
 
             // Show Father Name for children (Age < 15) and make it mandatory
             if (ageInYears != null && ageInYears < 15) {
@@ -1240,8 +1235,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isMaritalStatusFilled = s?.isNotEmpty() == true
-                viewModel.setMarital(isMaritalStatusFilled)
+                if (isProgrammaticChange) return
+                syncMaritalStatusSelectionWithText(s?.toString())
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -1652,7 +1647,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.lastName = binding.lastName.text.toString().trim()
         patient.dob = viewModel.selectedDateOfBirth
         patient.age = viewModel.enteredAge
-        patient.maritalStatusID = viewModel.maritalStatusId
+        patient.maritalStatusID =
+            if (binding.maritalStatusText.visibility == View.VISIBLE) viewModel.maritalStatusId else null
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
         patient.parentName = binding.fatherNameEditText.text.toString().trim()
         patient.spouseName = binding.spouseName.text.toString().trim()
@@ -1786,9 +1782,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         // Check Marital Status if visible (required for age >= 15)
         if (binding.maritalStatusText.visibility == View.VISIBLE) {
-            val isMaritalStatusFilled =
-                viewModel.selectedMaritalStatus != null &&
-                    !binding.maritalStatusDropdown.text.isNullOrBlank()
+            val isMaritalStatusFilled = isValidMaritalStatusSelection()
             viewModel.setMarital(isMaritalStatusFilled)
             if (!isMaritalStatusFilled) {
                 binding.maritalStatusText.setBoxColor(
@@ -2060,6 +2054,29 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             binding.statusOfWomanDropdown.setText("", false)
             viewModel.setStatusOfWoman(false)
         }
+    }
+
+    private fun isValidMaritalStatusSelection(): Boolean {
+        val selected = viewModel.selectedMaritalStatus ?: return false
+        val text = binding.maritalStatusDropdown.text?.toString()?.trim().orEmpty()
+        return text.isNotEmpty() && text.equals(selected.status, ignoreCase = true)
+    }
+
+    private fun syncMaritalStatusSelectionWithText(rawText: String?) {
+        val text = rawText?.trim().orEmpty()
+        val selected = viewModel.selectedMaritalStatus
+        if (selected != null && text.equals(selected.status, ignoreCase = true)) {
+            viewModel.setMarital(true)
+            return
+        }
+
+        // Typed/edited text no longer matches a selected option — clear stale IDs
+        if (selected != null) {
+            viewModel.selectedMaritalStatus = null
+            viewModel.maritalStatusId = null
+            viewModel.maritalStatusName = null
+        }
+        viewModel.setMarital(false)
     }
 
     private fun isUnmarriedStatus(maritalStatusId: Int?, maritalStatusName: String?): Boolean {

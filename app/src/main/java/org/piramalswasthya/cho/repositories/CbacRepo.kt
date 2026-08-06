@@ -100,13 +100,11 @@ class CbacRepo @Inject constructor(
     suspend fun getLastFilledCbacForPatient(patientId: String, beneficiaryId: Long?): CbacCache? {
         return withContext(Dispatchers.IO) {
             val lookupIds = buildList {
-                beneficiaryId?.takeIf { it > 0 }?.let { add(it.toString()) }
                 if (patientId.isNotBlank()) add(patientId)
+                beneficiaryId?.takeIf { it > 0 }?.let { add(it.toString()) }
             }.distinct()
-            lookupIds.firstNotNullOfOrNull { id ->
-                database.cbacDao.getLastFilledCbacByPatientOrBeneficiary(id)
-                    ?.takeIf { it.fillDate > 0L }
-            }
+            if (lookupIds.isEmpty()) return@withContext null
+            database.cbacDao.getLastFilledCbacByLookupIds(lookupIds)
         }
     }
     enum class Gender(val id: Int) {

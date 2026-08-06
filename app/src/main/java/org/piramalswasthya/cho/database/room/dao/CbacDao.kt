@@ -20,14 +20,15 @@ interface CbacDao {
     @Query("SELECT * FROM CBAC WHERE id = :cbacId LIMIT 1")
     suspend fun getCbacFromBenId(cbacId: Int): CbacCache?
 
-    @Query("SELECT * FROM CBAC WHERE patId = :benId  order by fillDate desc LIMIT 1")
+    @Query("SELECT * FROM CBAC WHERE patId = :benId AND fillDate > 0 ORDER BY fillDate DESC LIMIT 1")
     suspend fun getLastFilledCbacFromBenId(benId: String): CbacCache?
 
     @Query(
-        "SELECT * FROM CBAC WHERE patId = :lookupId OR patientId = :lookupId " +
+        "SELECT * FROM CBAC WHERE fillDate > 0 AND " +
+            "(patId IN (:lookupIds) OR patientId IN (:lookupIds)) " +
             "ORDER BY fillDate DESC LIMIT 1"
     )
-    suspend fun getLastFilledCbacByPatientOrBeneficiary(lookupId: String): CbacCache?
+    suspend fun getLastFilledCbacByLookupIds(lookupIds: List<String>): CbacCache?
 
 
     @Query("SELECT * FROM CBAC WHERE  syncState = :syncState ")
