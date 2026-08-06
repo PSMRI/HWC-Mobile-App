@@ -27,6 +27,7 @@ data class BenAnthropometryDetail(
     val waistHipRatio: Double?,
     val deleted: Boolean?,
     val processed: String?,
+    val facilityID: Int?,
 )
 
 @JsonClass(generateAdapter = true)
@@ -57,6 +58,7 @@ data class GOPDNurseVisitDetail(
     val subVisitCategory: String?,
     val followUpForFpMethod: String?,
     val sideEffects: String?,
+    val facilityID: Int?,
 )
 
 @JsonClass(generateAdapter = true)
@@ -92,6 +94,7 @@ data class BenPhysicalVitalDetail(
     val hemoglobin: Double?,
     val deleted: Boolean?,
     val processed: String?,
+    val facilityID: Int?,
 )
 
 @JsonClass(generateAdapter = true)
@@ -108,7 +111,8 @@ data class BenChiefComplaints(
     val unitOfDuration: String?,
     val description: String?,
     val deleted: Boolean?,
-    val processed: String?
+    val processed: String?,
+    val facilityID: Int?,
 )
 
 //{

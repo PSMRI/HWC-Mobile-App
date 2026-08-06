@@ -10,10 +10,14 @@ import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
+import org.piramalswasthya.cho.helpers.getCurrentWeeksOfPregnancy
 import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
+import android.content.Context
 import org.piramalswasthya.cho.network.getLongFromDate
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong
+import org.piramalswasthya.cho.utils.ImgUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -93,6 +97,8 @@ data class PregnantWomanRegistrationCache(
     val id: Long = 0,
     val patientID: String,
     var dateOfRegistration: Long = System.currentTimeMillis(),
+    var pregnancyTestAtFacility: String? = null,
+    var uptResult: String? = null,
     var mcpCardNumber: Long? = 0,
     var rchId: Long? = 0,
     var lmpDate: Long = 0,
@@ -106,6 +112,8 @@ data class PregnantWomanRegistrationCache(
     var vdrlRprTestResult: String? = null,
     var vdrlRprTestResultId: Int = 0,
     var dateOfVdrlRprTest: Long? = null,
+    var historyOfAbortions: Boolean? = null,
+    var previousLSCS: Boolean? = null,
 
     var hivTestResult: String? = null,
     var hivTestResultId: Int = 0,
@@ -119,6 +127,7 @@ data class PregnantWomanRegistrationCache(
     var otherPastIllness: String? = null,
     var is1st: Boolean = true,
     var numPrevPregnancy: Int? = null,
+    var para: Int? = null,
     var complicationPrevPregnancy: String? = null,
     var complicationPrevPregnancyId: Int? = null,
     var otherComplication: String? = null,
@@ -134,6 +143,7 @@ data class PregnantWomanRegistrationCache(
     var createdDate: Long = System.currentTimeMillis(),
     var updatedBy: String,
     var updatedDate: Long = System.currentTimeMillis(),
+    var isFirstAncSubmitted: Boolean = false,
     var syncState: SyncState
 ) : FormDataModel {
 
@@ -183,55 +193,351 @@ data class PregnantWomanRegistrationCache(
     }
 }
 
-//data class BenWithPwrCache(
-//    @Embedded
-//    val ben: BenBasicCache,
-//    @Relation(
-//        parentColumn = "benId", entityColumn = "benId"
-//    )
-//    val pwr: List<PregnantWomanRegistrationCache>,
-//
-//    ) {
-//    fun asPwrDomainModel(): BenWithPwrDomain {
-//        return BenWithPwrDomain(
-//            ben = ben.asBasicDomainModel(),
-//            pwr = pwr.firstOrNull { it.active }
-//        )
-//    }
-//
-//    fun asBenBasicDomainModelForHRPPregAssessmentForm(): BenBasicDomainForForm {
-//
-//        return BenBasicDomainForForm(
-//            benId = ben.benId,
-//            hhId = ben.hhId,
-//            regDate = BenBasicCache.dateFormat.format(Date(ben.regDate)),
-//            benName = ben.benName,
-//            benSurname = ben.benSurname ?: "",
-//            gender = ben.gender.name,
-//            dob = ben.dob,
-//            mobileNo = ben.mobileNo.toString(),
-//            fatherName = ben.fatherName,
-//            familyHeadName = ben.familyHeadName ?: "",
-//            spouseName = ben.spouseName ?: "",
-//            lastMenstrualPeriod = getDateStringFromLong(ben.lastMenstrualPeriod),
-//            edd = getEddFromLmp(ben.lastMenstrualPeriod),
-////            typeOfList = typeOfList.name,
-//            rchId = ben.rchId ?: "Not Available",
-//            hrpStatus = ben.hrpStatus,
-//            form1Filled = ben.hrppaFilled,
-//            syncState = ben.hrppaSyncState,
-//            form2Enabled = true,
-//            form2Filled = ben.hrpmbpFilled
-//        )
-//    }
-//
-//}
+/**
+ * Patient with Pregnant Woman Registration data.
+ * Relation is a list; the active/most-recent record is selected when building the domain.
+ */
+data class PatientWithPwrCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pwr: List<PregnantWomanRegistrationCache>,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val ancRecords: List<PregnantWomanAncCache>
+) {
+    /**
+     * Active PWR record, or if none active the most recent by createdDate.
+     */
+    fun getActiveOrLatestPwr(): PregnantWomanRegistrationCache? =
+        pwr.filter { it.active }.maxByOrNull { it.createdDate }
+            ?: pwr.maxByOrNull { it.createdDate }
 
-//data class BenWithPwrDomain(
-////    val benId: Long,
-//    val ben: BenBasicDomain,
-//    val pwr: PregnantWomanRegistrationCache?
-//)
+    fun asDomainModel(): PatientWithPwrDomain {
+        return PatientWithPwrDomain(
+            patient = patient,
+            pwr = getActiveOrLatestPwr(),
+            ancRecords = ancRecords
+        )
+    }
+}
+
+/**
+ * Domain model for displaying patient with pregnancy registration
+ */
+data class PatientWithPwrDomain(
+    val patient: Patient,
+    val pwr: PregnantWomanRegistrationCache?,
+    val ancRecords: List<PregnantWomanAncCache> = emptyList(),
+    val syncState: SyncState? = pwr?.syncState,
+    val lastAnc: PregnantWomanAncCache? = ancRecords.maxByOrNull { it.visitNumber },
+    var deliveryOutcomeSyncState: SyncState? = null
+) {
+    /**
+     * Get weeks of pregnancy
+     * Returns 0 if LMP date is missing or invalid (null or <= 0)
+     */
+    fun getWeeksOfPregnancy(): Int {
+        return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
+            getCurrentWeeksOfPregnancy(pwr.lmpDate)
+        } else {
+            0
+        }
+    }
+
+    /**
+     * Get EDD (Expected Date of Delivery) - LMP + 280 days
+     * Returns 0L if LMP date is missing or invalid (null or <= 0)
+     */
+    fun getEDD(): Long {
+        return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
+            pwr.lmpDate + TimeUnit.DAYS.toMillis(280)
+        } else {
+            0L
+        }
+    }
+
+    /**
+     * Get formatted LMP date string
+     * Returns "NA" if LMP date is missing or invalid (null or <= 0)
+     */
+    fun getFormattedLMPDate(): String {
+        return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
+            getDateStringFromLong(pwr.lmpDate) ?: "NA"
+        } else {
+            "NA"
+        }
+    }
+
+    /**
+     * Get formatted EDD string
+     * Returns "NA" if LMP date is missing or invalid (null or <= 0)
+     */
+    fun getFormattedEDD(): String {
+        val edd = getEDD()
+        return if (edd > 0L) {
+            getDateStringFromLong(edd) ?: "NA"
+        } else {
+            "NA"
+        }
+    }
+
+    /**
+     * Get patient's age string for display (e.g. "29 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+    }
+
+    /**
+     * Indicates if the Delivery Outcome form has been filled and submitted for the patient.
+     * Default is false, but gets assigned when cross-referenced against the outcomes repo.
+     */
+    var isDeliveryOutcomeFilled: Boolean = false
+
+    /**
+     * Check if pregnancy is active
+     */
+    fun isActive(): Boolean {
+        return pwr?.active ?: false
+    }
+
+    /**
+     * Check if this is high-risk pregnancy
+     */
+    fun isHighRisk(): Boolean {
+        return pwr?.isHrp ?: false
+    }
+}
+
+private fun List<PregnantWomanRegistrationCache>.resolvePregnancyLmpDate(
+    fallbackLmp: Long? = null
+): Long =
+    filter { it.active && it.lmpDate > 0L }.maxByOrNull { it.createdDate }?.lmpDate
+        ?: filter { it.lmpDate > 0L }.maxByOrNull { it.createdDate }?.lmpDate
+        ?: fallbackLmp?.takeIf { it > 0 }
+        ?: 0L
+
+private fun resolveAbortionLmpDate(
+    pwrList: List<PregnantWomanRegistrationCache>,
+    abortionRecord: PregnantWomanAncCache?
+): Long = pwrList.resolvePregnancyLmpDate(abortionRecord?.lmpDate)
+
+/**
+ * Patient with PWR and ANC records (for abortion list).
+ * PWR is a list; active and latest-by-createdDate are selected when building the domain.
+ */
+data class PatientWithPwrAndAncCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pwr: List<PregnantWomanRegistrationCache>,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val ancRecords: List<PregnantWomanAncCache>
+) {
+    fun asAbortionDomainModel(): AbortionDomain {
+        val abortionRecord = ancRecords.firstOrNull { it.isAborted && it.abortionDate != null }
+        val activePwr = pwr.filter { it.active }.maxByOrNull { it.createdDate }
+
+        val lmpDateToUse = resolveAbortionLmpDate(pwr, abortionRecord)
+
+        val eddDateToUse = if (lmpDateToUse != 0L) {
+            lmpDateToUse + TimeUnit.DAYS.toMillis(280)
+        } else 0L
+
+        // Same current GA as ANC visit list (today vs LMP), not GA at abortion/visit date.
+        val weekOfPregnancyToUse = if (lmpDateToUse != 0L) {
+            getCurrentWeeksOfPregnancy(lmpDateToUse).takeIf { it in 1..40 }
+        } else null
+
+        return AbortionDomain(
+            patient = patient,
+            pwr = activePwr,
+            abortionRecord = abortionRecord,
+            lmpDate = lmpDateToUse,
+            eddDate = eddDateToUse,
+            weekOfPregnancy = weekOfPregnancyToUse,
+            abortionDate = abortionRecord?.abortionDate
+        )
+    }
+}
+
+/**
+ * Domain model for displaying abortion list
+ */
+data class AbortionDomain(
+    val patient: Patient,
+    val pwr: PregnantWomanRegistrationCache?,
+    val abortionRecord: PregnantWomanAncCache?,
+    val lmpDate: Long,
+    val eddDate: Long,
+    val weekOfPregnancy: Int?,
+    val abortionDate: Long?,
+    val syncState: SyncState? = abortionRecord?.syncState
+) {
+    /**
+     * Get formatted LMP date string
+     */
+    fun getFormattedLMPDate(): String {
+        return if (lmpDate != 0L) {
+            getDateStringFromLong(lmpDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get formatted EDD string
+     */
+    fun getFormattedEDD(): String {
+        return if (eddDate != 0L) {
+            getDateStringFromLong(eddDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get formatted abortion date string
+     */
+    fun getFormattedAbortionDate(): String {
+        return abortionDate?.let { getDateStringFromLong(it) ?: "NA" } ?: "NA"
+    }
+
+    /**
+     * Get weeks of pregnancy string
+     */
+    fun getWeeksOfPregnancyString(): String {
+        return weekOfPregnancy?.takeIf { it <= 40 }?.toString() ?: "NA"
+    }
+
+    /**
+     * Get age string from patient DOB for display (e.g. "25 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+    }
+
+    /**
+     * Check if the dedicated abortion form has been submitted. abortionType and
+     * abortionFacility get set during the ANC visit when the pregnancy outcome
+     * is marked aborted, so they cannot indicate this form's submission state.
+     * methodOfTermination and terminationDoneBy are required fields on this
+     * form and are only written by PregnantWomanAncAbortionDataset.mapValues.
+     */
+    val isAbortionFormFilled: Boolean
+        get() = abortionRecord?.let {
+            it.methodOfTermination != null && it.terminationDoneBy != null
+        } ?: false
+}
+
+/**
+ * Patient with PWR for PMSMA list
+ * Shows women registered for pregnancy (eligible for PMSMA)
+ */
+data class PatientWithPwrForPmsmaCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pwr: PregnantWomanRegistrationCache?
+) {
+    fun asPmsmaDomainModel(): PmsmaDomain {
+        val activePwr = pwr?.takeIf { it.active }
+        
+        val lmpDateToUse = activePwr?.lmpDate ?: 0L
+        val eddDateToUse = if (lmpDateToUse != 0L) {
+            lmpDateToUse + TimeUnit.DAYS.toMillis(280)
+        } else 0L
+
+        val weekOfPregnancyToUse = if (lmpDateToUse != 0L) {
+            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
+        } else null
+
+        return PmsmaDomain(
+            patient = patient,
+            pwr = activePwr,
+            lmpDate = lmpDateToUse,
+            eddDate = eddDateToUse,
+            weekOfPregnancy = weekOfPregnancyToUse
+        )
+    }
+}
+
+/**
+ * Domain model for displaying PMSMA list
+ */
+data class PmsmaDomain(
+    val patient: Patient,
+    val pwr: PregnantWomanRegistrationCache?,
+    val lmpDate: Long,
+    val eddDate: Long,
+    val weekOfPregnancy: Int?
+) {
+    /**
+     * Get formatted LMP date string
+     */
+    fun getFormattedLMPDate(): String {
+        return if (lmpDate != 0L) {
+            getDateStringFromLong(lmpDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get formatted EDD string
+     */
+    fun getFormattedEDD(): String {
+        return if (eddDate != 0L) {
+            getDateStringFromLong(eddDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get weeks of pregnancy string
+     */
+    fun getWeeksOfPregnancyString(): String {
+        return weekOfPregnancy?.takeIf { it <= 40 }?.toString() ?: "NA"
+    }
+
+    /**
+     * Get patient's age string for display (e.g. "30 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+    }
+}
+
+/**
+ * Build a PmsmaDomain from the ANC-list source shape (PatientWithPwrCache).
+ * Mirrors PatientWithPwrForPmsmaCache.asPmsmaDomainModel so the e-PMSMA list can
+ * derive from the same Flow used by ANCVisitsFragment / getANCCount.
+ */
+fun PatientWithPwrCache.asPmsmaDomainModel(): PmsmaDomain {
+    val activePwr = getActiveOrLatestPwr()?.takeIf { it.active }
+    val lmpDateToUse = activePwr?.lmpDate ?: 0L
+    val eddDateToUse =
+        if (lmpDateToUse != 0L) lmpDateToUse + TimeUnit.DAYS.toMillis(280) else 0L
+    val weekOfPregnancyToUse =
+        if (lmpDateToUse != 0L)
+            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
+        else null
+    return PmsmaDomain(
+        patient = patient,
+        pwr = activePwr,
+        lmpDate = lmpDateToUse,
+        eddDate = eddDateToUse,
+        weekOfPregnancy = weekOfPregnancyToUse
+    )
+}
 
 data class PwrPost(
     val id: Long = 0,
@@ -333,6 +639,30 @@ data class PregnantWomanAncCache(
     var visitNumber: Int,
     var isActive: Boolean = true,
     var ancDate: Long = System.currentTimeMillis(),
+    var lmpDate: Long? = null,
+    var pregnancyTestAtFacility: Boolean? = null,
+    var uptResult: String? = null,
+    var uptResultId: Int = -1,
+
+    var visitDate: Long? = null,
+    var weekOfPregnancy: Int? = null,
+
+    var serialNo: String? = null,
+    var methodOfTermination: String? = null,
+    var methodOfTerminationId: Int? = 0,
+    var terminationDoneBy: String? = null,
+    var terminationDoneById: Int? = 0,
+    var isPaiucdId: Int? = 0,
+    var isYesOrNo: Boolean? = false,
+    var isPaiucd: String? = null,
+    var dateSterilisation: Long? = null,
+    var remarks: String? = null,
+    var abortionImg1: String? = null,
+    var abortionImg2: String? = null,
+    var placeOfDeath: String? = null,
+    var placeOfDeathId: Int? = 0,
+    var otherPlaceOfDeath: String? = null,
+
     var isAborted: Boolean = false,
     var abortionType: String? = null,
     var abortionTypeId: Int = 0,
@@ -340,18 +670,36 @@ data class PregnantWomanAncCache(
     var abortionFacilityId: Int = 0,
     var abortionDate: Long? = null,
     var weight: Int? = null,
+    var height: Int? = null,
+    val gravida: Int? = null,
+    val para: Int? = null,
+    val historyOfAbortions: Boolean? = null,
+    val previousLSCS: Boolean? = null,
+    val complicationsPrevPregnancy: String? = null,
+    val pastIllness: String? = null,
+    val vdrlRprTestResult: String? = null,
+    val vdrlRprTestResultId: Int? = null,
+    val dateOfVdrlRprTest: Long? = null,
+    val hivTestResult: String? = null,
+    val hivTestResultId: Int? = null,
+    val dateOfHivTest: Long? = null,
+    val hbsAgTestResult: String? = null,
+    val hbsAgTestResultId: Int? = null,
+    val dateOfHbsAgTest: Long? = null,
+    var numPrevPregnancy: Int? = null,
+    var otherComplication: String? = null,
     var bpSystolic: Int? = null,
     var bpDiastolic: Int? = null,
     var pulseRate: String? = null,
     var hb: Double? = null,
     var fundalHeight: Int? = null,
+    var anyHighRisk: Boolean? = null,
     var urineAlbumin: String? = null,
     var urineAlbuminId: Int = 0,
     var randomBloodSugarTest: String? = null,
     var randomBloodSugarTestId: Int = 0,
     var numFolicAcidTabGiven: Int = 0,
     var numIfaAcidTabGiven: Int = 0,
-    var anyHighRisk: Boolean? = null,
     var highRisk: String? = null,
     var highRiskId: Int = 0,
     var otherHighRisk: String? = null,
@@ -371,12 +719,39 @@ data class PregnantWomanAncCache(
     val createdDate: Long = System.currentTimeMillis(),
     var updatedBy: String,
     var updatedDate: Long = System.currentTimeMillis(),
-    var syncState: SyncState
+    var isFirstAncSubmitted: Boolean = false,
+    var syncState: SyncState,
+    var frontFilePath : String? = null,
+    var backFilePath : String? = null,
+
+    var bloodSugarFasting: Int? = null,  // Blood Sugar (Fasting) mg/dL
+    var urineSugar: String? = null,  // Urine Sugar dropdown value
+    var urineSugarId: Int = 0,  // Urine Sugar dropdown ID
+    var fetalHeartRate: Double? = null,  // FHR in bpm
+    var calciumGiven: Int = 0,  // Calcium tablets given
+    var dangerSigns: String? = null,  // Danger Signs dropdown value
+    var dangerSignsId: Int = 0,  // Danger Signs dropdown ID
+    var counsellingProvided: Boolean? = null,  // Counselling Yes/No
+    var counsellingTopics: String? = null,  // Counselling Topics value
+    var counsellingTopicsId: Int = 0,  // Counselling Topics ID
+    var nextAncVisitDate: Long? = null  // Next ANC Visit Date
 ) : FormDataModel {
-    fun asPostModel(benId: Long): ANCPost {
+    fun asPostModel(
+        benId: Long,
+        benRegId: Long? = null,
+        providerServiceMapID: Int? = null,
+        context: Context? = null,
+    ): ANCPost {
+        // abortionImg1/2 hold an internal-storage file path. The server expects
+        // base64 — encode here, lazily, so the DB row stays small. When no
+        // context is supplied (callers that aren't uploading), pass through as-is.
+        val img1ForUpload = context?.let { ImgUtils.encodeLocalImageValueForUpload(it, abortionImg1) } ?: abortionImg1
+        val img2ForUpload = context?.let { ImgUtils.encodeLocalImageValueForUpload(it, abortionImg2) } ?: abortionImg2
         return ANCPost(
             benId = benId,
+            benRedId = benRegId,
             ancDate = getDateStringFromLong(ancDate),
+            visitDate = getDateStringFromLong(visitDate ?: ancDate),
             isActive = true,
             ancVisit = visitNumber,
             isAborted = isAborted,
@@ -384,12 +759,18 @@ data class PregnantWomanAncCache(
             abortionFacility = abortionFacility,
             abortionDate = abortionDate?.let { getDateStringFromLong(it) },
             weightOfPW = weight,
+            pregnancyTestAtFacility = pregnancyTestAtFacility,
+            uptResult = uptResult,
             bpSystolic = bpSystolic,
             bpDiastolic = bpDiastolic,
             pulseRate = pulseRate?.toInt(),
             hb = hb,
             fundalHeight = fundalHeight,
-            urineAlbuminPresent = urineAlbumin == "Present",
+            urineAlbuminPresent = when (urineAlbumin) {
+                null, "Negative", "Trace", "Absent" -> false
+                "Present", "+", "++", "+++" -> true
+                else -> null
+            },
             bloodSugarTestDone = randomBloodSugarTest == "Done",
             folicAcidTabs = numFolicAcidTabGiven,
             ifaTabs = numIfaAcidTabGiven,
@@ -407,7 +788,29 @@ data class PregnantWomanAncCache(
             createdDate = getDateStringFromLong(createdDate),
             createdBy = createdBy,
             updatedDate = getDateStringFromLong(updatedDate),
-            updatedBy = updatedBy
+            updatedBy = updatedBy,
+            providerServiceMapID = providerServiceMapID,
+            filePath = frontFilePath,
+            serialNo = serialNo,
+            methodOfTermination = methodOfTermination,
+            methodOfTerminationId = methodOfTerminationId,
+            terminationDoneBy = terminationDoneBy,
+            terminationDoneById = terminationDoneById,
+            isPaiucdId = isPaiucdId,
+            isPaiucd = isPaiucd,
+            remarks = remarks,
+            abortionImg1 = img1ForUpload,
+            abortionImg2 = img2ForUpload,
+            dateSterilisation = dateSterilisation?.let { getDateStringFromLong(it) },
+            isYesOrNo = isYesOrNo
+//            bloodSugarFasting = bloodSugarFasting,
+//            urineSugar = urineSugar,
+//            fetalHeartRate = fetalHeartRate,
+//            calciumGiven = calciumGiven ?: 0,
+//            dangerSigns = dangerSigns,
+//            counsellingProvided = counsellingProvided,
+//            counsellingTopics = counsellingTopics,
+//            nextAncVisitDate = nextAncVisitDate?.let { getDateStringFromLong(it) }
         )
     }
 }
@@ -415,9 +818,13 @@ data class PregnantWomanAncCache(
 data class ANCPost(
     val id: Long = 0,
     val benId: Long = 0,
+    val benRedId: Long? = null,
     val ancDate: String? = null,
+    val visitDate: String? = null,
     val isActive: Boolean,
     val ancVisit: Int,
+    val pregnancyTestAtFacility: Boolean? = null,
+    val uptResult: String? = null,
     val isAborted: Boolean = false,
     val abortionType: String? = null,
     val abortionFacility: String? = null,
@@ -447,32 +854,97 @@ data class ANCPost(
     val createdDate: String? = null,
     val createdBy: String,
     val updatedDate: String? = null,
-    val updatedBy: String
+    val updatedBy: String,
+    val lmpDate: String? = null,
+    val providerServiceMapID: Int? = null,
+    val filePath: String? = null,
+    val serialNo: String? = null,
+    val methodOfTermination: String? = null,
+    val methodOfTerminationId: Int? = null,
+    val terminationDoneBy: String? = null,
+    val terminationDoneById: Int? = null,
+    val isPaiucdId: Int? = null,
+    val isPaiucd: String? = null,
+    val remarks: String? = null,
+    val abortionImg1: String? = null,
+    val abortionImg2: String? = null,
+    val placeOfDeath: String? = null,
+    val placeOfDeathId: Int? = null,
+    val otherPlaceOfDeath: String? = null,
+    val dateSterilisation: String? = null,
+    val isYesOrNo: Boolean? = null,
+    val placeOfAnc: String? = null,
+    val placeOfAncId: Int? = null,
+    // New ANC fields
+//    val bloodSugarFasting: Int? = null,
+//    val urineSugar: String? = null,
+//    val fetalHeartRate: Double? = null,
+//    val calciumGiven: Int? = null,
+//    val dangerSigns: String? = null,
+//    val counsellingProvided: Boolean? = null,
+//    val counsellingTopics: String? = null,
+//    val nextAncVisitDate: String? = null
 ) {
     fun toAncCache(): PregnantWomanAncCache {
+        val resolvedAbortionType = abortionType ?: methodOfTermination
+        val resolvedAbortionFacility = abortionFacility ?: terminationDoneBy
+
         return PregnantWomanAncCache(
             id = id,
             patientID = "",
             visitNumber = ancVisit,
-            ancDate = getLongFromDate(ancDate),
+            ancDate = getLongFromDate(ancDate ?: visitDate),
+            pregnancyTestAtFacility = pregnancyTestAtFacility,
+            uptResult = uptResult,
+            uptResultId = when(uptResult) {
+                "Positive" -> 0
+                "Negative" -> 1
+                else -> -1
+            },
             isAborted = isAborted,
-            abortionType = abortionType,
-//            abortionTypeId =
-            abortionFacility = abortionFacility,
-//            abortionFacilityId
+            abortionType = resolvedAbortionType,
+            abortionTypeId = when(resolvedAbortionType) {
+                "Induced" -> 0
+                "Spontaneous" -> 1
+                else -> methodOfTerminationId ?: -1
+            }.let { if (it < 0) 0 else it },
+            abortionFacility = resolvedAbortionFacility,
+            abortionFacilityId = when(resolvedAbortionFacility) {
+                "Govt. Hospital" -> 0
+                "Pvt. Hospital" -> 1
+                else -> terminationDoneById ?: -1
+            }.let { if (it < 0) 0 else it },
             abortionDate = getLongFromDate(abortionDate),
             weight = weightOfPW,
             bpSystolic = bpSystolic,
             bpDiastolic = bpDiastolic,
-            pulseRate = pulseRate.toString(),
+            pulseRate = pulseRate?.toString(),
             hb = hb,
             fundalHeight = fundalHeight,
-            urineAlbumin = if (urineAlbuminPresent == true) "Present" else "Absent",
+            urineAlbumin = when (urineAlbuminPresent) {
+                true -> "+"
+                false -> "Negative"
+                null -> null
+            },
 //            urineAlbuminId
             randomBloodSugarTest = if (bloodSugarTestDone == true) "Done" else "Not Done",
 //            randomBloodSugarTestId
             numFolicAcidTabGiven = folicAcidTabs,
             numIfaAcidTabGiven = ifaTabs,
+            serialNo = serialNo,
+            methodOfTermination = methodOfTermination,
+            methodOfTerminationId = methodOfTerminationId ?: 0,
+            terminationDoneBy = terminationDoneBy,
+            terminationDoneById = terminationDoneById ?: 0,
+            isPaiucdId = isPaiucdId ?: 0,
+            isPaiucd = isPaiucd,
+            remarks = remarks,
+            visitDate = getLongFromDate(visitDate).takeIf { it > 0L }
+                ?: getLongFromDate(ancDate ?: visitDate),
+            isYesOrNo = isYesOrNo,
+            abortionImg1 = abortionImg1,
+            abortionImg2 = abortionImg2,
+            dateSterilisation = getLongFromDate(dateSterilisation),
             anyHighRisk = isHighRisk,
             highRisk = highRiskCondition,
 //            highRiskId
@@ -493,7 +965,18 @@ data class ANCPost(
             createdDate = getLongFromDate(createdDate),
             updatedBy = updatedBy,
             updatedDate = getLongFromDate(updatedDate),
-            syncState = SyncState.SYNCED
+            syncState = SyncState.SYNCED,
+            frontFilePath = filePath,
+            backFilePath = null,
+            // Map new ANC fields
+//            bloodSugarFasting = bloodSugarFasting,
+//            urineSugar = urineSugar,
+//            fetalHeartRate = fetalHeartRate,
+//            calciumGiven = calciumGiven ?: 0,
+//            dangerSigns = dangerSigns,
+//            counsellingProvided = counsellingProvided,
+//            counsellingTopics = counsellingTopics,
+//            nextAncVisitDate = getLongFromDate(nextAncVisitDate)
         )
     }
 }
@@ -580,3 +1063,39 @@ data class ANCPost(
 //    val showViewAnc: Boolean = anc.isEmpty(),
 //    val syncState: SyncState?
 //)
+
+data class AncDueListItem(
+    val patientID: String,
+    val gestationalAgeWeeks: Int,
+    val ancStage: Int
+)
+
+data class AncCompletedListItem(
+    val patientID: String,
+    val ancStage: Int,
+    val visitNumber: Int
+)
+
+
+@Entity(
+    tableName = "ASHA_DUE_LIST",
+    foreignKeys = [ForeignKey(
+        entity = Patient::class,
+        parentColumns = arrayOf("patientID"),
+        childColumns = arrayOf("patientID"),
+        onUpdate = ForeignKey.CASCADE,
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index(name = "ind_asha_due", value = ["patientID", "listType"], unique = true)]
+)
+data class AshaDueListCache(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val patientID: String,
+    val beneficiaryID: Long? = null,
+    val listType: String = "ANC",
+    val addedDate: Long = System.currentTimeMillis(),
+    val ashaId: Int = 0,
+    val createdBy: String,
+    var syncState: SyncState = SyncState.UNSYNCED
+)

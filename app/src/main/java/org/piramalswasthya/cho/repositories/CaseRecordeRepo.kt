@@ -26,11 +26,20 @@ import javax.inject.Inject
 class CaseRecordeRepo @Inject constructor(
     private val caseRecordDao: CaseRecordeDao,
     private val benFlowDao: BenFlowDao,
+    private val procedureRepo: ProcedureRepo,
 ) {
     suspend fun saveInvestigationToCatche(investigationCaseRecord: InvestigationCaseRecord) {
         try{
             withContext(Dispatchers.IO){
                 caseRecordDao.insertInvestigationCaseRecord(investigationCaseRecord)
+                // Copy prescribed lab procedures from master so lab technician can render form from DB without API
+                investigationCaseRecord.benVisitNo?.let { benVisitNo ->
+                    procedureRepo.copyProceduresFromMasterForVisit(
+                        investigationCaseRecord.patientID,
+                        benVisitNo,
+                        investigationCaseRecord.newTestIds
+                    )
+                }
             }
         } catch (e: Exception){
             Timber.d("Error in saving Investigation $e")
@@ -73,17 +82,20 @@ class CaseRecordeRepo @Inject constructor(
         return caseRecordDao.getPrescriptionCasesRecordId(prescriptionId)
     }
     suspend fun getPrescriptionByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): List<PrescriptionCaseRecord?> {
-        return caseRecordDao.getPrescriptionByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+        val visitNo = benVisitInfo.benVisitNo ?: return emptyList()
+        return caseRecordDao.getPrescriptionByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, visitNo)
     }
     fun getDiagnosis(diagnosisId:String): LiveData<DiagnosisCaseRecord> {
         return caseRecordDao.getDiagnosisCasesRecordById(diagnosisId)
     }
     suspend fun getDiagnosisByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): List<DiagnosisCaseRecord?> {
-        return caseRecordDao.getDiagnosisByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+        val visitNo = benVisitInfo.benVisitNo ?: return emptyList()
+        return caseRecordDao.getDiagnosisByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, visitNo)
     }
 
     suspend fun getInvestigationCasesRecordByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): InvestigationCaseRecord? {
-        return caseRecordDao.getPrescriptionCasesRecordByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+        val visitNo = benVisitInfo.benVisitNo ?: return null
+        return caseRecordDao.getPrescriptionCasesRecordByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, visitNo)
     }
 
     suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){

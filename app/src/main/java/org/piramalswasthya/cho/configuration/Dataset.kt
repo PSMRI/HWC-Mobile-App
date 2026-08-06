@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.res.Resources
 import android.util.Range
 import androidx.annotation.StringRes
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
@@ -40,9 +42,17 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
      * Helper function to get resource instance chosen language.
      */
 
-    protected companion object {
+    companion object {
+        const val DATE_FORMAT_DD_MM_YYYY = "dd/MM/yyyy"
+
         fun getLongFromDate(dateString: String?): Long {
             val f = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+            val date = dateString?.let { f.parse(it) }
+            return date?.time ?: 0L
+        }
+
+        fun getLongFromDate(dateString: String?, format: String): Long {
+            val f = SimpleDateFormat(format, Locale.ENGLISH)
             val date = dateString?.let { f.parse(it) }
             return date?.time ?: 0L
         }
@@ -52,9 +62,9 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
             val date = dateString?.let { f.parse(it) }
             return date?.let {
                 if (it.month >= 3) {
-                    "" + (it.year + 1900) + " - " + (it.year + 1902)
+                    "" + (it.year + 1900) + " - " + (it.year + 1901)
                 } else {
-                    "" + (it.year + 1899) + " - " + (it.year + 1901)
+                    "" + (it.year + 1899) + " - " + (it.year + 1900)
                 }
             }
         }
@@ -75,8 +85,14 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
             cal.timeInMillis = dateLong
             val f = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
             return f.format(cal.time)
+        }
 
-
+        fun getDateFromLong(dateLong: Long, format: String): String? {
+            if (dateLong == 0L) return null
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = dateLong
+            val f = SimpleDateFormat(format, Locale.ENGLISH)
+            return f.format(cal.time)
         }
 
         fun getMinDateOfReg(): Long {
@@ -97,6 +113,18 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
 
     private val _alertErrorMessageFlow = MutableStateFlow<String?>(null)
     val alertErrorMessageFlow = _alertErrorMessageFlow.asStateFlow()
+
+    /** Signals that a specific FormElement's row needs the adapter to call
+     *  notifyItemChanged. Used when we mutate a FormElement's `value` in place
+     *  (e.g. "None" mutual exclusion) — DiffUtil cannot detect it because the
+     *  list still holds the same reference, so the fragment must force a
+     *  rebind explicitly. */
+    private val _forceRefreshIdFlow = MutableSharedFlow<Int>(extraBufferCapacity = 8)
+    val forceRefreshIdFlow = _forceRefreshIdFlow.asSharedFlow()
+
+    protected fun forceRefreshId(id: Int) {
+        _forceRefreshIdFlow.tryEmit(id)
+    }
 
     suspend fun resetErrorMessageFlow() {
         _alertErrorMessageFlow.emit(null)
@@ -119,23 +147,37 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
 
     abstract fun mapValues(cacheModel: FormDataModel, pageNumber: Int = 0)
     protected fun getIndexOfElement(element: FormElement) = list.indexOf(element)
+    protected fun getFormList(): List<FormElement> = list
     suspend fun updateList(formId: Int, index: Int) {
-        list.find { it.id == formId }?.let {
+        val formElement = list.find { it.id == formId }
+        val previousErrorText = formElement?.errorText
+        formElement?.let {
             if (it.inputType == InputType.DROPDOWN) {
                 it.errorText = null
             }
         }
         val updateIndex = handleListOnValueChanged(formId, index)
-        if (updateIndex != -1) {
+        val currentErrorText = formElement?.errorText
+        val errorStateChanged = previousErrorText != currentErrorText
+        
+        // Emit list if:
+        // 1. updateIndex != -1 (list structure changed - fields added/removed), OR
+        // 2. Error state changed (for validation feedback)
+        // NOTE: We don't emit when only value changes (not error) to prevent unnecessary rebinds
+        // that could reset EditText fields while user is typing
+        if (updateIndex != -1 || errorStateChanged) {
             val newList = list.toMutableList()
-//            if (updateUIForCurrentElement) {
-//                Timber.d("Updating UI element ...")
-//                newList[updateIndex] = list[updateIndex].cloneForm()
-//                updateUIForCurrentElement = false
-//            }
-            Timber.d("Emitting ${newList}}")
-//            _listFlow.emit(emptyList())
+            Timber.d("Emitting list (updateIndex=$updateIndex, errorChanged=$errorStateChanged)")
             _listFlow.emit(newList)
+            // The list emission alone is not enough when only errorText was
+            // mutated in place: DiffUtil's areContentsTheSame compares the same
+            // FormElement reference on both sides, so the change is invisible
+            // and the row stays visually stale. Force a rebind on this row.
+            if (errorStateChanged && updateIndex == -1 && formElement?.inputType != InputType.EDIT_TEXT) {
+                forceRefreshId(formId)
+            }
+        } else {
+            Timber.d("Skipping list emission (only value changed, no structural or error changes)")
         }
     }
 
@@ -733,12 +775,14 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
         else {
             val sys = matchResult.groupValues[1].toInt()
             val dia = matchResult.groupValues[2].toInt()
-            bp.errorText = if (sys < minSys) "Systole should not be less than $minSys"
-            else if (sys > maxSys) "Systole should not be greater than $maxSys"
-            else if (dia < minDia) "Diastole should not be less then $minDia"
-            else if (dia > maxDia) "Diastole should not be greater than $maxDia"
-            else if (dia > sys) "Diastole cannot be greater than systole"
-            else null
+            bp.errorText = when {
+                sys < minSys -> "Systolic should not be less than $minSys"
+                sys > maxSys -> "Systolic should not be greater than $maxSys"
+                dia < minDia -> "Diastolic should not be less than $minDia"
+                dia > maxDia -> "Diastolic should not be greater than $maxDia"
+                dia > sys -> "Diastolic cannot be greater than systolic"
+                else -> null
+            }
         }
         return -1
 
@@ -779,18 +823,68 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
 
     fun getLocalValueInArray(arrayId: Int, entry: String?): String? {
         entry?.let {
-            return resources.getStringArray(arrayId)[englishResources.getStringArray(arrayId)
-                .indexOf(it)]
+            val englishArray = englishResources.getStringArray(arrayId)
+            val index = englishArray.indexOf(it)
+            if (index != -1) {
+                return resources.getStringArray(arrayId)[index]
+            }
+            // Value may already be in the local language — check the local array
+            val localArray = resources.getStringArray(arrayId)
+            if (localArray.contains(it)) {
+                return it
+            }
+            return it // Fallback: return the entry as-is to avoid crash
         }
         return null
     }
 
     fun getEnglishValueInArray(arrayId: Int, entry: String?): String? {
         entry?.let {
-            return englishResources.getStringArray(arrayId)[resources.getStringArray(arrayId)
-                .indexOf(it)]
+            val localArray = resources.getStringArray(arrayId)
+            val index = localArray.indexOf(it)
+            if (index != -1) {
+                return englishResources.getStringArray(arrayId)[index]
+            }
+            // Value may already be in English — check the English array
+            val englishArray = englishResources.getStringArray(arrayId)
+            if (englishArray.contains(it)) {
+                return it
+            }
+            return it // Fallback: return the entry as-is to avoid crash
         }
         return null
+    }
+
+    /**
+     * Multi-select variant of [getLocalValueInArray]. Splits a comma-separated
+     * stored value (typically what FormElement uses for CHECKBOXES) and re-localizes
+     * each item, returning a comma-joined string in the current locale.
+     */
+    fun getLocalValuesInArray(arrayId: Int, entry: String?): String? {
+        if (entry.isNullOrBlank()) return null
+        return entry.split(",")
+            .mapNotNull { raw ->
+                getLocalValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
+            }
+            .distinct()
+            .joinToString(",")
+            .takeIf { it.isNotBlank() }
+    }
+
+    /**
+     * Multi-select variant of [getEnglishValueInArray]. Splits a comma-separated
+     * displayed value and converts each item to its English canonical form so the
+     * persisted DB value is locale-neutral.
+     */
+    fun getEnglishValuesInArray(arrayId: Int, entry: String?): String? {
+        if (entry.isNullOrBlank()) return null
+        return entry.split(",")
+            .mapNotNull { raw ->
+                getEnglishValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
+            }
+            .distinct()
+            .joinToString(",")
+            .takeIf { it.isNotBlank() }
     }
 
 }

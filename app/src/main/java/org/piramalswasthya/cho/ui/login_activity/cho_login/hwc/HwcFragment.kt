@@ -328,7 +328,7 @@ class HwcFragment constructor(
                     findNavController().navigateUp()
                 else {
                     MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.logout))
-                        .setMessage("Please confirm to logout and exit.")
+                        .setMessage(getString(R.string.please_confirm_logout_exit))
                         .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
                             lifecycleScope.launch {
                                 val user = userDao.getLoggedInUser()
@@ -451,10 +451,10 @@ class HwcFragment constructor(
         timestamp = formatter.format(Date())
 
         val alertDialogBuilder = AlertDialog.Builder(activity)
-        alertDialogBuilder.setMessage("You are trying to Log-in away from your facility. Do you want to retry?")
-            .setTitle("Alert!")
+        alertDialogBuilder.setMessage(getString(R.string.login_away_from_facility))
+            .setTitle(getString(R.string.alert_popup))
             .setCancelable(false)
-            .setPositiveButton("Yes") { d, _ ->
+            .setPositiveButton(getString(R.string.yes)) { d, _ ->
                 lifecycleScope.launch {
                     val user = userDao.getLoggedInUser()
                     userDao.resetAllUsersLoggedInState()
@@ -465,7 +465,7 @@ class HwcFragment constructor(
                 d.dismiss()
                 findNavController().navigateUp()
             }
-            .setNegativeButton("No") { d, _ ->
+            .setNegativeButton(getString(R.string.no)) { d, _ ->
                 lifecycleScope.launch {
                     viewModel.setOutreachDetails(
                         "HWC",

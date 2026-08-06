@@ -30,6 +30,11 @@ class TokenInsertTmcInterceptor : Interceptor{
             return AuthTokenManager.getTmcCredentials().jwt
         }
 
+        fun clearTokens() {
+            TOKEN = ""
+            JWT = ""
+        }
+
     }
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -38,7 +43,7 @@ class TokenInsertTmcInterceptor : Interceptor{
             val tmcCredentials = AuthTokenManager.getTmcCredentials()
             request = request
                 .newBuilder()
-                .addHeader("Authorization", tmcCredentials.token)
+//                 .addHeader("Authorization", tmcCredentials.token)
                 .addHeader("Jwttoken" , tmcCredentials.jwt)
                 .build()
         }

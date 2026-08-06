@@ -102,7 +102,7 @@ data class PatientVisitInfoSync(
         doctorDataSynced = SyncState.SYNCED,
         labDataSynced = SyncState.SYNCED,
         pharmacistDataSynced = SyncState.SYNCED,
-        visitCategory = benFlow.VisitCategory ?: "",
+        visitCategory = benFlow.VisitCategory?.takeIf { it.isNotBlank() } ?: "General OPD",
         visitDate = benFlow.visitDate?.let {
             try {
                 val inputFormat = SimpleDateFormat("MMM d, yyyy, h:mm:ss a", Locale.ENGLISH)

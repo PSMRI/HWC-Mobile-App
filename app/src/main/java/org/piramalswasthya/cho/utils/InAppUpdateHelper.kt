@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentSender
 import android.net.Uri
 import android.util.Log
-import com.google.android.datatransport.BuildConfig
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -16,6 +15,7 @@ import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
+import org.piramalswasthya.cho.BuildConfig
 import org.piramalswasthya.cho.R
 
 class InAppUpdateHelper(
@@ -140,9 +140,9 @@ class InAppUpdateHelper(
     private fun showUpdateDownloadedSnackbar() {
         Snackbar.make(
             activity.findViewById(android.R.id.content),
-            "An update is ready to install.",
+            activity.getString(org.piramalswasthya.cho.R.string.update_ready_to_install),
             Snackbar.LENGTH_INDEFINITE
-        ).setAction("Restart") {
+        ).setAction(activity.getString(org.piramalswasthya.cho.R.string.restart)) {
             appUpdateManager.completeUpdate()
         }.show()
     }
@@ -150,9 +150,9 @@ class InAppUpdateHelper(
     private fun showRetrySnackbar() {
         Snackbar.make(
             activity.findViewById(android.R.id.content),
-            "Update was canceled or failed.",
+            activity.getString(org.piramalswasthya.cho.R.string.update_canceled_or_failed),
             Snackbar.LENGTH_LONG
-        ).setAction("Try Again") {
+        ).setAction(activity.getString(org.piramalswasthya.cho.R.string.try_again_btn)) {
             checkForUpdate()
         }.show()
     }

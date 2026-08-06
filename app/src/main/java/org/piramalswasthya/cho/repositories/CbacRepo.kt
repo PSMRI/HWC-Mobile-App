@@ -113,6 +113,11 @@ class CbacRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val user = userRepo.getLoggedInUser()
                 ?: throw IllegalStateException("No user logged in!!")
+            val facilityID = user.facilityID
+            if (facilityID == null) {
+                Timber.w("pushUnSyncedCbacRecords: logged-in user has no facilityID; skipping CBAC sync")
+                return@withContext false
+            }
 
             val cbacCacheList: List<CbacCache> =
                 cbacDao.getAllUnprocessedCbac(SyncState.UNSYNCED)
@@ -140,14 +145,14 @@ class CbacRepo @Inject constructor(
                             visitDetails = VisitDetailsWrapper(
                             visitDetails = CbacVisitDetails(
                                 beneficiaryRegID = patient.beneficiaryRegID!!,
-                                providerServiceMapID = userRepo.getLoggedInUser()!!.serviceMapId,
+                                providerServiceMapID = user.serviceMapId,
                                 visitNo = null ,
                                 visitReason = "New Chief Complaint",
                                 visitCategory = "NCD screening",
                                 IdrsOrCbac = "CBAC",
                                 createdBy = user.userName,
-                                vanID = userRepo.getLoggedInUser()!!.vanId,
-                                parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId,
+                                facilityID = facilityID,
+                                parkingPlaceID = user.parkingPlaceId,
                                 subVisitCategory = null,
                                 pregnancyStatus = null,
                                 followUpForFpMethod = null,
@@ -164,12 +169,12 @@ class CbacRepo @Inject constructor(
                             benFlowID = patient.beneficiaryRegID!!,
                             beneficiaryID = patient.beneficiaryID!!,
                             sessionID = 3,
-                            parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId,
+                            parkingPlaceID = user.parkingPlaceId,
                             createdBy = user.userName,
-                            vanID = userRepo.getLoggedInUser()!!.vanId,
+                            facilityID = facilityID,
                             beneficiaryRegID = patient.beneficiaryRegID!!,
                             benVisitID = null,
-                            providerServiceMapID = userRepo.getLoggedInUser()!!.serviceMapId
+                            providerServiceMapID = user.serviceMapId
                         )
 
                         try {

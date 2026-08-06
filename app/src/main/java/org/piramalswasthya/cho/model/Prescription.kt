@@ -170,7 +170,7 @@ data class PharmacistItemStockExitDataRequest(
 data class PharmacistPatientIssueDataRequest(
     val issuedBy: String,
     val visitCode: Long?,
-    val facilityID: Int,
+    val facilityID: Int?,
     val age: Int?,
     val beneficiaryID: Long?,
     val benRegID: Long,
@@ -185,7 +185,6 @@ data class PharmacistPatientIssueDataRequest(
     val visitID: Long?,
     val visitDate: String?,
     val parkingPlaceID: Int?,
-    val vanID: Int?,
     var itemStockExit: List<PharmacistItemStockExitDataRequest>
 )
 

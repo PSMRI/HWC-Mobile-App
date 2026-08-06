@@ -30,6 +30,7 @@ data class ReferData(
     val createdDate: String?,
     val lastModDate: String?,
     val vanID: Int?,
+    val facilityID: Int?,
     val parkingPlaceID: Int?,
     val refrredToAdditionalServiceList: List<String>,
     val referralReason: String?,

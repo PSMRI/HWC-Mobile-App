@@ -34,15 +34,15 @@ class OutreachActivity : AppCompatActivity() {
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.outreachActiviityListFragment -> {
-                    binding.headerTextRegisterPatient.text = "Previous Activity"
+                    binding.headerTextRegisterPatient.text = getString(R.string.previous_activity)
                     binding.plusButton.visibility = View.VISIBLE
                 }
                 R.id.outreachActivityDetailsFragment -> {
-                    binding.headerTextRegisterPatient.text = "Activity Details"
+                    binding.headerTextRegisterPatient.text = getString(R.string.activity_details)
                     binding.plusButton.visibility = View.GONE
                 }
                 R.id.outreachActivityFormFragment -> {
-                    binding.headerTextRegisterPatient.text = "Activity Form"
+                    binding.headerTextRegisterPatient.text = getString(R.string.activity_form)
                     binding.plusButton.visibility = View.GONE
                 }
             }

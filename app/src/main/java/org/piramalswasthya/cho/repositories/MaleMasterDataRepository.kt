@@ -14,6 +14,7 @@ import org.json.JSONObject
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.model.AlcoholDropdown
@@ -44,6 +45,7 @@ class MaleMasterDataRepository @Inject constructor(
     private val chiefComplaintMasterDao: ChiefComplaintMasterDao,
     private val subCatVisitDao: SubCatVisitDao,
     private val historyDao: HistoryDao,
+    private val procedureMasterDao: ProcedureMasterDao,
     private val userRepo: UserRepo,
     private val userDao: UserDao,
 ) {
@@ -309,9 +311,18 @@ class MaleMasterDataRepository @Inject constructor(
         return chiefComplaintMasterDao.getChiefCompMasterMap().associate {
             it.chiefComplaintID to it.chiefComplaint}
     }
-    suspend fun getProcedureTypeByNameMap():Map<Int,String>{
-        return historyDao.getProceduresMap().associate {
-            it.procedureID to it.procedureName
+    /**
+     * Returns procedure ID -> name for doctor's lab test dropdown.
+     * Uses procedure_master first (so IDs match lab record form); falls back to Procedures_Master_Data if empty.
+     */
+    suspend fun getProcedureTypeByNameMap(): Map<Int, String> {
+        val fromProcedureMaster = procedureMasterDao.getAllProcedures()
+        return if (fromProcedureMaster.isNotEmpty()) {
+            fromProcedureMaster.associate { it.procedureID.toInt() to it.procedureName }
+        } else {
+            historyDao.getProceduresMap().associate {
+                it.procedureID to it.procedureName
+            }
         }
     }
 }

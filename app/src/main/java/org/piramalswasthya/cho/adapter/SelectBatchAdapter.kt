@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.adapter
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
@@ -42,7 +43,7 @@ class SelectBatchAdapter(
         fun bind(
             item: PrescriptionBatchDTO,
         ) {
-            binding.tvExpiryDate.text = DateTimeUtil.formatDateStr(item.expiryDate)
+            binding.tvExpiryDate.text = item.expiryDate
             binding.tvQuantityInHand.text = "In Hand Qty: ${item.qty.toString()}"
             binding.tvBatchNo.text = "Batch No: ${item.batchNo.toString()}"
             binding.checkboxSelect.setOnCheckedChangeListener(null)

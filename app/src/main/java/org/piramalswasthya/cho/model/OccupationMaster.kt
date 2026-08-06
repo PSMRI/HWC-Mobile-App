@@ -1,4 +1,4 @@
-package org.piramalswasthya.cho.moddel
+package org.piramalswasthya.cho.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

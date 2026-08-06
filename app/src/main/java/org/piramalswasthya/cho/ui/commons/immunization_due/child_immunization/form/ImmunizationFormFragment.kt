@@ -1,6 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.form
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +29,7 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.OtherCPHCServicesViewModel
 import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.form.ImmunizationFormViewModel.State
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+
 import org.piramalswasthya.cho.utils.generateUuid
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -166,9 +166,7 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter{
             CPHCviewModel.isDataSaved.observe(viewLifecycleOwner){
                 when(it!!){
                     true ->{
-                        WorkerUtils.triggerAmritSyncWorker(requireContext())
-                        val intent = Intent(context, HomeActivity::class.java)
-                        startActivity(intent)
+                        WorkerUtils.enqueueUpsync(requireContext(), WorkerUtils.UpsyncScope.IMMUNIZATION)
                         requireActivity().finish()
                     }
                     else ->{

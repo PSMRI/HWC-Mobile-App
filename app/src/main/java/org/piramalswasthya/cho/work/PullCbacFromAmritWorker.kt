@@ -50,12 +50,12 @@ class PullCbacFromAmritWorker @AssistedInject constructor(
                 preferenceDao.setLastCbacSyncTime(currTimeStamp)
             }
 
-            val benflowResult = benFlowRepo.downloadAndSyncFlowRecords()
-            if (benflowResult) {
-                preferenceDao.setLastBenflowSyncTime(currTimeStamp)
-            }
-
-            Timber.d("Cbac + Benflow Download Worker completed")
+            // NOTE: the benflow worklist refresh that used to run here was redundant — the benflow
+            // payload is already downloaded and the role worklists built by PullBenFlowFromAmritWorker
+            // immediately before this worker, and PullClinicalRecordsWorker re-pulls it once more for
+            // the case-data pass. Downloading/iterating the full payload a third time only slowed sync,
+            // so this worker now pulls CBAC only.
+            Timber.d("Cbac download worker completed")
             Result.success()
 //            }
         } catch (e: SocketTimeoutException) {

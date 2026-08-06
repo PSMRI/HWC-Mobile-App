@@ -154,7 +154,7 @@ class OutreachFragment(
 //        getCurrentLocation()
         if (isBiometric) {
             binding.tilPassword.visibility = View.GONE
-            binding.btnOutreachLogin.text = "Proceed to Home"
+            binding.btnOutreachLogin.text = getString(R.string.proceed_to_home)
         }else {
             binding.tilPassword.visibility = View.VISIBLE
             if (!viewModel.fetchRememberedPassword().isNullOrBlank()) {
@@ -175,7 +175,7 @@ class OutreachFragment(
                 if (faces.isEmpty()) {
                     Timber.d("Invalid Image!")
                     validImage = false
-                    Toast.makeText(requireContext(), "Invalid Image! Try Again", Toast.LENGTH_SHORT)
+                    Toast.makeText(requireContext(), getString(R.string.invalid_image_try_again), Toast.LENGTH_SHORT)
                         .show()
                 }
                 if (faces.size > 1) {
@@ -184,7 +184,7 @@ class OutreachFragment(
                     binding.imageView.setImageResource(R.drawable.placeholder_image)
                     Toast.makeText(
                         requireContext(),
-                        "Invalid Image! Multiple Faces Detected",
+                        getString(R.string.invalid_image_multiple_faces),
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
@@ -195,7 +195,7 @@ class OutreachFragment(
                 // Handle any errors
                 validImage = false
                 binding.imageView.setImageResource(R.drawable.placeholder_image)
-                Toast.makeText(context, "Exception! Image Processing Failed", Toast.LENGTH_SHORT)
+                Toast.makeText(context, getString(R.string.exception_image_processing_failed), Toast.LENGTH_SHORT)
                     .show()
             }
     }
@@ -220,7 +220,7 @@ class OutreachFragment(
                 Timber.d("Eyes Are Closed")
                 validImage = false
                 binding.imageView.setImageResource(R.drawable.placeholder_image)
-                Toast.makeText(requireContext(), "Eyes Closed! Try Again", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), getString(R.string.eyes_closed_try_again), Toast.LENGTH_SHORT)
                     .show()
                 // At least one eye is closed, possibly not live face
                 // Implement your logic for an inactive or spoofed face
@@ -237,7 +237,7 @@ class OutreachFragment(
         }
         outreachAdapter = OutreachDropdownAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, outreachList.map { it.outreachType })
         binding.outreachText.setAdapter(outreachAdapter)
-        binding.outreachText.setText("Home Visit",false)
+        binding.outreachText.setText(getString(R.string.home_visit), false)
         viewModel.outreachList.observe(viewLifecycleOwner){ c->
             outreachList.clear()
             outreachList.addAll(c)
@@ -343,7 +343,7 @@ class OutreachFragment(
             }
         }
             else{
-                Toast.makeText(context, "Please capture the image to continue.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.please_capture_image_to_continue), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -356,7 +356,7 @@ class OutreachFragment(
                     findNavController().navigateUp()
                 else {
                     MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.logout))
-                        .setMessage("Please confirm to logout and exit.")
+                        .setMessage(getString(R.string.please_confirm_logout_exit))
                         .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
                             lifecycleScope.launch {
                                 val user = userDao.getLoggedInUser()

@@ -18,7 +18,7 @@ data class PrescriptionUpsync(
     val sctCode: String?,
     val sctTerm: String?,
     val createdBy: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
     val parkingPlaceID: Int?,
     val isEDL: Boolean?,
 ){
@@ -53,7 +53,7 @@ data class PrescriptionUpsync(
         null,
         null,
         user?.userName,
-        user?.vanId,
+        user?.facilityID,
         user?.parkingPlaceId,
         true
     )

@@ -48,7 +48,7 @@ data class CardioVascularExamination(
     val pericardialRub: String?,
     val providerServiceMapID: String?,
     val secondHeartSound_S2: String?,
-    val vanID: Int?
+    val facilityID: Int?
 ){
     constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
@@ -64,7 +64,7 @@ data class CardioVascularExamination(
         null,
         user?.serviceMapId.toString(),
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -83,7 +83,7 @@ data class CentralNervousSystemExamination(
     val sensorySystem: String?,
     val signsOfMeningealIrritation: String?,
     val skull: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    autonomicSystem: null
 //    benVisitID: null
 //    beneficiaryRegID: "33195"
@@ -113,7 +113,7 @@ data class CentralNervousSystemExamination(
         null,
         null,
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -133,7 +133,7 @@ data class GastroIntestinalExamination(
     val parkingPlaceID: Int?,
     val percussion: String?,
     val providerServiceMapID: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    analRegion: null
 //    auscultation: null
 //    benVisitID: null
@@ -165,7 +165,7 @@ data class GastroIntestinalExamination(
         user?.parkingPlaceId,
         null,
         user?.serviceMapId.toString(),
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -196,7 +196,7 @@ data class GeneralExamination(
     val quickening: String?,
     val typeOfDangerSigns: String?,
     val typeOfLymphadenopathy: String?,
-    val vanID: Int?
+    val facilityID: Int?
 //    benVisitID: null
 //    beneficiaryRegID: "33195"
 //    builtAndAppearance:null
@@ -250,7 +250,7 @@ data class GeneralExamination(
         null,
         null,
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -264,7 +264,7 @@ data class GenitoUrinarySystemExamination(
     val providerServiceMapID: String?,
     val renalAngle: String?,
     val suprapubicRegion: String?,
-    val vanID: Int?,
+    val facilityID: Int?,
 //    benVisitID: null
 //    beneficiaryRegID: "33195"
 //    createdBy:"Pranathi"
@@ -284,7 +284,7 @@ data class GenitoUrinarySystemExamination(
         user?.serviceMapId.toString(),
         null,
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -310,7 +310,7 @@ data class HeadToToeExamination(
     val throat: String?,
     val trunk: String?,
     val upperLimbs: String?,
-    val vanID: Int?
+    val facilityID: Int?
 //    benVisitID: null
 //    beneficiaryRegID: "33195"
 //    breastAndNipples:null
@@ -354,7 +354,7 @@ data class HeadToToeExamination(
         null,
         null,
         null,
-        user?.vanId,
+        user?.facilityID,
     )
 }
 
@@ -374,7 +374,7 @@ data class MusculoskeletalSystemExamination(
     val spine: String?,
     val upperLimb_Abnormality: String?,
     val upperLimb_Laterality: String?,
-    val vanID: Int?
+    val facilityID: Int?
 //    benVisitID: null
 //    beneficiaryRegID: "33195"
 //    chestWall:null
@@ -406,7 +406,7 @@ data class MusculoskeletalSystemExamination(
         null,
         null,
         null,
-        user?.vanId
+        user?.facilityID
     )
 }
 
@@ -428,7 +428,7 @@ data class RespiratorySystemExamination(
     val providerServiceMapID: String?,
     val signsOfRespiratoryDistress: String?,
     val trachea: String?,
-    val vanID: Int?
+    val facilityID: Int?
 //    auscultation_BreathSounds: null
 //    auscultation_ConductedSounds: null
 //    auscultation_Crepitations: null
@@ -464,6 +464,6 @@ data class RespiratorySystemExamination(
         user?.serviceMapId.toString(),
         null,
         null,
-        user?.vanId
+        user?.facilityID
     )
 }

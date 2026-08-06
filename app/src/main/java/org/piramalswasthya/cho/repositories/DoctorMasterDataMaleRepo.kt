@@ -54,7 +54,7 @@ class DoctorMasterDataMaleRepo @Inject constructor(
 
             val response = amritApiService.getDoctorMasterData(
                 visitCategoryID, providerServiceMapID,
-                gender,facilityID,vanID, apiKey
+                gender,facilityID, apiKey
             )
 
             if (response.code() == 200) {
@@ -157,6 +157,10 @@ class DoctorMasterDataMaleRepo @Inject constructor(
 
     fun getItemMasterListById(id:Int): ItemMasterList {
         return healthCenterDao.getItemMasterListById(id)
+    }
+
+    suspend fun getItemMasterQtyInHandById(id: Int): Int {
+        return healthCenterDao.getItemMasterQtyInHandById(id) ?: 0
     }
 
     suspend fun getHigherHealthTypeByNameMap():Map<Int,String>{
