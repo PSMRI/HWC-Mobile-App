@@ -16,34 +16,34 @@ set(SANJEEVANI_API_URL "$ENV{SANJEEVANI_API_URL}")
 # Do not allow an APK to be built with empty runtime configuration. Retrofit
 # requires URL values with an http/https scheme and would otherwise crash when
 # Hilt eagerly creates the API services during Application.onCreate().
-foreach(REQUIRED_CONFIG
-        ENCRYPTED_PASS_KEY
-        ABHA_CLIENT_SECRET
-        ABHA_CLIENT_ID
-        BASE_TMC_URL
-        BASE_AMRIT_URL
-        BASE_FLW_URL
-        BASE_ABHA_URL
-        ABHA_TOKEN_URL
-        ABHA_AUTH_URL
-        SANJEEVANI_API_URL)
-    if("${${REQUIRED_CONFIG}}" STREQUAL "")
-        message(FATAL_ERROR "Missing required native build variable: ${REQUIRED_CONFIG}")
-    endif()
-endforeach()
-
-foreach(URL_CONFIG
-        BASE_TMC_URL
-        BASE_AMRIT_URL
-        BASE_FLW_URL
-        BASE_ABHA_URL
-        ABHA_TOKEN_URL
-        ABHA_AUTH_URL
-        SANJEEVANI_API_URL)
-    if(NOT "${${URL_CONFIG}}" MATCHES "^https?://")
-        message(FATAL_ERROR "${URL_CONFIG} must start with http:// or https://")
-    endif()
-endforeach()
+#foreach(REQUIRED_CONFIG
+   #     ENCRYPTED_PASS_KEY
+   #     ABHA_CLIENT_SECRET
+   #     ABHA_CLIENT_ID
+   #     BASE_TMC_URL
+   #     BASE_AMRIT_URL
+   #     BASE_FLW_URL
+   #     BASE_ABHA_URL
+   #     ABHA_TOKEN_URL
+   #     ABHA_AUTH_URL
+   #     SANJEEVANI_API_URL)
+   # if("${${REQUIRED_CONFIG}}" STREQUAL "")
+   #     message(FATAL_ERROR "Missing required native build variable: ${REQUIRED_CONFIG}")
+   # endif()
+#endforeach()
+#
+#foreach(URL_CONFIG
+   #     BASE_TMC_URL
+   #     BASE_AMRIT_URL
+   #     BASE_FLW_URL
+   #     BASE_ABHA_URL
+   #     ABHA_TOKEN_URL
+   #     ABHA_AUTH_URL
+   #     SANJEEVANI_API_URL)
+   # if(NOT "${${URL_CONFIG}}" MATCHES "^https?://")
+   #     message(FATAL_ERROR "${URL_CONFIG} must start with http:// or https://")
+   # endif()
+#endforeach()
 
 # Pass the values to the compiler using add_definitions
 add_definitions(

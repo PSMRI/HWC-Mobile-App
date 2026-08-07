@@ -20,7 +20,6 @@
 //const char* M_ABHA_TOKEN_URL = "ABHA_TOKEN_URL";
 //const char* M_ABHA_AUTH_URL = "ABHA_AUTH_URL";
 //const char* M_SANJEEVANI_API_URL = "SANJEEVANI_API_URL";
-//const char* M_CHAT_URL = "CHAT_URL";
 // ================== Production Constants (from Environment) ================== //
 // #else
  const char* M_ENCRYPTED_PASS_KEY = ENCRYPTED_PASS_KEY;
@@ -33,7 +32,6 @@
  const char* M_ABHA_TOKEN_URL = ABHA_TOKEN_URL;
  const char* M_ABHA_AUTH_URL = ABHA_AUTH_URL;
  const char* M_SANJEEVANI_API_URL = SANJEEVANI_API_URL;
- const char* M_CHAT_URL = CHAT_URL;
 // #endif
 
 // =================================================================== //
