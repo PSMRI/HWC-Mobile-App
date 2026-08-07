@@ -20,6 +20,11 @@ This app keeps sensitive ABHA credentials in native code instead of hardcoding t
 - `BASE_ABHA_URL`
 - `SANJEEVANI_API_URL`
 
+All URL values must include an `http://` or `https://` scheme. The native
+configuration step fails the build when a required value is missing or when a
+URL has no scheme; this prevents an APK from reaching Retrofit with a value
+such as `BASE_AMRIT_URL`.
+
 ## Kotlin Access Pattern
 
 `org.piramalswasthya.cho.utils.KeyUtils` loads the `cho` native library and exposes:

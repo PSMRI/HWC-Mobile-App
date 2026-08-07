@@ -4,29 +4,36 @@
 #define LOG_TAG "JNI_KEYS"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
+// Values are supplied by CMake from the CI environment at native compile time.
+// Do not replace these with quoted variable names: Retrofit needs the actual
+// URL value, not the name of the environment variable.
 
 // ================== Development Constants ================== //
 // #if IS_DEVELOPMENT
-const char* M_ENCRYPTED_PASS_KEY = "ENCRYPTED_PASS_KEY";
-const char* M_ABHA_CLIENT_SECRET = "ABHA_CLIENT_SECRET";
-const char* M_ABHA_CLIENT_ID = "ABHA_CLIENT_ID";
-const char* M_BASE_TMC_URL = "BASE_TMC_URL";
-const char* M_BASE_AMRIT_URL = "BASE_AMRIT_URL";
-const char* M_BASE_FLW_URL = "BASE_FLW_URL";
-const char* M_BASE_ABHA_URL = "BASE_ABHA_URL";
-const char* M_ABHA_TOKEN_URL = "ABHA_TOKEN_URL";
-const char* M_ABHA_AUTH_URL = "ABHA_AUTH_URL";
-const char* M_SANJEEVANI_API_URL = "SANJEEVANI_API_URL";
+//const char* M_ENCRYPTED_PASS_KEY = "ENCRYPTED_PASS_KEY";
+//const char* M_ABHA_CLIENT_SECRET = "ABHA_CLIENT_SECRET";
+//const char* M_ABHA_CLIENT_ID = "ABHA_CLIENT_ID";
+//const char* M_BASE_TMC_URL = "BASE_TMC_URL";
+//const char* M_BASE_AMRIT_URL = "BASE_AMRIT_URL";
+//const char* M_BASE_FLW_URL = "BASE_FLW_URL";
+//const char* M_BASE_ABHA_URL = "BASE_ABHA_URL";
+//const char* M_ABHA_TOKEN_URL = "ABHA_TOKEN_URL";
+//const char* M_ABHA_AUTH_URL = "ABHA_AUTH_URL";
+//const char* M_SANJEEVANI_API_URL = "SANJEEVANI_API_URL";
+//const char* M_CHAT_URL = "CHAT_URL";
 // ================== Production Constants (from Environment) ================== //
 // #else
-// const char* M_ENCRYPTED_PASS_KEY = ENCRYPTED_PASS_KEY;
-// const char* M_ABHA_CLIENT_SECRET = ABHA_CLIENT_SECRET;
-// const char* M_ABHA_CLIENT_ID = ABHA_CLIENT_ID;
-// const char* M_BASE_TMC_URL = BASE_TMC_URL;
-// const char* M_BASE_ABHA_URL = BASE_ABHA_URL;
-// const char* M_ABHA_TOKEN_URL = ABHA_TOKEN_URL;
-// const char* M_ABHA_AUTH_URL = ABHA_AUTH_URL;
-// const char* M_CHAT_URL = CHAT_URL;
+ const char* M_ENCRYPTED_PASS_KEY = ENCRYPTED_PASS_KEY;
+ const char* M_ABHA_CLIENT_SECRET = ABHA_CLIENT_SECRET;
+ const char* M_ABHA_CLIENT_ID = ABHA_CLIENT_ID;
+ const char* M_BASE_TMC_URL = BASE_TMC_URL;
+ const char* M_BASE_AMRIT_URL = BASE_AMRIT_URL;
+ const char* M_BASE_FLW_URL = BASE_FLW_URL;
+ const char* M_BASE_ABHA_URL = BASE_ABHA_URL;
+ const char* M_ABHA_TOKEN_URL = ABHA_TOKEN_URL;
+ const char* M_ABHA_AUTH_URL = ABHA_AUTH_URL;
+ const char* M_SANJEEVANI_API_URL = SANJEEVANI_API_URL;
+ const char* M_CHAT_URL = CHAT_URL;
 // #endif
 
 // =================================================================== //
