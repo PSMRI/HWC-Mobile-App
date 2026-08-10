@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -217,7 +218,18 @@ class UserRepo @Inject constructor(
             if (statusCode == 200) {
                 val responseString = response.body()?.string() ?: return@withContext false
                 val responseJson = JSONObject(responseString)
-                val data = responseJson.getJSONObject("data")
+
+                val statusCode = responseJson.optInt("statusCode")
+                var data: JSONObject?
+
+                if (statusCode == 200) {
+                    data = responseJson.optJSONObject("data")
+                } else {
+                    val errorMessage = responseJson.optString("errorMessage")
+                    Log.e("APIDataErrorResponse", errorMessage)
+                    return@withContext false
+                }
+
                 val vanSpDetailsArray = data.getJSONArray("UserVanSpDetails")
 
                 for (i in 0 until vanSpDetailsArray.length()) {
@@ -317,7 +329,7 @@ class UserRepo @Inject constructor(
                     TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
                     preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
-                    val dhisToken = data.getString("dhistoken")
+                    val dhisToken = data.optString("dhistoken", "").nullIfEmpty()
                     val userId = data.getInt("userID")
                     Timber.d("Token", token.toString())
                     val privilegesArray = data.getJSONArray("previlegeObj")
@@ -348,7 +360,7 @@ class UserRepo @Inject constructor(
                     user?.serviceMapId = serviceMapId
                     applyFacilityDataFromLoginResponse(data)
                     TokenInsertTmcInterceptor.setToken(token)
-                    preferenceDao.saveDhisToken(dhisToken)
+                    dhisToken?.let { preferenceDao.saveDhisToken(it) }
                     preferenceDao.registerPrimaryApiToken(token)
                     getUserVanSpDetails(context)
                     getLocDetailsBasedOnSpIDAndPsmID()
@@ -361,7 +373,7 @@ class UserRepo @Inject constructor(
                     }
                     Timber.d("Error Message $errorMessage")
                 }
-            } catch (e: retrofit2.HttpException) {
+            } catch (e: HttpException) {
                 Timber.d("Auth Failed!")
             }
 
@@ -551,9 +563,9 @@ class UserRepo @Inject constructor(
                     TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
                     preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
-                    val dhisToken = data.getString("dhistoken")
+                    val dhisToken = data.optString("dhistoken", "").nullIfEmpty()
                     TokenInsertTmcInterceptor.setToken(token)
-                    preferenceDao.saveDhisToken(dhisToken)
+                    dhisToken?.let { preferenceDao.saveDhisToken(it) }
                     preferenceDao.registerPrimaryApiToken(token)
                     return@withContext true
                 } else {

@@ -56,7 +56,8 @@ class TokenRefreshProviderImpl @Inject constructor(
                 val data = responseBody.getJSONObject("data")
                 TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
                 preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
-                preferenceDao.saveDhisToken(data.getString("dhistoken"))
+                data.optString("dhistoken", "").takeIf { it.isNotBlank() }
+                    ?.let { preferenceDao.saveDhisToken(it) }
                 val token = data.getString("key")
                 TokenInsertTmcInterceptor.setToken(token)
                 preferenceDao.registerPrimaryApiToken(token)
