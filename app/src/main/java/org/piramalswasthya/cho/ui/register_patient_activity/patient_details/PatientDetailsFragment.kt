@@ -971,6 +971,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         val genderId = viewModel.selectedGenderMaster?.genderID
         val ageInYears = viewModel.enteredAgeYears
 
+        // Gender/age load async; clearing here races with master data and wipes saved values on edit open
+        if (genderId == null || ageInYears == null) {
+            return
+        }
+
         if (viewModel.shouldShowMaritalStatus(genderId, ageInYears)) {
             binding.maritalStatusText.visibility = View.VISIBLE
 
@@ -993,6 +998,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val hintRes = if (genderId == 2) R.string.husband_s_name else if (genderId == 1) R.string.wife_s_name else R.string.spouse_name
                     binding.spouseNameText.hint = getText(hintRes)
 
+                    // Restore spouse/husband name if it was cleared during async load
+                    if (binding.spouseName.text.isNullOrBlank() && !patient.spouseName.isNullOrBlank()) {
+                        binding.spouseName.setText(patient.spouseName)
+                    }
+
                     binding.spouseName.isEnabled = !isReadOnly &&
                         (!isEditModeAfterRegistration || isAgeChangedInEditMode || isMaritalStatusChangedInEditMode)
                     binding.spouseNameText.isEndIconVisible = binding.spouseName.isEnabled
@@ -1004,7 +1014,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 status?.contains("unmarried") == true || status?.contains("never") == true || status?.contains("single") == true -> {
                     binding.spouseNameText.visibility = View.GONE
                     binding.fatherNameText.visibility = View.VISIBLE
-                    binding.spouseName.setText("") // Clear if was married before
+                    // Only clear spouse when user changes status, not during form prefill
+                    if (!isProgrammaticChange) {
+                        binding.spouseName.setText("")
+                    }
 
                     // Allow editing Father Name if we are in Edit mode
                     binding.fatherNameEditText.isEnabled = !isReadOnly
@@ -1017,13 +1030,17 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 else -> {
                     binding.spouseNameText.visibility = View.GONE
                     binding.fatherNameText.visibility = View.GONE
-                    binding.spouseName.setText("") // Clear selection
+                    // Do not clear spouse for unknown/null status during load
+                    if (!isProgrammaticChange) {
+                        binding.spouseName.setText("")
+                    }
                     viewModel.setFatherName(true)
                     viewModel.setSpouse(true)
                 }
             }
         } else {
             hideMarriedFields()
+            // Age is known and < 15 — clear marital (not shown for children)
             viewModel.selectedMaritalStatus = null
             viewModel.maritalStatusId = null
             viewModel.maritalStatusName = null
@@ -1032,19 +1049,33 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.setSpouse(true)
 
             // Show Father Name for children (Age < 15) and make it mandatory
-            if (ageInYears != null && ageInYears < 15) {
-                binding.fatherNameText.visibility = View.VISIBLE
+            binding.fatherNameText.visibility = View.VISIBLE
 
-                // Allow editing Father Name if we are in Edit mode
-                binding.fatherNameEditText.isEnabled = !isReadOnly
-                binding.fatherNameText.isEndIconVisible = binding.fatherNameEditText.isEnabled
+            // Allow editing Father Name if we are in Edit mode
+            binding.fatherNameEditText.isEnabled = !isReadOnly
+            binding.fatherNameText.isEndIconVisible = binding.fatherNameEditText.isEnabled
 
-                val isFatherNameFilled = binding.fatherNameEditText.text?.isNotEmpty() == true && isValidName(binding.fatherNameEditText.text.toString())
-                viewModel.setFatherName(isFatherNameFilled)
-            } else {
-                viewModel.setFatherName(true)
+            val isFatherNameFilled = binding.fatherNameEditText.text?.isNotEmpty() == true && isValidName(binding.fatherNameEditText.text.toString())
+            viewModel.setFatherName(isFatherNameFilled)
+        }
+    }
+
+    /** Re-apply marital status and spouse/husband name from the loaded patient after masters are ready. */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun bindMaritalAndSpouseFromPatient() {
+        patient.maritalStatusID?.let { id ->
+            viewModel.maritalStatusList.find { it.maritalStatusID == id }?.let { m ->
+                viewModel.selectedMaritalStatus = m
+                viewModel.maritalStatusId = m.maritalStatusID
+                viewModel.maritalStatusName = m.status
+                binding.maritalStatusDropdown.setText(m.status, false)
             }
         }
+        if (!patient.spouseName.isNullOrBlank()) {
+            binding.spouseName.setText(patient.spouseName)
+        }
+        setMarriedFieldsVisibility()
+        updateStatusOfWomanVisibility()
     }
 
 
@@ -1399,26 +1430,17 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     // Ensure keyboard handling is set up (in case it wasn't set earlier)
                     binding.maritalStatusDropdown.setupDropdownKeyboardHandling()
 
-                    // Pre-fill if patient data exists
-                    if (patient.maritalStatusID != null) {
-                        viewModel.selectedMaritalStatus =
-                            viewModel.maritalStatusList.find { it.maritalStatusID == patient.maritalStatusID }
+                    // Pre-fill marital + spouse after master list is ready (avoids race with gender load)
+                    if (patient.maritalStatusID != null || !patient.spouseName.isNullOrBlank()) {
+                        isProgrammaticChange = true
+                        bindMaritalAndSpouseFromPatient()
                         viewModel.selectedMaritalStatus?.let { m ->
-                            isProgrammaticChange = true
-                            viewModel.maritalStatusId = m.maritalStatusID
-                            viewModel.maritalStatusName = m.status
-                            binding.maritalStatusDropdown.setText(m.status, false)
-                            setMarriedFieldsVisibility()
-                            updateStatusOfWomanVisibility()
-
-                            // Fix: Ensure dropdown is enabled for Unmarried status in Edit mode
                             if (isEditModeAfterRegistration) {
                                 binding.maritalStatusDropdown.isEnabled =
                                     isUnmarriedStatus(m.maritalStatusID, m.status)
                             }
-
-                            isProgrammaticChange = false
                         }
+                        isProgrammaticChange = false
                     }
                 }
                 else -> {
@@ -1445,15 +1467,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     // Setup keyboard handling for gender dropdown
                     binding.genderDropdown.setupDropdownKeyboardHandling()
 
-                    // Pre-fill if patient data exists
+                    // Pre-fill gender, then re-bind marital/spouse once gender is available
                     if (patient.genderID != null) {
                         viewModel.selectedGenderMaster =
                             viewModel.genderMasterList.find { it.genderID == patient.genderID }
                         viewModel.selectedGenderMaster?.let { master ->
                             isProgrammaticChange = true
                             binding.genderDropdown.setText(master.genderName, false)
-                            setMarriedFieldsVisibility()
-                            updateStatusOfWomanVisibility()
+                            updateMaritalStatusOptions()
+                            bindMaritalAndSpouseFromPatient()
                             isProgrammaticChange = false
                         }
                     }
