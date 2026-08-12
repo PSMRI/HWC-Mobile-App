@@ -1103,6 +1103,7 @@
     </string-array>
     <string name="antra_next_due_date">ANTRA की अगली देय तिथि</string>
     <string name="tab_dashboard">डैशबोर्ड</string>
+    <string name="tab_rmnch">आरएमएनसीएच</string>
     <string name="cho_role">सामुदायिक स्वास्थ्य अधिकारी</string>
     <string name="proceed_with_registration">पंजीकरण की प्रक्रिया आगे बढ़ाएं</string>
     <string name="no_face_detected">कोई चेहरा नहीं पहचाना गया</string>
