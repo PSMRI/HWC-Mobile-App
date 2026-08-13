@@ -29,7 +29,7 @@ data class InvestigationUpsync(
         investigation?.investigationCaseRecord?.externalInvestigations,
         investigation?.investigationCaseRecord?.counsellingProvidedList,
         user?.vanId,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         benFlow?.beneficiaryRegID.toString(),
         benFlow?.benVisitID.toString(),
         benFlow?.visitCode.toString(),

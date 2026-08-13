@@ -67,7 +67,7 @@ data class ChildVaccineDetails(
         benFlow?.beneficiaryRegID.toString(),
         arrayListOf(ChildOptionalVaccine()),
         user?.userName,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.serviceMapId.toString(),
         user?.facilityID
     )
@@ -114,7 +114,7 @@ data class ComorbidConditions(
         benFlow?.beneficiaryRegID.toString(),
         arrayListOf(ComorbidityConcurrentConditions()),
         user?.userName,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.serviceMapId.toString(),
         user?.facilityID
     )
@@ -178,7 +178,7 @@ data class DevelopmentHistory(
         null,
         null,
         null,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.serviceMapId.toString(),
         null,
         user?.facilityID
@@ -216,7 +216,7 @@ data class FamilyHistory(
         null,
         null,
         null,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.serviceMapId.toString(),
         user?.facilityID
     )
@@ -279,7 +279,7 @@ data class FeedingHistory(
         0,
         null,
         null,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.serviceMapId.toString(),
         null,
         null,
@@ -314,7 +314,7 @@ data class FemaleObstetricHistory(
         emptyList(),
         user?.userName,
         emptyList(),
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.serviceMapId.toString(),
         null,
         user?.facilityID
@@ -405,7 +405,7 @@ data class MedicationHistoryNetwork(
         benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         arrayListOf(MedicationHistoryList()),
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.serviceMapId.toString(),
         user?.facilityID
     )
@@ -462,7 +462,7 @@ data class MenstrualHistory(
         null,
         null,
         null,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.serviceMapId.toString(),
         null,
         user?.facilityID
@@ -492,7 +492,7 @@ data class PastHistory(
         null,
         benFlow?.beneficiaryRegID.toString(),
         user?.userName,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         arrayListOf(PastIllness()),
         arrayListOf(PastSurgery()),
         user?.serviceMapId.toString(),
@@ -579,7 +579,7 @@ data class PerinatalHistroy(
         null,
         null,
         null,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         null,
         user?.serviceMapId.toString(),
         null,
@@ -629,7 +629,7 @@ data class PersonalHistory(
         benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         null,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         null,
         user?.serviceMapId.toString(),
         null,

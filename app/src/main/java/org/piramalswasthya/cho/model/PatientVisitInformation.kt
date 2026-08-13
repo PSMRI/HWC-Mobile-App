@@ -46,7 +46,7 @@ data class PatientVisitInformation(
             user = user,
             benFlow = benFlow
         ),
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.serviceMapId?.toString(),
         user?.serviceId?.toString(),
         "3",
@@ -108,7 +108,7 @@ data class PatientDoctorFormUpsync(
         benFlow?.nurseFlag.toString(),
         benFlow?.pharmacist_flag.toString(),
         "3",
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.facilityID,
         benFlow?.beneficiaryRegID.toString(),
         user?.serviceMapId.toString(),

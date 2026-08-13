@@ -88,7 +88,7 @@ data class VitalDetails(
         null,
         null,
         null,
-        parkingPlaceID = user?.parkingPlaceId,
+        parkingPlaceID = user?.parkingPlaceIdOrNull(),
         providerServiceMapID = user?.serviceMapId?.toString(),
         pulseRate = vitals?.pulseRate,
         true,

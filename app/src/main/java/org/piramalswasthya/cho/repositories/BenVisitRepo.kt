@@ -622,7 +622,11 @@ class BenVisitRepo @Inject constructor(
                                 reference = "Prescribed by "+user?.userName!!+" from MMU",
                                 visitID = benFlow.benVisitID,
                                 visitDate = benFlow.visitDate,
-                                parkingPlaceID = benFlow.parkingPlaceID,
+                                parkingPlaceID = if ((benFlow.parkingPlaceID ?: 0) < 0) {
+                                    null
+                                } else {
+                                    benFlow.parkingPlaceID
+                                },
                                 facilityID = benFlow.facilityID ?: user?.facilityID,
                                 itemStockExit = itemStockExitList
                             )
@@ -705,7 +709,11 @@ class BenVisitRepo @Inject constructor(
                         reference = "Prescribed by "+user?.userName!!+" from MMU",
                         visitID = benFlow.benVisitID,
                         visitDate = benFlow.visitDate,
-                        parkingPlaceID = benFlow.parkingPlaceID,
+                        parkingPlaceID = if ((benFlow.parkingPlaceID ?: 0) < 0) {
+                            null
+                        } else {
+                            benFlow.parkingPlaceID
+                        },
                         facilityID = benFlow.facilityID ?: user?.facilityID,
                         itemStockExit = itemStockExitList
                     )

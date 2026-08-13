@@ -249,7 +249,10 @@ class UserRepo @Inject constructor(
                     }
                     val facilityId = vanSp.getInt("facilityID")
                     user?.facilityID = facilityId
-//                    user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
+                    val parkingPlaceId = vanSp.optInt("parkingPlaceID", -1)
+                    if (parkingPlaceId >= 0) {
+                        user?.parkingPlaceId = parkingPlaceId
+                    }
 
                 }
                 true
