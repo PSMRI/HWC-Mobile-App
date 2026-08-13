@@ -467,7 +467,11 @@ class BenVisitRepo @Inject constructor(
                              providerServiceMapID = benFlow.providerServiceMapId,
                              specialist_flag = null,
                              facilityID = benFlow.facilityID ?: user.facilityID,
-                             parkingPlaceID = benFlow.parkingPlaceID
+                            parkingPlaceID = if ((benFlow.parkingPlaceID ?: 0) < 0) {
+                                null
+                            } else {
+                                benFlow.parkingPlaceID
+                            }
                         )
 
                         if (labResultDTO.labTestResults.isNotEmpty()) {
