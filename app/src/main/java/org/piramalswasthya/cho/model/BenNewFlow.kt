@@ -168,7 +168,7 @@ data class IBenDemographics(
             villageName = patientDisplay?.village?.villageName,
         ),
         user?.userName,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         user?.servicePointId,
         user?.servicePointName
     )

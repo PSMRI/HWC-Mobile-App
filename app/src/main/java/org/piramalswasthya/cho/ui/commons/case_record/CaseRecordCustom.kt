@@ -813,7 +813,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             familyM!!.setOnClickListener {
                 showDialogWithFamilyMembers(procedureDropdown, viewModel.labReportProcedureTypes)
             }
-            resetTestNameFieldToDefault(readOnly = isVisitFieldsReadOnly())
+            // Don't wipe a test selection the doctor already made if this LiveData re-emits.
+            if (!hasUiTestSelection()) {
+                resetTestNameFieldToDefault(readOnly = isVisitFieldsReadOnly())
+            }
         }
         binding.saveTemplate.setOnClickListener {
             saveTemp(uniqueTemplateNames)
@@ -2387,25 +2390,65 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
     private fun getSelectedTestIds(): Set<Int> {
+        val fromPicker = resolveTestIdsFromPicker()
+        if (fromPicker.isNotEmpty()) return fromPicker
+
         val selectedText = binding.selectF.text?.toString().orEmpty()
         if (isTestNameFieldBlank()) return emptySet()
         return selectedText.split(",")
             .mapNotNull { testName ->
                 val trimmedName = testName.trim()
-                if (trimmedName.isBlank()) null else findKeyByValue(testNameMap, trimmedName)
+                if (trimmedName.isBlank()) null else resolveProcedureIdByName(trimmedName)
             }
             .toSet()
+    }
+
+    private fun hasUiTestSelection(): Boolean {
+        return selectedTestName.isNotEmpty() || !isTestNameFieldBlank()
+    }
+
+    private fun computeHasNewOrChangedTests(selectedTestIds: Set<Int>, existingTestIds: Set<Int>): Boolean {
+        if (investigationBD == null) {
+            return selectedTestIds.isNotEmpty() || hasUiTestSelection()
+        }
+        if (selectedTestIds.isNotEmpty() && selectedTestIds != existingTestIds) {
+            return true
+        }
+        // User picked tests in the UI but ID mapping failed — still treat as a new lab order
+        // so the card is routed to the lab technician module.
+        return hasUiTestSelection() && selectedTestIds.isEmpty()
+    }
+
+    private fun resolveTestIdsFromPicker(): Set<Int> {
+        if (selectedTestName.isEmpty() || procedureDropdown.isEmpty()) return emptySet()
+        return selectedTestName.mapNotNull { index ->
+            val procedure = procedureDropdown.getOrNull(index) ?: return@mapNotNull null
+            resolveProcedureIdByName(procedure.procedureName) ?: procedure.procedureID
+        }.toSet()
+    }
+
+    private fun resolveProcedureIdByName(name: String): Int? {
+        val normalized = name.trim().replace(Regex("\\s+"), " ")
+        if (normalized.isBlank()) return null
+        fun namesMatch(mapName: String?) =
+            !mapName.isNullOrBlank() &&
+                    mapName.trim().replace(Regex("\\s+"), " ").equals(normalized, ignoreCase = true)
+        testNameMap.entries.find { namesMatch(it.value) }?.key?.let { return it }
+        return procedureDropdown.find { namesMatch(it.procedureName) }?.procedureID
+    }
+
+    private fun resolveMedicineItemId(prescriptionData: PrescriptionValues): Int? {
+        prescriptionData.id?.let { return it }
+        val formName = prescriptionData.form.trim()
+        if (formName.isEmpty()) return null
+        return formMListVal.find { it.dropdownForMed.equals(formName, ignoreCase = true) }?.itemID
+            ?: formForFilter.find { it.dropdownForMed.equals(formName, ignoreCase = true) }?.itemID
     }
 
     private fun hasTestSelectionChanged(): Boolean {
         val selectedIds = getSelectedTestIds()
         val existingIds = parseTestIds(investigationBD?.previousTestIds) + parseTestIds(investigationBD?.newTestIds)
-        if (investigationBD == null) {
-            return selectedIds.isNotEmpty()
-        }
-        // Blank field on open means no UI change; existing saved tests are preserved on submit.
-        if (selectedIds.isEmpty()) return false
-        return selectedIds != existingIds
+        return computeHasNewOrChangedTests(selectedIds, existingIds)
     }
 
     /**
@@ -2524,11 +2567,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         val selectedTestIds = getSelectedTestIds()
         val existingTestIds = parseTestIds(investigationBD?.previousTestIds) + parseTestIds(investigationBD?.newTestIds)
-        val hasNewOrChangedTests = if (investigationBD == null) {
-            selectedTestIds.isNotEmpty()
-        } else {
-            selectedTestIds.isNotEmpty() && selectedTestIds != existingTestIds
-        }
+        val hasNewOrChangedTests = computeHasNewOrChangedTests(selectedTestIds, existingTestIds)
         val mergedPreviousTestIds = if (investigationBD != null) {
             (existingTestIds + selectedTestIds).takeIf { it.isNotEmpty() }?.joinToString(",")
         } else {
@@ -2576,7 +2615,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         val prescriptionList = mutableListOf<PrescriptionCaseRecord>();
         for (i in 0 until itemListP.size) {
             val prescriptionData = itemListP[i]
-            var formVal = prescriptionData.id
+            var formVal = resolveMedicineItemId(prescriptionData)
             var freqVal = prescriptionData.frequency.nullIfEmpty()
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
@@ -2603,7 +2642,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
         }
 
-        val hasLabInCase = selectedTestIds.isNotEmpty() || existingTestIds.isNotEmpty()
+        val hasLabInCase = selectedTestIds.isNotEmpty() || existingTestIds.isNotEmpty() || hasUiTestSelection()
         doctorFlag = when {
             hasNewOrChangedTests -> 2
             hasLabInCase -> 3
@@ -2624,6 +2663,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             doctorFlag = doctorFlag,
             pharmacist_flag = effectivePharmacistFlag,
             visitDate = Date(),
+            visitCategory = "General OPD",
         )
 
         viewModel.saveNurseAndDoctorData(
@@ -2666,11 +2706,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         val selectedTestIds = getSelectedTestIds()
         val existingTestIds = parseTestIds(investigationBD?.previousTestIds) + parseTestIds(investigationBD?.newTestIds)
-        val hasNewOrChangedTests = if (investigationBD == null) {
-            selectedTestIds.isNotEmpty()
-        } else {
-            selectedTestIds.isNotEmpty() && selectedTestIds != existingTestIds
-        }
+        val hasNewOrChangedTests = computeHasNewOrChangedTests(selectedTestIds, existingTestIds)
         val mergedPreviousTestIds = if (investigationBD != null) {
             (existingTestIds + selectedTestIds).takeIf { it.isNotEmpty() }?.joinToString(",")
         } else {
@@ -2710,7 +2746,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         val prescriptionStartIndex = dispensedLockedPrescriptionCount.coerceAtMost(itemListP.size)
         for (i in prescriptionStartIndex until itemListP.size) {
             val prescriptionData = itemListP[i]
-            var formVal = prescriptionData.id
+            var formVal = resolveMedicineItemId(prescriptionData)
             var freqVal = prescriptionData.frequency.nullIfEmpty()
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
@@ -2734,7 +2770,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 prescriptionList.add(pres);
             }
         }
-        val hasLabInCase = selectedTestIds.isNotEmpty() || existingTestIds.isNotEmpty()
+        val hasLabInCase = selectedTestIds.isNotEmpty() || existingTestIds.isNotEmpty() || hasUiTestSelection()
         doctorFlag = when {
             hasNewOrChangedTests -> 2
             hasLabInCase -> 3

@@ -1012,7 +1012,7 @@ data class CbacVisitDetails(
     val reportFilePath: String?=null,
     val createdBy: String,
     val facilityID: Int?,
-    val parkingPlaceID: Int,
+    val parkingPlaceID: Int?,
     val fileIDs:String?=null
 )
 

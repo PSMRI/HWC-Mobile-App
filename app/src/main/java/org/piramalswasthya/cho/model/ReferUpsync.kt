@@ -46,7 +46,7 @@ data class ReferUpsync(
         null,
         null,
         user?.facilityID,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         benFlow?.beneficiaryRegID.toString(),
         benFlow?.benVisitID.toString(),
         benFlow?.visitCode.toString(),

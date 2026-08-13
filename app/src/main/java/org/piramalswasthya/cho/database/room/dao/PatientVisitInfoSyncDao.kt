@@ -35,7 +35,15 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePrescriptionID(prescriptionID : Int, patientID: String, benVisitNo: Int)
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseFlag = :nurseFlag, doctorFlag = :doctorFlag, labtechFlag = :labtechFlag, doctorDataSynced = :unSynced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    @Query(
+        "UPDATE PATIENT_VISIT_INFO_SYNC SET " +
+                "nurseFlag = :nurseFlag, " +
+                "doctorFlag = :doctorFlag, " +
+                "labtechFlag = :labtechFlag, " +
+                "visitCategory = 'General OPD', " +
+                "doctorDataSynced = :unSynced " +
+                "WHERE patientID = :patientID AND benVisitNo = :benVisitNo"
+    )
     suspend fun updateOnlyDoctorDataSubmitted(nurseFlag : Int, doctorFlag : Int, labtechFlag : Int, patientID: String, benVisitNo: Int, unSynced: SyncState? = SyncState.UNSYNCED)
 
     @Transaction
@@ -244,7 +252,9 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9 AND vis.doctorFlag = 2 AND vis.visitCategory = 'General OPD' ORDER BY pat.registrationDate DESC")
+            "WHERE vis.nurseFlag = 9 AND vis.doctorFlag = 2 " +
+            "AND (vis.visitCategory IS NULL OR TRIM(vis.visitCategory) = '' OR vis.visitCategory = 'General OPD') " +
+            "ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForLab(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
@@ -255,7 +265,8 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1 AND (vis.doctorFlag = 9 OR vis.doctorFlag = 2 OR vis.doctorFlag = 3) " +
+            "WHERE vis.pharmacist_flag = 1 AND (vis.doctorFlag = 9 OR vis.doctorFlag = 2 OR vis.doctorFlag = 3) " +
+            "AND (vis.visitCategory IS NULL OR TRIM(vis.visitCategory) = '' OR vis.visitCategory = 'General OPD') " +
             "ORDER BY IFNULL((SELECT MAX(p.id) FROM Prescription p WHERE p.patientID = vis.patientID AND p.benVisitNo = vis.benVisitNo), 0) DESC, " +
             "IFNULL(vis.benVisitNo, 0) DESC")
     fun getPatientDisplayListForPharmacist(): Flow<List<PatientDisplayWithVisitInfo>>

@@ -54,7 +54,7 @@ data class PrescriptionUpsync(
         null,
         user?.userName,
         user?.facilityID,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         true
     )
 }

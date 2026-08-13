@@ -82,7 +82,7 @@ interface PatientDao {
 //    fun getPatientListFlowForPharmacist(): Flow<List<PatientDisplay>>
     @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +
             "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
-            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
+            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitCategory, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
             "FROM PATIENT pat " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
@@ -97,7 +97,7 @@ interface PatientDao {
 
     @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName, age.age_name as ageUnit, mat.status as maritalStatus, " +
             "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
-            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
+            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitCategory, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
             "FROM PATIENT pat " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
@@ -112,7 +112,7 @@ interface PatientDao {
 
     @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +
             "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
-            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
+            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitCategory, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
             "FROM PATIENT pat " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +

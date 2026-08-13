@@ -660,6 +660,13 @@ class CaseRecordViewModel @Inject constructor(
                     prescriptionList.forEach {
                         savePrescriptionToCache(it)
                     }
+                    Timber.d(
+                        "Doctor submit routing patient=%s visit=%s doctorFlag=%s medicines=%s",
+                        benVisitInfo.patient.patientID,
+                        benVisitInfo.benVisitNo,
+                        doctorFlag,
+                        prescriptionList.size
+                    )
                     updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
                     // When doctor has prescribed medicines (with or without test), move card to pharmacist module.
                     // Called after updateDoctorDataSubmitted so pharmacist_flag and visitCategory are set last and
@@ -679,10 +686,14 @@ class CaseRecordViewModel @Inject constructor(
                             benVisitInfo.benVisitNo!!
                         )
                         // Keep pharmacist module in sync with latest doctor edits for this visit.
-                        benFlowRepo.copyPrescriptionFromCaseRecordToPharmacistTable(
-                            benVisitInfo,
-                            replaceLatestPending = wasPendingPharmacist
-                        )
+                        runCatching {
+                            benFlowRepo.copyPrescriptionFromCaseRecordToPharmacistTable(
+                                benVisitInfo,
+                                replaceLatestPending = wasPendingPharmacist
+                            )
+                        }.onFailure { e ->
+                            Timber.e(e, "Failed to copy prescription rows to pharmacist table for ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
+                        }
                     }
 
                     val latestVisitInfo =
@@ -701,8 +712,11 @@ class CaseRecordViewModel @Inject constructor(
                         benVisitInfo
                     }
 
-                    // Check if case should auto-close (nothing prescribed / only medicine already dispensed scenario)
-                    val shouldAutoClose = caseClosureManager.shouldAutoClose(visitSnapshotForClosure)
+                    // Never auto-close when the card is routed to lab (doctorFlag=2) or pharmacist (flag=1).
+                    val routedToLab = doctorFlag == 2 || (latestVisitInfo?.doctorFlag ?: doctorFlag) == 2
+                    val routedToPharmacist = (latestVisitInfo?.pharmacist_flag ?: 0) == 1
+                    val shouldAutoClose = !routedToLab && !routedToPharmacist &&
+                            caseClosureManager.shouldAutoClose(visitSnapshotForClosure)
                     if (shouldAutoClose) {
                         Timber.d("Auto-closing case - nothing prescribed: ${benVisitInfo.patient.patientID}/${benVisitInfo.benVisitNo}")
                         patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(

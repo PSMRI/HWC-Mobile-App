@@ -289,7 +289,9 @@ data class UserDomain(
     var loggedIn: Boolean,
     val roles: String,
     val assignVillageIds: String,
-)
+) {
+    fun parkingPlaceIdOrNull(): Int? = parkingPlaceId.takeIf { it >= 0 }
+}
 
 
 data class UserNetwork(

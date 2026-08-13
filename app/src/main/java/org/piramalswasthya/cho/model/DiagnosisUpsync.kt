@@ -19,7 +19,7 @@ data class DiagnosisUpsync(
     constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?,prescriptionID:Int?) : this(
         prescriptionID = prescriptionID,
         user?.facilityID,
-        user?.parkingPlaceId,
+        user?.parkingPlaceIdOrNull(),
         provisionalDiagnosisList = diagnosisList?.map {
             ProvisionalDiagnosisUpsync(term = it.diagnosis)
         } ?: emptyList(),
