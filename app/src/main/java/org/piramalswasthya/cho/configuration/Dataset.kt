@@ -867,7 +867,7 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
                 getLocalValueInArray(arrayId, raw.trim())?.takeIf { it.isNotBlank() }
             }
             .distinct()
-            .joinToString(",")
+            .joinToString(", ")
             .takeIf { it.isNotBlank() }
     }
 

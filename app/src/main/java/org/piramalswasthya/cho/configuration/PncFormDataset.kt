@@ -307,10 +307,14 @@ class PncFormDataset(
         }
         deathDate.max = System.currentTimeMillis()
         dateOfSterilisation.max = System.currentTimeMillis()
+        anyDangerSign.value = null
+        maternalSymptoms.value = null
+        otherMaternalSymptoms.value = null
+        pallor.value = null
+        vaginalBleeding.value = null
+        calciumSupplementation.value = null
+        ifaTabsGiven.value = null
         anyDangerSign.value = anyDangerSign.entries!!.last()
-        motherDeath.value = motherDeath.entries!!.last()
-
-        // Set default value for motherDeath to "No"
         motherDeath.value = motherDeath.entries!!.last()
 
         updatePncPeriodEntries()
@@ -355,7 +359,8 @@ class PncFormDataset(
 
             pncPeriod.value = "Day ${it.pncPeriod}"
             visitDate.value = getDateFromLong(it.pncDate)
-            enableVisitDateForSelection()
+            visitDate.inputType = InputType.DATE_PICKER
+            visitDate.isEnabled = false
             ifaTabsGiven.value = it.ifaTabsGiven?.toString()
             calciumSupplementation.value = it.calciumSupplementation?.toString()
             anyContraceptionMethod.value = it.anyContraceptionMethod?.let { yes ->
@@ -376,21 +381,36 @@ class PncFormDataset(
                 list.add(list.indexOf(contraceptionMethod) + 1, dateOfSterilisation)
             }
             otherPpcMethod.value = it.otherPpcMethod
-            anyDangerSign.value = getLocalValueInArray(R.array.pnc_confirmation_array, it.anyDangerSign)
-            anyDangerSign.value?.let { dangerSignValue ->
-                // anyDangerSign.value is now local; entries.first() is also local — compare same-locale.
-                val isDangerSignYes = dangerSignValue == anyDangerSign.entries!!.first()
-                referralFacility.required = isDangerSignYes
-                if (isDangerSignYes) {
-                    list.add(list.indexOf(anyDangerSign) + 1, motherDangerSign)
-                }
+            anyDangerSign.value = resolveSelectionDisplayValue(
+                getLocalValueInArray(R.array.pnc_confirmation_array, it.anyDangerSign)
+                    ?: it.anyDangerSign?.takeIf { value -> value.isNotBlank() },
+                anyDangerSign.entries
+            )
+            val isDangerSignYes = it.anyDangerSign?.equals("Yes", ignoreCase = true) == true ||
+                anyDangerSign.value?.equals(anyDangerSign.entries!!.first(), ignoreCase = true) == true
+            if (isDangerSignYes) {
+                referralFacility.required = true
+                list.add(list.indexOf(anyDangerSign) + 1, motherDangerSign)
             }
-            maternalSymptoms.value = getLocalValuesInArray(R.array.pnc_maternal_symptoms_array, it.maternalSymptoms)
+            maternalSymptoms.value = normalizeMultiSelectDisplayValue(
+                getLocalValuesInArray(R.array.pnc_maternal_symptoms_array, it.maternalSymptoms)
+                    ?: it.maternalSymptoms?.takeIf { value -> value.isNotBlank() },
+                maternalSymptoms.entries
+            )
+            forceRefreshId(maternalSymptoms.id)
+            forceRefreshId(anyDangerSign.id)
+            forceRefreshId(pallor.id)
+            forceRefreshId(vaginalBleeding.id)
+            forceRefreshId(calciumSupplementation.id)
             if (it.maternalSymptoms?.contains("Other") == true || it.maternalSymptoms?.contains(englishMaternalSymptomsLast) == true) {
                 list.add(list.indexOf(maternalSymptoms) + 1, otherMaternalSymptoms)
             }
             otherMaternalSymptoms.value = it.otherMaternalSymptoms
-            pallor.value = getLocalValueInArray(R.array.pnc_pallor_array, it.pallor)
+            pallor.value = resolveSelectionDisplayValue(
+                getLocalValueInArray(R.array.pnc_pallor_array, it.pallor)
+                    ?: it.pallor?.takeIf { value -> value.isNotBlank() },
+                pallor.entries
+            )
             // Severe pallor → referral alert. it.pallor is English so the literal compare is correct.
             if (it.pallor?.equals("Severe", ignoreCase = true) == true) {
                 referralFacility.required = true
@@ -399,7 +419,11 @@ class PncFormDataset(
                 }
             }
 
-            vaginalBleeding.value = getLocalValueInArray(R.array.pnc_vaginal_bleeding_array, it.vaginalBleeding)
+            vaginalBleeding.value = resolveSelectionDisplayValue(
+                getLocalValueInArray(R.array.pnc_vaginal_bleeding_array, it.vaginalBleeding)
+                    ?: it.vaginalBleeding?.takeIf { value -> value.isNotBlank() },
+                vaginalBleeding.entries
+            )
             // Heavy / foul smell → referral alert. it.vaginalBleeding is English so literal compare is correct.
             val vaginalBleedingValue = it.vaginalBleeding?.lowercase() ?: ""
             if (vaginalBleedingValue.contains("heavy", ignoreCase = true) ||
@@ -418,6 +442,25 @@ class PncFormDataset(
             motherDeath.value =
                 if (it.motherDeath) motherDeath.entries!!.first() else motherDeath.entries!!.last()
             if (it.motherDeath) {
+                list.removeAll(
+                    listOf(
+                        ifaTabsGiven,
+                        calciumSupplementation,
+                        anyContraceptionMethod,
+                        contraceptionMethod,
+                        dateOfSterilisation,
+                        otherPpcMethod,
+                        anyDangerSign,
+                        motherDangerSign,
+                        otherDangerSign,
+                        maternalSymptoms,
+                        otherMaternalSymptoms,
+                        pallor,
+                        vaginalBleeding,
+                        referralFacility,
+                        remarks
+                    )
+                )
                 deathDate.value = getDateStrFromLong(it.deathDate)
                 causeOfDeath.value = getLocalValueInArray(R.array.pnc_death_cause_array, it.causeOfDeath)
                 otherDeathCause.value = it.otherDeathCause
@@ -543,6 +586,21 @@ class PncFormDataset(
     fun getSelectedDeliveryDateMillis(): Long? {
         val fromField = deliveryDate.value?.let { getLongFromDate(it) }?.takeIf { it > 0L }
         return fromField ?: dateOfDelivery.takeIf { it > 0L }
+    }
+
+    /** Align stored comma-separated values with current checkbox entry labels. */
+    private fun normalizeMultiSelectDisplayValue(value: String?, entries: Array<String>?): String? {
+        if (value.isNullOrBlank() || entries.isNullOrEmpty()) return null
+        val selected = value.split(",\\s*".toRegex()).map { it.trim() }.filter { it.isNotEmpty() }
+        return entries.filter { entry ->
+            selected.any { it.equals(entry, ignoreCase = true) }
+        }.joinToString(", ").takeIf { it.isNotBlank() }
+    }
+
+    /** Pick the exact dropdown/radio label from entries so disabled controls display the selection. */
+    private fun resolveSelectionDisplayValue(value: String?, entries: Array<String>?): String? {
+        if (value.isNullOrBlank() || entries.isNullOrEmpty()) return null
+        return entries.firstOrNull { it.equals(value.trim(), ignoreCase = true) } ?: value.trim()
     }
 
     /**
@@ -920,7 +978,9 @@ class PncFormDataset(
             form.sterilisationDate = dateOfSterilisation.value?.let { getLongFromDate(it) }
             form.otherPpcMethod = otherPpcMethod.value?.takeIf { it.isNotEmpty() }
             form.anyDangerSign = getEnglishValueInArray(R.array.pnc_confirmation_array, anyDangerSign.value)?.takeIf { it.isNotEmpty() }
-            form.maternalSymptoms = getEnglishValuesInArray(R.array.pnc_maternal_symptoms_array, maternalSymptoms.value)?.takeIf { it.isNotEmpty() }
+            form.maternalSymptoms = getEnglishValuesInArray(
+                R.array.pnc_maternal_symptoms_array, maternalSymptoms.value
+            )?.takeIf { it.isNotEmpty() } ?: maternalSymptoms.value?.takeIf { it.isNotEmpty() }
             form.otherMaternalSymptoms = otherMaternalSymptoms.value?.takeIf { it.isNotEmpty() }
             form.pallor = getEnglishValueInArray(R.array.pnc_pallor_array, pallor.value)?.takeIf { it.isNotEmpty() }
             form.vaginalBleeding = getEnglishValueInArray(R.array.pnc_vaginal_bleeding_array, vaginalBleeding.value)?.takeIf { it.isNotEmpty() }
