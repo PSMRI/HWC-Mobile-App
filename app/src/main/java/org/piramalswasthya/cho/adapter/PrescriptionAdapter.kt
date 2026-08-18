@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
@@ -41,7 +40,6 @@ class PrescriptionAdapter(
 ) : RecyclerView.Adapter<PrescriptionAdapter.ViewHolder>() {
 
     private var durationCount = 0
-    private val maxDuration = 6
 
     private val viewHolders = mutableListOf<PrescriptionAdapter.ViewHolder>()
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -134,19 +132,11 @@ class PrescriptionAdapter(
 
        holder.subtractButton.isEnabled = false
         holder.addButton.setOnClickListener {
-            durationCount = itemData.duration.toIntOrNull()?.takeIf { it <= maxDuration } ?: 0
-            if (durationCount < maxDuration) {
-                durationCount++
-                holder.durationInput.setText(durationCount.toString())
-                holder.updateResetButtonState()
-                itemChangeListener.onItemChanged()
-            }
-            // Disable the "Add" button when the duration count reaches the maximum
-            if (durationCount >= maxDuration) {
-                Toast.makeText(holder.itemView.context, holder.itemView.context.getString(R.string.max_duration_allowed_6), Toast.LENGTH_SHORT).show()
-                holder.addButton.isEnabled = false
-            }
-            // Enable the "Subtract" button
+            durationCount = itemData.duration.toIntOrNull() ?: 0
+            durationCount++
+            holder.durationInput.setText(durationCount.toString())
+            holder.updateResetButtonState()
+            itemChangeListener.onItemChanged()
             holder.subtractButton.isEnabled = true
         }
 
@@ -342,15 +332,9 @@ class PrescriptionAdapter(
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 if (!s.isNullOrBlank() && s.length == 1 && s[0] == '0') s.clear()
-                if (!s.isNullOrBlank() && s.toString().toInt()>6) {
-                    s.clear()
-                    Toast.makeText(holder.itemView.context, holder.itemView.context.getString(R.string.max_duration_allowed_6), Toast.LENGTH_SHORT).show()
-                }
-                else {
-                    itemData.duration = s.toString()
-                    holder.updateResetButtonState()
-                    itemChangeListener.onItemChanged()
-                }
+                itemData.duration = s?.toString().orEmpty()
+                holder.updateResetButtonState()
+                itemChangeListener.onItemChanged()
             }
         })
 
