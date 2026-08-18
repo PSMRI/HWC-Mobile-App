@@ -22,6 +22,7 @@ import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.children
 import androidx.recyclerview.widget.DiffUtil
@@ -107,15 +108,16 @@ class FormInputAdapter(
         ) {
             Timber.d("binding triggered!!! $isEnabled ${item.id}")
             if (!isEnabled) {
-                binding.et.isEnabled = false
+                binding.et.isEnabled = true
                 binding.et.isClickable = false
                 binding.et.isFocusable = false
                 binding.et.isFocusableInTouchMode = false
                 binding.et.isLongClickable = false
                 binding.et.isCursorVisible = false
+                binding.et.keyListener = null
                 handleHintLength(item)
                 binding.form = item
-                binding.et.setText(item.value)
+                binding.et.setText(item.value ?: "", TextView.BufferType.EDITABLE)
                 binding.executePendingBindings()
                 return
             } else {
@@ -337,13 +339,23 @@ class FormInputAdapter(
                 binding.tilRvDropdown.isErrorEnabled = false
             }
             if (!isEnabled) {
-                binding.tilRvDropdown.visibility = View.GONE
-                binding.tilEditText.visibility = View.VISIBLE
-                binding.et.isFocusable = false
-                binding.et.isClickable = false
+                binding.tilRvDropdown.visibility = View.VISIBLE
+                binding.tilEditText.visibility = View.GONE
+                binding.actvRvDropdown.isEnabled = true
+                binding.actvRvDropdown.isFocusable = false
+                binding.actvRvDropdown.isClickable = false
+                binding.actvRvDropdown.keyListener = null
+                binding.form = item
+                binding.actvRvDropdown.setText(item.value ?: "", false)
                 binding.executePendingBindings()
                 return
             }
+
+            binding.tilRvDropdown.visibility = View.VISIBLE
+            binding.tilEditText.visibility = View.GONE
+            binding.actvRvDropdown.isEnabled = true
+            binding.actvRvDropdown.isFocusable = true
+            binding.actvRvDropdown.isClickable = true
 
             binding.actvRvDropdown.setupDropdownKeyboardHandling()
 
@@ -406,11 +418,20 @@ class FormInputAdapter(
                         rdBtn.id = View.generateViewId()
                         rdBtn.text = it
                         addView(rdBtn)
-                        if (item.value == it) rdBtn.isChecked = true
+                        if (item.value?.trim().equals(it.trim(), ignoreCase = true)) {
+                            rdBtn.isChecked = true
+                        }
                         rdBtn.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
                             binding.rg.clearFocus()
+                        }
+                        if (!isEnabled) {
+                            rdBtn.isClickable = false
+                            rdBtn.isFocusable = false
+                            rdBtn.isEnabled = true
+                            rdBtn.jumpDrawablesToCurrentState()
+                            return@forEach
                         }
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
@@ -431,24 +452,10 @@ class FormInputAdapter(
                             binding.llContent.setBackgroundResource(0)
                         }
                     }
-//                    item.value?.let { value ->
-//                        children.forEach {
-//                            if ((it as RadioButton).text == value) {
-//                                clearCheck()
-//                                check(it.id)
-//                            }
-//                        }
-//                    }
                 }
             }
 
-            if (!isEnabled) {
-                binding.rg.children.forEach {
-                    it.isClickable = false
-                    it.isFocusable = false
-                    it.isEnabled = true
-                }
-            } else {
+            if (isEnabled) {
                 binding.rg.isEnabled = true
             }
             if (item.errorText != null) binding.llContent.setBackgroundResource(R.drawable.state_errored)
@@ -529,7 +536,7 @@ class FormInputAdapter(
                         else cbx.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
                         cbx.text = it
                         addView(cbx)
-                        if (item.value?.split(",")?.any { s -> s.trim() == it } == true) cbx.isChecked = true
+                        cbx.isChecked = isMultiSelectOptionSelected(item.value, it)
                         cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
@@ -539,6 +546,8 @@ class FormInputAdapter(
                             cbx.isClickable = false
                             cbx.isFocusable = false
                             cbx.isEnabled = true
+                            cbx.jumpDrawablesToCurrentState()
+                            return@forEachIndexed
                         }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
@@ -598,11 +607,14 @@ class FormInputAdapter(
             binding.form = item
             binding.invalidateAll()
             if (!isEnabled) {
-                binding.et.isEnabled = false
+                binding.et.isEnabled = true
                 binding.et.isFocusable = false
                 binding.et.isClickable = false
                 binding.et.isFocusableInTouchMode = false
                 binding.et.isLongClickable = false
+                binding.et.keyListener = null
+                binding.form = item
+                binding.et.setText(item.value ?: "", TextView.BufferType.EDITABLE)
                 binding.executePendingBindings()
                 return
             }
@@ -1047,4 +1059,14 @@ class FormInputAdapter(
             }
         }
     }
+}
+
+private fun isOptionSelected(value: String?, option: String): Boolean {
+    return value?.trim().equals(option.trim(), ignoreCase = true) == true
+}
+
+private fun isMultiSelectOptionSelected(value: String?, option: String): Boolean {
+    if (value.isNullOrBlank()) return false
+    return value.split(",\\s*".toRegex())
+        .any { it.trim().equals(option.trim(), ignoreCase = true) }
 }

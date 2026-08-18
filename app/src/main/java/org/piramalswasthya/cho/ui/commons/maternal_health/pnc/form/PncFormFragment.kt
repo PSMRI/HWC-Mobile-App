@@ -106,7 +106,11 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                             val pncAdapter = binding.form.rvInputForm.adapter as? FormInputAdapter
                             val rowPosition = pncAdapter?.currentList?.indexOfFirst { it.id == maternalSymptomsFormId } ?: -1
                             if (rowPosition >= 0) {
-                                pncAdapter?.notifyItemChanged(rowPosition)
+                                // Rebind after the checkbox listener finishes so we don't
+                                // recreate views mid-callback and strip the saved value.
+                                binding.form.rvInputForm.post {
+                                    pncAdapter?.notifyItemChanged(rowPosition)
+                                }
                             }
 
                             // Count actual symptoms selected (exclude "None") for referral alert
@@ -132,10 +136,21 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                     }, isEnabled = !recordExists
                 )
                 binding.form.rvInputForm.adapter = adapter
+                adapter.submitList(viewModel.formList.value)
                 lifecycleScope.launch {
-                    viewModel.formList.collect {
-                        if (it.isNotEmpty())
-                            adapter.submitList(it)
+                    viewModel.formList.collect { list ->
+                        if (list.isNotEmpty()) {
+                            adapter.submitList(list)
+                            if (recordExists) {
+                                binding.form.rvInputForm.post { adapter.notifyDataSetChanged() }
+                            }
+                        }
+                    }
+                }
+                lifecycleScope.launch {
+                    viewModel.forceRefreshIdFlow.collect { id ->
+                        val pos = adapter.currentList.indexOfFirst { it.id == id }
+                        if (pos != -1) adapter.notifyItemChanged(pos)
                     }
                 }
             }
@@ -275,7 +290,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
 
     private fun validateCurrentPage(): Boolean {
         val result = binding.form.rvInputForm.adapter?.let {
-            (it as FormInputAdapter).validateInput(resources)
+            (it as FormInputAdapter).validateInput(resources, binding.form.rvInputForm)
         }
         Timber.d("Validation : $result")
         return if (result == -1) true

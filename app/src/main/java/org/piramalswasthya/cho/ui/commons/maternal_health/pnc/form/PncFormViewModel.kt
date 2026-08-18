@@ -73,6 +73,7 @@ class PncFormViewModel @Inject constructor(
     private val dataset =
         PncFormDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
+    val forceRefreshIdFlow = dataset.forceRefreshIdFlow
 
     private lateinit var pncCache: PNCVisitCache
     var deliveryOutcome: DeliveryOutcomeCache? = null
@@ -150,7 +151,13 @@ class PncFormViewModel @Inject constructor(
                 } ?: run {
                     _recordExists.value = false
                 }
-                val lastPnc = pncRepo.getLastFilledPncRecord(patientID)
+                val previousPnc = if (recordExists.value == true) {
+                    pncRepo.getAllPNCsByPatId(patientID)
+                        .filter { it.pncPeriod < visitNumber }
+                        .maxByOrNull { it.pncPeriod }
+                } else {
+                    pncRepo.getLastFilledPncRecord(patientID)
+                }
                 val hasPreviousSterilization = hasPreviousPermanentSterilization()
                 val lastSterilizationVisit = if (hasPreviousSterilization) {
                     getLastPermanentSterilizationVisit(visitNumber)
@@ -160,7 +167,7 @@ class PncFormViewModel @Inject constructor(
                     visitNumber,
                     ben,
                     deliveryOutcome!!,
-                    lastPnc,
+                    previousPnc,
                     if (recordExists.value == true) pncCache else null,
                     hasPreviousSterilization,
                     lastSterilizationVisit

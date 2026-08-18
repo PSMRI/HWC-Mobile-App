@@ -231,11 +231,7 @@ class PncRepo @Inject constructor(
                             val incoming = networkModel.toCacheModel(patient.patientID)
                             val existing = pncDao.getSavedRecord(patient.patientID, networkModel.pncPeriod)
                             val merged = if (existing != null) {
-                                incoming.copy(
-                                    id = existing.id,
-                                    createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
-                                    createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy
-                                )
+                                mergePncVisit(existing, incoming)
                             } else incoming
 
                             pncDao.insert(merged)
@@ -309,6 +305,40 @@ class PncRepo @Inject constructor(
             syncState = SyncState.SYNCED
         )
     }
+
+    /**
+     * Server downsync may omit newer PNC columns. Keep locally saved clinical values
+     * when the incoming payload has null/blank for that field.
+     */
+    private fun mergePncVisit(existing: PNCVisitCache, incoming: PNCVisitCache): PNCVisitCache {
+        return incoming.copy(
+            id = existing.id,
+            patientID = existing.patientID,
+            ifaTabsGiven = incoming.ifaTabsGiven ?: existing.ifaTabsGiven,
+            calciumSupplementation = incoming.calciumSupplementation ?: existing.calciumSupplementation,
+            anyContraceptionMethod = incoming.anyContraceptionMethod ?: existing.anyContraceptionMethod,
+            contraceptionMethod = incoming.contraceptionMethod ?: existing.contraceptionMethod,
+            sterilisationDate = incoming.sterilisationDate ?: existing.sterilisationDate,
+            otherPpcMethod = incoming.otherPpcMethod ?: existing.otherPpcMethod,
+            anyDangerSign = incoming.anyDangerSign ?: existing.anyDangerSign,
+            motherDangerSign = incoming.motherDangerSign ?: existing.motherDangerSign,
+            otherDangerSign = incoming.otherDangerSign ?: existing.otherDangerSign,
+            maternalSymptoms = incoming.maternalSymptoms ?: existing.maternalSymptoms,
+            otherMaternalSymptoms = incoming.otherMaternalSymptoms ?: existing.otherMaternalSymptoms,
+            pallor = incoming.pallor ?: existing.pallor,
+            vaginalBleeding = incoming.vaginalBleeding ?: existing.vaginalBleeding,
+            referralFacility = incoming.referralFacility ?: existing.referralFacility,
+            causeOfDeath = incoming.causeOfDeath ?: existing.causeOfDeath,
+            otherDeathCause = incoming.otherDeathCause ?: existing.otherDeathCause,
+            placeOfDeath = incoming.placeOfDeath ?: existing.placeOfDeath,
+            otherPlaceOfDeath = incoming.otherPlaceOfDeath ?: existing.otherPlaceOfDeath,
+            remarks = incoming.remarks ?: existing.remarks,
+            createdBy = if (existing.createdBy.isNotBlank()) existing.createdBy else incoming.createdBy,
+            createdDate = if (existing.createdDate > 0L) existing.createdDate else incoming.createdDate,
+            syncState = if (existing.syncState == SyncState.UNSYNCED) existing.syncState else incoming.syncState
+        )
+    }
+
 //
 //
 //    //PULL
