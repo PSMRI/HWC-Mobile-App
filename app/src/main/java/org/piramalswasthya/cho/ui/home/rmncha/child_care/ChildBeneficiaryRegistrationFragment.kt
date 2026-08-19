@@ -242,6 +242,19 @@ class ChildBeneficiaryRegistrationFragment : Fragment() {
                 }
 
                 if (isAdded) {
+                    parentFragmentManager.setFragmentResult(
+                        ChildRegistrationListFragment.RESULT_CHILD_SAVED,
+                        Bundle().apply {
+                            putString(
+                                ChildRegistrationListFragment.ARG_MOTHER_PATIENT_ID,
+                                updatedInfant.motherPatientID
+                            )
+                            putInt(
+                                ChildRegistrationListFragment.ARG_BABY_INDEX,
+                                updatedInfant.babyIndex
+                            )
+                        }
+                    )
                     Toast.makeText(
                         requireContext(),
                         getString(R.string.child_registration_saved),

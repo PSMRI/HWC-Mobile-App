@@ -51,8 +51,9 @@ interface InfantRegDao {
      */
     @Transaction
     @Query("""
-        SELECT p.* FROM PATIENT p
+        SELECT DISTINCT p.* FROM PATIENT p
         INNER JOIN DELIVERY_OUTCOME do ON p.patientID = do.patientID
+        LEFT JOIN INFANT_REG ir ON ir.motherPatientID = p.patientID
         WHERE do.isActive = 1
         AND do.liveBirth > 0
         ORDER BY do.dateOfDelivery DESC

@@ -37,6 +37,8 @@ class ChildRegistrationListFragment : Fragment() {
     private lateinit var adapter: ChildRegistrationAdapter
     private var allChildren: List<ChildRegDomain> = emptyList()
     private var filteredChildren: List<ChildRegDomain> = emptyList()
+    private var recentlySavedMotherPatientId: String? = null
+    private var recentlySavedBabyIndex: Int = -1
 
     private val faceSearchHelper by lazy {
         FaceSearchHelper(
@@ -76,6 +78,7 @@ class ChildRegistrationListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupSearch()
+        listenForSavedChild()
         syncChildListFromServer()
         observeChildren()
     }
@@ -120,26 +123,54 @@ class ChildRegistrationListFragment : Fragment() {
         }
     }
 
-    private fun observeChildren() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            infantRegRepo.getRegisteredInfants().collectLatest { childrenList ->
-                allChildren = childrenList
-                    .groupBy { it.motherPatient.patientID to it.infant.babyIndex }
-                    .map { (_, rows) ->
-                        rows.maxWithOrNull(
-                            compareBy<ChildRegDomain> { !it.isChildRegistered() }
-                                .thenByDescending { maxOf(it.infant.updatedDate, it.infant.createdDate) }
-                        ) ?: rows.first()
-                    }
-                    .sortedWith(
-                        compareBy<ChildRegDomain> { it.isChildRegistered() }
-                            .thenByDescending { maxOf(it.infant.updatedDate, it.infant.createdDate) }
-                            .thenByDescending { it.infant.updatedDate }
-                    )
+    private fun listenForSavedChild() {
+        parentFragmentManager.setFragmentResultListener(
+            RESULT_CHILD_SAVED,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            recentlySavedMotherPatientId = bundle.getString(ARG_MOTHER_PATIENT_ID)
+            recentlySavedBabyIndex = bundle.getInt(ARG_BABY_INDEX, -1)
+            if (allChildren.isNotEmpty()) {
+                allChildren = sortChildren(allChildren)
                 filteredChildren = allChildren
                 updateUI()
             }
         }
+    }
+
+    private fun observeChildren() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            infantRegRepo.getRegisteredInfants().collectLatest { childrenList ->
+                allChildren = sortChildren(
+                    childrenList
+                        .groupBy { it.motherPatient.patientID to it.infant.babyIndex }
+                        .map { (_, rows) ->
+                            rows.maxWithOrNull(
+                                compareByDescending<ChildRegDomain> {
+                                    maxOf(it.infant.updatedDate, it.infant.createdDate)
+                                }
+                            ) ?: rows.first()
+                        }
+                )
+                filteredChildren = allChildren
+                updateUI()
+            }
+        }
+    }
+
+    private fun sortChildren(children: List<ChildRegDomain>): List<ChildRegDomain> {
+        return children.sortedWith(
+            compareBy<ChildRegDomain> { child ->
+                if (isRecentlySaved(child)) 0 else 1
+            }.thenByDescending { maxOf(it.infant.updatedDate, it.infant.createdDate) }
+                .thenByDescending { it.infant.updatedDate }
+        )
+    }
+
+    private fun isRecentlySaved(child: ChildRegDomain): Boolean {
+        val motherPatientId = recentlySavedMotherPatientId ?: return false
+        return child.motherPatient.patientID == motherPatientId &&
+                child.infant.babyIndex == recentlySavedBabyIndex
     }
 
     private fun filterChildren(query: String) {
@@ -170,7 +201,12 @@ class ChildRegistrationListFragment : Fragment() {
     }
 
     private fun updateUI() {
-        adapter.submitList(filteredChildren)
+        adapter.submitList(null)
+        adapter.submitList(filteredChildren.toList()) {
+            val recyclerView = _binding?.rvChildRegList ?: return@submitList
+            (recyclerView.layoutManager as? LinearLayoutManager)
+                ?.scrollToPositionWithOffset(0, 0)
+        }
         updateListUI(
             filteredList = filteredChildren,
             emptyStateView = binding.flEmpty,
@@ -196,5 +232,6 @@ class ChildRegistrationListFragment : Fragment() {
         const val ARG_MOTHER_PATIENT_ID = "motherPatientID"
         const val ARG_BABY_INDEX = "babyIndex"
         const val ARG_CHILD_PATIENT_ID = "childPatientID"
+        const val RESULT_CHILD_SAVED = "child_registration_saved"
     }
 }

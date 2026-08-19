@@ -225,6 +225,13 @@ class ChildRegistrationFragment : Fragment() {
                 WorkerUtils.triggerInfantRegistrationSync(requireContext())
                 
                 if (isAdded) {
+                    parentFragmentManager.setFragmentResult(
+                        InfantListFragment.RESULT_INFANT_SAVED,
+                        Bundle().apply {
+                            putString(InfantListFragment.KEY_MOTHER_PATIENT_ID, patientID)
+                            putInt(InfantListFragment.KEY_BABY_INDEX, babyIndex)
+                        }
+                    )
                     Toast.makeText(requireContext(), "Infant registration saved successfully", Toast.LENGTH_SHORT).show()
                     parentFragmentManager.popBackStack()
                 }
