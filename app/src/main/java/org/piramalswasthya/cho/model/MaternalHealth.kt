@@ -347,7 +347,9 @@ data class PatientWithPwrAndAncCache(
     val ancRecords: List<PregnantWomanAncCache>
 ) {
     fun asAbortionDomainModel(): AbortionDomain {
-        val abortionRecord = ancRecords.firstOrNull { it.isAborted && it.abortionDate != null }
+        val abortionRecord = ancRecords
+            .filter { it.isAborted && it.abortionDate != null }
+            .maxByOrNull { maxOf(it.updatedDate, it.createdDate) }
         val activePwr = pwr.filter { it.active }.maxByOrNull { it.createdDate }
 
         val lmpDateToUse = resolveAbortionLmpDate(pwr, abortionRecord)

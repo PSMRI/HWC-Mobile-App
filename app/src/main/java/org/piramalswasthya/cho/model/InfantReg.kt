@@ -192,7 +192,16 @@ data class PatientWithDeliveryOutcomeAndInfantRegCache(
 ) {
     fun asDomainModel(): List<InfantRegDomain> {
         val activeDo = deliveryOutcome?.firstOrNull { it.isActive } ?: return emptyList()
-        val activeIr = savedInfantRegRecords.filter { it.isActive }
+        val latestIrByIndex = savedInfantRegRecords
+            .filter { it.isActive }
+            .groupBy { it.babyIndex }
+            .mapValues { (_, records) ->
+                records.maxWith(
+                    compareBy<InfantRegCache> { it.updatedDate }
+                        .thenBy { it.createdDate }
+                        .thenBy { it.id }
+                )
+            }
         val list = mutableListOf<InfantRegDomain>()
         val totalBirths = (activeDo.deliveryOutcome ?: ((activeDo.liveBirth ?: 0) + (activeDo.stillBirth ?: 0)))
             .coerceAtLeast(0)
@@ -205,7 +214,7 @@ data class PatientWithDeliveryOutcomeAndInfantRegCache(
                     motherPatient = patient,
                     babyIndex = i,
                     deliveryOutcome = activeDo,
-                    savedIr = activeIr.firstOrNull { it.babyIndex == i },
+                    savedIr = latestIrByIndex[i],
                     isLiveBirth = i < numLiveBirth
                 )
             )
@@ -245,6 +254,23 @@ data class InfantRegDomain(
      */
     fun getMotherAgeString(): String {
         return motherPatient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+    }
+
+    /**
+     * Most recent create/update timestamp for list ordering.
+     * Any saved infant row uses its own dates so a just-edited card sorts above older ones.
+     * Pending rows with no infant record fall back to delivery outcome dates.
+     */
+    fun lastActivityTimestamp(): Long {
+        val saved = savedIr
+        if (saved != null) {
+            return maxOf(saved.updatedDate, saved.createdDate)
+        }
+        return maxOf(
+            deliveryOutcome.dateOfDelivery ?: 0L,
+            deliveryOutcome.updatedDate,
+            deliveryOutcome.createdDate
+        )
     }
 
     /**

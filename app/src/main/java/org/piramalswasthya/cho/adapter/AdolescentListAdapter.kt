@@ -71,8 +71,10 @@ class AdolescentListAdapter(
             // Set gender
             binding.tvGender.text = item.gender?.genderName ?: "NA"
 
-            // Set parent name
-            binding.tvParentName.text = item.patient.parentName ?: "NA"
+            // Set father name (stored as parentName)
+            binding.tvParentName.text = item.patient.parentName
+                ?.takeIf { it.isNotBlank() }
+                ?: binding.root.context.getString(org.piramalswasthya.cho.R.string.na)
 
             binding.executePendingBindings()
         }

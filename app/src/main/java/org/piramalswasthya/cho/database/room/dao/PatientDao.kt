@@ -247,7 +247,7 @@ interface PatientDao {
         SELECT * FROM PATIENT 
         WHERE dob IS NOT NULL 
         AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 3650 AND 6935
-        ORDER BY dob DESC
+        ORDER BY registrationDate DESC
     """)
     fun getAllAdolescentList(): Flow<List<PatientDisplay>>
 

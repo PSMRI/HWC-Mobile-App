@@ -639,7 +639,8 @@ class PatientRepo @Inject constructor(
                                     districtBranchID = beneficiary.currentAddress?.villageId,
                                     communityID = beneficiary.beneficiaryDetails?.communityId,
                                     religionID = beneficiary.beneficiaryDetails?.religionId,
-                                    parentName = null,
+                                    parentName = beneficiary.beneficiaryDetails?.fatherName
+                                        ?.takeIf { it.isNotBlank() },
                                     syncState = SyncState.SYNCED,
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
@@ -660,10 +661,18 @@ class PatientRepo @Inject constructor(
                                 if (matchedPatient != null) {
                                     patient.patientID = matchedPatient.patientID
                                     patient.syncState = SyncState.SYNCED
+                                    if (patient.parentName.isNullOrBlank()) {
+                                        patient.parentName = matchedPatient.parentName
+                                    }
                                     patientDao.updatePatient(patient)  // Update the matched patient with the new data
                                 }else {
                                     // check if patient is present or not
-                                    if (patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0) {
+                                    val existingPatient = patientDao.getBen(beneficiary.benId!!.toLong())
+                                    if (existingPatient != null) {
+                                        patient.patientID = existingPatient.patientID
+                                        if (patient.parentName.isNullOrBlank()) {
+                                            patient.parentName = existingPatient.parentName
+                                        }
                                         patientDao.updatePatient(patient)
                                     } else {
                                         patientsToInsert.add(patient)

@@ -109,7 +109,9 @@ class AdolescentListFragment : Fragment() {
     private fun observeAdolescents() {
         lifecycleScope.launch {
             patientRepo.getAdolescentList().collectLatest { adolescentsList ->
-                allAdolescents = adolescentsList.sortedByDescending { it.patient.dob?.time ?: 0L }
+                allAdolescents = adolescentsList.sortedByDescending {
+                    it.patient.registrationDate?.time ?: 0L
+                }
                 filteredAdolescents = allAdolescents
                 updateUI()
             }

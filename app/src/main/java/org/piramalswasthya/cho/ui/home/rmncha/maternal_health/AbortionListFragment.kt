@@ -139,8 +139,12 @@ class AbortionListFragment : Fragment() {
     private fun observeAbortions() {
         viewLifecycleOwner.lifecycleScope.launch {
             maternalHealthRepo.getAbortionPregnantWomanList().collectLatest { abortionsList ->
-                allAbortions = abortionsList.sortedByDescending {
-                    it.abortionDate ?: 0L
+                allAbortions = abortionsList.sortedByDescending { item ->
+                    val recordTimestamp = maxOf(
+                        item.abortionRecord?.updatedDate ?: 0L,
+                        item.abortionRecord?.createdDate ?: 0L
+                    )
+                    if (recordTimestamp > 0L) recordTimestamp else (item.abortionDate ?: 0L)
                 }
                 filteredAbortions = allAbortions
                 updateUI()

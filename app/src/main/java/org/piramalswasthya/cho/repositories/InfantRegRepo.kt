@@ -51,7 +51,11 @@ class InfantRegRepo @Inject constructor(
             .map { list ->
                 list
                     .flatMap { it.asDomainModel() }
-                    .sortedByDescending { it.deliveryOutcome.dateOfDelivery ?: 0L }
+                    .sortedWith(
+                        compareByDescending<InfantRegDomain> { it.lastActivityTimestamp() }
+                            .thenByDescending { it.deliveryOutcome.dateOfDelivery ?: 0L }
+                            .thenBy { it.babyIndex }
+                    )
             }
     }
 
@@ -87,7 +91,9 @@ class InfantRegRepo @Inject constructor(
         infantRegDao.getInfantRegFromChildPatientID(childPatientID)
 
     suspend fun saveInfantReg(infantRegCache: InfantRegCache) {
-        upsertInfantReg(infantRegCache)
+        upsertInfantReg(
+            infantRegCache.copy(updatedDate = System.currentTimeMillis())
+        )
     }
 
     suspend fun upsertInfantReg(infantRegCache: InfantRegCache) {
@@ -426,10 +432,9 @@ class InfantRegRepo @Inject constructor(
                     val incoming = networkModel.toCacheModel(
                         motherPatientID = mother.patientID,
                         childPatientID = childPatientID
-                    ).copy(
+                    )                    .copy(
                         processed = "P",
                         syncState = SyncState.SYNCED,
-                        updatedDate = System.currentTimeMillis(),
                         updatedBy = networkModel.updatedBy?.ifBlank { userName } ?: userName
                     )
                     val existing = infantRegDao.getInfantReg(mother.patientID, incoming.babyIndex)

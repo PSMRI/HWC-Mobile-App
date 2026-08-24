@@ -40,6 +40,8 @@ class InfantListFragment : Fragment() {
     private lateinit var adapter: InfantRegistrationAdapter
     private var allInfants: List<InfantRegDomain> = emptyList()
     private var filteredInfants: List<InfantRegDomain> = emptyList()
+    private var recentlySavedMotherPatientId: String? = null
+    private var recentlySavedBabyIndex: Int = -1
 
     private val faceSearchHelper by lazy {
         FaceSearchHelper(
@@ -65,6 +67,7 @@ class InfantListFragment : Fragment() {
         
         setupRecyclerView()
         setupSearch()
+        listenForSavedInfant()
         observeInfants()
     }
 
@@ -87,6 +90,7 @@ class InfantListFragment : Fragment() {
         )
 
         binding.rvInfantList.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvInfantList.isSaveEnabled = false
         binding.rvInfantList.adapter = adapter
     }
 
@@ -100,23 +104,45 @@ class InfantListFragment : Fragment() {
         binding.searchBarInclude.cameraIcon.visibility = View.GONE
     }
 
-    private fun observeInfants() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            infantRegRepo.getListForInfantReg().collectLatest { infantsList: List<InfantRegDomain> ->
-                allInfants = infantsList.sortedWith(
-                    compareBy<InfantRegDomain> { it.isRegistered() }
-                        .thenByDescending {
-                            it.savedIr?.updatedDate
-                                ?: it.savedIr?.createdDate
-                                ?: it.deliveryOutcome.dateOfDelivery
-                                ?: 0L
-                        }
-                        .thenByDescending { it.deliveryOutcome.dateOfDelivery ?: 0L }
-                )
+    private fun listenForSavedInfant() {
+        parentFragmentManager.setFragmentResultListener(
+            RESULT_INFANT_SAVED,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            recentlySavedMotherPatientId = bundle.getString(KEY_MOTHER_PATIENT_ID)
+            recentlySavedBabyIndex = bundle.getInt(KEY_BABY_INDEX, -1)
+            if (allInfants.isNotEmpty()) {
+                allInfants = sortInfants(allInfants)
                 filteredInfants = allInfants
                 updateUI()
             }
         }
+    }
+
+    private fun observeInfants() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            infantRegRepo.getListForInfantReg().collectLatest { infantsList: List<InfantRegDomain> ->
+                allInfants = sortInfants(infantsList)
+                filteredInfants = allInfants
+                updateUI()
+            }
+        }
+    }
+
+    private fun sortInfants(infantsList: List<InfantRegDomain>): List<InfantRegDomain> {
+        return infantsList.sortedWith(
+            compareBy<InfantRegDomain> { infant ->
+                if (isRecentlySaved(infant)) 0 else 1
+            }.thenByDescending { maxOf(it.savedIr?.updatedDate ?: 0L, it.savedIr?.createdDate ?: 0L) }
+                .thenByDescending { it.lastActivityTimestamp() }
+                .thenBy { it.babyIndex }
+        )
+    }
+
+    private fun isRecentlySaved(infant: InfantRegDomain): Boolean {
+        val motherPatientId = recentlySavedMotherPatientId ?: return false
+        return infant.motherPatient.patientID == motherPatientId &&
+                infant.babyIndex == recentlySavedBabyIndex
     }
 
     private fun filterInfants(query: String) {
@@ -132,7 +158,12 @@ class InfantListFragment : Fragment() {
     }
 
     private fun updateUI() {
-        adapter.submitList(filteredInfants)
+        adapter.submitList(null)
+        adapter.submitList(filteredInfants.toList()) {
+            val recyclerView = _binding?.rvInfantList ?: return@submitList
+            (recyclerView.layoutManager as? LinearLayoutManager)
+                ?.scrollToPositionWithOffset(0, 0)
+        }
         updateListUI(
             filteredList = filteredInfants,
             emptyStateView = binding.flEmpty,
@@ -151,5 +182,11 @@ class InfantListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        const val RESULT_INFANT_SAVED = "infant_registration_saved"
+        const val KEY_MOTHER_PATIENT_ID = "motherPatientID"
+        const val KEY_BABY_INDEX = "babyIndex"
     }
 }
