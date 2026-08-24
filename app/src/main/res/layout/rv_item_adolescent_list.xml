@@ -100,12 +100,13 @@
 
                         <TextView
                             android:id="@+id/tv_parent_name"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Not Available"
+                            android:ellipsize="end"
+                            android:maxLines="2"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/black"
-                            tools:text="Parent Name" />
+                            tools:text="Father Name" />
                     </LinearLayout>
 
                     <LinearLayout
