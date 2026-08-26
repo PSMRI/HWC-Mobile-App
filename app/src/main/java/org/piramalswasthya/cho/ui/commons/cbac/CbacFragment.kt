@@ -23,6 +23,7 @@ import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.Gender
 import org.piramalswasthya.cho.ui.commons.CphcFormNavigation
 import org.piramalswasthya.cho.ui.commons.DropdownConst
+import org.piramalswasthya.cho.utils.applySafeDateConstraints
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -388,10 +389,11 @@ class CbacFragment : Fragment() , NavigationAdapter  {
                 thisDay
             )
 
-            datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+            val maxDate = System.currentTimeMillis()
+            datePickerDialog.datePicker.applySafeDateConstraints(null, maxDate)
 
             minDateLiveData?.observe(lifecycleOwner) { minDate ->
-                datePickerDialog.datePicker.minDate = minDate
+                datePickerDialog.datePicker.applySafeDateConstraints(minDate, maxDate)
             }
 
             datePickerDialog.show()

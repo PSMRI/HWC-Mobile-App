@@ -739,23 +739,19 @@ class PersonalDetailsFragment : Fragment() {
     private fun checkAndRequestCameraPermission() {
         if (checkSelfPermission(
                 requireContext(), Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED || checkSelfPermission(
-                requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            // Camera permission is granted, proceed to take a picture
             takePicture()
         } else {
-            // Camera permission is not granted, request it
             requestCameraPermission()
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
     private fun requestCameraPermission() {
-        val permission =
-            arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        permissionLauncher.launch(permission)
+        // Photos are stored in app-specific external files; WRITE_EXTERNAL_STORAGE is ignored
+        // (and denied) on Android 10+, so requesting it would block the camera on API 36.
+        permissionLauncher.launch(arrayOf(Manifest.permission.CAMERA))
     }
 
     @RequiresApi(Build.VERSION_CODES.P)

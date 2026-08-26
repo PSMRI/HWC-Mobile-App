@@ -1,7 +1,7 @@
 package org.piramalswasthya.cho.ui.master_location_settings
 
 import android.os.Bundle
-import android.os.PersistableBundle
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,15 +22,15 @@ class MasterLocationSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityUserMasterLocationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finish()
+            }
+        })
         navHostFragment = supportFragmentManager.findFragmentById(binding.navHostUserLocation.id) as NavHostFragment
         val navController = navHostFragment.navController
         if(savedInstanceState ==  null){
         navController.navigate(R.id.loginSettingsFragmentMaster)}
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        finish()
     }
 
 }

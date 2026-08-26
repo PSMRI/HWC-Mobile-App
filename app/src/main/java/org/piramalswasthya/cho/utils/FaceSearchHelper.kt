@@ -139,14 +139,12 @@ class FaceSearchHelper(
     @RequiresApi(Build.VERSION_CODES.P)
     private fun checkAndRequestCameraPermission() {
         val ctx = fragment.requireContext()
-        if (checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
-            checkSelfPermission(ctx, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        ) {
+        if (checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             takePicture()
         } else {
-            permissionLauncher.launch(
-                arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            )
+            // Photos are stored in app-specific external files; do not request WRITE_EXTERNAL_STORAGE
+            // (denied on Android 10+ and would block the camera when targeting API 36).
+            permissionLauncher.launch(arrayOf(Manifest.permission.CAMERA))
         }
     }
 

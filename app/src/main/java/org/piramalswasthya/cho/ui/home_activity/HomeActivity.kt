@@ -20,6 +20,7 @@ import android.view.View
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -250,7 +251,19 @@ class HomeActivity : AppCompatActivity() {
         (application as CHOApplication).addActivity(this)
         viewModel.init(this)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (supportFragmentManager.backStackEntryCount > 0) {
+                    supportFragmentManager.popBackStack()
+                } else if (!exitAlert.isShowing) {
+                    exitAlert.show()
+                }
+            }
+        })
+
+        // WRITE_EXTERNAL_STORAGE is not grantable on Android 10+ and is omitted from the
+        // manifest above API 28 (scoped storage). Photos/files use app-specific directories.
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE_PERMISSION)
             }
@@ -591,14 +604,6 @@ class HomeActivity : AppCompatActivity() {
             AlarmManager.INTERVAL_DAY,
             pendingIntent
         )
-    }
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            supportFragmentManager.popBackStack()
-        } else {
-            if (!exitAlert.isShowing)
-                exitAlert.show()
-        }
     }
 
     private val exitAlert by lazy {
