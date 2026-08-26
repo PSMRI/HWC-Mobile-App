@@ -183,7 +183,13 @@ class HomeFragment : Fragment() {
             binding.registration.visibility = if (showReg) View.VISIBLE else View.GONE
             binding.registration.isEnabled = showReg
 
-            val showReport = preferenceDao.isDoctorSelected()
+            val hasDoctorRole = preferenceDao.isUserDoctorOrMO()
+            val doctorTabVisible = hasDoctorRole && !preferenceDao.isUserCHO()
+            val showReport = hasDoctorRole && if (doctorTabVisible) {
+                preferenceDao.isDoctorSelected()
+            } else {
+                preferenceDao.isNurseSelected()
+            }
             binding.report.visibility = if (showReport) View.VISIBLE else View.GONE
             binding.report.isEnabled = showReport
         }
