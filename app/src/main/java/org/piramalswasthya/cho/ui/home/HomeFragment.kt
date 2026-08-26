@@ -183,11 +183,15 @@ class HomeFragment : Fragment() {
             binding.registration.visibility = if (showReg) View.VISIBLE else View.GONE
             binding.registration.isEnabled = showReg
 
-            binding.report.visibility = if (showReg) View.GONE else View.VISIBLE
-            binding.report.isEnabled = !showReg
-//            val showReport = preferenceDao.isDoctorSelected()
-//            binding.report.visibility = if (showReport) View.VISIBLE else View.GONE
-//            binding.report.isEnabled = showReport
+            val hasDoctorRole = preferenceDao.isUserDoctorOrMO()
+            val doctorTabVisible = hasDoctorRole && !preferenceDao.isUserCHO()
+            val showReport = hasDoctorRole && if (doctorTabVisible) {
+                preferenceDao.isDoctorSelected()
+            } else {
+                preferenceDao.isNurseSelected()
+            }
+            binding.report.visibility = if (showReport) View.VISIBLE else View.GONE
+            binding.report.isEnabled = showReport
         }
 
         WorkerUtils.totalPercentageCompleted.observe(viewLifecycleOwner){
