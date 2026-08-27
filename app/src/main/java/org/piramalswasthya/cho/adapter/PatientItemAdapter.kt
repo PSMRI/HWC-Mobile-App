@@ -210,6 +210,9 @@ class PatientItemAdapter(
                     item.doctorFlag == 2 || item.doctorFlag == 3 || item.doctorFlag == 9
             binding.prescriptionDownloadBtn.visibility = if (showPrescriptionDownload) View.VISIBLE else View.GONE
 
+            // Green icon on CHO tab cards after the OPD flow is complete and the case is closed.
+            binding.ivFlowCompleted.visibility = if (item.isCaseClosed()) View.VISIBLE else View.GONE
+
             if (item.referTo != null) {
                 binding.referToLl.visibility = View.VISIBLE
                 binding.referDateLl.visibility = View.VISIBLE

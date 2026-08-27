@@ -263,6 +263,16 @@ data class PatientDisplayWithVisitInfo(
     val referTo: String?,
     val referralReason: String?,
 ) : Serializable{
+
+    /**
+     * Case is closed when doctor has closed it and there is no pending medicine dispense.
+     * These cards remain visible only on the CHO tab.
+     */
+    fun isCaseClosed(): Boolean {
+        val pharmacistFlag = pharmacist_flag ?: 0
+        return (doctorFlag ?: 0) == 9 && pharmacistFlag in listOf(0, 9)
+    }
+
     constructor(pat: Patient, vis: PatientVisitInfoSync) : this(
         pat,
         null,

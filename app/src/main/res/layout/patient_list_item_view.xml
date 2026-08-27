@@ -60,7 +60,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        app:layout_constraintEnd_toStartOf="@id/sync_frame_layout"
+                        app:layout_constraintEnd_toStartOf="@id/header_status_icons"
                         app:layout_constraintStart_toStartOf="parent"
                         tools:ignore="MissingConstraints">
 
@@ -82,31 +82,49 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
-                    <FrameLayout
-                        android:id="@+id/sync_frame_layout"
+                    <LinearLayout
+                        android:id="@+id/header_status_icons"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent">
+                        app:layout_constraintTop_toTopOf="parent">
 
-                        <!-- Background cloud -->
                         <ImageView
-                            android:id="@+id/base_image"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:src="@drawable/cloud_sync_ic"
-                            android:scaleType="fitCenter" />
-
-                        <!-- Foreground sync icon -->
-                        <ImageView
-                            android:id="@+id/iv_sync_state"
+                            android:id="@+id/iv_flow_completed"
                             android:layout_width="22dp"
                             android:layout_height="22dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_synced"
-                            android:background="@android:color/transparent"/>
-                    </FrameLayout>
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/flowCompleted"
+                            android:src="@drawable/ic_check_circle_green"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <FrameLayout
+                            android:id="@+id/sync_frame_layout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <!-- Background cloud -->
+                            <ImageView
+                                android:id="@+id/base_image"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/cloud_sync_ic"
+                                android:scaleType="fitCenter" />
+
+                            <!-- Foreground sync icon -->
+                            <ImageView
+                                android:id="@+id/iv_sync_state"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_synced"
+                                android:background="@android:color/transparent"/>
+                        </FrameLayout>
+                    </LinearLayout>
 
 
 
