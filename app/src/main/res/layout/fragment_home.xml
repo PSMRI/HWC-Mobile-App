@@ -118,7 +118,7 @@
         android:visibility="gone"
         android:contentDescription="@string/report_cho"
         android:src="@drawable/ic__assignment"
-        app:layout_constraintBottom_toTopOf="@+id/ll_full_load_progress"
+        app:layout_constraintBottom_toTopOf="@+id/registration"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
