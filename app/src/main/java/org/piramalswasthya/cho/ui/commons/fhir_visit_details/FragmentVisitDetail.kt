@@ -661,6 +661,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                else{
                 val submitDoctorData = Bundle()
                 submitDoctorData.putBoolean("viewRecord", true)
+                submitDoctorData.putBoolean("isFlowComplete", it.isCaseClosed())
                 submitDoctorData.putSerializable("benVisitInfo", it)
 
                 findNavController().navigate(

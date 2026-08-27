@@ -77,7 +77,10 @@ class CHOCaseRecordItemAdapter(
             binding.visitDate.text = visitDateText
 
             val isSelected = item.benVisitNo != null && item.benVisitNo == selectedBenVisitNo
-            binding.visitSelectedIcon.visibility = if (isSelected) View.VISIBLE else View.GONE
+            val isClosed = item.isCaseClosed()
+            binding.ivFlowCompleted.visibility = if (isClosed) View.VISIBLE else View.GONE
+            binding.visitSelectedIcon.visibility =
+                if (isSelected && !isClosed) View.VISIBLE else View.GONE
 
             binding.executePendingBindings()
         }
