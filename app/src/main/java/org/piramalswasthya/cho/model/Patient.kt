@@ -263,6 +263,15 @@ data class PatientDisplayWithVisitInfo(
     val referTo: String?,
     val referralReason: String?,
 ) : Serializable{
+
+    /**
+     * Case is closed when doctor/CHO has closed it and medicine is not pending at pharmacist.
+     * Applies both when there is a separate Doctor tab and when doctor work is done on CHO tab.
+     */
+    fun isCaseClosed(): Boolean {
+        return (doctorFlag ?: 0) == 9 && (pharmacist_flag ?: 0) != 1
+    }
+
     constructor(pat: Patient, vis: PatientVisitInfoSync) : this(
         pat,
         null,

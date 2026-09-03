@@ -21,12 +21,12 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace 'org.piramalswasthya.cho'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "org.piramalswasthya.cho"
         minSdk 24
-        targetSdk 35
+        targetSdk 36
         versionCode buildVersionCode()
         versionName buildVersionName()
 

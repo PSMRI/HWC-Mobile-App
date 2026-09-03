@@ -58,19 +58,13 @@ class DateTimeUtil {
             }, year, month, day
         )
 
-        if (maxDays != null) {
-            // Set max date to the current date
-            val maxCalendar = Calendar.getInstance()
-            maxCalendar.add(Calendar.DAY_OF_YEAR, maxDays)
-            datePickerDialog.datePicker.maxDate = maxCalendar.timeInMillis
+        val maxTime = maxDays?.let {
+            Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, it) }.timeInMillis
         }
-
-        if (minDays != null) {
-            // Set min date to 99 years ago from the current date
-            val minCalendar = Calendar.getInstance()
-            minCalendar.add(Calendar.DAY_OF_YEAR, minDays)
-            datePickerDialog.datePicker.minDate = minCalendar.timeInMillis
+        val minTime = minDays?.let {
+            Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, it) }.timeInMillis
         }
+        datePickerDialog.datePicker.applySafeDateConstraints(minTime, maxTime)
 
         return datePickerDialog
     }

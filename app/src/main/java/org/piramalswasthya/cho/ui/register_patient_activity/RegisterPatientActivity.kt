@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.register_patient_activity
 
 import android.content.Context
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -61,6 +62,11 @@ class RegisterPatientActivity : AppCompatActivity() {
         _binding = ActivityRegisterPatientBinding.inflate(layoutInflater)
         setContentView(binding.root)
         (application as CHOApplication).addActivity(this)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finish()
+            }
+        })
         val photoUriString = intent.getStringExtra("photoUri")
         val faceVector = intent.getFloatArrayExtra("facevector")
         sharedViewModel.setPhotoUri(photoUriString ?: "")
@@ -131,9 +137,6 @@ class RegisterPatientActivity : AppCompatActivity() {
 
     }
 
-    override fun onBackPressed() {
-        finish()
-    }
     override fun onDestroy() {
         super.onDestroy()
         (application as CHOApplication).activityList.remove(this)

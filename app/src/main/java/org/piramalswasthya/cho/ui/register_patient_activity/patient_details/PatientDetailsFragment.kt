@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.register_patient_activity.patient_details
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -183,8 +184,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
     @RequiresApi(Build.VERSION_CODES.P)
     private fun requestCameraPermission() {
-        val permission = arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE )
-        permissionLauncher.launch(permission)
+        // Photos are stored in app-specific external files; WRITE_EXTERNAL_STORAGE is ignored
+        // (and denied) on Android 10+, so requesting it would block the camera on API 36.
+        permissionLauncher.launch(arrayOf(Manifest.permission.CAMERA))
     }
 
     private val takePictureLauncher =
@@ -1320,7 +1322,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
 
     private fun isValidPhoneNumber(phoneNumber: String) {
-        var char = phoneNumber[0]
+        val char = phoneNumber[0]
 
         if(char=='9' || char=='8' || char=='7' || char=='6') {
             if (phoneNumber.length == 10 && phoneNumber.matches(Regex("\\d+"))) {
@@ -1678,7 +1680,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         if (embeddings != null) {
             patient.faceEmbedding = embeddings?.toList()
         }
-        if (binding.phoneNo.text.toString().isNullOrEmpty()) {
+        if (binding.phoneNo.text.toString().isEmpty()) {
             patient.phoneNo = null
         } else {
             patient.phoneNo = binding.phoneNo.text.toString()
@@ -1872,7 +1874,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         val patients = viewModel.getAllPatientsForFaceComparison()
 
-        kotlinx.coroutines.withContext(dispatcherProvider.default) {
+        withContext(dispatcherProvider.default) {
             for (patient in patients) {
                 val patientEmbedding = patient.faceEmbedding?.toFloatArray()
                 if (patientEmbedding == null || patientEmbedding.isEmpty()) {
@@ -1899,6 +1901,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         return kotlin.math.sqrt(sum)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun enableFullBoxClick(dropdown: AutoCompleteTextView) {
         dropdown.setOnTouchListener { _, event ->
             if (dropdown.isEnabled && event.action == MotionEvent.ACTION_UP) {

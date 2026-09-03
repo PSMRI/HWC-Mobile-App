@@ -659,8 +659,9 @@ class FormInputAdapter(
                 item.errorText = null
                 binding.tilEditText.error = null
                 datePickerDialog.datePicker.applySafeDateConstraints(item.min, item.max)
-                if (item.showYearFirstInDatePicker)
-                    datePickerDialog.datePicker.touchables[0].performClick()
+                if (item.showYearFirstInDatePicker) {
+                    datePickerDialog.datePicker.touchables.firstOrNull()?.performClick()
+                }
                 datePickerDialog.show()
             }
             binding.executePendingBindings()

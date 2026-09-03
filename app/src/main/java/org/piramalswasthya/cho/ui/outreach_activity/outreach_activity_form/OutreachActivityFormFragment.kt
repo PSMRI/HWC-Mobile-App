@@ -205,23 +205,18 @@ class OutreachActivityFormFragment : Fragment() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            // Camera permission is granted, proceed to take a picture
             takePicture()
         } else {
-            // Camera permission is not granted, request it
             requestCameraPermission()
         }
     }
 
     private fun requestCameraPermission() {
-        val permission =
-            arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        requestPermissions(permission, 112)
+        // Photos are stored in app-specific external files; WRITE_EXTERNAL_STORAGE is ignored
+        // (and denied) on Android 10+, so requesting it would block the camera on API 36.
+        requestPermissions(arrayOf(Manifest.permission.CAMERA), 112)
     }
 
     private val takePictureLauncher =

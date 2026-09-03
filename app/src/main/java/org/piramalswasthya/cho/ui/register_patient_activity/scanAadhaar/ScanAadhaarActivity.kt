@@ -8,6 +8,7 @@ import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
@@ -20,6 +21,12 @@ class ScanAadhaarActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         scanCode()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finish()
+            }
+        })
 
         // Registering receiver to get Notify once scanning Barcode.
 
@@ -51,11 +58,6 @@ class ScanAadhaarActivity : AppCompatActivity(){
         }
 
 
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        this.finish()
     }
 
     override fun onResume() {
